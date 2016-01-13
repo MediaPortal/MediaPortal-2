@@ -788,7 +788,6 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-
     <Border DockPanel.Dock="Center" Width="72" Height="71.5" BorderThickness="0" Margin="0">
       <Border.Background>
         <SolidColorBrush Color="#0066CC"/>
@@ -802,7 +801,6 @@
       </Image.Source>
     </Image>
     </Border>
-
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
@@ -870,19 +868,23 @@
   </Style>
 
   <!-- Player control styles -->
-
   <ControlTemplate x:Key="PlayerControlPoster">
-    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" Margin="10,10,10,10"
-          Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}">
-        <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" 
-                Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="UniformToFill" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
-        </Image>
+    <Grid x:Name="CoverGridContainer" IsVisible="{Binding ElementName=ItemTypeImage,Path=HasImage}" Margin="10,10,10,10">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+      </Grid.ColumnDefinitions>
+      <Border Background="#888888" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" />
+      <Image  x:Name="ItemTypeImage" HorizontalAlignment="Center" VerticalAlignment="Center" 
+              Stretch="Uniform" FallbackSource="VideoLarge.png" Source="{Binding MediaItem}">
+      </Image>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="PlayerControlButtons">
     <Grid HorizontalAlignment="Center" Margin="0">
-
       <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="True" Margin="10,0,10,0" Height="30">
         <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSkipBack}"
               Command="{Command Previous}"/>
@@ -899,7 +901,6 @@
         <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardDarkButtonStyle}" Margin="{ThemeResource PlayerControlHomeButtonMargins}" IsVisible="{Binding CanSkipForward}"
               Command="{Command Next}"/>
       </StackPanel>
-
     </Grid>
 
   </ControlTemplate>
@@ -944,7 +945,6 @@
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-
         <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.ColumnSpan="3" Color="{ThemeResource PlayerControlMediaItemColor}" FontSize="{ThemeResource SmallFontSize}"
             Content="{Binding MediaItemTitle}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Scroll="Auto"
             Margin="0,0,0,0">
@@ -954,7 +954,6 @@
             </DataTrigger>
           </Label.Triggers>
         </Label>
-
         <Label x:Name="CurrentPositionLabel" Grid.Row="1" Grid.Column="0" Color="{ThemeResource PlayerControlMediaItemColor}"
             FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding IsPlayerPresent}" HorizontalAlignment="Left"
             Content="{Binding CurrentTime}"
@@ -965,7 +964,6 @@
             </DataTrigger>
           </Label.Triggers>
         </Label>
-
         <Label x:Name="DurationLabel" Grid.Row="1" Grid.Column="3" Color="{ThemeResource PlayerControlMediaItemColor}"
             FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding IsPlayerPresent}" HorizontalAlignment="Right"
             Content="{Binding Duration}">
@@ -975,13 +973,11 @@
             </DataTrigger>
           </Label.Triggers>
         </Label>
-
         <ProgressBar x:Name="ProgressBar" Grid.ColumnSpan="3" Grid.Row="2" Height="22" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
                 Style="{ThemeResource PlayerControlsProgressBarStyle}"
                 Value="{Binding Path=PercentPlayed}" IsVisible="{Binding IsPlayerPresent}" />
 
         <Control Template="{ThemeResource PlayerControlButtons}" Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Center"/>
-
       </Grid>
     </StackPanel>
   </ControlTemplate>
@@ -1009,15 +1005,10 @@
             <Rectangle x:Name="PCBackground" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                        Fill="{ThemeResource PlayerControlBackgroundColor}">
             </Rectangle>
-
             <Control Template="{ThemeResource PlayerControlPoster}" Grid.Row="0" Grid.Column="0" />
-
             <Control Template="{ThemeResource PlayerControlVideoSecondary}" Grid.Column="1" Grid.ColumnSpan="1" />
-
             <Control Template="{ThemeResource PlayerControlMediaInfo}"  Grid.Row="0" Grid.Column="2" />
-
           </Grid>
-
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Setter TargetName="PCBackground" Property="Fill" Value="{ThemeResource CurrentPlayerControlBackgroundColor1}"/>

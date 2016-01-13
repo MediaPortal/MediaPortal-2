@@ -82,13 +82,6 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
   
-  <Storyboard x:Key="FocusedTabStoryboard" FillBehavior="HoldEnd">
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.15"/>
-    </DoubleAnimationUsingKeyFrames>
-  </Storyboard>
-
   <Storyboard x:Key="FocusedButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
@@ -1102,9 +1095,15 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="0.50">
+          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="0.5" >
             <Border.Background>
-              <SolidColorBrush Color="#666666"/>
+              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                <LinearGradientBrush.GradientStops>
+                  <GradientStop Color="#666666" Offset="0"  />
+                  <GradientStop Color="#666666" Offset="0.95"  />
+                  <GradientStop Color="#00666666" Offset="1"  />
+                </LinearGradientBrush.GradientStops>
+              </LinearGradientBrush>
             </Border.Background>
           </Border>
         </ControlTemplate>
@@ -1132,35 +1131,11 @@
             </Grid.RenderTransform>
           </Grid>
           <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <!--Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.2"/-->
-              <!--Setter Property="Foreground" Value="White"/-->
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedTabStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.9"/>
-              <!--Setter Property="Foreground" Value="White"/-->
               <Trigger.EnterActions>
-                <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"/-->
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
