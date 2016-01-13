@@ -110,7 +110,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Local", "UI\F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.TMDB", "UI\FanArt\FanArtService.TMDB\FanArtService.TMDB.csproj", "{92CA1D17-632A-4C23-B7AE-1F092CEABD78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
 EndProject
@@ -124,12 +124,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service35", "UI\TV\S
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspNet", "AspNet", "{0E0D4BF3-204A-4B04-B26C-FE1B2EDF2ECB}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetServer", "..\Incubator\AspNetServer\AspNetServer.xproj", "{AD5A7513-8827-4436-B09B-1B177AC52904}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetServer", "Incubator\AspNetServer\AspNetServer.xproj", "{AD5A7513-8827-4436-B09B-1B177AC52904}"
 	ProjectSection(ProjectDependencies) = postProject
 		{ECF060E7-CAA1-4466-851F-F80B857641EA} = {ECF060E7-CAA1-4466-851F-F80B857641EA}
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetServerSample", "..\Incubator\AspNetServerSample\AspNetServerSample.xproj", "{174707BF-4867-4607-89C7-73FE25432E76}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetServerSample", "Incubator\AspNetServerSample\AspNetServerSample.xproj", "{174707BF-4867-4607-89C7-73FE25432E76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
