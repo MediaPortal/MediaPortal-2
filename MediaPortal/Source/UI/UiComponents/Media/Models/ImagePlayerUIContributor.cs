@@ -65,7 +65,23 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Constructor
 
     public ImagePlayerUIContributor() : base(true, 300)
-    {}
+    {
+      _transitionDurationProperty = new WProperty(typeof(double), 2d);
+      _imageWidthProperty = new WProperty(typeof(int), null);
+      _imageHeightProperty = new WProperty(typeof(int), null);
+      _cameraMakeProperty = new WProperty(typeof(string), string.Empty);
+      _cameraModelProperty = new WProperty(typeof(string), string.Empty);
+      _imageExposureBiasProperty = new WProperty(typeof(double), null);
+      _imageExposureTimeProperty = new WProperty(typeof(string), string.Empty);
+      _imageFlashModeProperty = new WProperty(typeof(string), string.Empty);
+      _imageFNumberProperty = new WProperty(typeof(string), string.Empty);
+      _imageDimensionsProperty = new WProperty(typeof(string), string.Empty);
+      _imageISOSpeedProperty = new WProperty(typeof(string), string.Empty);
+      _imageMeteringModeProperty = new WProperty(typeof(string), string.Empty);
+      _imageCountryProperty = new WProperty(typeof(string), string.Empty);
+      _imageStateProperty = new WProperty(typeof(string), string.Empty);
+      _imageCityProperty = new WProperty(typeof(string), string.Empty);
+    }
 
     #endregion
 
@@ -276,22 +292,6 @@ namespace MediaPortal.UiComponents.Media.Models
       _playerContext = stateType == MediaWorkflowStateType.CurrentlyPlaying ? PlayerChoice.CurrentPlayer : PlayerChoice.PrimaryPlayer;
       _mediaWorkflowStateType = stateType;
       _player = player as IImagePlayer;
-
-      _transitionDurationProperty = new WProperty(typeof(double), 2d);
-      _imageWidthProperty = new WProperty(typeof(int), null);
-      _imageHeightProperty = new WProperty(typeof(int), null);
-      _cameraMakeProperty = new WProperty(typeof(string), string.Empty);
-      _cameraModelProperty = new WProperty(typeof(string), string.Empty);
-      _imageExposureBiasProperty = new WProperty(typeof(double), null);
-      _imageExposureTimeProperty = new WProperty(typeof(string), string.Empty);
-      _imageFlashModeProperty = new WProperty(typeof(string), string.Empty);
-      _imageFNumberProperty = new WProperty(typeof(string), string.Empty);
-      _imageDimensionsProperty = new WProperty(typeof(string), string.Empty);
-      _imageISOSpeedProperty = new WProperty(typeof(string), string.Empty);
-      _imageMeteringModeProperty = new WProperty(typeof(string), string.Empty);
-      _imageCountryProperty = new WProperty(typeof(string), string.Empty);
-      _imageStateProperty = new WProperty(typeof(string), string.Empty);
-      _imageCityProperty = new WProperty(typeof(string), string.Empty);
     }
 
     #endregion
