@@ -1,0 +1,28 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="AspNetServerSample"
+    PluginId="{f1c8ce41-d5bf-4f07-8acb-6c70272595c9}"
+    Author="MJGraf"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="MP2 Webinterface">
+
+  <Version
+    PluginVersion="0.01"
+    ReleaseDate="2015-12-27 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <PluginReference PluginId="{F2F6988F-C436-4D74-9819-3947E0DD6974}" CompatibleAPI="1"/> <!-- AspNetServer -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="MP2Web.dll"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="MP2WebService" RegistrationClassName="MediaPortal.Plugins.MP2Web.MP2WebService"
+        ServiceClassName="MediaPortal.Plugins.MP2Web.MP2WebService"/>
+  </Register>
+</Plugin>

@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -132,6 +132,8 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetServerSample", "Incubator\AspNetServerSample\AspNetServerSample.xproj", "{174707BF-4867-4607-89C7-73FE25432E76}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AspNetWebApi", "Incubator\AspNetWebApi\AspNetWebApi.xproj", "{1B150421-7F3D-47AD-9C69-A22FC7F3E1A3}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MP2Web", "Incubator\MP2Web\MP2Web.xproj", "{1A6289DE-7A56-4A67-9DC1-73C23378D38C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -427,6 +429,14 @@ Global
 		{1B150421-7F3D-47AD-9C69-A22FC7F3E1A3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1B150421-7F3D-47AD-9C69-A22FC7F3E1A3}.Release|x86.ActiveCfg = Release|Any CPU
 		{1B150421-7F3D-47AD-9C69-A22FC7F3E1A3}.Release|x86.Build.0 = Release|Any CPU
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C}.Debug|x86.Build.0 = Debug|Any CPU
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C}.Release|x86.ActiveCfg = Release|Any CPU
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -491,5 +501,6 @@ Global
 		{AD5A7513-8827-4436-B09B-1B177AC52904} = {0E0D4BF3-204A-4B04-B26C-FE1B2EDF2ECB}
 		{174707BF-4867-4607-89C7-73FE25432E76} = {0E0D4BF3-204A-4B04-B26C-FE1B2EDF2ECB}
 		{1B150421-7F3D-47AD-9C69-A22FC7F3E1A3} = {0E0D4BF3-204A-4B04-B26C-FE1B2EDF2ECB}
+		{1A6289DE-7A56-4A67-9DC1-73C23378D38C} = {0E0D4BF3-204A-4B04-B26C-FE1B2EDF2ECB}
 	EndGlobalSection
 EndGlobal

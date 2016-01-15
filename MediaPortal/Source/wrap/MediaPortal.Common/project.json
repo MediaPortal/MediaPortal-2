@@ -12,7 +12,8 @@
         "HttpServer": "1.0.0-*",
         "MediaPortal.Utilities": "1.0.0-*",
         "UPnP": "1.0.0-*",
-        "log4net": "1.0.0-*"
+        "log4net": "1.0.0-*",
+        "System.Threading.Tasks.Dataflow": "1.0.0-*"
       }
     }
   }
