@@ -41,6 +41,8 @@
       <References Include="$(TargetDir)approot\packages\System.Reflection.Primitives\**\ref\dotnet\*.dll"/>
       <References Include="$(TargetDir)approot\packages\System.Text.Encoding.Extensions\**\ref\dotnet\*.dll"/>
       <References Include="$(TargetDir)approot\packages\System.Runtime.Extensions\**\ref\dotnet\*.dll"/>
+      <!--Newtonsoft Json-->
+      <References Include="$(TargetDir)approot\packages\Newtonsoft.Json\**\lib\net45\*.dll"/>
     </ItemGroup>
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
