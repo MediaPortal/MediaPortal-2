@@ -784,7 +784,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="8" Opacity="0.6">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="5,8,5,8" Opacity="0.6">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -835,7 +835,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" Margin="8" Opacity="0.6">
+          <Grid x:Name="GrowControl" Margin="5,8,5,8" Opacity="0.6">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
