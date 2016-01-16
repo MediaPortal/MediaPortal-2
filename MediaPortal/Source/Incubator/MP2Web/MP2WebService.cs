@@ -42,6 +42,8 @@ namespace MediaPortal.Plugins.MP2Web
     private const string WEB_APPLICATION_NAME = "MP2WebApp";
     private const int PORT = 8080;
     private const string BASE_PATH = "/";
+    private static readonly Assembly ASS = Assembly.GetExecutingAssembly();
+    internal static readonly string ASSEMBLY_PATH = Path.GetDirectoryName(ASS.Location);
 
     #endregion
 
@@ -62,6 +64,13 @@ namespace MediaPortal.Plugins.MP2Web
         },
         configureApp: app =>
         {
+          // Add static files to the request pipeline.
+          string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "wwwroot").TrimEnd(Path.DirectorySeparatorChar);
+          app.UseStaticFiles(new StaticFileOptions
+          {
+            FileProvider = new PhysicalFileProvider(resourcePathWww),
+            RequestPath = new PathString("")
+          });
           app.UseMvc();
           app.Run(context => context.Response.WriteAsync("Hello MP2Web"));
         },
