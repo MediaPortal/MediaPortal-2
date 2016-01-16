@@ -138,10 +138,10 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="0" Content="{Binding SimpleTitle}" Color="Black"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="15,25,15,25" />
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
-           Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,-3,45,25" />
+      <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
+           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25"/>
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+           Color="Black" FontSize="{ThemeResource TinyFontSize}" Margin="15,0,25,25" />
     </Grid>
   </ControlTemplate>
 
@@ -245,10 +245,10 @@
           </MultiBinding>
         </Image.Opacity>
       </Image>
-      <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="Black"
+      <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
            FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
-           Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="15,0,25,25" />
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+           Color="Black" FontSize="{ThemeResource TinyFontSize}" Margin="15,0,25,25" />
     </Grid>
   </ControlTemplate>
 
