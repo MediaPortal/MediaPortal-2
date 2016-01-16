@@ -10,7 +10,7 @@
   Margin="{ThemeResource MultiDetailsFooterMargin}">
 
   <Grid.RowDefinitions>
-    <RowDefinition Height="{ThemeResource MultiDetailsFooterHeight}"/>
+    <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>

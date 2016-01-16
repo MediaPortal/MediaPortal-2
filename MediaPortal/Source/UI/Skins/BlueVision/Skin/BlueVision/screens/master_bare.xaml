@@ -180,7 +180,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <Image Source="shadow_bottom.png" Margin="-115,0,-115,0" Grid.Row="3" VerticalAlignment="Top" />
 
-    <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top">
+    <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top" Height="{ThemeResource MultiDetailsFooterHeight}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
