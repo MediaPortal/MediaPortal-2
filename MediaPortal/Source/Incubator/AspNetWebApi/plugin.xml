@@ -1,0 +1,28 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="AspNetWebApi"
+    PluginId="{843291BB-CD86-4DCA-A6D9-2D89BA4B113A}"
+    Author="MJGraf"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Web Api for MP2 exposing the main services of MP2">
+
+  <Version
+    PluginVersion="0.01"
+    ReleaseDate="2016-01-13 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <PluginReference PluginId="{F2F6988F-C436-4D74-9819-3947E0DD6974}" CompatibleAPI="1"/> <!-- AspNetServer -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="AspNetWebApi.dll"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Service Id="AspNetWebApiService" RegistrationClassName="MediaPortal.Plugins.AspNetWebApi.AspNetWebApiService"
+        ServiceClassName="MediaPortal.Plugins.AspNetWebApi.AspNetWebApiService"/>
+  </Register>
+</Plugin>
