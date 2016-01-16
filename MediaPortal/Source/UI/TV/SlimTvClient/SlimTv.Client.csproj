@@ -116,11 +116,13 @@
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />
+    <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
     <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
     <Compile Include="Models\Navigation\RecordingItem.cs" />
     <Compile Include="Models\RecordingsAction.cs" />
     <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />
+    <Compile Include="Models\ScreenData\RecordingsShowItemsScreenData.cs" />
     <Compile Include="Models\SlimTvProgramSearchModel.cs" />
     <Compile Include="Models\SlimTvGuideExtScheduleModel.cs" />
     <Compile Include="Models\SlimTvModelBase.cs" />
@@ -150,6 +152,7 @@
     <Compile Include="TvHandler\TimeshiftContext.cs" />
     <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
     <Content Include="Skin\ApolloOne\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\BlueVision\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\ProgramInfo.inc" />
@@ -374,6 +377,11 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\RecordingsShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

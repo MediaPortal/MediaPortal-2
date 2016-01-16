@@ -70,6 +70,10 @@
       <Project>{455e7d70-1c85-4d7f-9f01-dc801b8b8c34}</Project>
       <Name>UPnP</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj">
+      <Project>{BD0AD1E7-48A9-404E-9C82-291CE3B41657}</Project>
+      <Name>Tve3RecordingMetadataExtractor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
