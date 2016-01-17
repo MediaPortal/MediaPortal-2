@@ -34,28 +34,60 @@ using Microsoft.Extensions.Logging;
 
 namespace MediaPortal.Plugins.AspNetWebApi.Controllers
 {
+  /// <summary>
+  /// Helper class to validate parameters received from a WebApi request
+  /// </summary>
+  /// <remarks>
+  /// All public methods of this class throw a <see cref="HttpException"/> with <see cref="HttpStatusCode.BadRequest"/>
+  /// if the validation of the respective parameters fails.
+  /// </remarks>
   public static class ParameterValidator
   {
-    public static readonly ICollection<Guid> LOCALLY_KNOWN_MIA_IDS = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().LocallyKnownMediaItemAspectTypes.Keys;
-    public static readonly IDictionary<Guid, MediaItemAspectMetadata> LOCALLY_KNOWN_MIAS = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().LocallyKnownMediaItemAspectTypes;
+    #region Public methods
 
+    /// <summary>
+    /// Validates MediaItemAspectId parameters
+    /// </summary>
+    /// <param name="necessaryMiaIds">Required MediaItemAspectIds</param>
+    /// <param name="optionalMiaIds">Optional MediaItemAspectIds</param>
+    /// <param name="logger"><see cref="ILogger"/> used to log warnings and debug information</param>
+    /// <remarks>
+    /// - Checks if the given <paramref name="necessaryMiaIds"/> and <paramref name="optionalMiaIds"/> exist in the local <see cref="IMediaItemAspectTypeRegistration"/>.
+    /// - Additionally, if no <paramref name="optionalMiaIds"/> are given, sets the <paramref name="optionalMiaIds"/> to all locally known MiaIds except
+    ///   those requested as <paramref name="necessaryMiaIds"/>.
+    /// - If <paramref name="necessaryMiaIds"/> or <paramref name="optionalMiaIds"/> are <c>null</c>, they are set to an empty array.
+    /// </remarks>
     public static void ValidateMiaIds(ref Guid[] necessaryMiaIds, ref Guid[] optionalMiaIds, ILogger logger = null)
     {
       necessaryMiaIds = necessaryMiaIds ?? new Guid[0];
       optionalMiaIds = optionalMiaIds ?? new Guid[0];
+      var locallyKnownMiaIds = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().LocallyKnownMediaItemAspectTypes.Keys;
 
-      var unknownMiaIds = necessaryMiaIds.Except(LOCALLY_KNOWN_MIA_IDS).ToList();
+      var unknownMiaIds = necessaryMiaIds.Except(locallyKnownMiaIds).ToList();
       if (unknownMiaIds.Any())
         NotifyBadQueryString("necessaryMiaÍds contained the following unknown MIA IDs", string.Join(",", unknownMiaIds), logger);
 
-      unknownMiaIds = optionalMiaIds.Except(LOCALLY_KNOWN_MIA_IDS).ToList();
+      unknownMiaIds = optionalMiaIds.Except(locallyKnownMiaIds).ToList();
       if (unknownMiaIds.Any())
         NotifyBadQueryString("optionalMiaIds contained the following unknown MIA IDs", string.Join(",", unknownMiaIds), logger);
 
       if (!optionalMiaIds.Any())
-        optionalMiaIds = LOCALLY_KNOWN_MIA_IDS.Except(necessaryMiaIds).ToArray();
+        optionalMiaIds = locallyKnownMiaIds.Except(necessaryMiaIds).ToArray();
     }
 
+    /// <summary>
+    /// Parses <paramref name="sortInformationStrings"/>, validates them and returns a list of parsed <see cref="SortInformation"/> objects
+    /// </summary>
+    /// <param name="sortInformationStrings">Array of strings each representing a <see cref="SortInformation"/> object</param>
+    /// <param name="logger"><see cref="ILogger"/> used to log warnings and debug information</param>
+    /// <returns>A list of parsed <see cref="SortInformation"/> objects</returns>
+    /// <remarks>
+    /// A sortInformationString has the form "[MediaItemAspectId].[AttributeName].[SortDirection]".
+    /// [SortDirection] can be "Ascending" or "Descending". The ".[SortDirection]" part is optional; if omitted, "Ascending" is assumed.
+    /// </remarks>
+    /// <example>
+    /// "493f2b3b-8025-4db1-80dc-c3cd39683c9f.Album.Descending" sorts by the AudioAspect's Album Attribute in a descending way.
+    /// </example>
     public static List<SortInformation> ValidateSortInformation(string[] sortInformationStrings, ILogger logger = null)
     {
       sortInformationStrings = sortInformationStrings ?? new string[0];
@@ -79,6 +111,14 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
       return result;
     }
 
+    /// <summary>
+    /// Parses an <paramref name="attributeString"/>, validates it and returns the corresponding <see cref="MediaItemAspectMetadata.AttributeSpecification"/>
+    /// </summary>
+    /// <param name="attributeString">A string representing an Attribute</param>
+    /// <param name="logger"><see cref="ILogger"/> used to log warnings and debug information</param>
+    /// <returns>A parsed <see cref="MediaItemAspectMetadata.AttributeSpecification"/> object</returns>
+    /// <remarks>An attributeString has the form "[MediaItemAspectId].[AttributeName]"</remarks>
+    /// <example>"493f2b3b-8025-4db1-80dc-c3cd39683c9f.Album" represents the Album Attribute of the AudioAspect</example>
     public static MediaItemAspectMetadata.AttributeSpecification ValidateAttribute(string attributeString, ILogger logger = null)
     {
       attributeString = attributeString ?? string.Empty;
@@ -90,10 +130,12 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
       Guid miaId;
       if (!Guid.TryParse(subStrings[0], out miaId))
         NotifyBadQueryString("Invalid MIA Id in Attribute", attributeString, logger);
-      if (!LOCALLY_KNOWN_MIA_IDS.Contains(miaId))
+
+      var locallyKnownMias = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().LocallyKnownMediaItemAspectTypes;
+      if (!locallyKnownMias.ContainsKey(miaId))
         NotifyBadQueryString("Unknown MIA Id in Attribute", attributeString, logger);
 
-      var miam = LOCALLY_KNOWN_MIAS[miaId];
+      var miam = locallyKnownMias[miaId];
       MediaItemAspectMetadata.AttributeSpecification result;
       if (!miam.AttributeSpecifications.TryGetValue(subStrings[1], out result))
         NotifyBadQueryString("Unknown AttributeName", attributeString, logger);
@@ -101,12 +143,23 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
       return result;
     }
 
-    public static void NotifyBadQueryString(string message, string parameter, ILogger logger)
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Logs a warning about a bad parameter and throws a BadRequest-Exception.
+    /// </summary>
+    /// <param name="message">Information about what is wrong with the parameter</param>
+    /// <param name="parameter">Parameter that is wrong</param>
+    /// <param name="logger"><see cref="ILogger"/> used to log the warning</param>
+    private static void NotifyBadQueryString(string message, string parameter, ILogger logger)
     {
       var fullMessage = $"Bad QueryString: {message} ('{parameter}')";
       logger?.LogWarning(fullMessage);
       throw new HttpException(HttpStatusCode.BadRequest, fullMessage);
     }
 
+    #endregion
   }
 }
