@@ -14,6 +14,9 @@
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <!-- NfoMetadataExtractors - this is a workaround to have Newtonsoft.Json.dll loaded -->
+    <!-- We need to make Newtonsoft.Json.dll a separate plugin and reference it here -->
+    <PluginReference PluginId="{2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5}" CompatibleAPI="1"/>
   </DependsOn>
 
   <Runtime>
