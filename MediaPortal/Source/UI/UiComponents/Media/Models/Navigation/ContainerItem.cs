@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -43,6 +44,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return (int?) AdditionalProperties[Consts.KEY_NUM_ITEMS]; }
       set { AdditionalProperties[Consts.KEY_NUM_ITEMS] = value; }
+    }
+
+    public MediaItem FirstMediaItem
+    {
+      get { return (MediaItem)AdditionalProperties[Consts.KEY_MEDIA_ITEM]; }
+      set { AdditionalProperties[Consts.KEY_MEDIA_ITEM] = value; }
     }
   }
 }
