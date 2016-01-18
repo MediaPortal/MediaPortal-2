@@ -40,7 +40,13 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public ViewItem(View view, string overrideName, int? absNumItems) : base(absNumItems)
     {
       SimpleTitle = string.IsNullOrEmpty(overrideName) ? view.DisplayName : overrideName;
-      FirstMediaItem = view.MediaItems.FirstOrDefault();
+      var itemCount = view.MediaItems.Count;
+      if (itemCount > 0)
+      {
+        FirstMediaItem = view.MediaItems.FirstOrDefault();
+        if (!NumItems.HasValue)
+          NumItems = itemCount;
+      }
     }
   }
 }
