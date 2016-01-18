@@ -40,7 +40,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
   public class LocalFanartProvider : IFanArtProvider
   {
     private readonly static Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID };
-    private readonly static List<String> EXTENSIONS = new List<string> { ".jpg", ".png", ".tbn" };
+    private readonly static ICollection<String> EXTENSIONS = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".png", ".tbn" };
 
     /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
@@ -82,6 +82,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         var mediaItemPath = mediaIteamLocator.NativeResourcePath;
         var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
         var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString());
+        var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
 
         using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
         {
@@ -94,7 +95,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                where potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension ||
+                where /* Allow same file name only for non-images, otherwise each image would be its own thumbnail */
+                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) || 
                       potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "-poster" ||
                       potentialFanArtFileNameWithoutExtension == "folder"
                 select potentialFanArtFile);
