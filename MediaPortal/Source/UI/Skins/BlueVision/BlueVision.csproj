@@ -76,6 +76,7 @@
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\GridListView.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
+    <Compile Include="Models\PowerMenuModel.cs" />
     <Compile Include="Models\SetupModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\MenuSettingsConfiguration.cs" />
@@ -711,6 +712,10 @@
     <ProjectReference Include="..\..\Input\MceRemoteReceiver\MceRemoteReceiver.csproj">
       <Project>{AA23A7F2-8B6D-4C0C-8FAD-F2F58E3F8B08}</Project>
       <Name>MceRemoteReceiver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\SystemStateMenu\SystemStateMenu.csproj">
+      <Project>{8e94a59d-33a0-4aeb-830d-24304a63ef23}</Project>
+      <Name>SystemStateMenu</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
