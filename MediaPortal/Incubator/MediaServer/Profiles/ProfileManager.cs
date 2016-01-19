@@ -211,23 +211,23 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
             if (headers["remote_addr"] != null)
             {
               IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
-              if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(profile.Value.ID));
+              if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), profile.Value.ID));
               return ProfileLinks[ip];
             }
-            return GetEndPointSettings(profile.Value.ID);
+            return GetEndPointSettings(profile.Key, profile.Value.ID);
           }
         }
       }
 
-      // nop match => return Defaul Profile
+      // no match => return Defaul Profile
       Logger.Info("DetectProfile: No profile found => using {0}, headers={1}", DLNA_DEFAULT_PROFILE_ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
       if (headers["remote_addr"] != null)
       {
         IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
-        if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(DLNA_DEFAULT_PROFILE_ID));
+        if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
         return ProfileLinks[ip];
       }
-      return GetEndPointSettings(DLNA_DEFAULT_PROFILE_ID);
+      return GetEndPointSettings(headers["remote_addr"], DLNA_DEFAULT_PROFILE_ID);
     }
 
     public static void LoadProfiles(bool userProfiles)
@@ -1126,7 +1126,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       iTrans = iList;
     }
 
-    public static EndPointSettings GetEndPointSettings(string profileId)
+    public static EndPointSettings GetEndPointSettings(string clientIp, string profileId)
     {
       EndPointSettings settings = new EndPointSettings
       {
@@ -1149,6 +1149,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
         }
 
+        settings.ClientId = "DLNA_" + clientIp;
         settings.InitialiseContainerTree();
       }
       catch (Exception e)
@@ -1208,6 +1209,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
             settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
           }
 
+          settings.ClientId = "DLNA_" + ip.ToString();
           settings.InitialiseContainerTree();
           if (settings.Profile == null)
             Logger.Info("DlnaMediaServer: IP: {0}, using profile: None", ip);

@@ -61,7 +61,6 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
     private string _serverOsVersion = null;
     private string _product = null;
     private Dictionary<string, Guid> _lastMediaItem = new Dictionary<string, Guid>();
-    private Dictionary<string, Dictionary<string, List<TranscodeContext>>> _currentClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
 
     protected enum StreamMode
     {
@@ -336,19 +335,19 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         #region Determine profile
 
         EndPointSettings deviceClient = null;
-        string clientId = request.Headers["remote_addr"];
-        if (clientId == null)
+        string clientIp = request.Headers["remote_addr"];
+        if (clientIp == null)
         {
-          clientId = "noip";
+          clientIp = "noip";
         }
 
         deviceClient = ProfileManager.DetectProfile(request.Headers);
         if (deviceClient == null || deviceClient.Profile == null)
         {
-          Logger.Warn("DlnaResourceAccessModule: Client {0} has no valid link or profile", clientId);
+          Logger.Warn("DlnaResourceAccessModule: Client {0} has no valid link or profile", clientIp);
           return false;
         }
-        Logger.Debug("DlnaResourceAccessModule: Using profile {0} for client {1}", deviceClient.Profile.Name, clientId);
+        Logger.Debug("DlnaResourceAccessModule: Using profile {0} for client {1}", deviceClient.Profile.Name, clientIp);
         GenericAccessProtocol protocolResource = GenericAccessProtocol.GetProtocolResourceHandler(deviceClient.Profile.ResourceAccessHandler);
 
         #endregion
@@ -390,18 +389,18 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
           lock (_lastMediaItem)
           {
-            if (_lastMediaItem.ContainsKey(clientId) == false)
+            if (_lastMediaItem.ContainsKey(deviceClient.ClientId) == false)
             {
-              _lastMediaItem.Add(clientId, Guid.Empty);
+              _lastMediaItem.Add(deviceClient.ClientId, Guid.Empty);
             }
 
             if (!DlnaResourceAccessUtils.ParseMediaItem(uri, out mediaItemGuid))
             {
-              if (_lastMediaItem[clientId] == Guid.Empty)
+              if (_lastMediaItem[deviceClient.ClientId] == Guid.Empty)
               {
                 throw new BadRequestException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
               }
-              mediaItemGuid = _lastMediaItem[clientId];
+              mediaItemGuid = _lastMediaItem[deviceClient.ClientId];
               Logger.Debug("DlnaResourceAccessModule: Attempting to reload last mediaitem {0}", mediaItemGuid.ToString());
             }
             else
@@ -432,7 +431,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             throw new BadRequestException(string.Format("DLNA media item '{0}' not found.", mediaItemGuid));
           lock (_lastMediaItem)
           {
-            _lastMediaItem[clientId] = mediaItemGuid;
+            _lastMediaItem[deviceClient.ClientId] = mediaItemGuid;
           }
 
           #endregion
@@ -514,7 +513,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             bHandled = true;
             if (dlnaItem.IsTranscoded)
             {
-              using (var subStream = MediaConverter.GetSubtitleStream((VideoTranscoding)dlnaItem.TranscodingParameter))
+              using (var subStream = MediaConverter.GetSubtitleStream(deviceClient.ClientId, (VideoTranscoding)dlnaItem.TranscodingParameter))
               {
                 response.ContentType = ((VideoTranscoding)dlnaItem.TranscodingParameter).TargetSubtitleMime;
                 if (subStream != null)
@@ -526,7 +525,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             }
             else
             {
-              using (var subStream = MediaConverter.GetSubtitleStream((VideoTranscoding)dlnaItem.SubtitleTranscodingParameter))
+              using (var subStream = MediaConverter.GetSubtitleStream(deviceClient.ClientId, (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter))
               {
                 response.ContentType = ((VideoTranscoding)dlnaItem.SubtitleTranscodingParameter).TargetSubtitleMime;
                 if (subStream != null)
@@ -619,6 +618,8 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             }
 
             Stream resourceStream = null;
+            double hlsStartRequest = 0;
+            string hlsFileRequest = null;
 
             #region Check for HLS segment
 
@@ -626,28 +627,13 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             if (resourceStream == null && dlnaItem.IsSegmented)
             {
               int startIndex = request.Uri.AbsoluteUri.LastIndexOf("/") + 1;
-              string fileName = request.Uri.AbsoluteUri.Substring(startIndex);
-              string mime = MediaConverter.GetHlsFileMime(fileName);
-              segmentNumber = MediaConverter.GetHlsSegmentSequence(fileName);
-              if (string.IsNullOrEmpty(mime) == false)
+              hlsFileRequest = request.Uri.AbsoluteUri.Substring(startIndex);
+              if (GetHlsSegment(hlsFileRequest, dlnaItem, response, ref resourceStream) == true)
               {
-                string segmentFile = Path.Combine(dlnaItem.SegmentDir, fileName);
-                if (File.Exists(segmentFile) == true)
-                {
-                  resourceStream = MediaConverter.GetReadyFileBuffer(segmentFile);
-                  response.ContentType = mime;
-                }
-                else
-                {
-                  Logger.Error("DlnaResourceAccessModule: Unable to find segment file {0}", fileName);
-
-                  response.Status = HttpStatusCode.InternalServerError;
-                  response.Chunked = false;
-                  response.ContentLength = 0;
-                  response.ContentType = null;
-                  Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
-                  return true;
-                }
+              }
+              else if (MediaConverter.GetSegmentSequence(hlsFileRequest) > 0)
+              {
+                hlsStartRequest = MediaConverter.GetSegmentSequence(hlsFileRequest) * MediaConverter.HLSSegmentTimeInSeconds;
               }
             }
 
@@ -737,7 +723,14 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             }
             if (timeRange == null)
             {
-              timeRange = new Range(0, 0);
+              if (hlsStartRequest > 0)
+              {
+                timeRange = new Range(Convert.ToInt64(hlsStartRequest), 0);
+              }
+              else
+              {
+                timeRange = new Range(0, 0);
+              }
             }
             if (byteRange == null)
             {
@@ -752,41 +745,32 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             TranscodeContext context = null;
             if (resourceStream == null)
             {
-              context = MediaConverter.GetMediaStream(dlnaItem.TranscodingParameter, timeRange.From, timeRange.Length, true);
+              context = MediaConverter.GetMediaStream(deviceClient.ClientId, dlnaItem.TranscodingParameter, timeRange.From, timeRange.Length, true);
               context.InUse = true;
               partialResource = context.Partial;
-              dlnaItem.SegmentDir = context.SegmentDir;
-              resourceStream = context.TranscodedStream;
+              dlnaItem.TranscodingContext = context;
+
+              if (hlsFileRequest != null)
+              {
+                if(GetHlsSegment(hlsFileRequest, dlnaItem, response, ref resourceStream) == false)
+                {
+                  Logger.Error("DlnaResourceAccessModule: Unable to find segment file {0}", hlsFileRequest);
+
+                  response.Status = HttpStatusCode.InternalServerError;
+                  response.Chunked = false;
+                  response.ContentLength = 0;
+                  response.ContentType = null;
+                  Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
+                  return true;
+                }
+              }
+              else
+              {
+                resourceStream = context.TranscodedStream;
+              }
               if (dlnaItem.IsTranscoding == false || (context.Partial == false && context.TargetFileSize > 0 && context.TargetFileSize > dlnaItem.DlnaMetadata.Metadata.Size))
               {
                 dlnaItem.DlnaMetadata.Metadata.Size = context.TargetFileSize;
-              }
-
-              lock (_currentClientTranscodes)
-              {
-                if (_currentClientTranscodes.ContainsKey(clientId) == false)
-                {
-                  _currentClientTranscodes.Add(clientId, new Dictionary<string, List<TranscodeContext>>());
-                }
-                if(_currentClientTranscodes[clientId].Count > 0 && _currentClientTranscodes[clientId].ContainsKey(dlnaItem.TranscodingParameter.TranscodeId) == false)
-                {
-                  //Don't waste resources on transcoding if the client wants different media item
-                  Logger.Debug("DlnaResourceAccessModule: Ending {0} transcodes for client {1}", _currentClientTranscodes[clientId].Count, clientId);
-                  foreach(var transcodeContexts in _currentClientTranscodes[clientId].Values)
-                  {
-                    foreach (var transcodeContext in transcodeContexts)
-                    {
-                      if (transcodeContext.Running) transcodeContext.Stop();
-                      transcodeContext.InUse = false;
-                    }
-                  }
-                  _currentClientTranscodes[clientId].Clear();
-                }
-                if(_currentClientTranscodes[clientId].ContainsKey(dlnaItem.TranscodingParameter.TranscodeId) == false)
-                {
-                  _currentClientTranscodes[clientId].Add(dlnaItem.TranscodingParameter.TranscodeId, new List<TranscodeContext>());
-                }
-                _currentClientTranscodes[clientId][dlnaItem.TranscodingParameter.TranscodeId].Add(context);
               }
             }
 
@@ -897,6 +881,38 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       }
 
       return true;
+    }
+
+    private bool GetHlsSegment(string fileName, DlnaMediaItem dlnaItem, IHttpResponse response, ref Stream resourceStream)
+    {
+      if (fileName != null)
+      {
+        string hlsFile = Path.Combine(dlnaItem.TranscodingContext.SegmentDir, fileName);
+        if (File.Exists(hlsFile) == true)
+        {
+          object containerEnum = null;
+          if (MediaConverter.GetSegmentFile((VideoTranscoding)dlnaItem.TranscodingParameter, dlnaItem.TranscodingContext, fileName, out resourceStream, out containerEnum) == true)
+          {
+            if (containerEnum is VideoContainer)
+            {
+              VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
+              List<string> profiles = DlnaProfiles.ResolveVideoProfile((VideoContainer)containerEnum, dlnaItem.DlnaMetadata.Video.Codec, video.TargetAudioCodec, dlnaItem.DlnaMetadata.Video.ProfileType, 
+                dlnaItem.DlnaMetadata.Video.HeaderLevel, dlnaItem.DlnaMetadata.Video.Framerate, dlnaItem.DlnaMetadata.Video.Width, dlnaItem.DlnaMetadata.Video.Height, dlnaItem.DlnaMetadata.Video.Bitrate, 
+                video.TargetAudioBitrate, dlnaItem.DlnaMetadata.Video.TimestampType);
+              string mime = "video/unknown";
+              string profile = null;
+              DlnaProfiles.FindCompatibleProfile(dlnaItem.Client, profiles, ref profile, ref mime);
+              response.ContentType = mime;
+            }
+            else if (containerEnum is SubtitleCodec)
+            {
+              response.ContentType = MediaConverter.GetSubtitleMime((SubtitleCodec)containerEnum);
+            }
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
     protected void SendTimeRange(IHttpRequest request, IHttpResponse response, Stream resourceStream, DlnaMediaItem item, Profiles.EndPointSettings client, Range timeRange, Range byteRange, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
