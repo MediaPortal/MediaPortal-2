@@ -1,0 +1,33 @@
+<div g-controller="moviesController">
+
+    <div>
+        <div class="row movies" *ngFor="#movie of moviesBasic; #x = index">
+            <template [ngIf]="x % movieCoversPerRow == 0">
+                <!-- columns -->
+                <template ngFor #i [ngForOf]="moviesForLoop | range:movieCoversPerRow">
+                    <div *ngIf="x + i < moviesBasic.length" class="col-sm-3 ih-item square effect11 left_to_right" (click)="go('/movieDetails/'+moviesBasic[x + i].Id)" style="width: 200px !important; height: 330px !important;">
+                        <a href="" (click)="go('/movieDetails/'+moviesBasic[x + i].Id)">
+                            <div class="img">
+                                <!-- watched status -->
+                                <div [ngClass]="{true: 'side-corner-tag', false: ''}[moviesBasic[x + i].Watched]">
+                                    <img [src]="getCovers(moviesBasic[x + i].Id)" id="watched">
+                                    <p><span>Watched!</span></p>
+                                </div>
+                                <br>
+                            </div>
+                            <!-- extended information -->
+                            <div class="info">
+                                <h3>{{moviesBasic[x + i].Title}}</h3>
+                                <p>Watched: {{moviesBasic[x + i].Watched}}</p>
+                                <p>Runtime: {{moviesBasic[x + i].Runtime}} minutes</p>
+                            </div>
+                        </a>
+                        <div class="movieTitle">{{moviesBasic[x + i].Title}}</div>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </div>
+
+</div>
+

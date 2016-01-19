@@ -1,0 +1,24 @@
+{
+  "name": "mp2web",
+  "description": "As simple webinterface for MP2",
+  "main": "index.html",
+  "authors": [
+    "FreakyJ"
+  ],
+  "license": "GPL",
+  "moduleType": [
+    "es6"
+  ],
+  "homepage": "www.team-mediaportal.de",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ihover": "~1.0.0"
+  }
+}

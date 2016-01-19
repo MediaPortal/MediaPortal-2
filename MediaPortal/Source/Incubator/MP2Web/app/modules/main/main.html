@@ -1,0 +1,72 @@
+<!-- HEADER AND NAVBAR -->
+<header>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <img src="images/logo.png" width="50"><a class="navbar-brand" href="/">MP2Web</a>
+            </div>
+
+            <ul class="nav navbar-nav">
+                <template ngFor #route [ngForOf]="routes">
+                    <!-- Dropdown -->
+                    <template [ngIf]="route.pages.length > 0">
+                        <li class="dropdown" [class.active]="isSubrouteActive(route.name, route.pages)">
+                            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                {{route.label}} <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li *ngFor="#page of route.pages; #x = index" [class.active]="router.isRouteActive(router.generate([generateSubentryRoutename(route.name, page.name)]))"><a [routerLink]="[generateSubentryRoutename(route.name, page.name)]">{{page.label}}</a></li>
+                            </ul>
+                        </li>
+                    </template>
+                    <!-- single entry -->
+                    <template [ngIf]="route.pages.length == 0">
+                        <li [class.active]="router.isRouteActive(router.generate([route.name]))"><a [routerLink]="[route.name]">{{route.label}}</a></li>
+                    </template>
+                </template>
+                <!--
+                <li *ngFor="#route of routes; #x = index" [class.active]="router.isRouteActive(router.generate([route.name]))"><a  [routerLink]="[route.name]">{{route.name}}</a></li>
+                -->
+               <!--
+                <li [class.active]="router.isRouteActive(router.generate(['Home']))"><a  [routerLink]="['Home']">Home</a></li>
+                <li><a href="#">TvShows</a></li>
+                <li><a href="#">Movies</a></li>
+                <li><a href="#">Tv</a></li>
+                <li><a href="#">Music</a></li>
+                <li><a href="#">Pictures</a></li>
+                <li><a href="#">Online</a></li>
+                <li><a href="#">System</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li class="dropdown-header">Nav header</li>
+                        <li><a href="#">Separated link</a></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
+                -->
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li><a ><i class="glyphicon glyphicon-film"></i> Movies</a></li>
+                <li><a href="#/view2"><i class="fa fa-shield"></i> View 2</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<!-- CONTENT -->
+<div id="main" class="container" style="padding-top: 60px; padding-bottom: 60px;">
+    {{router.parent}}
+    <router-outlet></router-outlet>
+</div>
+
+<!-- FOOTER -->
+
+<footer class="navbar navbar-inverse navbar-fixed-bottom">
+    <div>MP2Web: v<span app-version></span></div>
+</footer>

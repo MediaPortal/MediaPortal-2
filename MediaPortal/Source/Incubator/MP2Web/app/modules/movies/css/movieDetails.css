@@ -1,0 +1,48 @@
+.additional-stats {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px 0px 10px;
+
+    font-family: "Varela Round","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #333;
+}
+
+.stat {
+    float: left;
+    font-size: 14px;
+    margin: 0px 20px 5px 0px;
+    white-space: nowrap;
+
+    font-family: "Varela Round","Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 1.42857;
+    color: #333;
+}
+
+.additional-stats li.stat span:not(.format-date):not(.convert-date) {
+    text-transform: uppercase;
+    color: #BBB;
+    font-family: "Proxima Nova Semibold";
+    margin-right: 5px;
+}
+
+.additional-stats li.stat.allow-wrap {
+    white-space: normal;
+}
+
+.additional-stats li.stat .certification {
+    display: inline;
+    border: 1px solid #666;
+    font-size: 10px;
+    padding: 1px 4px;
+    border-radius: 2px;
+    vertical-align: middle;
+    font-family: "Proxima Nova Semibold";
+    transition: all 0.5s ease 0s;
+    cursor: pointer;
+}
+
+.list {
+    display: inline;
+}

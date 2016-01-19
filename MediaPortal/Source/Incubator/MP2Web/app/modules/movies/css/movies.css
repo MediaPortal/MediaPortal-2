@@ -1,0 +1,10 @@
+.movies [class*="col-"] {
+    padding: 15px;
+    background-color: #F1F1F1;
+    border: 1px solid #D8D8D8;
+    text-align: center;
+}
+
+.movieTitle {
+    font-weight: bold;
+}
