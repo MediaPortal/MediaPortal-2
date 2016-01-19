@@ -10,17 +10,17 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SystemState.Title]"/>
 
-    <!-- SystemStateModel -->
-    <Model x:Key="SystemStateModel" Id="25F16911-ED0D-4439-9858-5E69C970C037"/>
+    <!-- SystemStateDialogModel -->
+    <Model x:Key="SystemStateDialogModel" Id="25F16911-ED0D-4439-9858-5E69C970C037"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True" Resource="{Binding Source={StaticResource SystemStateModel},Path=ShutdownItems,Mode=OneTime}"/>
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True" Resource="{Binding Source={StaticResource SystemStateDialogModel},Path=ShutdownItems,Mode=OneTime}"/>
 
     <!-- Menu_Command -->
-    <Command x:Key="Menu_Command"
-                    Source="{StaticResource SystemStateModel}"
-                    Path="Select"
-                    Parameters="{LateBoundValue BindingValue={Binding}}" />
+    <CommandList x:Key="Menu_Command">
+      <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+      <CommandBridge Command="{Binding Command}"/>
+    </CommandList>
 
   </Include.Resources>
 </Include>
