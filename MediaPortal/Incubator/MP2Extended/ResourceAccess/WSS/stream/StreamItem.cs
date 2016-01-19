@@ -1,11 +1,13 @@
-﻿using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Common.MediaManagement;
+using System.Threading;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
 {
@@ -14,11 +16,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     private const int DEFAULT_TIMEOUT = 5 * 60; // 5 minutes
 
     private int _idleTimeout;
+    private object _busyLock = new object();
+    private DateTime _requestTime = DateTime.MinValue;
+    private long _requestSegment = 0;
+    private object _requestLock = new object();
     
     /// <summary>
-    /// Gets or sets the GUID of the requeste Media Item
+    /// Gets or sets the requested MediaItem
     /// </summary>
-    internal Guid ItemId { get; set; }
+    internal MediaItem RequestedMediaItem { get; set; }
+
+    /// <summary>
+    /// Gets or sets the title of the requested item
+    /// </summary>
+    internal string Title { get; set; }
 
     /// <summary>
     /// Gets or sets a description of the Client
@@ -43,6 +54,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// </summary>
     internal EndPointProfile Profile { get; set; }
 
+    /// <summary>
+    /// Gets or sets the transcode object used to setup transcoding
+    /// </summary>
     internal ProfileMediaItem TranscoderObject { get; set; }
 
     /// <summary>
@@ -51,14 +65,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     internal long StartPosition { get; set; }
 
     /// <summary>
-    /// Gets or sets the audio stream to use for streaming
+    /// Gets a lock for indicating that files are in use
     /// </summary>
-    internal int AudioStream { get; set; }
+    internal object BusyLock { get { return _busyLock; } }
 
     /// <summary>
-    /// Gets or sets the subtitle stream to use for streaming
+    /// Gets or sets the type of stream item
     /// </summary>
-    internal int SubtitleStream { get; set; }
+    internal WebMediaType ItemType { get; set; }
 
     /// <summary>
     /// Gets or sets the time when the stream was started
@@ -79,6 +93,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// Gets or sets the transcoding context used by this stream
     /// </summary>
     internal TranscodeContext StreamContext { get; set; }
+
+    internal bool RequestSegment(long Segment)
+    {
+      lock (_requestLock)
+      {
+        if(_requestTime < DateTime.Now)
+        {
+          _requestTime = DateTime.Now;
+          _requestSegment = Segment;
+        }
+      }
+      //Allow multiple requests to die out so only the last request is used
+      Thread.Sleep(2000);
+      if (Segment == _requestSegment) return true;
+      return false;
+    }
 
     /// <summary>
     /// Constructor, sets for example the start time

@@ -37,6 +37,8 @@
       <MediaFormat mime="video/3gpp">AVC_3GPP</MediaFormat>
       <MediaFormat mime="video/3gpp">MPEG4_H263_3GPP</MediaFormat>
       <MediaFormat mime="video/3gpp">MPEG4_H263_MP4</MediaFormat>
+      <MediaFormat mime="application/sdp">RTSP</MediaFormat>
+      <MediaFormat mime="application/sdp">RTP</MediaFormat>
     </WebMediaFormats>
     <Settings>
       <Video maxHeight="1080" qualityFactor="3" />
@@ -74,6 +76,8 @@
         <VideoSource container="Mpeg2Ts" videoCodec="H264" videoSquarePixels="true" />
         <VideoSource container="Gp3" videoCodec="H264" videoSquarePixels="true" />
         <VideoSource videoCodec="H264" videoSquarePixels="true" audioCodec="Speex" />
+        <VideoSource container="Flv" videoSquarePixels="true" />
+        <VideoSource container="Hls" videoCodec="H264" videoSquarePixels="true" />
       </VideoTarget>
       <VideoTarget container="Flv" videoCodec="Flv" audioCodec="Mp3" audioFrequency="44100" forceStereo="true">
         <VideoSource container="Matroska" />
@@ -88,8 +92,12 @@
         <VideoSource container="Wtv" />
         <VideoSource container="RealMedia" />
         <VideoSource container="Flv" audioCodec="Speex" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+        <VideoSource container="Hls" />
+        <VideoSource container="MJpeg" />
       </VideoTarget>
-      <AudioTarget container="Mp3">
+      <AudioTarget container="Mp3" forceInheritance="true">
         <AudioSource container="Mp4" />
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
@@ -99,6 +107,10 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Flv" />
+        <AudioSource container="Asf" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -107,17 +119,6 @@
       <VideoTarget container="Flv" videoCodec="Flv" videoMaxBitrate="1000" videoMaxHeight="480" audioCodec="Mp3" audioFrequency="44100" forceStereo="true">
         <VideoSource />
       </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource container="Mp4" />
-        <AudioSource container="Flac" />
-        <AudioSource container="Ogg" />
-        <AudioSource container="Lpcm" />
-        <AudioSource container="Adts" />
-        <AudioSource container="Asf" />
-        <AudioSource container="WavPack" />
-        <AudioSource container="MusePack" />
-        <AudioSource container="Ape" />
-      </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="FlashLQ" name="Flash (Low Quality)" baseProfile="FlashHQ" active="true">
@@ -125,17 +126,6 @@
       <VideoTarget container="Flv" videoCodec="Flv" videoMaxBitrate="500" videoMaxHeight="200" audioCodec="Mp3" audioFrequency="22050" forceStereo="true">
         <VideoSource />
       </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource container="Mp4" />
-        <AudioSource container="Flac" />
-        <AudioSource container="Ogg" />
-        <AudioSource container="Lpcm" />
-        <AudioSource container="Adts" />
-        <AudioSource container="Asf" />
-        <AudioSource container="WavPack" />
-        <AudioSource container="MusePack" />
-        <AudioSource container="Ape" />
-      </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="iOSHQ" name="iOS (High Quality)" baseProfile="WebDefault" active="true">
@@ -165,8 +155,11 @@
         <VideoSource container="Mp4" videoCodec="Mpeg4" />
         <VideoSource container="Mp4" videoCodec="MsMpeg4" />
         <VideoSource container="Mp4" audioCodec="Ac3" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+        <VideoSource container="MJpeg" />
       </VideoTarget>
-      <AudioTarget container="Mp3">
+      <AudioTarget container="Mp3" forceInheritance="true">
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Lpcm" />
@@ -175,6 +168,10 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Flv" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -183,16 +180,6 @@
       <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="1000" videoMaxHeight="480" audioCodec="Aac" forceStereo="true">
         <VideoSource />
       </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource container="Flac" />
-        <AudioSource container="Ogg" />
-        <AudioSource container="Lpcm" />
-        <AudioSource container="Adts" />
-        <AudioSource container="Asf" />
-        <AudioSource container="WavPack" />
-        <AudioSource container="MusePack" />
-        <AudioSource container="Ape" />
-      </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="iOSLQ" name="iOS (Low Quality)" baseProfile="iOSHQ" active="true">
@@ -200,16 +187,6 @@
       <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="500" videoMaxHeight="240" audioCodec="Aac" audioFrequency="22050" forceStereo="true">
         <VideoSource />
       </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource container="Flac" />
-        <AudioSource container="Ogg" />
-        <AudioSource container="Lpcm" />
-        <AudioSource container="Adts" />
-        <AudioSource container="Asf" />
-        <AudioSource container="WavPack" />
-        <AudioSource container="MusePack" />
-        <AudioSource container="Ape" />
-      </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="AndroidStandardHQ" name="Android Standard (High Quality)" baseProfile="WebDefault" active="true">
@@ -235,6 +212,16 @@
         <VideoSource container="Mp4" videoCodec="Mpeg4" />
         <VideoSource container="Mp4" videoCodec="MsMpeg4" />
         <VideoSource container="Mp4" audioCodec="Ac3" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts">
+        <VideoSource container="Flv" videoCodec="H264" />
+        <VideoSource container="Mp4" />
+        <VideoSource container="Hls" videoCodec="H264" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="4000" audioCodec="Ac3" audioBitrate="384">
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+        <VideoSource container="Hls" />
       </VideoTarget>
       <AudioTarget container="Mp3" forceInheritance="true">
         <AudioSource container="Mp4" />
@@ -289,6 +276,8 @@
         <VideoSource container="Mp4" videoCodec="Mpeg4" />
         <VideoSource container="Mp4" videoCodec="MsMpeg4" />
         <VideoSource container="Mp4" audioCodec="Ac3" />
+        <VideoSource container="Rtsp" />
+        <VideoSource container="Rtp" />
       </VideoTarget>
     </MediaTranscoding>
   </Profile>
@@ -303,6 +292,14 @@
       <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac" forceStereo="true">
         <VideoSource />
       </VideoTarget>
+      <AudioTarget container="Mp3" audioBitrate="320" forceInheritance="true">
+        <AudioSource container="Flv" />
+        <AudioSource container="Asf" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="Mp3" />
+        <AudioSource container="Mp4" />
+      </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="AndroidHLSMQ" name="Android Modern (Medium Quality)" baseProfile="AndroidHLSHQ" active="true">
@@ -330,6 +327,14 @@
       <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac">
         <VideoSource />
       </VideoTarget>
+      <AudioTarget container="Mp3" audioBitrate="320" forceInheritance="true">
+        <AudioSource container="Flv" />
+        <AudioSource container="Asf" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="Mp3" />
+        <AudioSource container="Mp4" />
+      </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="GTVMQ" name="Google TV (Medium Quality)" baseProfile="GTVHQ" active="true">
@@ -364,6 +369,9 @@
         <VideoSource container="Flv" videoCodec="H264" />
         <VideoSource container="Gp3" videoCodec="H264" />
         <VideoSource container="Avi" videoCodec="H264" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+        <VideoSource container="MJpeg" />
       </VideoTarget>
       <VideoTarget container="Hls" videoCodec="H264" videoMaxBitrate="10000" videoMaxHeight="720" audioCodec="Aac">
         <VideoSource container="Gp3" />
@@ -390,6 +398,10 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Flv" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -431,6 +443,14 @@
         <VideoSource container="Mp4" videoCodec="MsMpeg4" />
         <VideoSource container="Mp4" audioCodec="Ac3" />
       </VideoTarget>
+      <AudioTarget container="Mp3" audioBitrate="320" forceInheritance="true">
+        <AudioSource container="Flv" />
+        <AudioSource container="Asf" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="Mp3" />
+        <AudioSource container="Mp4" />
+      </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="ChromeCastMQ" name="Chromecast (Medium Quality)" baseProfile="ChromeCastHQ" active="true">
@@ -473,6 +493,9 @@
         <VideoSource container="Wtv" />
         <VideoSource container="Flv" />
         <VideoSource container="Avi" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+        <VideoSource container="MJpeg" />
       </VideoTarget>
       <AudioTarget container="Mp3" forceInheritance="true">
         <AudioSource container="Flac" />
@@ -483,6 +506,10 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Flv" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>

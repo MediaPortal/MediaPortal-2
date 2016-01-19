@@ -66,10 +66,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
         return;
 
       resourceStream.Seek(range.From, SeekOrigin.Begin);
-      Send(response, resourceStream, range.Length);
+      Send(response, resourceStream, range.Length, false);
     }
 
-    protected void SendWholeFile(IHttpResponse response, Stream resourceStream, bool onlyHeaders)
+    protected void SendWholeFile(IHttpResponse response, Stream resourceStream, bool onlyHeaders, bool chunked = false)
     {
       if (response.Status != HttpStatusCode.NotModified) // respect the If-Modified-Since Header
         response.Status = HttpStatusCode.OK;
@@ -79,7 +79,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       if (onlyHeaders)
         return;
 
-      Send(response, resourceStream, resourceStream.Length);
+      Send(response, resourceStream, resourceStream.Length, chunked);
     }
 
     protected void SendWholeFile(IHttpRequest request, IHttpResponse response, Stream resourceStream, ProfileMediaItem item, EndPointSettings client, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
@@ -117,16 +117,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       Send(request, response, resourceStream, item, client, onlyHeaders, partialResource, byteRange);
     }
 
-    protected void Send(IHttpResponse response, Stream resourceStream, long length)
+    protected void Send(IHttpResponse response, Stream resourceStream, long length, bool chunked)
     {
       const int BUF_LEN = 8192;
       byte[] buffer = new byte[BUF_LEN];
       int bytesRead;
+      response.Chunked = chunked;
       while ((bytesRead = resourceStream.Read(buffer, 0, length > BUF_LEN ? BUF_LEN : (int)length)) > 0)
       // Don't use Math.Min since (int) length is negative for length > Int32.MaxValue
       {
         length -= bytesRead;
         response.SendBody(buffer, 0, bytesRead);
+      }
+      if (response.Chunked)
+      {
+        response.SendBody(null, 0, 0);
       }
     }
 
@@ -250,8 +255,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
       finally
       {
-        // closes the Stream so that FFMpeg can replace the playlist file in case of HLS
-        resourceStream.Close();
         item.StopStreaming(streamID);
         Logger.Debug("BaseSendData: Sending complete");
       }
@@ -416,7 +419,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 
     internal bool WaitForMinimumFileSize(Stream resourceStream, long minimumSize)
     {
-      if (resourceStream.CanSeek)
+      if (resourceStream.CanSeek == false)
         return resourceStream.CanRead;
 
       int iTry = 20;

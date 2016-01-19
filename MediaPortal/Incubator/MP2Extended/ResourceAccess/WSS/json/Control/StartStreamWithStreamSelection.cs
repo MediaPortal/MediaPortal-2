@@ -18,6 +18,7 @@ using MediaPortal.Utilities.Network;
 using System.Collections.Generic;
 using HttpServer.Sessions;
 using MediaPortal.Plugins.MP2Extended.Utils;
+using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -78,8 +79,26 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
       streamItem.StartPosition = startPositionLong;
-      streamItem.AudioStream = audioTrack;
-      streamItem.SubtitleStream = subtitleTrack;
+
+      bool isLive = false;
+      if (streamItem.ItemType == Common.WebMediaType.TV || streamItem.ItemType == Common.WebMediaType.Radio)
+      {
+        isLive = true;
+      }
+      EndPointSettings endPointSettings = ProfileManager.GetEndPointSettings(profile.ID);
+      streamItem.TranscoderObject = new ProfileMediaItem(identifier, streamItem.RequestedMediaItem, endPointSettings, isLive);
+      if ((streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding))
+      {
+        ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
+        if (audioTrack >= 0)
+          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceAudioStreamIndex = audioTrack;
+        if (subtitleTrack >= 0)
+          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = subtitleTrack;
+        else
+          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = MediaConverter.NO_SUBTITLE;
+      }
+
+      StreamControl.StartStreaming(identifier, startPositionLong);
 
       string filePostFix = "&file=media.ts";
       if (profile.MediaTranscoding != null && profile.MediaTranscoding.Video != null)
@@ -88,14 +107,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         {
           if (target.Target.VideoContainerType == Transcoding.Service.VideoContainer.Hls)
           {
-            filePostFix = "&file=playlist.m3u8"; //Must be added for some clients to work (Android mostly)
+            filePostFix = "&file=manifest.m3u8"; //Must be added for some clients to work (Android mostly)
             break;
           }
         }
       }
-
-      // Add the stream to the stream controler
-      StreamControl.AddStreamItem(identifier, streamItem);
 
       string url = GetBaseStreamUrl.GetBaseStreamURL() + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
       return new WebStringResult { Result = url };

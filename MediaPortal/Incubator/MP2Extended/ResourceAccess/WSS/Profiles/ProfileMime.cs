@@ -59,7 +59,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
     public static List<string> ResolveAudioProfile(AudioContainer container, AudioCodec audioCodec, long bitrate, long frequency, int channels)
     {
       List<string> valuesProfiles = new List<string>();
-      if (container == AudioContainer.Ac3)
+      if (container == AudioContainer.Rtsp)
+      {
+        valuesProfiles.Add("RTSP");
+      }
+      else if (container == AudioContainer.Rtp)
+      {
+        valuesProfiles.Add("RTP");
+      }
+      else if (container == AudioContainer.Ac3)
       {
         valuesProfiles.Add("AC3");
       }
@@ -131,7 +139,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
     public static List<string> ResolveVideoProfile(VideoContainer container, VideoCodec videoCodec, AudioCodec audioCodec, EncodingProfile h264Profile, float h264Level, float fps, int width, int height, long videoBitrate, long audioBitrate, Timestamp timestampType)
     {
       List<string> valuesProfiles = new List<string>();
-      if (container == VideoContainer.Asf)
+      if (container == VideoContainer.Rtsp)
+      {
+        valuesProfiles.Add("RTSP");
+      }
+      else if (container == VideoContainer.Rtp)
+      {
+        valuesProfiles.Add("RTP");
+      }
+      else if (container == VideoContainer.Asf)
       {
         if ((videoCodec == VideoCodec.Wmv && audioCodec == AudioCodec.Unknown) ||
           (videoCodec == VideoCodec.Wmv && audioCodec == AudioCodec.Mp3) ||

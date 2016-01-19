@@ -3,13 +3,13 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
   static class StreamControl
   {
     private static readonly Dictionary<string, StreamItem> STREAM_ITEMS = new Dictionary<string, StreamItem>();
-    public static Dictionary<string, Dictionary<string, List<TranscodeContext>>> CurrentClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
 
     /// <summary>
     /// Adds a new stream Item to the list.
@@ -86,13 +86,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// </summary>
     /// <param name="identifier">The unique string which idetifies the stream Item</param>
     /// <param name="context">Transcoder context</param>
-    internal static void StartStreaming(string identifier, TranscodeContext context)
+    internal static void StartStreaming(string identifier, double startTime)
     {
       if (ValidateIdentifie(identifier))
       {
-        STREAM_ITEMS[identifier].IsActive = true;
-        STREAM_ITEMS[identifier].StreamContext = context;
-        STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = context.SegmentDir;
+        lock (STREAM_ITEMS[identifier].BusyLock)
+        {
+          STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetMediaStream(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, startTime, 0, true);
+          STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = STREAM_ITEMS[identifier].StreamContext.SegmentDir;
+          STREAM_ITEMS[identifier].StreamContext.InUse = true;
+          STREAM_ITEMS[identifier].IsActive = true;
+        }
       }
     }
 
@@ -105,10 +109,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       if (ValidateIdentifie(identifier))
       {
         STREAM_ITEMS[identifier].IsActive = false;
-        if (STREAM_ITEMS[identifier].StreamContext != null) 
-          STREAM_ITEMS[identifier].StreamContext.InUse = false;
         if (STREAM_ITEMS[identifier].TranscoderObject != null) 
           STREAM_ITEMS[identifier].TranscoderObject.StopStreaming();
+
+        lock (STREAM_ITEMS[identifier].BusyLock)
+        {
+          if (STREAM_ITEMS[identifier].StreamContext != null)
+            STREAM_ITEMS[identifier].StreamContext.InUse = false;
+        }
       }
     }
 
