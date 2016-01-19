@@ -62,7 +62,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             {
               result.Append(arg + " ");
             }
-            result.Append("-i \"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\" ");
+            if (InputResourceAccessor is ILocalFsResourceAccessor)
+            {
+              result.Append("-i \"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\" ");
+            }
+            else if (InputResourceAccessor is INetworkResourceAccessor)
+            {
+              result.Append("-i \"" + ((INetworkResourceAccessor)InputResourceAccessor).URL + "\" ");
+            }
           }
           if (string.IsNullOrEmpty(InputSubtitleFilePath) == false)
           {

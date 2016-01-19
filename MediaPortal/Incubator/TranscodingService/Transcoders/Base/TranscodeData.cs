@@ -40,6 +40,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       WorkPath = workPath;
     }
 
+    public string ClientId;
     public string TranscodeId;
     public string TranscoderBinPath;
     public List<string> GlobalArguments = new List<string>();
@@ -50,11 +51,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     public IResourceAccessor InputResourceAccessor;
     public string InputSubtitleFilePath;
     public string OutputFilePath;
-    public string SegmentPlaylist = null;
     public bool IsLive = false;
     public Stream LiveStream = null;
-    public string HlsBaseUrl = null;
     public string WorkPath = null;
+    public string SegmentPlaylist = null;
+    public string SegmentBaseUrl = null;
+    public byte[] SegmentManifestData = null;
+    public byte[] SegmentPlaylistData = null;
+    public byte[] SegmentSubsPlaylistData = null;
 
     public virtual string TranscoderArguments { get; set; }
   }

@@ -33,7 +33,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Interfaces
   /// </summary>
   public interface IMediaAnalyzer
   {
-
     /// <summary>
     /// Sets the timeout after which the Thread gets stopped
     /// </summary>
@@ -43,12 +42,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Interfaces
     /// The maximum number of threads to use
     /// </summary>
     int AnalyzerMaximumThreads { get; set; }
-
-    /// <summary>
-    /// Sets or gets the logger implementation to use for logging.
-    /// </summary>
-    ILogger Logger { get; set; }
-    
+   
     /// <summary>
     /// Pareses a local image file using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
     /// </summary>

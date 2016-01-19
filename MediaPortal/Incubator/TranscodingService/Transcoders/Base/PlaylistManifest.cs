@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
   public class PlaylistManifest
   {
+    public const string URL_PLACEHOLDER = "[URL]";
+    public const string PLAYLIST_FOLDER_SUFFIX = "_mptf";
+
     internal static byte[] CreatePlaylistManifest(VideoTranscoding video, Subtitle sub)
     {
       TranscodedVideoMetadata metaData = MediaConverter.GetTranscodedVideoMetadata(video);
@@ -41,34 +45,143 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
           codec += "100.";
         codec += (metaData.TargetLevel * 10).ToString("0");
 
-        codec += ",mp4a.40.";
-        if(metaData.TargetAudioCodec == AudioCodec.Aac)
-          codec += "2";
-        else if(metaData.TargetAudioCodec == AudioCodec.Mp3)
-          codec += "34";
-        else //HE-ACC
-          codec += "5";
+        if (metaData.TargetAudioCodec == AudioCodec.Ac3)
+        {
+          codec += ",ac-3";
+        }
+        else
+        {
+          codec += ",mp4a.40.";
+          if(metaData.TargetAudioCodec == AudioCodec.Aac)
+            codec += "2";
+          else if(metaData.TargetAudioCodec == AudioCodec.Mp3)
+            codec += "34";
+          else //HE-ACC
+            codec += "5";
+        }
       }
 
-      string baseUrl = video.HlsBaseUrl != null ? video.HlsBaseUrl : "";
-      string manifest = "#EXTM3U";
-      manifest += "\n";
-      manifest += "\n";
+      StringBuilder manifestBuilder = new StringBuilder();
+      manifestBuilder.AppendLine("#EXTM3U");
+      manifestBuilder.AppendLine();
       if(sub != null)
       {
         CultureInfo culture = new CultureInfo(sub.Language);
-        manifest += string.Format("#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"subs\",NAME=\"{0}\",DEFAULT=YES,AUTOSELECT=YES,FORCED=NO,LANGUAGE=\"{1}\",URI=\"{2}\"",
-          culture.DisplayName, culture.TwoLetterISOLanguageName.ToLowerInvariant(), baseUrl + MediaConverter.PLAYLIST_SUBTITLE_FILE_NAME);
-        manifest += "\n";
-        manifest += "\n";
+        manifestBuilder.AppendLine(string.Format("#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"subs\",NAME=\"{0}\",DEFAULT=YES,AUTOSELECT=YES,FORCED=NO,LANGUAGE=\"{1}\",URI=\"{2}\"",
+          culture.DisplayName, culture.TwoLetterISOLanguageName.ToLowerInvariant(), URL_PLACEHOLDER + MediaConverter.PLAYLIST_SUBTITLE_FILE_NAME));
+        manifestBuilder.AppendLine();
       }
-      manifest += string.Format("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH={0},RESOLUTION={1},CODECS=\"{2}\"{3}", 
-        bitrate.ToString("0"),width + "x" + height,codec, sub != null ? ",SUBTITLES=\"subs\"" : "");
-      manifest += "\n";
-      manifest += baseUrl + MediaConverter.PLAYLIST_FILE_NAME;
-      manifest += "\n";
+      manifestBuilder.AppendLine(string.Format("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH={0},RESOLUTION={1},CODECS=\"{2}\"{3}", 
+        bitrate.ToString("0"),width + "x" + height,codec, sub != null ? ",SUBTITLES=\"subs\"" : ""));
+      manifestBuilder.AppendLine(URL_PLACEHOLDER + MediaConverter.PLAYLIST_FILE_NAME);
+      manifestBuilder.AppendLine();
 
-      return Encoding.UTF8.GetBytes(manifest);
+      return Encoding.UTF8.GetBytes(manifestBuilder.ToString());
+    }
+
+    internal static byte[] CreateVideoPlaylist(VideoTranscoding video, long startSegment)
+    {
+      StringBuilder palylistBuilder = new StringBuilder();
+
+      palylistBuilder.AppendLine("#EXTM3U");
+      palylistBuilder.AppendLine("#EXT-X-VERSION:3");
+      palylistBuilder.AppendLine("#EXT-X-ALLOW-CACHE:NO");
+      palylistBuilder.AppendLine("#EXT-X-TARGETDURATION:" + MediaConverter.HLSSegmentTimeInSeconds);
+      palylistBuilder.AppendLine("#EXT-X-MEDIA-SEQUENCE:0");
+
+      double remainingDuration = video.SourceDuration.TotalSeconds;
+      remainingDuration -= (Convert.ToDouble(startSegment) * Convert.ToDouble(MediaConverter.HLSSegmentTimeInSeconds));
+      while (remainingDuration > 0)
+      {
+        double segmentTime = remainingDuration >= MediaConverter.HLSSegmentTimeInSeconds ? MediaConverter.HLSSegmentTimeInSeconds : remainingDuration;
+        palylistBuilder.AppendLine("#EXTINF:" + segmentTime.ToString("0.000000", CultureInfo.InvariantCulture) + ",");
+        palylistBuilder.AppendLine(URL_PLACEHOLDER + startSegment.ToString("00000") + ".ts");
+
+        startSegment++;
+        remainingDuration -= MediaConverter.HLSSegmentTimeInSeconds;
+      }
+
+      palylistBuilder.AppendLine("#EXT-X-ENDLIST");
+
+      return Encoding.UTF8.GetBytes(palylistBuilder.ToString());
+    }
+
+    internal static byte[] CreateSubsPlaylist(VideoTranscoding video, long startSegment)
+    {
+      StringBuilder palylistBuilder = new StringBuilder();
+
+      palylistBuilder.AppendLine("#EXTM3U");
+      palylistBuilder.AppendLine("#EXT-X-VERSION:3");
+      palylistBuilder.AppendLine("#EXT-X-ALLOW-CACHE:NO");
+      palylistBuilder.AppendLine("#EXT-X-TARGETDURATION:" + MediaConverter.HLSSegmentTimeInSeconds);
+      palylistBuilder.AppendLine("#EXT-X-MEDIA-SEQUENCE:0");
+      palylistBuilder.AppendLine();
+
+      double remainingDuration = video.SourceDuration.TotalSeconds;
+      remainingDuration -= (Convert.ToDouble(startSegment) * Convert.ToDouble(MediaConverter.HLSSegmentTimeInSeconds));
+      while (remainingDuration > 0)
+      {
+        double segmentTime = remainingDuration >= MediaConverter.HLSSegmentTimeInSeconds ? MediaConverter.HLSSegmentTimeInSeconds : remainingDuration;
+        palylistBuilder.AppendLine("#EXTINF:" + segmentTime.ToString("0.000000", CultureInfo.InvariantCulture) + ",");
+        palylistBuilder.AppendLine(URL_PLACEHOLDER + "playlist" + startSegment.ToString("0") + ".vtt");
+        palylistBuilder.AppendLine();
+
+        startSegment++;
+        remainingDuration -= MediaConverter.HLSSegmentTimeInSeconds;
+      }
+
+      palylistBuilder.AppendLine("#EXT-X-ENDLIST");
+
+      return Encoding.UTF8.GetBytes(palylistBuilder.ToString());
+    }
+
+    internal static byte[] CorrectPlaylistUrls(string baseUrl, string playlist)
+    {
+      if (baseUrl == null) baseUrl = "";
+      StringBuilder urlReplace = new StringBuilder(File.ReadAllText(playlist, Encoding.UTF8), 100 + (30 + baseUrl.Length) * 800);
+      //Fix ffmpeg adding 1 second to the target time
+      urlReplace.Replace("#EXT-X-TARGETDURATION:" + (MediaConverter.HLSSegmentTimeInSeconds + 1), "#EXT-X-TARGETDURATION:" + MediaConverter.HLSSegmentTimeInSeconds);
+      urlReplace.Replace(URL_PLACEHOLDER, baseUrl);
+      return Encoding.UTF8.GetBytes(urlReplace.ToString());
+    }
+
+    internal static string GetPlaylistFolderFromTranscodeFile(string cachePath, string transcodingFile)
+    {
+      string folderTranscodeId = Path.GetFileNameWithoutExtension(transcodingFile).Replace(".", "_") + PLAYLIST_FOLDER_SUFFIX;
+      return Path.Combine(cachePath, folderTranscodeId);
+    }
+
+    internal static void CreatePlaylistFiles(TranscodeData data)
+    {
+      if (Directory.Exists(data.WorkPath) == false)
+      {
+        Directory.CreateDirectory(data.WorkPath);
+      }
+      if (data.SegmentPlaylistData != null)
+      {
+        string playlist = Path.Combine(data.WorkPath, MediaConverter.PLAYLIST_FILE_NAME);
+        string tempPlaylist = playlist + ".tmp";
+        File.WriteAllBytes(tempPlaylist, data.SegmentPlaylistData);
+        File.Move(tempPlaylist, playlist);
+        if (data.SegmentSubsPlaylistData != null)
+        {
+          playlist = Path.Combine(data.WorkPath, MediaConverter.PLAYLIST_SUBTITLE_FILE_NAME);
+          tempPlaylist = playlist + ".tmp";
+          File.WriteAllBytes(playlist, data.SegmentSubsPlaylistData);
+          File.Move(tempPlaylist, playlist);
+        }
+      }
+      if (data.SegmentPlaylist != null && data.SegmentManifestData != null)
+      {
+        string tempManifest = data.SegmentPlaylist + ".tmp";
+        File.WriteAllBytes(tempManifest, data.SegmentManifestData);
+        File.Move(tempManifest, data.SegmentPlaylist);
+      }
+
+      //No need to keep data so free used memory
+      data.SegmentManifestData = null;
+      data.SegmentPlaylistData = null;
+      data.SegmentSubsPlaylistData = null;
     }
   }
 }
