@@ -34,11 +34,6 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
 
     protected AbstractProperty _isMenuOpenProperty = new WProperty(typeof(bool), true);
 
-    public SystemStateMenuModel()
-    {
-      _isMenuOpenProperty = new WProperty(typeof(bool), true);
-    }
-
     public AbstractProperty IsMenuOpenProperty
     {
       get { return _isMenuOpenProperty; }
