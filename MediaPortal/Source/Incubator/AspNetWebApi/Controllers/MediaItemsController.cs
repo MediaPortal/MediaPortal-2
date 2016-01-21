@@ -25,12 +25,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using HttpServer.Exceptions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 
 namespace MediaPortal.Plugins.AspNetWebApi.Controllers
 {
@@ -43,6 +46,18 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     #region Private fields
 
     private readonly ILogger _logger;
+
+    /// <summary>
+    /// Default mime type used as Content-Type header when returning an image
+    /// </summary>
+    /// <remarks>
+    /// We currently don't store the mime type when storing images in the MediaLibrary; we only store the raw image data as byte[].
+    /// But when returning an <see cref="FileContentResult"/>, it requires us to provide a <see cref="MediaTypeHeaderValue"/>.
+    /// Although it is not recommended in productive systems, "image/*" would be correct, but has the disadvantage that both,
+    /// Firefox and IE do not render the image, but offer to download and save it. When using "image/gif", both browsers correctly
+    /// render the image - even if the image is not a gif, but e.g. a jpg.
+    /// </remarks>
+    private const string DEFAULT_IMAGE_CONTENT_TYPE_STRING = "image/gif";
 
     #endregion
 
@@ -115,20 +130,50 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     }
 
     /// <summary>
-    /// GET /api/v1/MediaLibrary/MediaItems/[MediaItemId]
+    /// GET /api/v1/MediaLibrary/MediaItems/[mediaItemId]
     /// </summary>
-    /// <param name="id">ID of the <see cref="MediaItem"/></param>
+    /// <param name="mediaItemId">ID of the <see cref="MediaItem"/></param>
     /// <param name="filterOnlyOnline">If <c>true</c>, the search only returns a MediaItem if it is currently accessible</param>
     /// <returns>
     /// Collection of <see cref="MediaItem"/>s either containing one <see cref="MediaItem"/> with all its MediaItemAspects or
-    /// no <see cref="MediaItem"/> if there is no <see cref="MediaItem"/> with the given <paramref name="id"/>
+    /// no <see cref="MediaItem"/> if there is no <see cref="MediaItem"/> with the given <paramref name="mediaItemId"/>
     /// </returns>
-    [HttpGet("{id}")]
-    public IEnumerable<MediaItem> Get(Guid id, bool filterOnlyOnline = false)
+    [HttpGet("{mediaItemId}")]
+    public IEnumerable<MediaItem> Get(Guid mediaItemId, bool filterOnlyOnline = false)
     {
-      var filter = new MediaItemIdFilter(id);
+      var filter = new MediaItemIdFilter(mediaItemId);
       var query = new MediaItemQuery(null, ServiceRegistration.Get<IMediaItemAspectTypeRegistration>().LocallyKnownMediaItemAspectTypes.Keys, filter);
       return ServiceRegistration.Get<IMediaLibrary>().Search(query, filterOnlyOnline);
+    }
+
+    /// <summary>
+    /// GET /api/v1/MediaLibrary/MediaItems/[mediaItemId]/bin/[attributeString]
+    /// GET /api/v1/MediaLibrary/MediaItems/[mediaItemId]/bin/[attributeString]/[index]
+    /// </summary>
+    /// <param name="mediaItemId">ID of the <see cref="MediaItem"/></param>
+    /// <param name="attributeString">String identifying an Attribute in the Form "[MediaItemAspectId].[AttributeName]"</param>
+    /// <param name="index">
+    /// Currently only 0 is valid. This parameter was introduced with respect to the MIA-rework. When there are multiple MIAs of the
+    /// same type for one MediaItem and the MIA contains an image, we need to uniquely identify the respective image so that a request
+    /// to this method with a specific index always returns the same image. Multiple MIAs of the same type do not have a certain order,
+    /// which is why we need to generate this index e.g. based on the size and content of the image.
+    /// </param>
+    /// <returns>The byte array in form of an image</returns>
+    [HttpGet("{mediaItemId}/bin/{attributeString}/{index:int?}")]
+    public IActionResult Get(Guid mediaItemId, string attributeString, int index = 0)
+    {
+      var filter = new MediaItemIdFilter(mediaItemId);
+      var miam = ParameterValidator.ValidateAttribute(attributeString, _logger);
+      if (miam.AttributeType != typeof(byte[]))
+        throw new HttpException(HttpStatusCode.BadRequest, $"{miam.ParentMIAM.Name}.{miam.AttributeName} is not of type byte[]");
+      var query = new MediaItemQuery(new[] { miam.ParentMIAM.AspectId }, null, filter);
+      var mi = ServiceRegistration.Get<IMediaLibrary>().Search(query, false).FirstOrDefault();
+      if (mi == null)
+        throw new HttpException(HttpStatusCode.NotFound, "MediaItem or Aspect not found");
+      var bytes = mi.Aspects[miam.ParentMIAM.AspectId].GetAttributeValue<byte[]>(miam);
+      if (bytes == null)
+        throw new HttpException(HttpStatusCode.NotFound, $"{miam.ParentMIAM.Name}.{miam.AttributeName} is empty for MediaItem with ID {mediaItemId}");
+      return new FileContentResult(bytes, new MediaTypeHeaderValue(DEFAULT_IMAGE_CONTENT_TYPE_STRING));
     }
 
     #endregion
