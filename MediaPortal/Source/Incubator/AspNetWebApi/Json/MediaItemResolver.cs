@@ -1,5 +1,6 @@
 ﻿using System;
 using MediaPortal.Common.MediaManagement;
+using Microsoft.AspNet.Http;
 using Newtonsoft.Json.Serialization;
 
 namespace MediaPortal.Plugins.AspNetWebApi.Json
@@ -10,11 +11,18 @@ namespace MediaPortal.Plugins.AspNetWebApi.Json
   /// </summary>
   class MediaItemResolver : DefaultContractResolver
   {
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public MediaItemResolver(IHttpContextAccessor httpContextAccessor)
+    {
+      _httpContextAccessor = httpContextAccessor;
+    }
+
     protected override JsonObjectContract CreateObjectContract(Type objectType)
     {
       var contract = base.CreateObjectContract(objectType);
       if (objectType == typeof(MediaItem))
-        contract.Converter = new MediaItemJsonConverter();
+        contract.Converter = new MediaItemJsonConverter(_httpContextAccessor);
       return contract;
     }
   }

@@ -24,6 +24,8 @@
 
 using System;
 using MediaPortal.Common.MediaManagement;
+using Microsoft.AspNet.Http;
+using Microsoft.AspNet.Http.Extensions;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.AspNetWebApi.Json
@@ -41,8 +43,39 @@ namespace MediaPortal.Plugins.AspNetWebApi.Json
     private const string PROPERTY_NAME_MEDIA_ITEM_ASPECT_NAME = "MediaItemAspectName";
     private const string PROPERTY_NAME_ATTRIBUTES = "Attributes";
 
-    // This string is sent for Attributes of type byte[] instead of the actual binary data.
-    private const string BINARY_REPLACEMENT_STRING = "%%BinaryData%%";
+    #endregion
+
+    #region Private fields
+    
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    #endregion
+
+    #region Constructor
+
+    public MediaItemJsonConverter(IHttpContextAccessor httpContextAccessor)
+    {
+      _httpContextAccessor = httpContextAccessor;
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Creates an URL string pointing to a specific byte[] Attribute
+    /// </summary>
+    /// <param name="mediaItemId">Guid of the MediaItem</param>
+    /// <param name="attributeSpecification">Specification of the byte[] Attribute</param>
+    /// <returns>URL string where the Attribute can be downloaded</returns>
+    /// <remarks>ToDo: Needs to be extended by an Index once the MIA Rework is finished</remarks>
+    private string GetBinaryDownloadPath(Guid mediaItemId, MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
+    {
+      const string controllerPathSegment = "MediaItems";
+      var path = _httpContextAccessor.HttpContext.Request.GetDisplayUrl();
+      path = path.Substring(0, path.IndexOf(controllerPathSegment, StringComparison.OrdinalIgnoreCase) + controllerPathSegment.Length);
+      return path + $"/{mediaItemId}/bin/{attributeSpecification.ParentMIAM.AspectId}.{attributeSpecification.AttributeName}";
+    }
 
     #endregion
 
@@ -88,7 +121,7 @@ namespace MediaPortal.Plugins.AspNetWebApi.Json
           writer.WritePropertyName(attributeSpecification.AttributeName);
           var attribute = mia[attributeSpecification];
           if (attribute is byte[])
-            writer.WriteValue(BINARY_REPLACEMENT_STRING);
+            writer.WriteValue(GetBinaryDownloadPath(mi.MediaItemId, attributeSpecification));
           else
             serializer.Serialize(writer, mia[attributeSpecification]);
         }

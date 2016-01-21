@@ -27,6 +27,8 @@ using System;
 using MediaPortal.Plugins.AspNetServer;
 using MediaPortal.Plugins.AspNetWebApi.Json;
 using Microsoft.AspNet.Builder;
+using Microsoft.AspNet.Http;
+using Microsoft.AspNet.Http.Internal;
 using Microsoft.AspNet.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -50,9 +52,15 @@ namespace MediaPortal.Plugins.AspNetWebApi
         webApplicationName: WEB_APPLICATION_NAME,
         configureServices: services =>
         {
+          // HttpContextAccessor is not created automatically because it is not needed necessarily.
+          // We need it to inject it into the MediaItemResolver so that it can inject it into the MediaItemJsonConverter.
+          // It needs to be registered as a service so that it is automatically injected into the HttpContextFactory.
+          var httpContextAccessor = new HttpContextAccessor();
+          services.AddSingleton<IHttpContextAccessor>(httpContextAccessor);
+
           services.AddMvc(options =>
           {
-            var jsonOutputFormatter = new JsonOutputFormatter { SerializerSettings = { ContractResolver = new MediaItemResolver()} };
+            var jsonOutputFormatter = new JsonOutputFormatter { SerializerSettings = { ContractResolver = new MediaItemResolver(httpContextAccessor) } };
             options.OutputFormatters.RemoveType<JsonOutputFormatter>();
             options.OutputFormatters.Insert(0, jsonOutputFormatter);
           });
