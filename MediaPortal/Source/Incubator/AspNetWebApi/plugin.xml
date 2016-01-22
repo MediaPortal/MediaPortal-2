@@ -15,6 +15,7 @@
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
     <PluginReference PluginId="{F2F6988F-C436-4D74-9819-3947E0DD6974}" CompatibleAPI="1"/> <!-- AspNetServer -->
+    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="1"/> <!-- FanArtService-->
   </DependsOn>
 
   <Runtime>

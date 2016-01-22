@@ -19,6 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj" />
+    <ProjectReference Include="..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="build.targets" />
