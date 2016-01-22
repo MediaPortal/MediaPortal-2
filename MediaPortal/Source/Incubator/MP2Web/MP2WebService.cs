@@ -64,15 +64,17 @@ namespace MediaPortal.Plugins.MP2Web
         },
         configureApp: app =>
         {
+          
           // Add static files to the request pipeline.
           string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "wwwroot").TrimEnd(Path.DirectorySeparatorChar);
-          app.UseStaticFiles(new StaticFileOptions
+          app.UseFileServer(new FileServerOptions
           {
             FileProvider = new PhysicalFileProvider(resourcePathWww),
-            RequestPath = new PathString("")
+            RequestPath = new PathString(""),
+            EnableDirectoryBrowsing = false,
+            EnableDefaultFiles = true         // Serve default files (default.{htm|html} and index.{htm|html}
           });
           app.UseMvc();
-          app.Run(context => context.Response.WriteAsync("Hello MP2Web"));
         },
         port: PORT,
         basePath: BASE_PATH);
