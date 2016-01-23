@@ -184,7 +184,7 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
         return new FileContentResult(bytes, new MediaTypeHeaderValue(DEFAULT_IMAGE_CONTENT_TYPE_STRING));
       using (var originalImageStream = new MemoryStream(bytes))
       {
-        var resizedBytes = FanArtImage.FromStream(originalImageStream, maxWidth, maxHeight, FanArtConstants.FanArtMediaType.Undefined, FanArtConstants.FanArtType.Undefined, mediaItemId.ToString(), attributeString).BinaryData;
+        var resizedBytes = FanArtImage.FromStream(originalImageStream, maxWidth, maxHeight, FanArtMediaTypes.Undefined, FanArtTypes.Undefined, mediaItemId.ToString(), attributeString).BinaryData;
         return new FileContentResult(resizedBytes, new MediaTypeHeaderValue(DEFAULT_IMAGE_CONTENT_TYPE_STRING));
       }
     }
@@ -194,8 +194,8 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     /// GET /api/v1/MediaLibrary/MediaItems/[mediaItemId]/FanArt/[mediaType]/[fanArtType]/[index]
     /// </summary>
     /// <param name="mediaItemId">ID of the <see cref="MediaItem"/></param>
-    /// <param name="mediaType"><see cref="FanArtConstants.FanArtMediaType"/></param>
-    /// <param name="fanArtType"><see cref="FanArtConstants.FanArtType"/></param>
+    /// <param name="mediaType"><see cref="FanArtMediaTypes"/></param>
+    /// <param name="fanArtType"><see cref="FanArtTypes"/></param>
     /// <param name="index">Zero based index for cases where multiple images are available</param>
     /// <param name="maxWidth">Maximum width of the image returned; if it is larger, it will be downscaled</param>
     /// <param name="maxHeight">Maximum height of the image returned; if it is larger, it will be downscaled</param>
@@ -204,7 +204,7 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     /// This method is temporary until the MIA rework is finished and all FanArt is in the MediaLibrary
     /// </remarks>
     [HttpGet("{mediaItemId}/FanArt/{mediaType}/{fanArtType}/{index:int?}")]
-    public IActionResult Get(Guid mediaItemId, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, int index = 0, int maxWidth = DEFAULT_IMAGE_MAX_WIDTH, int maxHeight = DEFAULT_IMAGE_MAX_HEIGHT)
+    public IActionResult Get(Guid mediaItemId, string mediaType, string fanArtType, int index = 0, int maxWidth = DEFAULT_IMAGE_MAX_WIDTH, int maxHeight = DEFAULT_IMAGE_MAX_HEIGHT)
     {
       var images = ServiceRegistration.Get<IFanArtService>().GetFanArt(mediaType, fanArtType, mediaItemId.ToString(), maxWidth, maxHeight, false);
       if(images == null || !images.Any())
