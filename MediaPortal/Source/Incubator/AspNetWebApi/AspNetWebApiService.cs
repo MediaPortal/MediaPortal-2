@@ -64,10 +64,12 @@ namespace MediaPortal.Plugins.AspNetWebApi
             options.OutputFormatters.RemoveType<JsonOutputFormatter>();
             options.OutputFormatters.Insert(0, jsonOutputFormatter);
           });
+          services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
         },
         configureApp: app =>
         {
           app.UseMvc();
+          app.UseCors("AllowAll");
         },
         port: PORT,
         basePath: BASE_PATH);

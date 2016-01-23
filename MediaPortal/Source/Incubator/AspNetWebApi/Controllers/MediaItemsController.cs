@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using HttpServer.Exceptions;
@@ -59,6 +60,9 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     /// render the image - even if the image is not a gif, but e.g. a jpg.
     /// </remarks>
     private const string DEFAULT_IMAGE_CONTENT_TYPE_STRING = "image/gif";
+
+    private const int DEFAULT_IMAGE_MAX_WIDTH = 3840;
+    private const int DEFAULT_IMAGE_MAX_HEIGHT = 2160;
 
     #endregion
 
@@ -159,9 +163,11 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     /// to this method with a specific index always returns the same image. Multiple MIAs of the same type do not have a certain order,
     /// which is why we need to generate this index e.g. based on the size and content of the image.
     /// </param>
+    /// <param name="maxWidth">Maximum width of the image returned; if it is larger, it will be downscaled</param>
+    /// <param name="maxHeight">Maximum height of the image returned; if it is larger, it will be downscaled</param>
     /// <returns>The byte array in form of an image</returns>
     [HttpGet("{mediaItemId}/bin/{attributeString}/{index:int?}")]
-    public IActionResult Get(Guid mediaItemId, string attributeString, int index = 0)
+    public IActionResult Get(Guid mediaItemId, string attributeString, int index = 0, int maxWidth = DEFAULT_IMAGE_MAX_WIDTH, int maxHeight = DEFAULT_IMAGE_MAX_HEIGHT)
     {
       var filter = new MediaItemIdFilter(mediaItemId);
       var miam = ParameterValidator.ValidateAttribute(attributeString, _logger);
@@ -174,7 +180,13 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
       var bytes = mi.Aspects[miam.ParentMIAM.AspectId].GetAttributeValue<byte[]>(miam);
       if (bytes == null)
         throw new HttpException(HttpStatusCode.NotFound, $"{miam.ParentMIAM.Name}.{miam.AttributeName} is empty for MediaItem with ID {mediaItemId}");
-      return new FileContentResult(bytes, new MediaTypeHeaderValue(DEFAULT_IMAGE_CONTENT_TYPE_STRING));
+      if (maxWidth == DEFAULT_IMAGE_MAX_WIDTH && maxHeight == DEFAULT_IMAGE_MAX_HEIGHT)
+        return new FileContentResult(bytes, new MediaTypeHeaderValue(DEFAULT_IMAGE_CONTENT_TYPE_STRING));
+      using (var originalImageStream = new MemoryStream(bytes))
+      {
+        var resizedBytes = FanArtImage.FromStream(originalImageStream, maxWidth, maxHeight, FanArtConstants.FanArtMediaType.Undefined, FanArtConstants.FanArtType.Undefined, mediaItemId.ToString(), attributeString).BinaryData;
+        return new FileContentResult(resizedBytes, new MediaTypeHeaderValue(DEFAULT_IMAGE_CONTENT_TYPE_STRING));
+      }
     }
 
     /// <summary>
@@ -192,7 +204,7 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers
     /// This method is temporary until the MIA rework is finished and all FanArt is in the MediaLibrary
     /// </remarks>
     [HttpGet("{mediaItemId}/FanArt/{mediaType}/{fanArtType}/{index:int?}")]
-    public IActionResult Get(Guid mediaItemId, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, int index = 0, int maxWidth = 1980, int maxHeight = 1280)
+    public IActionResult Get(Guid mediaItemId, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, int index = 0, int maxWidth = DEFAULT_IMAGE_MAX_WIDTH, int maxHeight = DEFAULT_IMAGE_MAX_HEIGHT)
     {
       var images = ServiceRegistration.Get<IFanArtService>().GetFanArt(mediaType, fanArtType, mediaItemId.ToString(), maxWidth, maxHeight, false);
       if(images == null || !images.Any())
