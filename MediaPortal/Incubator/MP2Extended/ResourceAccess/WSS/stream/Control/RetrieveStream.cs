@@ -53,7 +53,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         {
           return true;
         }
-        else if(MediaConverter.GetSegmentSequence(hls) > 0)
+        else if(streamItem.ItemType != Common.WebMediaType.TV && 
+          streamItem.ItemType != Common.WebMediaType.Radio &&
+          MediaConverter.GetSegmentSequence(hls) > 0)
         {
           long segmentRequest = MediaConverter.GetSegmentSequence(hls);
           if(streamItem.RequestSegment(segmentRequest) == false)
