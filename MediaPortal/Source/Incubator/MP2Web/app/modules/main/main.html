@@ -3,7 +3,7 @@
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <img src="images/logo.png" width="50"><a class="navbar-brand" href="/">MP2Web</a>
+                <img src="images/logo.png" width="50"><a [routerLink]="['Home']" class="navbar-brand">MP2Web</a>
             </div>
 
             <ul class="nav navbar-nav">
@@ -24,31 +24,6 @@
                         <li [class.active]="router.isRouteActive(router.generate([route.name]))"><a [routerLink]="[route.name]">{{route.label}}</a></li>
                     </template>
                 </template>
-                <!--
-                <li *ngFor="#route of routes; #x = index" [class.active]="router.isRouteActive(router.generate([route.name]))"><a  [routerLink]="[route.name]">{{route.name}}</a></li>
-                -->
-               <!--
-                <li [class.active]="router.isRouteActive(router.generate(['Home']))"><a  [routerLink]="['Home']">Home</a></li>
-                <li><a href="#">TvShows</a></li>
-                <li><a href="#">Movies</a></li>
-                <li><a href="#">Tv</a></li>
-                <li><a href="#">Music</a></li>
-                <li><a href="#">Pictures</a></li>
-                <li><a href="#">Online</a></li>
-                <li><a href="#">System</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Action</a></li>
-                        <li><a href="#">Another action</a></li>
-                        <li><a href="#">Something else here</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li class="dropdown-header">Nav header</li>
-                        <li><a href="#">Separated link</a></li>
-                        <li><a href="#">One more separated link</a></li>
-                    </ul>
-                </li>
-                -->
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
@@ -61,7 +36,6 @@
 
 <!-- CONTENT -->
 <div id="main" class="container" style="padding-top: 60px; padding-bottom: 60px;">
-    {{router.parent}}
     <router-outlet></router-outlet>
 </div>
 

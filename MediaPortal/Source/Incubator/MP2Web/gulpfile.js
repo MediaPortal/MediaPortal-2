@@ -13,7 +13,7 @@ var config = {
   ],
   //Include all js files but exclude any min.js files
   src: [
-    'app/**/*.+(js|html)',
+    'app/**/*.+(js|css|html|json)',
     'images/**/*.*',
     '*.html'
   ]

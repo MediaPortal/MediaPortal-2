@@ -1,6 +1,7 @@
 import {Component, View} from 'angular2/core';
 import {ROUTER_DIRECTIVES, Location, RouteConfig, RouterLink, Router} from 'angular2/router';
 import {COMMON_DIRECTIVES, NgIf, NgFor} from 'angular2/common';
+import {TranslateService, TranslatePipe} from 'ng2-translate/ng2-translate';
 
 import {CrisisListComponent}   from './crisis-list.component';
 import {HeroListComponent}     from './hero-list.component';
@@ -11,10 +12,9 @@ import {MoviesComponent}     from './modules/movies/lib/movies.component';
 @Component({
     selector: 'mp2web',
     templateUrl: 'app/modules/main/main.html',
-    directives: [ROUTER_DIRECTIVES, COMMON_DIRECTIVES, NgFor, NgIf]
+    directives: [ROUTER_DIRECTIVES, COMMON_DIRECTIVES, NgFor, NgIf],
+    pipes: [TranslatePipe]
 })
-
-//@RouteConfig(_routes)
 export class AppComponent {
     routes = [
         {path: '/MediaLibrary', name: 'MediaLibrary', label:'Media Library', component: '', pages: [
@@ -28,18 +28,35 @@ export class AppComponent {
         ]},
         {path:'/heroes', name: 'Heroes', label: 'Heroes', pages: [], component: HeroListComponent}
     ];
-    /*routerRoutes = [
-            {path:'/', name: 'Home', component: HomeComponent},
-            {path:'/crisis-center', name: 'CrisisCenter', component: CrisisListComponent},
-            {path:'/heroes',        name: 'Heroes',       component: HeroListComponent},
-            {path:'/movies/...',        name: 'Movies',       component: MoviesComponent}
+    routerRoutes = [
+        {path:'/', name: 'Home', component: HomeComponent, defaultRoute: true}
+    ];
 
-    ];*/
-    routerRoutes = [];
-
-    constructor(public router: Router, public location: Location) {
+    constructor(public router: Router, public location: Location, translate: TranslateService) {
+        /*
+        Router setup
+         */
         this.buildRoutes();
         router.config(this.routerRoutes);
+
+        /*
+        Translation Setup
+         */
+        var userLang = navigator.language.split('-')[0]; // use navigator lang if available
+        //userLang = /(de|en)/gi.test(userLang) ? userLang : 'en';
+        userLang = 'en';
+
+        // this language will be used as a fallback when a translation isn't found in the current language
+        translate.setDefaultLang('en');
+
+        var prefix = 'app/lang';
+        var suffix = '.json';
+        translate.useStaticFilesLoader(prefix, suffix);
+
+        // the lang to use, if the lang isn't available, it will use the current loader to get them
+        translate.use(userLang);
+
+        translate.getTranslation(userLang);
     }
 
     /*
@@ -47,10 +64,10 @@ export class AppComponent {
      */
     buildRoutes() {
         for (var i = 0; i < this.routes.length; i++) {
-            // no dropndown
+            // no dropdown
             if (this.routes[i].pages.length == 0) {
                 this.addInitialRoute(this.routes[i].path, this.routes[i].name, this.routes[i].component)
-            // dropndown
+            // dropdown
             }else {
                 for (var x = 0; x < this.routes[i].pages.length; x++) {
                     this.addInitialRoute(this.routes[i].path + this.routes[i].pages[x].path,
@@ -68,7 +85,8 @@ export class AppComponent {
         var routeObj = {
             path: path,
             name: this.firstToUpperCase(name),
-            component: component
+            component: component,
+            defaultRoute: false
         }
         if (!this.doesPathExist(routeObj.path))
             this.routerRoutes.push(routeObj)
@@ -105,10 +123,8 @@ export class AppComponent {
     Checks which route is active
      */
     isSubrouteActive(CategoryName, pages) {
-        console.log(CategoryName + " -- " + pages.length)
         for (var i = 0; i < pages.length; i++) {
             var name: any = this.generateSubentryRoutename(CategoryName, [pages[i].name]);
-            console.log(name);
             if (this.router.isRouteActive(this.router.generate([name]))){
                 return true;
             }

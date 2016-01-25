@@ -1,28 +1,33 @@
-<div g-controller="moviesController">
+<link rel="stylesheet" href="../../common/css/starrating.css">
+<link rel="stylesheet" href="../../common/css/cornor_ribbon.css">
 
-    <div>
-        <div class="row movies" *ngFor="#movie of moviesBasic; #x = index">
+<div style="text-align: center;">
+    <div style="margin: auto; display: inline-block">
+        <div class="row movies" *ngFor="#movie of movieList; #x = index">
             <template [ngIf]="x % movieCoversPerRow == 0">
                 <!-- columns -->
                 <template ngFor #i [ngForOf]="moviesForLoop | range:movieCoversPerRow">
-                    <div *ngIf="x + i < moviesBasic.length" class="col-sm-3 ih-item square effect11 left_to_right" (click)="go('/movieDetails/'+moviesBasic[x + i].Id)" style="width: 200px !important; height: 330px !important;">
-                        <a href="" (click)="go('/movieDetails/'+moviesBasic[x + i].Id)">
+                    <div *ngIf="x + i < movieList.length" class="col-sm-3 ih-item square effect11 left_to_right" (click)="go(['Details', {id: movieList[x + i].ID}])" style="width: 200px !important; height: 330px !important; cursor: pointer;">
+                        <a (click)="go(['Details', {id: movieList[x + i].ID}])">
                             <div class="img">
                                 <!-- watched status -->
-                                <div [ngClass]="{true: 'side-corner-tag', false: ''}[moviesBasic[x + i].Watched]">
-                                    <img [src]="getCovers(moviesBasic[x + i].Id)" id="watched">
-                                    <p><span>Watched!</span></p>
+                                <div [ngClass]="{true: 'side-corner-tag', false: ''}[movieList[x + i].Watched]">
+                                    <img [src]="getCovers(movieList[x + i].ID)" id="watched">
+                                    <template [ngIf]="movieList[x + i].Watched">
+                                        <p><span>Watched!</span></p>
+                                    </template>
                                 </div>
                                 <br>
                             </div>
                             <!-- extended information -->
                             <div class="info">
-                                <h3>{{moviesBasic[x + i].Title}}</h3>
-                                <p>Watched: {{moviesBasic[x + i].Watched}}</p>
-                                <p>Runtime: {{moviesBasic[x + i].Runtime}} minutes</p>
+                                <h3>{{movieList[x + i].Title}}</h3>
+                                <span class="ratings" [ngClass]="starrating.GetStars(movieList[x + i].TotalRating)"></span>
+                                <p>Runtime: {{movieList[x + i].Runtime}} minutes</p>
+                                <p>{{movieList[x + i].Tagline}}</p>
                             </div>
                         </a>
-                        <div class="movieTitle">{{moviesBasic[x + i].Title}}</div>
+                        <div class="movieTitle">{{movieList[x + i].Title}}</div>
                     </div>
                 </template>
             </template>
