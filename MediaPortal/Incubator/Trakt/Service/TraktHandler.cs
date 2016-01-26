@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -33,12 +34,17 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Enums;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension;
+using MediaPortal.UiComponents.Trakt.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.Services.Players;
+using TraktSettings = MediaPortal.UiComponents.Trakt.Settings.TraktSettings;
 
 namespace MediaPortal.UiComponents.Trakt.Service
 {
@@ -47,6 +53,8 @@ namespace MediaPortal.UiComponents.Trakt.Service
     // Defines the minimum playback progress in percent to consider a video as fully watched.
     private const int WATCHED_PERCENT = 85;
     private static readonly TimeSpan UPDATE_INTERVAL = TimeSpan.FromMinutes(10);
+    private ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+    private TraktSettings TRAKT_SETTINGS = ServiceRegistration.Get<ISettingsManager>().Load<TraktSettings>();
 
     private class PositionWatcher
     {
@@ -57,7 +65,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
     private AsynchronousMessageQueue _messageQueue;
     private readonly object _syncObj = new object();
-    private readonly SettingsChangeWatcher<Settings.TraktSettings> _settings = new SettingsChangeWatcher<Settings.TraktSettings>();
+    private readonly SettingsChangeWatcher<TraktSettings> _settings = new SettingsChangeWatcher<TraktSettings>();
     private readonly Dictionary<IPlayerSlotController, PositionWatcher> _progressUpdateWorks = new Dictionary<IPlayerSlotController, PositionWatcher>();
 
     public TraktHandler()
@@ -73,7 +81,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
     private void ConfigureHandler()
     {
-      if (_settings.Settings.EnableTrakt)
+      if (_settings.Settings.EnableTrakt /*&& UserloggedIntoTrakt()*/)
       {
         SubscribeToMessages();
       }
@@ -81,6 +89,33 @@ namespace MediaPortal.UiComponents.Trakt.Service
       {
         UnsubscribeFromMessages();
       }
+    }
+
+    private bool UserloggedIntoTrakt()
+    {
+
+      if (string.IsNullOrEmpty(TRAKT_SETTINGS.TraktOAuthToken))
+      {
+        TraktLogger.Error("Authorise first");
+        return false;
+      }
+
+      var response = TraktAPI.GetOAuthToken(TRAKT_SETTINGS.TraktOAuthToken);
+      if (response == null || string.IsNullOrEmpty(response.AccessToken))
+      {
+        //TestStatus = Error
+        TraktLogger.Error("Unable to login to trakt, check log for details");
+        return false;
+      }
+
+      //TestStatus = Success
+      TRAKT_SETTINGS.TraktOAuthToken = response.RefreshToken;
+      settingsManager.Save(TRAKT_SETTINGS);
+      TraktLogger.Info("Succes login to scrobble");
+      _settings.Settings.AccountStatus = ConnectionState.Connected;
+
+      return true;
+
     }
 
     void SubscribeToMessages()
@@ -141,8 +176,46 @@ namespace MediaPortal.UiComponents.Trakt.Service
           _progressUpdateWorks[psc].ResumePosition = pos != null ? pos.ResumePosition : _progressUpdateWorks[psc].Duration;
     }
 
+    private bool CheckAccountDetails()
+    {
+      if (string.IsNullOrEmpty(TRAKT_SETTINGS.TraktOAuthToken))
+      {
+          //TestStatus = "Error";
+          TraktLogger.Error("Trakt.tv error in credentials");
+          return false;
+      }
+      return true;
+    }
+
+    private bool Login()
+    {
+      TraktLogger.Info("Exchanging refresh-token for access-token... scrobble");
+      var response = TraktAPI.GetOAuthToken(TRAKT_SETTINGS.TraktOAuthToken);
+      if (response == null || string.IsNullOrEmpty(response.AccessToken))
+      {
+        //TestStatus = Error
+        TraktLogger.Error("Unable to login to trakt, check log for details");
+        return false;
+      }
+
+      //TestStatus = Success
+      TRAKT_SETTINGS.TraktOAuthToken = response.RefreshToken;
+      settingsManager.Save(TRAKT_SETTINGS);
+      TraktLogger.Info("Succes");
+
+      return true;
+    }
+
     private void HandleScrobble(IPlayerSlotController psc, bool starting)
     {
+
+      if(!CheckAccountDetails())
+        return;
+
+      if(!Login())
+        return;
+
+
       try
       {
         IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
@@ -151,20 +224,19 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
         bool removePsc = HandleTasks(psc, starting);
 
-        AbstractScrobble scrobbleData;
-        TraktScrobbleStates state;
-        if (TryCreateScrobbleData(psc, pc, starting, out scrobbleData, out state))
+        bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
+        bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
+
+        if (isMovie)
         {
-          ServiceRegistration.Get<ILogger>().Debug("Trakt.tv: [{5}] {0}, Duration {1}, Percent {2}, PSC.Duration {3}, PSC.ResumePosition {4}",
-            scrobbleData.Title, scrobbleData.Duration, scrobbleData.Progress, _progressUpdateWorks[psc].Duration, _progressUpdateWorks[psc].ResumePosition, state);
+          var response = starting ? TraktAPI.StartMovieScrobble(CreateMovieScrobbleData(psc, pc, true)) : TraktAPI.StopMovieScrobble(CreateMovieScrobbleData(psc, pc, false));
+          TraktLogger.LogTraktResponse(response);
+        }
 
-          TraktMovieScrobble movie = scrobbleData as TraktMovieScrobble;
-          if (movie != null)
-            TraktAPI.ScrobbleMovieState(movie, state);
-
-          TraktEpisodeScrobble episode = scrobbleData as TraktEpisodeScrobble;
-          if (episode != null)
-            TraktAPI.ScrobbleEpisodeState(episode, state);
+        if (isSeries)
+        {
+          var response = starting ? TraktAPI.StartEpisodeScrobble(CreateEpisodeScrobbleData(psc, pc, true)) : TraktAPI.StopEpisodeScrobble(CreateEpisodeScrobbleData(psc, pc, false));
+          TraktLogger.LogTraktResponse(response);
         }
 
         if (removePsc)
@@ -210,42 +282,10 @@ namespace MediaPortal.UiComponents.Trakt.Service
     }
 
     /// <summary>
-    /// Creates Scrobble data based on a DBMovieInfo object
+    /// Creates Scrobble data based on playing MediaItem object
     /// </summary>
-    /// <param name="psc"></param>
-    /// <param name="pc">PlayerContext</param>
-    /// <param name="starting"></param>
-    /// <param name="scrobbleData"></param>
-    /// <param name="state"></param>
-    /// <returns>The Trakt scrobble data to send</returns>
-    private bool TryCreateScrobbleData(IPlayerSlotController psc, IPlayerContext pc, bool starting, out AbstractScrobble scrobbleData, out TraktScrobbleStates state)
+    private TraktScrobbleMovie CreateMovieScrobbleData(IPlayerSlotController psc, IPlayerContext pc, bool starting)
     {
-      scrobbleData = null;
-      state = starting ? TraktScrobbleStates.watching : TraktScrobbleStates.scrobble;
-      if (_settings.Settings.Authentication == null)
-        return false;
-
-      string username = _settings.Settings.Authentication.Username;
-      string password = _settings.Settings.Authentication.Password;
-
-      if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-        return false;
-
-      // For canceling the watching, it is to have no TraktMovieScrobble.
-      if (pc.CurrentMediaItem == null)
-      {
-        if (starting)
-          return false;
-        state = TraktScrobbleStates.cancelwatching;
-        return true;
-      }
-
-      bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
-      bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
-      if (!isMovie && !isSeries)
-        return false;
-
-      string title = pc.CurrentPlayer != null ? pc.CurrentPlayer.MediaItemTitle : null;
       IMediaPlaybackControl pmc = pc.CurrentPlayer as IMediaPlaybackControl;
       TimeSpan currentPosition;
       if (pmc != null)
@@ -259,72 +299,133 @@ namespace MediaPortal.UiComponents.Trakt.Service
         currentPosition = _progressUpdateWorks[psc].ResumePosition;
       }
 
-      int progress = currentPosition == TimeSpan.Zero ? (starting ? 0 : 100) : Math.Min((int)(currentPosition.TotalSeconds * 100 / _progressUpdateWorks[psc].Duration.TotalSeconds), 100);
+      double progress = currentPosition == TimeSpan.Zero ? (starting ? 0 : 100) : Math.Min((int)(currentPosition.TotalSeconds * 100 / _progressUpdateWorks[psc].Duration.TotalSeconds), 100);
 
+      var movieScrobbleData = new TraktScrobbleMovie
+      {
+        Movie = new TraktMovie
+        {
+          Ids = new TraktMovieId { Imdb = GetMovieImdb(pc.CurrentMediaItem), Tmdb = GetMovieTmdb(pc.CurrentMediaItem) },
+          Title = GetMovieTitle(pc.CurrentMediaItem),
+          Year = GetVideoYear(pc.CurrentMediaItem)
+        },
+      //  AppVersion = _settings.Settings.Version,
+       // AppDate = _settings.Settings.BuildDate,
+        Progress = progress
+      };
+
+      return movieScrobbleData;
+    }
+
+    /// <summary>
+    /// Creates Scrobble data based on a MediaItem object
+    /// </summary>
+    private TraktScrobbleEpisode CreateEpisodeScrobbleData(IPlayerSlotController psc, IPlayerContext pc, bool starting)
+    {
+      IMediaPlaybackControl pmc = pc.CurrentPlayer as IMediaPlaybackControl;
+      TimeSpan currentPosition;
+      if (pmc != null)
+      {
+        _progressUpdateWorks[psc].Duration = pmc.Duration;
+        currentPosition = pmc.CurrentTime;
+      }
+      else
+      {
+        // Player is already removed on stopping, so take the resume position if available
+        currentPosition = _progressUpdateWorks[psc].ResumePosition;
+      }
+
+      double progress = currentPosition == TimeSpan.Zero ? (starting ? 0 : 100) : Math.Min((int)(currentPosition.TotalSeconds * 100 / _progressUpdateWorks[psc].Duration.TotalSeconds), 100);
+
+      var episodeScrobbleData = new TraktScrobbleEpisode
+      {
+        Episode = new TraktEpisode
+        {
+          Ids = new TraktEpisodeId
+          {
+            Tvdb = GetSeriesTvdbId(pc.CurrentMediaItem),
+            Imdb = GetSeriesImdbId(pc.CurrentMediaItem)
+          },
+          Title = GetSeriesTitle(pc.CurrentMediaItem),
+          Season = GetSeasonIndex(pc.CurrentMediaItem),
+          Number = GetEpisodeIndex(pc.CurrentMediaItem)
+        },
+        Show = new TraktShow
+        {
+          Ids = new TraktShowId
+          {
+            Tvdb = GetSeriesTvdbId(pc.CurrentMediaItem),
+            Imdb = GetSeriesImdbId(pc.CurrentMediaItem)
+          },
+          Title = GetSeriesTitle(pc.CurrentMediaItem),
+          Year = GetVideoYear(pc.CurrentMediaItem)
+        },
+        //AppVersion = _settings.Settings.Version,
+        //AppDate = _settings.Settings.BuildDate,
+        Progress = progress
+      };
+
+      return episodeScrobbleData;
+    }
+
+    private string GetMovieImdb(MediaItem currMediaItem)
+    {
       string value;
+      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, MovieAspect.ATTR_IMDB_ID, out value) ? value : null;
+    }
+
+    private int GetMovieTmdb(MediaItem currMediaItem)
+    {
       int iValue;
+      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out iValue) ? iValue : 0;
+    }
+
+    private int GetVideoYear(MediaItem currMediaItem)
+    {
       DateTime dtValue;
-      long lValue;
+      if (MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out dtValue))
+        return dtValue.Year;
 
-      if (isMovie)
-      {
-        TraktMovieScrobble movie = new TraktMovieScrobble();
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
-          movie.IMDBID = value;
+      return 0;
+    }
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out iValue) && iValue > 0)
-          movie.TMDBID = iValue.ToString();
+    private string GetSeriesTitle(MediaItem currMediaItem)
+    {
+      string value;
+      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) ? value : null;
+    }
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out dtValue))
-          movie.Year = dtValue.Year.ToString();
+    private int GetSeriesTvdbId(MediaItem currMediaItem)
+    {
+      int value;
+      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_TVDB_ID, out value) ? value : 0;
+    }
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, MovieAspect.ATTR_RUNTIME_M, out iValue) && iValue > 0)
-          movie.Duration = iValue.ToString();
+    private int GetSeasonIndex(MediaItem currMediaItem)
+    {
+      int value;
+      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_SEASON, out value) ? value : 0;
+    }
 
-        scrobbleData = movie;
-      }
-      if (isSeries)
-      {
-        TraktEpisodeScrobble series = new TraktEpisodeScrobble();
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_IMDB_ID, out value) && !string.IsNullOrWhiteSpace(value))
-          series.IMDBID = value;
+    private int GetEpisodeIndex(MediaItem currMediaItem)
+    {
+      List<int> intList;
+      if (MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_EPISODE, out intList) && intList.Any())
+        return intList.First(); // TODO: multi episode files?!
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_TVDB_ID, out iValue))
-          series.SeriesID = iValue.ToString();
+      return intList.FirstOrDefault();
+    }
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) && !string.IsNullOrWhiteSpace(value))
-          series.Title = value;
+    private string GetSeriesImdbId(MediaItem currMediaItem)
+    {
+      string value;
+      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_IMDB_ID, out value) ? value : null;
+    }
 
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_FIRSTAIRED, out dtValue))
-          series.Year = dtValue.Year.ToString();
-
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_SEASON, out iValue))
-          series.Season = iValue.ToString();
-        List<int> intList;
-        if (MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, SeriesAspect.ATTR_EPISODE, out intList) && intList.Any())
-          series.Episode = intList.First().ToString(); // TODO: multi episode files?!
-
-        scrobbleData = series;
-      }
-
-      // Fallback duration info
-      if (string.IsNullOrWhiteSpace(scrobbleData.Duration) && MediaItemAspect.TryGetAttribute(pc.CurrentMediaItem.Aspects, VideoAspect.ATTR_DURATION, out lValue) && lValue > 0)
-        scrobbleData.Duration = (lValue / 60).ToString();
-
-      if (string.IsNullOrWhiteSpace(scrobbleData.Title))
-        scrobbleData.Title = title;
-
-      scrobbleData.Progress = progress.ToString();
-      if (!starting && progress < WATCHED_PERCENT)
-        state = TraktScrobbleStates.cancelwatching;
-
-      scrobbleData.PluginVersion = TraktSettings.Version;
-      scrobbleData.MediaCenter = "MediaPortal 2";
-      scrobbleData.MediaCenterVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
-      scrobbleData.MediaCenterBuildDate = String.Empty;
-      scrobbleData.Username = username;
-      scrobbleData.Password = password;
-      return true;
+    private string GetMovieTitle(MediaItem currMediaItem)
+    {
+      string value;
+      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, MovieAspect.ATTR_MOVIE_NAME, out value) ? value : null;
     }
 
     public void Dispose()
