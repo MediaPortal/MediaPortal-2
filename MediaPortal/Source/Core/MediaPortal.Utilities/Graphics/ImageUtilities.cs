@@ -108,6 +108,29 @@ namespace MediaPortal.Utilities.Graphics
         return ResizeImageExact(fullsizeImage, maxWidth, newHeight);
     }
 
+    /// <summary>
+    /// Checks the given <paramref name="image"/> for contained EXIF orientation tags and automatically rotates the image if required.
+    /// </summary>
+    /// <param name="image">Image</param>
+    public static void ExifAutoRotate(this Image image)
+    {
+      RotateFlipType rotate = RotateFlipType.RotateNoneFlipNone;
+      var exifOrientation = image.PropertyItems.FirstOrDefault(p => p.Id == 0x0112);
+      if (exifOrientation != null)
+      {
+        var value = (int)exifOrientation.Value[0];
+        if (value == 6)
+          rotate = RotateFlipType.Rotate90FlipNone;
+        else if (value == 8)
+          rotate = RotateFlipType.Rotate270FlipNone;
+        else if (value == 3)
+          rotate = RotateFlipType.Rotate180FlipNone;
+      }
+
+      if (rotate != RotateFlipType.RotateNoneFlipNone)
+        image.RotateFlip(rotate);
+    }
+
     /// <summary> 
     /// Saves an image as a jpeg image, with the given quality.
     /// </summary> 

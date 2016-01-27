@@ -23,8 +23,9 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -39,6 +40,8 @@ using MediaPortal.Utilities.Network;
 using SharpDX;
 using SharpDX.Direct3D9;
 using MediaPortal.Common.Services.ThumbnailGenerator;
+using MediaPortal.Utilities.Graphics;
+using Color = SharpDX.Color;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
@@ -125,10 +128,68 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected Texture AllocateFromImageStream(Stream dataStream, ref ImageInformation info)
     {
+      // GDI decoding was measured to be faster in nearly all cases. WIC based was faster, but was missing rotation support and had other dependencies (WPF or SharpDX.WIC).
+      // FreeImage decoding is kept in place as fallback to support image formats which are not handled by GDI.
+      Texture texture = 
+        AllocateFromImageStream_GDI(dataStream, ref info) ??
+        AllocateFromImageStream_FreeImage(dataStream, ref info);
+      return texture;
+    }
+
+
+    protected Texture AllocateFromImageStream_GDI(Stream dataStream, ref ImageInformation info)
+    {
+      Texture texture = null;
+      try
+      {
+        if (dataStream.CanSeek)
+          dataStream.Position = 0;
+        Image image = Image.FromStream(dataStream);
+
+        // Scale down larger images
+        int resizeWidth = MAX_TEXTURE_DIMENSION;
+        int resizeHeight = MAX_TEXTURE_DIMENSION;
+
+        if (_decodeWidth > 0)
+          resizeWidth = Math.Min(_decodeWidth, MAX_TEXTURE_DIMENSION);
+
+        if (_decodeHeight > 0)
+          resizeHeight = Math.Min(_decodeHeight, MAX_TEXTURE_DIMENSION);
+
+       image.ExifAutoRotate();
+
+        if (image.Size.Width > resizeWidth || image.Size.Height > resizeHeight)
+        {
+          var oldImage = image;
+          image = ImageUtilities.ResizeImage(image, resizeWidth, resizeHeight);
+          oldImage.Dispose();
+        }
+
+        // Write uncompressed data to temporary stream.
+        using (var loadStream = new MemoryStream())
+        {
+          image.Save(loadStream, ImageFormat.Bmp);
+          image.Dispose();
+          loadStream.Position = 0;
+          texture = Texture.FromStream(GraphicsDevice.Device, loadStream, (int)loadStream.Length, _decodeWidth, _decodeHeight, 1,
+            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from stream using GDI", ex);
+      }
+      return texture;
+    }
+
+    protected Texture AllocateFromImageStream_FreeImage(Stream dataStream, ref ImageInformation info)
+    {
       Texture texture = null;
       FIBITMAP image = FIBITMAP.Zero;
       try
       {
+        if (dataStream.CanSeek)
+          dataStream.Position = 0;
         image = FreeImage.LoadFromStream(dataStream);
 
         // Write uncompressed data to temporary stream.
@@ -157,9 +218,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
             Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
         }
       }
-      catch (Exception)
+      catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from stream using FreeImage and DirectX");
+        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from stream using FreeImage", ex);
       }
       finally
       {
@@ -208,17 +269,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           if (_texture != null)
           {
             _texture.Dispose();
-            AllocationChanged(_allocationSize);
+            FireAllocationChanged(-_allocationSize);
           }
           _texture = texture;
 
           SurfaceDescription desc = _texture.GetLevelDescription(0);
           _width = fileWidth;
           _height = fileHeight;
-          _maxU = fileWidth / ((float)desc.Width);
-          _maxV = fileHeight / ((float)desc.Height);
+          _maxU = fileWidth / (float)desc.Width;
+          _maxV = fileHeight / (float)desc.Height;
           _allocationSize = desc.Width * desc.Height * 4;
-          AllocationChanged(_allocationSize);
+          FireAllocationChanged(_allocationSize);
         }
       }
     }
