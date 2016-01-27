@@ -1,35 +1,35 @@
-import {Component, View} from 'angular2/core';
-import {ROUTER_DIRECTIVES, Location, RouteConfig, RouterLink, Router} from 'angular2/router';
-import {COMMON_DIRECTIVES, NgIf, NgFor} from 'angular2/common';
-import {TranslateService, TranslatePipe} from 'ng2-translate/ng2-translate';
+import {Component, View} from "angular2/core";
+import {ROUTER_DIRECTIVES, Location, RouteConfig, RouterLink, Router} from "angular2/router";
+import {COMMON_DIRECTIVES, NgIf, NgFor} from "angular2/common";
+import {TranslateService, TranslatePipe} from "ng2-translate/ng2-translate";
 
-import {CrisisListComponent}   from './crisis-list.component';
-import {HeroListComponent}     from './hero-list.component';
-import {HomeComponent}     from './modules/home/lib/home.component';
-import {MoviesComponent}     from './modules/movies/lib/movies.component';
+import {CrisisListComponent}   from "./crisis-list.component";
+import {HeroListComponent}     from "./hero-list.component";
+import {HomeComponent}     from "./modules/home/lib/home.component";
+import {MoviesComponent}     from "./modules/movies/lib/movies.component";
 
 
 @Component({
-    selector: 'mp2web',
-    templateUrl: 'app/modules/main/main.html',
+    selector: "mp2web",
+    templateUrl: "app/modules/main/main.html",
     directives: [ROUTER_DIRECTIVES, COMMON_DIRECTIVES, NgFor, NgIf],
     pipes: [TranslatePipe]
 })
 export class AppComponent {
     routes = [
-        {path: '/MediaLibrary', name: 'MediaLibrary', label:'Media Library', component: '', pages: [
-            {path:'/', name: 'Home', label: 'Home', category: 'test', component: HomeComponent},
-            {path:'/crisis-center', name: 'CrisisCenter', label: 'CrisisCenter', category: 'test', component: CrisisListComponent},
-            {path:'/heroes',        name: 'Heroes', label: 'Heroes',       component: HeroListComponent},
-            {path:'/movies/...',        name: 'Movies', label: 'Movies',       component: MoviesComponent}
+        {path: "/MediaLibrary", name: "MediaLibrary", label:"Media Library", component: "", pages: [
+            {path:"/", name: "Home", label: "Home", category: "test", component: HomeComponent},
+            {path:"/crisis-center", name: "CrisisCenter", label: "CrisisCenter", category: "test", component: CrisisListComponent},
+            {path:"/heroes",        name: "Heroes", label: "Heroes", component: HeroListComponent},
+            {path:"/movies/...",        name: "Movies", label: "Movies",       component: MoviesComponent}
         ]},
-        {path: '', name: 'test', label: 'test', component:'', pages: [
-            {path:'/crisis-center', name: 'CrisisCenter', label: 'CrisisCenter', component: CrisisListComponent}
+        {path: "", name: "test", label: "test", component: "", pages: [
+            {path: "/crisis-center", name: "CrisisCenter", label: "CrisisCenter", component: CrisisListComponent}
         ]},
-        {path:'/heroes', name: 'Heroes', label: 'Heroes', pages: [], component: HeroListComponent}
+        {path:"/heroes", name: "Heroes", label: "Heroes", pages: [], component: HeroListComponent}
     ];
     routerRoutes = [
-        {path:'/', name: 'Home', component: HomeComponent, defaultRoute: true}
+        {path:"/", name: "Home", component: HomeComponent, defaultRoute: true}
     ];
 
     constructor(public router: Router, public location: Location, translate: TranslateService) {
@@ -42,15 +42,15 @@ export class AppComponent {
         /*
         Translation Setup
          */
-        var userLang = navigator.language.split('-')[0]; // use navigator lang if available
-        //userLang = /(de|en)/gi.test(userLang) ? userLang : 'en';
-        userLang = 'en';
+        var userLang = navigator.language.split("-")[0]; // use navigator lang if available
+        //userLang = /(de|en)/gi.test(userLang) ? userLang : "en";
+        userLang = "en";
 
         // this language will be used as a fallback when a translation isn't found in the current language
-        translate.setDefaultLang('en');
+        translate.setDefaultLang("en");
 
-        var prefix = 'app/lang';
-        var suffix = '.json';
+        var prefix = "app/lang";
+        var suffix = ".json";
         translate.useStaticFilesLoader(prefix, suffix);
 
         // the lang to use, if the lang isn't available, it will use the current loader to get them

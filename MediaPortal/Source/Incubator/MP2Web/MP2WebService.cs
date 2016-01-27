@@ -55,6 +55,11 @@ namespace MediaPortal.Plugins.MP2Web
         webApplicationName: WEB_APPLICATION_NAME,
         configureServices: services =>
         {
+          services.AddCors(options =>
+          {
+            options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+          });
+
           services.AddMvc()
             // We need to add a physical file provider to the plugin directory of AspNetServerSample to make sure that the Razor-engine
             // finds the view files (which need to be copied to the plugin directory via build.targets and need to be in the default
@@ -64,7 +69,7 @@ namespace MediaPortal.Plugins.MP2Web
         },
         configureApp: app =>
         {
-          
+          app.UseCors("AllowAll");
           // Add static files to the request pipeline.
           string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "wwwroot").TrimEnd(Path.DirectorySeparatorChar);
           app.UseFileServer(new FileServerOptions

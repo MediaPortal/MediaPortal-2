@@ -1,17 +1,17 @@
-import {Component, View} from 'angular2/core';
-import {COMMON_DIRECTIVES, NgIf, NgFor} from 'angular2/common';
-import {ROUTER_DIRECTIVES, Location, RouterLink, Router} from 'angular2/router';
-import {TranslateService, TranslatePipe} from 'ng2-translate/ng2-translate';
+import {Component, View} from "angular2/core";
+import {COMMON_DIRECTIVES, CORE_DIRECTIVES} from "angular2/common";
+import {ROUTER_DIRECTIVES, Location, RouterLink, Router} from "angular2/router";
+import {TranslateService, TranslatePipe} from "ng2-translate/ng2-translate";
 import {RangePipe} from "../../../pipes/range-pipe";
-import {MediaLibrary, Aspects, SeriesAspect, MovieAspect, MovieAspectAttributes, MediaAspect, MediaAspectAttributes} from '../../../MediaLibrary/MediaLibrary';
+import {MediaLibrary, Aspects, SeriesAspect, MovieAspect, MovieAspectAttributes, MediaAspect, MediaAspectAttributes} from "../../../MediaLibrary/MediaLibrary";
 import {MovieObject, MovieObjInterface, Starrating} from "./common.movies";
 
 
 var movieCoversPerRow = 5;
 
 @Component({
-    templateUrl: 'app/modules/movies/list.movies.html',
-    directives: [COMMON_DIRECTIVES, NgIf, NgFor],
+    templateUrl: "app/modules/movies/list.movies.html",
+    directives: [COMMON_DIRECTIVES, CORE_DIRECTIVES],
     providers: [Starrating],
     pipes: [RangePipe, TranslatePipe]
 })
