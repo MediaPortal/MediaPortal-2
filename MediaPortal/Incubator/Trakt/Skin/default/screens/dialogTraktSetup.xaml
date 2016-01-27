@@ -53,17 +53,16 @@
             <Label Content="[Trakt.Username]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="0"/>
             <TextBox Text="{Binding Path=Username,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" Grid.Row="0" Grid.Column="1"/>
 
-            <Label Content="[Trakt.Password]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="1"/>
-            <TextBox Text="{Binding Path=Password,Mode=TwoWay}" Margin="5" Style="{ThemeResource PasswordTextBoxStyle}" Grid.Row="1" Grid.Column="1"/>
-
-            <Label Content="[Trakt.PinCode]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="2"/>
-            <TextBox Text="{Binding Path=PinCode,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" Grid.Row="2" Grid.Column="1"/>
-
           </Grid>
         </GroupBox>
 
         <StackPanel IsVisible="{Binding Path=IsEnabled}" Grid.Row="2" Grid.ColumnSpan="2">
-          <Image Source="{Binding QRCode}" Width="512" Margin="5" />
+
+          <Label Content="[Trakt.PinUrl]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="1"/>
+          <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="qr.png"
+           Width="512" Height="512"/>
+          <Label Content="[Trakt.PinCode]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="2"/>
+          <TextBox Text="{Binding Path=PinCode,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" Grid.Row="2" Grid.Column="1"/>
         </StackPanel>
 
         <Label Content="{Binding Path=TestStatus}" Color="{ThemeResource EmphasisTextColor}" Grid.Row="3" Grid.ColumnSpan="2"/>

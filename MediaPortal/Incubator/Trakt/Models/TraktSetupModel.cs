@@ -1176,7 +1176,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       //}
 
       //  var response = TraktAPI.GetOAuthToken("");
-     QRCode = "C:\\Users\\adrian\\Documents\\GitHub\\qr.png";
+   //  QRCode = "C:\\Users\\adrian\\Documents\\GitHub\\qr.png";
 
 
       

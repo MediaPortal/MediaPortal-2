@@ -75,6 +75,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\default\Images\qr.png" />
     <Content Include="Skin\default\screens\dialogTraktSetup.xaml">
       <SubType>Designer</SubType>
     </Content>
