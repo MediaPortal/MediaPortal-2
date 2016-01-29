@@ -7,11 +7,17 @@ import {CrisisListComponent}   from "./crisis-list.component";
 import {HeroListComponent}     from "./hero-list.component";
 import {HomeComponent}     from "./modules/home/lib/home.component";
 import {MoviesComponent}     from "./modules/movies/lib/movies.component";
+import {ConfigurationService} from "./common/lib/ConfigurationService/ConfigurationService";
 
+/*
+Main MP2Web Component
 
+This Component get's bootstraped and is responsible for the further Application start
+ */
 @Component({
     selector: "mp2web",
     templateUrl: "app/modules/main/main.html",
+    //templateUrl: "app/modules/main/main.html",
     directives: [ROUTER_DIRECTIVES, COMMON_DIRECTIVES, NgFor, NgIf],
     pipes: [TranslatePipe]
 })
@@ -32,31 +38,48 @@ export class AppComponent {
         {path:"/", name: "Home", component: HomeComponent, defaultRoute: true}
     ];
 
-    constructor(public router: Router, public location: Location, translate: TranslateService) {
+    loaded: boolean = false;
+    configurationServiceLoadedSubscription: any;
+
+    constructor(public router: Router, public location: Location, private translate: TranslateService, private configurationService: ConfigurationService) {
         /*
-        Router setup
+        Wait for Configuration Service
+         */
+        this.configurationServiceLoadedSubscription = this.configurationService.getLoadedChangeEmitter().subscribe(() => {
+            console.log("AppComponent: Config loaded");
+            this.setup();
+        });
+    }
+
+    setup() {
+        /*
+         Router setup
          */
         this.buildRoutes();
-        router.config(this.routerRoutes);
+        this.router.config(this.routerRoutes);
 
         /*
-        Translation Setup
+         Translation Setup
          */
         var userLang = navigator.language.split("-")[0]; // use navigator lang if available
         //userLang = /(de|en)/gi.test(userLang) ? userLang : "en";
         userLang = "en";
 
         // this language will be used as a fallback when a translation isn't found in the current language
-        translate.setDefaultLang("en");
+        this.translate.setDefaultLang("en");
 
         var prefix = "app/lang";
         var suffix = ".json";
-        translate.useStaticFilesLoader(prefix, suffix);
+        this.translate.useStaticFilesLoader(prefix, suffix);
 
         // the lang to use, if the lang isn't available, it will use the current loader to get them
-        translate.use(userLang);
+        this.translate.use(userLang);
 
-        translate.getTranslation(userLang);
+        this.translate.getTranslation(userLang);
+
+        // Everything is ready -> tell the App/Template
+        console.log("AppComponent: Setup done");
+        this.loaded = true;
     }
 
     /*

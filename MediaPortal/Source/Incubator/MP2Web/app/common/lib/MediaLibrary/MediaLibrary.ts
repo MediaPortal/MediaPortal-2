@@ -1,14 +1,17 @@
 import {Injectable, EventEmitter} from "angular2/core";
 import {HTTP_PROVIDERS, Http, Request, RequestMethod} from "angular2/http";
+import {ConfigurationService} from "../../../common/lib/ConfigurationService/ConfigurationService";
 
 @Injectable()
 export class MediaLibrary {
-    BASE_URL: string = "http://localhost:5555";
+    BASE_URL: string;
 
-    constructor(private http: Http) {
+    constructor(private http: Http, private configurationService: ConfigurationService) {
+        this.BASE_URL = configurationService.config.WebApiUrl;
     }
 
     public Search(necessaryMiaIds?: string[], optionalMiaIds?: string[], sortInformationStrings = null, offset = null, limit = null) {
+        console.log("MediaLibrary: BaseUrl: " + this.BASE_URL);
         var url: string = this.BASE_URL + "/api/v1/MediaLibrary/MediaItems/?necessaryMiaIds="+necessaryMiaIds.join(", ");
 
         if (offset != null) {

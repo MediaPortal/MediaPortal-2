@@ -1,4 +1,6 @@
 <!-- HEADER AND NAVBAR -->
+<!-- Don't show the Navbar before everything is ready, otherwise we will get exceptions -->
+<template [ngIf]="loaded">
 <header>
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
@@ -33,6 +35,7 @@
         </div>
     </nav>
 </header>
+</template>
 
 <!-- CONTENT -->
 <div id="main" class="container" style="padding-top: 60px; padding-bottom: 60px;">

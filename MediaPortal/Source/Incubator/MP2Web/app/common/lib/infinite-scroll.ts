@@ -60,7 +60,7 @@ export class infiniteScroll {
     }
 
     handler (elem) {
-        console.log("Status: " + this.infiniteScrollDisabled);
+        console.log("infiniteScroll: Status: " + this.infiniteScrollDisabled);
         if (this.container == this.windowElement) {
             var containerBottom = this.height(this.container) + this.pageYOffset(this.container.document.documentElement);
             var elementBottom = this.offsetTop(elem) + this.height(elem)
@@ -83,7 +83,7 @@ export class infiniteScroll {
         console.log("infiniteScroll: shouldScroll value:" + shouldScroll);
 
         if (shouldScroll && !this.infiniteScrollDisabled) {
-            console.log("infiniteScroll: Send Event!! ");
+            console.log("infiniteScroll: Send Event!");
             this.infiniteScrollAction.emit(null);
         }else {
             console.log("infiniteScroll: Clear interval!");
