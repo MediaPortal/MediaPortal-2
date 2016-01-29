@@ -9,9 +9,19 @@ export class MediaLibrary {
     }
 
     public Search(necessaryMiaIds?: string[], optionalMiaIds?: string[], sortInformationStrings = null, offset = null, limit = null) {
+        var url: string = this.BASE_URL + "/api/v1/MediaLibrary/MediaItems/?necessaryMiaIds="+necessaryMiaIds.join(", ");
+
+        if (offset != null) {
+            url += "&offset="+offset;
+        }
+
+        if (limit != null) {
+            url += "&limit="+limit;
+        }
+
         return this.http.request(new Request({
             method: RequestMethod.Get,
-            url: this.BASE_URL + "/api/v1/MediaLibrary/MediaItems/?necessaryMiaIds="+necessaryMiaIds.join(", ")
+            url: url
         }));
     }
 
