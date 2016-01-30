@@ -120,10 +120,16 @@ namespace MediaPortal.Plugins.AspNetWebApi.Json
         {
           writer.WritePropertyName(attributeSpecification.AttributeName);
           var attribute = mia[attributeSpecification];
+
+          // Instead of binary data, we write an URL where to download it separately
           if (attribute is byte[])
             writer.WriteValue(GetBinaryDownloadPath(mi.MediaItemId, attributeSpecification));
+          // Instead of null for an empty Attribute that is not a CollectionAttribute and a ValueType we write default(T)
+          // CollectionAttributes are IEnumerables, for which we - also if the items are ValueTypes - write null
+          else if (attribute == null && !attributeSpecification.IsCollectionAttribute && attributeSpecification.AttributeType.IsValueType)
+            serializer.Serialize(writer, Activator.CreateInstance(attributeSpecification.AttributeType));
           else
-            serializer.Serialize(writer, mia[attributeSpecification]);
+            serializer.Serialize(writer, attribute);
         }
         writer.WriteEndObject(); // Attribute
 
