@@ -68,8 +68,9 @@ namespace MediaPortal.Plugins.AspNetWebApi
         },
         configureApp: app =>
         {
-          app.UseMvc();
+          // Cors must be started before Mvc - otherwise there are no Cors headers
           app.UseCors("AllowAll");
+          app.UseMvc();
         },
         port: PORT,
         basePath: BASE_PATH);
