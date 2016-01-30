@@ -1579,30 +1579,34 @@
   </ControlTemplate>
 
 
-  <ControlTemplate x:Key="GridViewImageItemTemplate">
-    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="193" Height="128">
+  <ControlTemplate x:Key="GridViewImageItemTemplate"> 
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{ThemeResource MEDIA_THUMB_WIDTH}" Height="{ThemeResource MEDIA_THUMB_HEIGHT}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
       <Border Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
-      <Grid>
-        <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
-               HorizontalAlignment="Center" VerticalAlignment="Center">
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
-        </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
-      </Grid>
+      <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.7"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="UnwatchedTab_small.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
     </Grid>
   </ControlTemplate>
 
