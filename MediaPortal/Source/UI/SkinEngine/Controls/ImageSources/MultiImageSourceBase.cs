@@ -312,6 +312,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
       _lastImageContext.ShaderEffect = Effect;
     }
 
+    protected override void OnHorizontalTextureAlignmentChanged(AbstractProperty property, object oldValue)
+    {
+      base.OnHorizontalTextureAlignmentChanged(property, oldValue);
+      _lastImageContext.HorizontalTextureAlignment = HorizontalTextureAlignment;
+    }
+
+    protected override void OnVerticalTextureAlignmentChanged(AbstractProperty property, object oldValue)
+    {
+      base.OnVerticalTextureAlignmentChanged(property, oldValue);
+      _lastImageContext.VerticalTextureAlignment = VerticalTextureAlignment;
+    }
+
     protected override void FreeData()
     {
       base.FreeData();
