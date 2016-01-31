@@ -32,6 +32,7 @@ using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.MP2Web.Configuration;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -66,9 +67,9 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
     /// </summary>
     /// <returns>The Configuration for the MP2Web App</returns>
     [HttpGet()]
-    public Configuration Get()
+    public MP2WebAppConfiguration Get()
     {
-      return new Configuration
+      return new MP2WebAppConfiguration
       {
         WebApiUrl = "http://localhost:5555",
         MoviesPerRow = 5,
@@ -78,11 +79,4 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
 
     #endregion
   }
-}
-
-public class Configuration
-{
-  public string WebApiUrl { get; set; }
-  public int MoviesPerRow { get; set; }
-  public int MoviesPerQuery { get; set; }
 }
