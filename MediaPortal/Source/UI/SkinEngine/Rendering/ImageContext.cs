@@ -312,12 +312,21 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         // Convert image dimensions to texture space
         
         // We're doing the relative transform first in the shader, that's why we just have to rotate the frame size
-        Vector4 textureRect = new Vector4(0.0f, 0.0f,
-            (targetImageSize.Width+1.0f) / _rotatedFrameSize.Width, (targetImageSize.Height+1.0f) / _rotatedFrameSize.Height);
+        Size surfaceSize;
+        using (var surfaceDesc = texture.GetSurfaceLevel(0))
+          surfaceSize = new Size2(surfaceDesc.Description.Width, surfaceDesc.Description.Height);
+
+        // The texture is made 1 pixel larger and is shifted by 1/2 pixel
+        float offset = 1f;
+        Vector4 textureRect = new Vector4(
+            -(offset / surfaceSize.Width) / 2,
+            -(offset / surfaceSize.Height) / 2,
+            (targetImageSize.Width + offset) / _rotatedFrameSize.Width,
+            (targetImageSize.Height + offset) / _rotatedFrameSize.Height);
 
         // Center texture
-        textureRect.X = (1.0f - textureRect.Z) / 2.0f;
-        textureRect.Y = (1.0f - textureRect.W) / 2.0f;
+        textureRect.X += (1.0f - textureRect.Z) / 2.0f;
+        textureRect.Y += (1.0f - textureRect.W) / 2.0f;
 
         // Compensate for texture surface borders
         textureRect.Z /= textureClip.Width;

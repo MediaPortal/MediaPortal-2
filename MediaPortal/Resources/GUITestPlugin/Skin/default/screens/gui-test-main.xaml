@@ -67,6 +67,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="Loop scroll test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-loopscroll}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Image rendering"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-image}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>
