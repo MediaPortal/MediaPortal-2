@@ -30,7 +30,7 @@
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"  >
           <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Margin="10,10,0,10"
-                  Content="[SlimTvClient.DontRecordProgram]" FontSize="{ThemeResource SmallFontSize}"
+                  Content="[SlimTvClient.DontRecordProgram]" 
                   Command="{Command CancelSchedule}">
             <Button.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
@@ -41,7 +41,7 @@
           </Button>
 
           <Button Style="{ThemeResource ButtonWideStyle}" Margin="10,10,0,10"
-                  Content="[SlimTvClient.RecordProgram]" FontSize="{ThemeResource SmallFontSize}"
+                  Content="[SlimTvClient.RecordProgram]" 
                   Command="{Command RecordSingleProgram}">
             <Button.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
@@ -52,7 +52,7 @@
           </Button>
 
           <Button Style="{ThemeResource ButtonWideStyle}" Margin="5,10,10,10"
-                  Content="[SlimTvClient.RecordSeries]" FontSize="{ThemeResource SmallFontSize}"
+                  Content="[SlimTvClient.RecordSeries]" 
                   Command="{Command RecordSeries}">
             <Button.IsEnabled>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
