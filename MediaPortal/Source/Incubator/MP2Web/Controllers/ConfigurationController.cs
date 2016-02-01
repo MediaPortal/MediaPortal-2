@@ -72,6 +72,76 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
       return new MP2WebAppConfiguration
       {
         WebApiUrl = "http://localhost:5555",
+        Routes = new List<MP2WebAppRouterConfiguration>
+        {
+          new MP2WebAppRouterConfiguration
+          {
+            Name = "MediaLibrary",
+            Label = "Media Library",
+            Path = "/MediaLibrary",
+            Visible = true,
+            Pages = new List<MP2WebAppRouterConfiguration>
+            {
+              new MP2WebAppRouterConfiguration
+              {
+                Name = "Home",
+                Label = "Home",
+                Category = "test",
+                Path = "/",
+                ComponentPath = "./app/modules/home/lib/home.component",
+                Component = "HomeComponent",
+                Visible = true
+              },
+              new MP2WebAppRouterConfiguration
+              {
+                Name = "Heroes",
+                Label = "Heroes",
+                Category = "test",
+                Path = "/heroes",
+                ComponentPath = "./app/hero-list.component",
+                Component = "HeroListComponent",
+                Visible = true
+              },
+              new MP2WebAppRouterConfiguration
+              {
+                Name = "Movies",
+                Label = "Movies",
+                Category = "test",
+                Path = "/movies/...",
+                ComponentPath = "./app/modules/movies/lib/movies.component",
+                Component = "MoviesComponent",
+                Visible = true
+              }
+            }
+          },
+          new MP2WebAppRouterConfiguration
+          {
+            Name = "test",
+            Label = "test",
+            Visible = true,
+            Pages = new List<MP2WebAppRouterConfiguration>
+            {
+              new MP2WebAppRouterConfiguration
+              {
+                Name = "CrisisCenter",
+                Label = "CrisisCenter",
+                Path = "/crisis-center",
+                ComponentPath = "./app/crisis-list.component",
+                Component = "CrisisListComponent",
+                Visible = true
+              }
+            }
+          },
+          new MP2WebAppRouterConfiguration
+          {
+            Name = "Heroes",
+            Label = "Heroes",
+            Path = "/heroes",
+            ComponentPath = "./app/hero-list.component",
+            Component = "HeroListComponent",
+            Visible = true
+          }
+        },
         MoviesPerRow = 5,
         MoviesPerQuery = 6
       };

@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+
 namespace MediaPortal.Plugins.MP2Web.Configuration
 {
   /// <summary>
@@ -35,7 +37,12 @@ namespace MediaPortal.Plugins.MP2Web.Configuration
     /// URL to the WebAPI, e.g. "http://localhost:5555"
     /// </summary>
     public string WebApiUrl { get; set; }
-    
+
+    /// <summary>
+    /// All availble Routes inseide the MP2WebApp except the "/" Route which is hardcoded inside the MP2WebApp.
+    /// </summary>
+    public List<MP2WebAppRouterConfiguration> Routes { get; set; }
+
     /// <summary>
     /// How many Movies are shown in one row
     /// </summary>
