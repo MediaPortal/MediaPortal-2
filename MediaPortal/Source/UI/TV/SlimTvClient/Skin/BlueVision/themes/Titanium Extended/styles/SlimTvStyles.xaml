@@ -549,6 +549,66 @@
     </Grid>
   </DataTemplate>
 
+  <DataTemplate x:Key="SingleChannelWithCurrentProgramDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5"
+          Margin="-80,0,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <!-- Channel Logo -->
+        <ColumnDefinition Width="300"/>
+        <!-- Channel Name -->
+        <ColumnDefinition Width="*"/>
+        <!-- Program Title -->
+        <ColumnDefinition Width="250"/>
+        <!-- Program Time -->
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.RenderTransform>
+        <TransformGroup>
+          <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </TransformGroup>
+      </Grid.RenderTransform>
+
+      <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,5,-5"/>
+      <Border x:Name="Item2" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,15,-5"/>
+      <Border x:Name="Item3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="-10,-5,-15,-5"/>
+
+      <Border x:Name="Item2_record" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
+      <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
+
+      <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,5,-5"/>
+      <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
+      <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
+      
+      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+        </Image.Source>
+      </Image>
+      <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}"
+       VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
+      
+      <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,20,5"
+        Content="{Binding [Title]}" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+      
+      <Label Grid.Column="3" Grid.Row="0" x:Name="ProgramLabel" Margin="5,5,0,5" VerticalAlignment="Center"
+        Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+      
+    </Grid>
+  </DataTemplate>
+
   <Style x:Key="TVListViewStyle" TargetType="{x:Type ListView}">
     <Setter Property="Template">
       <Setter.Value>
@@ -692,8 +752,12 @@
   </Style>
 
   <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource TVListViewStyle}">
-    <!--<Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithLogoAndProgramDataTemplate}"/>-->
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithCurrentProgramDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource TVItemContainerMainStyle}"/>
+  </Style>
+
+  <Style x:Key="SingleChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource TVListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource SingleChannelWithCurrentProgramDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource TVItemContainerMainStyle}"/>
   </Style>
   
