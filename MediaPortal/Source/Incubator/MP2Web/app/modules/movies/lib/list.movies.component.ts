@@ -66,6 +66,10 @@ export class ListMoviesComponent {
         //return /*GetArtworkResizedUrl + */"?mediatype=Movie&id=" + id + "&artworktype=Poster&maxWidth=200&maxHeight=300&borders=transparent"
     }
 
+    errorLoadingCover = function(event) {
+        event.target.src = "images/noCover.png";
+    }
+
     go(linkParams: any[]) {
         //var link = this.router.generate(linkParams);
         this.router.navigate(linkParams);
