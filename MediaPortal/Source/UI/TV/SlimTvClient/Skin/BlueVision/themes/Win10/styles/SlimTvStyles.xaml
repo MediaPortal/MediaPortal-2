@@ -24,11 +24,10 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-
           <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
-                <Image x:Name="ChannelLogo" Stretch="Uniform" Width="180" Margin="10" VerticalAlignment="Top">
+                <Image x:Name="ChannelLogo" Stretch="Uniform" Width="200" Margin="8" VerticalAlignment="Top">
                   <Image.Source>
                     <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
                                 fanart:MaxWidth="0" fanart:MaxHeight="0"/>
@@ -36,9 +35,7 @@
                 </Image>
               </ControlTemplate>
               <ControlTemplate x:Key="OSD_InfoArea_Template">
-
                 <DockPanel LastChildFill="true" Margin="3">
-
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="*"/>
@@ -47,23 +44,20 @@
                       <RowDefinition Height="Auto"/>
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-
                     <Label x:Name="CurrentProgramTitleLabel" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=!IsOSDLevel2}"
                         Color="{ThemeResource TextColor}"
                         FontFamily="DefaultBold" />
-
                     <Label x:Name="NextProgramTitleLabel"  Grid.Column="0" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel0}"
-                        Color="{ThemeResource NextProgramLabelColor}" />
-
+                        Color="{ThemeResource TextColor}" Opacity="0.7" />
                     <!-- Title lable for OSD Level 2 (next program) -->
                     <Label x:Name="NextProgramTitleLabelLevel2" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
                         HorizontalAlignment="Left" VerticalAlignment="Center"
                         IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}"
-                        Color="{ThemeResource NextProgramLabelColor}"
+                        Color="{ThemeResource TextColor}" Opacity="1"
                         FontFamily="DefaultBold" />
 
 
@@ -76,22 +70,20 @@
                       </Grid.RowDefinitions>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="250"/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="140"/>
                         <ColumnDefinition Width="15"/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="140"/>
                         <ColumnDefinition Width="*"/>
                       </Grid.ColumnDefinitions>
                       <Label x:Name="Channel" Grid.Row="0" Grid.Column="0" Scroll="Auto"
                           Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
                           Color="{ThemeResource TextColor}"/>
 
-                      <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0"
+                      <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,5,0" HorizontalAlignment="Right"
                           Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
-
-                      <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}"/>
-
-                      <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0"
+                      <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+                      <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,5,0" HorizontalAlignment="Left"
                           Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
@@ -115,22 +107,20 @@
                       </Grid.RowDefinitions>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="140"/>
                         <ColumnDefinition Width="15"/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="140"/>
                         <ColumnDefinition Width="*"/>
                       </Grid.ColumnDefinitions>
                       <Label x:Name="NextChannel" Grid.Row="0" Grid.Column="0" Scroll="Auto" 
                           Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
                           Color="{ThemeResource TextColor}"/>
 
-                      <Label x:Name="NextProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0"
+                      <Label x:Name="NextProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,5,0" HorizontalAlignment="Right"
                           Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
-
-                      <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}"/>
-
-                      <Label x:Name="NextProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0"
+                      <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+                      <Label x:Name="NextProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,5,0" HorizontalAlignment="Left"
                           Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                           Color="{ThemeResource TextColor}"/>
 
