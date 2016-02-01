@@ -2716,10 +2716,12 @@
       </Grid.RowDefinitions>
 
       <!-- SHADOW -->
-      <Control Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" Width="{Binding ElementName=PosterGrid,Path=ActualWidth}" Style="{ThemeResource Shadow_3_20}" />
+      <Control Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" Width="{Binding ElementName=PosterGrid,Path=ActualWidth}" 
+               Style="{ThemeResource Shadow_3_20}" IsVisible="{Binding ElementName=thumb, Path=HasImage}"/>
       <!-- SHADOW -->
 
-      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}" MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}">
+      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" 
+            MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}" MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}">
         <Grid.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
@@ -2728,8 +2730,7 @@
           </VisualBrush>
         </Grid.OpacityMask>     
       
-        <Image x:Name="thumb" Stretch="Uniform" Margin="0" Source="{Binding MediaItem}"
->
+        <Image x:Name="thumb" Stretch="Uniform" Margin="0" Source="{Binding MediaItem}">
           <Image.Opacity>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
