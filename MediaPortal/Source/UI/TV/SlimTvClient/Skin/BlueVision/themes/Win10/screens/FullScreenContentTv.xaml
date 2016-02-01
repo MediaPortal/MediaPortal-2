@@ -26,14 +26,18 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0" Margin="-50,70,50,0">
+    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+      IsVisible="{Binding !IsOSDVisible}"/>
+    
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4" IsVisible="{Binding IsOSDVisible}"
+        Style="{ThemeResource PrimarySlimTvOSDStyle}"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+    
+    <Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0" Margin="-20,30,40,0">
       <Control.TemplateControl>
         <Include Source="screens\FSCWindowButtons.inc"/>
       </Control.TemplateControl>
     </Control>
-
-    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
-          IsVisible="{Binding !IsOSDVisible}"/>
 
     <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
       <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
@@ -41,10 +45,6 @@
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             AutoVisibility="true"/>
     </DockPanel>
-
-    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" IsVisible="{Binding IsOSDVisible}"
-            Style="{ThemeResource PrimarySlimTvOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
     <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
     <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
