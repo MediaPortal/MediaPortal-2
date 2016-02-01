@@ -11,19 +11,19 @@
             <ul class="nav navbar-nav">
                 <template ngFor #route [ngForOf]="routes">
                     <!-- Dropdown -->
-                    <template [ngIf]="route.pages.length > 0">
-                        <li class="dropdown" [class.active]="isSubrouteActive(route.name, route.pages)">
+                    <template [ngIf]="route.Pages != null && route.Pages.length > 0">
+                        <li class="dropdown" [class.active]="isSubrouteActive(route.Name, route.Pages)">
                             <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                {{route.label}} <span class="caret"></span>
+                                {{route.Label}} <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li *ngFor="#page of route.pages; #x = index" [class.active]="router.isRouteActive(router.generate([generateSubentryRoutename(route.name, page.name)]))"><a [routerLink]="[generateSubentryRoutename(route.name, page.name)]">{{page.label}}</a></li>
+                                <li *ngFor="#page of route.Pages; #x = index" [class.active]="router.isRouteActive(router.generate([generateSubentryRoutename(route.Name, page.Name)]))"><a [routerLink]="[generateSubentryRoutename(route.Name, page.Name)]">{{page.Label}}</a></li>
                             </ul>
                         </li>
                     </template>
                     <!-- single entry -->
-                    <template [ngIf]="route.pages.length == 0">
-                        <li [class.active]="router.isRouteActive(router.generate([route.name]))"><a [routerLink]="[route.name]">{{route.label}}</a></li>
+                    <template [ngIf]="route.Pages == null || route.Pages.length == 0">
+                        <li [class.active]="router.isRouteActive(router.generate([route.Name]))"><a [routerLink]="[route.Name]">{{route.Label}}</a></li>
                     </template>
                 </template>
             </ul>

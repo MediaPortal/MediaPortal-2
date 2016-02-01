@@ -1,0 +1,72 @@
+<link rel="stylesheet" href="css/details.movies.css">
+<link rel="stylesheet" href="../../common/css/starrating.css">
+<div>
+    <p><a [routerLink]="['List']" class="fa fa-chevron-circle-left"> Back to list</a></p>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <b>{{movieObj.Title}}</b>
+            <!-- watched status -->
+            <span class="glyphicon" [ngClass]="{true: 'glyphicon-eye-open', false: 'glyphicon-eye-close'}[movieObj.Watched]"></span>
+            <span class="pull-right"><span class="ratings" [ngClass]="starrating.GetStars(movieObj.TotalRating)"></span>{{movieObj.TotalRating}}</span>
+        </div>
+        <div class="panel-body">
+            <div class="row movies">
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <img [src]="getCovers(movieObj.ID)">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <i class="fa fa-play actionButtons">Play</i><i class="fa fa-pencil-square-o actionButtons">Edit</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-9">
+                    <div class="row">
+                        <div class="col-sm-12 contentSpace">
+                            <ul class="additional-stats">
+                                <li class="stat"><span>Released</span>{{movieObj.ReleaseDate}}</li>
+                                <li class="stat allow-wrap"><span>Director</span><div class="list" *ngFor="#director of movieObj.Directors; #i = index">{{director}}{{i < movieObj.Directors.length-1 ? ", " : ""}}</div></li>
+                                <li class="stat"><span>Language</span>{{movieObj.Language}}</li>
+                                <li class="stat"><span>Runtime</span>{{movieObj.Runtime}} minutes</li>
+                                <li class="stat"><span>Certification</span><div class="certification" title="">{{movieObj.Certification}}</div></li>
+                                <li class="stat"><span>Genres</span><div class="list" *ngFor="#genre of movieObj.Genres; #i = index">{{genre}}{{i < movieObj.Genres.length-1 ? ", " : ""}}</div></li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-12 contentSpace">
+                            <span style="font-weight: 900;">Summary</span><br>
+                            {{movieObj.Summary}}
+                        </div>
+                        <div class="col-sm-12 contentSpace">
+                            <span style="font-weight: 900;">Actors</span><br>
+                            <div class="list" *ngFor="#actor of movieObj.Actors; #i = index">{{actor}}{{i < movieObj.Actors.length-1 ? ", " : ""}}</div>
+                        </div>
+                        <div class="col-sm-12 contentSpace">
+                            <span style="font-weight: 900;">Writers</span><br>
+                            <div class="list" *ngFor="#writer of movieObj.Writers; #i = index">{{writer}}{{i < movieObj.Writers.length-1 ? ", " : ""}}</div>
+                        </div>
+                        <template [ngIf]="trailers != undefined && trailers.length > 0">
+                            <div class="col-sm-12">
+                                <span style="font-weight: 900;">Trailer</span><br>
+                                <div class="dropdown">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        Select a Trailer<span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li *ngFor="#trailer of trailers; #i = index"><a (click)="onSelectTrailer(i)" style="cursor: pointer;">{{trailer.Title}}</a></li>
+                                    </ul>
+                                </div>
+                                <div [innerHTML]="trailerHtml" class="contentSpaceTop"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

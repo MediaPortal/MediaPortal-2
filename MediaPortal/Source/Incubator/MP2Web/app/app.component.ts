@@ -3,11 +3,14 @@ import {ROUTER_DIRECTIVES, Location, RouteConfig, RouterLink, Router} from "angu
 import {COMMON_DIRECTIVES, NgIf, NgFor} from "angular2/common";
 import {TranslateService, TranslatePipe} from "ng2-translate/ng2-translate";
 
-import {CrisisListComponent}   from "./crisis-list.component";
-import {HeroListComponent}     from "./hero-list.component";
+import {ComponentHelper} from "./ComponentHelper";
+
+//import {CrisisListComponent}   from "./crisis-list.component";
+//import {HeroListComponent}     from "./hero-list.component";
 import {HomeComponent}     from "./modules/home/lib/home.component";
-import {MoviesComponent}     from "./modules/movies/lib/movies.component";
+//import {MoviesComponent}     from "./modules/movies/lib/movies.component";
 import {ConfigurationService} from "./common/lib/ConfigurationService/ConfigurationService";
+import {MP2WebAppRouterConfiguration} from "./common/lib/ConfigurationService/interface.RouteConfiguration";
 
 /*
 Main MP2Web Component
@@ -22,20 +25,22 @@ This Component get's bootstraped and is responsible for the further Application 
     pipes: [TranslatePipe]
 })
 export class AppComponent {
-    routes = [
+    /*routes = [
         {path: "/MediaLibrary", name: "MediaLibrary", label:"Media Library", component: "", pages: [
             {path:"/", name: "Home", label: "Home", category: "test", component: HomeComponent},
-            {path:"/crisis-center", name: "CrisisCenter", label: "CrisisCenter", category: "test", component: CrisisListComponent},
+            //{path:"/crisis-center", name: "CrisisCenter", label: "CrisisCenter", category: "test", component: CrisisListComponent},
             {path:"/heroes",        name: "Heroes", label: "Heroes", component: HeroListComponent},
             {path:"/movies/...",        name: "Movies", label: "Movies",       component: MoviesComponent}
         ]},
-        {path: "", name: "test", label: "test", component: "", pages: [
-            {path: "/crisis-center", name: "CrisisCenter", label: "CrisisCenter", component: CrisisListComponent}
-        ]},
-        {path:"/heroes", name: "Heroes", label: "Heroes", pages: [], component: HeroListComponent}
-    ];
+        /*{path: "", name: "test", label: "test", component: "", pages: [
+            //{path: "/crisis-center", name: "CrisisCenter", label: "CrisisCenter", component: CrisisListComponent}
+        ]},*/
+        /*{path:"/heroes", name: "Heroes", label: "Heroes", pages: [], component: HeroListComponent}
+    ];*/
+    routes: MP2WebAppRouterConfiguration[];
     routerRoutes = [
-        {path:"/", name: "Home", component: HomeComponent, defaultRoute: true}
+        // Base Path route, we want to have this one hardcoded
+        {path:"/", name: "Home", component: HomeComponent, loader: null, defaultRoute: true}
     ];
 
     loaded: boolean = false;
@@ -55,6 +60,7 @@ export class AppComponent {
         /*
          Router setup
          */
+        this.routes = this.configurationService.config.Routes;
         this.buildRoutes();
         this.router.config(this.routerRoutes);
 
@@ -88,14 +94,14 @@ export class AppComponent {
     buildRoutes() {
         for (var i = 0; i < this.routes.length; i++) {
             // no dropdown
-            if (this.routes[i].pages.length == 0) {
-                this.addInitialRoute(this.routes[i].path, this.routes[i].name, this.routes[i].component)
+            if (this.routes[i].Pages == null || this.routes[i].Pages.length == 0) {
+                this.addInitialRoute(this.routes[i].Path, this.routes[i].Name, this.routes[i].Component, this.routes[i].ComponentPath)
             // dropdown
             }else {
-                for (var x = 0; x < this.routes[i].pages.length; x++) {
-                    this.addInitialRoute(this.routes[i].path + this.routes[i].pages[x].path,
-                        this.generateSubentryRoutename(this.routes[i].name, this.routes[i].pages[x].name),
-                        this.routes[i].pages[x].component)
+                for (var x = 0; x < this.routes[i].Pages.length; x++) {
+                    this.addInitialRoute(this.routes[i].Path + this.routes[i].Pages[x].Path,
+                        this.generateSubentryRoutename(this.routes[i].Name, this.routes[i].Pages[x].Name),
+                        this.routes[i].Pages[x].Component, this.routes[i].Pages[x].ComponentPath)
                 }
             }
         }
@@ -104,15 +110,16 @@ export class AppComponent {
     /*
     Add a Route to the initial routes
      */
-    addInitialRoute(path, name, component) {
+    addInitialRoute(path, name, component, componentPath) {
         var routeObj = {
             path: path,
             name: this.firstToUpperCase(name),
-            component: component,
+            loader: () => ComponentHelper.LoadComponentAsync(component,componentPath),
+            component: null,
             defaultRoute: false
-        }
+        };
         if (!this.doesPathExist(routeObj.path))
-            this.routerRoutes.push(routeObj)
+            this.routerRoutes.push(routeObj);
     }
 
     /*
@@ -145,9 +152,9 @@ export class AppComponent {
     /*
     Checks which route is active
      */
-    isSubrouteActive(CategoryName, pages) {
+    isSubrouteActive(categoryName, pages: MP2WebAppRouterConfiguration[]) {
         for (var i = 0; i < pages.length; i++) {
-            var name: any = this.generateSubentryRoutename(CategoryName, [pages[i].name]);
+            var name: any = this.generateSubentryRoutename(categoryName, [pages[i].Name]);
             if (this.router.isRouteActive(this.router.generate([name]))){
                 return true;
             }

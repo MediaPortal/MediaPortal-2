@@ -1,0 +1,134 @@
+.rating {
+    direction: rtl;
+    font-size: 17px;
+    unicode-bidi: bidi-override;
+    position: relative;
+}
+.rating span.star {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+}
+.rating span.star:hover {
+    cursor: pointer;
+}
+.rating span.star:before {
+    color: #F9C8D3;
+    content: "\f006";
+}
+.rating span.star:hover:before, .rating span.star:hover ~ span.star:before {
+    color: #EF005B;
+    content: "\f005";
+}
+.rating span.star:hover:after {
+    direction: ltr;
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    bottom: -22px;
+    white-space: nowrap;
+    font: normal 14px/normal Arial, Helvetica, sans-serif;
+}
+
+.ratings {
+    width: 170px;
+    height: 17px;
+    display: inline-block;
+    position: relative;
+}
+.ratings:before, .ratings:after {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 17px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.ratings:before {
+    color: #F9C8D3;
+    content: "\f006\f006\f006\f006\f006\f006\f006\f006\f006\f006";
+}
+.ratings:after {
+    color: #EF005B;
+    content: "\f005\f005\f005\f005\f005\f005\f005\f005\f005\f005";
+    overflow: hidden;
+}
+
+.ratings.one:after {
+    content: "\f005";
+}
+
+.ratings.onehalf:after {
+    content: "\f005\f089";
+}
+
+.ratings.two:after {
+    content: "\f005\f005";
+}
+
+.ratings.twohalf:after {
+    content: "\f005\f005\f089";
+}
+
+.ratings.three:after {
+    content: "\f005\f005\f005";
+}
+
+.ratings.threehalf:after {
+    content: "\f005\f005\f005\f089";
+}
+
+.ratings.four:after {
+    content: "\f005\f005\f005\f005";
+}
+
+.ratings.fourhalf:after {
+    content: "\f005\f005\f005\f005\f089";
+}
+
+.ratings.five:after {
+    content: "\f005\f005\f005\f005\f005";
+}
+
+.ratings.fivehalf:after {
+    content: "\f005\f005\f005\f005\f005\f089";
+}
+
+.ratings.six:after {
+    content: "\f005\f005\f005\f005\f005\f005";
+}
+
+.ratings.sixhalf:after {
+    content: "\f005\f005\f005\f005\f005\f005\f089";
+}
+
+.ratings.seven:after {
+    content: "\f005\f005\f005\f005\f005\f005\f005";
+}
+
+.ratings.sevenhalf:after {
+    content: "\f005\f005\f005\f005\f005\f005\f005\f089";
+}
+
+.ratings.eight:after {
+    content: "\f005\f005\f005\f005\f005\f005\f005\f005";
+}
+
+.ratings.eighthalf:after {
+    content: "\f005\f005\f005\f005\f005\f005\f005\f005\f089";
+}
+
+.ratings.nine:after {
+    content: "\f005\f005\f005\f005\f005\f005\f005\f005\f005";
+}
+
+.ratings.ninehalf:after {
+    content: "\f005\f005\f005\f005\f005\f005\f005\f005\f005\f089";
+}
+
+.ratings.ten:after {
+    content: "\f005\f005\f005\f005\f005\f005\f005\f005\f005\f005";
+}
