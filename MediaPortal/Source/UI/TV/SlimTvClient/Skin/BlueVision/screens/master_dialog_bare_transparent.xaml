@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for a standard dialog.
+Usage:
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_dialog_bare.xaml"
+      >
+    <Include.Resources>
+      <ResourceWrapper x:Key="Dialog_Header_Text">
+        [Header text to be shown as dialog title]
+      </ResourceWrapper>
+      <ControlTemplate x:Key="Contents_Template">
+        [Element which represents the contents area of the dialog.
+         Will be placed into a ScrollViewer.]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Dialog_Header_Text (String): The text to be displayed as dialog title
+ - Contents_Template (ConrolTemplate): Template for the content area of the dialog.
+-->
+
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="DialogScreen_transparent"
+    >
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource ShowDialogStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource HideDialogStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
+  
+  <Grid x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="Transparent">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.RenderTransform>
+      <TransformGroup>
+        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
+        <SkewTransform CenterX="0.5" CenterY="0.5" AngleX="0" AngleY="0"/>
+        <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0"/>
+        <TranslateTransform X="0" Y="0"/>
+      </TransformGroup>
+    </Grid.RenderTransform>
+
+    <Border x:Name="DialogBorder" Margin="50"
+        Background="Transparent" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
+        VerticalAlignment="Center" HorizontalAlignment="Center">
+      <DockPanel x:Name="DialogBackgroundPanel" Background="Transparent"
+          LastChildFill="True">
+        <Grid x:Name="DialogHeaderGrid" DockPanel.Dock="Top" Margin="5"
+            VerticalAlignment="Top" HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="20,0,10,0"
+              Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
+              VerticalAlignment="Center" HorizontalAlignment="Left"
+              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Content,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          
+          <Control x:Name="AlternativeHeaderControl" Grid.Row="0" Grid.Column="0"
+             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+             Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
+             IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+        </Grid>
+
+        <Control x:Name="ContentPanel" Margin="10" DockPanel.Dock="Center"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            Template="{DynamicResource ResourceKey=Contents_Template}"/>
+      </DockPanel>
+    </Border>
+  </Grid>
+</Screen>

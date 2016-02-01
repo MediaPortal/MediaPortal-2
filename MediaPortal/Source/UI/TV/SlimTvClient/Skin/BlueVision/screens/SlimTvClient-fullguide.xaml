@@ -19,7 +19,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,20,0,0"
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-60,5,-55,17"
               DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
 
         <Grid.ColumnDefinitions>
@@ -32,29 +32,41 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Rectangle Grid.Column="0" Fill="#80000000" Grid.RowSpan="2" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusX}" Margin="0,0,0,0" />
+        <Rectangle Grid.Column="0" Fill="#66000000" Grid.RowSpan="2" Margin="0,0,15,0" RadiusX="16" RadiusY="16" />
+        <Rectangle Grid.Column="1" Fill="#66000000" Grid.RowSpan="2" Margin="0,0,0,0" RadiusX="16" RadiusY="16"/>
 
-        <Rectangle Grid.Column="1" Fill="#80000000" Grid.RowSpan="2" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusX}" Margin="10,0,0,0" />
-
-        <StackPanel x:Name="Groups" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0"
+        <StackPanel x:Name="Groups" Margin="10,10,0,0" Grid.Column="0" Grid.Row="0"
             HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-              Command="{Command PrevGroup}"/>
+              Command="{Command PrevGroup}">
+            <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
           <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}"/>
-          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
+              Command="{Command NextGroup}" Margin="5,0,7,0">
+            <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
+          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" VerticalAlignment="Center" 
+                 FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}" Margin="7,0,0,0"/>
         </StackPanel>
-        <StackPanel x:Name="TimeControls" Margin="0,0,0,0" Grid.Column="1" Grid.Row="0"
+        <StackPanel x:Name="TimeControls" Margin="10,10,0,0" Grid.Column="1" Grid.Row="0"
                      HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="ScrollBackwardButton" Style="{StaticResource SmallButtonStyle}" Content=" - "
-              Command="{Command ScrollBackward}"/>
+                  Command="{Command ScrollBackward}">
+            <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
           <Button x:Name="ScrollForwardButton" Style="{StaticResource SmallButtonStyle}" Content=" + "
-              Command="{Command ScrollForward}"/>
+                  Command="{Command ScrollForward}" Margin="5,0,5,0">
+            <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
           <Label x:Name="GuideStartTimeLabel" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"  VerticalAlignment="Center"/>
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"  VerticalAlignment="Center" Margin="7,0,0,0"/>
         </StackPanel>
 
-        <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="10"
+        <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,5,0,20"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>

@@ -70,6 +70,9 @@
               ItemsSource="{Binding Path=CurrentGroupChannels}"
               SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="15" />
+            </ResourceWrapper>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
@@ -85,7 +88,7 @@
             <ColumnDefinition Width="320"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="-100,0,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
               <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
                      Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
@@ -108,10 +111,10 @@
                     Content="{Binding Path=SelectedCurrentProgram.Title}" Margin="0,0,0,0"
                     Color="{ThemeResource TextColor}"/>
 
-          <Label Grid.Row="1" Grid.Column="0" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Wrap="True" Scroll="Auto"
+          <Label Grid.Row="1" Grid.Column="0" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                 Wrap="True" Scroll="Auto" Height="175"
                  Content="{Binding Path=SelectedCurrentProgram.Description}"
-                 Color="{ThemeResource TextColor}" Margin="0,0,0,5" />
+                 Color="{ThemeResource TextColor}" Margin="0,0,0,-10" />
           
         </Grid>
         

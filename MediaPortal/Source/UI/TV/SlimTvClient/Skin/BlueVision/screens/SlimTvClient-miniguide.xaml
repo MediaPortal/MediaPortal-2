@@ -17,7 +17,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="1805" Height="900"
-        DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="-5,130,-20,0">
+        DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="50,130,35,0">
 
        <Grid.Triggers>
         <EventTrigger RoutedEvent="Screen.Show">
@@ -36,28 +36,35 @@
           <RowDefinition Height="220"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="-75,-25,-75,-75" >
+        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="-125,-25,-110,-75" >
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <LinearGradientBrush.GradientStops>
                 <GradientStop Color="#00000000" Offset="0.1"  />
-                <GradientStop Color="#CC000000" Offset="0.7"  />
+                <GradientStop Color="#CC000000" Offset="0.8"  />
                 <GradientStop Color="#CC000000" Offset="1"  />
               </LinearGradientBrush.GradientStops>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
 
-        <Rectangle Grid.Column="0" Grid.Row="0" Fill="#F2666666" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-10,0,10,0" />
+        <Rectangle Grid.Column="0" Grid.Row="0" Fill="#D9444444" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-10,0,10,0" RadiusX="16" RadiusY="16" />
 
-        <StackPanel Margin="0,9,20,8" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-          <StackPanel x:Name="Groups" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,20,0">
+        <StackPanel Margin="0,5,20,0" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+          <StackPanel x:Name="Groups" Margin="10,0,0,0" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
             <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-                Command="{Command PrevGroup}"/>
-            <Button x:Name="CurrentGroupNameButton" Style="{StaticResource SmallButtonStyle}" Content="{Binding CurrentGroupName}"
-                Command="{Command SelectGroup}"/>
+                Command="{Command PrevGroup}">
+              <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Height="15" Stretch="Uniform" Margin="5"/>
+            </Button>
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-                Command="{Command NextGroup}"/>
+                Command="{Command NextGroup}" Margin="5,0,7,0">
+              <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Height="15" Stretch="Uniform" Margin="5"/>
+            </Button>
+            <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}" Margin="7,0,0,0"/>
           </StackPanel>
 
           <StackPanel x:Name="PiPControl" IsVisible="{Binding PiPAvailable}" Margin="20,0,20,0"
@@ -72,15 +79,12 @@
                FontSize="{ThemeResource SmallFontSize}" Margin="0,0,60,0" FontFamily="DefaultBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="20,0,15,0"
+        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="20,0,20,0"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
             ItemsSource="{Binding Path=CurrentGroupChannels}"
             SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
-            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
-              <TranslateTransform X="15" />
-            </ResourceWrapper>
             <CommandList x:Key="Menu_Command">
               <CommandBridge Command="{Binding Path=Command,Mode=OneTime}"/>
               <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>

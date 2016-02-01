@@ -5,7 +5,8 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     x:Name="FullscreenLayoutTv"
     Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"
-    >   <!-- DataContext model = SlimTvClient -->
+    >
+  <!-- DataContext model = SlimTvClient -->
 
   <Grid x:Name="FullscreenLayoutGrid">
     <Grid.Resources>
@@ -32,7 +33,7 @@
       </Control.TemplateControl>
     </Control>
 
-    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
+    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
           IsVisible="{Binding !IsOSDVisible}"/>
 
     <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
@@ -68,3 +69,4 @@
     <KeyBinding Key="Ok" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=SlimTVClient-miniguide}" IsEnabled="{Binding !IsOSDVisible}"/>
   </Grid>
 </Screen>
+
