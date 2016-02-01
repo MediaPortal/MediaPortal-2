@@ -29,18 +29,7 @@
           <RowDefinition Height="*"/>
           <RowDefinition Height="220"/>
         </Grid.RowDefinitions>
-
-        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="-90,-33,-90,2" >
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <LinearGradientBrush.GradientStops>
-                <GradientStop Color="#00000000" Offset="0"  />
-                <GradientStop Color="#CC000000" Offset="1"  />
-              </LinearGradientBrush.GradientStops>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-          
+         
         <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Fill="Black" Opacity="0.5" Margin="-39,-9,-14,0">
           <Rectangle.Effect>
             <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
@@ -52,11 +41,17 @@
         <StackPanel x:Name="Groups" Margin="-20,9,20,8" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-              Command="{Command PrevGroup}"/>
+              Command="{Command PrevGroup}" >
+            <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>  
           <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}" Margin="5,0,5,0" />
+              Command="{Command NextGroup}" Margin="7,0,0,0">
+            <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
           <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}" VerticalAlignment="Center"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
         </StackPanel>
 
         <StackPanel x:Name="PiPControl" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
