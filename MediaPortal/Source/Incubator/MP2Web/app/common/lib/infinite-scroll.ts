@@ -31,6 +31,11 @@ export class infiniteScroll {
         }, 1000);
     }
 
+    ngOnDestroy() {
+        console.log("infiniteScroll: Status: ngOnDestroy");
+        clearInterval(this.checkInterval);
+    }
+
     height(elem) {
         if (isNaN(elem.offsetHeight)) {
             return elem.document.documentElement.clientHeight;
