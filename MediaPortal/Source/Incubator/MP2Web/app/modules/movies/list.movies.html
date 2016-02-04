@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="css/movies.css" />
-<link rel="stylesheet" href="../../common/css/starrating.css" />
 <link rel="stylesheet" href="../../common/css/cornor_ribbon.css" />
 
 <div style="text-align: center;">
@@ -23,7 +22,7 @@
                             <!-- extended information -->
                             <div class="info">
                                 <h3>{{movieList[x + i].Title}}</h3>
-                                <span class="ratings" [ngClass]="starrating.GetStars(movieList[x + i].TotalRating)"></span>
+                                <starrating [rating]="movieList[x + i].TotalRating"></starrating>
                                 <p>Runtime: {{movieList[x + i].Runtime}} minutes</p>
                                 <p>{{movieList[x + i].Tagline}}</p>
                             </div>

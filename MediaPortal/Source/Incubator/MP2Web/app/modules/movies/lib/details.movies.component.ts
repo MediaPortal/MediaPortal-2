@@ -1,16 +1,16 @@
 import {Component, View, ElementRef} from "angular2/core";
-import {COMMON_DIRECTIVES, NgIf, NgFor} from "angular2/common";
+import {COMMON_DIRECTIVES, CORE_DIRECTIVES} from "angular2/common";
 import {ROUTER_DIRECTIVES, RouteParams} from "angular2/router";
 import {HTTP_PROVIDERS, Http, Request, RequestMethod} from "angular2/http";
 import {TranslateService, TranslatePipe} from "ng2-translate/ng2-translate";
 import {MediaLibrary, Aspects, SeriesAspect, MovieAspect, MovieAspectAttributes, MediaAspect, MediaAspectAttributes} from "../../../common/lib/MediaLibrary/MediaLibrary";
-import {MovieObject, MovieObjInterface, Starrating} from "./common.movies";
+import {MovieObject, MovieObjInterface} from "./common.movies";
+import {StarratingComponent} from "../../../common/Components/Starrating/lib/starrating";
 
 
 @Component({
     templateUrl: "app/modules/movies/details.movies.html",
-    directives: [ROUTER_DIRECTIVES, COMMON_DIRECTIVES, NgIf, NgFor],
-    providers: [Starrating],
+    directives: [ROUTER_DIRECTIVES, COMMON_DIRECTIVES, CORE_DIRECTIVES, StarratingComponent],
     pipes: [TranslatePipe]
 })
 export class DetailsMoviesComponent {
@@ -19,7 +19,7 @@ export class DetailsMoviesComponent {
     trailers: any;
     trailerHtml: string = "";
 
-    constructor(mediaLibrary: MediaLibrary, params: RouteParams, private http: Http, private elem: ElementRef, public starrating: Starrating) {
+    constructor(mediaLibrary: MediaLibrary, params: RouteParams, private http: Http, private elem: ElementRef) {
         this.movieId = params.get("id");
 
         mediaLibrary.GetMediaItem(this.movieId).map(res => res.json()).subscribe(res => {
@@ -44,5 +44,8 @@ export class DetailsMoviesComponent {
         this.trailerHtml = this.trailers[value].Embed;
     }
 
+    errorLoadingCover = function(event) {
+        event.target.src = "images/noCover.png";
+    }
 }
 

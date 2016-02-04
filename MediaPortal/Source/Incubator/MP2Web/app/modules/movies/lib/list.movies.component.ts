@@ -5,14 +5,14 @@ import {TranslateService, TranslatePipe} from "ng2-translate/ng2-translate";
 import {RangePipe} from "../../../pipes/range-pipe";
 import {MediaLibrary, Aspects, SeriesAspect, MovieAspect, MovieAspectAttributes, MediaAspect, MediaAspectAttributes} from "../../../common/lib/MediaLibrary/MediaLibrary";
 import {ConfigurationService} from "../../../common/lib/ConfigurationService/ConfigurationService";
-import {MovieObject, MovieObjInterface, Starrating} from "./common.movies";
-import {infiniteScroll} from '../../../common/lib/infinite-scroll';
+import {MovieObject, MovieObjInterface} from "./common.movies";
+import {infiniteScroll} from "../../../common/lib/infinite-scroll";
+import {StarratingComponent} from "../../../common/Components/Starrating/lib/starrating";
 
 
 @Component({
     templateUrl: "app/modules/movies/list.movies.html",
-    directives: [COMMON_DIRECTIVES, CORE_DIRECTIVES, infiniteScroll],
-    providers: [Starrating],
+    directives: [COMMON_DIRECTIVES, CORE_DIRECTIVES, infiniteScroll, StarratingComponent],
     pipes: [RangePipe, TranslatePipe]
 })
 export class ListMoviesComponent {
@@ -23,7 +23,7 @@ export class ListMoviesComponent {
     moviesPerQuery: number;
     mlOffset = 0;
 
-    constructor(public mediaLibrary: MediaLibrary, public router: Router, private configurationService: ConfigurationService, public starrating: Starrating) {
+    constructor(public mediaLibrary: MediaLibrary, public router: Router, private configurationService: ConfigurationService) {
         /*
         Configure
          */
