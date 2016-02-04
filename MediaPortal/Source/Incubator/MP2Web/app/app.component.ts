@@ -25,19 +25,9 @@ This Component get's bootstraped and is responsible for the further Application 
     pipes: [TranslatePipe]
 })
 export class AppComponent {
-    /*routes = [
-        {path: "/MediaLibrary", name: "MediaLibrary", label:"Media Library", component: "", pages: [
-            {path:"/", name: "Home", label: "Home", category: "test", component: HomeComponent},
-            //{path:"/crisis-center", name: "CrisisCenter", label: "CrisisCenter", category: "test", component: CrisisListComponent},
-            {path:"/heroes",        name: "Heroes", label: "Heroes", component: HeroListComponent},
-            {path:"/movies/...",        name: "Movies", label: "Movies",       component: MoviesComponent}
-        ]},
-        /*{path: "", name: "test", label: "test", component: "", pages: [
-            //{path: "/crisis-center", name: "CrisisCenter", label: "CrisisCenter", component: CrisisListComponent}
-        ]},*/
-        /*{path:"/heroes", name: "Heroes", label: "Heroes", pages: [], component: HeroListComponent}
-    ];*/
     routes: MP2WebAppRouterConfiguration[];
+    addedCategories: string[] = [];
+    categorieAddedBeforeElement: string[] = [];
     routerRoutes = [
         // Base Path route, we want to have this one hardcoded
         {path:"/", name: "Home", component: HomeComponent, loader: null, defaultRoute: true}
@@ -145,7 +135,7 @@ export class AppComponent {
     /*
     AngularJS requires the first letter to be upper case, so we make sure that it is
      */
-    firstToUpperCase( str ) {
+    firstToUpperCase(str: string) {
         return str.substr(0, 1).toUpperCase() + str.substr(1);
     }
 
@@ -159,6 +149,36 @@ export class AppComponent {
                 return true;
             }
         }
+        return false;
+    }
+
+    /*
+    Check if a Category divider needs to be added
+     */
+    isCategoryNeeded(routeName: string, pageName: string, category: string): boolean {
+        var routeCategoryName: string = routeName + "_" + category;
+        var routePageCategoryName: string = routeName + "_" + pageName + "_" + category;
+
+        // Don't add a header if there is no category defined
+        if (category == null || category == "") {
+            return false;
+        }
+
+        // We need to keep track of the item which triggered the Category header
+        // The reason is that it is not allowed to have changes triggered by the change detection.
+        // In short: Going through the loops in the model a second time would give different results for isCategoryNeeded
+        // => always false
+        if (this.categorieAddedBeforeElement.indexOf(routePageCategoryName) > -1) {
+            return true;
+        }
+
+        // Add the Category if defined and not shown already
+        if (this.addedCategories.indexOf(routeCategoryName) == -1) {
+            this.addedCategories.push(routeCategoryName);
+            this.categorieAddedBeforeElement.push(routePageCategoryName);
+            return true;
+        }
+
         return false;
     }
 }

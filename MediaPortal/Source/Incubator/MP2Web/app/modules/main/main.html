@@ -17,7 +17,14 @@
                                 {{route.Label}} <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
-                                <li *ngFor="#page of route.Pages; #x = index" [class.active]="router.isRouteActive(router.generate([generateSubentryRoutename(route.Name, page.Name)]))"><a [routerLink]="[generateSubentryRoutename(route.Name, page.Name)]">{{page.Label}}</a></li>
+                                <template ngFor #page [ngForOf]="route.Pages" #index="x">
+                                    <!-- Add divider if needed -->
+                                    <template [ngIf]="isCategoryNeeded(route.Name, page.Name, page.Category)">
+                                        <li role="separator" class="divider"></li>
+                                        <li class="dropdown-header">{{page.Category}}</li>
+                                    </template>
+                                    <li [class.active]="router.isRouteActive(router.generate([generateSubentryRoutename(route.Name, page.Name)]))"><a [routerLink]="[generateSubentryRoutename(route.Name, page.Name)]">{{page.Label}}</a></li>
+                                </template>
                             </ul>
                         </li>
                     </template>
