@@ -1,1 +1,33 @@
+<link rel="stylesheet" href="../movies/css/movies.css" />
+<link rel="stylesheet" href="../../common/css/cornor_ribbon.css" />
 <h1>My Home</h1>
+
+<h3>Lates Movies</h3>
+<div style="text-align: center;">
+    <div class="row movies" style="margin: auto; display: inline-block;">
+        <template ngFor #movie [ngForOf]="latestMovies">
+            <div class="col-sm-3 ih-item square effect11 left_to_right" (click)="go(['MediaLibrary_Movies', 'Details', {id: movie.ID}])" style="width: 200px !important; height: 330px !important; cursor: pointer;">
+                <a (click)="go(['MediaLibrary_Movies', 'Details', {id: movie.ID}])">
+                    <div class="img">
+                        <!-- watched status -->
+                        <div [ngClass]="{true: 'side-corner-tag', false: ''}[movie.Watched]">
+                            <img [src]="getCovers(movie.ID)" (error)="errorLoadingCover($event)" style="height: 248px;" id="watched">
+                            <template [ngIf]="movie.Watched">
+                                <p><span>Watched!</span></p>
+                            </template>
+                        </div>
+                        <br>
+                    </div>
+                    <!-- extended information -->
+                    <div class="info">
+                        <h3>{{movie.Title}}</h3>
+                        <starrating [rating]="movie.TotalRating"></starrating>
+                        <p>Runtime: {{movie.Runtime}} minutes</p>
+                        <p>{{movie.Tagline}}</p>
+                    </div>
+                </a>
+                <div class="movieTitle">{{movie.Title}}</div>
+            </div>
+        </template>
+    </div>
+</div>
