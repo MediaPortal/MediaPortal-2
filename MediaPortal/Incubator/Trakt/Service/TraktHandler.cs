@@ -50,23 +50,14 @@ namespace MediaPortal.UiComponents.Trakt.Service
 {
   public class TraktHandler : IDisposable
   {
-    // Defines the minimum playback progress in percent to consider a video as fully watched.
-    private const int WATCHED_PERCENT = 85;
-    private static readonly TimeSpan UPDATE_INTERVAL = TimeSpan.FromMinutes(10);
     private ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
     private TraktSettings TRAKT_SETTINGS = ServiceRegistration.Get<ISettingsManager>().Load<TraktSettings>();
-
-    private class PositionWatcher
-    {
-      public IIntervalWork Work { get; set; }
-      public TimeSpan Duration { get; set; }
-      public TimeSpan ResumePosition { get; set; }
-    }
-
     private AsynchronousMessageQueue _messageQueue;
-    private readonly object _syncObj = new object();
     private readonly SettingsChangeWatcher<TraktSettings> _settings = new SettingsChangeWatcher<TraktSettings>();
-    private readonly Dictionary<IPlayerSlotController, PositionWatcher> _progressUpdateWorks = new Dictionary<IPlayerSlotController, PositionWatcher>();
+    private TraktScrobbleMovie _dataMovie = new TraktScrobbleMovie();
+    private TraktScrobbleEpisode _dataEpisode = new TraktScrobbleEpisode();
+    private TimeSpan _duration;
+    private double _progres;
 
     public TraktHandler()
     {
@@ -81,7 +72,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
     private void ConfigureHandler()
     {
-      if (_settings.Settings.EnableTrakt /*&& UserloggedIntoTrakt()*/)
+      if (_settings.Settings.EnableTrakt)
       {
         SubscribeToMessages();
       }
@@ -89,33 +80,6 @@ namespace MediaPortal.UiComponents.Trakt.Service
       {
         UnsubscribeFromMessages();
       }
-    }
-
-    private bool UserloggedIntoTrakt()
-    {
-
-      if (string.IsNullOrEmpty(TRAKT_SETTINGS.TraktOAuthToken))
-      {
-        TraktLogger.Error("Authorise first");
-        return false;
-      }
-
-      var response = TraktAPI.GetOAuthToken(TRAKT_SETTINGS.TraktOAuthToken);
-      if (response == null || string.IsNullOrEmpty(response.AccessToken))
-      {
-        //TestStatus = Error
-        TraktLogger.Error("Unable to login to trakt, check log for details");
-        return false;
-      }
-
-      //TestStatus = Success
-      TRAKT_SETTINGS.TraktOAuthToken = response.RefreshToken;
-      settingsManager.Save(TRAKT_SETTINGS);
-      TraktLogger.Info("Succes login to scrobble");
-      _settings.Settings.AccountStatus = ConnectionState.Connected;
-
-      return true;
-
     }
 
     void SubscribeToMessages()
@@ -144,163 +108,59 @@ namespace MediaPortal.UiComponents.Trakt.Service
       {
         // React to player changes
         PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType)message.MessageType;
-        IPlayerSlotController psc;
-        // ServiceRegistration.Get<ILogger>().Debug("Trakt.tv: PlayerManagerMessage: {0}", message.MessageType);
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerResumeState:
-            psc = (IPlayerSlotController)message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             IResumeState resumeState = (IResumeState)message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
-            Guid mediaItemId = (Guid)message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM_ID];
-            HandleResumeInfo(psc, mediaItemId, resumeState);
+            PositionResumeState positionResume = resumeState as PositionResumeState;
+            TimeSpan resumePosition = positionResume.ResumePosition;
+            _progres = Math.Min((int)(resumePosition.TotalSeconds * 100 / _duration.TotalSeconds), 100);
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
           case PlayerManagerMessaging.MessageType.PlayerStopped:
-            psc = (IPlayerSlotController)message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
-            HandleScrobble(psc, false);
+            StopScrobble();
             break;
           case PlayerManagerMessaging.MessageType.PlayerStarted:
-            psc = (IPlayerSlotController)message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
-            HandleScrobble(psc, true);
+            var psc = (IPlayerSlotController)message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
+            CreateScrobbleData(psc);
+            StartScrobble();
             break;
         }
       }
     }
 
-    private void HandleResumeInfo(IPlayerSlotController psc, Guid mediaItemId, IResumeState resumeState)
+    private void CreateScrobbleData(IPlayerSlotController psc)
     {
-      PositionResumeState pos = resumeState as PositionResumeState;
-      lock (_syncObj)
-        if (_progressUpdateWorks.ContainsKey(psc))
-          _progressUpdateWorks[psc].ResumePosition = pos != null ? pos.ResumePosition : _progressUpdateWorks[psc].Duration;
-    }
-
-    private bool CheckAccountDetails()
-    {
-      if (string.IsNullOrEmpty(TRAKT_SETTINGS.TraktOAuthToken))
-      {
-          //TestStatus = "Error";
-          TraktLogger.Error("Trakt.tv error in credentials");
-          return false;
-      }
-      return true;
-    }
-
-    private bool Login()
-    {
-      TraktLogger.Info("Exchanging refresh-token for access-token... scrobble");
-      var response = TraktAPI.GetOAuthToken(TRAKT_SETTINGS.TraktOAuthToken);
-      if (response == null || string.IsNullOrEmpty(response.AccessToken))
-      {
-        //TestStatus = Error
-        TraktLogger.Error("Unable to login to trakt, check log for details");
-        return false;
-      }
-
-      //TestStatus = Success
-      TRAKT_SETTINGS.TraktOAuthToken = response.RefreshToken;
-      settingsManager.Save(TRAKT_SETTINGS);
-      TraktLogger.Info("Succes");
-
-      return true;
-    }
-
-    private void HandleScrobble(IPlayerSlotController psc, bool starting)
-    {
-
-      if(!CheckAccountDetails())
-        return;
-
-      if(!Login())
-        return;
-
-
-      try
-      {
-        IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
-        if (pc == null)
-          return;
-
-        bool removePsc = HandleTasks(psc, starting);
-
-        bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
-        bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
-
-        if (isMovie)
-        {
-          var response = starting ? TraktAPI.StartMovieScrobble(CreateMovieScrobbleData(psc, pc, true)) : TraktAPI.StopMovieScrobble(CreateMovieScrobbleData(psc, pc, false));
-          TraktLogger.LogTraktResponse(response);
-        }
-
-        if (isSeries)
-        {
-          var response = starting ? TraktAPI.StartEpisodeScrobble(CreateEpisodeScrobbleData(psc, pc, true)) : TraktAPI.StopEpisodeScrobble(CreateEpisodeScrobbleData(psc, pc, false));
-          TraktLogger.LogTraktResponse(response);
-        }
-
-        if (removePsc)
-          lock (_syncObj)
-            _progressUpdateWorks.Remove(psc);
-
-      }
-      catch (ThreadAbortException)
-      { }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Trakt.tv: Exception while scrobbling", ex);
-      }
-    }
-
-    /// <summary>
-    /// Creates or removes <see cref="IIntervalWork"/> from <see cref="IThreadPool"/>.
-    /// </summary>
-    /// <param name="psc">IPlayerSlotController</param>
-    /// <param name="starting"><c>true</c> if starting, <c>false</c> if stopping.</param>
-    /// <returns><c>true</c> if work should be removed when done.</returns>
-    private bool HandleTasks(IPlayerSlotController psc, bool starting)
-    {
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      lock (_syncObj)
-      {
-        // On stop, abort background interval work
-        if (!starting && _progressUpdateWorks.ContainsKey(psc))
-        {
-          threadPool.RemoveIntervalWork(_progressUpdateWorks[psc].Work);
-          return true;
-        }
-
-        // When starting, create an asynchronous work and exit here
-        if (!_progressUpdateWorks.ContainsKey(psc))
-        {
-          IntervalWork work = new IntervalWork(() => HandleScrobble(psc, true), UPDATE_INTERVAL);
-          threadPool.AddIntervalWork(work, false);
-          _progressUpdateWorks[psc] = new PositionWatcher { Work = work };
-        }
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Creates Scrobble data based on playing MediaItem object
-    /// </summary>
-    private TraktScrobbleMovie CreateMovieScrobbleData(IPlayerSlotController psc, IPlayerContext pc, bool starting)
-    {
+      IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
       IMediaPlaybackControl pmc = pc.CurrentPlayer as IMediaPlaybackControl;
-      TimeSpan currentPosition;
-      if (pmc != null)
+      if (pmc == null)
       {
-        _progressUpdateWorks[psc].Duration = pmc.Duration;
-        currentPosition = pmc.CurrentTime;
-      }
-      else
-      {
-        // Player is already removed on stopping, so take the resume position if available
-        currentPosition = _progressUpdateWorks[psc].ResumePosition;
+        return;
       }
 
-      double progress = currentPosition == TimeSpan.Zero ? (starting ? 0 : 100) : Math.Min((int)(currentPosition.TotalSeconds * 100 / _progressUpdateWorks[psc].Duration.TotalSeconds), 100);
+      _duration = pmc.Duration;
+      bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
+      bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
 
+      if (isMovie)
+      {
+        _dataMovie = CreateMovieData(pc);
+        _dataMovie.AppDate = TRAKT_SETTINGS.BuildDate;
+        _dataMovie.AppVersion = TRAKT_SETTINGS.Version;
+      }
+
+      if (isSeries)
+      {
+        _dataEpisode = CreateEpisodeData(pc);
+        _dataMovie.AppDate = TRAKT_SETTINGS.BuildDate;
+        _dataMovie.AppVersion = TRAKT_SETTINGS.Version;
+      }
+
+    }
+
+    private TraktScrobbleMovie CreateMovieData(IPlayerContext pc)
+    {
       var movieScrobbleData = new TraktScrobbleMovie
       {
         Movie = new TraktMovie
@@ -308,35 +168,13 @@ namespace MediaPortal.UiComponents.Trakt.Service
           Ids = new TraktMovieId { Imdb = GetMovieImdb(pc.CurrentMediaItem), Tmdb = GetMovieTmdb(pc.CurrentMediaItem) },
           Title = GetMovieTitle(pc.CurrentMediaItem),
           Year = GetVideoYear(pc.CurrentMediaItem)
-        },
-      //  AppVersion = _settings.Settings.Version,
-       // AppDate = _settings.Settings.BuildDate,
-        Progress = progress
+        }
       };
-
       return movieScrobbleData;
     }
 
-    /// <summary>
-    /// Creates Scrobble data based on a MediaItem object
-    /// </summary>
-    private TraktScrobbleEpisode CreateEpisodeScrobbleData(IPlayerSlotController psc, IPlayerContext pc, bool starting)
+    private TraktScrobbleEpisode CreateEpisodeData(IPlayerContext pc)
     {
-      IMediaPlaybackControl pmc = pc.CurrentPlayer as IMediaPlaybackControl;
-      TimeSpan currentPosition;
-      if (pmc != null)
-      {
-        _progressUpdateWorks[psc].Duration = pmc.Duration;
-        currentPosition = pmc.CurrentTime;
-      }
-      else
-      {
-        // Player is already removed on stopping, so take the resume position if available
-        currentPosition = _progressUpdateWorks[psc].ResumePosition;
-      }
-
-      double progress = currentPosition == TimeSpan.Zero ? (starting ? 0 : 100) : Math.Min((int)(currentPosition.TotalSeconds * 100 / _progressUpdateWorks[psc].Duration.TotalSeconds), 100);
-
       var episodeScrobbleData = new TraktScrobbleEpisode
       {
         Episode = new TraktEpisode
@@ -359,13 +197,75 @@ namespace MediaPortal.UiComponents.Trakt.Service
           },
           Title = GetSeriesTitle(pc.CurrentMediaItem),
           Year = GetVideoYear(pc.CurrentMediaItem)
-        },
-        //AppVersion = _settings.Settings.Version,
-        //AppDate = _settings.Settings.BuildDate,
-        Progress = progress
+        }
       };
 
       return episodeScrobbleData;
+    }
+
+    private void StartScrobble()
+    {
+      if (string.IsNullOrEmpty(TRAKT_SETTINGS.TraktOAuthToken))
+      {
+        TraktLogger.Error("0Auth Token not available");
+        return;
+      }
+
+      if (!Login())
+      {
+        return;
+      }
+
+      if (_dataMovie.Movie != null)
+      {
+        _dataMovie.Progress = 0;
+        var response = TraktAPI.StartMovieScrobble(_dataMovie);
+        TraktLogger.LogTraktResponse(response);
+        return;
+      }
+      if (_dataEpisode != null)
+      {
+        _dataEpisode.Progress = 0;
+        var response = TraktAPI.StartEpisodeScrobble(_dataEpisode);
+        TraktLogger.LogTraktResponse(response);
+        return;
+      }
+      TraktLogger.Info("Can't start scrobble, scrobbledata not available");
+    }
+
+    private void StopScrobble()
+    {
+      if (_dataMovie.Movie != null)
+      {
+        _dataMovie.Progress = _progres;
+        var response = TraktAPI.StopMovieScrobble(_dataMovie);
+        TraktLogger.LogTraktResponse(response);
+        return;
+      }
+      if (_dataEpisode != null)
+      {
+        _dataEpisode.Progress = _progres;
+        var response = TraktAPI.StopEpisodeScrobble(_dataEpisode);
+        TraktLogger.LogTraktResponse(response);
+        return;
+      }
+      TraktLogger.Info("Can't post stop scrobble, scrobbledata lost");
+    }
+
+    private bool Login()
+    {
+      TraktLogger.Info("Exchanging refresh-token for access-token");
+      var response = TraktAPI.GetOAuthToken(TRAKT_SETTINGS.TraktOAuthToken);
+      if (response == null || string.IsNullOrEmpty(response.AccessToken))
+      {
+        TraktLogger.Error("Unable to login to trakt");
+        return false;
+      }
+      TRAKT_SETTINGS.TraktOAuthToken = response.RefreshToken;
+      settingsManager.Save(TRAKT_SETTINGS);
+      TraktLogger.Info("Successfully logged in");
+
+      return true;
     }
 
     private string GetMovieImdb(MediaItem currMediaItem)
