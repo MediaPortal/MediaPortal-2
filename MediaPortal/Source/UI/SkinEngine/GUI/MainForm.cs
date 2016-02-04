@@ -102,6 +102,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly object _reclaimDeviceSyncObj = new object();
 
     private bool _adaptToSizeEnabled;
+    private bool _disableTopMost;
 
     public MainForm(ScreenManager screenManager)
     {
@@ -361,7 +362,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 #if DEBUG
       TopMost = _forceOnTop;
 #else
-      TopMost = _forceOnTop || IsFullScreen && (force || this == ActiveForm);
+      TopMost = !_disableTopMost && (_forceOnTop || IsFullScreen && (force || this == ActiveForm));
       if (force)
       {
         this.SafeActivate();
@@ -545,6 +546,16 @@ namespace MediaPortal.UI.SkinEngine.GUI
       CheckTopMost();
 
       StartUI();
+    }
+
+    public bool DisableTopMost
+    {
+      get { return _disableTopMost; }
+      set
+      {
+        _disableTopMost = value;
+        CheckTopMost();
+      }
     }
 
     public bool IsFullScreen
