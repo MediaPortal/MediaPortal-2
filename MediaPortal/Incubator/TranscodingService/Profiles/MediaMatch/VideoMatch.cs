@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2012 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,20 +22,13 @@
 
 #endregion
 
-using MediaPortal.Plugins.Transcoding.Service.Metadata;
-using System.Collections.Generic;
-using System.Globalization;
+using MediaPortal.Plugins.Transcoding.Service.Profiles.MediaInfo;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
+namespace MediaPortal.Plugins.Transcoding.Service.Profiles.MediaMatch
 {
-  public class FFMpegParseFFMpegOutput
+  public class VideoMatch
   {
-    internal static void ParseFFMpegOutput(string output, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
-    {
-      var input = output.Split('\n');
-      if (!input[0].StartsWith("ffmpeg version") && !input[0].StartsWith("ffprobe version"))
-        return;
-      FFMpegParseFFMpegOutputLines.ParseFFMpegOutputLines(input, ref info, countryCodesMapping);
-    }
+    public VideoInfo MatchedVideoSource;
+    public int MatchedAudioStream;
   }
 }

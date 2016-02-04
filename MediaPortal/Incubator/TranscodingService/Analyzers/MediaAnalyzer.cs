@@ -22,56 +22,44 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Utilities.SystemAPI;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
-using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
 
-namespace MediaPortal.Plugins.Transcoding.Service
+namespace MediaPortal.Plugins.Transcoding.Service.Analyzers
 {
-  public class MediaAnalyzer : IMediaAnalyzer
+  public class MediaAnalyzer
   {
     #region Constants
 
     /// <summary>
-    /// Default maximum duration for analyzing file.
-    /// </summary>
-    protected const int PROCESS_TIMEOUT_MS = 30000;
-
-    /// <summary>
     /// Maximum duration for analyzing H264 stream.
     /// </summary>
-    protected const int H264_TIMEOUT_MS = 3000;
+    private const int H264_TIMEOUT_MS = 3000;
 
     #endregion
 
-    #region Protected fields
+    private static readonly object FFPROBE_THROTTLE_LOCK = new object();
+    private static int _analyzerMaximumThreads;
+    private static int _analyzerTimeout;
+    private static long _analyzerStreamTimeout;
+    private static ILogger _logger { get; set; }
+    private static readonly Dictionary<string, CultureInfo> _countryCodesMapping = new Dictionary<string, CultureInfo>();
+    private static readonly Dictionary<float, long> _h264MaxDpbMbs = new Dictionary<float, long>();
 
-    protected static readonly object FFPROBE_THROTTLE_LOCK = new object();
-
-    #endregion
-
-    public int AnalyzerTimeout { get; set; }
-    public int AnalyzerMaximumThreads { get; set; }
-
-    private ILogger _logger { get; set; }
-    private readonly Dictionary<string, CultureInfo> _countryCodesMapping = new Dictionary<string, CultureInfo>();
-    private readonly Dictionary<float, long> _h264MaxDpbMbs = new Dictionary<float, long>();
-   
-    public MediaAnalyzer()
+    static MediaAnalyzer()
     {
-      AnalyzerTimeout = PROCESS_TIMEOUT_MS;
-      AnalyzerMaximumThreads = 0;
-
+      _analyzerMaximumThreads = TranscodingServicePlugin.Settings.AnalyzerMaximumThreads;
+      _analyzerTimeout = TranscodingServicePlugin.Settings.AnalyzerTimeout;
+      _analyzerStreamTimeout = TranscodingServicePlugin.Settings.AnalyzerStreamTimeout;
       _logger = ServiceRegistration.Get<ILogger>();
 
       _h264MaxDpbMbs.Add(1F, 396);
@@ -102,11 +90,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
     }
 
-    private ProcessExecutionResult ParseFile(ILocalFsResourceAccessor lfsra, string arguments)
+    private static ProcessExecutionResult ParseFile(ILocalFsResourceAccessor lfsra, string arguments)
     {
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
-        executionResult = FFMpegBinary.FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
+        executionResult = FFMpegBinary.FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, _analyzerTimeout).Result;
 
       // My guess (agree with dtb's comment): AFAIK ffmpeg uses stdout to pipe out binary data(multimedia, snapshots, etc.)
       // and stderr is used for logging purposes. In your example you use stdout.
@@ -114,11 +102,16 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return executionResult;
     }
 
-    public MetadataContainer ParseImageFile(ILocalFsResourceAccessor lfsra)
+    /// <summary>
+    /// Pareses a local image file using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// </summary>
+    /// <param name="lfsra">ILocalFsResourceAccessor to the image file</param>
+    /// <returns>a Metadata Container with all information about the mediaitem</returns>
+    public static MetadataContainer ParseImageFile(ILocalFsResourceAccessor lfsra)
     {
       string fileName = lfsra.LocalFileSystemPath;
       //Default image decoder (image2) fails if file name contains å, ø, ö etc., so force format to image2pipe
-      string arguments = string.Format("-threads {0} -f image2pipe -i \"{1}\"", AnalyzerMaximumThreads, fileName);
+      string arguments = string.Format("-threads {0} -f image2pipe -i \"{1}\"", _analyzerMaximumThreads, fileName);
 
       ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
@@ -139,10 +132,15 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    public MetadataContainer ParseVideoFile(ILocalFsResourceAccessor lfsra)
+    /// <summary>
+    /// Pareses a local video file using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// </summary>
+    /// <param name="lfsra">ILocalFsResourceAccessor to the video file</param>
+    /// <returns>a Metadata Container with all information about the mediaitem</returns>
+    public static MetadataContainer ParseVideoFile(ILocalFsResourceAccessor lfsra)
     {
       string fileName = lfsra.LocalFileSystemPath;
-      string arguments = string.Format("-threads {0} -i \"{1}\"", AnalyzerMaximumThreads, fileName);
+      string arguments = string.Format("-threads {0} -i \"{1}\"", _analyzerMaximumThreads, fileName);
 
       ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
@@ -165,10 +163,15 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    public MetadataContainer ParseAudioFile(ILocalFsResourceAccessor lfsra)
+    /// <summary>
+    /// Pareses a local audio file using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// </summary>
+    /// <param name="lfsra">ILocalFsResourceAccessor to the file</param>
+    /// <returns>a Metadata Container with all information about the mediaitem</returns>
+    public static MetadataContainer ParseAudioFile(ILocalFsResourceAccessor lfsra)
     {
       string fileName = lfsra.LocalFileSystemPath;
-      string arguments = string.Format("-threads {0} -i \"{1}\"", AnalyzerMaximumThreads, fileName);
+      string arguments = string.Format("-threads {0} -i \"{1}\"", _analyzerMaximumThreads, fileName);
 
       ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
@@ -189,20 +192,25 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    public MetadataContainer ParseVideoStream(INetworkResourceAccessor streamLink)
+    /// <summary>
+    /// Pareses a video URL using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// </summary>
+    /// <param name="streamLink">INetworkResourceAccessor to the video URL</param>
+    /// <returns>a Metadata Container with all information about the URL</returns>
+    public static MetadataContainer ParseVideoStream(INetworkResourceAccessor streamLink)
     {
       string arguments = "";
       if (streamLink.URL.StartsWith("rtsp://", System.StringComparison.InvariantCultureIgnoreCase) == true)
       {
         arguments += "-rtsp_transport +tcp+udp ";
       }
-      arguments += "-analyzeduration 10000000 ";
+      arguments += "-analyzeduration " + _analyzerStreamTimeout + " ";
       arguments += string.Format("-i \"{0}\"", streamLink.URL);
 
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
-        executionResult = FFMpegBinary.FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, AnalyzerTimeout).Result;
-      
+        executionResult = FFMpegBinary.FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, _analyzerTimeout).Result;
+
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
         _logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
@@ -216,7 +224,41 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
 
       _logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}'", streamLink);
-      
+
+      return null;
+    }
+
+    /// <summary>
+    /// Pareses a video URL using FFProbe and returns a MetadataContainer with the information (codecs, container, streams, ...) found
+    /// </summary>
+    /// <param name="streamLink">INetworkResourceAccessor to the audio URL</param>
+    /// <returns>a Metadata Container with all information about the URL</returns>
+    public static MetadataContainer ParseAudioStream(INetworkResourceAccessor streamLink)
+    {
+      string arguments = "";
+      if (streamLink.URL.StartsWith("rtsp://", System.StringComparison.InvariantCultureIgnoreCase) == true)
+      {
+        arguments += "-rtsp_transport +tcp+udp ";
+      }
+      arguments += "-analyzeduration " + _analyzerStreamTimeout + " ";
+      arguments += string.Format("-i \"{0}\"", streamLink.URL);
+
+      ProcessExecutionResult executionResult;
+      lock (FFPROBE_THROTTLE_LOCK)
+        executionResult = FFMpegBinary.FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, _analyzerTimeout).Result;
+
+      if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
+      {
+        _logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+        MetadataContainer info = new MetadataContainer { Metadata = { Source = streamLink } };
+        info.Metadata.Mime = MimeDetector.GetUrlMime(streamLink.URL, "audio/Unknown");
+        info.Metadata.Size = 0;
+        FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
+        return info;
+      }
+
+      _logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}'", streamLink);
+
       return null;
     }
   }

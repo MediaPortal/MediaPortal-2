@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
