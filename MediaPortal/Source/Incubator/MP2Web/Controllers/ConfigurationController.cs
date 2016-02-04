@@ -106,7 +106,7 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
               {
                 Name = "Movies",
                 Label = "Movies",
-                Category = "test",
+                Category = "Movies",
                 Path = "/movies/...",
                 ComponentPath = "./app/modules/movies/lib/movies.component",
                 Component = "MoviesComponent",
@@ -139,6 +139,15 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
             Path = "/heroes",
             ComponentPath = "./app/hero-list.component",
             Component = "HeroListComponent",
+            Visible = true
+          },
+          new MP2WebAppRouterConfiguration
+          {
+            Name = "Settings",
+            Label = "Settings",
+            Path = "/settings/...",
+            ComponentPath = "./app/modules/settings/lib/settings.component",
+            Component = "SettingsComponent",
             Visible = true
           }
         },
