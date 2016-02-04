@@ -26,6 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Reflection;
+using System.Threading;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Globalization;
 using HttpServer;
 using HttpServer.Exceptions;
 using HttpServer.HttpModules;
@@ -39,15 +44,11 @@ using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using System.Globalization;
 using MediaPortal.Utilities.SystemAPI;
-using System.Reflection;
 using MediaPortal.Plugins.Transcoding.Service;
-using System.Threading;
 using MediaPortal.Plugins.MediaServer.Protocols;
-using System.Drawing.Imaging;
-using System.Drawing;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {

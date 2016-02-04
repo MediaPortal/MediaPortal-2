@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Text.RegularExpressions;
 using System.Linq;
 using System.Net;
 using System.Xml;
@@ -33,18 +34,13 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Plugins.MediaServer.DIDL;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Plugins.MediaServer.Filters;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MediaServer.Settings;
-
-//Thanks goes to the Serviio team over at http://www.serviio.org/
-//Their profile structure was inspiring and the community driven DLNA profiling is very effective 
+using MediaPortal.Plugins.Transcoding.Service.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -52,6 +48,8 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
   {
     private const string DLNA_DEFAULT_PROFILE_ID = "DLNADefault";
     private const string PROFILE_FILE = "DLNAProfiles.xml";
+
+    public const string TRANSCODE_PROFILE_SECTION = "DLNA";
 
     public static Dictionary<IPAddress, EndPointSettings> ProfileLinks = new Dictionary<IPAddress, EndPointSettings>();
     public static Dictionary<string, EndPointProfile> Profiles = new Dictionary<string, EndPointProfile>();
@@ -241,6 +239,10 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           string dataPath = pathManager.GetPath("<CONFIG>");
           profileFile = Path.Combine(dataPath, PROFILE_FILE);
         }
+        else
+        {
+          TranscodeProfileManager.ClearTranscodeProfiles(TRANSCODE_PROFILE_SECTION);
+        }
 
         if (File.Exists(profileFile) == true)
         {
@@ -296,65 +298,12 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                     profile.Settings.Thumbnails.MaxWidth = Profiles[parentProfileId].Settings.Thumbnails.MaxWidth;
                     profile.Settings.Thumbnails.Delivery = Profiles[parentProfileId].Settings.Thumbnails.Delivery;
 
-                    profile.Settings.Video.MaxHeight = Profiles[parentProfileId].Settings.Video.MaxHeight;
-                    profile.Settings.Video.H262QualityFactor = Profiles[parentProfileId].Settings.Video.H262QualityFactor;
-                    profile.Settings.Video.H262TargetPreset = Profiles[parentProfileId].Settings.Video.H262TargetPreset;
-                    profile.Settings.Video.H262TargetProfile = Profiles[parentProfileId].Settings.Video.H262TargetProfile;
-                    profile.Settings.Video.H264LevelCheckMethod = Profiles[parentProfileId].Settings.Video.H264LevelCheckMethod;
-                    profile.Settings.Video.H264Level = Profiles[parentProfileId].Settings.Video.H264Level;
-                    profile.Settings.Video.H264QualityFactor = Profiles[parentProfileId].Settings.Video.H264QualityFactor;
-                    profile.Settings.Video.H264TargetPreset = Profiles[parentProfileId].Settings.Video.H264TargetPreset;
-                    profile.Settings.Video.H264TargetProfile = Profiles[parentProfileId].Settings.Video.H264TargetProfile;
-                    profile.Settings.Video.H265Level = Profiles[parentProfileId].Settings.Video.H265Level;
-                    profile.Settings.Video.H265QualityFactor = Profiles[parentProfileId].Settings.Video.H265QualityFactor;
-                    profile.Settings.Video.H265TargetPreset = Profiles[parentProfileId].Settings.Video.H265TargetPreset;
-                    profile.Settings.Video.H265TargetProfile = Profiles[parentProfileId].Settings.Video.H265TargetProfile;
-                    profile.Settings.Video.Quality = Profiles[parentProfileId].Settings.Video.Quality;
-                    profile.Settings.Video.QualityFactor = Profiles[parentProfileId].Settings.Video.QualityFactor;
-                    profile.Settings.Video.CoderType = Profiles[parentProfileId].Settings.Video.CoderType;
-
-                    profile.Settings.Images.AutoRotate = Profiles[parentProfileId].Settings.Images.AutoRotate;
-                    profile.Settings.Images.MaxHeight = Profiles[parentProfileId].Settings.Images.MaxHeight;
-                    profile.Settings.Images.MaxWidth = Profiles[parentProfileId].Settings.Images.MaxWidth;
-                    profile.Settings.Images.CoderType = Profiles[parentProfileId].Settings.Images.CoderType;
-
-                    profile.Settings.Audio.DefaultBitrate = Profiles[parentProfileId].Settings.Audio.DefaultBitrate;
-                    profile.Settings.Audio.DefaultStereo = Profiles[parentProfileId].Settings.Audio.DefaultStereo;
-                    profile.Settings.Audio.CoderType = Profiles[parentProfileId].Settings.Audio.CoderType;
-
                     profile.Settings.Communication.AllowChunckedTransfer = Profiles[parentProfileId].Settings.Communication.AllowChunckedTransfer;
                     profile.Settings.Communication.DefaultBufferSize = Profiles[parentProfileId].Settings.Communication.DefaultBufferSize;
                     profile.Settings.Communication.InitialBufferSize = Profiles[parentProfileId].Settings.Communication.InitialBufferSize;
 
                     profile.Settings.Metadata.Delivery = Profiles[parentProfileId].Settings.Metadata.Delivery;
 
-                    profile.Settings.Subtitles.SubtitleMode = Profiles[parentProfileId].Settings.Subtitles.SubtitleMode;
-                    profile.Settings.Subtitles.SubtitlesSupported = new List<ProfileSubtitle>(Profiles[parentProfileId].Settings.Subtitles.SubtitlesSupported);
-
-                    profile.MediaTranscoding.Audio = new List<AudioTranscodingTarget>();
-                    foreach (AudioTranscodingTarget aTrans in Profiles[parentProfileId].MediaTranscoding.Audio)
-                    {
-                      if (aTrans.Target.ForceInheritance == true)
-                      {
-                        profile.MediaTranscoding.Audio.Add(aTrans);
-                      }
-                    }
-                    profile.MediaTranscoding.Images = new List<ImageTranscodingTarget>();
-                    foreach (ImageTranscodingTarget iTrans in Profiles[parentProfileId].MediaTranscoding.Images)
-                    {
-                      if (iTrans.Target.ForceInheritance == true)
-                      {
-                        profile.MediaTranscoding.Images.Add(iTrans);
-                      }
-                    }
-                    profile.MediaTranscoding.Video = new List<VideoTranscodingTarget>();
-                    foreach (VideoTranscodingTarget vTrans in Profiles[parentProfileId].MediaTranscoding.Video)
-                    {
-                      if (vTrans.Target.ForceInheritance == true)
-                      {
-                        profile.MediaTranscoding.Video.Add(vTrans);
-                      }
-                    }
                     profile.MediaMimeMap = new Dictionary<string, MediaMimeMapping>(Profiles[parentProfileId].MediaMimeMap);
                   }
                 }
@@ -529,10 +478,6 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                 }
               }
             }
-            else if (nodeName == "MediaTranscoding" && reader.NodeType == XmlNodeType.Element)
-            {
-              ReadTranscoding(reader, reader.Name, ref profile.MediaTranscoding.Video, ref profile.MediaTranscoding.Audio, ref profile.MediaTranscoding.Images);
-            }
             else if (nodeName == "Settings" && reader.NodeType == XmlNodeType.Element)
             {
               while (reader.Read())
@@ -556,138 +501,6 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                     else if (reader.Name == "delivery")
                     {
                       profile.Settings.Thumbnails.Delivery = (ThumbnailDelivery)Enum.Parse(typeof(ThumbnailDelivery), reader.ReadContentAsString(), true);
-                    }
-                  }
-                }
-                else if (reader.Name == "Video" && reader.NodeType == XmlNodeType.Element)
-                {
-                  while (reader.MoveToNextAttribute()) // Read the attributes.
-                  {
-                    if (reader.Name == "maxHeight")
-                    {
-                      profile.Settings.Video.MaxHeight = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "qualityMode")
-                    {
-                      profile.Settings.Video.Quality = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "qualityFactor")
-                    {
-                      profile.Settings.Video.QualityFactor = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "coder")
-                    {
-                      profile.Settings.Video.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
-                    }
-                  }
-                }
-                else if (reader.Name == "H262Video" && reader.NodeType == XmlNodeType.Element)
-                {
-                  while (reader.MoveToNextAttribute()) // Read the attributes.
-                  {
-                    if (reader.Name == "qualityFactor")
-                    {
-                      profile.Settings.Video.QualityFactor = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "preset")
-                    {
-                      profile.Settings.Video.H262TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "profile")
-                    {
-                      profile.Settings.Video.H262TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
-                    }
-                  }
-                }
-                else if (reader.Name == "H264Video" && reader.NodeType == XmlNodeType.Element)
-                {
-                  while (reader.MoveToNextAttribute()) // Read the attributes.
-                  {
-                    if (reader.Name == "levelCheck")
-                    {
-                      profile.Settings.Video.H264LevelCheckMethod = (LevelCheck)Enum.Parse(typeof(LevelCheck), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "qualityFactor")
-                    {
-                      profile.Settings.Video.H264QualityFactor = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "preset")
-                    {
-                      profile.Settings.Video.H264TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "profile")
-                    {
-                      profile.Settings.Video.H264TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "level")
-                    {
-                      profile.Settings.Video.H264Level = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
-                    }
-                  }
-                }
-                else if (reader.Name == "H265Video" && reader.NodeType == XmlNodeType.Element)
-                {
-                  while (reader.MoveToNextAttribute()) // Read the attributes.
-                  {
-                    if (reader.Name == "qualityFactor")
-                    {
-                      profile.Settings.Video.H265QualityFactor = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "preset")
-                    {
-                      profile.Settings.Video.H265TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "profile")
-                    {
-                      profile.Settings.Video.H265TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "level")
-                    {
-                      profile.Settings.Video.H265Level = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
-                    }
-                  }
-                }
-                else if (reader.Name == "Images" && reader.NodeType == XmlNodeType.Element)
-                {
-                  while (reader.MoveToNextAttribute()) // Read the attributes.
-                  {
-                    if (reader.Name == "autoRotate")
-                    {
-                      profile.Settings.Images.AutoRotate = reader.ReadContentAsBoolean();
-                    }
-                    else if (reader.Name == "maxWidth")
-                    {
-                      profile.Settings.Images.MaxWidth = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "maxHeight")
-                    {
-                      profile.Settings.Images.MaxHeight = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "qualityMode")
-                    {
-                      profile.Settings.Images.Quality = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
-                    }
-                    else if (reader.Name == "coder")
-                    {
-                      profile.Settings.Images.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
-                    }
-                  }
-                }
-                else if (reader.Name == "Audio" && reader.NodeType == XmlNodeType.Element)
-                {
-                  while (reader.MoveToNextAttribute()) // Read the attributes.
-                  {
-                    if (reader.Name == "defaultStereo")
-                    {
-                      profile.Settings.Audio.DefaultStereo = reader.ReadContentAsBoolean();
-                    }
-                    else if (reader.Name == "defaultBitrate")
-                    {
-                      profile.Settings.Audio.DefaultBitrate = reader.ReadContentAsInt();
-                    }
-                    else if (reader.Name == "coder")
-                    {
-                      profile.Settings.Audio.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
                     }
                   }
                 }
@@ -719,37 +532,6 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                     }
                   }
                 }
-                else if (reader.Name == "Subtitles" && reader.NodeType == XmlNodeType.Element)
-                {
-                  XmlReader subReader = reader.ReadSubtree();
-                  profile.Settings.Subtitles.SubtitlesSupported.Clear();
-                  while (reader.MoveToNextAttribute()) // Read the attributes.
-                  {
-                    if (reader.Name == "support")
-                    {
-                      profile.Settings.Subtitles.SubtitleMode = (SubtitleSupport)Enum.Parse(typeof(SubtitleSupport), reader.ReadContentAsString(), true);
-                    }
-                  }
-                  while (subReader.Read())
-                  {
-                    if (subReader.Name == "Subtitle" && subReader.NodeType == XmlNodeType.Element)
-                    {
-                      ProfileSubtitle newSub = new ProfileSubtitle();
-                      while (subReader.MoveToNextAttribute()) // Read the attributes.
-                      {
-                        if (subReader.Name == "format")
-                        {
-                          newSub.Format = (SubtitleCodec)Enum.Parse(typeof(SubtitleCodec), subReader.ReadContentAsString(), true);
-                        }
-                        else if (subReader.Name == "mime")
-                        {
-                          newSub.Mime = subReader.ReadContentAsString();
-                        }
-                      }
-                      profile.Settings.Subtitles.SubtitlesSupported.Add(newSub);
-                    }
-                  }
-                }
               }
             }
             else if (nodeName == "Profile" && reader.NodeType == XmlNodeType.EndElement)
@@ -770,360 +552,14 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
             }
           }
           reader.Close();
+
+          TranscodeProfileManager.LoadTranscodeProfiles(TRANSCODE_PROFILE_SECTION, profileFile);
         }
       }
       catch (Exception e)
       {
         Logger.Info("DlnaMediaServer: Exception reading profiles (Text: '{0}')", e.Message);
       }
-    }
-
-    private static void ReadTranscoding(XmlTextReader reader, string elementName, ref List<VideoTranscodingTarget> vTrans, ref List<AudioTranscodingTarget> aTrans, ref List<ImageTranscodingTarget> iTrans)
-    {
-      if (vTrans == null)
-      {
-        vTrans = new List<VideoTranscodingTarget>();
-      }
-      if (aTrans == null)
-      {
-        aTrans = new List<AudioTranscodingTarget>();
-      }
-      if (iTrans == null)
-      {
-        iTrans = new List<ImageTranscodingTarget>();
-      }
-
-      List<VideoTranscodingTarget> vList = new List<VideoTranscodingTarget>();
-      List<AudioTranscodingTarget> aList = new List<AudioTranscodingTarget>();
-      List<ImageTranscodingTarget> iList = new List<ImageTranscodingTarget>();
-
-      VideoTranscodingTarget vTranscoding = new VideoTranscodingTarget();
-      AudioTranscodingTarget aTranscoding = new AudioTranscodingTarget();
-      ImageTranscodingTarget iTranscoding = new ImageTranscodingTarget();
-
-      while (reader.Read())
-      {
-        if (reader.Name == "VideoTarget" && reader.NodeType == XmlNodeType.Element)
-        {
-          vTranscoding = new VideoTranscodingTarget();
-          vTranscoding.Target = new VideoInfo();
-          while (reader.MoveToNextAttribute()) // Read the attributes.
-          {
-            if (reader.Name == "container")
-            {
-              vTranscoding.Target.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "movflags")
-            {
-              vTranscoding.Target.Movflags = reader.ReadContentAsString();
-            }
-            else if (reader.Name == "videoCodec")
-            {
-              vTranscoding.Target.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "videoFourCC")
-            {
-              vTranscoding.Target.FourCC = reader.ReadContentAsString();
-            }
-            else if (reader.Name == "videoAR")
-            {
-              vTranscoding.Target.AspectRatio = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
-            }
-            else if (reader.Name == "videoProfile")
-            {
-              vTranscoding.Target.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "videoLevel")
-            {
-              vTranscoding.Target.LevelMinimum = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
-            }
-            else if (reader.Name == "videoPreset")
-            {
-              vTranscoding.Target.TargetPresetType = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "qualityMode")
-            {
-              vTranscoding.Target.QualityType = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "videoBrandExclusion")
-            {
-              vTranscoding.Target.BrandExclusion = reader.ReadContentAsString();
-            }
-            else if (reader.Name == "videoMaxBitrate")
-            {
-              vTranscoding.Target.MaxVideoBitrate = reader.ReadContentAsLong();
-            }
-            else if (reader.Name == "videoMaxHeight")
-            {
-              vTranscoding.Target.MaxVideoHeight = reader.ReadContentAsInt();
-            }
-            else if (reader.Name == "videoSquarePixels")
-            {
-              vTranscoding.Target.SquarePixels = reader.ReadContentAsBoolean();
-            }
-            else if (reader.Name == "videoPixelFormat")
-            {
-              vTranscoding.Target.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "audioCodec")
-            {
-              vTranscoding.Target.AudioCodecType = (AudioCodec)Enum.Parse(typeof(AudioCodec), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "audioBitrate")
-            {
-              vTranscoding.Target.AudioBitrate = reader.ReadContentAsLong();
-            }
-            else if (reader.Name == "audioFrequency")
-            {
-              vTranscoding.Target.AudioFrequency = reader.ReadContentAsLong();
-            }
-            else if (reader.Name == "audioMultiChannel")
-            {
-              vTranscoding.Target.AudioMultiChannel = reader.ReadContentAsBoolean();
-            }
-            else if (reader.Name == "forceTranscoding")
-            {
-              vTranscoding.Target.ForceVideoTranscoding = reader.ReadContentAsBoolean();
-            }
-            else if (reader.Name == "forceStereo")
-            {
-              vTranscoding.Target.ForceStereo = reader.ReadContentAsBoolean();
-            }
-            else if (reader.Name == "forceInheritance")
-            {
-              vTranscoding.Target.ForceInheritance = reader.ReadContentAsBoolean();
-            }
-            else if (reader.Name == "transcoder")
-            {
-              vTranscoding.TranscoderBinPath = reader.ReadContentAsString();
-            }
-            else if (reader.Name == "transcoderArguments")
-            {
-              vTranscoding.TranscoderArguments = reader.ReadContentAsString();
-            }
-          }
-          while (reader.Read())
-          {
-            if (reader.Name == "VideoTarget" && reader.NodeType == XmlNodeType.EndElement)
-            {
-              vList.Add(vTranscoding);
-              break;
-            }
-            if (reader.Name == "VideoSource" && reader.NodeType == XmlNodeType.Element)
-            {
-              if (vTranscoding.Sources == null)
-              {
-                vTranscoding.Sources = new List<VideoInfo>();
-              }
-              VideoInfo src = new VideoInfo();
-              while (reader.MoveToNextAttribute()) // Read the attributes.
-              {
-                if (reader.Name == "container")
-                {
-                  src.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), reader.ReadContentAsString(), true);
-                }
-                else if (reader.Name == "videoCodec")
-                {
-                  src.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), reader.ReadContentAsString(), true);
-                }
-                else if (reader.Name == "videoFourCC")
-                {
-                  src.FourCC = reader.ReadContentAsString();
-                }
-                else if (reader.Name == "videoAR")
-                {
-                  src.AspectRatio = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
-                }
-                else if (reader.Name == "videoProfile")
-                {
-                  src.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
-                }
-                else if (reader.Name == "videoLevel")
-                {
-                  src.LevelMinimum = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
-                }
-                else if (reader.Name == "videoBrandExclusion")
-                {
-                  src.BrandExclusion = reader.ReadContentAsString();
-                }
-                else if (reader.Name == "videoMaxBitrate")
-                {
-                  src.MaxVideoBitrate = reader.ReadContentAsLong();
-                }
-                else if (reader.Name == "videoMaxHeight")
-                {
-                  src.MaxVideoHeight = reader.ReadContentAsInt();
-                }
-                else if (reader.Name == "videoSquarePixels")
-                {
-                  src.SquarePixels = reader.ReadContentAsBoolean();
-                }
-                else if (reader.Name == "videoPixelFormat")
-                {
-                  src.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
-                }
-                else if (reader.Name == "audioCodec")
-                {
-                  src.AudioCodecType = (AudioCodec)Enum.Parse(typeof(AudioCodec), reader.ReadContentAsString(), true);
-                }
-                else if (reader.Name == "audioBitrate")
-                {
-                  src.AudioBitrate = reader.ReadContentAsLong();
-                }
-                else if (reader.Name == "audioFrequency")
-                {
-                  src.AudioFrequency = reader.ReadContentAsLong();
-                }
-                else if (reader.Name == "audioMultiChannel")
-                {
-                  src.AudioMultiChannel = reader.ReadContentAsBoolean();
-                }
-              }
-              vTranscoding.Sources.Add(src);
-            }
-          }
-        }
-        else if (reader.Name == "AudioTarget" && reader.NodeType == XmlNodeType.Element)
-        {
-          aTranscoding = new AudioTranscodingTarget();
-          aTranscoding.Target = new AudioInfo();
-          while (reader.MoveToNextAttribute()) // Read the attributes.
-          {
-            if (reader.Name == "container")
-            {
-              aTranscoding.Target.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "audioBitrate")
-            {
-              aTranscoding.Target.Bitrate = reader.ReadContentAsLong();
-            }
-            else if (reader.Name == "audioFrequency")
-            {
-              aTranscoding.Target.Frequency = reader.ReadContentAsLong();
-            }
-            else if (reader.Name == "forceStereo")
-            {
-              aTranscoding.Target.ForceStereo = reader.ReadContentAsBoolean();
-            }
-            else if (reader.Name == "forceInheritance")
-            {
-              aTranscoding.Target.ForceInheritance = reader.ReadContentAsBoolean();
-            }
-            else if (reader.Name == "transcoder")
-            {
-              aTranscoding.TranscoderBinPath = reader.ReadContentAsString();
-            }
-            else if (reader.Name == "transcoderArguments")
-            {
-              aTranscoding.TranscoderArguments = reader.ReadContentAsString();
-            }
-          }
-          while (reader.Read())
-          {
-            if (reader.Name == "AudioTarget" && reader.NodeType == XmlNodeType.EndElement)
-            {
-              aList.Add(aTranscoding);
-              break;
-            }
-            if (reader.Name == "AudioSource" && reader.NodeType == XmlNodeType.Element)
-            {
-              if (aTranscoding.Sources == null)
-              {
-                aTranscoding.Sources = new List<AudioInfo>();
-              }
-              AudioInfo src = new AudioInfo();
-              while (reader.MoveToNextAttribute()) // Read the attributes.
-              {
-                if (reader.Name == "container")
-                {
-                  src.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), reader.ReadContentAsString(), true);
-                }
-                else if (reader.Name == "audioBitrate")
-                {
-                  src.Bitrate = reader.ReadContentAsLong();
-                }
-                else if (reader.Name == "audioFrequency")
-                {
-                  src.Frequency = reader.ReadContentAsLong();
-                }
-              }
-              aTranscoding.Sources.Add(src);
-            }
-          }
-        }
-        else if (reader.Name == "ImageTarget" && reader.NodeType == XmlNodeType.Element)
-        {
-          iTranscoding = new ImageTranscodingTarget();
-          iTranscoding.Target = new ImageInfo();
-          while (reader.MoveToNextAttribute()) // Read the attributes.
-          {
-            if (reader.Name == "container")
-            {
-              iTranscoding.Target.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "pixelFormat")
-            {
-              iTranscoding.Target.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "qualityMode")
-            {
-              iTranscoding.Target.QualityType = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
-            }
-            else if (reader.Name == "forceInheritance")
-            {
-              iTranscoding.Target.ForceInheritance = reader.ReadContentAsBoolean();
-            }
-            else if (reader.Name == "transcoder")
-            {
-              iTranscoding.TranscoderBinPath = reader.ReadContentAsString();
-            }
-            else if (reader.Name == "transcoderOptions")
-            {
-              iTranscoding.TranscoderArguments = reader.ReadContentAsString();
-            }
-          }
-          while (reader.Read())
-          {
-            if (reader.Name == "ImageTarget" && reader.NodeType == XmlNodeType.EndElement)
-            {
-              iList.Add(iTranscoding);
-              break;
-            }
-            if (reader.Name == "ImageSource" && reader.NodeType == XmlNodeType.Element)
-            {
-              if (iTranscoding.Sources == null)
-              {
-                iTranscoding.Sources = new List<ImageInfo>();
-              }
-              ImageInfo src = new ImageInfo();
-              while (reader.MoveToNextAttribute()) // Read the attributes.
-              {
-                if (reader.Name == "container")
-                {
-                  src.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), reader.ReadContentAsString(), true);
-                }
-                else if (reader.Name == "pixelFormat")
-                {
-                  src.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
-                }
-              }
-              iTranscoding.Sources.Add(src);
-            }
-          }
-        }
-        if (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement)
-        {
-          break;
-        }
-      }
-
-      //Own transcoding profiles should have higher priority than inherited ones
-      vList.AddRange(vTrans);
-      aList.AddRange(aTrans);
-      iList.AddRange(iTrans);
-      vTrans = vList;
-      aTrans = aList;
-      iTrans = iList;
     }
 
     public static EndPointSettings GetEndPointSettings(string clientIp, string profileId)

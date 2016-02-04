@@ -22,15 +22,14 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Utilities;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.Transcoding.Service;
-using System;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -97,7 +96,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       resource.Initialise();
       Resources.Add(resource);
 
-      if (client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.SoftCoded)
+      if (client.Profile.MediaTranscoding.SubtitleSettings.SubtitleMode == SubtitleSupport.SoftCoded)
       {
         MediaLibrarySubtitle sub = new MediaLibrarySubtitle(item, client);
         sub.Initialise();
