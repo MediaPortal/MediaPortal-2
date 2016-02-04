@@ -1,10 +1,30 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses
 {
@@ -14,39 +34,39 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseC
     {
       int bandwith = 0;
       string mime = "video/MP2T";
-      int maxHeight = profile.Value.Settings.Video.MaxHeight;
+      int maxHeight = profile.Value.MediaTranscoding.VideoSettings.MaxHeight;
       int maxWidth = Convert.ToInt32((double)maxHeight * (16.0 / 9.0));
       string transport = "http";
       long audioBitrate = 512;
       long videoBitRate = 10000;
-      if (profile.Value.MediaTranscoding.Video.Count > 0)
+      if (profile.Value.MediaTranscoding.VideoTargets.Count > 0)
       {
-        if (profile.Value.MediaTranscoding.Video[0].Target.MaxVideoBitrate > 0)
+        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.MaxVideoBitrate > 0)
         {
-          videoBitRate = profile.Value.MediaTranscoding.Video[0].Target.MaxVideoBitrate;
+          videoBitRate = profile.Value.MediaTranscoding.VideoTargets[0].Target.MaxVideoBitrate;
         }
-        if (profile.Value.MediaTranscoding.Video[0].Target.AudioBitrate > 0)
+        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.AudioBitrate > 0)
         {
-          audioBitrate = profile.Value.MediaTranscoding.Video[0].Target.AudioBitrate;
+          audioBitrate = profile.Value.MediaTranscoding.VideoTargets[0].Target.AudioBitrate;
         }
         if (videoBitRate > 0 && audioBitrate > 0)
         {
           bandwith = Convert.ToInt32(videoBitRate + audioBitrate);
         }
-        if (profile.Value.MediaTranscoding.Video[0].Target.MaxVideoHeight > maxHeight)
+        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.MaxVideoHeight > maxHeight)
         {
-          maxHeight = profile.Value.MediaTranscoding.Video[0].Target.MaxVideoHeight;
+          maxHeight = profile.Value.MediaTranscoding.VideoTargets[0].Target.MaxVideoHeight;
         }
-        if (profile.Value.MediaTranscoding.Video[0].Target.AspectRatio > 0)
+        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.AspectRatio > 0)
         {
-          maxWidth = Convert.ToInt32((float)maxHeight * profile.Value.MediaTranscoding.Video[0].Target.AspectRatio);
+          maxWidth = Convert.ToInt32((float)maxHeight * profile.Value.MediaTranscoding.VideoTargets[0].Target.AspectRatio);
         }
         else
         {
           maxWidth = Convert.ToInt32((double)maxHeight * (16.0 / 9.0));
         }
 
-        if (profile.Value.MediaTranscoding.Video[0].Target.VideoContainerType == Transcoding.Service.VideoContainer.Hls)
+        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.VideoContainerType == Transcoding.Service.VideoContainer.Hls)
         {
           transport = "httplive";
           mime = "application/x-mpegURL";

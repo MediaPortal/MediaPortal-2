@@ -1,9 +1,32 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
 using HttpServer;
 using MediaPortal.Common;
@@ -11,7 +34,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
@@ -448,26 +470,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
       return length;
     }
-
-    #region subtitle
-
-    public static bool FindSubtitle(EndPointSettings client, out SubtitleCodec targetCodec, out string targetMime)
-    {
-      targetCodec = SubtitleCodec.Unknown;
-      targetMime = "text/plain";
-      if (client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.SoftCoded)
-      {
-        targetCodec = client.Profile.Settings.Subtitles.SubtitlesSupported[0].Format;
-        if (string.IsNullOrEmpty(client.Profile.Settings.Subtitles.SubtitlesSupported[0].Mime) == false)
-          targetMime = client.Profile.Settings.Subtitles.SubtitlesSupported[0].Mime;
-        else
-          targetMime = MediaConverter.GetSubtitleMime(targetCodec);
-        return true;
-      }
-      return false;
-    }
-
-    #endregion subtitle
 
     #region cache
 

@@ -168,9 +168,6 @@
     <Compile Include="MAS\WebObject.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Metadata\WebAudioMetadata.cs" />
-    <Compile Include="Metadata\WebImageMetadata.cs" />
-    <Compile Include="Metadata\WebVideoMetadata.cs" />
     <Compile Include="MP2Extended.cs" />
     <Compile Include="OnlineVideos\GlobalSite.cs" />
     <Compile Include="OnlineVideos\LogDelegator.cs" />
@@ -546,11 +543,6 @@
     <Content Include="ResourceAccess\WSS\Profiles\StreamingProfiles.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Scripts\jquery-2.1.4.intellisense.js" />
-    <Content Include="Scripts\jquery-2.1.4.js" />
-    <Content Include="Scripts\jquery-2.1.4.min.js" />
-    <Content Include="Scripts\jquery-ui-1.11.4.js" />
-    <Content Include="Scripts\jquery-ui-1.11.4.min.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
@@ -576,7 +568,6 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SettingsTemplate.cs</LastGenOutput>
     </None>
-    <None Include="Scripts\jquery-2.1.4.min.map" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
