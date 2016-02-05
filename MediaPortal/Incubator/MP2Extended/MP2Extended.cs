@@ -12,7 +12,6 @@ using System.Xml;
 using System;
 using System.Reflection;
 using System.Text.Encodings.Web;
-using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MP2Extended.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.Settings;
 using Microsoft.AspNet.Diagnostics;
@@ -26,6 +25,9 @@ using Microsoft.AspNet.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNet.Http.Features;
 using Microsoft.AspNet.Mvc;
+using Microsoft.AspNet.Cors;
+using Microsoft.AspNet.Cors.Infrastructure;
+using Microsoft.AspNet.Hosting.Startup;
 
 namespace MediaPortal.Plugins.MP2Extended
 {
@@ -52,6 +54,12 @@ namespace MediaPortal.Plugins.MP2Extended
         webApplicationName: WEB_APPLICATION_NAME,
         configureServices: services =>
         {
+          // CORS
+          services.AddCors(options =>
+          {
+            options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+          });
+
           services.AddMvc(options =>
           {
             options.CacheProfiles.Add("nonCriticalApiCalls", new CacheProfile()
@@ -84,6 +92,9 @@ namespace MediaPortal.Plugins.MP2Extended
         },
         configureApp: app =>
         {
+          // CORS
+          app.UseCors("AllowAll");
+
           //app.UseExceptionHandler("/Error/Error");
           //app.UseDeveloperExceptionPage();
           app.UseExceptionHandler(errorApp =>

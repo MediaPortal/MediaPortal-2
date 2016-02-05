@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
           {
             Id = JsonConvert.SerializeObject((DateTime)recodringTime),
             Title = recordingTimeString,
-            PID = 0
+            PID = 0,
           });
 
       }

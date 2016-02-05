@@ -25,7 +25,7 @@
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc2-16185",
     "Microsoft.AspNet.StaticFiles": "1.0.0-rc2-16068",
     "Microsoft.AspNet.Diagnostics": "1.0.0-rc2-16068",
-    "Microsoft.AspNet.Mvc": "6.0.0-rc2-16707",
+    "Microsoft.AspNet.Cors": "6.0.0-rc2-16069",
     "Swashbuckle.SwaggerGen": "6.0.0-rc2-final",
     "Swashbuckle.SwaggerUi": "6.0.0-rc2-final",
     "AspNetServer": "1.0.0-*",
