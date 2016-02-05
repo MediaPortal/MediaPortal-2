@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using HttpServer;
 using HttpServer.Sessions;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
@@ -22,7 +25,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetTVShowsBasic
+  internal class GetTVShowsBasic : BaseTvShowBasic
   {
     public IList<WebTVShowBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
     {
@@ -38,26 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       if (items.Count == 0)
         throw new BadRequestException("GetTVShowsBasic: no Tv Episodes found");
 
-      var output = new List<WebTVShowBasic>();
-
-      foreach (var item in items)
-      {
-        var seriesAspect = item[SeriesAspect.Metadata];
-        int index = output.FindIndex(x => x.Title == (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME]);
-        if (index == -1)
-        {
-          var episodesInThisShow = items.ToList().FindAll(x => (string)x[SeriesAspect.Metadata][SeriesAspect.ATTR_SERIESNAME] == (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME]);
-          var episodesInThisShowUnwatched = episodesInThisShow.FindAll(x => x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == null || (int)x[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT] == 0);
-          
-          WebTVShowBasic webTVShowBasic = new WebTVShowBasic();
-          webTVShowBasic.Id = item.MediaItemId.ToString();
-          webTVShowBasic.Title = (string)seriesAspect[SeriesAspect.ATTR_SERIESNAME];
-          webTVShowBasic.EpisodeCount = episodesInThisShow.Count;
-          webTVShowBasic.UnwatchedEpisodeCount = episodesInThisShowUnwatched.Count;
-
-          output.Add(webTVShowBasic);
-        }
-      }
+      var output = items.Select(item => TVShowBasic(item)).ToList();
 
       // sort and filter
       if (sort != null && order != null)

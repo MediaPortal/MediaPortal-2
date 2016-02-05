@@ -280,19 +280,19 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
     IList<WebTVEpisodeDetailed> GetTVEpisodesDetailed(string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
 
 
-    IList<WebTVEpisodeBasic> GetTVEpisodesBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    IList<WebTVEpisodeBasic> GetTVEpisodesBasicByRange(int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
 
 
     IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedByRange(int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
 
 
-    IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShow(Guid id, string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShow(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
 
 
     IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShow(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
 
 
-    IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShowByRange(Guid id, int start, int end, string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShowByRange(Guid id, int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
 
 
     IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShowByRange(Guid id, int start, int end, string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
@@ -316,10 +316,10 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
     IList<WebGenre> GetTVShowGenres(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
 
 
-    IList<WebGenre> GetTVShowGenresByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    IList<WebGenre> GetTVShowGenresByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
 
 
-    WebIntResult GetTVShowGenresCount(string filter = null);
+    WebIntResult GetTVShowGenresCount();
 
 
     IList<WebActor> GetTVShowActors(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
