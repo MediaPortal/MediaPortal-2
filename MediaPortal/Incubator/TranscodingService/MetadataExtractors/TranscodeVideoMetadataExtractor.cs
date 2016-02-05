@@ -24,20 +24,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using System.Linq;
-using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Plugins.Transcoding.Service.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.MetadataExtractors.Settings;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
+using MediaPortal.Plugins.Transcoding.Service.Metadata.Streams;
+using MediaPortal.Plugins.Transcoding.Service.Analyzers;
 
 namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
 {
@@ -51,13 +50,8 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Video };
     protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new HashSet<string>();
 
-    private static IMediaAnalyzer _analyzer = new MediaAnalyzer();
-
     static TranscodeVideoMetadataExtractor()
     {
-      // Initialize analyzer
-      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
-
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemVideoAspect.Metadata);
@@ -114,7 +108,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             string filePath = rah.LocalFsResourceAccessor.ResourcePathName;
             if (!HasVideoExtension(filePath))
               return false;
-            MetadataContainer metadata = _analyzer.ParseVideoFile(rah.LocalFsResourceAccessor);
+            MetadataContainer metadata = MediaAnalyzer.ParseVideoFile(rah.LocalFsResourceAccessor);
             if (metadata.IsVideo)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
@@ -143,7 +137,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
         {
           using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
           {
-            MetadataContainer metadata = _analyzer.ParseVideoStream(nra);
+            MetadataContainer metadata = MediaAnalyzer.ParseVideoStream(nra);
             if (metadata.IsVideo)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);

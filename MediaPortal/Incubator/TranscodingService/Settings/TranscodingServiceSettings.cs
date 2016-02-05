@@ -18,15 +18,10 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
-using System.Collections.ObjectModel;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Settings
 {
@@ -40,6 +35,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Settings
       CacheMaximumSizeInGB = 0; //GB
       CacheMaximumAgeInDays = 30; //Days
       CachePath = DEFAULT_CACHE_PATH;
+      AnalyzerMaximumThreads = 0; //Auto
+      AnalyzerTimeout = 30000;
+      AnalyzerStreamTimeout = 10000000;
       TranscoderMaximumThreads = 0; //Auto
       TranscoderTimeout = 5000;
       HLSSegmentTimeInSeconds = 10;
@@ -62,6 +60,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Settings
     [Setting(SettingScope.Global)]
     public long CacheMaximumAgeInDays { get; private set; }
     [Setting(SettingScope.Global)]
+    public int AnalyzerTimeout { get; private set; }
+    [Setting(SettingScope.Global)]
+    public long AnalyzerStreamTimeout { get; private set; }
+    [Setting(SettingScope.Global)]
+    public int AnalyzerMaximumThreads { get; private set; }
+    [Setting(SettingScope.Global)]
     public int TranscoderMaximumThreads { get; private set; }
     [Setting(SettingScope.Global)]
     public int TranscoderTimeout { get; private set; }
@@ -82,6 +86,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Settings
     [Setting(SettingScope.Global)]
     public List<VideoCodec> IntelHWSupportedCodecs { get; private set; }
     [Setting(SettingScope.Global)]
-    public List<VideoCodec> NvidiaHWSupportedCodecs { get; private set; }   
+    public List<VideoCodec> NvidiaHWSupportedCodecs { get; private set; }
   }
 }

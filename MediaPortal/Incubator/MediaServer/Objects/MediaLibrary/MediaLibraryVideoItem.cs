@@ -96,7 +96,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       resource.Initialise();
       Resources.Add(resource);
 
-      if (client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.SoftCoded)
+      if (client.Profile.MediaTranscoding.SubtitleSettings.SubtitleMode == SubtitleSupport.SoftCoded)
       {
         MediaLibrarySubtitle sub = new MediaLibrarySubtitle(item, client);
         sub.Initialise();

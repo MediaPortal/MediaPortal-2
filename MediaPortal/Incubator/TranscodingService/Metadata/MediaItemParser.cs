@@ -24,18 +24,167 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Plugins.Transcoding.Aspects;
-using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Service.Metadata.Streams;
+using MediaPortal.Plugins.Transcoding.Service.Analyzers;
+using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 
-namespace MediaPortal.Plugins.MediaServer.Metadata
+namespace MediaPortal.Plugins.Transcoding.Service.Metadata
 {
-  public class DlnaVideoMetadata
+  public class MediaItemParser
   {
-    public static MetadataContainer ParseMediaItem(MediaItem item)
+    public static MetadataContainer ParseAudioItem(MediaItem item)
+    {
+      MetadataContainer info = new MetadataContainer();
+      IResourceAccessor mediaItemAccessor = item.GetResourceLocator().CreateAccessor();
+      if (mediaItemAccessor is IFileSystemResourceAccessor)
+      {
+        using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
+        {
+          if (!fsra.IsFile)
+            return null;
+          using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+          {
+            info.Metadata.Source = lfsra;
+            info.Metadata.Size = lfsra.Size;
+          }
+        }
+      }
+      else if (mediaItemAccessor is INetworkResourceAccessor)
+      {
+        using (var nra = (INetworkResourceAccessor)mediaItemAccessor.Clone())
+        {
+          info.Metadata.Source = nra;
+        }
+        info.Metadata.Size = 0;
+      }
+      if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == true)
+      {
+        object oValue = null;
+        oValue = item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CONTAINER);
+        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+        {
+          info.Metadata.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), oValue.ToString());
+        }
+        AudioStream audio = new AudioStream();
+        oValue = item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_STREAM);
+        if (oValue != null)
+        {
+          audio.StreamIndex = Convert.ToInt32(oValue);
+          oValue = (string)item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CODEC);
+          if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+          {
+            audio.Codec = (AudioCodec)Enum.Parse(typeof(AudioCodec), oValue.ToString());
+          }
+          oValue = item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_CHANNELS);
+          if (oValue != null)
+          {
+            audio.Channels = Convert.ToInt32(oValue);
+          }
+          oValue = item[TranscodeItemAudioAspect.Metadata].GetAttributeValue(TranscodeItemAudioAspect.ATTR_FREQUENCY);
+          if (oValue != null)
+          {
+            audio.Frequency = Convert.ToInt64(oValue);
+          }
+          if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID) == true)
+          {
+            oValue = item[AudioAspect.Metadata].GetAttributeValue(AudioAspect.ATTR_BITRATE);
+            if (oValue != null)
+            {
+              audio.Bitrate = Convert.ToInt64(oValue);
+            }
+            oValue = item[AudioAspect.Metadata].GetAttributeValue(AudioAspect.ATTR_DURATION);
+            if (oValue != null)
+            {
+              info.Metadata.Duration = Convert.ToDouble(oValue);
+            }
+          }
+          if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
+          {
+            oValue = item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
+            if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+            {
+              info.Metadata.Mime = oValue.ToString();
+            }
+          }
+        }
+        info.Audio.Add(audio);
+        if (info.Audio.Count > 0 && info.Audio[0].Bitrate > 0)
+        {
+          info.Metadata.Bitrate = info.Audio[0].Bitrate;
+        }
+      }
+
+      return info;
+    }
+
+    public static MetadataContainer ParseImageItem(MediaItem item)
+    {
+      MetadataContainer info = new MetadataContainer();
+      IResourceAccessor mediaItemAccessor = item.GetResourceLocator().CreateAccessor();
+      if (mediaItemAccessor is IFileSystemResourceAccessor)
+      {
+        using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
+        {
+          if (!fsra.IsFile)
+            return null;
+          using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
+          {
+            info.Metadata.Source = lfsra;
+            info.Metadata.Size = lfsra.Size;
+          }
+        }
+      }
+
+      if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID) == true)
+      {
+        object oValue = null;
+        oValue = item[TranscodeItemImageAspect.Metadata].GetAttributeValue(TranscodeItemImageAspect.ATTR_CONTAINER);
+        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+        {
+          info.Metadata.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), oValue.ToString());
+        }
+        oValue = item[TranscodeItemImageAspect.Metadata].GetAttributeValue(TranscodeItemImageAspect.ATTR_PIXEL_FORMAT);
+        if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+        {
+          info.Image.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), oValue.ToString());
+        }
+        if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID) == true)
+        {
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_HEIGHT);
+          if (oValue != null)
+          {
+            info.Image.Height = Convert.ToInt32(oValue);
+          }
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_WIDTH);
+          if (oValue != null)
+          {
+            info.Image.Width = Convert.ToInt32(oValue);
+          }
+          oValue = item[ImageAspect.Metadata].GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
+          if (oValue != null)
+          {
+            info.Image.Orientation = Convert.ToInt32(oValue);
+          }
+        }
+        if (item.Aspects.ContainsKey(MediaAspect.ASPECT_ID) == true)
+        {
+          oValue = item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE);
+          if (oValue != null && string.IsNullOrEmpty(oValue.ToString()) == false)
+          {
+            info.Metadata.Mime = oValue.ToString();
+          }
+        }
+      }
+      return info;
+    }
+
+    public static MetadataContainer ParseVideoItem(MediaItem item)
     {
       MetadataContainer info = new MetadataContainer();
       IResourceAccessor mediaItemAccessor = item.GetResourceLocator().CreateAccessor();
@@ -244,6 +393,38 @@ namespace MediaPortal.Plugins.MediaServer.Metadata
         }
       }
       return info;
+    }
+
+    public static MetadataContainer ParseLiveVideoItem(MediaItem item)
+    {
+      string resourcePathStr = (string)item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      var resourcePath = ResourcePath.Deserialize(resourcePathStr);
+      IResourceAccessor stra = SlimTvResourceAccessor.GetResourceAccessor(resourcePath.BasePathSegment.Path);
+
+      if (stra is ILocalFsResourceAccessor)
+      {
+        return MediaAnalyzer.ParseVideoFile((ILocalFsResourceAccessor)stra);
+      }
+      else
+      {
+        return MediaAnalyzer.ParseVideoStream((INetworkResourceAccessor)stra);
+      }
+    }
+
+    public static MetadataContainer ParseLiveAudioItem(MediaItem item)
+    {
+      string resourcePathStr = (string)item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      var resourcePath = ResourcePath.Deserialize(resourcePathStr);
+      IResourceAccessor stra = SlimTvResourceAccessor.GetResourceAccessor(resourcePath.BasePathSegment.Path);
+
+      if (stra is ILocalFsResourceAccessor)
+      {
+        return MediaAnalyzer.ParseAudioFile((ILocalFsResourceAccessor)stra);
+      }
+      else
+      {
+        return MediaAnalyzer.ParseAudioStream((INetworkResourceAccessor)stra);
+      }
     }
   }
 }

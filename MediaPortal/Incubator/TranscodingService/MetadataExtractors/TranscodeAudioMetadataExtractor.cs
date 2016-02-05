@@ -24,26 +24,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.RegularExpressions;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Utilities.Process;
-using System.Globalization;
-using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Plugins.Transcoding.Service.Interfaces;
-using MediaPortal.Utilities;
 using MediaPortal.Common.Settings;
-using System.Linq;
 using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.MetadataExtractors.Settings;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
+using MediaPortal.Plugins.Transcoding.Service.Analyzers;
 
 namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
 {
@@ -57,13 +48,8 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Audio };
     protected static ICollection<string> AUDIO_EXTENSIONS = new List<string>();
 
-    private static readonly IMediaAnalyzer _analyzer = new MediaAnalyzer();
-
     static TranscodeAudioMetadataExtractor()
     {
-      // Initialize analyzer
-      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
-
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemAudioAspect.Metadata);
@@ -119,7 +105,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             string fileName = rah.LocalFsResourceAccessor.ResourceName;
             if (!HasAudioExtension(fileName))
               return false;
-            MetadataContainer metadata = _analyzer.ParseAudioFile(rah.LocalFsResourceAccessor);
+            MetadataContainer metadata = MediaAnalyzer.ParseAudioFile(rah.LocalFsResourceAccessor);
             if (metadata.IsAudio)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
@@ -157,7 +143,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemAudioAspect.ATTR_CHANNELS, info.Audio[0].Channels);
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemAudioAspect.ATTR_FREQUENCY, info.Audio[0].Frequency);
     }
-  
+
     #endregion
 
     private static ILogger Logger

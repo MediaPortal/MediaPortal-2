@@ -27,9 +27,9 @@ using System.Runtime.InteropServices;
 
 //Thanks goes to Jay Codec over at https://github.com/jcodec/jcodec
 //His code provided insights into the decoding of the Annex B header
-//The support classes in this class keep their properties named after the standard and do not follow MediaPort naming conventions
+//The support classes in this class keep their properties named after the standard and do not follow MediaPortal naming conventions
 
-namespace MediaPortal.Plugins.Transcoding.Service
+namespace MediaPortal.Plugins.Transcoding.Service.Analyzers
 {
   public class H264Analyzer
   {
@@ -143,13 +143,13 @@ namespace MediaPortal.Plugins.Transcoding.Service
       public int Read1Bit()
       {
         int res = 0;
-        if (nBitLeft == 0 && nByte == data.Length - 1) 
-        { 
-          return 0; 
+        if (nBitLeft == 0 && nByte == data.Length - 1)
+        {
+          return 0;
         }
         nBitLeft--;
         res = (curByte >> nBitLeft) & 0x01;
-        if (nBitLeft == 0) 
+        if (nBitLeft == 0)
         {
           curByte = GetByte();
         }
@@ -336,7 +336,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       public ScalingMatrix scalingMatrix = null;
       public int num_ref_frames_in_pic_order_cnt_cycle;
 
-      public static SeqParameterSet Read(byte[] NALData) 
+      public static SeqParameterSet Read(byte[] NALData)
       {
         BitStreamReader bitReader = new BitStreamReader(NALData);
         SeqParameterSet sps = new SeqParameterSet();
@@ -350,57 +350,57 @@ namespace MediaPortal.Plugins.Transcoding.Service
         sps.level_idc = bitReader.ReadNBit(8);
         sps.seq_parameter_set_id = bitReader.ReadUE();
         sps.chroma_format_idc = ChromaFormat.Yuv420;
-        if (sps.profile_idc == 100 || sps.profile_idc == 110 || sps.profile_idc == 122 || sps.profile_idc == 244 || sps.profile_idc == 44) 
+        if (sps.profile_idc == 100 || sps.profile_idc == 110 || sps.profile_idc == 122 || sps.profile_idc == 244 || sps.profile_idc == 44)
         {
-            sps.chroma_format_idc =  (ChromaFormat)bitReader.ReadUE();
-            if (sps.chroma_format_idc == ChromaFormat.Yuv444) 
-            {
-                sps.residual_color_transform_flag = bitReader.ReadBool();
-            }
-            sps.bit_depth_luma_minus8 = bitReader.ReadUE();
-            sps.bit_depth_chroma_minus8 = bitReader.ReadUE();
-            sps.qpprime_y_zero_transform_bypass_flag = bitReader.ReadBool();
-            bool seqScalingMatrixPresent = bitReader.ReadBool();
-            if (seqScalingMatrixPresent) 
-            {
-                ReadScalingListMatrix(bitReader, ref sps.scalingMatrix);
-            }
+          sps.chroma_format_idc = (ChromaFormat)bitReader.ReadUE();
+          if (sps.chroma_format_idc == ChromaFormat.Yuv444)
+          {
+            sps.residual_color_transform_flag = bitReader.ReadBool();
+          }
+          sps.bit_depth_luma_minus8 = bitReader.ReadUE();
+          sps.bit_depth_chroma_minus8 = bitReader.ReadUE();
+          sps.qpprime_y_zero_transform_bypass_flag = bitReader.ReadBool();
+          bool seqScalingMatrixPresent = bitReader.ReadBool();
+          if (seqScalingMatrixPresent)
+          {
+            ReadScalingListMatrix(bitReader, ref sps.scalingMatrix);
+          }
         }
         sps.log2_max_frame_num_minus4 = bitReader.ReadUE();
         sps.pic_order_cnt_type = bitReader.ReadUE();
-        if (sps.pic_order_cnt_type == 0) 
+        if (sps.pic_order_cnt_type == 0)
         {
-            sps.log2_max_pic_order_cnt_lsb_minus4 = bitReader.ReadUE();
-        } 
-        else if (sps.pic_order_cnt_type == 1) 
+          sps.log2_max_pic_order_cnt_lsb_minus4 = bitReader.ReadUE();
+        }
+        else if (sps.pic_order_cnt_type == 1)
         {
-            sps.delta_pic_order_always_zero_flag = bitReader.ReadBool();
-            sps.offset_for_non_ref_pic = bitReader.ReadSE();
-            sps.offset_for_top_to_bottom_field = bitReader.ReadSE();
-            sps.num_ref_frames_in_pic_order_cnt_cycle = bitReader.ReadUE();
-            sps.offsetForRefFrame = new int[sps.num_ref_frames_in_pic_order_cnt_cycle];
-            for (int i = 0; i < sps.num_ref_frames_in_pic_order_cnt_cycle; i++) 
-            {
-                sps.offsetForRefFrame[i] = bitReader.ReadSE();
-            }
+          sps.delta_pic_order_always_zero_flag = bitReader.ReadBool();
+          sps.offset_for_non_ref_pic = bitReader.ReadSE();
+          sps.offset_for_top_to_bottom_field = bitReader.ReadSE();
+          sps.num_ref_frames_in_pic_order_cnt_cycle = bitReader.ReadUE();
+          sps.offsetForRefFrame = new int[sps.num_ref_frames_in_pic_order_cnt_cycle];
+          for (int i = 0; i < sps.num_ref_frames_in_pic_order_cnt_cycle; i++)
+          {
+            sps.offsetForRefFrame[i] = bitReader.ReadSE();
+          }
         }
         sps.num_ref_frames = bitReader.ReadUE();
         sps.gaps_in_frame_num_value_allowed_flag = bitReader.ReadBool();
         sps.pic_width_in_mbs_minus1 = bitReader.ReadUE();
         sps.pic_height_in_map_units_minus1 = bitReader.ReadUE();
         sps.frame_mbs_only_flag = bitReader.ReadBool();
-        if (!sps.frame_mbs_only_flag) 
+        if (!sps.frame_mbs_only_flag)
         {
-            sps.mb_adaptive_frame_field_flag = bitReader.ReadBool();
+          sps.mb_adaptive_frame_field_flag = bitReader.ReadBool();
         }
         sps.direct_8x8_inference_flag = bitReader.ReadBool();
         sps.frame_cropping_flag = bitReader.ReadBool();
-        if (sps.frame_cropping_flag) 
+        if (sps.frame_cropping_flag)
         {
-            sps.frame_crop_left_offset = bitReader.ReadUE();
-            sps.frame_crop_right_offset = bitReader.ReadUE();
-            sps.frame_crop_top_offset = bitReader.ReadUE();
-            sps.frame_crop_bottom_offset = bitReader.ReadUE();
+          sps.frame_crop_left_offset = bitReader.ReadUE();
+          sps.frame_crop_right_offset = bitReader.ReadUE();
+          sps.frame_crop_top_offset = bitReader.ReadUE();
+          sps.frame_crop_bottom_offset = bitReader.ReadUE();
         }
         bool vui_parameters_present_flag = bitReader.ReadBool();
         if (vui_parameters_present_flag)
@@ -431,74 +431,74 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
       }
 
-      private static void ReadVUIParameters(BitStreamReader bitReader, ref VUIParameters vuip) 
+      private static void ReadVUIParameters(BitStreamReader bitReader, ref VUIParameters vuip)
       {
         vuip = new VUIParameters();
         vuip.aspect_ratio_info_present_flag = bitReader.ReadBool();
-        if (vuip.aspect_ratio_info_present_flag) 
+        if (vuip.aspect_ratio_info_present_flag)
         {
-            vuip.aspect_ratio = bitReader.ReadNBit(8);
-            if (vuip.aspect_ratio == 255) //Extended SAR
-            {
-                vuip.sar_width = bitReader.ReadNBit(16);
-                vuip.sar_height = bitReader.ReadNBit(16);
-            }
+          vuip.aspect_ratio = bitReader.ReadNBit(8);
+          if (vuip.aspect_ratio == 255) //Extended SAR
+          {
+            vuip.sar_width = bitReader.ReadNBit(16);
+            vuip.sar_height = bitReader.ReadNBit(16);
+          }
         }
         vuip.overscan_info_present_flag = bitReader.ReadBool();
-        if (vuip.overscan_info_present_flag) 
+        if (vuip.overscan_info_present_flag)
         {
-            vuip.overscan_appropriate_flag = bitReader.ReadBool();
+          vuip.overscan_appropriate_flag = bitReader.ReadBool();
         }
         vuip.video_signal_type_present_flag = bitReader.ReadBool();
-        if (vuip.video_signal_type_present_flag) 
+        if (vuip.video_signal_type_present_flag)
         {
-            vuip.video_format = bitReader.ReadNBit(3);
-            vuip.video_full_range_flag = bitReader.ReadBool();
-            vuip.colour_description_present_flag = bitReader.ReadBool();
-            if (vuip.colour_description_present_flag) 
-            {
-                vuip.colour_primaries = bitReader.ReadNBit(8);
-                vuip.transfer_characteristics = bitReader.ReadNBit(8);
-                vuip.matrix_coefficients = bitReader.ReadNBit(8);
-            }
+          vuip.video_format = bitReader.ReadNBit(3);
+          vuip.video_full_range_flag = bitReader.ReadBool();
+          vuip.colour_description_present_flag = bitReader.ReadBool();
+          if (vuip.colour_description_present_flag)
+          {
+            vuip.colour_primaries = bitReader.ReadNBit(8);
+            vuip.transfer_characteristics = bitReader.ReadNBit(8);
+            vuip.matrix_coefficients = bitReader.ReadNBit(8);
+          }
         }
         vuip.chroma_loc_info_present_flag = bitReader.ReadBool();
-        if (vuip.chroma_loc_info_present_flag) 
+        if (vuip.chroma_loc_info_present_flag)
         {
-            vuip.chroma_sample_loc_type_top_field = bitReader.ReadUE();
-            vuip.chroma_sample_loc_type_bottom_field = bitReader.ReadUE();
+          vuip.chroma_sample_loc_type_top_field = bitReader.ReadUE();
+          vuip.chroma_sample_loc_type_bottom_field = bitReader.ReadUE();
         }
         vuip.timing_info_present_flag = bitReader.ReadBool();
-        if (vuip.timing_info_present_flag) 
+        if (vuip.timing_info_present_flag)
         {
-            vuip.num_units_in_tick = bitReader.ReadNBit(32);
-            vuip.time_scale = bitReader.ReadNBit(32);
-            vuip.fixed_frame_rate_flag = bitReader.ReadBool();
+          vuip.num_units_in_tick = bitReader.ReadNBit(32);
+          vuip.time_scale = bitReader.ReadNBit(32);
+          vuip.fixed_frame_rate_flag = bitReader.ReadBool();
         }
         bool nal_hrd_parameters_present_flag = bitReader.ReadBool();
         if (nal_hrd_parameters_present_flag)
-           ReadHRDParameters(bitReader, ref vuip.nalHRDParams);
+          ReadHRDParameters(bitReader, ref vuip.nalHRDParams);
         bool vcl_hrd_parameters_present_flag = bitReader.ReadBool();
         if (vcl_hrd_parameters_present_flag)
-             ReadHRDParameters(bitReader,ref vuip.vclHRDParams);
-        if (nal_hrd_parameters_present_flag || vcl_hrd_parameters_present_flag) 
+          ReadHRDParameters(bitReader, ref vuip.vclHRDParams);
+        if (nal_hrd_parameters_present_flag || vcl_hrd_parameters_present_flag)
         {
-            vuip.low_delay_hrd_flag = bitReader.ReadBool();
+          vuip.low_delay_hrd_flag = bitReader.ReadBool();
         }
         vuip.pic_struct_present_flag = bitReader.ReadBool();
         bool bitstream_restriction_flag = bitReader.ReadBool();
-        if (bitstream_restriction_flag) 
+        if (bitstream_restriction_flag)
         {
-            vuip.bitstreamRestriction = new VUIParameters.BitstreamRestriction();
-            vuip.bitstreamRestriction.motion_vectors_over_pic_boundaries_flag = bitReader.ReadBool();
-            vuip.bitstreamRestriction.max_bytes_per_pic_denom = bitReader.ReadUE();
-            vuip.bitstreamRestriction.max_bits_per_mb_denom = bitReader.ReadUE();
-            vuip.bitstreamRestriction.log2_max_mv_length_horizontal = bitReader.ReadUE();
-            vuip.bitstreamRestriction.log2_max_mv_length_vertical = bitReader.ReadUE();
-            vuip.bitstreamRestriction.num_reorder_frames = bitReader.ReadUE();
-            vuip.bitstreamRestriction.max_dec_frame_buffering = bitReader.ReadUE();
+          vuip.bitstreamRestriction = new VUIParameters.BitstreamRestriction();
+          vuip.bitstreamRestriction.motion_vectors_over_pic_boundaries_flag = bitReader.ReadBool();
+          vuip.bitstreamRestriction.max_bytes_per_pic_denom = bitReader.ReadUE();
+          vuip.bitstreamRestriction.max_bits_per_mb_denom = bitReader.ReadUE();
+          vuip.bitstreamRestriction.log2_max_mv_length_horizontal = bitReader.ReadUE();
+          vuip.bitstreamRestriction.log2_max_mv_length_vertical = bitReader.ReadUE();
+          vuip.bitstreamRestriction.num_reorder_frames = bitReader.ReadUE();
+          vuip.bitstreamRestriction.max_dec_frame_buffering = bitReader.ReadUE();
         }
-    }
+      }
 
       private static void ReadHRDParameters(BitStreamReader bitReader, ref HRDParameters hrd)
       {
@@ -527,7 +527,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       public NALUnitType Type { get; private set; }
       public byte[] Data { get; private set; }
-      public int RefIDC { get;  private set; }
+      public int RefIDC { get; private set; }
 
       public static NALUnit Read(byte[] nalData)
       {

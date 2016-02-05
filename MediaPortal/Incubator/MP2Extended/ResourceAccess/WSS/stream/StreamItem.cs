@@ -1,17 +1,33 @@
-﻿using System;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Common.MediaManagement;
-using System.Threading;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
 {
@@ -24,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     private DateTime _requestTime = DateTime.MinValue;
     private long _requestSegment = 0;
     private object _requestLock = new object();
-    
+
     /// <summary>
     /// Gets or sets the requested MediaItem
     /// </summary>
@@ -44,14 +60,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// Gets or sets the Idle timeout in seconds.
     /// If the tuimeout is set to -1 the default timeout is used
     /// </summary>
-    internal int IdleTimeout {
+    internal int IdleTimeout
+    {
       get
       {
         if (_idleTimeout == -1)
           return DEFAULT_TIMEOUT;
         return _idleTimeout;
       }
-      set { _idleTimeout = value; } }
+      set { _idleTimeout = value; }
+    }
 
     /// <summary>
     /// Gets or sets the profile which is used for streaming
@@ -79,6 +97,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     internal WebMediaType ItemType { get; set; }
 
     /// <summary>
+    /// Gets whether the stream is live
+    /// </summary>
+    internal bool IsLive
+    {
+      get
+      {
+        if (ItemType == Common.WebMediaType.TV || ItemType == Common.WebMediaType.Radio)
+        {
+          return true;
+        }
+        return false;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the time when the stream was started
     /// </summary>
     internal DateTime StartTime { get; set; }
@@ -102,7 +135,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     {
       lock (_requestLock)
       {
-        if(_requestTime < DateTime.Now)
+        if (_requestTime < DateTime.Now)
         {
           _requestTime = DateTime.Now;
           _requestSegment = Segment;

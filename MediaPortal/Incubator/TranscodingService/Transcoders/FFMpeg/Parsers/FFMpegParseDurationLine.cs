@@ -24,7 +24,7 @@
 
 using System;
 using System.Globalization;
-
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {

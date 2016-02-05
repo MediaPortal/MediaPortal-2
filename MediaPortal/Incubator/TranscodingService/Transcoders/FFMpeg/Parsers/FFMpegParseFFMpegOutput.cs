@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
 using System.Collections.Generic;
 using System.Globalization;
 

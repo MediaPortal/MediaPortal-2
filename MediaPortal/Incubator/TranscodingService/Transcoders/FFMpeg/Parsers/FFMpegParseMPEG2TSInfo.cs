@@ -26,6 +26,7 @@ using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
@@ -38,7 +39,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         info.Video.TimestampType = Timestamp.None;
         FileStream raf = null;
         ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)info.Metadata.Source;
-        // Impersionation
+
+        // Impersonation
         using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
         {
           try

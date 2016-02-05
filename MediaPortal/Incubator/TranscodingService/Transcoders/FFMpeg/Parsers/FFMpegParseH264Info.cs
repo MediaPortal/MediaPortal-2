@@ -31,12 +31,13 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 using MediaPortal.Utilities.Process;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
+using MediaPortal.Plugins.Transcoding.Service.Analyzers;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseH264Info
   {
-
     #region Protected fields and classes
 
     protected static readonly object FFPROBE_THROTTLE_LOCK = new object();

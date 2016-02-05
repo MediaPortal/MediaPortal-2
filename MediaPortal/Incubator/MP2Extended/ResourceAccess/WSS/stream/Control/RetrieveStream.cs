@@ -36,6 +36,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 {

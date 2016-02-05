@@ -29,7 +29,8 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.Drawing;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
@@ -39,11 +40,12 @@ using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
 using MediaPortal.Utilities.Process;
-using System.Collections.ObjectModel;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
-using System.Globalization;
-using System.Drawing;
 using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
+using MediaPortal.Plugins.Transcoding.Service.Metadata.Streams;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
+using MediaPortal.Plugins.Transcoding.Service.Analyzers;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -115,7 +117,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private static bool _supportHardcodedSubs = true;
     private static bool _supportNvidiaHW = true;
     private static bool _supportIntelHW = true;
-    
+
     static MediaConverter()
     {
       _logger = ServiceRegistration.Get<ILogger>();
@@ -151,7 +153,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
       if (TranscodingServicePlugin.Settings.IntelHWAccelerationAllowed && _supportIntelHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.Settings.IntelHWMaximumStreams, 
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareIntel, TranscodingServicePlugin.Settings.IntelHWMaximumStreams,
           new List<VideoCodec>(TranscodingServicePlugin.Settings.IntelHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Intel hardware acceleration");
@@ -159,7 +161,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       if (TranscodingServicePlugin.Settings.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.Settings.NvidiaHWMaximumStreams, 
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.Settings.NvidiaHWMaximumStreams,
           new List<VideoCodec>(TranscodingServicePlugin.Settings.NvidiaHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
@@ -196,7 +198,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       if (TranscodingServicePlugin.Settings.NvidiaHWAccelerationAllowed && _supportNvidiaHW)
       {
-        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.Settings.NvidiaHWMaximumStreams, 
+        if (RegisterHardwareEncoder(EncoderHandler.HardwareNvidia, TranscodingServicePlugin.Settings.NvidiaHWMaximumStreams,
           new List<VideoCodec>(TranscodingServicePlugin.Settings.NvidiaHWSupportedCodecs)) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
@@ -227,14 +229,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
       string playlistPath = null;
       if (video.TargetIsLive == false)
       {
-         playlistPath = Path.Combine(context.SegmentDir, MediaConverter.PLAYLIST_TEMP_FILE_NAME);
+        playlistPath = Path.Combine(context.SegmentDir, MediaConverter.PLAYLIST_TEMP_FILE_NAME);
       }
       else
       {
         playlistPath = Path.Combine(context.SegmentDir, MediaConverter.PLAYLIST_FILE_NAME);
       }
       DateTime waitStart = DateTime.Now;
-     
+
       //Thread.Sleep(2000); //Ensure that writing is completed. Is there a better way?
       if (Path.GetExtension(MediaConverter.PLAYLIST_FILE_NAME) == Path.GetExtension(fileName)) //playlist file
       {
@@ -552,11 +554,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     private static bool RegisterHardwareEncoder(EncoderHandler encoder, int maximumStreams, List<VideoCodec> supportedCodecs)
     {
-      if(encoder == EncoderHandler.Software) 
+      if (encoder == EncoderHandler.Software)
         return false;
-      else if(encoder == EncoderHandler.HardwareIntel && _supportIntelHW == false)
+      else if (encoder == EncoderHandler.HardwareIntel && _supportIntelHW == false)
         return false;
-      else if(encoder == EncoderHandler.HardwareNvidia && _supportNvidiaHW == false)
+      else if (encoder == EncoderHandler.HardwareNvidia && _supportNvidiaHW == false)
         return false;
       _ffMpegEncoderHandler.RegisterEncoder(encoder, maximumStreams, supportedCodecs);
       return true;
@@ -570,7 +572,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     #endregion
 
     #region Cache
-    
+
     private static void TouchFile(string filePath)
     {
       if (File.Exists(filePath))
@@ -1113,7 +1115,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       transcodingFile += ".mpts";
       transcodingFile = Path.Combine(_cachePath, transcodingFile);
-      
+
       SubtitleCodec targetCodec = video.TargetSubtitleCodec;
       if (targetCodec == SubtitleCodec.Unknown)
       {
@@ -1276,7 +1278,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public static List<SubtitleStream> GetSubtitleStreams(VideoTranscoding video)
     {
       List<SubtitleStream> allSubs = new List<SubtitleStream>();
-      if(video.SourceSubtitles != null && video.SourceSubtitles.Count > 0)
+      if (video.SourceSubtitles != null && video.SourceSubtitles.Count > 0)
       {
         //Only add embedded subtitles
         allSubs.AddRange(video.SourceSubtitles.Where(sub => sub.IsEmbedded == true));
@@ -1366,7 +1368,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         video.TargetIsLive = true;
         context.Partial = true;
       }
-      if(video.TargetVideoContainer == VideoContainer.Unknown)
+      if (video.TargetVideoContainer == VideoContainer.Unknown)
       {
         video.TargetVideoContainer = video.SourceVideoContainer;
       }
@@ -1421,7 +1423,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
       }
 
-      if(context.Partial)
+      if (context.Partial)
       {
         transcodingFile = DateTime.Now.Ticks.ToString();
       }
@@ -1479,7 +1481,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       if (video.TargetVideoContainer == VideoContainer.Hls)
       {
         long requestedSegmentSequence = requestedSegmentSequence = Convert.ToInt64(timeStart / HLSSegmentTimeInSeconds);
-        if(requestedSegmentSequence > 0)
+        if (requestedSegmentSequence > 0)
         {
           requestedSegmentSequence--; //1 segment file margin
         }
@@ -1678,7 +1680,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
         data.OutputArguments.Add("-vn");
       }
-      
+
       _logger.Debug("MediaConverter: Invoking transcoder to transcode audio file '{0}' for transcode '{1}'", audio.SourceMedia, audio.TranscodeId);
       context.Start();
       context.AssignStream(ExecuteTranscodingProcess(data, context, waitForBuffer));
@@ -1871,7 +1873,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
             bool streamReady = false;
             try
             {
-              streamReady = data.LiveStream.CanRead;
+              if (data.LiveStream != null)
+                streamReady = data.LiveStream.CanRead;
             }
             catch { }
             if (streamReady)
@@ -1951,7 +1954,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
             context.SegmentDir = data.WorkPath;
           }
           string name = "MP Transcode - " + data.TranscodeId;
-          if(context.Partial)
+          if (context.Partial)
           {
             name += " - Partial: " + Thread.CurrentThread.ManagedThreadId;
           }
@@ -2031,7 +2034,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
           {
             IntPtr userToken = IntPtr.Zero;
             if (isFile && !ImpersonationHelper.GetTokenByProcess(out userToken, true)) return;
-            
+
             ffmpeg.EnableRaisingEvents = true; //Enable raising events because Process does not raise events by default.
             if (isStream == false)
             {
@@ -2068,7 +2071,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
                 }
                 break;
               }
-              if(data.Context.Segmented == true)
+              if (data.Context.Segmented == true)
               {
                 long lastSequence = 0;
                 if (Directory.Exists(data.Context.SegmentDir))
@@ -2088,11 +2091,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
             exitCode = ffmpeg.ExitCode;
             //iExitCode = executionResult.Result.ExitCode;
             ffmpeg.Close();
-            if (isStream == true)
+            if (isStream == true && data.TranscodeData.LiveStream != null)
             {
               data.TranscodeData.LiveStream.Dispose();
             }
-            if(isFile) NativeMethods.CloseHandle(userToken);
+            if (isFile) NativeMethods.CloseHandle(userToken);
           }
         }
       }

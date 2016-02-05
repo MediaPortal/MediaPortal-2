@@ -36,6 +36,7 @@ using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Utilities.Network;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
@@ -85,18 +86,18 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
     {
       targetCodec = SubtitleCodec.Unknown;
       targetMime = "text/plain";
-      if (client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.SoftCoded)
+      if (client.Profile.MediaTranscoding.SubtitleSettings.SubtitleMode == SubtitleSupport.SoftCoded)
       {
-        targetCodec = client.Profile.Settings.Subtitles.SubtitlesSupported[0].Format;
-        if (string.IsNullOrEmpty(client.Profile.Settings.Subtitles.SubtitlesSupported[0].Mime) == false)
-          targetMime = client.Profile.Settings.Subtitles.SubtitlesSupported[0].Mime;
+        targetCodec = client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Format;
+        if (string.IsNullOrEmpty(client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Mime) == false)
+          targetMime = client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Mime;
         else
           targetMime = MediaConverter.GetSubtitleMime(targetCodec);
         return true;
       }
       return false;
     }
-    
+
     private static IPAddress GetLocalIp()
     {
       bool useIPv4 = true;
@@ -137,7 +138,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
     public static bool IsSoftCodedSubtitleAvailable(DlnaMediaItem dlnaItem, EndPointSettings client)
     {
-      if (client.Profile.Settings.Subtitles.SubtitleMode != SubtitleSupport.SoftCoded)
+      if (client.Profile.MediaTranscoding.SubtitleSettings.SubtitleMode != SubtitleSupport.SoftCoded)
       {
         return false;
       }

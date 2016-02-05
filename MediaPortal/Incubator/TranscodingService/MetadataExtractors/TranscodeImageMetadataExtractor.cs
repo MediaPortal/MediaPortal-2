@@ -23,27 +23,18 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
-using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Utilities.Process;
-using System.Globalization;
-using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Plugins.Transcoding.Service.Interfaces;
-using MediaPortal.Utilities;
 using MediaPortal.Common.Settings;
-using System.Linq;
 using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.MetadataExtractors.Settings;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
+using MediaPortal.Plugins.Transcoding.Service.Analyzers;
 
 namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
 {
@@ -57,13 +48,8 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
     protected static List<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory> { DefaultMediaCategories.Image };
     protected static ICollection<string> IMAGE_FILE_EXTENSIONS = new List<string>();
 
-    private static IMediaAnalyzer _analyzer = new MediaAnalyzer();
-
     static TranscodeImageMetadataExtractor()
     {
-      // Initialize analyzer
-      _analyzer.AnalyzerMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
-
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectType(TranscodeItemImageAspect.Metadata);
@@ -118,20 +104,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
             string fileName = rah.LocalFsResourceAccessor.ResourceName;
             if (!HasImageExtension(fileName))
               return false;
-          /*using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-            {
-              if ((File.GetAttributes(lfsra.LocalFileSystemPath) & FileAttributes.Hidden) == 0)
-              {
-                MetadataContainer metadata = _analyzer.ParseFile(lfsra.LocalFileSystemPath);
-                if (metadata.IsImage)
-                {
-                  ConvertMetadataToAspectData(metadata, extractedAspectData);
-                  return true;
-                }
-              }
-            }
-          }*/
-            MetadataContainer metadata = _analyzer.ParseImageFile(rah.LocalFsResourceAccessor);
+            MetadataContainer metadata = MediaAnalyzer.ParseImageFile(rah.LocalFsResourceAccessor);
             if (metadata.IsImage)
             {
               ConvertMetadataToAspectData(metadata, extractedAspectData);
@@ -166,7 +139,7 @@ namespace MediaPortal.Plugins.Transcoding.MetadataExtractors
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemImageAspect.ATTR_CONTAINER, info.Metadata.ImageContainerType.ToString());
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemImageAspect.ATTR_PIXEL_FORMAT, info.Image.PixelFormatType.ToString());
     }
-  
+
     #endregion
 
     private static ILogger Logger

@@ -24,15 +24,19 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.MediaServer.Metadata;
-using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.Transcoding.Service.Profiles;
+using MediaPortal.Plugins.Transcoding.Service.Metadata.Streams;
 
 namespace MediaPortal.Plugins.MediaServer.DLNA
 {
@@ -45,35 +49,6 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
     {
       _clientId = clientId;
 
-      if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-      {
-        IsAudio = true;
-        if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == false)
-        {
-          throw new DlnaAspectMissingException(string.Format("Mediaitem {0} contains no transcoding audio information", item.MediaItemId));
-        }
-      }
-      else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
-      {
-        IsImage = true;
-        if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID) == false)
-        {
-          throw new DlnaAspectMissingException(string.Format("Mediaitem {0} contains no transcoding image information", item.MediaItemId));
-        }
-      }
-      else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
-      {
-        IsVideo = true;
-        if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == false)
-        {
-          throw new DlnaAspectMissingException(string.Format("Mediaitem {0} contains no transcoding video information", item.MediaItemId));
-        }
-      }
-      else
-      {
-        throw new DlnaAspectMissingException(string.Format("Mediaitem {0} contains no requied aspect information", item.MediaItemId));
-      }
-
       Client = client;
       MediaSource = item;
       LastUpdated = DateTime.Now;
@@ -81,354 +56,125 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       IsSegmented = false;
       IsLive = live;
       MetadataContainer info = null;
-      if (IsAudio)
+      bool sourceIsLive = false;
+
+      if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        info = DlnaAudioMetadata.ParseMediaItem(item);
+        IsAudio = true;
+        if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == false)
+        {
+          if (item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_RADIO)
+          {
+            info = MediaItemParser.ParseLiveAudioItem(item);
+            sourceIsLive = true;
+          }
+          else
+          {
+            Logger.Warn("Mediaitem {0} contains no transcoding audio information", item.MediaItemId);
+            return;
+          }
+        }
+        else
+        {
+          info = MediaItemParser.ParseAudioItem(item);
+        }
       }
-      else if (IsImage)
+      else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
-        info = DlnaImageMetadata.ParseMediaItem(item);
+        IsImage = true;
+        if (item.Aspects.ContainsKey(TranscodeItemImageAspect.ASPECT_ID) == false)
+        {
+          Logger.Warn("Mediaitem {0} contains no transcoding image information", item.MediaItemId);
+          return;
+        }
+        else
+        {
+          info = MediaItemParser.ParseImageItem(item);
+        }
       }
-      else if (IsVideo)
+      else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
-        info = DlnaVideoMetadata.ParseMediaItem(item);
+        IsVideo = true;
+        if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == false)
+        {
+          if (item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_TV)
+          {
+            info = MediaItemParser.ParseLiveVideoItem(item);
+            sourceIsLive = true;
+          }
+          else
+          {
+            Logger.Warn("Mediaitem {0} contains no transcoding video information", item.MediaItemId);
+            return;
+          }
+        }
+        else
+        {
+          info = MediaItemParser.ParseVideoItem(item);
+        }
       }
-     
+      else
+      {
+        Logger.Warn("Mediaitem {0} contains no required aspect information", item.MediaItemId);
+        return;
+      }
+
       if (MediaServerPlugin.Settings.TranscodingAllowed == true)
       {
         if (IsAudio)
         {
-          AudioMatch srcAudio;
-          AudioTranscodingTarget dstAudio = client.Profile.GetMatchingAudioTranscoding(info, out srcAudio);
-          if (dstAudio != null && srcAudio.MatchedAudioSource.Matches(dstAudio.Target) == false)
-          {
-            AudioTranscoding audio = new AudioTranscoding();
-            if(info.Metadata.AudioContainerType != AudioContainer.Unknown)
-            {
-              audio.SourceAudioContainer = info.Metadata.AudioContainerType;
-            }
-            if(info.Audio[srcAudio.MatchedAudioStream].Bitrate > 0)
-            {
-              audio.SourceAudioBitrate = info.Audio[srcAudio.MatchedAudioStream].Bitrate;
-            }
-            if(info.Audio[srcAudio.MatchedAudioStream].Frequency > 0)
-            {
-              audio.SourceAudioFrequency = info.Audio[srcAudio.MatchedAudioStream].Frequency;
-            }
-            if(info.Audio[srcAudio.MatchedAudioStream].Channels > 0)
-            {
-              audio.SourceAudioChannels = info.Audio[srcAudio.MatchedAudioStream].Channels;
-            }
-            if(info.Audio[srcAudio.MatchedAudioStream].Codec != AudioCodec.Unknown)
-            {
-              audio.SourceAudioCodec = info.Audio[srcAudio.MatchedAudioStream].Codec;
-            }
-            if(info.Metadata.Duration > 0)
-            {
-              audio.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
-            }
-            if(info.Metadata.Source != null)
-            {
-              audio.SourceMedia = info.Metadata.Source;
-            }
-            
-            audio.TargetAudioBitrate = client.Profile.Settings.Audio.DefaultBitrate;
-            if(dstAudio.Target.Bitrate > 0)
-            {
-              audio.TargetAudioBitrate = dstAudio.Target.Bitrate;
-            }
-            if(dstAudio.Target.AudioContainerType != AudioContainer.Unknown)
-            {
-              audio.TargetAudioContainer = dstAudio.Target.AudioContainerType;
-            }
-            if(dstAudio.Target.Frequency > 0)
-            {
-              audio.TargetAudioFrequency = dstAudio.Target.Frequency;
-            }
-            audio.TargetForceAudioStereo = client.Profile.Settings.Audio.DefaultStereo;
-            if(dstAudio.Target.ForceStereo)
-            {
-              audio.TargetForceAudioStereo = dstAudio.Target.ForceStereo;
-            }
-
-            audio.TargetCoder = client.Profile.Settings.Audio.CoderType;
-            audio.TargetIsLive = live;
-
-            audio.TranscoderBinPath = dstAudio.TranscoderBinPath;
-            audio.TranscoderArguments = dstAudio.TranscoderArguments;
-            audio.TranscodeId = MediaSource.MediaItemId.ToString()  + "_" +  Client.Profile.ID;
-            TranscodingParameter = audio;
-          }
+          AudioTranscoding audio = TranscodeProfileManager.GetAudioTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
+            info, live, MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID);
+          TranscodingParameter = audio;
         }
         else if (IsImage)
         {
-          ImageMatch srcImage;
-          ImageTranscodingTarget dstImage = client.Profile.GetMatchingImageTranscoding(info, out srcImage);
-          if (dstImage != null && srcImage.MatchedImageSource.Matches(dstImage.Target) == false)
-          {
-            ImageTranscoding image = new ImageTranscoding();
-            if (info.Metadata.ImageContainerType != ImageContainer.Unknown)
-            {
-              image.SourceImageCodec = info.Metadata.ImageContainerType;
-            }
-            if (info.Image.Height > 0)
-            {
-              image.SourceHeight = info.Image.Height;
-            }
-            if (info.Image.Width > 0)
-            {
-              image.SourceWidth = info.Image.Width;
-            }
-            if (info.Image.Orientation > 0)
-            {
-              image.SourceOrientation = info.Image.Orientation;
-            }
-            if (info.Image.PixelFormatType != PixelFormat.Unknown)
-            {
-              image.SourcePixelFormat = info.Image.PixelFormatType;
-            }
-            if (info.Metadata.Source != null)
-            {
-              image.SourceMedia = info.Metadata.Source;
-            }
-
-            if (dstImage.Target.PixelFormatType > 0)
-            {
-              image.TargetPixelFormat = dstImage.Target.PixelFormatType;
-            }
-            if (dstImage.Target.ImageContainerType != ImageContainer.Unknown)
-            {
-              image.TargetImageCodec = dstImage.Target.ImageContainerType;
-            }
-            image.TargetImageQuality = client.Profile.Settings.Images.Quality;
-            if (dstImage.Target.QualityType != QualityMode.Default)
-            {
-              image.TargetImageQuality = dstImage.Target.QualityType;
-            }
-
-            image.TargetImageQualityFactor = client.Profile.Settings.Video.QualityFactor;
-
-            image.TargetAutoRotate = client.Profile.Settings.Images.AutoRotate;
-            image.TargetCoder = client.Profile.Settings.Images.CoderType;
-            image.TargetHeight = client.Profile.Settings.Images.MaxHeight;
-            image.TargetWidth = client.Profile.Settings.Images.MaxWidth;
-
-            image.TranscoderBinPath = dstImage.TranscoderBinPath;
-            image.TranscoderArguments = dstImage.TranscoderArguments;
-
-            image.TranscodeId = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
-            TranscodingParameter = image;
-          }
+          ImageTranscoding image = TranscodeProfileManager.GetImageTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
+            info, MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID);
+          TranscodingParameter = image;
         }
         else if (IsVideo)
         {
-          VideoMatch srcVideo;
-          VideoTranscodingTarget dstVideo = client.Profile.GetMatchingVideoTranscoding(info, client, out srcVideo);
-          if (dstVideo != null && srcVideo.MatchedVideoSource.Matches(dstVideo.Target) == false)
+          VideoTranscoding video = TranscodeProfileManager.GetVideoTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
+            info, client.PreferredAudioLanguages, live, MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID);
+          if (video != null)
           {
-            VideoTranscoding video = new VideoTranscoding();
-            video.SourceAudioStreamIndex = info.Audio[srcVideo.MatchedAudioStream].StreamIndex;
-            video.SourceVideoStreamIndex = info.Video.StreamIndex;
-            if (info.Metadata.VideoContainerType != VideoContainer.Unknown)
-            {
-              video.SourceVideoContainer = info.Metadata.VideoContainerType;
-            }
-            if (info.Audio[srcVideo.MatchedAudioStream].Bitrate > 0)
-            {
-              video.SourceAudioBitrate = info.Audio[srcVideo.MatchedAudioStream].Bitrate;
-            }
-            if (info.Audio[srcVideo.MatchedAudioStream].Frequency > 0)
-            {
-              video.SourceAudioFrequency = info.Audio[srcVideo.MatchedAudioStream].Frequency;
-            }
-            if (info.Audio[srcVideo.MatchedAudioStream].Channels > 0)
-            {
-              video.SourceAudioChannels = info.Audio[srcVideo.MatchedAudioStream].Channels;
-            }
-            if (info.Audio[srcVideo.MatchedAudioStream].Codec != AudioCodec.Unknown)
-            {
-              video.SourceAudioCodec = info.Audio[srcVideo.MatchedAudioStream].Codec;
-            }
-            video.SourceSubtitles = new List<SubtitleStream>(info.Subtitles);
-
-            if (info.Video.Bitrate > 0)
-            {
-              video.SourceVideoBitrate = info.Video.Bitrate;
-            }
-            if (info.Video.Framerate > 0)
-            {
-              video.SourceFrameRate = info.Video.Framerate;
-            }
-            if (info.Video.PixelFormatType != PixelFormat.Unknown)
-            {
-              video.SourcePixelFormat = info.Video.PixelFormatType;
-            }
-            if (info.Video.AspectRatio > 0)
-            {
-              video.SourceVideoAspectRatio = info.Video.AspectRatio;
-            }
-            if (info.Video.Codec != VideoCodec.Unknown)
-            {
-              video.SourceVideoCodec = info.Video.Codec;
-            }
-            if (info.Video.Height > 0)
-            {
-              video.SourceVideoHeight = info.Video.Height;
-            }
-            if (info.Video.Width > 0)
-            {
-              video.SourceVideoWidth = info.Video.Width;
-            }
-            if (info.Video.PixelAspectRatio > 0)
-            {
-              video.SourceVideoPixelAspectRatio = info.Video.PixelAspectRatio;
-            }
-
-            if (info.Metadata.Duration > 0)
-            {
-              video.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
-            }
-            if (info.Metadata.Source != null)
-            {
-              video.SourceMedia = info.Metadata.Source;
-            }
-
-            if (dstVideo.Target.VideoContainerType != VideoContainer.Unknown)
-            {
-              video.TargetVideoContainer = dstVideo.Target.VideoContainerType;
-            }
             if (video.TargetVideoContainer == VideoContainer.Hls)
             {
               IsSegmented = true;
             }
-
-            if (dstVideo.Target.Movflags != null)
-            {
-              video.Movflags = dstVideo.Target.Movflags;
-            }
-
-            video.TargetAudioBitrate = client.Profile.Settings.Audio.DefaultBitrate;
-            if (dstVideo.Target.AudioBitrate > 0)
-            {
-              video.TargetAudioBitrate = dstVideo.Target.AudioBitrate;
-            }
-            if (dstVideo.Target.AudioFrequency > 0)
-            {
-              video.TargetAudioFrequency = dstVideo.Target.AudioFrequency;
-            }
-            if (dstVideo.Target.AudioCodecType != AudioCodec.Unknown)
-            {
-              video.TargetAudioCodec = dstVideo.Target.AudioCodecType;
-            }
-            video.TargetForceAudioStereo = client.Profile.Settings.Audio.DefaultStereo;
-            if (dstVideo.Target.ForceStereo)
-            {
-              video.TargetForceAudioStereo = dstVideo.Target.ForceStereo;
-            }
-
-            video.TargetVideoQuality = client.Profile.Settings.Video.Quality;
-            if (dstVideo.Target.QualityType != QualityMode.Default)
-            {
-              video.TargetVideoQuality = dstVideo.Target.QualityType;
-            }
-            if (dstVideo.Target.PixelFormatType != PixelFormat.Unknown)
-            {
-              video.TargetPixelFormat = dstVideo.Target.PixelFormatType;
-            }
-            if (dstVideo.Target.AspectRatio > 0)
-            {
-              video.TargetVideoAspectRatio = dstVideo.Target.AspectRatio;
-            }
-            if (dstVideo.Target.MaxVideoBitrate > 0)
-            {
-              video.TargetVideoBitrate = dstVideo.Target.MaxVideoBitrate;
-            }
-            if (dstVideo.Target.VideoCodecType != VideoCodec.Unknown)
-            {
-              video.TargetVideoCodec = dstVideo.Target.VideoCodecType;
-            }
-            video.TargetVideoMaxHeight = client.Profile.Settings.Video.MaxHeight;
-            if (dstVideo.Target.MaxVideoHeight > 0)
-            {
-              video.TargetVideoMaxHeight = dstVideo.Target.MaxVideoHeight;
-            }
-            video.TargetForceVideoTranscoding = dstVideo.Target.ForceVideoTranscoding;
-
-            if (dstVideo.Target.VideoCodecType == VideoCodec.Mpeg2)
-            {
-              video.TargetQualityFactor = client.Profile.Settings.Video.H262QualityFactor;
-              video.TargetProfile = client.Profile.Settings.Video.H262TargetProfile;
-              video.TargetPreset = client.Profile.Settings.Video.H262TargetPreset;
-            }
-            else if (dstVideo.Target.VideoCodecType == VideoCodec.H264)
-            {
-              video.TargetQualityFactor = client.Profile.Settings.Video.H264QualityFactor;
-              video.TargetLevel = client.Profile.Settings.Video.H264Level;
-              if (dstVideo.Target.LevelMinimum > 0)
-              {
-                video.TargetLevel = dstVideo.Target.LevelMinimum;
-              }
-              video.TargetProfile = client.Profile.Settings.Video.H264TargetProfile;
-              if (dstVideo.Target.EncodingProfileType != EncodingProfile.Unknown)
-              {
-                video.TargetProfile = dstVideo.Target.EncodingProfileType;
-              }
-              video.TargetPreset = client.Profile.Settings.Video.H264TargetPreset;
-              if (dstVideo.Target.TargetPresetType != EncodingPreset.Default)
-              {
-                video.TargetPreset = dstVideo.Target.TargetPresetType;
-              }
-            }
-            else if (dstVideo.Target.VideoCodecType == VideoCodec.H265)
-            {
-              video.TargetQualityFactor = client.Profile.Settings.Video.H265QualityFactor;
-              video.TargetLevel = client.Profile.Settings.Video.H265Level;
-              if (dstVideo.Target.LevelMinimum > 0)
-              {
-                video.TargetLevel = dstVideo.Target.LevelMinimum;
-              }
-              video.TargetProfile = client.Profile.Settings.Video.H265TargetProfile;
-              if (dstVideo.Target.EncodingProfileType != EncodingProfile.Unknown)
-              {
-                video.TargetProfile = dstVideo.Target.EncodingProfileType;
-              }
-              video.TargetPreset = client.Profile.Settings.Video.H265TargetPreset;
-              if (dstVideo.Target.TargetPresetType != EncodingPreset.Default)
-              {
-                video.TargetPreset = dstVideo.Target.TargetPresetType;
-              }
-            }
-
-            video.TargetVideoQualityFactor = client.Profile.Settings.Video.QualityFactor;
-            video.TargetCoder = client.Profile.Settings.Video.CoderType;
-            video.TargetIsLive = live;
-
-            video.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
-            if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+            if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false)
             {
               video.TargetSubtitleSupport = SubtitleSupport.None;
             }
-
-            video.TranscoderBinPath = dstVideo.TranscoderBinPath;
-            video.TranscoderArguments = dstVideo.TranscoderArguments;
-            video.TranscodeId = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
-            TranscodingParameter = video;
           }
+          TranscodingParameter = video;
         }
       }
-      if(TranscodingParameter == null)
+
+      if (TranscodingParameter == null)
       {
-        VideoTranscoding subtitle = new VideoTranscoding();
-        subtitle.SourceMedia = info.Metadata.Source;
-        subtitle.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
-        subtitle.SourceSubtitles.AddRange(info.Subtitles);
-        if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
+        if (sourceIsLive == true)
         {
-          subtitle.TargetSubtitleSupport = SubtitleSupport.None;
+          if (IsVideo)
+            TranscodingParameter = TranscodeProfileManager.GetLiveVideoTranscoding(info, client.PreferredAudioLanguages, Guid.NewGuid().ToString() + "_" + Client.Profile.ID);
+          else if (IsAudio)
+            TranscodingParameter = TranscodeProfileManager.GetLiveAudioTranscoding(info, Guid.NewGuid().ToString() + "_" + Client.Profile.ID);
         }
-        subtitle.TranscodeId = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
-        subtitle.TargetIsLive = live;
-        SubtitleTranscodingParameter = subtitle;
+        else if (IsVideo)
+        {
+          VideoTranscoding video = TranscodeProfileManager.GetVideoSubtitleTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
+            info, live, MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID);
+          if (video.TargetVideoContainer == VideoContainer.Hls)
+          {
+            IsSegmented = true;
+          }
+          if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false)
+          {
+            video.TargetSubtitleSupport = SubtitleSupport.None;
+          }
+          TranscodingParameter = video;
+        }
       }
 
       AssignDlnaMetadata(info);
@@ -452,7 +198,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           DlnaMetadata.Metadata.Mime = info.Metadata.Mime;
           DlnaMetadata.Metadata.ImageContainerType = metadata.TargetImageCodec;
           DlnaMetadata.Metadata.Size = 0;
-          if(Client.EstimateTransodedSize == true)
+          if (Client.EstimateTransodedSize == true)
           {
             DlnaMetadata.Metadata.Size = info.Metadata.Size;
           }
@@ -469,7 +215,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           DlnaMetadata.Metadata.Mime = info.Metadata.Mime;
           DlnaMetadata.Metadata.AudioContainerType = metadata.TargetAudioContainer;
           DlnaMetadata.Metadata.Bitrate = 0;
-          if(metadata.TargetAudioBitrate > 0)
+          if (metadata.TargetAudioBitrate > 0)
           {
             DlnaMetadata.Metadata.Bitrate = metadata.TargetAudioBitrate;
           }
@@ -581,7 +327,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       }
       else if (info.IsVideo)
       {
-        profileList = DlnaProfiles.ResolveVideoProfile(DlnaMetadata.Metadata.VideoContainerType, DlnaMetadata.Video.Codec, DlnaMetadata.Audio[0].Codec, DlnaMetadata.Video.ProfileType, DlnaMetadata.Video.HeaderLevel, 
+        profileList = DlnaProfiles.ResolveVideoProfile(DlnaMetadata.Metadata.VideoContainerType, DlnaMetadata.Video.Codec, DlnaMetadata.Audio[0].Codec, DlnaMetadata.Video.ProfileType, DlnaMetadata.Video.HeaderLevel,
           DlnaMetadata.Video.Framerate, DlnaMetadata.Video.Width, DlnaMetadata.Video.Height, DlnaMetadata.Video.Bitrate, DlnaMetadata.Audio[0].Bitrate, DlnaMetadata.Video.TimestampType);
       }
 
@@ -602,8 +348,8 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           return false;
         }
         return MediaConverter.IsTranscodeRunning(_clientId, TranscodingParameter.TranscodeId);
-        }
       }
+    }
 
     public bool StartTrancoding()
     {
@@ -616,8 +362,8 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       if (TranscodingParameter != null)
       {
         MediaConverter.StopTranscode(_clientId, TranscodingParameter.TranscodeId);
-          }
-        }
+      }
+    }
 
     public Guid StartStreaming()
     {
@@ -637,7 +383,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
     {
       return _streams.Contains(streamId);
     }
-    public bool IsStreaming 
+    public bool IsStreaming
     {
       get
       {

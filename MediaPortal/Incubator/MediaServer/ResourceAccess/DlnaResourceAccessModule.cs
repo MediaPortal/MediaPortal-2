@@ -43,11 +43,12 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.Protocols;
-using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
-using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.MediaServer.Protocols;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
@@ -108,10 +109,10 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
       public long Length
       {
-        get 
+        get
         {
           if (_to <= _from) return 0;
-          return _to - _from; 
+          return _to - _from;
         }
       }
     }
@@ -222,7 +223,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
               {
                 end = long.Parse(tokens[1]);
               }
-              else if(start < size)
+              else if (start < size)
               {
                 end = size;
               }
@@ -630,12 +631,12 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
               hlsFileRequest = request.Uri.AbsoluteUri.Substring(startIndex);
               if (GetHlsSegment(hlsFileRequest, dlnaItem, response, ref resourceStream) == true)
               {
-                }
-              else if (MediaConverter.GetSegmentSequence(hlsFileRequest) > 0)
-                {
-                hlsStartRequest = MediaConverter.GetSegmentSequence(hlsFileRequest) * MediaConverter.HLSSegmentTimeInSeconds;
-                }
               }
+              else if (MediaConverter.GetSegmentSequence(hlsFileRequest) > 0)
+              {
+                hlsStartRequest = MediaConverter.GetSegmentSequence(hlsFileRequest) * MediaConverter.HLSSegmentTimeInSeconds;
+              }
+            }
 
             #endregion
 
@@ -729,8 +730,8 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
               }
               else
               {
-              timeRange = new Range(0, 0);
-            }
+                timeRange = new Range(0, 0);
+              }
             }
             if (byteRange == null)
             {
@@ -752,7 +753,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
               if (hlsFileRequest != null)
               {
-                if(GetHlsSegment(hlsFileRequest, dlnaItem, response, ref resourceStream) == false)
+                if (GetHlsSegment(hlsFileRequest, dlnaItem, response, ref resourceStream) == false)
                 {
                   Logger.Error("DlnaResourceAccessModule: Unable to find segment file {0}", hlsFileRequest);
 
@@ -765,14 +766,14 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
                 }
               }
               else
-                {
+              {
                 resourceStream = context.TranscodedStream;
-                    }
-              if (dlnaItem.IsTranscoding == false || (context.Partial == false && context.TargetFileSize > 0 && context.TargetFileSize > dlnaItem.DlnaMetadata.Metadata.Size))
-                {
-                dlnaItem.DlnaMetadata.Metadata.Size = context.TargetFileSize;
-                }
               }
+              if (dlnaItem.IsTranscoding == false || (context.Partial == false && context.TargetFileSize > 0 && context.TargetFileSize > dlnaItem.DlnaMetadata.Metadata.Size))
+              {
+                dlnaItem.DlnaMetadata.Metadata.Size = context.TargetFileSize;
+              }
+            }
 
             #endregion
 
@@ -896,8 +897,8 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             if (containerEnum is VideoContainer)
             {
               VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
-              List<string> profiles = DlnaProfiles.ResolveVideoProfile((VideoContainer)containerEnum, dlnaItem.DlnaMetadata.Video.Codec, video.TargetAudioCodec, dlnaItem.DlnaMetadata.Video.ProfileType, 
-                dlnaItem.DlnaMetadata.Video.HeaderLevel, dlnaItem.DlnaMetadata.Video.Framerate, dlnaItem.DlnaMetadata.Video.Width, dlnaItem.DlnaMetadata.Video.Height, dlnaItem.DlnaMetadata.Video.Bitrate, 
+              List<string> profiles = DlnaProfiles.ResolveVideoProfile((VideoContainer)containerEnum, dlnaItem.DlnaMetadata.Video.Codec, video.TargetAudioCodec, dlnaItem.DlnaMetadata.Video.ProfileType,
+                dlnaItem.DlnaMetadata.Video.HeaderLevel, dlnaItem.DlnaMetadata.Video.Framerate, dlnaItem.DlnaMetadata.Video.Width, dlnaItem.DlnaMetadata.Video.Height, dlnaItem.DlnaMetadata.Video.Bitrate,
                 video.TargetAudioBitrate, dlnaItem.DlnaMetadata.Video.TimestampType);
               string mime = "video/unknown";
               string profile = null;
@@ -1012,7 +1013,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
         return;
       }
-      if(range.From > length || range.To > length)
+      if (range.From > length || range.To > length)
       {
         range = fileRange;
       }
@@ -1024,7 +1025,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       {
         response.AddHeader("Content-Range", string.Format("bytes {0}-", range.From));
       }
-      else if(length <= 0)
+      else if (length <= 0)
       {
         response.AddHeader("Content-Range", string.Format("bytes {0}-{1}", range.From, range.To - 1));
       }
@@ -1149,7 +1150,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         Logger.Debug("Sending chunked: {0}", response.Chunked.ToString());
         string clientID = request.Headers["remote_addr"];
         int bufferSize = client.Profile.Settings.Communication.DefaultBufferSize;
-        if(bufferSize <= 0)
+        if (bufferSize <= 0)
         {
           bufferSize = 1500;
         }

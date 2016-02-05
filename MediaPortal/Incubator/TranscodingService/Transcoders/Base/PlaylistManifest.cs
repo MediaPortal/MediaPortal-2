@@ -1,10 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
+using MediaPortal.Plugins.Transcoding.Service.Metadata;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
@@ -18,7 +41,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       TranscodedVideoMetadata metaData = MediaConverter.GetTranscodedVideoMetadata(video);
 
       double bitrate = 10000000;
-      if(metaData.TargetVideoBitrate > 0 && metaData.TargetAudioBitrate > 0)
+      if (metaData.TargetVideoBitrate > 0 && metaData.TargetAudioBitrate > 0)
       {
         bitrate += metaData.TargetVideoBitrate;
         bitrate += metaData.TargetAudioBitrate;
@@ -27,19 +50,19 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 
       int width = 1920;
       int height = 1080;
-      if(metaData.TargetVideoMaxHeight > 0 && metaData.TargetVideoMaxWidth > 0)
+      if (metaData.TargetVideoMaxHeight > 0 && metaData.TargetVideoMaxWidth > 0)
       {
         width = metaData.TargetVideoMaxHeight;
         height = metaData.TargetVideoMaxWidth;
       }
 
       string codec = "avc1.66.30,mp4a.40.2"; //H264 Baseline 3.0 and AAC
-      if(metaData.TargetVideoCodec == VideoCodec.H264)
+      if (metaData.TargetVideoCodec == VideoCodec.H264)
       {
         codec = "avc1.";
-        if(metaData.TargetProfile == EncodingProfile.Baseline)
+        if (metaData.TargetProfile == EncodingProfile.Baseline)
           codec += "66.";
-        else if(metaData.TargetProfile == EncodingProfile.Main)
+        else if (metaData.TargetProfile == EncodingProfile.Main)
           codec += "77.";
         else //High
           codec += "100.";
@@ -52,9 +75,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         else
         {
           codec += ",mp4a.40.";
-          if(metaData.TargetAudioCodec == AudioCodec.Aac)
+          if (metaData.TargetAudioCodec == AudioCodec.Aac)
             codec += "2";
-          else if(metaData.TargetAudioCodec == AudioCodec.Mp3)
+          else if (metaData.TargetAudioCodec == AudioCodec.Mp3)
             codec += "34";
           else //HE-ACC
             codec += "5";
@@ -64,15 +87,15 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       StringBuilder manifestBuilder = new StringBuilder();
       manifestBuilder.AppendLine("#EXTM3U");
       manifestBuilder.AppendLine();
-      if(sub != null)
+      if (sub != null)
       {
         CultureInfo culture = new CultureInfo(sub.Language);
         manifestBuilder.AppendLine(string.Format("#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"subs\",NAME=\"{0}\",DEFAULT=YES,AUTOSELECT=YES,FORCED=NO,LANGUAGE=\"{1}\",URI=\"{2}\"",
           culture.DisplayName, culture.TwoLetterISOLanguageName.ToLowerInvariant(), URL_PLACEHOLDER + MediaConverter.PLAYLIST_SUBTITLE_FILE_NAME));
         manifestBuilder.AppendLine();
       }
-      manifestBuilder.AppendLine(string.Format("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH={0},RESOLUTION={1},CODECS=\"{2}\"{3}", 
-        bitrate.ToString("0"),width + "x" + height,codec, sub != null ? ",SUBTITLES=\"subs\"" : ""));
+      manifestBuilder.AppendLine(string.Format("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH={0},RESOLUTION={1},CODECS=\"{2}\"{3}",
+        bitrate.ToString("0"), width + "x" + height, codec, sub != null ? ",SUBTITLES=\"subs\"" : ""));
       manifestBuilder.AppendLine(URL_PLACEHOLDER + MediaConverter.PLAYLIST_FILE_NAME);
       manifestBuilder.AppendLine();
 

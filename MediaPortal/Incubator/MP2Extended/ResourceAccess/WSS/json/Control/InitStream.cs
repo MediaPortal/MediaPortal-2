@@ -117,7 +117,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       }
       streamItem.RequestedMediaItem = mediaItem;
 
-
       // Add the stream to the stream controller
       StreamControl.AddStreamItem(identifier, streamItem);
 

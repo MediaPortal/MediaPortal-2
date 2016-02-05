@@ -22,18 +22,21 @@
 
 #endregion
 
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNet.Http;
+using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Utils;
+using MediaPortal.Plugins.Transcoding.Service.Objects;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -71,15 +74,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
+      
+      if (streamItem.RequestedMediaItem is LiveTvMediaItem)
+      {
+        LiveTvMediaItem tvStream = (LiveTvMediaItem)streamItem.RequestedMediaItem;
+        DateTime tuningStart = (DateTime)tvStream.AdditionalProperties[LiveTvMediaItem.TUNING_TIME];
+        startPosition = Convert.ToInt64((DateTime.Now - tuningStart).TotalSeconds);
+      }
       streamItem.StartPosition = startPosition;
 
-      bool isLive = false;
-      if (streamItem.ItemType == Common.WebMediaType.TV || streamItem.ItemType == Common.WebMediaType.Radio)
-      {
-        isLive = true;
-      }
       EndPointSettings endPointSettings = ProfileManager.GetEndPointSettings(profile.ID);
-      streamItem.TranscoderObject = new ProfileMediaItem(identifier, streamItem.RequestedMediaItem, endPointSettings, isLive);
+      streamItem.TranscoderObject = new ProfileMediaItem(identifier, streamItem.RequestedMediaItem, endPointSettings, streamItem.IsLive);
       if ((streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding))
       {
         ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
@@ -94,9 +99,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       StreamControl.StartStreaming(identifier, startPosition);
 
       string filePostFix = "&file=media.ts";
-      if (profile.MediaTranscoding != null && profile.MediaTranscoding.Video != null)
+      if (profile.MediaTranscoding != null && profile.MediaTranscoding.VideoTargets != null)
       {
-        foreach (var target in profile.MediaTranscoding.Video)
+        foreach (var target in profile.MediaTranscoding.VideoTargets)
         {
           if (target.Target.VideoContainerType == VideoContainer.Hls)
           {
