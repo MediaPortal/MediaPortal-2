@@ -25,12 +25,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
         ClientDescription = streamItem.Value.ClientDescription, 
         Profile = streamItem.Value.Profile.Name, 
         Identifier = streamItem.Key, 
-        StartPosition = streamItem.Value.StartPosition, 
-        TranscodingInfo = new WebTranscodingInfo(), // TODO: We don't have these information, yet
-        StartTime = streamItem.Value.StartTime, 
-        SourceId = streamItem.Value.ItemId.ToString(),
+        StartPosition = streamItem.Value.StartPosition,
+        TranscodingInfo = new WebTranscodingInfo(streamItem.Value.StreamContext),
+        StartTime = streamItem.Value.StartTime,
+        SourceId = streamItem.Value.RequestedMediaItem.MediaItemId.ToString(),
         ClientIPAddress = streamItem.Value.ClientIp,
-        DisplayName = (string)GetMediaItems.GetMediaItemById(streamItem.Value.ItemId, necessaryMIATypes)[MediaAspect.Metadata][MediaAspect.ATTR_TITLE],
+        DisplayName = streamItem.Value.Title,
       }).ToList();
     }
 

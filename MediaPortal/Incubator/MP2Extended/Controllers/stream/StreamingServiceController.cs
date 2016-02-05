@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNet.Mvc;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control;
-using Microsoft.AspNet.Mvc;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images;
 
@@ -37,9 +34,9 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "StreamingService")]
-    public void RetrieveStream(string identifier, string hls)
+    public void RetrieveStream(string identifier, string file, string hls)
     {
-      new RetrieveStream().Process(HttpContext, identifier, hls);
+      new RetrieveStream().Process(HttpContext, identifier, file, hls);
     }
 
     [HttpGet]

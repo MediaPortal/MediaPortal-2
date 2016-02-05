@@ -416,6 +416,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     public string PreferredSubtitleLanguages = null;
     public string DefaultSubtitleEncodings = null;
     public string PreferredAudioLanguages = null;
+    public string ClientId = null;
     public bool EstimateTransodedSize = true;
     public BasicContainer RootContainer = null;
     public Dictionary<Guid, DlnaMediaItem> DlnaMediaItems = new Dictionary<Guid, DlnaMediaItem>();
@@ -428,7 +429,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         if (DlnaMediaItems.TryGetValue(item.MediaItemId, out dlnaItem))
           return dlnaItem;
 
-        dlnaItem = new DlnaMediaItem(item, this, live);
+        dlnaItem = new DlnaMediaItem(ClientId, item, this, live);
         DlnaMediaItems.Add(item.MediaItemId, dlnaItem);
         return dlnaItem;
       }

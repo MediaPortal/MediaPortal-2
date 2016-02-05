@@ -77,9 +77,9 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebBoolResult InitStream(string itemId, string clientDescription, string identifier, int? idleTimeout)
+    public WebBoolResult InitStream(string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
     {
-      return new InitStream().Process(HttpContext, itemId, clientDescription, identifier, idleTimeout);
+      return new InitStream().Process(HttpContext, itemId, clientDescription, identifier, type, idleTimeout);
     }
 
     [HttpGet]

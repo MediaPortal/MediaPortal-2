@@ -1,9 +1,33 @@
-﻿using HttpServer;
-using HttpServer.Sessions;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -27,8 +51,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         result = false;
       }
 
-      // Remove the stream from the stream controler
+      // Remove the stream from the stream controller
+      stream.StreamItem item = StreamControl.GetStreamItem(identifier);
       StreamControl.DeleteStreamItem(identifier);
+
+      //Stop timeshifting
+      if (item != null && (item.ItemType == WebMediaType.TV || item.ItemType == WebMediaType.Radio))
+      {
+        ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
+        result = timeshiftControl.StopTimeshift(SlotControl.GetSlotIndex(identifier));
+        SlotControl.DeleteSlotIndex(identifier);
+      }
 
      return new WebBoolResult { Result = result };
     }

@@ -1,35 +1,51 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Text;
+using System.Linq;
+using Microsoft.AspNet.Http;
 using HttpServer;
-using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
-using Microsoft.AspNet.Http;
-using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Stream, Summary = "")]
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "file", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "hls", Type = typeof(string), Nullable = true)]
   internal class RetrieveStream : BaseSendData
   {
-    private const string URL_ID_PLACEHOLDER = "_*_ID_*_";
-
-    public bool Process(HttpContext httpContext, string identifier, string hls)
+    public bool Process(HttpContext httpContext, string identifier, string file, string hls)
     {
       Stream resourceStream = null;
       bool onlyHeaders = false;
@@ -41,42 +57,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         throw new BadRequestException("RetrieveStream: identifier is not valid");
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
-
+      long startPosition = streamItem.StartPosition;
       if (streamItem.IsActive && hls != null)
       {
         #region Handle segment/playlist request
 
-        string fileName = hls;
-        if (!fileName.Contains("identifier"))
+        if (SendSegment(hls, httpContext, streamItem) == true)
         {
-          string hlsFile = Path.Combine(streamItem.TranscoderObject.SegmentDir, fileName);
-          if (File.Exists(hlsFile) == true)
-          {
-            resourceStream = MediaConverter.GetReadyFileBuffer(hlsFile);
-            httpContext.Response.ContentType = MediaConverter.GetHlsFileMime(hlsFile);
+          return true;
+        }
+        else if (streamItem.ItemType != Common.WebMediaType.TV &&
+          streamItem.ItemType != Common.WebMediaType.Radio &&
+          MediaConverter.GetSegmentSequence(hls) > 0)
+        {
+          long segmentRequest = MediaConverter.GetSegmentSequence(hls);
+          if (streamItem.RequestSegment(segmentRequest) == false)
 
-            onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
-            Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
-            if (hls.EndsWith(".m3u8", StringComparison.InvariantCultureIgnoreCase) == true)
-            {
-              SendWholeFile(httpContext, CorrectPlaylist(identifier, resourceStream), onlyHeaders);
-            }
-            else
-            {
-              SendWholeFile(httpContext, resourceStream, onlyHeaders);
-
-              //Update current segment
-              long sequenceNo = MediaConverter.GetHlsSegmentSequence(hlsFile);
-              if (sequenceNo >= 0)
-              {
-                streamItem.StreamContext.CurrentSegment = sequenceNo;
-              }
-            }
-            return true;
-          }
-          else
           {
-            Logger.Error("RetrieveStream: Unable to find segment file {0}", fileName);
+            Logger.Error("RetrieveStream: Request for segment file {0} canceled", hls);
 
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
             // TODO: fix
@@ -87,57 +85,42 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
             return true;
           }
+          startPosition = segmentRequest * MediaConverter.HLSSegmentTimeInSeconds;
+        }
+        else
+        {
+          Logger.Error("RetrieveStream: Unable to find segment file {0}", hls);
+
+          httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+          // TODO: fix
+          //response.Chunked = false;
+          httpContext.Response.ContentLength = 0;
+          httpContext.Response.ContentType = null;
+          //response.SendHeaders();
+
+          return true;
         }
 
         #endregion
       }
 
-      #region Init stream item
-
-      EndPointSettings endPointSettings = ProfileManager.GetEndPointSettings(streamItem.Profile.ID);
-
-      if (hls == null)
+      if (streamItem.IsActive == false)
       {
-        ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-        necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-        necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+        Logger.Debug("RetrieveStream: Stream for {0} is no longer active", identifier);
 
-        ISet<Guid> optionalMIATypes = new HashSet<Guid>();
-        optionalMIATypes.Add(VideoAspect.ASPECT_ID);
-        optionalMIATypes.Add(AudioAspect.ASPECT_ID);
-        optionalMIATypes.Add(ImageAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemAudioAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemImageAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoAudioAspect.ASPECT_ID);
-        optionalMIATypes.Add(TranscodeItemVideoEmbeddedAspect.ASPECT_ID);
+        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        // TODO: fix
+        //response.Chunked = false;
+        httpContext.Response.ContentLength = 0;
+        httpContext.Response.ContentType = null;
+        //response.SendHeaders();
 
-        MediaItem item = GetMediaItems.GetMediaItemById(streamItem.ItemId, necessaryMIATypes, optionalMIATypes);
-
-        if (item == null)
-        {
-          Logger.Info("RetrieveStream: Couldn't start stream! No Mediaitem found with id: {0}", streamItem.ItemId.ToString());
-        }
-
-        //TODO: Set live=true for TV stream
-        streamItem.TranscoderObject = new ProfileMediaItem(item, endPointSettings, false);
-
-        // set HLS Base URL
-        if ((streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding))
-        {
-          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", URL_ID_PLACEHOLDER);
-          if (streamItem.AudioStream >= 0)
-            ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceAudioStreamIndex = streamItem.AudioStream;
-          if (streamItem.SubtitleStream >= 0)
-            ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = streamItem.SubtitleStream;
-          else
-            ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = MediaConverter.NO_SUBTITLE;
-        }
+        return true;
       }
 
-      #endregion
-
       #region Init response
+
+      EndPointSettings endPointSettings = ProfileManager.GetEndPointSettings(streamItem.Profile.ID);
 
       // Grab the mimetype from the media item and set the Content Type header.
       if (streamItem.TranscoderObject.Mime == null)
@@ -154,7 +137,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       string byteRangesSpecifier = httpContext.Request.Headers["Range"];
       if (byteRangesSpecifier != null)
       {
-        Logger.Debug("RetrieveStream: Requesting range {1} for mediaitem {0}", streamItem.ItemId.ToString(), byteRangesSpecifier);
+        Logger.Debug("RetrieveStream: Requesting range {1} for mediaitem {0}", streamItem.RequestedMediaItem.MediaItemId, byteRangesSpecifier);
         requestedStreamingMode = StreamMode.ByteRange;
       }
 
@@ -162,8 +145,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
       #region Process range request
 
+      if (streamItem.TranscoderObject.IsTranscoding == false ||
+        (streamItem.StreamContext.Partial == false &&
+        streamItem.StreamContext.TargetFileSize > 0 &&
+        streamItem.StreamContext.TargetFileSize > streamItem.TranscoderObject.WebMetadata.Metadata.Size))
+      {
+        streamItem.TranscoderObject.WebMetadata.Metadata.Size = streamItem.StreamContext.TargetFileSize;
+      }
+
       IList<Range> ranges = null;
-      Range timeRange = new Range(streamItem.StartPosition, 0);
+      Range timeRange = new Range(startPosition, 0);
       Range byteRange = null;
       if (requestedStreamingMode == StreamMode.ByteRange)
       {
@@ -213,7 +204,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
       if (resourceStream == null && streamItem.TranscoderObject.IsTranscoded == false)
       {
-        resourceStream = MediaConverter.GetReadyFileBuffer((ILocalFsResourceAccessor)streamItem.TranscoderObject.WebMetadata.Metadata.Source);
+        if (streamItem.TranscoderObject.WebMetadata.Metadata.Source is ILocalFsResourceAccessor)
+        {
+          resourceStream = MediaConverter.GetReadyFileBuffer((ILocalFsResourceAccessor)streamItem.TranscoderObject.WebMetadata.Metadata.Source);
+        }
+      }
+
+      if (resourceStream == null && (streamItem.StartPosition == timeRange.From || file != null))
+      {
+        //The initial request
+        if (streamItem.StreamContext != null)
+        {
+          resourceStream = streamItem.StreamContext.TranscodedStream;
+        }
       }
 
       #endregion
@@ -221,10 +224,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       #region Handle transcode
 
       // Attempting to transcode
-      Logger.Debug("RetrieveStream: Attempting transcoding for mediaitem {0} in mode {1}", streamItem.ItemId.ToString(), requestedStreamingMode.ToString());
+      Logger.Debug("RetrieveStream: Attempting transcoding for mediaitem {0} in mode {1}", streamItem.RequestedMediaItem.MediaItemId, requestedStreamingMode.ToString());
       if (streamItem.TranscoderObject.StartTrancoding() == false)
       {
-        Logger.Debug("RetrieveStream: Transcoding busy for mediaitem {0}", streamItem.ItemId.ToString());
+        Logger.Debug("RetrieveStream: Transcoding busy for mediaitem {0}", streamItem.RequestedMediaItem.MediaItemId);
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         // TODO: fix
         //response.Chunked = false;
@@ -236,55 +239,26 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       }
 
       bool partialResource = false;
-      TranscodeContext context = null;
       if (resourceStream == null)
       {
-        BaseTranscoding trancodeData = streamItem.TranscoderObject.TranscodingParameter;
-        if (trancodeData == null) trancodeData = streamItem.TranscoderObject.SubtitleTranscodingParameter;
-        context = MediaConverter.GetMediaStream(trancodeData, timeRange.From, timeRange.Length, true);
-        context.InUse = true;
-        partialResource = context.Partial;
-        StreamControl.StartStreaming(identifier, context);
-        if (streamItem.TranscoderObject.IsSegmented)
-          resourceStream = CorrectPlaylist(identifier, context.TranscodedStream);
-        else
-          resourceStream = context.TranscodedStream;
-        if (streamItem.TranscoderObject.IsTranscoding == false || (context.Partial == false && context.TargetFileSize > 0 && context.TargetFileSize > streamItem.TranscoderObject.WebMetadata.Metadata.Size))
-        {
-          streamItem.TranscoderObject.WebMetadata.Metadata.Size = context.TargetFileSize;
-        }
+        StreamControl.StopStreaming(identifier);
+        StreamControl.StartStreaming(identifier, timeRange.From);
+        partialResource = streamItem.StreamContext.Partial;
+        resourceStream = streamItem.StreamContext.TranscodedStream;
 
-        lock (StreamControl.CurrentClientTranscodes)
+        if (hls != null)
         {
-          if (StreamControl.CurrentClientTranscodes.ContainsKey(streamItem.ClientIp) == false)
+          //Send HLS file originally requested
+          if (SendSegment(hls, httpContext, streamItem) == true)
           {
-            StreamControl.CurrentClientTranscodes.Add(streamItem.ClientIp, new Dictionary<string, List<TranscodeContext>>());
+            return true;
           }
-          if (StreamControl.CurrentClientTranscodes[streamItem.ClientIp].Count > 0 && StreamControl.CurrentClientTranscodes[streamItem.ClientIp].ContainsKey(streamItem.TranscoderObject.TranscodingParameter.TranscodeId) == false)
-          {
-            //Don't waste resources on transcoding if the client wants different media item
-            Logger.Debug("RetrieveStream: Ending {0} transcodes for client {1}", StreamControl.CurrentClientTranscodes[streamItem.ClientIp].Count, streamItem.ClientIp);
-            foreach (var transcodeContexts in StreamControl.CurrentClientTranscodes[streamItem.ClientIp].Values)
-            {
-              foreach (var transcodeContext in transcodeContexts)
-              {
-                if (transcodeContext.Running) transcodeContext.Stop();
-                transcodeContext.InUse = false;
-              }
-            }
-            StreamControl.CurrentClientTranscodes[streamItem.ClientIp].Clear();
-          }
-          if (StreamControl.CurrentClientTranscodes[streamItem.ClientIp].ContainsKey(streamItem.TranscoderObject.TranscodingParameter.TranscodeId) == false)
-          {
-            StreamControl.CurrentClientTranscodes[streamItem.ClientIp].Add(streamItem.TranscoderObject.TranscodingParameter.TranscodeId, new List<TranscodeContext>());
-          }
-          StreamControl.CurrentClientTranscodes[streamItem.ClientIp][streamItem.TranscoderObject.TranscodingParameter.TranscodeId].Add(context);
         }
       }
 
       if (!streamItem.TranscoderObject.IsStreamable)
       {
-        Logger.Debug("RetrieveStream: Live transcoding of mediaitem {0} is not possible because of media container", streamItem.ItemId.ToString());
+        Logger.Debug("RetrieveStream: Live transcoding of mediaitem {0} is not possible because of media container", streamItem.RequestedMediaItem.MediaItemId);
       }
 
       #endregion
@@ -314,43 +288,61 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         return true;
       }
 
-      streamItem.IsActive = true;
-
-      // TODO: fix method
-      onlyHeaders = /*request.Method == Method.Header ||*/ httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
-      if (requestedStreamingMode == StreamMode.ByteRange)
+      lock (streamItem.BusyLock)
       {
-        //Logger.Debug("DlnaResourceAccessModule: Sending byte range header only: {0}", onlyHeaders.ToString());
-        if (ranges != null && ranges.Count > 0)
+        // TODO: fix method
+        onlyHeaders = /*request.Method == Method.Header ||*/ httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+        if (requestedStreamingMode == StreamMode.ByteRange)
         {
-          // We only support last range
-          SendByteRange(httpContext, resourceStream, streamItem.TranscoderObject, endPointSettings, ranges[ranges.Count - 1], onlyHeaders, partialResource, mediaTransferMode);
-          return true;
+          if (ranges != null && ranges.Count > 0)
+          {
+            // We only support last range
+            SendByteRange(httpContext, resourceStream, streamItem.TranscoderObject, endPointSettings, ranges[ranges.Count - 1], onlyHeaders, partialResource, mediaTransferMode);
+            return true;
+          }
         }
+        Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
+        SendWholeFile(httpContext, resourceStream, streamItem.TranscoderObject, endPointSettings, onlyHeaders, partialResource, mediaTransferMode);
       }
-      Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
-      SendWholeFile(httpContext, resourceStream, streamItem.TranscoderObject, endPointSettings, onlyHeaders, partialResource, mediaTransferMode);
 
       #endregion
 
       return true;
     }
 
-    private Stream CorrectPlaylist(string identifier, Stream playlistStream)
+    private bool SendSegment(string fileName, HttpContext httpContext, StreamItem streamItem)
     {
-      MemoryStream copyStream = new MemoryStream();
-      playlistStream.Position = 0;
-      playlistStream.CopyTo(copyStream);
+      if (fileName != null)
+      {
+        lock (streamItem.BusyLock)
+        {
+          object containerEnum = null;
+          Stream resourceStream = null;
+          if (MediaConverter.GetSegmentFile((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter, streamItem.StreamContext, fileName, out resourceStream, out containerEnum) == true)
+          {
+            if (containerEnum is VideoContainer)
+            {
+              VideoTranscoding video = (VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter;
+              List<string> profiles = ProfileMime.ResolveVideoProfile((VideoContainer)containerEnum, video.TargetVideoCodec, video.TargetAudioCodec, EncodingProfile.Unknown, 0, 0, 0, 0, 0, 0, Timestamp.None);
+              string mime = "video/unknown";
+              ProfileMime.FindCompatibleMime(streamItem.Profile, profiles, ref mime);
+              httpContext.Response.ContentType = mime;
+            }
+            else if (containerEnum is SubtitleCodec)
+            {
+              httpContext.Response.ContentType = MediaConverter.GetSubtitleMime((SubtitleCodec)containerEnum);
+            }
+            bool onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+            Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
 
-      copyStream.Position = 0;
-      StreamReader streamReader = new StreamReader(copyStream, Encoding.UTF8);
-      string playListData = streamReader.ReadToEnd();
-      playListData = playListData.Replace(URL_ID_PLACEHOLDER, identifier);
-      streamReader.Close();
-
-      MemoryStream memStream = new MemoryStream(Encoding.UTF8.GetBytes(playListData));
-      memStream.Position = 0;
-      return memStream;
+            SendWholeFile(httpContext, resourceStream, onlyHeaders);
+            // Close the Stream so that FFMpeg can replace the playlist file
+            resourceStream.Dispose();
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
     internal static ILogger Logger

@@ -1,20 +1,43 @@
-﻿using System.Collections.Generic;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Plugins.Transcoding.Service;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
   static class StreamControl
   {
     private static readonly Dictionary<string, StreamItem> STREAM_ITEMS = new Dictionary<string, StreamItem>();
-    public static Dictionary<string, Dictionary<string, List<TranscodeContext>>> CurrentClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
 
     /// <summary>
     /// Adds a new stream Item to the list.
     /// </summary>
-    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <param name="item">The stream item which should be added</param>
     internal static void AddStreamItem(string identifier, StreamItem item)
     {
@@ -29,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <summary>
     /// Deletes a stream Item from the list
     /// </summary>
-    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <returns>Returns true if an item was deleted, false if no item was deleted</returns>
     internal static bool DeleteStreamItem(string identifier)
     {
@@ -45,7 +68,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <summary>
     /// Updates an already existent stream item
     /// </summary>
-    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <param name="item">The updated stream item</param>
     internal static void UpdateStreamItem(string identifier, StreamItem item)
     {
@@ -56,7 +79,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <summary>
     /// Returns a stream item based on the given identifier
     /// </summary>
-    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <returns>Returns the requested stream item otherwise null</returns>
     internal static StreamItem GetStreamItem(string identifier)
     {
@@ -84,31 +107,39 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <summary>
     /// Does the preparation to start a stream
     /// </summary>
-    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <param name="context">Transcoder context</param>
-    internal static void StartStreaming(string identifier, TranscodeContext context)
+    internal static void StartStreaming(string identifier, double startTime)
     {
       if (ValidateIdentifie(identifier))
       {
-        STREAM_ITEMS[identifier].IsActive = true;
-        STREAM_ITEMS[identifier].StreamContext = context;
-        STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = context.SegmentDir;
+        lock (STREAM_ITEMS[identifier].BusyLock)
+        {
+          STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetMediaStream(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, startTime, 0, true);
+          STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = STREAM_ITEMS[identifier].StreamContext.SegmentDir;
+          STREAM_ITEMS[identifier].StreamContext.InUse = true;
+          STREAM_ITEMS[identifier].IsActive = true;
+        }
       }
     }
 
     /// <summary>
     /// Stops the streaming
     /// </summary>
-    /// <param name="identifier">The unique string which idetifies the stream Item</param>
+    /// <param name="identifier">The unique string which identifies the stream Item</param>
     internal static void StopStreaming(string identifier)
     {
       if (ValidateIdentifie(identifier))
       {
         STREAM_ITEMS[identifier].IsActive = false;
-        if (STREAM_ITEMS[identifier].StreamContext != null) 
-          STREAM_ITEMS[identifier].StreamContext.InUse = false;
         if (STREAM_ITEMS[identifier].TranscoderObject != null) 
           STREAM_ITEMS[identifier].TranscoderObject.StopStreaming();
+
+        lock (STREAM_ITEMS[identifier].BusyLock)
+        {
+          if (STREAM_ITEMS[identifier].StreamContext != null)
+            STREAM_ITEMS[identifier].StreamContext.InUse = false;
+        }
       }
     }
 

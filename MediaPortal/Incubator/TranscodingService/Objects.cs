@@ -234,7 +234,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
   public abstract class BaseTranscoding
   {
     public string TranscodeId = "";
-    public IResourceAccessor SourceFile;
+    public IResourceAccessor SourceMedia;
     public string TranscoderBinPath = "";
     public string TranscoderArguments = "";
   }
@@ -281,6 +281,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public Coder TargetCoder = Coder.Default;
     public bool TargetForceVideoTranscoding = false;
     public bool TargetForceAudioStereo = false;
+    public bool TargetForceVideoCopy = false;
+    public bool TargetForceAudioCopy = false;
     public SubtitleSupport TargetSubtitleSupport = SubtitleSupport.None;
     public SubtitleCodec TargetSubtitleCodec = SubtitleCodec.Srt;
     public string TargetSubtitleLanguages = "EN";
@@ -327,6 +329,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public long TargetAudioFrequency = -1;
     public long TargetAudioBitrate = -1;
     public bool TargetForceAudioStereo = false;
+    public bool TargetForceCopy = false;
     public Coder TargetCoder = Coder.Default;
     public bool TargetIsLive = false;
   }
@@ -406,6 +409,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       get
       {
+        if(IsVideo == true)
+        {
+          return false;
+        }
         if (Metadata.Mime != null && Metadata.Mime.StartsWith("audio/"))
         {
           return true;

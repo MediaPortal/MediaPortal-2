@@ -22,6 +22,12 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.Transcoding.Service;
+using System;
+
 namespace MediaPortal.Plugins.MediaServer.DLNA
 {
   public enum ProtocolInfoFormat
@@ -44,8 +50,17 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
                      MediaType = item.DlnaMime,
                      AdditionalInfo = new DlnaForthField()
                    };
+      bool live = false;
+      if (item.TranscodingParameter is VideoTranscoding)
+      {
+        live = ((VideoTranscoding)item.TranscodingParameter).TargetIsLive;
+      }
+      else if (item.TranscodingParameter is AudioTranscoding)
+      {
+        live = ((AudioTranscoding)item.TranscodingParameter).TargetIsLive;
+      }
 
-      ConfigureProfile(info.AdditionalInfo, item, infoLevel);
+      ConfigureProfile(info.AdditionalInfo, item, infoLevel, live);
       return info;
     }
 
@@ -94,7 +109,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       return info;
     }
 
-    private static void ConfigureProfile(DlnaForthField dlnaField, DlnaMediaItem item, ProtocolInfoFormat infoLevel)
+    private static void ConfigureProfile(DlnaForthField dlnaField, DlnaMediaItem item, ProtocolInfoFormat infoLevel, bool live)
     {
       if (infoLevel == ProtocolInfoFormat.Simple)
       {
@@ -158,27 +173,25 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
               duration = 0;
             }
           }
-          if (duration > 0)
+          if (duration > 0 && live == false)
           {
             dlnaField.OperationsParameter.TimeSeekRangeSupport = true;
+            dlnaField.OperationsParameter.ByteSeekRangeSupport = true;
+            dlnaField.FlagsParameter.TimeBasedSeek = true;
+            dlnaField.FlagsParameter.ByteBasedSeek = true;
           }
           else
           {
             dlnaField.OperationsParameter.TimeSeekRangeSupport = false;
-          }
-          if (item.IsTranscoded)
-          {
             dlnaField.OperationsParameter.ByteSeekRangeSupport = false;
+            dlnaField.FlagsParameter.TimeBasedSeek = false;
+            dlnaField.FlagsParameter.ByteBasedSeek = false;
           }
-          else
-          {
-            dlnaField.OperationsParameter.ByteSeekRangeSupport = true;
-          }
+          if (live) dlnaField.FlagsParameter.SenderPaced = true;
+          else dlnaField.FlagsParameter.SenderPaced = false;
 
           dlnaField.FlagsParameter.Show = true;
           dlnaField.FlagsParameter.SenderPaced = false;
-          dlnaField.FlagsParameter.TimeBasedSeek = false;
-          dlnaField.FlagsParameter.ByteBasedSeek = false;
           dlnaField.FlagsParameter.PlayerContainer = false;
           dlnaField.FlagsParameter.UcdamS0Increasing = false;
           if (item.IsTranscoded == true)

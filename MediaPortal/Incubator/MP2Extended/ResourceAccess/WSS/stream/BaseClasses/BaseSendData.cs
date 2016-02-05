@@ -270,8 +270,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
       finally
       {
-        // closes the Stream so that FFMpeg can replace the playlist file in case of HLS
-        resourceStream.Close();
         item.StopStreaming(streamID);
         Logger.Debug("BaseSendData: Sending complete");
       }
@@ -442,7 +440,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 
     internal bool WaitForMinimumFileSize(Stream resourceStream, long minimumSize)
     {
-      if (resourceStream.CanSeek)
+      if (resourceStream.CanSeek == false)
         return resourceStream.CanRead;
 
       int iTry = 20;

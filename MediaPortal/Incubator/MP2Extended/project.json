@@ -8,8 +8,7 @@
   "frameworks": {
     "dnx451": {
       "dependencies": {
-        "TranscodingService": "1.0.0",
-        "HttpServer": "1.0.0"
+        "HttpServer": "1.0.0-*"
       },
       "frameworkAssemblies": {
         "System.Drawing": "4.0.0.0",
@@ -36,6 +35,7 @@
     "MediaPortal.Utilities": "1.0.0",
     "SlimTv.Interfaces": "1.0.0",
     "Tve3RecordingMetadataExtractor": "1.0.0",
-    "FanArtService.Interfaces": "1.0.0"
+    "FanArtService.Interfaces": "1.0.0",
+    "TranscodingService": "1.0.0"
   }
 }

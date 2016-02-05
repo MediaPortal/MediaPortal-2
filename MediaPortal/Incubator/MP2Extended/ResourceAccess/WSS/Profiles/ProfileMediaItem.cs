@@ -31,22 +31,48 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Metadata;
 using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
 {
   public class ProfileMediaItem
   {
     private List<Guid> _streams = new List<Guid>();
+    private string _clientId = null;
 
-    public ProfileMediaItem(MediaItem item, EndPointSettings client, bool live)
+    public ProfileMediaItem(string clientId, MediaItem item, EndPointSettings client, bool live)
     {
+      _clientId = clientId;
+
+      Client = client;
+      MediaSource = item;
+      LastUpdated = DateTime.Now;
+      TranscodingParameter = null;
+      IsSegmented = false;
+      IsLive = live;
+      MetadataContainer info = null;
+      bool bForceTranscoding = false;
       if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
         IsAudio = true;
         if (item.Aspects.ContainsKey(TranscodeItemAudioAspect.ASPECT_ID) == false)
         {
+          if (item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_RADIO)
+          {
+            info = ParseLiveMedia(item);
+            bForceTranscoding = true;
+          }
+          else
+          {
           Logger.Warn("Mediaitem {0} contains no transcoding audio information", item.MediaItemId);
           return;
+        }
+      }
+        else
+        {
+          info = WebAudioMetadata.ParseMediaItem(item);
         }
       }
       else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
@@ -57,40 +83,36 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           Logger.Warn("Mediaitem {0} contains no transcoding image information", item.MediaItemId);
           return;
         }
+        else
+        {
+          info = WebImageMetadata.ParseMediaItem(item);
+      }
       }
       else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         IsVideo = true;
         if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID) == false)
         {
+          if (item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_TV)
+          {
+            info = ParseLiveMedia(item);
+            bForceTranscoding = true;
+          }
+          else
+          {
           Logger.Warn("Mediaitem {0} contains no transcoding video information", item.MediaItemId);
           return;
         }
       }
       else
       {
-        Logger.Warn("Mediaitem {0} contains no requied aspect information", item.MediaItemId);
+          info = WebVideoMetadata.ParseMediaItem(item);
+      }
+      }
+      else
+      {
+        Logger.Warn("Mediaitem {0} contains no required aspect information", item.MediaItemId);
         return;
-      }
-
-      Client = client;
-      MediaSource = item;
-      LastUpdated = DateTime.Now;
-      TranscodingParameter = null;
-      IsSegmented = false;
-      IsLive = live;
-      MetadataContainer info = null;
-      if (IsAudio)
-      {
-        info = WebAudioMetadata.ParseMediaItem(item);
-      }
-      else if (IsImage)
-      {
-        info = WebImageMetadata.ParseMediaItem(item);
-      }
-      else if (IsVideo)
-      {
-        info = WebVideoMetadata.ParseMediaItem(item);
       }
 
       if (MP2Extended.Settings.TranscodingAllowed == true)
@@ -128,7 +150,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
             }
             if(info.Metadata.Source != null)
             {
-              audio.SourceFile = info.Metadata.Source;
+              audio.SourceMedia = info.Metadata.Source;
             }
             
             audio.TargetAudioBitrate = client.Profile.Settings.Audio.DefaultBitrate;
@@ -188,7 +210,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
             }
             if (info.Metadata.Source != null)
             {
-              image.SourceFile = info.Metadata.Source;
+              image.SourceMedia = info.Metadata.Source;
             }
 
             if (dstImage.Target.PixelFormatType > 0)
@@ -289,7 +311,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
             }
             if (info.Metadata.Source != null)
             {
-              video.SourceFile = info.Metadata.Source;
+              video.SourceMedia = info.Metadata.Source;
             }
 
             if (dstVideo.Target.VideoContainerType != VideoContainer.Unknown)
@@ -415,10 +437,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           }
         }
       }
-      if(TranscodingParameter == null)
+      if (bForceTranscoding == true && TranscodingParameter == null)
+      {
+        if (IsVideo) TranscodingParameter = LiveVideoTranscoding(info, client);
+        else if (IsAudio) TranscodingParameter = LiveAudioTranscoding(info, client);
+      }
+
+      if(IsLive == false && IsVideo && TranscodingParameter == null)
       {
         VideoTranscoding subtitle = new VideoTranscoding();
-        subtitle.SourceFile = info.Metadata.Source;
+        subtitle.SourceMedia = info.Metadata.Source;
         subtitle.TargetSubtitleSupport = client.Profile.Settings.Subtitles.SubtitleMode;
         subtitle.SourceSubtitles.AddRange(info.Subtitles);
         if (MP2Extended.Settings.HardcodedSubtitlesAllowed == false && client.Profile.Settings.Subtitles.SubtitleMode == SubtitleSupport.HardCoded)
@@ -429,8 +457,161 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         subtitle.TargetIsLive = live;
         SubtitleTranscodingParameter = subtitle;
       }
+      if (IsLive && TranscodingParameter != null)
+      {
+        //Ensure uniqueness of stream
+        TranscodingParameter.TranscodeId = Guid.NewGuid().ToString() + "_" + Client.Profile.ID;
+      }
 
       AssignWebMetadata(info);
+    }
+
+    public VideoTranscoding LiveVideoTranscoding(MetadataContainer info, EndPointSettings client)
+    {
+      int iMatchedAudioStream = 0;
+      if (string.IsNullOrEmpty(client.PreferredAudioLanguages) == false)
+      {
+        List<string> valuesLangs = new List<string>(client.PreferredAudioLanguages.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+        int currentPriority = -1;
+        for (int iAudio = 0; iAudio < info.Audio.Count; iAudio++)
+        {
+          for (int iPriority = 0; iPriority < valuesLangs.Count; iPriority++)
+          {
+            if (valuesLangs[iPriority].Equals(info.Audio[iAudio].Language, StringComparison.InvariantCultureIgnoreCase) == true)
+            {
+              if (currentPriority == -1 || iPriority < currentPriority)
+              {
+                currentPriority = iPriority;
+                iMatchedAudioStream = iAudio;
+              }
+            }
+          }
+        }
+      }
+
+      VideoTranscoding video = new VideoTranscoding();
+      video.SourceAudioStreamIndex = info.Audio[iMatchedAudioStream].StreamIndex;
+      video.SourceVideoStreamIndex = info.Video.StreamIndex;
+      if (info.Metadata.VideoContainerType != VideoContainer.Unknown)
+      {
+        video.SourceVideoContainer = info.Metadata.VideoContainerType;
+      }
+      if (info.Audio[iMatchedAudioStream].Bitrate > 0)
+      {
+        video.SourceAudioBitrate = info.Audio[iMatchedAudioStream].Bitrate;
+      }
+      if (info.Audio[iMatchedAudioStream].Frequency > 0)
+      {
+        video.SourceAudioFrequency = info.Audio[iMatchedAudioStream].Frequency;
+      }
+      if (info.Audio[iMatchedAudioStream].Channels > 0)
+      {
+        video.SourceAudioChannels = info.Audio[iMatchedAudioStream].Channels;
+      }
+      if (info.Audio[iMatchedAudioStream].Codec != AudioCodec.Unknown)
+      {
+        video.SourceAudioCodec = info.Audio[iMatchedAudioStream].Codec;
+      }
+      video.SourceSubtitles = new List<SubtitleStream>(info.Subtitles);
+
+      if (info.Video.Bitrate > 0)
+      {
+        video.SourceVideoBitrate = info.Video.Bitrate;
+      }
+      if (info.Video.Framerate > 0)
+      {
+        video.SourceFrameRate = info.Video.Framerate;
+      }
+      if (info.Video.PixelFormatType != PixelFormat.Unknown)
+      {
+        video.SourcePixelFormat = info.Video.PixelFormatType;
+      }
+      if (info.Video.AspectRatio > 0)
+      {
+        video.SourceVideoAspectRatio = info.Video.AspectRatio;
+      }
+      if (info.Video.Codec != VideoCodec.Unknown)
+      {
+        video.SourceVideoCodec = info.Video.Codec;
+      }
+      if (info.Video.Height > 0)
+      {
+        video.SourceVideoHeight = info.Video.Height;
+      }
+      if (info.Video.Width > 0)
+      {
+        video.SourceVideoWidth = info.Video.Width;
+      }
+      if (info.Video.PixelAspectRatio > 0)
+      {
+        video.SourceVideoPixelAspectRatio = info.Video.PixelAspectRatio;
+      }
+      //if (info.Metadata.Duration > 0)
+      //{
+      //  video.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
+      //}
+      if (info.Metadata.Source != null)
+      {
+        video.SourceMedia = info.Metadata.Source;
+      }
+
+      video.TargetVideoContainer = video.SourceVideoContainer;
+      if (video.TargetVideoContainer == VideoContainer.Hls)
+      {
+        IsSegmented = true;
+      }
+      video.TargetAudioCodec = video.SourceAudioCodec;
+      video.TargetVideoCodec = video.SourceVideoCodec;
+      video.TargetForceVideoCopy = true;
+      video.TargetForceAudioCopy = true;
+
+      video.TargetIsLive = true;
+      video.TargetSubtitleSupport = SubtitleSupport.None;
+      video.TranscodeId = Guid.Empty.ToString() + "_" + Client.Profile.ID;
+      return video;
+    }
+
+    public AudioTranscoding LiveAudioTranscoding(MetadataContainer info, EndPointSettings client)
+    {
+      int iMatchedAudioStream = 0;
+
+      AudioTranscoding audio = new AudioTranscoding();
+      if (info.Metadata.AudioContainerType != AudioContainer.Unknown)
+      {
+        audio.SourceAudioContainer = info.Metadata.AudioContainerType;
+      }
+      if (info.Audio[iMatchedAudioStream].Bitrate > 0)
+      {
+        audio.SourceAudioBitrate = info.Audio[iMatchedAudioStream].Bitrate;
+      }
+      if (info.Audio[iMatchedAudioStream].Frequency > 0)
+      {
+        audio.SourceAudioFrequency = info.Audio[iMatchedAudioStream].Frequency;
+      }
+      if (info.Audio[iMatchedAudioStream].Channels > 0)
+      {
+        audio.SourceAudioChannels = info.Audio[iMatchedAudioStream].Channels;
+      }
+      if (info.Audio[iMatchedAudioStream].Codec != AudioCodec.Unknown)
+      {
+        audio.SourceAudioCodec = info.Audio[iMatchedAudioStream].Codec;
+      }
+      //if (info.Metadata.Duration > 0)
+      //{
+      //  audio.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
+      //}
+      if (info.Metadata.Source != null)
+      {
+        audio.SourceMedia = info.Metadata.Source;
+      }
+
+      audio.TargetAudioContainer = audio.SourceAudioContainer;
+      audio.TargetAudioCodec = audio.SourceAudioCodec;
+      audio.TargetForceCopy = true;
+    
+      audio.TargetIsLive = true;
+      audio.TranscodeId = Guid.Empty.ToString() + "_" + Client.Profile.ID;
+      return audio;
     }
 
     private void AssignWebMetadata(MetadataContainer info)
@@ -443,7 +624,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
       }
       else
       {
-        if (info.IsImage)
+        if (IsImage)
         {
           ImageTranscoding image = (ImageTranscoding)TranscodingParameter;
           TranscodedImageMetadata metadata = MediaConverter.GetTranscodedImageMetadata(image);
@@ -460,7 +641,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           WebMetadata.Image.PixelFormatType = metadata.TargetPixelFormat;
           WebMetadata.Image.Width = metadata.TargetMaxWidth;
         }
-        else if (info.IsAudio)
+        else if (IsAudio)
         {
           AudioTranscoding audio = (AudioTranscoding)TranscodingParameter;
           TranscodedAudioMetadata metadata = MediaConverter.GetTranscodedAudioMetadata(audio);
@@ -498,7 +679,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           audioStream.Frequency = metadata.TargetAudioFrequency;
           WebMetadata.Audio.Add(audioStream);
         }
-        else if (info.IsVideo)
+        else if (IsVideo)
         {
           VideoTranscoding video = (VideoTranscoding)TranscodingParameter;
           TranscodedVideoMetadata metadata = MediaConverter.GetTranscodedVideoMetadata(video);
@@ -570,15 +751,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         }
       }
 
-      if (info.IsImage)
+      if (IsImage)
       {
         profileList = ProfileMime.ResolveImageProfile(WebMetadata.Metadata.ImageContainerType, WebMetadata.Image.Width, WebMetadata.Image.Height);
       }
-      else if (info.IsAudio)
+      else if (IsAudio)
       {
         profileList = ProfileMime.ResolveAudioProfile(WebMetadata.Metadata.AudioContainerType, WebMetadata.Audio[0].Codec, WebMetadata.Audio[0].Bitrate, WebMetadata.Audio[0].Frequency, WebMetadata.Audio[0].Channels);
       }
-      else if (info.IsVideo)
+      else if (IsVideo)
       {
         profileList = ProfileMime.ResolveVideoProfile(WebMetadata.Metadata.VideoContainerType, WebMetadata.Video.Codec, WebMetadata.Audio[0].Codec, WebMetadata.Video.ProfileType, WebMetadata.Video.HeaderLevel,
           WebMetadata.Video.Framerate, WebMetadata.Video.Width, WebMetadata.Video.Height, WebMetadata.Video.Bitrate, WebMetadata.Audio[0].Bitrate, WebMetadata.Video.TimestampType);
@@ -589,6 +770,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
       Mime = mime;
     }
 
+    private MetadataContainer ParseLiveMedia(MediaItem item)
+    {
+      var resourcePath = ResourcePath.Deserialize((string)item[ProviderResourceAspect.Metadata][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
+      IResourceAccessor stra = SlimTvResourceAccessor.GetResourceAccessor(resourcePath.BasePathSegment.Path);
+
+      MediaAnalyzer liveAnalyzer = new MediaAnalyzer();
+      if (stra is ILocalFsResourceAccessor)
+      {
+        return liveAnalyzer.ParseVideoFile((ILocalFsResourceAccessor)stra);
+      }
+      else
+      {
+        return liveAnalyzer.ParseVideoStream((INetworkResourceAccessor)stra);
+      }
+    }
+
     public bool IsTranscoding
     {
       get
@@ -597,12 +794,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         {
           return false;
         }
-        lock (MediaConverter.RunningTranscodes)
-        {
-          return MediaConverter.RunningTranscodes.ContainsKey(TranscodingParameter.TranscodeId);
+        return MediaConverter.IsTranscodeRunning(_clientId, TranscodingParameter.TranscodeId);
         }
       }
-    }
 
     public bool StartTrancoding()
     {
@@ -614,16 +808,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
     {
       if (TranscodingParameter != null)
       {
-        lock (MediaConverter.RunningTranscodes)
-        {
-          if (MediaConverter.RunningTranscodes.ContainsKey(TranscodingParameter.TranscodeId))
-          {
-            for (int transcodeNo = 0; transcodeNo < MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId].Count; transcodeNo++)
-              MediaConverter.RunningTranscodes[TranscodingParameter.TranscodeId][transcodeNo].Stop();
+        MediaConverter.StopTranscode(_clientId, TranscodingParameter.TranscodeId);
           }
         }
-      }
-    }
 
     public Guid StartStreaming()
     {

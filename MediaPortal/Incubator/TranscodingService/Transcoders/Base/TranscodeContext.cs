@@ -20,16 +20,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 
     Stream _transcodedStream;
     long _lastSize = 0;
+    long _lastFrame = 0;
+    long _lastFPS = 0;
+    long _lastBitrate = 0;
     TimeSpan _lastTime = TimeSpan.FromTicks(0);
     object _lastSync = new object();
     bool _streamInUse = false;
     bool _useCache = true;
+    string _cachePath = null;
     long _currentSegment = 0;
     ManualResetEvent _completeEvent = new ManualResetEvent(true);
 
-    public TranscodeContext(bool useCache)
+    public TranscodeContext(bool useCache, string cachePath)
     {
       _useCache = useCache;
+      _cachePath = cachePath;
     }
 
     internal ManualResetEvent CompleteEvent 
@@ -38,6 +43,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
     }
 
     public string TargetFile { get; internal set; }
+    public string TargetSubtitle { get; internal set; }
     public string SegmentDir { get; internal set; }
     public string HlsBaseUrl { get; internal set; }
     public bool Aborted { get; internal set; }
@@ -51,7 +57,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       }
     }
     public bool Live { get; internal set; }
-
     public bool InUse 
     {
       get { return _streamInUse; }
@@ -66,9 +71,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         _streamInUse = value;
       }
     }
-
     public long LastSegment { get; internal set; }
-
     public long CurrentSegment
     {
       set
@@ -80,13 +83,79 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         return _currentSegment;
       }
     }
-
     public TimeSpan TargetDuration { get; internal set; }
     public TimeSpan CurrentDuration 
     { 
       get
       {
-        return _lastTime;
+        if (Running)
+        {
+          if (_lastSize > 0 && Partial == false)
+          {
+            return _lastTime;
+          }
+          return TimeSpan.FromTicks(0);
+        }
+        else
+        {
+          return TargetDuration;
+        }
+      }
+    }
+    public long CurrentFrames
+    {
+      get
+      {
+        if (Running)
+        {
+          return _lastFrame;
+        }
+        else
+        {
+          return 0;
+        }
+      }
+    }
+    public long CurrentFPS
+    {
+      get
+      {
+        if (Running)
+        {
+          return _lastFPS;
+        }
+        else
+        {
+          return 0;
+        }
+      }
+    }
+    public long CurrentBitrate
+    {
+      get
+      {
+        if (Running)
+        {
+          return _lastBitrate;
+        }
+        else
+        {
+          return 0;
+        }
+      }
+    }
+    public long CurrentThroughput
+    {
+      get
+      {
+        if (Running)
+        {
+          return _lastSize;
+        }
+        else
+        {
+          return 0;
+        }
       }
     }
     public long TargetFileSize 
@@ -144,7 +213,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
             return totalSize;
           }
         }
-        else if (_transcodedStream != null)
+        else if (_transcodedStream != null && _transcodedStream.CanRead)
         {
           return _transcodedStream.Length;
         }
@@ -205,13 +274,22 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
           {
             if (match.Groups["size"].Value.EndsWith("kB", StringComparison.InvariantCultureIgnoreCase))
             {
-              _lastSize = long.Parse(match.Groups["size"].Value.Substring(0, match.Groups["size"].Value.Length - 2).Trim()) * 1024;
+              if(long.TryParse(match.Groups["size"].Value.Substring(0, match.Groups["size"].Value.Length - 2).Trim(), out _lastSize))
+              {
+                _lastSize = _lastSize * 1024;
+              }
             }
             else if (match.Groups["size"].Value.EndsWith("mB", StringComparison.InvariantCultureIgnoreCase))
             {
-              _lastSize = long.Parse(match.Groups["size"].Value.Substring(0, match.Groups["size"].Value.Length - 2).Trim()) * 1024 * 1024;
+              if(long.TryParse(match.Groups["size"].Value.Substring(0, match.Groups["size"].Value.Length - 2).Trim(), out _lastSize))
+              {
+                _lastSize = _lastSize * 1024 * 1024;
+              }
             }
-            _lastTime = TimeSpan.Parse(match.Groups["time"].Value);
+            TimeSpan.TryParse(match.Groups["time"].Value, out _lastTime);
+            long.TryParse(match.Groups["frame"].Value, out _lastFrame); 
+            long.TryParse(match.Groups["fps"].Value, out _lastFPS);
+            long.TryParse(match.Groups["bitrate"].Value, out _lastBitrate);
           }
         }
         _errorOutput.Append(e.Data);
@@ -249,8 +327,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
       if (TranscodedStream != null)
         TranscodedStream.Dispose();
 
-      if (Live && Segmented == false) return;
-
       string deletePath = TargetFile;
       bool isFolder = false;
       if (string.IsNullOrEmpty(SegmentDir) == false)
@@ -258,8 +334,17 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         deletePath = SegmentDir;
         isFolder = true;
       }
+      if (Live && Segmented == false)
+      {
+        deletePath = "";
+      }
 
-      _completeEvent.WaitOne(5000);
+      string subtitlePath = TargetSubtitle;
+      if (Partial == false && Live == false)
+      {
+        subtitlePath = "";
+      }
+
       DateTime waitStart = DateTime.Now;
       while (true)
       {
@@ -269,6 +354,18 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
         }
         try
         {
+          //Only delete subtitle if it is in the cache
+          if (subtitlePath != null && subtitlePath.StartsWith(_cachePath) == true)
+          {
+            try
+            {
+              if (File.Exists(subtitlePath))
+              {
+                File.Delete(subtitlePath);
+              }
+            }
+            catch { }
+          }
           if (isFolder == false)
           {
             if (File.Exists(deletePath))
@@ -301,7 +398,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 
     public void Dispose()
     {
-      InUse = false;
       Stop();
       if (TranscodedStream != null)
         TranscodedStream.Dispose();

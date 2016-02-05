@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
 
     [OperationContract]
     [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult InitStream(string itemId, string clientDescription, string identifier, int? idleTimeout);
+    WebBoolResult InitStream(string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout);
 
     // startPosition is in seconds
     [OperationContract]

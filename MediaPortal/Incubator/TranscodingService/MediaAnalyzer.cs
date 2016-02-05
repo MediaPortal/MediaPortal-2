@@ -62,9 +62,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public int AnalyzerTimeout { get; set; }
     public int AnalyzerMaximumThreads { get; set; }
-   
-    public ILogger Logger { get; set;  }
 
+    private ILogger _logger { get; set; }
     private readonly Dictionary<string, CultureInfo> _countryCodesMapping = new Dictionary<string, CultureInfo>();
     private readonly Dictionary<float, long> _h264MaxDpbMbs = new Dictionary<float, long>();
    
@@ -72,6 +71,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       AnalyzerTimeout = PROCESS_TIMEOUT_MS;
       AnalyzerMaximumThreads = 0;
+
+      _logger = ServiceRegistration.Get<ILogger>();
 
       _h264MaxDpbMbs.Add(1F, 396);
       _h264MaxDpbMbs.Add(1.1F, 396);
@@ -122,7 +123,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+        _logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
         info.Metadata.Mime = MimeDetector.GetFileMime(lfsra, "Image/Unknown");
         info.Metadata.Size = lfsra.Size;
@@ -130,10 +131,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return info;
       }
 
-      if (executionResult != null) 
-        Logger.Error("MediaAnalyzer: Failed to extract image media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
+      if (executionResult != null)
+        _logger.Error("MediaAnalyzer: Failed to extract image media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
       else
-        Logger.Error("MediaAnalyzer: Failed to extract image media type information for resource '{0}', executionResult=null", fileName);
+        _logger.Error("MediaAnalyzer: Failed to extract image media type information for resource '{0}', executionResult=null", fileName);
 
       return null;
     }
@@ -146,7 +147,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+        //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
         info.Metadata.Mime = MimeDetector.GetFileMime(lfsra, "Video/Unknown");
         info.Metadata.Size = lfsra.Size;
@@ -157,9 +158,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
 
       if (executionResult != null)
-        Logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
+        _logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
       else
-        Logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}', executionResult=null", fileName);
+        _logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}', executionResult=null", fileName);
 
       return null;
     }
@@ -172,7 +173,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       ProcessExecutionResult executionResult = ParseFile(lfsra, arguments);
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+        //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = lfsra } };
         info.Metadata.Mime = MimeDetector.GetFileMime(lfsra, "Audio/Unknown");
         info.Metadata.Size = lfsra.Size;
@@ -181,9 +182,9 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
 
       if (executionResult != null)
-        Logger.Error("MediaAnalyzer: Failed to extract audio media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
+        _logger.Error("MediaAnalyzer: Failed to extract audio media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
       else
-        Logger.Error("MediaAnalyzer: Failed to extract audio media type information for resource '{0}', executionResult=null", fileName);
+        _logger.Error("MediaAnalyzer: Failed to extract audio media type information for resource '{0}', executionResult=null", fileName);
 
       return null;
     }
@@ -191,12 +192,12 @@ namespace MediaPortal.Plugins.Transcoding.Service
     public MetadataContainer ParseVideoStream(INetworkResourceAccessor streamLink)
     {
       string arguments = "";
-      if (streamLink.URL.StartsWith("rtsp://") == true)
+      if (streamLink.URL.StartsWith("rtsp://", System.StringComparison.InvariantCultureIgnoreCase) == true)
       {
         arguments += "-rtsp_transport +tcp+udp ";
       }
       arguments += "-analyzeduration 10000000 ";
-      arguments += string.Format("-i \"{0}\"", streamLink);
+      arguments += string.Format("-i \"{0}\"", streamLink.URL);
 
       ProcessExecutionResult executionResult;
       lock (FFPROBE_THROTTLE_LOCK)
@@ -204,7 +205,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       
       if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
       {
-        if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+        _logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
         MetadataContainer info = new MetadataContainer { Metadata = { Source = streamLink } };
         info.Metadata.Mime = MimeDetector.GetUrlMime(streamLink.URL, "Video/Unknown");
         info.Metadata.Size = 0;
@@ -214,7 +215,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return info;
       }
 
-      if (Logger != null) Logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}'", streamLink);
+      _logger.Error("MediaAnalyzer: Failed to extract video media type information for resource '{0}'", streamLink);
       
       return null;
     }
