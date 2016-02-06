@@ -18,20 +18,17 @@
     <ControlTemplate x:Key="Client_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="0,-108,0,-30">
-
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="620"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
+        
         <Image Stretch="Fill" Source="panel_tv_guide_large.png" Grid.Row="0" Grid.RowSpan="2"
-               Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-43,-60" ></Image>
-       
+               Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-43,-60" ></Image>     
         <StackPanel x:Name="Groups" Margin="20,8,20,8" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource PreviousButtonStyle}" Content=" &lt; "

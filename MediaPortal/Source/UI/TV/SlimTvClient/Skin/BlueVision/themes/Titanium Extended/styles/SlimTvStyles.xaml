@@ -24,14 +24,13 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-
           <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Cover_Template">
-                <Image x:Name="ChannelLogo" Stretch="Uniform" Width="180" Margin="10" VerticalAlignment="Top">
+                <Image x:Name="ChannelLogo" Stretch="Uniform" Width="120" Margin="10" VerticalAlignment="Top">
                   <Image.Source>
                     <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
-                                fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                                              fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                   </Image.Source>
                 </Image>
               </ControlTemplate>
@@ -155,12 +154,12 @@
 
               <ControlTemplate x:Key="OSD_Progress_Template">
 
-                <DockPanel LastChildFill="true" Margin="3">
+                <DockPanel LastChildFill="true" Margin="10,5,15,5">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="100"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="100"/>
+                      <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>
@@ -171,7 +170,7 @@
                         Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
                         FontSize="{ThemeResource SmallFontSize}"/>
 
-                    <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
+                    <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,0,5,0"
                         Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
 
                     <Label x:Name="CurrentProgramEndLabel" Grid.Column="2"
@@ -184,7 +183,42 @@
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Controls_Template">
-                <Control Template="{ThemeResource GenericVideoOSDControlsControl}" />
+                <Grid HorizontalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0"
+                              VerticalAlignment="Center" HorizontalAlignment="Center" >
+                    <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" IsVisible="{Binding CanSkipBack}"
+                            Command="{Command Previous}"/>
+                    <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" IsVisible="{Binding CanSeekBackward}"
+                            Command="{Command SeekBackward}"/>
+                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" IsVisible="{Binding CanPlay}"
+                            Command="{Command Play}"/>
+                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" IsVisible="{Binding CanPause}"
+                            Command="{Command Pause}"/>
+                    <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" IsVisible="{Binding CanStop}"
+                            Command="{Command Stop}"/>
+                    <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" IsVisible="{Binding CanSeekForward}"
+                            Command="{Command SeekForward}"/>
+                    <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}"
+                            Command="{Command Next}"/>
+                    <Image Source="topbar_devider.png" Margin="15,0,15,0"/>                                         
+                    <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="0,0,0,0"
+                            IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                    <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0,0,0,0" IsVisible="{Binding IsAudio}"
+                            Command="{Command AudioButtonPressed}"/>
+                    <Image Source="topbar_devider.png" Margin="15,0,15,0"/>
+                    <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="0,0,0,0"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                    <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,0,0,0"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+                  </StackPanel>
+                </Grid>
               </ControlTemplate>
 
             </Control.Resources>

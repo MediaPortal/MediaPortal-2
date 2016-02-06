@@ -35,11 +35,11 @@
         MouseMovedCommand="{CommandStencil PlayerUIContributor.OnMouseMove}"
         MouseClickedCommand="{CommandStencil PlayerUIContributor.OnMouseClick}"/>
 
-    <Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
+    <!--Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
       <Control.TemplateControl>
         <Include Source="screens\FSCWindowButtons.inc"/>
       </Control.TemplateControl>
-    </Control>
+    </Control-->
 
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
           IsVisible="{Binding !IsOSDVisible}"/>

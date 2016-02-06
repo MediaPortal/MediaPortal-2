@@ -21,7 +21,7 @@
         </Trigger.Setters>
       </Trigger>
     </Grid.Triggers>
-    <StackPanel Margin="10" Orientation="Horizontal" Context="{Service Window}">
+    <StackPanel Margin="10" Orientation="Horizontal" Context="{Service Window}">   
       <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="3"
           HorizontalAlignment="Left"
           Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
