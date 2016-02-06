@@ -36,14 +36,24 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
     #region Consts
 
     /// <summary>
-    /// GUID string for the Tve3 resource provider.
+    /// GUID string for the SlimTV resource provider based on network url (rtsp).
     /// </summary>
     protected const string SLIMTV_RESOURCE_PROVIDER_ID_STR = "04AFFA6C-EA42-4bd3-AA6F-C16DCEF1D693";
 
     /// <summary>
-    /// Tve3 resource provider GUID.
+    /// GUID string for the SlimTV resource provider based on local files.
+    /// </summary>
+    protected const string SLIMTV_FS_RESOURCE_PROVIDER_ID_STR = "2E6A22C2-386E-43C7-9FA3-BB36547B5583";
+
+    /// <summary>
+    /// SlimTV resource provider GUID based on network url (rtsp).
     /// </summary>
     public static Guid SLIMTV_RESOURCE_PROVIDER_ID = new Guid(SLIMTV_RESOURCE_PROVIDER_ID_STR);
+
+    /// <summary>
+    /// SlimTV resource provider GUID based on local files.
+    /// </summary>
+    public static Guid SLIMTV_FS_RESOURCE_PROVIDER_ID = new Guid(SLIMTV_FS_RESOURCE_PROVIDER_ID_STR);
 
     protected const string RES_RESOURCE_PROVIDER_NAME = "[SlimTvResourceProvider.Name]";
     protected const string RES_RESOURCE_PROVIDER_DESCRIPTION = "[SlimTvResourceProvider.Description]";
@@ -59,6 +69,40 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
     public SlimTvResourceProvider()
     {
       _metadata = new ResourceProviderMetadata(SLIMTV_RESOURCE_PROVIDER_ID, RES_RESOURCE_PROVIDER_NAME, RES_RESOURCE_PROVIDER_DESCRIPTION, true, true);
+    }
+
+    #endregion
+
+    #region Static methods
+
+    /// <summary>
+    /// Creates a matching resource accessor, depending on type of the given <see cref="path"/>.
+    /// </summary>
+    /// <param name="path">RTSP url or local path</param>
+    /// <returns>Either a <see cref="INetworkResourceAccessor"/> or <see cref="ILocalFsResourceAccessor"/></returns>
+    public static IResourceAccessor GetResourceAccessor(string path)
+    {
+      // Parse slotindex from path and cut the prefix off.
+      int slotIndex;
+      if (!Int32.TryParse(path.Substring(0, 1), out slotIndex))
+        return null;
+      path = path.Substring(2, path.Length - 2);
+      return GetResourceAccessor(slotIndex, path);
+    }
+
+    /// <summary>
+    /// Creates a matching resource accessor, depending on type of the given <see cref="path"/>.
+    /// </summary>
+    /// <param name="slotIndex">Slot index</param>
+    /// <param name="path">RTSP url or local path</param>
+    /// <returns>Either a <see cref="INetworkResourceAccessor"/> or <see cref="ILocalFsResourceAccessor"/></returns>
+    public static IResourceAccessor GetResourceAccessor(int slotIndex, string path)
+    {
+      // Test for RTSP url
+      if (path.StartsWith("rtsp://", StringComparison.OrdinalIgnoreCase))
+        return new SlimTvResourceAccessor(slotIndex, path);
+      // otherwise it's a local file.
+      return new SlimTvFsResourceAccessor(slotIndex, path);
     }
 
     #endregion
@@ -82,9 +126,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
 
     public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)
     {
-      // TODO: support different ResourceAccessors for either local files (single seat) or network streams (multi seat). Current implementation always uses
-      // network streams, even in single seat.
-      result = SlimTvResourceAccessor.GetResourceAccessor(path);
+      result = GetResourceAccessor(path);
       return result != null;
     }
 

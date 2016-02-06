@@ -74,6 +74,7 @@
     <Compile Include="LiveTvMediaItem\SerializeHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceProvider\SlimTvMediaItemBuilder.cs" />
+    <Compile Include="ResourceProvider\SlimTvFsResourceAccessor.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceAccessor.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceProvider.cs" />
     <Compile Include="UPnP\Consts.cs" />
