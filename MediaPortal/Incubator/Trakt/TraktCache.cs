@@ -90,7 +90,7 @@ namespace MediaPortal.UiComponents.Trakt
         GetWatchlistedShowsFromTrakt();
         GetWatchlistedSeasonsFromTrakt();
         GetWatchlistedEpisodesFromTrakt();
-        GetCommentedEpisodesFromTrakt();
+       // GetCommentedEpisodesFromTrakt();
         GetCommentedSeasonsFromTrakt();
         GetCommentedShowsFromTrakt();
 
@@ -2038,8 +2038,9 @@ namespace MediaPortal.UiComponents.Trakt
         {
           if (_LastSyncActivities == null)
           {
-             TraktLogger.Info("Getting current user last activity times from trakt.tv");
+            TraktLogger.Info("Getting current user last activity times from trakt.tv");
             _LastSyncActivities = TraktAPI.GetLastSyncActivities();
+            TRAKT_SETTINGS.LastSyncActivities = _LastSyncActivities;
           }
           return _LastSyncActivities;
         }

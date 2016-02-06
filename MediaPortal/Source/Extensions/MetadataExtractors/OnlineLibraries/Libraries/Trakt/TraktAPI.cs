@@ -338,7 +338,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       var headers = new WebHeaderCollection();
 
-      var response = GetFromTrakt(string.Format(TraktURIs.UserComments, username, commentType, type, extendedInfoParams, page, maxItems), out headers);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserComments, username, commentType, type, extendedInfoParams, page, maxItems));
       if (response == null)
         return null;
 
@@ -459,7 +459,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       var headers = new WebHeaderCollection();
 
-      var response = GetFromTrakt(string.Format(TraktURIs.UserLikedItems, type, extendedInfoParams, page, maxItems), out headers);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserLikedItems, type, extendedInfoParams, page, maxItems));
       if (response == null)
         return null;
 
@@ -511,7 +511,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       var headers = new WebHeaderCollection();
 
-      var response = GetFromTrakt(string.Format(TraktURIs.PopularMovies, page, maxItems), out headers);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PopularMovies, page, maxItems));
       if (response == null)
         return null;
 
@@ -539,7 +539,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       var headers = new WebHeaderCollection();
 
-      var response = GetFromTrakt(string.Format(TraktURIs.TrendingMovies, page, maxItems), out headers);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.TrendingMovies, page, maxItems));
       if (response == null)
         return null;
 
@@ -568,7 +568,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktMovieSummary> GetRecommendedMovies(string extendedInfoParams = "min")
     {
-      var response = GetFromTrakt(string.Format(TraktURIs.RecommendedMovies, extendedInfoParams));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.RecommendedMovies, extendedInfoParams));
       return response.FromJSONArray<TraktMovieSummary>();
     }
 
@@ -585,7 +585,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       var headers = new WebHeaderCollection();
 
-      var response = GetFromTrakt(string.Format(TraktURIs.MovieUpdates, sincedate, page, maxItems), out headers);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.MovieUpdates, sincedate, page, maxItems));
       if (response == null)
         return null;
 
@@ -639,7 +639,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       var headers = new WebHeaderCollection();
 
-      var response = GetFromTrakt(string.Format(TraktURIs.ShowUpdates, sincedate, page, maxItems), out headers);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowUpdates, sincedate, page, maxItems));
       if (response == null)
         return null;
 
@@ -700,7 +700,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       var headers = new WebHeaderCollection();
 
-      var response = GetFromTrakt(string.Format(TraktURIs.PopularShows, page, maxItems), out headers);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PopularShows, page, maxItems));
       if (response == null)
         return null;
 
@@ -728,7 +728,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       var headers = new WebHeaderCollection();
 
-      var response = GetFromTrakt(string.Format(TraktURIs.TrendingShows, page, maxItems), out headers);
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.TrendingShows, page, maxItems));
       if (response == null)
         return null;
 

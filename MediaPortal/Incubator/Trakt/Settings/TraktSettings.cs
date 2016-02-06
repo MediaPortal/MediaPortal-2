@@ -27,26 +27,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Enums;
 
 namespace MediaPortal.UiComponents.Trakt.Settings
 {
   public class TraktSettings
   {
-                          
-    private const string APP_ID = "aea41e88de3cd0f8c8b2404d84d2e5d7317789e67fad223eba107aea2ef59068";
-    private static Object lockObject = new object();
-
     [Setting(SettingScope.User)]
     public bool EnableTrakt { get; set; }
 
     [Setting(SettingScope.User, DefaultValue = "")]
     public string Username { get; set; }
-
-    [Setting(SettingScope.User, DefaultValue = "")]
-    public string Password { get; set; }
 
     [Setting(SettingScope.User, DefaultValue = "")]
     public string TraktOAuthToken { get; set; }
@@ -70,16 +61,10 @@ namespace MediaPortal.UiComponents.Trakt.Settings
     public int LogLevel { get; set; }
 
     [Setting(SettingScope.User)]
-    public List<TraktAuthentication> UserLogins { get; set; }
-
-    [Setting(SettingScope.User)]
     public TraktLastSyncActivities LastSyncActivities { get; set; }
 
     [Setting(SettingScope.User)]
     public IEnumerable<TraktCache.ListActivity> LastListActivities { get; set; }
-
-    [Setting(SettingScope.User, DefaultValue = true)]
-    public bool UseCompNameOnPassKey { get; set; }
 
     [Setting(SettingScope.User, DefaultValue = true)]
     public bool SkipMoviesWithNoIdsOnSync { get; set; }
@@ -88,8 +73,6 @@ namespace MediaPortal.UiComponents.Trakt.Settings
     public int SyncBatchSize { get; set; }
 
     #region Properties
-
-    public string ApplicationId => APP_ID;
 
     /// <summary>
     /// UserAgent used for Web Requests
@@ -114,81 +97,6 @@ namespace MediaPortal.UiComponents.Trakt.Settings
       }
       
     }
-
-    /// <summary>
-    /// The current connection status to trakt.tv
-    /// </summary>
-    public ConnectionState AccountStatus
-    {
-      get
-      {
-        lock (lockObject)
-        {
-          if (_AccountStatus == ConnectionState.Pending)
-          {
-            // update state, to inform we are connecting now
-            _AccountStatus = ConnectionState.Connecting;
-
-          //  TraktLogger.Info("Logging into trakt.tv");
-
-            if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
-            {
-           //   TraktLogger.Info("Unable to login to trakt.tv, username and/or password is empty");
-              return ConnectionState.Disconnected;
-            }
-
-            var response = TraktAPI.Login();
-            if (response != null && !string.IsNullOrEmpty(response.Token))
-            {
-              // set the user token for all future requests
-              TraktAPI.UserToken = response.Token;
-
-           //   TraktLogger.Info("User {0} successfully signed into trakt.tv", TraktSettings.Username);
-              _AccountStatus = ConnectionState.Connected;
-
-              if (!UserLogins.Exists(u => u.Username == Username))
-              {
-                UserLogins.Add(new TraktAuthentication { Username = Username, Password = Password });
-              }
-            }
-            else
-            {
-              // check the error code for the type of error retured
-              if (response != null && response.Description != null)
-              {
-             //   TraktLogger.Error("Login to trakt.tv failed, Code = '{0}', Reason = '{1}'", response.Code, response.Description);
-
-                switch (response.Code)
-                {
-                  case 401:
-                    _AccountStatus = ConnectionState.UnAuthorised;
-                    break;
-
-                  default:
-                    _AccountStatus = ConnectionState.Invalid;
-                    break;
-                }
-              }
-              else
-              {
-                // very unlikely to ever hit this condition since we should get some sort of protocol error
-                // if a problem with login or server error
-                _AccountStatus = ConnectionState.Invalid;
-              }
-            }
-          }
-        }
-        return _AccountStatus;
-      }
-      set
-      {
-        lock (lockObject)
-        {
-          _AccountStatus = value;
-        }
-      }
-    }
-    public static ConnectionState _AccountStatus = ConnectionState.Pending;
 
     /// <summary>
     /// Build Date of Plugin
