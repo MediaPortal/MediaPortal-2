@@ -17,6 +17,21 @@
   <PropertyGroup>
     <ProduceOutputsOnBuild>True</ProduceOutputsOnBuild>
   </PropertyGroup>
+  <!-- 
+  !!This file must be in line with the configuration inside tsconfig.json!!
+  If you change one you MUST also change the other one
+  https://github.com/Microsoft/TypeScript/wiki/Setting-Compiler-Options-in-MSBuild-projects
+   -->
+  <PropertyGroup>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptModuleKind>System</TypeScriptModuleKind>
+    <TypeScriptModuleResolution>Node</TypeScriptModuleResolution>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptEmitDecoratorMetadata>True</TypeScriptEmitDecoratorMetadata>
+    <TypeScriptExperimentalDecorators>True</TypeScriptExperimentalDecorators>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
   </ItemGroup>

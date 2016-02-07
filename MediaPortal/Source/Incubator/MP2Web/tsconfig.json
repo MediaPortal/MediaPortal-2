@@ -1,3 +1,9 @@
+/*
+  !!This file must be in line with the configuration inside the .xproj file!!
+  If you change one you MUST also change the other one
+  https://github.com/Microsoft/TypeScript/wiki/Setting-Compiler-Options-in-MSBuild-projects
+  */
+
 {
   "compilerOptions": {
     "target": "ES5",
