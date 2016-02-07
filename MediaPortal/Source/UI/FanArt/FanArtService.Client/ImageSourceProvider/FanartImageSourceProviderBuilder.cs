@@ -22,9 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Services.PluginManager.Builders;
 using System;
+using MediaPortal.Common.PluginManager.Activation;
+using MediaPortal.Common.PluginManager.Builders;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider
 {
@@ -39,7 +40,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
+      itemData.CheckParameter("ClassName");
       return new FanartImageSourceProviderRegistration(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Id);
     }
 

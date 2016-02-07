@@ -38,6 +38,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.PluginManager.Items;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 {
