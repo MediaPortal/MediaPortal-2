@@ -38,6 +38,12 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       : base(item.MediaItemId.ToString(), client)
     {
       Item = item;
+      SingleMediaItemAspect aspect;
+      if (MediaItemAspect.TryGetAspect(Item.Aspects, MediaAspect.Metadata, out aspect))
+      {
+        Title = aspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+      }
+
       AlbumArtUrls = new List<IDirectoryAlbumArt>();
       var albumArt = new MediaLibraryAlbumArt(item, client);
       albumArt.Initialise();
@@ -45,10 +51,5 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     }
 
     public IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
- 
-    public override void Initialise()
-    {
-      Title = MediaItemAspect.GetAspect(Item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE).ToString();
-    }
   }
 }

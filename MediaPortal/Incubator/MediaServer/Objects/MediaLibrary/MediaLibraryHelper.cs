@@ -30,32 +30,17 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Plugins.MediaServer.Tree;
 using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  internal static class MediaLibraryHelper
+  public static class MediaLibraryHelper
   {
     public const string CONTAINER_ROOT_KEY = "0";
     public const string CONTAINER_AUDIO_KEY = "A";
     public const string CONTAINER_VIDEO_KEY = "V";
     public const string CONTAINER_IMAGES_KEY = "I";
     public const string CONTAINER_MEDIA_SHARES_KEY = "M";
-
-    public static Guid GetObjectId(string key)
-    {
-      var split = key.IndexOf(':');
-      return split > 0 ? new Guid(key.Substring(split + 1)) : Guid.Empty;
-    }
-
-    public static string GetBaseKey(string key)
-    {
-      if(key == null)
-        return null;
-      var split = key.IndexOf(':');
-      return split > 0 ? key.Substring(0, split) : key;
-    }
 
     public static MediaItem GetMediaItem(Guid id)
     {
@@ -80,35 +65,35 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       return library.GetMediaItem(id, necessaryMIATypeIDs, optionalMIATypeIDs);
     }
 
-    public static IDirectoryObject InstansiateMediaLibraryObject(MediaItem item, string baseKey, BasicContainer parent)
+    public static IDirectoryObject InstansiateMediaLibraryObject(MediaItem item, BasicContainer parent)
     {
-      return InstansiateMediaLibraryObject(item, baseKey, parent, null);
+      return InstansiateMediaLibraryObject(item, parent, null);
     }
 
-    public static IDirectoryObject InstansiateMediaLibraryObject(MediaItem item, string baseKey, BasicContainer parent, string title)
+    public static IDirectoryObject InstansiateMediaLibraryObject(MediaItem item, BasicContainer parent, string title)
     {
-      IDirectoryObject obj;
+      BasicObject obj;
+      Logger.Debug("Instantiate media library object from {0} {1} {2}", item != null ? item.MediaItemId.ToString() : "null", parent != null ? parent.Key : "null", title ?? "null");
+      //Logger.Debug("Media library object title {0}", MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata));
+      //Logger.Debug("Media library object title {0}", MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE));
+      //Logger.Debug("Media library object title {0}", MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE).ToString());
       // Choose the appropiate MediaLibrary* object for the media item
       try
       {
         if (item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
         {
-          if (baseKey == null) baseKey = CONTAINER_ROOT_KEY;
           obj = new MediaLibraryBrowser(item, parent.Client);
         }
         else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
         {
-          if (baseKey == null) baseKey = CONTAINER_AUDIO_KEY;
           obj = new MediaLibraryMusicTrack(item, parent.Client);
         }
         else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
         {
-          if (baseKey == null) baseKey = CONTAINER_IMAGES_KEY;
           obj = new MediaLibraryImageItem(item, parent.Client);
         }
         else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
         {
-          if (baseKey == null) baseKey = CONTAINER_VIDEO_KEY;
           obj = new MediaLibraryVideoItem(item, parent.Client);
         }
         else
@@ -128,7 +113,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       // Assign the parent
       if (parent != null)
       {
-        parent.Add((TreeNode<object>)obj);
+        parent.Add(obj);
       }
 
       // Initialise the object
