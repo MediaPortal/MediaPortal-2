@@ -8,9 +8,9 @@
     Description="Provides Client access to Fanart stored in MP2 Server">
 
   <Version
-    PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
-    CurrentAPI="1"/>
+    PluginVersion="1.1"
+    ReleaseDate="2015-11-20 01:00:00 GMT+01:00"
+    CurrentAPI="2"/>
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
@@ -29,4 +29,10 @@
   <Register Location="/Models">
     <Model Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91" Name="FanArtBackgroundModel" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.Models.FanArtBackgroundModel"/>
   </Register>
+
+  <Builder Name="FanartImageSourceProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider.FanartImageSourceProviderBuilder"/>
+  <Register Location="/Fanart/FanartImageSourceProviders">
+    <FanartImageSourceProviderBuilder Id="{7B38898A-BD75-4B6B-9BF6-51A30729FFC5}" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider.FanartImageSourceProvider"/>
+  </Register>
+  
 </Plugin>

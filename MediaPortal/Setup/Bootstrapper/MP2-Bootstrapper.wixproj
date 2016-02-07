@@ -50,10 +50,15 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Fragments" />
+    <Folder Include="Theme" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.targets" />
+    <Content Include="Theme\CustomTheme.xml" />
     <None Include="MP2-Setup-Logging.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Theme\CustomTheme.wxl" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <Import Project="build.targets" />

@@ -54,13 +54,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
       Guid mediaItemId;
 
       // Don't try to load "fanart" for images
-      if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtConstants.FanArtMediaType.Image)
+      if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtMediaTypes.Image)
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           {
             var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
 
-            if (fanArtType == FanArtConstants.FanArtType.Poster || fanArtType == FanArtConstants.FanArtType.Thumbnail)
+            if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                       potentialFanArtFileNameWithoutExtension == "folder"
                 select potentialFanArtFile);
 
-            if (fanArtType == FanArtConstants.FanArtType.FanArt)
+            if (fanArtType == FanArtTypes.FanArt)
             {
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles

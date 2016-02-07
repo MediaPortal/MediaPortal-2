@@ -537,6 +537,11 @@ namespace MediaPortal.UI.Players.Video
 
             // We get a pointer to pointer for a structure.
             AMMediaType mediaType = (AMMediaType)Marshal.PtrToStructure(Marshal.ReadIntPtr(pp_mediaType), typeof(AMMediaType));
+            if (mediaType == null)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("Stream {0}: Could not determine MediaType!", i);
+              continue;
+            }
             int groupNumber = Marshal.ReadInt32(pp_groupNumber);
             int lcid = Marshal.ReadInt32(pp_lcid);
             string name = Marshal.PtrToStringAuto(Marshal.ReadIntPtr(pp_name));

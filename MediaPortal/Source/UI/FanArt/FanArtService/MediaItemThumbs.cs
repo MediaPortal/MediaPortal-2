@@ -40,15 +40,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class MediaItemThumbs : IBinaryFanArtProvider
   {
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
     {
       result = null;
       Guid mediaItemId;
 
-      var isImage = mediaType == FanArtConstants.FanArtMediaType.Image;
+      var isImage = mediaType == FanArtMediaTypes.Image;
       if (!Guid.TryParse(name, out mediaItemId) ||
-        mediaType != FanArtConstants.FanArtMediaType.Undefined && !isImage ||
-        fanArtType != FanArtConstants.FanArtType.Thumbnail)
+        mediaType != FanArtMediaTypes.Undefined && !isImage ||
+        fanArtType != FanArtTypes.Thumbnail)
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
@@ -109,7 +109,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       return textureData;
     }
 
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
       return false;

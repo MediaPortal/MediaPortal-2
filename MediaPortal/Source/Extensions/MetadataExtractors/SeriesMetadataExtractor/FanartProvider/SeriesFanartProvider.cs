@@ -47,7 +47,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
       if (string.IsNullOrWhiteSpace(name))
@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
 
       int tvDbId;
       int seasonNum = 0;
-      if (mediaType == FanArtConstants.FanArtMediaType.SeriesSeason)
+      if (mediaType == FanArtMediaTypes.SeriesSeason)
       {
         int index = name.LastIndexOf(" S");
         if (!int.TryParse(name.Substring(index + 2), out seasonNum))
@@ -91,8 +91,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
           }
 
           // If we tried to load season banners and did not find any, fallback to series banners
-          if (mediaType == FanArtConstants.FanArtMediaType.SeriesSeason)
-            return TryGetFanArt(FanArtConstants.FanArtMediaType.Series, fanArtType, name, maxWidth, maxHeight, singleRandom, out result);
+          if (mediaType == FanArtMediaTypes.SeriesSeason)
+            return TryGetFanArt(FanArtMediaTypes.Series, fanArtType, name, maxWidth, maxHeight, singleRandom, out result);
 
           return false;
         }
@@ -101,29 +101,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
       return false;
     }
 
-    protected string[] GetPatterns(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int tvdbId, int seasonNum)
+    protected string[] GetPatterns(string mediaType, string fanArtType, string name, int tvdbId, int seasonNum)
     {
-      if (mediaType == FanArtConstants.FanArtMediaType.Series)
+      if (mediaType == FanArtMediaTypes.Series)
       {
         switch (fanArtType)
         {
-          case FanArtConstants.FanArtType.Banner:
+          case FanArtTypes.Banner:
             return new[] { "img_graphical_*.jpg", "img_text_*.jpg" };
-          case FanArtConstants.FanArtType.Poster:
+          case FanArtTypes.Poster:
             return new[] { "img_posters_*.jpg" };
-          case FanArtConstants.FanArtType.FanArt:
+          case FanArtTypes.FanArt:
             return new[] { "img_fan-*.jpg" };
           default:
             return null;
         }
       }
-      if (mediaType == FanArtConstants.FanArtMediaType.SeriesSeason)
+      if (mediaType == FanArtMediaTypes.SeriesSeason)
       {
         switch (fanArtType)
         {
-          case FanArtConstants.FanArtType.Banner:
+          case FanArtTypes.Banner:
             return new[] { string.Format("img_seasonswide_{0}-{1}*.jpg", tvdbId, seasonNum) };
-          case FanArtConstants.FanArtType.Poster:
+          case FanArtTypes.Poster:
             return new[] { string.Format("img_posters_{0}-{1}*.jpg", tvdbId, seasonNum) };
           default:
             return null;
@@ -132,12 +132,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Fana
       return null;
     }
 
-    protected string GetBaseFolder(FanArtConstants.FanArtMediaType mediaType, string name, out int tvDbId)
+    protected string GetBaseFolder(string mediaType, string name, out int tvDbId)
     {
       switch (mediaType)
       {
-        case FanArtConstants.FanArtMediaType.SeriesSeason:
-        case FanArtConstants.FanArtMediaType.Series:
+        case FanArtMediaTypes.SeriesSeason:
+        case FanArtMediaTypes.Series:
           return !SeriesTvDbMatcher.Instance.TryGetTvDbId(name, out tvDbId) ? null : Path.Combine(SeriesTvDbMatcher.CACHE_PATH, tvDbId.ToString());
         default:
           tvDbId = 0;

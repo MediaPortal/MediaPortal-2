@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="maxHeight">Maximum height for image. <c>0</c> returns image in original size.</param>
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <returns>List of fanart image URIs</returns>
-    IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
+    IList<FanArtImage> GetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom);
   }
 
   /// <summary>
@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result);
+    bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result);
   }
 
   /// <summary>
@@ -88,6 +88,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result);
+    bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result);
   }
 }

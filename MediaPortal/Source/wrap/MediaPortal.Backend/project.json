@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../Core/MediaPortal.Backend/MediaPortal.Backend.csproj",
+      "bin": {
+        "assembly": "../../Core/MediaPortal.Backend/obj/x86/{configuration}/MediaPortal.Backend.dll",
+        "pdb": "../../Core/MediaPortal.Backend/obj/x86/{configuration}/MediaPortal.Backend.pdb"
+      },
+      "dependencies": {
+        "HttpServer": "1.0.0-*",
+        "MediaPortal.Common": "1.0.0-*",
+        "MediaPortal.Utilities": "1.0.0-*",
+        "UPnP": "1.0.0-*"
+      }
+    }
+  }
+}

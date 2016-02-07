@@ -54,11 +54,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
-      if (mediaType != FanArtConstants.FanArtMediaType.Movie && mediaType != FanArtConstants.FanArtMediaType.MovieCollection &&
-          mediaType != FanArtConstants.FanArtMediaType.Undefined && fanArtType == FanArtConstants.FanArtType.Thumbnail)
+      if (mediaType != FanArtMediaTypes.Movie && mediaType != FanArtMediaTypes.MovieCollection &&
+          mediaType != FanArtMediaTypes.Undefined && fanArtType == FanArtTypes.Thumbnail)
         return false;
 
       Guid mediaItemId;
@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
       return files.Count > 0;
     }
 
-    protected bool GetPattern(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, Guid mediaItemId, string name, out string[] patterns)
+    protected bool GetPattern(string mediaType, string fanArtType, Guid mediaItemId, string name, out string[] patterns)
     {
       patterns = null;
       string basePath = null;
@@ -113,8 +113,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
         {
           switch (mediaType)
           {
-            case FanArtConstants.FanArtMediaType.Undefined:
-            case FanArtConstants.FanArtMediaType.Movie:
+            case FanArtMediaTypes.Undefined:
+            case FanArtMediaTypes.Movie:
               basePath = Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, movieDbId);
               break;
           }
@@ -124,12 +124,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
       {
         switch (mediaType)
         {
-          case FanArtConstants.FanArtMediaType.Undefined:
-          case FanArtConstants.FanArtMediaType.Movie:
+          case FanArtMediaTypes.Undefined:
+          case FanArtMediaTypes.Movie:
             int movieDbId;
             basePath = !MovieTheMovieDbMatcher.Instance.TryGetMovieDbId(name, out movieDbId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, movieDbId.ToString());
             break;
-          case FanArtConstants.FanArtMediaType.MovieCollection:
+          case FanArtMediaTypes.MovieCollection:
             int collectionId;
             basePath = !MovieTheMovieDbMatcher.Instance.TryGetCollectionId(name, out collectionId) ? null : Path.Combine(MovieTheMovieDbMatcher.CACHE_PATH, "COLL_" + collectionId);
             break;
@@ -141,11 +141,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
 
       switch (fanArtType)
       {
-        case FanArtConstants.FanArtType.Thumbnail:
-        case FanArtConstants.FanArtType.Poster:
+        case FanArtTypes.Thumbnail:
+        case FanArtTypes.Poster:
           patterns = new[] { Path.Combine(basePath, "Posters\\*.jpg") };
           return true;
-        case FanArtConstants.FanArtType.FanArt:
+        case FanArtTypes.FanArt:
           patterns = new[] { Path.Combine(basePath, "Backdrops\\*.jpg") };
           return true;
       }

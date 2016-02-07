@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../Core/UPnP/UPnP.csproj",
+      "bin": {
+        "assembly": "../../Core/UPnP/obj/x86/{configuration}/UPnP.dll",
+        "pdb": "../../Core/UPnP/obj/x86/{configuration}/UPnP.pdb"
+      },
+      "dependencies": {
+        "HttpServer": "1.0.0-*",
+        "MediaPortal.Utilities": "1.0.0-*"
+      }
+    }
+  }
+}

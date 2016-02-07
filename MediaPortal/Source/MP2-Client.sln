@@ -125,7 +125,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UiComponents", "UiComponent
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PartyMusicPlayer", "UI\UiComponents\PartyMusicPlayer\PartyMusicPlayer.csproj", "{D82A9606-6770-4C15-87E0-27F330AA1EA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Login", "..\Incubator\Login\Login.csproj", "{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Login", "Incubator\Login\Login.csproj", "{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "News", "UI\UiComponents\News\News.csproj", "{0CCF3B1A-64B1-4824-B01A-25CEFE9F5DAB}"
 EndProject
@@ -169,15 +169,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefreshRateChanger", "UI\Pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.UPnP", "..\Tests\Tests.UPnP\Tests.UPnP.csproj", "{603B25D4-27AD-4EE0-BAC1-B48F4FC19984}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trakt", "..\Incubator\Trakt\Trakt.csproj", "{E1D617B6-75E2-4CB4-BC20-D983BB4F05C0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trakt", "Incubator\Trakt\Trakt.csproj", "{E1D617B6-75E2-4CB4-BC20-D983BB4F05C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayPlayer", "..\Incubator\BluRayPlayer\BluRayPlayer.csproj", "{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayPlayer", "Incubator\BluRayPlayer\BluRayPlayer.csproj", "{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeriesMetadataExtractor", "Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj", "{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMetadataExtractor", "Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj", "{E73C038E-FD47-40AD-9256-4457316F8A97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
 EndProject

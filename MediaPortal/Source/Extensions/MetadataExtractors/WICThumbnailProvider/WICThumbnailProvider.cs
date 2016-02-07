@@ -88,7 +88,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
           // Scale down larger images
           int sourceWidth = source.Size.Width;
           int sourceHeight = source.Size.Height;
-          if (sourceWidth > width || sourceHeight > height)
+          if (width > 0 && height > 0 && (sourceWidth > width || sourceHeight > height))
           {
             if (sourceWidth <= height)
               width = sourceWidth;

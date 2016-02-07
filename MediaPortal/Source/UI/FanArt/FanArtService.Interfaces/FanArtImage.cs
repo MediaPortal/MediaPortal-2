@@ -135,7 +135,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="fanArtType">FanArtType</param>
     /// <param name="fanArtName">Fanart name</param>
     /// <returns>FanArtImage or <c>null</c>.</returns>
-    public static FanArtImage FromResource(IResourceLocator resourceLocator, int maxWidth, int maxHeight, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string fanArtName)
+    public static FanArtImage FromResource(IResourceLocator resourceLocator, int maxWidth, int maxHeight, string mediaType, string fanArtType, string fanArtName)
     {
       try
       {
@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       return null;
     }
 
-    public static FanArtImage FromStream(Stream stream, int maxWidth, int maxHeight, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string fanArtName, string fileName = null)
+    public static FanArtImage FromStream(Stream stream, int maxWidth, int maxHeight, string mediaType, string fanArtType, string fanArtName, string fileName = null)
     {
       using (Stream resized = ResizeImage(stream, maxWidth, maxHeight, mediaType, fanArtType, fanArtName, fileName))
         return new FanArtImage(fileName, ReadAll(resized));
@@ -186,7 +186,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="fanArtName">Fanart name</param>
     /// <param name="originalFile">Original Filename</param>
     /// <returns></returns>
-    protected static Stream ResizeImage(Stream originalStream, int maxWidth, int maxHeight, FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string fanArtName, string originalFile)
+    protected static Stream ResizeImage(Stream originalStream, int maxWidth, int maxHeight, string mediaType, string fanArtType, string fanArtName, string originalFile)
     {
       if (maxWidth == 0 || maxHeight == 0)
         return originalStream;

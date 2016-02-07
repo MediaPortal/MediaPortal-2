@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</ProjectGuid>
@@ -61,6 +61,7 @@
     <Compile Include="Collections\SafeDictionary.cs" />
     <Compile Include="CollectionUtils.cs" />
     <Compile Include="Conversion\Conversion.cs" />
+    <Compile Include="Events\DelayedEvent.cs" />
     <Compile Include="Graphics\ImageUtilities.cs" />
     <Compile Include="Network\Netbios\NbName.cs" />
     <Compile Include="Network\Netbios\NbNsClient.cs" />

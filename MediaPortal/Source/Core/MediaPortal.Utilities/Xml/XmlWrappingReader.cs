@@ -38,6 +38,7 @@ namespace MediaPortal.Utilities.Xml
     #region Private fields
 
     private readonly XmlReader _reader;
+    private bool _disposed = false;
 
     #endregion
 
@@ -112,6 +113,19 @@ namespace MediaPortal.Utilities.Xml
     public virtual bool HasLineInfo() { return (_reader is IXmlLineInfo) && ((IXmlLineInfo)_reader).HasLineInfo(); }
     public virtual int LineNumber { get { return (_reader is IXmlLineInfo) ? ((IXmlLineInfo)_reader).LineNumber : 0; } }
     public virtual int LinePosition { get { return (_reader is IXmlLineInfo) ? ((IXmlLineInfo)_reader).LinePosition : 0; } }
+
+    #endregion
+
+    #region IDisposable implementation
+
+    protected override void Dispose(bool disposing)
+    {
+      if (_disposed)
+        return;
+      _reader.Dispose();
+      _disposed = true;
+      base.Dispose(disposing);
+    }
 
     #endregion
   }

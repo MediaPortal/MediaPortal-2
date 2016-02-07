@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../Core/ConfigurationManager/ConfigurationManager.csproj",
+      "bin": {
+        "assembly": "../../Core/ConfigurationManager/obj/x86/{configuration}/ConfigurationManager.dll",
+        "pdb": "../../Core/ConfigurationManager/obj/x86/{configuration}/ConfigurationManager.pdb"
+      },
+      "dependencies": {
+        "MediaPortal.Common": "1.0.0-*",
+        "MediaPortal.Utilities": "1.0.0-*"
+      }
+    }
+  }
+}

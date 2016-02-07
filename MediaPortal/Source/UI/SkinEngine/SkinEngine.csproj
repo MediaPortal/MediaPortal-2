@@ -117,6 +117,7 @@
     <Compile Include="Controls\Animations\Storyboard.cs" />
     <Compile Include="Controls\Animations\Timeline.cs" />
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
+    <Compile Include="Controls\ImageSources\ImageSourceWrapper.cs" />
     <Compile Include="Controls\ImageSources\ResourceAccessorTextureImageSource.cs" />
     <Compile Include="Controls\Brushes\Animation\AbstractKenBurnsEffect.cs" />
     <Compile Include="Controls\Brushes\Animation\IImageAnimator.cs" />

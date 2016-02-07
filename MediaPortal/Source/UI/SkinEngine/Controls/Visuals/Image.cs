@@ -396,7 +396,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           BitmapImageSource bmi = new BitmapImageSource { UriSource = uriSource, Thumbnail = thumbnail };
           if (thumbnail)
             // Set the requested thumbnail dimension, to use the best matching format.
-            bmi.ThumbnailDimension = (int)Math.Max(Width, Height);
+            // Note: Math.Max returns NaN if one argument is NaN (which casts to int.MinValue), so the additional Max with 0 catches this
+            bmi.ThumbnailDimension = Math.Max((int)Math.Max(Width, Height), 0);
           return bmi;
         }
         // TODO: More image types
