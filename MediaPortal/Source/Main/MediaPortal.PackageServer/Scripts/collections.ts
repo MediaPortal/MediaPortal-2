@@ -8,6 +8,11 @@
  * @namespace Top level namespace for collections, a TypeScript data structure library.
  */
 module collections {
+    
+    var _hasOwnProperty = Object.prototype.hasOwnProperty;
+    var has = function(obj, prop) {
+        return _hasOwnProperty.call(obj, prop);
+    }
 
     /**
     * Function signature for comparing
@@ -59,22 +64,22 @@ module collections {
      * Default function to convert an object to a string.
      * @function     
      */
-    export function defaultToString(item): string {
+    export function defaultToString(item: any): string {
         if (item === null) {
             return 'COLLECTION_NULL';
         } else if (collections.isUndefined(item)) {
             return 'COLLECTION_UNDEFINED';
         } else if (collections.isString(item)) {
-            return item;
+            return '$s' + item;
         } else {
-            return item.toString();
+            return '$o' + item.toString();
         }
     }
 
     /**
     * Joins all the properies of the object using the provided join string 
     */
-    export function toString<T>(item: T, join: string = ","): string {
+    export function makeString<T>(item: T, join: string = ","): string {
         if (item === null) {
             return 'COLLECTION_NULL';
         } else if (collections.isUndefined(item)) {
@@ -85,7 +90,7 @@ module collections {
             var toret = "{";
             var first = true;
             for (var prop in item) {
-                if (item.hasOwnProperty(prop)) {
+                if (has(item, prop)) {
                     if (first)
                         first = false;
                     else
@@ -101,7 +106,7 @@ module collections {
      * Checks if the given argument is a function.
      * @function     
      */
-    export function isFunction(func): boolean {
+    export function isFunction(func: any): boolean {
         return (typeof func) === 'function';
     }
 
@@ -109,7 +114,7 @@ module collections {
      * Checks if the given argument is undefined.
      * @function
      */
-    export function isUndefined(obj): boolean {
+    export function isUndefined(obj: any): boolean {
         return (typeof obj) === 'undefined';
     }
 
@@ -117,7 +122,7 @@ module collections {
      * Checks if the given argument is a string.
      * @function
      */
-    export function isString(obj): boolean {
+    export function isString(obj: any): boolean {
         return Object.prototype.toString.call(obj) === '[object String]';
     }
 
@@ -523,8 +528,8 @@ module collections {
             if (this.nElements < 1 || collections.isUndefined(item)) {
                 return false;
             }
-            var previous = null;
-            var currentNode = this.firstNode;
+            var previous: ILinkedListNode<T> = null;
+            var currentNode: ILinkedListNode<T> = this.firstNode;
 
             while (currentNode !== null) {
                 if (equalsF(currentNode.element, item)) {
@@ -604,7 +609,7 @@ module collections {
             if (index < 0 || index >= this.nElements) {
                 return undefined;
             }
-            var element;
+            var element: T;
             if (this.nElements === 1) {
                 //First node in the list.
                 element = this.firstNode.element;
@@ -649,9 +654,9 @@ module collections {
          * element first, and the first element last).
          */
         reverse(): void {
-            var previous = null;
-            var current = this.firstNode;
-            var temp = null;
+            var previous: ILinkedListNode<T> = null;
+            var current: ILinkedListNode<T> = this.firstNode;
+            var temp: ILinkedListNode<T> = null;
             while (current !== null) {
                 temp = current.next;
                 current.next = previous;
@@ -702,7 +707,7 @@ module collections {
         /**
          * @private
          */
-        private nodeAtIndex(index): ILinkedListNode<T> {
+        private nodeAtIndex(index: number): ILinkedListNode<T> {
 
             if (index < 0 || index >= this.nElements) {
                 return null;
@@ -731,7 +736,7 @@ module collections {
 
 
     // Used internally by dictionary 
-    interface IDicitonaryPair<K, V>{
+    export interface IDictionaryPair<K, V>{
         key: K;
         value: V;
     }
@@ -743,7 +748,7 @@ module collections {
          * @type {Object}
          * @private
          */
-        private table: { [key: string]: IDicitonaryPair<K, V> };
+        protected table: { [key: string]: IDictionaryPair<K, V> };
         //: [key: K] will not work since indices can only by strings in javascript and typescript enforces this. 
 
         /**
@@ -751,14 +756,14 @@ module collections {
          * @type {number}
          * @private
          */
-        private nElements: number;
+        protected nElements: number;
 
         /**
          * Function used to convert keys to strings.
          * @type {function(Object):string}
-         * @private
+         * @protected
          */
-        private toStr: (key: K) => string;
+        protected toStr: (key: K) => string;
 
 
         /**
@@ -794,7 +799,7 @@ module collections {
          * undefined if the map contains no mapping for this key.
          */
         getValue(key: K): V {
-            var pair: IDicitonaryPair<K, V> = this.table[this.toStr(key)];
+            var pair: IDictionaryPair<K, V> = this.table['$' + this.toStr(key)];
             if (collections.isUndefined(pair)) {
                 return undefined;
             }
@@ -818,9 +823,9 @@ module collections {
                 return undefined;
             }
 
-            var ret;
-            var k = this.toStr(key);
-            var previousElement: IDicitonaryPair<K, V> = this.table[k];
+            var ret: V;
+            var k = '$' + this.toStr(key);
+            var previousElement: IDictionaryPair<K, V> = this.table[k];
             if (collections.isUndefined(previousElement)) {
                 this.nElements++;
                 ret = undefined;
@@ -842,8 +847,8 @@ module collections {
          * there was no mapping for key.
          */
         remove(key: K): V {
-            var k = this.toStr(key);
-            var previousElement: IDicitonaryPair<K, V> = this.table[k];
+            var k = '$' + this.toStr(key);
+            var previousElement: IDictionaryPair<K, V> = this.table[k];
             if (!collections.isUndefined(previousElement)) {
                 delete this.table[k];
                 this.nElements--;
@@ -859,8 +864,8 @@ module collections {
         keys(): K[] {
             var array: K[] = [];
             for (var name in this.table) {
-                if (this.table.hasOwnProperty(name)) {
-                    var pair: IDicitonaryPair<K, V> = this.table[name];
+                if (has(this.table, name)) {
+                    var pair: IDictionaryPair<K, V> = this.table[name];
                     array.push(pair.key);
                 }
             }
@@ -874,8 +879,8 @@ module collections {
         values(): V[] {
             var array: V[] = [];
             for (var name in this.table) {
-                if (this.table.hasOwnProperty(name)) {
-                    var pair: IDicitonaryPair<K, V> = this.table[name];
+                if (has(this.table, name)) {
+                    var pair: IDictionaryPair<K, V> = this.table[name];
                     array.push(pair.value);
                 }
             }
@@ -891,8 +896,8 @@ module collections {
         */
         forEach(callback: (key: K, value: V) => any): void {
             for (var name in this.table) {
-                if (this.table.hasOwnProperty(name)) {
-                    var pair: IDicitonaryPair<K, V> = this.table[name];
+                if (has(this.table, name)) {
+                    var pair: IDictionaryPair<K, V> = this.table[name];
                     var ret = callback(pair.key, pair.value);
                     if (ret === false) {
                         return;
@@ -917,7 +922,6 @@ module collections {
         * @this {collections.Dictionary}
         */
         clear() {
-
             this.table = {};
             this.nElements = 0;
         }
@@ -947,6 +951,220 @@ module collections {
         }
     } // End of dictionary
 
+    /**
+     * This class is used by the LinkedDictionary Internally
+     * Has to be a class, not an interface, because it needs to have 
+     * the 'unlink' function defined.
+     */
+    class LinkedDictionaryPair<K, V> implements IDictionaryPair<K, V> {
+        prev: LinkedDictionaryPair<K, V>;
+        next: LinkedDictionaryPair<K, V>;
+
+        constructor(public key: K, public value: V) { }
+
+        unlink() {
+            this.prev.next = this.next;
+            this.next.prev = this.prev;
+        }
+    }
+
+    export class LinkedDictionary<K, V> extends Dictionary<K, V> {
+        private head: LinkedDictionaryPair<K, V>; // Head Identifier of the list.  holds no Key or Value
+        private tail: LinkedDictionaryPair<K, V>; // Tail Identifier of the list.  holds no Key or Value
+
+        constructor(toStrFunction?: (key: K) => string) {
+            super(toStrFunction);
+            this.head = new LinkedDictionaryPair (null, null);
+            this.tail = new LinkedDictionaryPair (null, null);
+            this.head.next = this.tail;
+            this.tail.prev = this.head;
+        }
+
+        /**
+         * Inserts the new node to the 'tail' of the list, updating the 
+         * neighbors, and moving 'this.tail' (the End of List indicator) that
+         * to the end.
+         */
+        private appendToTail(entry: LinkedDictionaryPair<K, V>) {
+            var lastNode = this.tail.prev;
+            lastNode.next = entry;
+            entry.prev = lastNode;
+            entry.next = this.tail;
+            this.tail.prev = entry;
+        }
+
+        /**
+         * Retrieves a linked dictionary from the table internally
+         */
+        private getLinkedDictionaryPair(key: K): LinkedDictionaryPair<K, V> {
+            if (collections.isUndefined(key)) {
+                return undefined;
+            }
+            var k = '$' + this.toStr(key);
+            var pair = <LinkedDictionaryPair<K, V>>(this.table[k]);
+            return pair;
+        }
+
+        /**
+         * Returns the value to which this dictionary maps the specified key.
+         * Returns undefined if this dictionary contains no mapping for this key.
+         * @param {Object} key key whose associated value is to be returned.
+         * @return {*} the value to which this dictionary maps the specified key or
+         * undefined if the map contains no mapping for this key.
+         */
+        getValue(key: K): V {
+            var pair = this.getLinkedDictionaryPair(key);
+            if (!collections.isUndefined(pair)) {
+                return pair.value;
+            }
+            return undefined;
+        }
+
+        /**
+         * Removes the mapping for this key from this dictionary if it is present.
+         * Also, if a value is present for this key, the entry is removed from the 
+         * insertion ordering.
+         * @param {Object} key key whose mapping is to be removed from the
+         * dictionary.
+         * @return {*} previous value associated with specified key, or undefined if
+         * there was no mapping for key.
+         */
+        remove(key: K): V {
+            var pair = this.getLinkedDictionaryPair(key);
+            if (!collections.isUndefined(pair)) {
+                super.remove(key); // This will remove it from the table
+                pair.unlink(); // This will unlink it from the chain
+                return pair.value;
+            }
+            return undefined;
+        } 
+
+        /**
+        * Removes all mappings from this LinkedDictionary.
+        * @this {collections.LinkedDictionary}
+        */
+        clear() {
+            super.clear();
+            this.head.next = this.tail;
+            this.tail.prev = this.head;
+        }
+
+        /**
+         * Internal function used when updating an existing KeyValue pair.
+         * It places the new value indexed by key into the table, but maintains 
+         * its place in the linked ordering.
+         */
+        private replace(oldPair: LinkedDictionaryPair<K, V>, newPair: LinkedDictionaryPair<K, V>) {
+            var k = '$' + this.toStr(newPair.key);
+
+            // set the new Pair's links to existingPair's links
+            newPair.next = oldPair.next;
+            newPair.prev = oldPair.prev;
+
+            // Delete Existing Pair from the table, unlink it from chain.
+            // As a result, the nElements gets decremented by this operation
+            this.remove(oldPair.key);
+
+            // Link new Pair in place of where oldPair was,
+            // by pointing the old pair's neighbors to it.
+            newPair.prev.next = newPair;
+            newPair.next.prev = newPair;
+
+            this.table[k] = newPair;
+
+            // To make up for the fact that the number of elements was decremented,
+            // We need to increase it by one.
+            ++this.nElements;
+
+        }
+
+        /**
+         * Associates the specified value with the specified key in this dictionary.
+         * If the dictionary previously contained a mapping for this key, the old
+         * value is replaced by the specified value.
+         * Updating of a key that already exists maintains its place in the 
+         * insertion order into the map.
+         * @param {Object} key key with which the specified value is to be
+         * associated.
+         * @param {Object} value value to be associated with the specified key.
+         * @return {*} previous value associated with the specified key, or undefined if
+         * there was no mapping for the key or if the key/value are undefined.
+         */
+        setValue(key: K, value: V): V {
+
+            if (collections.isUndefined(key) || collections.isUndefined(value)) {
+                return undefined;
+            }
+
+            var existingPair = this.getLinkedDictionaryPair(key);
+            var newPair = new LinkedDictionaryPair<K, V>(key, value);
+
+            var k = '$' + this.toStr(key);
+
+            // If there is already an element for that key, we 
+            // keep it's place in the LinkedList
+            if (!collections.isUndefined(existingPair)) {
+                this.replace(existingPair, newPair);
+
+                return existingPair.value;
+            } else {
+                this.appendToTail(newPair);
+                this.table[k] = newPair;
+                ++this.nElements;
+
+                return undefined;
+            }
+
+        }
+
+        /**
+         * Returns an array containing all of the keys in this LinkedDictionary, ordered
+         * by insertion order.
+         * @return {Array} an array containing all of the keys in this LinkedDictionary,
+         * ordered by insertion order.
+         */
+        keys(): K[] {
+            var array: K[] = [];
+            this.forEach((key, value) => {
+                array.push(key);
+            });
+            return array;
+        }
+
+        /**
+         * Returns an array containing all of the values in this LinkedDictionary, ordered by 
+         * insertion order.
+         * @return {Array} an array containing all of the values in this LinkedDictionary,
+         * ordered by insertion order.
+         */
+        values(): V[] {
+            var array: V[] = [];
+            this.forEach((key, value) => {
+                array.push(value);
+            });
+            return array;
+        }
+
+        /**
+        * Executes the provided function once for each key-value pair 
+        * present in this LinkedDictionary. It is done in the order of insertion
+        * into the LinkedDictionary
+        * @param {function(Object,Object):*} callback function to execute, it is
+        * invoked with two arguments: key and value. To break the iteration you can 
+        * optionally return false.
+        */
+        forEach(callback: (key: K, value: V) => any): void {
+            var crawlNode = this.head.next;
+            while (crawlNode.next != null) {
+                var ret = callback(crawlNode.key, crawlNode.value);
+                if (ret === false) {
+                    return;
+                }
+                crawlNode = crawlNode.next;
+            }
+        }
+
+    } // End of LinkedDictionary
     // /**
     //  * Returns true if this dictionary is equal to the given dictionary.
     //  * Two dictionaries are equal if they contain the same mappings.
@@ -966,8 +1184,6 @@ module collections {
     // 	return this.equalsAux(this.firstNode,other.firstNode,eqF);
     // }
 
-
-
     export class MultiDictionary<K, V> {
 
         // Cannot do: 
@@ -977,40 +1193,42 @@ module collections {
         private dict: Dictionary<K, Array<V>>;
         private equalsF: IEqualsFunction<V>;
         private allowDuplicate: boolean;
-        /**
-         * Creates an empty multi dictionary. 
-         * @class <p>A multi dictionary is a special kind of dictionary that holds
-         * multiple values against each key. Setting a value into the dictionary will 
-         * add the value to an array at that key. Getting a key will return an array,
-         * holding all the values set to that key. 
-         * You can configure to allow duplicates in the values. 
-         * This implementation accepts any kind of objects as keys.</p>
-         *
-         * <p>If the keys are custom objects a function which converts keys to strings must be
-         * provided. Example:</p>
-         *
-         * <pre>
-         * function petToString(pet) {
+
+      /**
+       * Creates an empty multi dictionary.
+       * @class <p>A multi dictionary is a special kind of dictionary that holds
+       * multiple values against each key. Setting a value into the dictionary will
+       * add the value to an array at that key. Getting a key will return an array,
+       * holding all the values set to that key.
+       * You can configure to allow duplicates in the values.
+       * This implementation accepts any kind of objects as keys.</p>
+       *
+       * <p>If the keys are custom objects a function which converts keys to strings must be
+       * provided. Example:</p>
+       *
+       * <pre>
+       * function petToString(pet) {
          *  return pet.name;
          * }
-         * </pre>
-         * <p>If the values are custom objects a function to check equality between values
-         * must be provided. Example:</p>
-         *
-         * <pre>
-         * function petsAreEqualByAge(pet1,pet2) {
+       * </pre>
+       * <p>If the values are custom objects a function to check equality between values
+       * must be provided. Example:</p>
+       *
+       * <pre>
+       * function petsAreEqualByAge(pet1,pet2) {
          *  return pet1.age===pet2.age;
          * }
-         * </pre>
-         * @constructor
-         * @param {function(Object):string=} toStrFunction optional function
-         * to convert keys to strings. If the keys aren't strings or if toString()
-         * is not appropriate, a custom function which receives a key and returns a
-         * unique string must be provided.
-         * @param {function(Object,Object):boolean=} valuesEqualsFunction optional
-         * function to check if two values are equal.
-         * 
-         */
+       * </pre>
+       * @constructor
+       * @param {function(Object):string=} toStrFunction optional function
+       * to convert keys to strings. If the keys aren't strings or if toString()
+       * is not appropriate, a custom function which receives a key and returns a
+       * unique string must be provided.
+       * @param {function(Object,Object):boolean=} valuesEqualsFunction optional
+       * function to check if two values are equal.
+       *
+       * @param allowDuplicateValues
+       */
         constructor(toStrFunction?: (key: K) => string, valuesEqualsFunction?: IEqualsFunction<V>, allowDuplicateValues = false) {
             this.dict = new Dictionary<K, Array<V>>(toStrFunction);
             this.equalsF = valuesEqualsFunction || collections.defaultEquals;
@@ -1073,10 +1291,7 @@ module collections {
         remove(key: K, value?: V): boolean {
             if (collections.isUndefined(value)) {
                 var v = this.dict.remove(key);
-                if (collections.isUndefined(v)) {
-                    return false;
-                }
-                return true;
+                return !collections.isUndefined(v);
             }
             var array = this.dict.getValue(key);
             if (collections.arrays.remove(array, value, this.equalsF)) {
@@ -1102,7 +1317,7 @@ module collections {
          */
         values(): V[] {
             var values = this.dict.values();
-            var array = [];
+            var array:Array<V> = [];
             for (var i = 0; i < values.length; i++) {
                 var v = values[i];
                 for (var j = 0; j < v.length; j++) {
@@ -1127,7 +1342,7 @@ module collections {
          * Removes all mappings from this dictionary.
          */
         clear(): void {
-            return this.dict.clear();
+            this.dict.clear();
         }
 
         /**
@@ -1511,6 +1726,7 @@ module collections {
             this.list = new LinkedList<T>();
         }
 
+
         /**
          * Inserts the specified element into the end of this queue.
          * @param {Object} elem the element to insert.
@@ -1794,7 +2010,7 @@ module collections {
                 if (!otherSet.contains(element)) {
                     set.remove(element);
                 }
-                return;
+                return true;
             });
         }
 
@@ -1807,7 +2023,7 @@ module collections {
             var set = this;
             otherSet.forEach(function (element: T): boolean {
                 set.add(element);
-                return;
+                return true;
             });
         }
 
@@ -1820,7 +2036,7 @@ module collections {
             var set = this;
             otherSet.forEach(function (element: T): boolean {
                 set.remove(element);
-                return;
+                return true;
             });
         }
 
@@ -1841,6 +2057,7 @@ module collections {
                     isSub = false;
                     return false;
                 }
+            return true;
             });
             return isSub;
         }
@@ -2030,7 +2247,7 @@ module collections {
          * @return {Array} an array containing all of the elements in this bag.
          */
         toArray(): T[] {
-            var a = [];
+            var a:Array<T> = [];
             var values = this.dictionary.values();
             var vl = values.length;
             for (var i = 0; i < vl; i++) {
@@ -2310,10 +2527,10 @@ module collections {
          * @return {Array} an array containing all of the elements in this tree in in-order.
          */
         toArray(): T[] {
-            var array = [];
+            var array: Array<T> = [];
             this.inorderTraversal(function (element: T): boolean {
                 array.push(element);
-                return;
+                return true;
             });
             return array;
         }
@@ -2330,7 +2547,7 @@ module collections {
         * @private
         */
         private searchNode(node: BSTreeNode<T>, element: T): BSTreeNode<T> {
-            var cmp = null;
+            var cmp:number = null;
             while (node !== null && cmp !== 0) {
                 cmp = this.compare(element, node.element);
                 if (cmp < 0) {
@@ -2401,7 +2618,7 @@ module collections {
         * @private
         */
         private levelTraversalAux(node: BSTreeNode<T>, callback: ILoopFunction<T>) {
-          var queue = new Queue<BSTreeNode<T>>();
+            var queue = new Queue<BSTreeNode<T>>();
             if (node !== null) {
                 queue.enqueue(node);
             }
@@ -2474,22 +2691,7 @@ module collections {
             return node;
         }
 
-        /**
-        * @private
-        */
-        private successorNode(node: BSTreeNode<T>): BSTreeNode<T> {
-            if (node.rightCh !== null) {
-                return this.minimumAux(node.rightCh);
-            }
-            var successor = node.parent;
-            while (successor !== null && node === successor.rightCh) {
-                node = successor;
-                successor = node.parent;
-            }
-            return successor;
-        }
-
-        /**
+      /**
         * @private
         */
         private heightAux(node: BSTreeNode<T>): number {
@@ -2504,9 +2706,9 @@ module collections {
         */
         private insertNode(node: BSTreeNode<T>): BSTreeNode<T> {
 
-            var parent = null;
+            var parent: any = null;
             var position = this.root;
-            var cmp = null;
+            var cmp:number = null;
             while (position !== null) {
                 cmp = this.compare(node.element, position.element);
                 if (cmp === 0) {
