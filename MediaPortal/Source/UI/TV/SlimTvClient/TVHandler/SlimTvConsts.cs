@@ -54,7 +54,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
 
     public const string RES_FILTER_CHANNEL_NAVBAR_DISPLAY_LABEL = "[SlimTvClient.ChannelNavBarItemLabel]";
     public const string RES_FILTER_NAME_NAVBAR_DISPLAY_LABEL = "[SlimTvClient.NameFilterNavBarItemLabel]";
-    public const string RES_FILTER_RECORDINGS_ITEMS_NAVBAR_DISPLAY_LABEL = "[Media.FilterRecordingsItemsNavbarDisplayLabel]";
+    public const string RES_FILTER_RECORDINGS_ITEMS_NAVBAR_DISPLAY_LABEL = "[SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel]";
 
     public const string RES_RECORDINGS_VIEW_NAME = "[SlimTvClient.RecordingsRootViewName]";
   }

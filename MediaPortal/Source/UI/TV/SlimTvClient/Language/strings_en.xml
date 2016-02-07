@@ -57,6 +57,9 @@
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Working days</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Weekly every time on this channel</string>
 
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Recordings by name</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Recordings by name</string>
+
   <!-- Schedule management -->
   <string name="SlimTvClient.ScheduleDetails">Schedule details</string>
   <string name="SlimTvClient.ScheduleName">Schedule name</string>
