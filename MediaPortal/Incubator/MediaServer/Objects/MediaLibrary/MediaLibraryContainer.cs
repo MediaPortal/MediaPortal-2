@@ -65,13 +65,11 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-	  base.Initialise();
-	  
       IList<MediaItem> items = GetItems();
 
       foreach (MediaItem item in items)
       {
-        _children[item.MediaItemId.ToString()] = (BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(Key), this);
+        Add((BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item, this));
       }
     }
 

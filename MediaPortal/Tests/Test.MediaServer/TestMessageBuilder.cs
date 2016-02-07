@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
+using HttpServer.Authentication;
 using HttpServer.HttpModules;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -31,10 +33,10 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
-using MediaPortal.Extensions.MediaServer.DIDL;
-using MediaPortal.Extensions.MediaServer.Objects;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.DIDL;
+using MediaPortal.Plugins.MediaServer.Objects;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using NUnit.Framework;
 
 namespace Test.MediaServer
@@ -77,6 +79,11 @@ namespace Test.MediaServer
           throw new NotImplementedException();
       }
 
+      public void AddAuthenticationModule(AuthenticationModule module)
+      {
+        throw new NotImplementedException();
+      }
+
       public void RemoveHttpModule(HttpModule module)
       {
           throw new NotImplementedException();
@@ -87,7 +94,7 @@ namespace Test.MediaServer
           throw new NotImplementedException();
       }
 
-      public int GetPortForIP(System.Net.IPAddress ipAddress)
+      public int GetPortForIP(IPAddress ipAddress)
       {
         throw new NotImplementedException();
       }
@@ -95,12 +102,7 @@ namespace Test.MediaServer
 
     class TestMediaLibraryAlbumItem : MediaLibraryAlbumItem
     {
-        public TestMediaLibraryAlbumItem(string id, string title, EndPointSettings settings) : base(id, title, settings) {}
-
-        public override int ChildCount
-        {
-            get { return 0; }
-        }
+        public TestMediaLibraryAlbumItem(MediaItem item, EndPointSettings settings) : base(item, settings) {}
     }
 
     [TestFixture]
@@ -155,7 +157,17 @@ namespace Test.MediaServer
 
             IList<IDirectoryObject> objects = new List<IDirectoryObject>();
 
-            MediaLibraryAlbumItem item = new TestMediaLibraryAlbumItem("abc123", "The Album", settings);
+            Guid albumId = new Guid("11111111-aaaa-aaaa-aaaa-100000000001");
+
+            IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+            SingleMediaItemAspect aspect = new SingleMediaItemAspect(MediaAspect.Metadata);
+            aspect.SetAttribute(MediaAspect.ATTR_TITLE, "The Album");
+            MediaItemAspect.SetAspect(aspects, aspect);
+
+            MediaItem album = new MediaItem(albumId, aspects);
+
+            MediaLibraryAlbumItem item = new TestMediaLibraryAlbumItem(album, settings);
             item.Initialise();
             objects.Add(item);
 

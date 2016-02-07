@@ -56,7 +56,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       }
     }
 
-    public IDictionary<Guid, Share> GetShares()
+    private IDictionary<Guid, Share> GetShares()
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       if (CategoryFilter == null || CategoryFilter.Count == 0)
@@ -81,7 +81,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-	    base.Initialise();
+      Console.WriteLine("MediaLibraryShareContainer::Initialise");
 	  
       IDictionary<Guid, Share> shares = GetShares();
 
@@ -99,7 +99,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
            }).ToList();
       foreach (var item in items)
       {
-        _children.Add(item.Item.MediaItemId.ToString(), (BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, Key, parent, item.ShareName));
+        Add((BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, parent, item.ShareName));
       }
     }
   }

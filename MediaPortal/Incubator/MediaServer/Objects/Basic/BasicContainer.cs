@@ -24,16 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.Tree;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
   public class BasicContainer : BasicItem, IDirectoryContainer
   {
-    private bool _initialised = false;
-    protected readonly Dictionary<string, BasicItem> _children = new Dictionary<string, BasicItem>();
+    protected readonly Dictionary<string, BasicObject> _children = new Dictionary<string, BasicObject>();
 
     public BasicContainer(string id, EndPointSettings client) 
       : base(id, client)
@@ -46,40 +43,12 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       Class = "object.container";
     }
 
-    public int ChildCount
+    protected void Add(BasicObject node)
     {
-      get
-      {
-        if (!_initialised) Initialise();
-        return _children.Count;
-      }
-      set { } //Meaningless in this implementation
-    }
-
-    public override void Initialise()
-    {
-      _initialised = true;
-    }
-
-    public override TreeNode<object> FindNode(string key)
-    {
-      if (!key.StartsWith(Key)) return null;
-      if (key == Key) return this;
-
-      if (!_initialised) Initialise();
-      BasicItem container;
-      _children.TryGetValue(key, out container);
-      return container;
-    }
-
-    public override List<IDirectoryObject> Search(string filter, string sortCriteria)
-    {
-      // TODO: Use the parameters for something
-      // IFilter searchFilter = SearchParser.Convert(SearchParser.Parse(filter), _necessaryMiaTypeIds);
-
-      if (!_initialised) Initialise();
-
-      return _children.Values.ToList().Cast<IDirectoryObject>().ToList();
+      Console.WriteLine("BasicContainer::Add entry, {0} to {1}", node.Key, Key);
+      _children[node.Key] = node;
+	    base.Add(node);
+      Console.WriteLine("BasicContainer::Add exit, {0} children", _children.Count);
     }
 
     public void ContainerUpdated()
@@ -91,6 +60,12 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
     public virtual IList<IDirectorySearchClass> SearchClass { get; set; }
 
     public virtual bool Searchable { get; set; }
+
+    public virtual int ChildCount
+    {
+      get { return Children.Count; }
+      set { } //Meaningless in this implementation
+    }
 
     public virtual IList<IDirectoryCreateClass> CreateClass { get; set; }
 

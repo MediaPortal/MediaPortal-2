@@ -38,24 +38,20 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Antlr4.Runtime.net45">
-      <HintPath>..\..\Packages\Antlr4.Runtime.4.3.0\lib\net45\Antlr4.Runtime.net45.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\Packages\NUnitTestAdapter.WithFramework.1.2\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\..\Packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MediaLibraryHelper.cs" />
+    <Compile Include="TestActions.cs" />
+    <Compile Include="TestMediaLibrary.cs" />
     <Compile Include="TestMessageBuilder.cs" />
     <Compile Include="TestParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\VersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +70,10 @@
     <ProjectReference Include="..\..\Incubator\MediaServer\MediaServer.csproj">
       <Project>{1ba81eb2-6556-4213-a7a5-9e5b508f186f}</Project>
       <Name>MediaServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
+      <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
+      <Name>UPnP</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

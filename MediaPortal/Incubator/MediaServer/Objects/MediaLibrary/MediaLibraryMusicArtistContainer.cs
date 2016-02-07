@@ -54,8 +54,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-	  base.Initialise();
-	  
       HomogenousMap items = GetItems();
 
       foreach (KeyValuePair<object, object> item in items)
@@ -63,7 +61,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         string title = (string)item.Key ?? "<Unknown>";
         string key = Id + ":" + title;
 
-        _children.Add(key, new MediaLibraryMusicArtistItem(key, title, Client));
+        Add(new MediaLibraryMusicArtistItem(key, title, Client));
       }
     }
   }

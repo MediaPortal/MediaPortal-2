@@ -58,8 +58,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-      base.Initialise();
-
       Genre = new List<string>();
       Artist = new List<string>();
       Contributor = new List<string>();

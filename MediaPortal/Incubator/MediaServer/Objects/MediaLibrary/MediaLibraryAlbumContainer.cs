@@ -40,7 +40,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public MediaLibraryAlbumContainer(string id, EndPointSettings client)
       : base(id, "Albums", NECESSARY_MIA_TYPE_IDS, null, null, client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Created albums container");
     }
   }
 }
