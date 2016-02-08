@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0-*",
+  "frameworks": {
+    "net451": {
+      "wrappedProject": "../../UI/TV/SlimTvInterfaces/SlimTv.Interfaces.csproj",
+      "bin": {
+        "assembly": "../../UI/TV/SlimTvInterfaces/obj/x86/{configuration}/SlimTv.Interfaces.dll",
+        "pdb": "../../UI/TV/SlimTvInterfaces/obj/x86/{configuration}/SlimTv.Interfaces.pdb"
+      },
+      "dependencies": {
+        "MediaPortal.Common": "1.0.0-*"
+      }
+    }
+  }
+}
