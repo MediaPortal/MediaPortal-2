@@ -23,14 +23,11 @@
 #endregion
 
 using System;
-using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
 {
-  // TODO: support different ResourceAccessors for either local files (single seat) or network streams (multi seat). Current implementation always uses
-  // network streams, even in single seat.
   public class SlimTvResourceAccessor : INetworkResourceAccessor
   {
     private readonly string _path;
@@ -42,37 +39,11 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       _slotIndex = slotIndex;
     }
 
-    #region Static methods
-
-    public static INetworkResourceAccessor GetResourceAccessor(string path)
-    {
-      // Parse slotindex from path and cut the prefix off.
-      int slotIndex;
-      if (!int.TryParse(path.Substring(0, 1), out slotIndex))
-        return null;
-      path = path.Substring(2, path.Length - 2);
-
-      return new SlimTvResourceAccessor(slotIndex, path);
-    }
-
-    #endregion
-
     #region IResourceAccessor Member
 
     public IResourceProvider ParentProvider
     {
       get { return null; }
-    }
-
-    // TODO: Complete implementation
-    public bool Exists
-    {
-      get { return true; }
-    }
-
-    public bool IsFile
-    {
-      get { return true; }
     }
 
     public string Path
@@ -100,44 +71,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       get
       {
         // format the path with the slotindex as prefix.
-        return ResourcePath.BuildBaseProviderPath(SlimTvResourceProvider.SLIMTV_RESOURCE_PROVIDER_ID, 
-          String.Format("{0}|{1}", _slotIndex, _path));
+        return ResourcePath.BuildBaseProviderPath(SlimTvResourceProvider.SLIMTV_RESOURCE_PROVIDER_ID, String.Format("{0}|{1}", _slotIndex, _path));
       }
-    }
-
-    public DateTime LastChanged
-    {
-      get { return DateTime.Now; }
-    }
-
-    public long Size
-    {
-      get
-      {
-        try
-        {
-          FileInfo fi = new FileInfo(_path);
-          return fi.Length;
-        }
-        catch
-        {
-          return 0;
-        }
-      }
-    }
-
-    public void PrepareStreamAccess()
-    {
-    }
-
-    public Stream OpenRead()
-    {
-      return null;
-    }
-
-    public Stream OpenWrite()
-    {
-      return null;
     }
 
     public IResourceAccessor Clone()
@@ -154,44 +89,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       ITvHandler tv = ServiceRegistration.Get<ITvHandler>(false);
       if (tv != null)
         tv.DisposeSlot(_slotIndex);
-    }
-
-    #endregion
-
-    #region ILocalFsResourceAccessor Member
-
-    public string LocalFileSystemPath
-    {
-      get { return _path; }
-    }
-
-    #endregion
-
-    #region IFileSystemResourceAccessor Member
-
-    public bool IsDirectory
-    {
-      get { return false; }
-    }
-
-    public bool ResourceExists(string path)
-    {
-      return true;
-    }
-
-    public INetworkResourceAccessor GetResource(string path)
-    {
-      return GetResourceAccessor(path);
-    }
-
-    public System.Collections.Generic.ICollection<IFileSystemResourceAccessor> GetFiles()
-    {
-      return null;
-    }
-
-    public System.Collections.Generic.ICollection<IFileSystemResourceAccessor> GetChildDirectories()
-    {
-      return null;
     }
 
     #endregion
