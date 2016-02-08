@@ -6,7 +6,10 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     >
 
-  <ResourceWrapper x:Key="PackageLogoWidth" Resource="56"/>
-  <ResourceWrapper x:Key="PackageItemHeight" Resource="100"/>
+  <ResourceWrapper x:Key="PackageLogoWidth720" Resource="56"/>
+  <ResourceWrapper x:Key="PackageItemHeight720" Resource="100"/>
+  
+  <ResourceWrapper x:Key="PackageLogoWidth1080" Resource="56"/>
+  <ResourceWrapper x:Key="PackageItemHeight1080" Resource="130"/>
 
 </ResourceDictionary>

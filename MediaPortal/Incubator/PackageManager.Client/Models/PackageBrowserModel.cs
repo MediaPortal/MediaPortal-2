@@ -89,9 +89,6 @@ namespace MediaPortal.UiComponents.PackageManager.Models
 
     public void Select(ListItem item)
     {
-      if (item == null)
-        return;
-
       var packageItem = item as PackageItem;
       if (packageItem != null)
       {

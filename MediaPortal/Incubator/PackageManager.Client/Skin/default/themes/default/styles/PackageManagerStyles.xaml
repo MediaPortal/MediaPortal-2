@@ -9,9 +9,9 @@
 
   <!-- Style for a single feed item -->
   <DataTemplate x:Key="PackageItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Height="{ThemeResource PackageItemHeight}" Margin="5,0,5,0">
+    <Grid Height="{ResolutionResource PackageItemHeight}" Margin="5,0,5,0">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{ThemeResource PackageLogoWidth}"/>
+        <ColumnDefinition Width="{ResolutionResource PackageLogoWidth}"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
