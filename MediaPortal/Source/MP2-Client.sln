@@ -203,7 +203,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FanArt", "FanArt", "{907101
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SkinEngine", "SkinEngine", "{2EDCEE14-3063-45D5-A2A1-069C6AEC8C3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WifiRemote", "..\Incubator\WifiRemote\WifiRemote.csproj", "{8D67F134-C122-46B3-B393-329B06981045}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WifiRemote", "Incubator\WifiRemote\WifiRemote.csproj", "{8D67F134-C122-46B3-B393-329B06981045}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
