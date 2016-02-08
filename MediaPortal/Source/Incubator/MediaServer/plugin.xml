@@ -25,6 +25,10 @@
     <Assembly FileName="MediaServer.dll"/>    
     <PluginStateTracker ClassName="MediaPortal.Plugins.MediaServer.MediaServerPlugin"/>
   </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="MediaServerLanguage" Directory="Language" Type="Language"/>
+  </Register>
   
 </Plugin>
 

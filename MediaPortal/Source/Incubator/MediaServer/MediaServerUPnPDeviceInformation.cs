@@ -27,10 +27,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
-using MediaPortal.Backend.BackendServer.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MediaServer.ResourceAccess;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -39,14 +37,13 @@ namespace MediaPortal.Plugins.MediaServer
 {
   public class MediaServerUpnPDeviceInformation : ILocalizedDeviceInformation
   {
-    // TODO: own constants
-    public const string RES_DEFAULT_FRIENDLY_NAME = "[UPnPBackendServer.DefaultFriendlyName]";
-    public const string RES_MANUFACTURER = "[UPnPBackendServer.Manufacturer]";
-    public const string RES_MANUFACTURER_URL = "[UPnPBackendServer.ManufacturerUrl]";
-    public const string RES_MODEL_DESCRIPTION = "[UPnPBackendServer.ModelDescription]";
-    public const string RES_MODEL_NAME = "[UPnPBackendServer.ModelName]";
-    public const string RES_MODEL_NUMBER = "[UPnPBackendServer.ModelNumber]";
-    public const string RES_MODEL_URL = "[UPnPBackendServer.ModelUrl]";
+    public const string RES_DEFAULT_FRIENDLY_NAME = "[MediaServer.DefaultFriendlyName]";
+    public const string RES_MANUFACTURER = "[MediaServer.Manufacturer]";
+    public const string RES_MANUFACTURER_URL = "[MediaServer.ManufacturerUrl]";
+    public const string RES_MODEL_DESCRIPTION = "[MediaServer.ModelDescription]";
+    public const string RES_MODEL_NAME = "[MediaServer.ModelName]";
+    public const string RES_MODEL_NUMBER = "[MediaServer.ModelNumber]";
+    public const string RES_MODEL_URL = "[MediaServer.ModelUrl]";
 
     public string FriendlyName = null;
     public string Manufacturer = null;
@@ -92,20 +89,12 @@ namespace MediaPortal.Plugins.MediaServer
       string result = null;
       try
       {
-        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        BackendServerSettings settings = settingsManager.Load<BackendServerSettings>();
-        result = settings.UPnPServerDeviceFriendlyName;
-        if (string.IsNullOrEmpty(result))
-        {
           result = StringUtils.TrimToNull(ServiceRegistration.Get<ILocalization>().ToString(RES_DEFAULT_FRIENDLY_NAME)) ?? GetModelName(culture);
-          settings.UPnPServerDeviceFriendlyName = result;
-          settingsManager.Save(settings);
-        }
       }
       catch { }
       if (string.IsNullOrEmpty(result))
       {
-        result = "MediaPortal";
+        result = "Media Server";
       }
       result += " (" + Dns.GetHostName() + ")";
       return result;
@@ -166,7 +155,7 @@ namespace MediaPortal.Plugins.MediaServer
       catch { }
       if (string.IsNullOrEmpty(result))
       {
-        result = "MediaPortal Media Server";
+        result = "MediaPortal 2 Media Server";
       }
       return result;
     }

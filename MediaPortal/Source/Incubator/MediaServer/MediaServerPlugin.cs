@@ -69,13 +69,6 @@ namespace MediaPortal.Plugins.MediaServer
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       Settings = settingsManager.Load<MediaServerSettings>();
-
-      ProfileManager.Profiles.Clear();
-      ProfileManager.LoadProfiles(false);
-      ProfileManager.LoadProfiles(true);
-
-      ProfileManager.ProfileLinks.Clear();
-      ProfileManager.LoadProfileLinks();
     }
 
     private void SaveSettings()
@@ -97,7 +90,6 @@ namespace MediaPortal.Plugins.MediaServer
 
     public void Continue()
     {
-      LoadSettings();
     }
 
     public void Shutdown()

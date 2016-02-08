@@ -83,6 +83,17 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
 
     public static EndPointSettings DetectProfile(NameValueCollection headers)
     {
+      //Lazy load profiles. Needed because of localized strings in profiles
+      if(Profiles.Count == 0)
+      {
+        Logger.Info("DetectProfile: Loading profiles and links");
+
+        LoadProfiles(false);
+        LoadProfiles(true);
+
+        LoadProfileLinks();
+      }
+
       // overwrite the automatic profile detection
       if (headers["remote_addr"] != null && ProfileLinks.ContainsKey(IPAddress.Parse(headers["remote_addr"])))
       {
