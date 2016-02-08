@@ -295,7 +295,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       SeasonFilterItem season = SelectedItem as SeasonFilterItem;
       if (season != null)
       {
-        FanArtMediaType = FanArtConstants.FanArtMediaType.SeriesSeason;
+        FanArtMediaType = FanArtMediaTypes.SeriesSeason;
         SimpleTitle = FanArtName = season.SimpleTitle;
         MediaItem = season.MediaItem;
         ItemDescription = null;

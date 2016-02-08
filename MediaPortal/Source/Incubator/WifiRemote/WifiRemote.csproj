@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
-	  <HintPath>..\..\Packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\Packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,7 +45,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="ZeroconfService">
-	  <HintPath>..\..\Packages\ZeroconfService.0.6.0.0\lib\net40\ZeroconfService.dll</HintPath>
+      <HintPath>..\..\Packages\ZeroconfService.0.6.0.0\lib\net40\ZeroconfService.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -111,35 +111,35 @@
     <Compile Include="ZeroConfig.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+    <ProjectReference Include="..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj">
+    <ProjectReference Include="..\..\UI\Players\VideoPlayer\VideoPlayers.csproj">
       <Project>{ed9a8a29-91dd-4b21-8cb8-a8b0f3eff61c}</Project>
       <Name>VideoPlayers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
+    <ProjectReference Include="..\..\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
       <Name>SkinEngine</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\TV\SlimTvClient\SlimTv.Client.csproj">
+    <ProjectReference Include="..\..\UI\TV\SlimTvClient\SlimTv.Client.csproj">
       <Project>{6eb21e54-9984-41a4-922c-7af27cfe56ba}</Project>
       <Name>SlimTv.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+    <ProjectReference Include="..\..\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
       <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
+    <ProjectReference Include="..\..\UI\UiComponents\Media\Media.csproj">
       <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
       <Name>Media</Name>
     </ProjectReference>
