@@ -4,6 +4,7 @@
   <PropertyGroup>
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\</PluginDestination>
     <wwwDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\wwwroot\</wwwDestination>
+    <swaggerDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\wwwroot\swagger\</swaggerDestination>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -13,6 +14,7 @@
   </PropertyGroup>
 
   <Target Name="AfterBuild">
+    <Message Text="Hello"></Message>    
     <CallTarget Targets="FileSystemPublish"/>
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(Configuration)\net451\$(ProjectName).dll" />
@@ -29,6 +31,8 @@
       <!--<PluginFiles Include="$(TargetDir)approot\packages\**\dnx451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>-->
       <!--<PluginFiles Include="$(TargetDir)approot\packages\**\net451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>-->
       <!--<PluginFiles Include="$(TargetDir)approot\packages\**\net45\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>-->
+      <PluginFiles Include="$(TargetDir)approot\packages\Microsoft.AspNet.FileProviders.Embedded\**\net451\*.dll"/> <!--needed for Swagger-->
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll"/>
       <PluginFiles Include="$(TargetDir)approot\packages\Newtonsoft.Json\**\lib\net45\Newtonsoft.Json.dll" />
       <PluginFiles Include="$(TargetDir)approot\packages\OnlineVideos.Core\**\lib\net451\OnlineVideos.dll" />
       <PluginFiles Include="$(TargetDir)approot\packages\Swashbuckle.*\**\lib\net451\*.dll" />
@@ -41,6 +45,11 @@
       <wwwFiles Include="$(ProjectDir)\Content\themes\base\**\*.*" />
       <wwwFiles Include="$(ProjectDir)\Content\themes\smoothness\**\*.*" />
     </ItemGroup>
+    
+    <!-- Swagger Files -->
+    <ItemGroup>
+      <swaggerFiles Include="$(ProjectDir)\wwwroot\lib\swagger-ui\dist\**\*.*" />
+    </ItemGroup>
 
     <!-- VIEWS -->
     <ItemGroup>
@@ -49,6 +58,7 @@
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(wwwFiles)" DestinationFolder="$(wwwDestination)\%(RecursiveDir)" />
+    <Copy SourceFiles="@(swaggerFiles)" DestinationFolder="$(swaggerDestination)\%(RecursiveDir)" />
     <Copy SourceFiles="@(Views)" DestinationFiles="@(Views->'$(PluginDestination)Views\%(RecursiveDir)%(Filename)%(Extension)')"/>
   </Target>
 
