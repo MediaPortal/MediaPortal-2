@@ -24,13 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Globalization;
 using HttpServer;
 using HttpServer.Exceptions;
 using HttpServer.HttpModules;
@@ -42,13 +42,13 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Utilities.SystemAPI;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Plugins.Transcoding.Service.Objects;
-using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
@@ -109,10 +109,10 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
       public long Length
       {
-        get
+        get 
         {
           if (_to <= _from) return 0;
-          return _to - _from;
+          return _to - _from; 
         }
       }
     }
@@ -223,7 +223,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
               {
                 end = long.Parse(tokens[1]);
               }
-              else if (start < size)
+              else if(start < size)
               {
                 end = size;
               }
@@ -753,7 +753,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
               if (hlsFileRequest != null)
               {
-                if (GetHlsSegment(hlsFileRequest, dlnaItem, response, ref resourceStream) == false)
+                if(GetHlsSegment(hlsFileRequest, dlnaItem, response, ref resourceStream) == false)
                 {
                   Logger.Error("DlnaResourceAccessModule: Unable to find segment file {0}", hlsFileRequest);
 
@@ -897,8 +897,8 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             if (containerEnum is VideoContainer)
             {
               VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
-              List<string> profiles = DlnaProfiles.ResolveVideoProfile((VideoContainer)containerEnum, dlnaItem.DlnaMetadata.Video.Codec, video.TargetAudioCodec, dlnaItem.DlnaMetadata.Video.ProfileType,
-                dlnaItem.DlnaMetadata.Video.HeaderLevel, dlnaItem.DlnaMetadata.Video.Framerate, dlnaItem.DlnaMetadata.Video.Width, dlnaItem.DlnaMetadata.Video.Height, dlnaItem.DlnaMetadata.Video.Bitrate,
+              List<string> profiles = DlnaProfiles.ResolveVideoProfile((VideoContainer)containerEnum, dlnaItem.DlnaMetadata.Video.Codec, video.TargetAudioCodec, dlnaItem.DlnaMetadata.Video.ProfileType, 
+                dlnaItem.DlnaMetadata.Video.HeaderLevel, dlnaItem.DlnaMetadata.Video.Framerate, dlnaItem.DlnaMetadata.Video.Width, dlnaItem.DlnaMetadata.Video.Height, dlnaItem.DlnaMetadata.Video.Bitrate, 
                 video.TargetAudioBitrate, dlnaItem.DlnaMetadata.Video.TimestampType);
               string mime = "video/unknown";
               string profile = null;
@@ -974,7 +974,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       Send(request, response, resourceStream, item, client, onlyHeaders, partialResource, fileRange);
     }
 
-    protected void SendByteRange(IHttpRequest request, IHttpResponse response, Stream resourceStream, DlnaMediaItem item, EndPointSettings client, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+    protected void SendByteRange(IHttpRequest request, IHttpResponse response, Stream resourceStream, DlnaMediaItem item, Profiles.EndPointSettings client, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
     {
       if (range.From > 0 && range.From == range.To)
       {
@@ -1013,7 +1013,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
         return;
       }
-      if (range.From > length || range.To > length)
+      if(range.From > length || range.To > length)
       {
         range = fileRange;
       }
@@ -1025,7 +1025,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       {
         response.AddHeader("Content-Range", string.Format("bytes {0}-", range.From));
       }
-      else if (length <= 0)
+      else if(length <= 0)
       {
         response.AddHeader("Content-Range", string.Format("bytes {0}-{1}", range.From, range.To - 1));
       }
@@ -1132,7 +1132,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       return true;
     }
 
-    protected void Send(IHttpRequest request, IHttpResponse response, Stream resourceStream, DlnaMediaItem item, EndPointSettings client, bool onlyHeaders, bool partialResource, Range byteRange)
+    protected void Send(IHttpRequest request, IHttpResponse response, Stream resourceStream, DlnaMediaItem item, Profiles.EndPointSettings client, bool onlyHeaders, bool partialResource, Range byteRange)
     {
       Logger.Debug("DlnaResourceAccessModule: Sending headers: " + response.SendHeaders());
 
@@ -1150,7 +1150,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         Logger.Debug("Sending chunked: {0}", response.Chunked.ToString());
         string clientID = request.Headers["remote_addr"];
         int bufferSize = client.Profile.Settings.Communication.DefaultBufferSize;
-        if (bufferSize <= 0)
+        if(bufferSize <= 0)
         {
           bufferSize = 1500;
         }

@@ -163,8 +163,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       RootContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_ROOT_KEY, this) { Title = "MediaPortal Media Library" };
 
       var audioContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY, this) { Title = "Audio" };
-      audioContainer.Add(new MediaLibraryAlbumContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AL", this) { Title = "Albums" });
-      audioContainer.Add(new MediaLibraryMusicArtistContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AR", this) { Title = "Artists" });
+      audioContainer.Add(new MediaLibraryAlbumContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "A", this) { Title = "Albums" });
       audioContainer.Add(new MediaLibraryMusicGenreContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "G", this) { Title = "Genres" });
       audioContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AS", this, "Audio") { Title = "Shares" });
       RootContainer.Add(audioContainer);
@@ -174,8 +173,6 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       RootContainer.Add(pictureContainer);
 
       var videoContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY, this) { Title = "Video" };
-      videoContainer.Add(new MediaLibraryMovieContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "M", null, this) { Title = "Movies" });
-      videoContainer.Add(new MediaLibrarySeriesContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "S", null, this) { Title = "Series" });
       videoContainer.Add(new MediaLibraryMovieGenreContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "G", this) { Title = "Genres" });
       videoContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "VS", this, "Video") { Title = "Shares" });
       RootContainer.Add(videoContainer);

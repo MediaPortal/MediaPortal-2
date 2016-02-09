@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using UPnP.Infrastructure.CP;
+using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -68,7 +67,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         };
 
         XPathNavigator navigator = rootDescriptor.DeviceDescription.CreateNavigator();
-        XmlTextReader reader = new XmlTextReader(new StringReader(navigator.InnerXml));
+        XmlTextReader reader = new XmlTextReader(new System.IO.StringReader(navigator.InnerXml));
         while (reader.Read())
         {
           if (reader.NodeType != XmlNodeType.Element && reader.NodeType != XmlNodeType.EndElement)

@@ -28,18 +28,18 @@ using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Net;
-using System.IO;
 using System.Xml;
-using MediaPortal.Common;
+using System.IO;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MediaServer.DIDL;
 using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Filters;
 using MediaPortal.Plugins.MediaServer.Protocols;
-using MediaPortal.Plugins.MediaServer.Settings;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Plugins.MediaServer.Filters;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.MediaServer.Settings;
 using MediaPortal.Plugins.Transcoding.Service.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     public static IPAddress ResolveIpAddress(string address)
     {
       try
-      {
+      { 
         // Get host IP addresses
         IPAddress[] hostIPs = Dns.GetHostAddresses(address);
         // Get local IP addresses
@@ -67,7 +67,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         foreach (IPAddress hostIP in hostIPs)
         {
           // Is localhost
-          if (IPAddress.IsLoopback(hostIP))
+          if (IPAddress.IsLoopback(hostIP)) 
             return IPAddress.Loopback;
           // Is local address
           foreach (IPAddress localIP in localIPs)
@@ -539,7 +539,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
               if (Profiles.ContainsKey(profile.ID))
               {
                 //User profiles can override defaults
-                if (userProfiles == true)
+                if(userProfiles == true)
                 {
                   profile.Name = profile.Name + " [User]";
                 }

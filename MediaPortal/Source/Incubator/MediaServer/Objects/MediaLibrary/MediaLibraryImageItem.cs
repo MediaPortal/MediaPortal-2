@@ -22,19 +22,22 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryImageItem : MediaLibraryItem, IDirectoryImageItem
   {
-    public MediaLibraryImageItem(MediaItem item, EndPointSettings client)
-      : base(item, client)
+    public MediaLibraryImageItem(string baseKey, MediaItem item, EndPointSettings client)
+      : base(baseKey, item, client)
     {
+      DlnaMediaItem dlnaItem = client.GetDlnaItem(item, false);
+      
       Publisher = new List<string>();
       Rights = new List<string>();
       object oValue = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);

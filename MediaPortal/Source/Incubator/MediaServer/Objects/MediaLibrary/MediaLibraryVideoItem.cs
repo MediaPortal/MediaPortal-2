@@ -27,16 +27,16 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryVideoItem : MediaLibraryItem, IDirectoryVideoItem
   {
-    public MediaLibraryVideoItem(MediaItem item, EndPointSettings client)
-      : base(item, client)
+    public MediaLibraryVideoItem(string baseKey, MediaItem item, EndPointSettings client)
+      : base(baseKey, item, client)
     {
       Genre = new List<string>();
       Producer = new List<string>();
@@ -67,7 +67,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
             Description = descriptionObj.ToString();
         }
       }
-      object oValue = item[MediaAspect.Metadata].GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      object oValue = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       if (oValue != null)
       {
         Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");

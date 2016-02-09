@@ -22,16 +22,16 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.Utilities.Exceptions;
+using System;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
   public class BasicContainer : BasicItem, IDirectoryContainer
   {
-    protected readonly Dictionary<string, BasicObject> _children = new Dictionary<string, BasicObject>();
-
     public BasicContainer(string id, EndPointSettings client) 
       : base(id, client)
     {
@@ -43,12 +43,23 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       Class = "object.container";
     }
 
-    protected void Add(BasicObject node)
+    public override string Class
     {
-      Console.WriteLine("BasicContainer::Add entry, {0} to {1}", node.Key, Key);
-      _children[node.Key] = node;
-	    base.Add(node);
-      Console.WriteLine("BasicContainer::Add exit, {0} children", _children.Count);
+      get { return base.Class; }
+      set { base.Class = value; }
+    }
+
+    public override void Initialise()
+    {
+    }
+
+    public void InitialiseAll()
+    {
+      Initialise();
+      foreach (var treeNode in Children.OfType<BasicContainer>())
+      {
+        (treeNode).InitialiseAll();
+      }
     }
 
     public void ContainerUpdated()

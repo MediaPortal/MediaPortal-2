@@ -23,19 +23,24 @@
 #endregion
 
 using System;
-using System.Net;
-using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.Settings;
-using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Service;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Net;
 using MediaPortal.Utilities.Network;
+using System.Net.Sockets;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.Transcoding.Service;
+using System.Collections.Generic;
+using System.Globalization;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Common.MediaManagement;
+using System.IO;
+using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.Transcoding.Service.Objects;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
@@ -97,7 +102,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       }
       return false;
     }
-
+    
     private static IPAddress GetLocalIp()
     {
       bool useIPv4 = true;

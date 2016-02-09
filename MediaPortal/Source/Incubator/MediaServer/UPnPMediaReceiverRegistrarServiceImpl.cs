@@ -22,10 +22,13 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
-using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.Plugins.MediaServer
 {

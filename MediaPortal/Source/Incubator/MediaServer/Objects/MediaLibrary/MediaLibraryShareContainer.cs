@@ -27,43 +27,73 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Tree;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryShareContainer : BasicContainer
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-	    ProviderResourceAspect.ASPECT_ID,
-	    MediaAspect.ASPECT_ID,
-	  };
-
-    private static readonly Guid[] OPTIONAL_MIA_TYPE_IDS = {
-       DirectoryAspect.ASPECT_ID
-     };
-	
+    protected Guid ObjectId { get; set; }
+    protected string BaseKey { get; set; }
     protected IList<string> CategoryFilter { get; set; }
 
     public MediaLibraryShareContainer(string id, EndPointSettings client, params string[] categories)
       : base(id, client)
     {
+      BaseKey = MediaLibraryHelper.GetBaseKey(id);
+      ObjectId = MediaLibraryHelper.GetObjectId(id);
       if (categories != null)
       {
         CategoryFilter = new List<string>(categories);
       }
     }
 
-    private IDictionary<Guid, Share> GetShares()
+    public override int ChildCount
     {
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+      get
+      {
+        // This is some what inefficient
+        return ChildCount = MediaLibraryShares().Count;
+      }
+      set { }
+    }
+
+    public override TreeNode<object> FindNode(string key)
+    {
+      if (!key.StartsWith(Key)) return null;
+      if (key == Key) return this;
+
+      var item = MediaLibraryHelper.GetMediaItem(MediaLibraryHelper.GetObjectId(key));
+      var parentId = new Guid(MediaItemAspect.GetAspect(item.Aspects, ProviderResourceAspect.Metadata).GetAttributeValue(
+        ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID).ToString());
+
+      BasicContainer parent;
+      if (parentId == Guid.Empty)
+      {
+        parent = new BasicContainer(MediaLibraryHelper.GetBaseKey(key), Client);
+      }
+      else
+      {
+        parent = new BasicContainer(MediaLibraryHelper.GetBaseKey(key) + ":" + parentId, Client);
+      }
+
+      return (TreeNode<object>)MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(key), parent);
+    }
+
+    private IDictionary<Guid, Share> MediaLibraryShares()
+    {
+      var library = ServiceRegistration.Get<IMediaLibrary>();
       if (CategoryFilter == null || CategoryFilter.Count == 0)
       {
         return library.GetShares(null);
       }
-
+      else
+      {
         Dictionary<Guid, Share> shares = new Dictionary<Guid, Share>();
         foreach (KeyValuePair<Guid, Share> share in library.GetShares(null))
         {
@@ -77,30 +107,48 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
           }
         }
         return shares;
+      }
     }
 
-    public override void Initialise()
+    public override List<IDirectoryObject> Search(string filter, string sortCriteria)
     {
-      Console.WriteLine("MediaLibraryShareContainer::Initialise");
-	  
-      IDictionary<Guid, Share> shares = GetShares();
+      var shares = MediaLibraryShares();
 
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+      var necessaryMiaTypeIDs = new Guid[]
+                                  {
+                                    ProviderResourceAspect.ASPECT_ID,
+                                    MediaAspect.ASPECT_ID,
+                                  };
+      var optionalMiaTypeIDs = new Guid[]
+                                 {
+                                   DirectoryAspect.ASPECT_ID,
+                                 };
 
-      BasicContainer parent = new BasicContainer(Id, Client);
+      var library = ServiceRegistration.Get<IMediaLibrary>();
+
+      var parent = new BasicContainer(Id, Client);
       var items = (from share in shares
-           select new
-           {
-             Item = library.LoadItem(share.Value.SystemId,
-                                     share.Value.BaseResourcePath,
-                                     NECESSARY_MIA_TYPE_IDS,
-                                     OPTIONAL_MIA_TYPE_IDS),
-             ShareName = share.Value.Name
-           }).ToList();
+                   select new
+                   {
+                     Item = library.LoadItem(share.Value.SystemId,
+                                             share.Value.BaseResourcePath,
+                                             necessaryMiaTypeIDs,
+                                             optionalMiaTypeIDs),
+                     ShareName = share.Value.Name
+                   }).ToList();
+      var result = new List<IDirectoryObject>();
       foreach (var item in items)
       {
-        Add((BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, parent, item.ShareName));
+        try
+        {
+          result.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, Key, parent, item.ShareName));
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Share search failed", e);
+        }
       }
+      return result;
     }
   }
 }

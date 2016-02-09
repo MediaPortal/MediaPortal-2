@@ -22,15 +22,11 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MediaServer.Profiles;
-
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Plugins.MediaServer.Tree
 {
-  public class MediaLibraryEpisodeItem : MediaLibraryVideoItem
+  public class Tree<T> : TreeNode<T>
   {
-    public MediaLibraryEpisodeItem(MediaItem item, EndPointSettings client)
-      : base(item, client)
+    public Tree(string key, T value) : base(key, value)
     {
     }
   }

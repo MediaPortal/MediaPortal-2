@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.ANTLR;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Parser

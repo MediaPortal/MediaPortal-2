@@ -25,30 +25,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Plugins.MediaServer.Tree;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Utilities;
+using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryAlbumItem : MediaLibraryContainer, IDirectoryMusicAlbum
+  public class MediaLibraryAlbumItem : BasicContainer, IDirectoryMusicAlbum
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-      MediaAspect.ASPECT_ID,
-      AudioAspect.ASPECT_ID,
-      TranscodeItemAudioAspect.ASPECT_ID,
-      ProviderResourceAspect.ASPECT_ID
-    };
+    protected string ObjectId { get; set; }
+    protected string BaseKey { get; set; }
 
-    public MediaLibraryAlbumItem(MediaItem item, EndPointSettings client)
-      : base(item, NECESSARY_MIA_TYPE_IDS, null, new RelationshipFilter(item.MediaItemId, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK), client)
+    private readonly string _title;
+
+    public MediaLibraryAlbumItem(string id, string title, EndPointSettings client)
+      : base(id, client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Created album {0}={1}", Item.MediaItemId, Title);
+      ServiceRegistration.Get<ILogger>().Debug("Create album {0}={1}", id, title);
+      _title = title;
+      BaseKey = MediaLibraryHelper.GetBaseKey(Key);
     }
 
     public override string Class
@@ -58,46 +61,103 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override void Initialise()
     {
-      Genre = new List<string>();
-      Artist = new List<string>();
-      Contributor = new List<string>();
-
-      if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
+      Title = _title;
+      IList<MediaItem> items = GetTracks();
+      if (items != null && items.Count > 0)
       {
-        SingleMediaItemAspect albumAspect;
-        if (MediaItemAspect.TryGetAspect(Item.Aspects, AudioAlbumAspect.Metadata, out albumAspect))
+        MediaItem item = items[0];
+        Genre = new List<string>();
+        Artist = new List<string>();
+        Contributor = new List<string>();
+
+        if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
         {
-          // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
-          var genreObj = albumAspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_GENRES);
-          if (genreObj != null)
-            CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
+          SingleMediaItemAspect audioAspect;
+          if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audioAspect))
+          {
+            // TODO: the attribute is defined as IEnumerable<string>, why is it here IEnumerable<object>???
+            var genreObj = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_GENRES);
+            if (genreObj != null)
+              CollectionUtils.AddAll(Genre, genreObj.Cast<string>());
 
-          var artistObj = albumAspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_ARTISTS);
-          if (artistObj != null)
-            CollectionUtils.AddAll(Artist, artistObj.Cast<string>());
+            var artistObj = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_ALBUMARTISTS);
+            if (artistObj != null)
+              CollectionUtils.AddAll(Artist, artistObj.Cast<string>());
 
-          var composerObj = albumAspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_COMPOSERS);
-          if (composerObj != null)
-            CollectionUtils.AddAll(Contributor, composerObj.Cast<string>());
+            var composerObj = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_COMPOSERS);
+            if (composerObj != null)
+              CollectionUtils.AddAll(Contributor, composerObj.Cast<string>());
+          }
+        }
+
+        //Support alternative ways to get album art
+        var albumArt = new MediaLibraryAlbumArt(item, Client);
+        if (albumArt != null)
+        {
+          albumArt.Initialise();
+          if (Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.Resource)
+          {
+            var albumResource = new MediaLibraryAlbumArtResource(albumArt);
+            albumResource.Initialise();
+            Resources.Add(albumResource);
+          }
+          if (Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.AlbumArt)
+          {
+            AlbumArtUrl = albumArt.Uri;
+          }
         }
       }
+    }
 
-      //Support alternative ways to get album art
-      var albumArt = new MediaLibraryAlbumArt(Item, Client);
-      if (albumArt != null)
+    private IList<MediaItem> GetTracks()
+    {
+      var necessaryMiaTypeIDs = new Guid[] {
+                                    MediaAspect.ASPECT_ID,
+                                    AudioAspect.ASPECT_ID,
+                                    TranscodeItemAudioAspect.ASPECT_ID,
+                                    ProviderResourceAspect.ASPECT_ID
+                                  };
+      var optionalMIATypeIDs = new Guid[]
+                                 {
+                                 };
+      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+
+      ServiceRegistration.Get<ILogger>().Debug("Looking for album " + _title);
+      IFilter searchFilter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, _title);
+      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMiaTypeIDs, optionalMIATypeIDs, searchFilter);
+
+      return library.Search(searchQuery, true);
+    }
+
+    public override int ChildCount
+    {
+      get { return GetTracks().Count; }
+    }
+
+    public override TreeNode<object> FindNode(string key)
+    {
+      if (!key.StartsWith(Key)) return null;
+      if (key == Key) return this;
+
+      return null;
+    }
+
+    public override List<IDirectoryObject> Search(string filter, string sortCriteria)
+    {
+      List<IDirectoryObject> result = new List<IDirectoryObject>();
+
+      try
       {
-        albumArt.Initialise();
-        if (Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.Resource)
-        {
-          var albumResource = new MediaLibraryAlbumArtResource(albumArt);
-          albumResource.Initialise();
-          Resources.Add(albumResource);
-        }
-        if (Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.AlbumArt)
-        {
-          AlbumArtUrl = albumArt.Uri;
-        }
+        var parent = new BasicContainer(Id, Client);
+        IList<MediaItem> items = GetTracks();
+        result.AddRange(items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, BaseKey, parent)));
       }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Cannot search for album " + ObjectId, e);
+      }
+
+      return result;
     }
 
     public string StorageMedium { get; set; }
