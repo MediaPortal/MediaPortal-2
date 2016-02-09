@@ -23,10 +23,7 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using MediaPortal.Common;
@@ -53,17 +50,14 @@ namespace MediaPortal.UiComponents.Trakt.Models
     #region Consts
 
     public const string TRAKT_SETUP_MODEL_ID_STR = "65E4F7CA-3C9C-4538-966D-2A896BFEF4D3";
-
     public static readonly Guid TRAKT_SETUP_MODEL_ID = new Guid(TRAKT_SETUP_MODEL_ID_STR);
-
-    private ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-    private TraktSettings TRAKT_SETTINGS = ServiceRegistration.Get<ISettingsManager>().Load<TraktSettings>();
     
     #endregion
 
     #region Protected fields
 
     protected readonly AbstractProperty _isEnabledProperty = new WProperty(typeof(bool), false);
+    protected readonly AbstractProperty _isAuthorizedProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _isSynchronizingProperty = new WProperty(typeof(bool), false);
     protected readonly AbstractProperty _usermameProperty = new WProperty(typeof(string), null);
     protected readonly AbstractProperty _passwordProperty = new WProperty(typeof(string), null);
@@ -84,6 +78,17 @@ namespace MediaPortal.UiComponents.Trakt.Models
     {
       get { return (bool)_isEnabledProperty.GetValue(); }
       set { _isEnabledProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsAuthorizedProperty
+    {
+      get { return _isAuthorizedProperty; }
+    }
+
+    public bool IsAuthorized
+    {
+      get { return (bool)_isAuthorizedProperty.GetValue(); }
+      set { _isAuthorizedProperty.SetValue(value); }
     }
 
     public AbstractProperty IsSynchronizingProperty
@@ -139,27 +144,51 @@ namespace MediaPortal.UiComponents.Trakt.Models
     /// </summary>
     public void SaveSettings()
     {
-      TRAKT_SETTINGS.EnableTrakt = IsEnabled;
-      TRAKT_SETTINGS.Username = Username;
-      TRAKT_SETTINGS.LastSyncActivities = TraktCache.LastSyncActivities.ToJSON().FromJSON<TraktLastSyncActivities>();
-
-      // save user activity cache
-      TraktCache.Save();
       
-      // Save
-      settingsManager.Save(TRAKT_SETTINGS);
+    }
+
+    public void AuthorizeUser()
+    {
+      if (string.IsNullOrEmpty(PinCode) || PinCode.Length != 8)
+      {
+        TestStatus = "[Trakt.WrongToken]";
+        TraktLogger.Error("Wrong pin entered");
+        return;
+      }
+
+      if (!Login())
+        return;
+
+      if (string.IsNullOrEmpty(Username))
+      {
+        TestStatus = "[Trakt.EmptyUsername]";
+        TraktLogger.Error("Username is missing");
+        return;
+      }
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+
+      IsAuthorized = true;
+      settings.IsAuthorized = IsAuthorized;
+      settings.EnableTrakt = IsEnabled;
+      settings.Username = Username;
+      settingsManager.Save(settings);
     }
 
     public void SyncMediaToTrakt()
     {
+
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+
       if (!IsSynchronizing)
       {
-
-        if (!CheckAccountDetails())
+        if (!settings.IsAuthorized)
+        {
+          TestStatus = "[Trakt.NotAuthorized]";
+          TraktLogger.Error("Trakt.tv not authorized");
           return;
-
-        if(!Login())
-          return;
+        }
 
         if (!TraktCache.RefreshData())
           return;
@@ -170,24 +199,13 @@ namespace MediaPortal.UiComponents.Trakt.Models
       }
     }
 
-    private bool CheckAccountDetails()
-    {
-      if(string.IsNullOrEmpty(TRAKT_SETTINGS.TraktOAuthToken))
-      {
-        if (string.IsNullOrEmpty(PinCode) || PinCode.Length != 8)
-        {
-          TestStatus = "[Trakt.WrongToken]";
-          TraktLogger.Error("Token not available. Authorise Trakt first.");
-          return false;
-        }
-      }
-      return true;
-    }
-
     private bool Login()
     {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+
       TraktLogger.Info("Exchanging {0} for access-token...", PinCode.Length == 8 ? "pin-code" : "refresh-token");
-      var response = TraktAPI.GetOAuthToken(PinCode.Length == 8 ? PinCode : TRAKT_SETTINGS.TraktOAuthToken);
+      var response = TraktAPI.GetOAuthToken(PinCode.Length == 8 ? PinCode : settings.TraktOAuthToken);
       if (response == null || string.IsNullOrEmpty(response.AccessToken))
       {
         TestStatus = "[Trakt.CheckPin]";
@@ -197,9 +215,9 @@ namespace MediaPortal.UiComponents.Trakt.Models
       }
 
       TestStatus = "[Trakt.LoggedIn]";
-      TRAKT_SETTINGS.TraktOAuthToken = response.RefreshToken;
-      settingsManager.Save(TRAKT_SETTINGS);
-      PinCode = string.Empty;
+      settings.TraktOAuthToken = response.RefreshToken;
+      settingsManager.Save(settings);
+      
       TraktLogger.Info("Successfully logged in!");
 
       return true;
@@ -212,10 +230,14 @@ namespace MediaPortal.UiComponents.Trakt.Models
         TestStatus = "[Trakt.SyncFinished]";
       }
       IsSynchronizing = false;
+      TraktCache.Save();
     }
 
     public bool SyncMovies()
     {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+
       #region Get online data from cache
 
       #region Get unwatched / watched movies from trakt.tv
@@ -255,39 +277,39 @@ namespace MediaPortal.UiComponents.Trakt.Models
       #endregion
 
       #region Get rated movies from trakt.tv
-      var traktRatedMovies = TraktCache.GetRatedMoviesFromTrakt();
-      if (traktRatedMovies == null)
-      {
-        TraktLogger.Error("Error getting rated movies from trakt server");
-      }
-      else
-      {
-        TraktLogger.Info("There are {0} rated movies in trakt.tv library", traktRatedMovies.Count());
-      }
+      //var traktRatedMovies = TraktCache.GetRatedMoviesFromTrakt();
+      //if (traktRatedMovies == null)
+      //{
+      //  TraktLogger.Error("Error getting rated movies from trakt server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("There are {0} rated movies in trakt.tv library", traktRatedMovies.Count());
+      //}
       #endregion
 
       #region Get watchlisted movies from trakt.tv
-      var traktWatchlistedMovies = TraktCache.GetWatchlistedMoviesFromTrakt();
-      if (traktWatchlistedMovies == null)
-      {
-        TraktLogger.Error("Error getting watchlisted movies from trakt server");
-      }
-      else
-      {
-        TraktLogger.Info("There are {0} watchlisted movies in trakt.tv library", traktWatchlistedMovies.Count());
-      }
+      //var traktWatchlistedMovies = TraktCache.GetWatchlistedMoviesFromTrakt();
+      //if (traktWatchlistedMovies == null)
+      //{
+      //  TraktLogger.Error("Error getting watchlisted movies from trakt server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("There are {0} watchlisted movies in trakt.tv library", traktWatchlistedMovies.Count());
+      //}
       #endregion
 
       #region Get custom lists from trakt.tv
-      var traktCustomLists = TraktCache.GetCustomLists();
-      if (traktCustomLists == null)
-      {
-        TraktLogger.Error("Error getting custom lists from trakt server");
-      }
-      else
-      {
-        TraktLogger.Info("There are {0} custom lists in trakt.tv library", traktCustomLists.Count());
-      }
+      //var traktCustomLists = TraktCache.GetCustomLists();
+      //if (traktCustomLists == null)
+      //{
+      //  TraktLogger.Error("Error getting custom lists from trakt server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("There are {0} custom lists in trakt.tv library", traktCustomLists.Count());
+      //}
       #endregion
       #endregion
 
@@ -337,7 +359,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
             // update internal cache
             TraktCache.AddMoviesToWatchHistory(syncWatchedMovies);
 
-            int pageSize = TRAKT_SETTINGS.SyncBatchSize;
+            int pageSize = settings.SyncBatchSize;
             int pages = (int)Math.Ceiling((double)syncWatchedMovies.Count / pageSize);
             for (int i = 0; i < pages; i++)
             {
@@ -349,7 +371,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                                                                s.Title, s.Year.HasValue ? s.Year.ToString() : "<empty>", s.Ids.Imdb ?? "<empty>", s.Ids.Tmdb.HasValue ? s.Ids.Tmdb.ToString() : "<empty>", s.WatchedAt));
 
               // remove title/year such that match against online ID only
-              if (TRAKT_SETTINGS.SkipMoviesWithNoIdsOnSync)
+              if (settings.SkipMoviesWithNoIdsOnSync)
               {
                 pagedMovies.ForEach(m => { m.Title = null; m.Year = null; });
               }
@@ -394,7 +416,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
           {
             //update internal cache
             TraktCache.AddMoviesToCollection(syncCollectedMovies);
-            int pageSize = TRAKT_SETTINGS.SyncBatchSize;
+            int pageSize = settings.SyncBatchSize;
             int pages = (int)Math.Ceiling((double)syncCollectedMovies.Count / pageSize);
             for (int i = 0; i < pages; i++)
             {
@@ -407,7 +429,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                                               s.CollectedAt, s.MediaType ?? "<empty>", s.Resolution ?? "<empty>", s.AudioCodec ?? "<empty>", s.AudioChannels ?? "<empty>"));
 
               //// remove title/year such that match against online ID only
-              if (TRAKT_SETTINGS.SkipMoviesWithNoIdsOnSync)
+              if (settings.SkipMoviesWithNoIdsOnSync)
               {
                 pagedMovies.ForEach(m =>
                 {
@@ -495,43 +517,43 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
       #region Episodes
 
-      var traktRatedEpisodes = TraktCache.GetRatedEpisodesFromTrakt().ToNullableList();
-      if (traktRatedEpisodes == null)
-      {
-        TraktLogger.Error("Error getting rated episodes from trakt.tv server");
-      }
-      else
-      {
-        TraktLogger.Info("Found {0} rated tv episodes in trakt.tv library", traktRatedEpisodes.Count());
-      }
+      //var traktRatedEpisodes = TraktCache.GetRatedEpisodesFromTrakt().ToNullableList();
+      //if (traktRatedEpisodes == null)
+      //{
+      //  TraktLogger.Error("Error getting rated episodes from trakt.tv server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("Found {0} rated tv episodes in trakt.tv library", traktRatedEpisodes.Count());
+      //}
 
       #endregion
 
       #region Shows
 
-      var traktRatedShows = TraktCache.GetRatedShowsFromTrakt().ToNullableList();
-      if (traktRatedShows == null)
-      {
-        TraktLogger.Error("Error getting rated shows from trakt.tv server");
-      }
-      else
-      {
-        TraktLogger.Info("Found {0} rated tv shows in trakt.tv library", traktRatedShows.Count());
-      }
+      //var traktRatedShows = TraktCache.GetRatedShowsFromTrakt().ToNullableList();
+      //if (traktRatedShows == null)
+      //{
+      //  TraktLogger.Error("Error getting rated shows from trakt.tv server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("Found {0} rated tv shows in trakt.tv library", traktRatedShows.Count());
+      //}
 
       #endregion
 
       #region Seasons
 
-      var traktRatedSeasons = TraktCache.GetRatedSeasonsFromTrakt().ToNullableList();
-      if (traktRatedSeasons == null)
-      {
-        TraktLogger.Error("Error getting rated seasons from trakt.tv server");
-      }
-      else
-      {
-        TraktLogger.Info("Found {0} rated tv seasons in trakt.tv library", traktRatedSeasons.Count());
-      }
+      //var traktRatedSeasons = TraktCache.GetRatedSeasonsFromTrakt().ToNullableList();
+      //if (traktRatedSeasons == null)
+      //{
+      //  TraktLogger.Error("Error getting rated seasons from trakt.tv server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("Found {0} rated tv seasons in trakt.tv library", traktRatedSeasons.Count());
+      //}
 
       #endregion
 
@@ -541,43 +563,43 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
       #region Shows
 
-      var traktWatchlistedShows = TraktCache.GetWatchlistedShowsFromTrakt();
-      if (traktWatchlistedShows == null)
-      {
-        TraktLogger.Error("Error getting watchlisted shows from trakt.tv server");
-      }
-      else
-      {
-        TraktLogger.Info("Found {0} watchlisted tv shows in trakt.tv library", traktWatchlistedShows.Count());
-      }
+      //var traktWatchlistedShows = TraktCache.GetWatchlistedShowsFromTrakt();
+      //if (traktWatchlistedShows == null)
+      //{
+      //  TraktLogger.Error("Error getting watchlisted shows from trakt.tv server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("Found {0} watchlisted tv shows in trakt.tv library", traktWatchlistedShows.Count());
+      //}
 
       #endregion
 
       #region Seasons
 
-      var traktWatchlistedSeasons = TraktCache.GetWatchlistedSeasonsFromTrakt();
-      if (traktWatchlistedSeasons == null)
-      {
-        TraktLogger.Error("Error getting watchlisted seasons from trakt.tv server");
-      }
-      else
-      {
-        TraktLogger.Info("Found {0} watchlisted tv seasons in trakt.tv library", traktWatchlistedSeasons.Count());
-      }
+      //var traktWatchlistedSeasons = TraktCache.GetWatchlistedSeasonsFromTrakt();
+      //if (traktWatchlistedSeasons == null)
+      //{
+      //  TraktLogger.Error("Error getting watchlisted seasons from trakt.tv server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("Found {0} watchlisted tv seasons in trakt.tv library", traktWatchlistedSeasons.Count());
+      //}
 
       #endregion
 
       #region Episodes
 
-      var traktWatchlistedEpisodes = TraktCache.GetWatchlistedEpisodesFromTrakt();
-      if (traktWatchlistedEpisodes == null)
-      {
-        TraktLogger.Error("Error getting watchlisted episodes from trakt.tv server");
-      }
-      else
-      {
-        TraktLogger.Info("Found {0} watchlisted tv episodes in trakt.tv library", traktWatchlistedEpisodes.Count());
-      }
+      //var traktWatchlistedEpisodes = TraktCache.GetWatchlistedEpisodesFromTrakt();
+      //if (traktWatchlistedEpisodes == null)
+      //{
+      //  TraktLogger.Error("Error getting watchlisted episodes from trakt.tv server");
+      //}
+      //else
+      //{
+      //  TraktLogger.Info("Found {0} watchlisted tv episodes in trakt.tv library", traktWatchlistedEpisodes.Count());
+      //}
 
       #endregion
 
@@ -1102,17 +1124,21 @@ namespace MediaPortal.UiComponents.Trakt.Models
    
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      IsEnabled = TRAKT_SETTINGS.EnableTrakt;
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+
+      IsEnabled = settings.EnableTrakt;
+      
       //Clear the PIN Code textbox
       PinCode = string.Empty;
 
       // initialise the last sync activities 
-      if (TRAKT_SETTINGS.LastSyncActivities == null) TRAKT_SETTINGS.LastSyncActivities = new TraktLastSyncActivities();
+      if (settings.LastSyncActivities == null) settings.LastSyncActivities = new TraktLastSyncActivities();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do here
+     // settingsManager.Save(TRAKT_SETTINGS);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

@@ -68,13 +68,10 @@
         <Label Content="{Binding Path=TestStatus}" Color="{ThemeResource EmphasisTextColor}" Grid.Row="3" Grid.ColumnSpan="2"/>
 
         <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="0">
-          <Button x:Name="Test" Content="[Trakt.TestAccount]" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command TestAccount}">
-            <Button.IsEnabled>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                <Binding Path="IsEnabled"/>
-                <Binding Path="!IsSynchronizing"/>
-              </MultiBinding>
-            </Button.IsEnabled>
+          <Button x:Name="Test" Content="[Trakt.Authorize]" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command AuthorizeUser}">
+            <Button.IsVisible>  
+              <Binding Path="!IsAuthorized"/>
+            </Button.IsVisible>
           </Button>
 
           <Button x:Name="Sync" Content="Sync to Trakt" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Command SyncMediaToTrakt}">

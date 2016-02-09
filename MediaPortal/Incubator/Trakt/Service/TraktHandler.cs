@@ -42,14 +42,12 @@ namespace MediaPortal.UiComponents.Trakt.Service
 {
   public class TraktHandler : IDisposable
   {
-    private ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-    private TraktSettings TRAKT_SETTINGS = ServiceRegistration.Get<ISettingsManager>().Load<TraktSettings>();
     private AsynchronousMessageQueue _messageQueue;
     private readonly SettingsChangeWatcher<TraktSettings> _settings = new SettingsChangeWatcher<TraktSettings>();
     private TraktScrobbleMovie _dataMovie = new TraktScrobbleMovie();
     private TraktScrobbleEpisode _dataEpisode = new TraktScrobbleEpisode();
     private TimeSpan _duration;
-    private double _progres;
+    private double _progress;
 
     public TraktHandler()
     {
@@ -106,7 +104,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
             IResumeState resumeState = (IResumeState)message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
             PositionResumeState positionResume = resumeState as PositionResumeState;
             TimeSpan resumePosition = positionResume.ResumePosition;
-            _progres = Math.Min((int)(resumePosition.TotalSeconds * 100 / _duration.TotalSeconds), 100);
+            _progress = Math.Min((int)(resumePosition.TotalSeconds * 100 / _duration.TotalSeconds), 100);
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
@@ -135,18 +133,21 @@ namespace MediaPortal.UiComponents.Trakt.Service
       bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
       bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
 
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+
       if (isMovie)
       {
         _dataMovie = CreateMovieData(pc);
-        _dataMovie.AppDate = TRAKT_SETTINGS.BuildDate;
-        _dataMovie.AppVersion = TRAKT_SETTINGS.Version;
+        _dataMovie.AppDate = settings.BuildDate;
+        _dataMovie.AppVersion = settings.Version;
       }
 
       if (isSeries)
       {
         _dataEpisode = CreateEpisodeData(pc);
-        _dataMovie.AppDate = TRAKT_SETTINGS.BuildDate;
-        _dataMovie.AppVersion = TRAKT_SETTINGS.Version;
+        _dataMovie.AppDate = settings.BuildDate;
+        _dataMovie.AppVersion = settings.Version;
       }
 
     }
@@ -197,7 +198,10 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
     private void StartScrobble()
     {
-      if (string.IsNullOrEmpty(TRAKT_SETTINGS.TraktOAuthToken))
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+
+      if (string.IsNullOrEmpty(settings.TraktOAuthToken))
       {
         TraktLogger.Error("0Auth Token not available");
         return;
@@ -229,14 +233,14 @@ namespace MediaPortal.UiComponents.Trakt.Service
     {
       if (_dataMovie.Movie != null)
       {
-        _dataMovie.Progress = _progres;
+        _dataMovie.Progress = _progress;
         var response = TraktAPI.StopMovieScrobble(_dataMovie);
         TraktLogger.LogTraktResponse(response);
         return;
       }
       if (_dataEpisode != null)
       {
-        _dataEpisode.Progress = _progres;
+        _dataEpisode.Progress = _progress;
         var response = TraktAPI.StopEpisodeScrobble(_dataEpisode);
         TraktLogger.LogTraktResponse(response);
         return;
@@ -246,15 +250,18 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
     private bool Login()
     {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      TraktSettings settings = settingsManager.Load<TraktSettings>();
+
       TraktLogger.Info("Exchanging refresh-token for access-token");
-      var response = TraktAPI.GetOAuthToken(TRAKT_SETTINGS.TraktOAuthToken);
+      var response = TraktAPI.GetOAuthToken(settings.TraktOAuthToken);
       if (response == null || string.IsNullOrEmpty(response.AccessToken))
       {
         TraktLogger.Error("Unable to login to trakt");
         return false;
       }
-      TRAKT_SETTINGS.TraktOAuthToken = response.RefreshToken;
-      settingsManager.Save(TRAKT_SETTINGS);
+      settings.TraktOAuthToken = response.RefreshToken;
+      settingsManager.Save(settings);
       TraktLogger.Info("Successfully logged in");
 
       return true;

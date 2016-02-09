@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Web;
-using MediaPortal.Common;
-using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Enums;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension;
@@ -16,96 +11,23 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TraktAPI;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 {
-  // Enumerables
-
-  // ReSharper disable InconsistentNaming
-
-  /// <summary>
-  /// List of Rate Values - here for backwards compatability with WIFIREMOTE
-  /// </summary>
-  public enum TraktRateValue
-  {
-    unrate,
-    one,
-    two,
-    three,
-    four,
-    five,
-    six,
-    seven,
-    eight,
-    nine,
-    ten
-  }
-
   public static class TraktAPI
   {
-    #region Web Events
-
-    // these events can be used to log data sent / received from trakt
-    public delegate void OnDataSendDelegate(string url, string postData);
-
-    public delegate void OnDataReceivedDelegate(string response, HttpWebResponse webResponse);
-
-    public delegate void OnDataErrorDelegate(string error);
-
-    public delegate void OnLatencyDelegate(double totalElapsedTime, HttpWebResponse webResponse, int dataSent, int dataReceived);
-
-    public static event OnDataSendDelegate OnDataSend;
-    public static event OnDataReceivedDelegate OnDataReceived;
-    public static event OnDataErrorDelegate OnDataError;
-    public static event OnLatencyDelegate OnLatency;
-
-    #endregion
-
-    #region Settings
-
-    // these settings should be set before sending data to trakt
-    // exception being the UserToken which is set after logon
-
-    public static string ApplicationId { get; set; }
-    public static string Username { get; set; }
-    public static string Password { get; set; }
-    public static string UserToken { get; set; }
-    public static string UserAgent { get; set; }
-    public static bool UseSSL { get; set; }
-
-    #endregion
+    const string APPLICATION_ID = "aea41e88de3cd0f8c8b2404d84d2e5d7317789e67fad223eba107aea2ef59068";
+    const string SECRET_ID = "adafedb5cd065e6abeb9521b8b64bc66adb010a7c08128811bf32c989f35b77a";
+    const string REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
     #region Trakt Methods
 
     #region Authentication
 
-    /// <summary>
-    /// Login to trakt and to request a user token for all subsequent requests
-    /// </summary>
-    /// <returns></returns>
-    public static TraktUserToken Login(string loginData = null)
-    {
-      // clear User Token if set
-      UserToken = null;
-
-      var response = TraktWeb.PostToTrakt(TraktURIs.Login, loginData ?? GetUserLogin(), false);
-      return response.FromJSON<TraktUserToken>();
-    }
-
-    /// <summary>
-    /// Gets a User Login object
-    /// </summary>       
-    /// <returns>The User Login json string</returns>
-    private static string GetUserLogin()
-    {
-      return new TraktAuthentication { Username = Username, Password = Password }.ToJSON();
-    }
-
     public static TraktOAuthToken GetOAuthToken(string key)
     {
       // set our required headers now
-      TraktWeb.CustomRequestHeaders.Clear();
+      TraktWeb._customRequestHeaders.Clear();
 
-      TraktWeb.CustomRequestHeaders.Add("trakt-api-key", "aea41e88de3cd0f8c8b2404d84d2e5d7317789e67fad223eba107aea2ef59068");
-      TraktWeb.CustomRequestHeaders.Add("trakt-api-version", "2");
-      //TraktWeb.CustomRequestHeaders.Add("trakt-user-login", Username);
+      TraktWeb._customRequestHeaders.Add("trakt-api-key", APPLICATION_ID);
+      TraktWeb._customRequestHeaders.Add("trakt-api-version", "2");
 
       string response = TraktWeb.PostToTrakt(TraktURIs.LoginOAuth, GetOAuthLogin(key), true);
       var loginResponse = response.FromJSON<TraktOAuthToken>();
@@ -114,7 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
         return loginResponse;
 
       // add the token for authenticated methods
-      TraktWeb.CustomRequestHeaders.Add("Authorization", string.Format("Bearer {0}", loginResponse.AccessToken));
+      TraktWeb._customRequestHeaders.Add("Authorization", string.Format("Bearer {0}", loginResponse.AccessToken));
 
       return loginResponse;
     }
@@ -130,9 +52,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       {
         Code = isPinCode ? key : null,
         RefreshToken = isPinCode ? null : key,
-        ClientId = "aea41e88de3cd0f8c8b2404d84d2e5d7317789e67fad223eba107aea2ef59068",
-        ClientSecret = "adafedb5cd065e6abeb9521b8b64bc66adb010a7c08128811bf32c989f35b77a",
-        RedirectUri = "urn:ietf:wg:oauth:2.0:oob",
+        ClientId = APPLICATION_ID,
+        ClientSecret = SECRET_ID,
+        RedirectUri = REDIRECT_URI,
         GrantType = isPinCode ? "authorization_code" : "refresh_token"
       }
         .ToJSON();
@@ -266,26 +188,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       return response.FromJSONArray<TraktNetworkFriend>();
     }
 
-    /// <summary>
-    /// Returns a list of people the current user follows
-    /// </summary>
-    public static IEnumerable<TraktNetworkUser> GetNetworkFollowing()
-    {
-      return GetNetworkFollowing(Username);
-    }
-
     public static IEnumerable<TraktNetworkUser> GetNetworkFollowing(string user)
     {
       string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.NetworkFollowing, user));
       return response.FromJSONArray<TraktNetworkUser>();
-    }
-
-    /// <summary>
-    /// Returns a list of people that follow the current user
-    /// </summary>
-    public static IEnumerable<TraktNetworkUser> GetNetworkFollowers()
-    {
-      return GetNetworkFollowers(Username);
     }
 
     public static IEnumerable<TraktNetworkUser> GetNetworkFollowers(string user)
@@ -298,22 +204,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     {
       string response = TraktWeb.PostToTrakt(string.Format(TraktURIs.NetworkFollowRequest, id), string.Empty);
       return response.FromJSON<TraktNetworkUser>();
-    }
-
-    public static bool NetworkDenyFollower(int id)
-    {
-      return DeleteFromTrakt(string.Format(TraktURIs.NetworkFollowRequest, id));
-    }
-
-    public static TraktNetworkApproval NetworkFollowUser(string username)
-    {
-      string response = TraktWeb.PostToTrakt(string.Format(TraktURIs.NetworkFollowUser, username), string.Empty);
-      return response.FromJSON<TraktNetworkApproval>();
-    }
-
-    public static bool NetworkUnFollowUser(string username)
-    {
-      return DeleteFromTrakt(string.Format(TraktURIs.NetworkFollowUser, username));
     }
 
     public static IEnumerable<TraktMovieHistory> GetUsersMovieWatchedHistory(string username, int page = 1, int maxItems = 100)
@@ -382,12 +272,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
       return response.FromJSON<TraktListDetail>();
     }
 
-    public static TraktListDetail UpdateCustomList(TraktListDetail list, string username)
-    {
-      var response = ReplaceOnTrakt(string.Format(TraktURIs.UserListEdit, username), list.ToJSON());
-      return response.FromJSON<TraktListDetail>();
-    }
-
     public static TraktSyncResponse AddItemsToList(string username, string id, TraktSyncAll items)
     {
       var response = TraktWeb.PostToTrakt(string.Format(TraktURIs.UserListItemsAdd, username, id), items.ToJSON());
@@ -434,13 +318,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktSeasonWatchList> GetWatchListSeasons(string username, string extendedInfoParams = "min")
     {
-      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchlistSeasons, username, extendedInfoParams));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchlistSeasons, username, extendedInfoParams), true);
       return response.FromJSONArray<TraktSeasonWatchList>();
     }
 
     public static IEnumerable<TraktEpisodeWatchList> GetWatchListEpisodes(string username, string extendedInfoParams = "min")
     {
-      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchlistEpisodes, username, extendedInfoParams));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.UserWatchlistEpisodes, username, extendedInfoParams), true);
       return response.FromJSONArray<TraktEpisodeWatchList>();
     }
 
@@ -678,7 +562,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktComment> GetSeasonComments(string id, int season, int page = 1, int maxItems = 1000)
     {
-      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SeasonComments, id, season, page, maxItems));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SeasonComments, id, season, page, maxItems), true);
       return response.FromJSONArray<TraktComment>();
     }
 
@@ -688,7 +572,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktComment> GetShowComments(string id, int page = 1, int maxItems = 1000)
     {
-      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowComments, id, page, maxItems));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowComments, id, page, maxItems), true);
       return response.FromJSONArray<TraktComment>();
     }
 
@@ -788,7 +672,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <param name="userCalendar">Set to true to get the calendar filtered by users shows in library</param>
     public static Dictionary<string, IEnumerable<TraktCalendar>> GetCalendarShows(string startDate, string days, bool userCalendar)
     {
-      string calendar = GetFromTrakt(string.Format(TraktURIs.CalendarShows, startDate, days), "GET", userCalendar);
+      string calendar = TraktWeb.GetFromTrakt(string.Format(TraktURIs.CalendarShows, startDate, days), userCalendar);
       return calendar.FromJSONDictionary<Dictionary<string, IEnumerable<TraktCalendar>>>();
     }
 
@@ -809,7 +693,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <param name="days">Number of days to return in calendar</param>
     public static Dictionary<string, IEnumerable<TraktCalendar>> GetCalendarPremieres(string startDate, string days)
     {
-      string premieres = GetFromTrakt(string.Format(TraktURIs.CalendarPremieres, startDate, days));
+      string premieres = TraktWeb.GetFromTrakt(string.Format(TraktURIs.CalendarPremieres, startDate, days));
       return premieres.FromJSONDictionary<Dictionary<string, IEnumerable<TraktCalendar>>>();
     }
 
@@ -1098,7 +982,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktSearchResult> SearchUsers(string searchTerm, int maxResults)
     {
-      string response = GetFromTrakt(string.Format(TraktURIs.SearchUsers, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchUsers, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
       return response.FromJSONArray<TraktSearchResult>();
     }
 
@@ -1112,7 +996,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktSearchResult> SearchMovies(string searchTerm, int maxResults)
     {
-      string response = GetFromTrakt(string.Format(TraktURIs.SearchMovies, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchMovies, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
       return response.FromJSONArray<TraktSearchResult>();
     }
 
@@ -1126,7 +1010,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktSearchResult> SearchShows(string searchTerm, int maxResults)
     {
-      string response = GetFromTrakt(string.Format(TraktURIs.SearchShows, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchShows, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
       return response.FromJSONArray<TraktSearchResult>();
     }
 
@@ -1140,7 +1024,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktSearchResult> SearchEpisodes(string searchTerm, int maxResults)
     {
-      string response = GetFromTrakt(string.Format(TraktURIs.SearchEpisodes, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchEpisodes, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
       return response.FromJSONArray<TraktSearchResult>();
     }
 
@@ -1154,7 +1038,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktSearchResult> SearchPeople(string searchTerm, int maxResults)
     {
-      string response = GetFromTrakt(string.Format(TraktURIs.SearchPeople, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchPeople, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
       return response.FromJSONArray<TraktSearchResult>();
     }
 
@@ -1168,7 +1052,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktSearchResult> SearchLists(string searchTerm, int maxResults)
     {
-      string response = GetFromTrakt(string.Format(TraktURIs.SearchLists, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchLists, HttpUtility.UrlEncode(searchTerm), 1, maxResults));
       return response.FromJSONArray<TraktSearchResult>();
     }
 
@@ -1179,7 +1063,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
     /// <param name="id">the id to search by e.g. tt0848228</param>
     public static IEnumerable<TraktSearchResult> SearchById(string idType, string id)
     {
-      string response = GetFromTrakt(string.Format(TraktURIs.SearchById, idType, id));
+      string response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.SearchById, idType, id));
       return response.FromJSONArray<TraktSearchResult>();
     }
 
@@ -1671,19 +1555,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static TraktRating GetShowRatings(string id)
     {
-      var response = GetFromTrakt(string.Format(TraktURIs.ShowRatings, id));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowRatings, id));
       return response.FromJSON<TraktRating>();
     }
 
     public static TraktRating GetSeasonRatings(string id, int season)
     {
-      var response = GetFromTrakt(string.Format(TraktURIs.ShowRatings, id, season));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.ShowRatings, id, season));
       return response.FromJSON<TraktRating>();
     }
 
     public static TraktRating GetEpisodeRatings(string id, int season, int episode)
     {
-      var response = GetFromTrakt(string.Format(TraktURIs.EpisodeRatings, id, season, episode));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.EpisodeRatings, id, season, episode));
       return response.FromJSON<TraktRating>();
     }
 
@@ -1912,7 +1796,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static IEnumerable<TraktComment> GetCommentReplies(string id)
     {
-      var response = GetFromTrakt(string.Format(TraktURIs.CommentReplies, id));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.CommentReplies, id));
       return response.FromJSONArray<TraktComment>();
     }
 
@@ -1922,274 +1806,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt
 
     public static TraktPersonSummary GetPersonSummary(string person)
     {
-      var response = GetFromTrakt(string.Format(TraktURIs.PersonSummary, person));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PersonSummary, person));
       return response.FromJSON<TraktPersonSummary>();
     }
 
     public static TraktPersonMovieCredits GetMovieCreditsForPerson(string person)
     {
-      var response = GetFromTrakt(string.Format(TraktURIs.PersonMovieCredits, person));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PersonMovieCredits, person));
       return response.FromJSON<TraktPersonMovieCredits>();
     }
 
     public static TraktPersonShowCredits GetShowCreditsForPerson(string person)
     {
-      var response = GetFromTrakt(string.Format(TraktURIs.PersonShowCredits, person));
+      var response = TraktWeb.GetFromTrakt(string.Format(TraktURIs.PersonShowCredits, person));
       return response.FromJSON<TraktPersonShowCredits>();
     }
 
     #endregion
 
-    #region Web Helpers
-
-    private static string ReplaceOnTrakt(string address, string postData)
-    {
-      return PostToTrakt(address, postData, true, "PUT");
-    }
+    #region Web Helpersp
 
     private static bool DeleteFromTrakt(string address)
     {
-      var response = GetFromTrakt(address, "DELETE");
+      var response = TraktWeb.GetFromTrakt(address, false, "DELETE");
       return response != null;
-    }
-
-    private static string GetFromTrakt(string address, string method = "GET", bool sendOAuth = true)
-    {
-      WebHeaderCollection headerCollection;
-      return GetFromTrakt(address, out headerCollection, method, sendOAuth);
-    }
-
-    private static string GetFromTrakt(string address, out WebHeaderCollection headerCollection, string method = "GET", bool sendOAuth = true)
-    {
-      headerCollection = new WebHeaderCollection();
-
-      if (UseSSL)
-      {
-        ServicePointManager.Expect100Continue = true;
-        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-      }
-      else
-      {
-        address = address.Replace("https://", "http://");
-      }
-
-      if (OnDataSend != null)
-        OnDataSend(address, null);
-
-      Stopwatch watch;
-
-      var request = WebRequest.Create(address) as HttpWebRequest;
-
-      request.KeepAlive = true;
-      request.Method = method;
-      request.ContentLength = 0;
-      request.Timeout = 120000;
-      request.ContentType = "application/json";
-      request.UserAgent = UserAgent;
-
-      // add required headers for authorisation
-      request.Headers.Add("trakt-api-version", "2");
-      request.Headers.Add("trakt-api-key", ApplicationId);
-
-      // some methods we may want to get all data and not filtered by user data
-      // e.g. Calendar - All Shows
-      if (sendOAuth)
-      {
-        request.Headers.Add("trakt-user-login", Username ?? string.Empty);
-        request.Headers.Add("trakt-user-token", UserToken ?? string.Empty);
-      }
-
-      // measure how long it took to get a response
-      watch = Stopwatch.StartNew();
-
-      try
-      {
-        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-        if (response == null)
-        {
-          watch.Stop();
-          return null;
-        }
-
-        Stream stream = response.GetResponseStream();
-        watch.Stop();
-
-        StreamReader reader = new StreamReader(stream);
-        string strResponse = reader.ReadToEnd();
-
-        headerCollection = response.Headers;
-
-        if (method == "DELETE")
-        {
-          strResponse = response.StatusCode == HttpStatusCode.NoContent ? "Item Deleted" : "Failed to delete item";
-        }
-
-        if (OnDataReceived != null)
-          OnDataReceived(strResponse, response);
-
-        if (OnLatency != null)
-          OnLatency(watch.Elapsed.TotalMilliseconds, response, 0, strResponse.Length * sizeof (Char));
-
-        stream.Close();
-        reader.Close();
-        response.Close();
-
-        return strResponse;
-      }
-      catch (WebException wex)
-      {
-        watch.Stop();
-
-        string errorMessage = wex.Message;
-        if (wex.Status == WebExceptionStatus.ProtocolError)
-        {
-          var response = wex.Response as HttpWebResponse;
-
-          string headers = string.Empty;
-          foreach (string key in response.Headers.AllKeys)
-          {
-            headers += string.Format("{0}: {1}, ", key, response.Headers[key]);
-          }
-          errorMessage = string.Format("Protocol Error, Code = '{0}', Description = '{1}', Url = '{2}', Headers = '{3}'", (int)response.StatusCode, response.StatusDescription, address, headers.TrimEnd(new char[] { ',', ' ' }));
-
-          if (OnLatency != null)
-            OnLatency(watch.Elapsed.TotalMilliseconds, response, 0, 0);
-        }
-
-        if (OnDataError != null)
-          OnDataError(errorMessage);
-
-        return null;
-      }
-      catch (IOException ioe)
-      {
-        string errorMessage = string.Format("Request failed due to an IO error, Description = '{0}', Url = '{1}', Method = '{2}'", ioe.Message, address, method);
-
-        if (OnDataError != null)
-          OnDataError(ioe.Message);
-
-        return null;
-      }
-    }
-
-    private static string PostToTrakt(string address, string postData, bool logRequest = true, string method = "POST")
-    {
-      if (UseSSL)
-      {
-        ServicePointManager.Expect100Continue = true;
-        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-      }
-      else
-      {
-        address = address.Replace("https://", "http://");
-      }
-
-      if (OnDataSend != null && logRequest)
-        OnDataSend(address, postData);
-
-      Stopwatch watch;
-
-      if (postData == null)
-        postData = string.Empty;
-
-      byte[] data = new UTF8Encoding().GetBytes(postData);
-
-      var request = WebRequest.Create(address) as HttpWebRequest;
-      request.KeepAlive = true;
-
-      request.Method = method;
-      request.ContentLength = data.Length;
-      request.Timeout = 120000;
-      request.ContentType = "application/json";
-      request.UserAgent = UserAgent;
-
-      // add required headers for authorisation
-      request.Headers.Add("trakt-api-version", "2");
-      request.Headers.Add("trakt-api-key", ApplicationId);
-
-      // if we're logging in, we don't need to add these headers
-      if (!string.IsNullOrEmpty(UserToken))
-      {
-        request.Headers.Add("trakt-user-login", Username);
-        request.Headers.Add("trakt-user-token", UserToken);
-      }
-
-      // measure how long it took to get a response
-      watch = Stopwatch.StartNew();
-
-      try
-      {
-        // post to trakt
-        Stream postStream = request.GetRequestStream();
-        postStream.Write(data, 0, data.Length);
-
-        // get the response
-        var response = (HttpWebResponse)request.GetResponse();
-        watch.Stop();
-
-        if (response == null)
-          return null;
-
-        Stream responseStream = response.GetResponseStream();
-        var reader = new StreamReader(responseStream);
-        string strResponse = reader.ReadToEnd();
-
-        if (string.IsNullOrEmpty(strResponse))
-        {
-          strResponse = response.StatusCode.ToString();
-        }
-
-        if (OnDataReceived != null)
-          OnDataReceived(strResponse, response);
-
-        if (OnLatency != null)
-          OnLatency(watch.Elapsed.TotalMilliseconds, response, postData.Length * sizeof (Char), strResponse.Length * sizeof (Char));
-
-        // cleanup
-        postStream.Close();
-        responseStream.Close();
-        reader.Close();
-        response.Close();
-
-        return strResponse;
-      }
-      catch (WebException ex)
-      {
-        watch.Stop();
-
-        string result = null;
-        string errorMessage = ex.Message;
-        if (ex.Status == WebExceptionStatus.ProtocolError)
-        {
-          var response = ex.Response as HttpWebResponse;
-
-          string headers = string.Empty;
-          foreach (string key in response.Headers.AllKeys)
-          {
-            headers += string.Format("{0}: {1}, ", key, response.Headers[key]);
-          }
-          errorMessage = string.Format("Protocol Error, Code = '{0}', Description = '{1}', Url = '{2}', Headers = '{3}'", (int)response.StatusCode, response.StatusDescription, address, headers.TrimEnd(new char[] { ',', ' ' }));
-
-          result = new TraktStatus { Code = (int)response.StatusCode, Description = response.StatusDescription }.ToJSON();
-
-          if (OnLatency != null)
-            OnLatency(watch.Elapsed.TotalMilliseconds, response, postData.Length * sizeof (Char), 0);
-        }
-
-        if (OnDataError != null)
-          OnDataError(errorMessage);
-
-        return result;
-      }
-      catch (IOException ioe)
-      {
-        string errorMessage = string.Format("Request failed due to an IO error, Description = '{0}', Url = '{1}', Method = '{2}'", ioe.Message, address, method);
-
-        if (OnDataError != null)
-          OnDataError(ioe.Message);
-
-        return null;
-      }
     }
 
     #endregion

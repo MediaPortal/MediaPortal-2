@@ -1,41 +1,33 @@
 ﻿using System;
-using System.Linq;
-using System.Net;
-using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Web;
 using MediaPortal.UiComponents.Trakt.Settings;
 
 namespace MediaPortal.UiComponents.Trakt
 {
   public static class TraktLogger
   {
-
-    internal delegate void OnLogReceivedDelegate(string message, bool error);
-
-    internal static event OnLogReceivedDelegate OnLogReceived;
-    private static TraktSettings TRAKT_SETTINGS = ServiceRegistration.Get<ISettingsManager>().Load<TraktSettings>();
+    private static readonly TraktSettings SETTINGS = ServiceRegistration.Get<ISettingsManager>().Load<TraktSettings>();
 
     static TraktLogger()
     {
 
       // default logging before we load settings
-      TRAKT_SETTINGS.LogLevel = 2;
+      SETTINGS.LogLevel = 2;
 
-      // listen to webclient events from the TraktAPI so we can provide useful logging            
-      TraktAPI.OnDataSend += new TraktAPI.OnDataSendDelegate(TraktAPI_OnDataSend);
-      TraktAPI.OnDataError += new TraktAPI.OnDataErrorDelegate(TraktAPI_OnDataError);
-      TraktAPI.OnDataReceived += new TraktAPI.OnDataReceivedDelegate(TraktAPI_OnDataReceived);
-      TraktAPI.OnLatency += new TraktAPI.OnLatencyDelegate(TraktAPI_OnLatency);
+      // listen to webclient events from the TraktWeb so we can provide useful logging            
+      TraktWeb.OnDataSend += WebRequest_OnDataSend;
+      TraktWeb.OnDataReceived += WebRequest_OnDataReceived;
+      TraktWeb.OnDataErrorReceived += WebRequest_OnDataErrorReceived;
     }
 
     public static void Info(String log)
     {
-      if (TRAKT_SETTINGS.LogLevel >= 2)
+      if (SETTINGS.LogLevel >= 2)
         ServiceRegistration.Get<ILogger>().Info("Trakt.tv: {0}", log);
     }
 
@@ -46,8 +38,8 @@ namespace MediaPortal.UiComponents.Trakt
 
     public static void Debug(String log)
     {
-      if (TRAKT_SETTINGS.LogLevel >= 3)
-        ServiceRegistration.Get<ILogger>().Info("Trakt.tv: {0}", log);
+      if (SETTINGS.LogLevel >= 3)
+        ServiceRegistration.Get<ILogger>().Debug("Trakt.tv: {0}", log);
     }
 
     public static void Debug(String format, params Object[] args)
@@ -57,8 +49,8 @@ namespace MediaPortal.UiComponents.Trakt
 
     public static void Error(String log)
     {
-      if (TRAKT_SETTINGS.LogLevel >= 0)
-        ServiceRegistration.Get<ILogger>().Info("Trakt.tv: {0}", log);
+      if (SETTINGS.LogLevel >= 0)
+        ServiceRegistration.Get<ILogger>().Error("Trakt.tv: {0}", log);
     }
 
     public static void Error(String format, params Object[] args)
@@ -68,8 +60,8 @@ namespace MediaPortal.UiComponents.Trakt
 
     public static void Warning(String log)
     {
-      if (TRAKT_SETTINGS.LogLevel >= 1)
-        ServiceRegistration.Get<ILogger>().Info("Trakt.tv: {0}", log);
+      if (SETTINGS.LogLevel >= 1)
+        ServiceRegistration.Get<ILogger>().Warn("Trakt.tv: {0}", log);
     }
 
     public static void Warning(String format, params Object[] args)
@@ -77,12 +69,7 @@ namespace MediaPortal.UiComponents.Trakt
       Warning(String.Format(format, args));
     }
 
-    private static String CreatePrefix()
-    {
-      return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + " [{0}] " + String.Format("[{0}][{1}]", Thread.CurrentThread.Name, Thread.CurrentThread.ManagedThreadId.ToString().PadLeft(2, '0')) + ": {1}";
-    }
-
-    private static void TraktAPI_OnDataSend(string address, string data)
+    private static void WebRequest_OnDataSend(string address, string data)
     {
       if (!string.IsNullOrEmpty(data))
       {
@@ -94,45 +81,17 @@ namespace MediaPortal.UiComponents.Trakt
       }
     }
 
-    private static void TraktAPI_OnDataReceived(string response, HttpWebResponse webResponse)
+    private static void WebRequest_OnDataReceived(string response)
     {
-      if (TRAKT_SETTINGS.LogLevel >= 3)
+      if (SETTINGS.LogLevel >= 3)
       {
-        string headers = string.Empty;
-        foreach (string key in webResponse.Headers.AllKeys)
-        {
-          headers += string.Format("{0}: {1}, ", key, webResponse.Headers[key]);
-        }
-
-        Debug("Response: {0}, Headers: {{{1}}}", response ?? "null", headers.TrimEnd(new char[] { ',', ' ' }));
+        Debug("Response: {0}", response ?? "null");
       }
     }
 
-    private static void TraktAPI_OnDataError(string error)
+    private static void WebRequest_OnDataErrorReceived(string error)
     {
-      Error(error);
-    }
-
-    private static void TraktAPI_OnLatency(double totalTimeTaken, HttpWebResponse webResponse, int dataSent, int dataReceived)
-    {
-      double serverRuntime = 0.0;
-      string[] headers = webResponse.Headers.AllKeys;
-      if (headers.Contains("X-Runtime"))
-      {
-        double.TryParse(webResponse.Headers["X-Runtime"], out serverRuntime);
-
-        // convert to milliseconds from seconds
-        serverRuntime *= 1000.0;
-      }
-
-      // escape query string as it contains comma's
-      string query = webResponse.ResponseUri.Query;
-      if (!string.IsNullOrEmpty(query) && query.Contains(','))
-      {
-        query = "\"" + query + "\"";
-      }
-
-      //WriteLatency(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", DateTime.UtcNow.ToISO8601(), webResponse.ResponseUri.AbsolutePath, query, webResponse.Method, (int)webResponse.StatusCode, webResponse.StatusDescription, dataSent, dataReceived, serverRuntime, totalTimeTaken));
+      Error("Response: {0}", error ?? "null");
     }
 
     /// <summary>
@@ -153,7 +112,7 @@ namespace MediaPortal.UiComponents.Trakt
       {
         // only log the response if we don't have debug logging enabled
         // we already log all responses in debug level
-        if (TRAKT_SETTINGS.LogLevel < 3)
+        if (SETTINGS.LogLevel < 3)
         {
           if ((response is TraktSyncResponse))
           {
