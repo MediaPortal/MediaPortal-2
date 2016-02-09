@@ -32,6 +32,9 @@
       <!--<PluginFiles Include="$(TargetDir)approot\packages\**\net451\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>-->
       <!--<PluginFiles Include="$(TargetDir)approot\packages\**\net45\*.dll" Exclude="$(TargetDir)approot\packages\**\MediaPortal.*"/>-->
       <PluginFiles Include="$(TargetDir)approot\packages\Microsoft.AspNet.FileProviders.Embedded\**\net451\*.dll"/> <!--needed for Swagger-->
+      
+      <PluginFiles Include="$(TargetDir)approot\packages\Microsoft.AspNet.Diagnostics\**\net451\*.dll"/>
+
       <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll"/>
       <PluginFiles Include="$(TargetDir)approot\packages\Newtonsoft.Json\**\lib\net45\Newtonsoft.Json.dll" />
       <PluginFiles Include="$(TargetDir)approot\packages\OnlineVideos.Core\**\lib\net451\OnlineVideos.dll" />
