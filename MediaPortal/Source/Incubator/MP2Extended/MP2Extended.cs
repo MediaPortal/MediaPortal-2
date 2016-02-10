@@ -28,6 +28,8 @@ using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.Cors;
 using Microsoft.AspNet.Cors.Infrastructure;
 using Microsoft.AspNet.Hosting.Startup;
+using Microsoft.AspNet.Mvc.Formatters;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended
 {
@@ -67,6 +69,13 @@ namespace MediaPortal.Plugins.MP2Extended
               Duration = 100,
               Location = ResponseCacheLocation.Client
             });
+            var jsonOutputFormatter = new JsonOutputFormatter
+            {
+              // MPExtended used the Microsoft DateTime Format
+              SerializerSettings = { DateFormatHandling = DateFormatHandling.MicrosoftDateFormat}
+            };
+            options.OutputFormatters.RemoveType<JsonOutputFormatter>();
+            options.OutputFormatters.Insert(0, jsonOutputFormatter);
           })
           // MVC Razor
           .AddRazorOptions(options => options.FileProvider = new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
