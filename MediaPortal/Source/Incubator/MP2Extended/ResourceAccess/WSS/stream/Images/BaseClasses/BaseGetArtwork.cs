@@ -123,7 +123,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
 
       if (fanart == null || fanart.Count == 0)
       {
-        Logger.Debug("BaseGetArtwork: no fanart found - fanArtMediaType: {0}, fanartType: {1}, name: {2}", Enum.GetName(typeof(FanArtMediaTypes), fanArtMediaType), Enum.GetName(typeof(FanArtTypes), fanartType), name);
+        Logger.Debug("BaseGetArtwork: no fanart found - fanArtMediaType: {0}, fanartType: {1}, name: {2}", fanArtMediaType, fanartType, name);
         // We return a transparent image instead of throwing an exception
         Bitmap newImage = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         Graphics graphic = Graphics.FromImage(newImage);
