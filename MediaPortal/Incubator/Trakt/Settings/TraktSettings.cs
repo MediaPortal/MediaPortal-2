@@ -36,6 +36,9 @@ namespace MediaPortal.UiComponents.Trakt.Settings
     [Setting(SettingScope.User)]
     public bool EnableTrakt { get; set; }
 
+    [Setting(SettingScope.User)]
+    public bool IsAuthorized { get; set; }
+
     [Setting(SettingScope.User, DefaultValue = "")]
     public string Username { get; set; }
 

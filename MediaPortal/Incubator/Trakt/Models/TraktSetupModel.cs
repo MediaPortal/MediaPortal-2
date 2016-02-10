@@ -161,7 +161,9 @@ namespace MediaPortal.UiComponents.Trakt.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
+      // temp. fix to disable the authorize button, when the user already is authorized
       IsAuthorized = true;
+      settings.IsAuthorized = IsAuthorized;
       settings.EnableTrakt = IsEnabled;
       settings.Username = Username;
       settingsManager.Save(settings);
@@ -171,7 +173,10 @@ namespace MediaPortal.UiComponents.Trakt.Models
     {
       if (!IsSynchronizing)
       {
-        if (!IsAuthorized)
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+        TraktSettings settings = settingsManager.Load<TraktSettings>();
+
+        if (!settings.IsAuthorized)
         {
           TestStatus = "[Trakt.NotAuthorized]";
           TraktLogger.Error("Trakt.tv not authorized");
@@ -1116,6 +1121,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
       IsEnabled = settings.EnableTrakt;
+      IsAuthorized = settings.IsAuthorized;
       
       //Clear the PIN Code textbox
       PinCode = string.Empty;
