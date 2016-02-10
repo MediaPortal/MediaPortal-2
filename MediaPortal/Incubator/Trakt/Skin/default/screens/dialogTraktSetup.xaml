@@ -84,10 +84,9 @@
           </Button>
         </StackPanel>
 
-        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <Button x:Name="Ok" Content="[Trakt.Close]" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
-              <Command Source="{StaticResource Model}" Path="SaveSettings"/>
               <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
             </CommandList>
           </Button.Command>

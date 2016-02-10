@@ -35,6 +35,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Authentication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension;
 using MediaPortal.UI.Presentation.Models;
@@ -139,14 +140,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
     #region Public methods - Commands
 
-    /// <summary>
-    /// Saves the current state to the settings file.
-    /// </summary>
-    public void SaveSettings()
-    {
-      
-    }
-
     public void AuthorizeUser()
     {
       if (string.IsNullOrEmpty(PinCode) || PinCode.Length != 8)
@@ -169,7 +162,6 @@ namespace MediaPortal.UiComponents.Trakt.Models
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
       IsAuthorized = true;
-      settings.IsAuthorized = IsAuthorized;
       settings.EnableTrakt = IsEnabled;
       settings.Username = Username;
       settingsManager.Save(settings);
@@ -177,13 +169,9 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
     public void SyncMediaToTrakt()
     {
-
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      TraktSettings settings = settingsManager.Load<TraktSettings>();
-
       if (!IsSynchronizing)
       {
-        if (!settings.IsAuthorized)
+        if (!IsAuthorized)
         {
           TestStatus = "[Trakt.NotAuthorized]";
           TraktLogger.Error("Trakt.tv not authorized");
@@ -205,7 +193,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
       TraktLogger.Info("Exchanging {0} for access-token...", PinCode.Length == 8 ? "pin-code" : "refresh-token");
-      var response = TraktAPI.GetOAuthToken(PinCode.Length == 8 ? PinCode : settings.TraktOAuthToken);
+      var response = TraktAuth.GetOAuthToken(PinCode.Length == 8 ? PinCode : settings.TraktOAuthToken);
       if (response == null || string.IsNullOrEmpty(response.AccessToken))
       {
         TestStatus = "[Trakt.CheckPin]";

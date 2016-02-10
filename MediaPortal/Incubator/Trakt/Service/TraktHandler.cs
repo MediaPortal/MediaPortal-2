@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
@@ -32,6 +33,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Authentication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
@@ -133,21 +135,18 @@ namespace MediaPortal.UiComponents.Trakt.Service
       bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
       bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
 
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      TraktSettings settings = settingsManager.Load<TraktSettings>();
-
       if (isMovie)
       {
         _dataMovie = CreateMovieData(pc);
-        _dataMovie.AppDate = settings.BuildDate;
-        _dataMovie.AppVersion = settings.Version;
+        _dataMovie.AppDate = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+        _dataMovie.AppVersion = "0.2.0";
       }
 
       if (isSeries)
       {
         _dataEpisode = CreateEpisodeData(pc);
-        _dataMovie.AppDate = settings.BuildDate;
-        _dataMovie.AppVersion = settings.Version;
+        _dataMovie.AppDate = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+        _dataMovie.AppVersion = "0.2.0";
       }
 
     }
@@ -254,7 +253,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
       TraktSettings settings = settingsManager.Load<TraktSettings>();
 
       TraktLogger.Info("Exchanging refresh-token for access-token");
-      var response = TraktAPI.GetOAuthToken(settings.TraktOAuthToken);
+      var response = TraktAuth.GetOAuthToken(settings.TraktOAuthToken);
       if (response == null || string.IsNullOrEmpty(response.AccessToken))
       {
         TraktLogger.Error("Unable to login to trakt");

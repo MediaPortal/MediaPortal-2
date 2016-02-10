@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Web
       request.ContentLength = 0;
       request.Timeout = 120000;
       request.ContentType = "application/json";
-      request.UserAgent = UserAgent;
+      request.UserAgent = "TraktForMP2/0.2.1";
       foreach (var header in _customRequestHeaders)
       {
         request.Headers.Add(header.Key, header.Value);
@@ -103,7 +103,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Web
       request.ContentLength = data.Length;
       request.Timeout = 120000;
       request.ContentType = "application/json";
-      request.UserAgent = UserAgent;
+      request.UserAgent = "TraktForMP2/0.2.1";
       foreach (var header in _customRequestHeaders)
       {
         request.Headers.Add(header.Key, header.Value);
@@ -140,22 +140,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Web
           OnDataErrorReceived(e.Message);
 
         return null;
-      }
-    }
-
-    public static string UserAgent
-    {
-      get
-      {
-        return string.Format("TraktForMP2/{0}", Version);
-      }
-    }
-
-    private static string Version
-    {
-      get
-      {
-        return Assembly.GetCallingAssembly().GetName().Version.ToString();
       }
     }
   }

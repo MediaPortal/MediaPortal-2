@@ -90,6 +90,7 @@
     <Compile Include="Libraries\MovieDbV3\MovieDbDownloader.cs" />
     <Compile Include="Libraries\OpenStreetMap\Data\GeocoderResponse.cs" />
     <Compile Include="Libraries\OpenStreetMap\Geocoder.cs" />
+    <Compile Include="Libraries\Trakt\Authentication\TraktAuth.cs" />
     <Compile Include="Libraries\Trakt\DataStructures\TraktActivity.cs" />
     <Compile Include="Libraries\Trakt\DataStructures\TraktAuthentication.cs" />
     <Compile Include="Libraries\Trakt\DataStructures\TraktCalendar.cs" />

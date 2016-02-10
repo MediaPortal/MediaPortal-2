@@ -36,9 +36,6 @@ namespace MediaPortal.UiComponents.Trakt.Settings
     [Setting(SettingScope.User)]
     public bool EnableTrakt { get; set; }
 
-    [Setting(SettingScope.User)]
-    public bool IsAuthorized { get; set; }
-
     [Setting(SettingScope.User, DefaultValue = "")]
     public string Username { get; set; }
 
@@ -74,60 +71,5 @@ namespace MediaPortal.UiComponents.Trakt.Settings
 
     [Setting(SettingScope.User, DefaultValue = 100)]
     public int SyncBatchSize { get; set; }
-
-    #region Properties
-
-    /// <summary>
-    /// UserAgent used for Web Requests
-    /// </summary>
-    public string UserAgent
-    {
-      get
-      {
-        return string.Format("TraktForMP2/{0}", Version);
-      }
-      
-    }
-
-    /// <summary>
-    /// Version of Plugin
-    /// </summary>
-    public string Version
-    {
-      get
-      {
-        return Assembly.GetCallingAssembly().GetName().Version.ToString();
-      }
-      
-    }
-
-    /// <summary>
-    /// Build Date of Plugin
-    /// </summary>
-    public string BuildDate
-    {
-      get
-      {
-        if (_BuildDate == null)
-        {
-          const int PeHeaderOffset = 60;
-          const int LinkerTimestampOffset = 8;
-
-          byte[] buffer = new byte[2047];
-          using (Stream stream = new FileStream(Assembly.GetAssembly(typeof(TraktSettings)).Location, FileMode.Open, FileAccess.Read))
-          {
-            stream.Read(buffer, 0, 2047);
-          }
-
-          int secondsSince1970 = BitConverter.ToInt32(buffer, BitConverter.ToInt32(buffer, PeHeaderOffset) + LinkerTimestampOffset);
-
-          _BuildDate = new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(secondsSince1970).ToString("yyyy-MM-dd");
-        }
-        return _BuildDate;
-      }
-    }
-    private static string _BuildDate;
-
-    #endregion
   }
 }
