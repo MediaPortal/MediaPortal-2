@@ -59,9 +59,9 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebMediaInfo GetMediaInfo(string itemId)
+    public WebMediaInfo GetMediaInfo(string itemId, WebMediaType type)
     {
-      return new GetMediaInfo().Process(itemId);
+      return new GetMediaInfo().Process(itemId, type);
     }
 
     #endregion

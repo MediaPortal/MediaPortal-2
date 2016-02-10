@@ -45,16 +45,18 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.Transcoding.Service.Analyzers;
 using MediaPortal.Plugins.Transcoding.Service.Metadata;
+using MediaPortal.Plugins.MP2Extended.Common;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "type", Type = typeof(int), Nullable = false)]
   internal class GetMediaInfo
   {
     private const string UNDEFINED = "undef";
 
-    public WebMediaInfo Process(string itemId)
+    public WebMediaInfo Process(string itemId, WebMediaType type)
     {
       if (itemId == null)
         throw new BadRequestException("GetMediaInfo: itemId is null");
@@ -66,12 +68,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       List<WebAudioStream> webAudioStreams = new List<WebAudioStream>();
       List<WebSubtitleStream> webSubtitleStreams = new List<WebSubtitleStream>();
 
-      if (Guid.TryParse(itemId, out mediaItemId) == false)
+      if (type == WebMediaType.TV || type == WebMediaType.Radio)
       {
         int channelIdInt;
         if (int.TryParse(itemId, out channelIdInt))
         {
-          string identifier = "MP2Ext Sample - " + itemId;
+          string identifier = "MP2ExtSampler." + Guid.NewGuid();
 
           if (!ServiceRegistration.IsRegistered<ITvProvider>())
             throw new BadRequestException("GetMediaInfo: ITvProvider not found");
@@ -168,10 +170,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
         }
         else
         {
-          throw new BadRequestException(String.Format("GetMediaInfo: No media found with id: {0}", itemId));
+          throw new BadRequestException(String.Format("GetMediaInfo: Channel not found with id: {0}", itemId));
         }
       }
-      else
+      else if (Guid.TryParse(itemId, out mediaItemId) == true)
       {
         ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
         necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -329,6 +331,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
             container = (string)item[TranscodeItemImageAspect.Metadata][TranscodeItemImageAspect.ATTR_CONTAINER];
           }
         }
+      }
+      else
+      {
+        throw new BadRequestException(String.Format("GetMediaInfo: Media not found with id: {0}", itemId));
       }
 
       WebMediaInfo webMediaInfo = new WebMediaInfo

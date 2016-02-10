@@ -17,6 +17,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
       return _slotMap[userName];
     }
 
+    internal static bool SlotIndexExists(string userName)
+    {
+      return _slotMap.ContainsKey(userName);
+    }
+
     internal static void DeleteSlotIndex(string userName)
     {
       if (_slotMap.ContainsKey(userName))

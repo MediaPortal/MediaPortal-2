@@ -65,6 +65,7 @@ namespace MediaPortal.Plugins.SlimTv.Proxy
   public class SlimTvProxy : AbstractSlimTvService
   {
     private Timer _checkForRecordingTimer = null;
+    private int _startDelay = 10000;
     private int _checkInterval = 60000;
     private List<VirtualCard> _currentlyRecording = null;
     private List<VirtualCard> _allCards = null;
@@ -257,7 +258,7 @@ namespace MediaPortal.Plugins.SlimTv.Proxy
 
     protected override bool RegisterEvents()
     {
-      _checkForRecordingTimer = new Timer(new TimerCallback(CheckForRecordings), null, _checkInterval, _checkInterval);
+      _checkForRecordingTimer = new Timer(new TimerCallback(CheckForRecordings), null, _startDelay, _checkInterval);
       if (_checkForRecordingTimer == null)
         return false;
 
@@ -313,7 +314,7 @@ namespace MediaPortal.Plugins.SlimTv.Proxy
     public override bool StopTimeshift(string userName, int slotIndex)
     {
       IUser user;
-      user = GetUserByUserName(userName);
+      user = GetUserByUserName(GetUserName(userName, slotIndex));
       if (user == null)
         return false;
       return RemoteControl.Instance.StopTimeShifting(ref user);

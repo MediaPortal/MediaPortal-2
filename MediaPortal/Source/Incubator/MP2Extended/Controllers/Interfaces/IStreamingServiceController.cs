@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
 
     [OperationContract]
     [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebMediaInfo GetMediaInfo(string itemId);
+    WebMediaInfo GetMediaInfo(string itemId, WebMediaType type);
 
     // playerPosition is in seconds
     [OperationContract]
