@@ -1,0 +1,31 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="SlimTv Proxy Plugin (TVE3.0)"
+    PluginId="{7BACEF6F-BD5E-4D99-BFA8-B5E372650418}"
+    Author="Henso"
+    Copyright="GPL"
+    Description="Provides TV proxy access to TV Engine 3.0"
+    AutoActivate="true">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <ConflictsWith>
+    <PluginReference PluginId="{14E7757A-F7D7-4F61-933B-91E948083A11}"/> <!-- SlimTv Service Plugin (TVE3.5) -->
+    <PluginReference PluginId="{796C1294-38BA-4C9C-8E56-AA299558A59B}"/> <!-- SlimTv Service Plugin (TVE3.0) -->
+  </ConflictsWith>
+
+  <Runtime>
+    <Assembly FileName="SlimTv.Proxy3.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.Proxy.SlimTvProxyPlugin"/>
+  </Runtime>
+</Plugin>
+
