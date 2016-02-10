@@ -105,7 +105,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
           }
           finally
           {
-            timeshiftControl.StopTimeshift(SlotControl.GetSlotIndex(identifier));
+            timeshiftControl.StopTimeshift(identifier, SlotControl.GetSlotIndex(identifier));
             SlotControl.DeleteSlotIndex(identifier);
           }
 
