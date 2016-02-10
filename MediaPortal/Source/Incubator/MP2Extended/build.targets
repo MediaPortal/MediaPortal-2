@@ -51,7 +51,9 @@
     
     <!-- Swagger Files -->
     <ItemGroup>
+      <!-- Both paths seem to be used depending on which computer it is used -->
       <swaggerFiles Include="$(ProjectDir)\wwwroot\lib\swagger-ui\dist\**\*.*" />
+      <swaggerFiles Include="$(ProjectDir)\bower_components\swagger-ui\dist\**\*.*" />
     </ItemGroup>
 
     <!-- VIEWS -->
