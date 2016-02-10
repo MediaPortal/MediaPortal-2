@@ -1,4 +1,4 @@
-﻿namespace MediaPortal.Plugins.MediaServer.ANTLR
+namespace MediaPortal.Plugins.MediaServer.ANTLR
 {
     partial class UPnPLexer
     {

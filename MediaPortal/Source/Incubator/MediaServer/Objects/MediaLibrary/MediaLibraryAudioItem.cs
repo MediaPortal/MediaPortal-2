@@ -26,23 +26,19 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Utilities;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAudioItem : MediaLibraryItem, IDirectoryAudioItem
   {
-    public MediaLibraryAudioItem(string baseKey, MediaItem item, EndPointSettings client)
-      : base(baseKey, item, client)
+    public MediaLibraryAudioItem(MediaItem item, EndPointSettings client)
+      : base(item, client)
     {
-      DlnaMediaItem dlnaItem = client.GetDlnaItem(item, false);
-
       Genre = new List<string>();
       Publisher = new List<string>();
       Rights = new List<string>();
-      //AlbumArtUrls = new List<IDirectoryAlbumArt>();
 
       if (client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {

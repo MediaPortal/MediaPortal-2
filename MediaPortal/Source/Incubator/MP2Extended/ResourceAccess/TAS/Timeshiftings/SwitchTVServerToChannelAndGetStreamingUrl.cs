@@ -44,10 +44,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 
       string resourcePathStr = (string)item[ProviderResourceAspect.Metadata][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       var resourcePath = ResourcePath.Deserialize(resourcePathStr);
-      INetworkResourceAccessor stra = SlimTvResourceAccessor.GetResourceAccessor(resourcePath.BasePathSegment.Path);
+      var stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
+      string url = "";
+      if(stra is INetworkResourceAccessor)
+      {
+        url = ((INetworkResourceAccessor)stra).URL;
+      }
 
-
-      return new WebStringResult { Result = stra.URL };
+      return new WebStringResult { Result = url };
     }
 
     internal static ILogger Logger

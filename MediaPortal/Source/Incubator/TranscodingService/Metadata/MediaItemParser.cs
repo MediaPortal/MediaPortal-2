@@ -399,8 +399,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Metadata
     {
       string resourcePathStr = (string)item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr);
-      IResourceAccessor stra = SlimTvResourceAccessor.GetResourceAccessor(resourcePath.BasePathSegment.Path);
-
+      IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
       if (stra is ILocalFsResourceAccessor)
       {
         return MediaAnalyzer.ParseVideoFile((ILocalFsResourceAccessor)stra);
@@ -415,7 +414,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Metadata
     {
       string resourcePathStr = (string)item[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr);
-      IResourceAccessor stra = SlimTvResourceAccessor.GetResourceAccessor(resourcePath.BasePathSegment.Path);
+      IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
 
       if (stra is ILocalFsResourceAccessor)
       {

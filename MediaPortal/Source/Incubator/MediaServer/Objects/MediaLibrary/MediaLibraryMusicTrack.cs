@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2012 Team MediaPortal
@@ -28,23 +28,20 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.DLNA;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryMusicTrack : MediaLibraryAudioItem, IDirectoryMusicTrack
   {
-    public MediaLibraryMusicTrack(string baseKey, MediaItem item, EndPointSettings client)
-      : base(baseKey, item, client)
+    public MediaLibraryMusicTrack(MediaItem item, EndPointSettings client)
+      : base(item, client)
     {
-      DlnaMediaItem dlnaItem = client.GetDlnaItem(item, false);
-
       Artist = new List<string>();
       Album = new List<string>();
       Playlist = new List<string>();
       Contributor = new List<string>();
 
-      var audioAspect = MediaItemAspect.GetAspect(item.Aspects, AudioAspect.Metadata);
+      var audioAspect = item[AudioAspect.Metadata];
       var album = audioAspect.GetAttributeValue(AudioAspect.ATTR_ALBUM);
       if (album != null) Album.Add(album.ToString());
 
@@ -57,7 +54,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       var originalTrack = audioAspect.GetAttributeValue(AudioAspect.ATTR_TRACK);
       if (originalTrack != null) OriginalTrackNumber = Convert.ToInt32(originalTrack.ToString());
 
-      object oValue = MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      object oValue = item[MediaAspect.Metadata].GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       if (oValue != null)
       {
         Date = Convert.ToDateTime(oValue).Date.ToString("yyyy-MM-dd");

@@ -25,23 +25,11 @@
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Runtime;
-using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Plugins.MediaServer.ResourceAccess;
-using System.IO;
-using MediaPortal.Common.PathManager;
-using System.Xml;
-using System;
-using System.Threading;
-using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Service;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.ResourceAccess;
 using MediaPortal.Plugins.MediaServer.Settings;
 
 namespace MediaPortal.Plugins.MediaServer
@@ -81,13 +69,6 @@ namespace MediaPortal.Plugins.MediaServer
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       Settings = settingsManager.Load<MediaServerSettings>();
-
-      ProfileManager.Profiles.Clear();
-      ProfileManager.LoadProfiles(false);
-      ProfileManager.LoadProfiles(true);
-
-      ProfileManager.ProfileLinks.Clear();
-      ProfileManager.LoadProfileLinks();
     }
 
     private void SaveSettings()
@@ -109,7 +90,6 @@ namespace MediaPortal.Plugins.MediaServer
 
     public void Continue()
     {
-      LoadSettings();
     }
 
     public void Shutdown()

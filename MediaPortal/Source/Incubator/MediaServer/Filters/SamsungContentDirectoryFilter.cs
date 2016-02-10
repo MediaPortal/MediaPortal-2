@@ -22,13 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common;
-
 namespace MediaPortal.Plugins.MediaServer.Filters
 {
   public class SamsungContentDirectoryFilter : GenericContentDirectoryFilter

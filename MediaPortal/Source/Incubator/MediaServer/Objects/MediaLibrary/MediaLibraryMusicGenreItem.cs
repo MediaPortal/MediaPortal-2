@@ -1,96 +1,55 @@
-﻿using MediaPortal.Backend.MediaLibrary;
+﻿#region Copyright (C) 2007-2012 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2012 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.Tree;
 using MediaPortal.Plugins.Transcoding.Aspects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  class MediaLibraryMusicGenreItem : BasicContainer, IDirectoryMusicGenre
+  class MediaLibraryMusicGenreItem : MediaLibraryContainer, IDirectoryMusicGenre
   {
-    protected string ObjectId { get; set; }
-    protected string BaseKey { get; set; }
-
-    private readonly string _title;
+    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
+        MediaAspect.ASPECT_ID,
+        AudioAspect.ASPECT_ID,
+        TranscodeItemAudioAspect.ASPECT_ID,
+        ProviderResourceAspect.ASPECT_ID
+      };
 
     public MediaLibraryMusicGenreItem(string id, string title, EndPointSettings client)
-      : base(id, client)
+      : base(id, title, NECESSARY_MIA_TYPE_IDS, null, new RelationalFilter(AudioAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Create music genre {0}={1}", id, title);
-      _title = title;
-      BaseKey = MediaLibraryHelper.GetBaseKey(Key);
+      ServiceRegistration.Get<ILogger>().Debug("Created music genre {0}={1}", id, title);
     }
 
     public override string Class
     {
       get { return "object.container.genre.musicGenre"; }
-    }
-
-    public override void Initialise()
-    {
-      Title = _title;
-    }
-
-    private IList<MediaItem> GenreAudio()
-    {
-      var necessaryMiaTypeIDs = new Guid[] {
-                                    MediaAspect.ASPECT_ID,
-                                    AudioAspect.ASPECT_ID,
-                                    TranscodeItemAudioAspect.ASPECT_ID,
-                                    ProviderResourceAspect.ASPECT_ID
-                                  };
-      var optionalMIATypeIDs = new Guid[]
-                                 {
-                                 };
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-
-      ServiceRegistration.Get<ILogger>().Debug("Looking for music genre " + _title);
-      IFilter searchFilter = new RelationalFilter(AudioAspect.ATTR_GENRES, RelationalOperator.EQ, _title);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMiaTypeIDs, optionalMIATypeIDs, searchFilter);
-
-      return library.Search(searchQuery, true);
-    }
-
-    public override int ChildCount
-    {
-      get { return GenreAudio().Count; }
-      set { }
-    }
-
-    public override TreeNode<object> FindNode(string key)
-    {
-      if (!key.StartsWith(Key)) return null;
-      if (key == Key) return this;
-
-      return null;
-    }
-
-    public override List<IDirectoryObject> Search(string filter, string sortCriteria)
-    {
-      List<IDirectoryObject> result = new List<IDirectoryObject>();
-
-      try
-      {
-        var parent = new BasicContainer(Id, Client);
-        IList<MediaItem> items = GenreAudio();
-        result.AddRange(items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, BaseKey, parent)));
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("Cannot search for music genre " + ObjectId, e);
-      }
-
-      return result;
     }
 
     public string LongDescription{ get; set; }

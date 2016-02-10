@@ -59,7 +59,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if (item != null && (item.ItemType == WebMediaType.TV || item.ItemType == WebMediaType.Radio))
       {
         ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-        result = timeshiftControl.StopTimeshift(SlotControl.GetSlotIndex(identifier));
+        result = timeshiftControl.StopTimeshift(identifier, SlotControl.GetSlotIndex(identifier));
         SlotControl.DeleteSlotIndex(identifier);
       }
 

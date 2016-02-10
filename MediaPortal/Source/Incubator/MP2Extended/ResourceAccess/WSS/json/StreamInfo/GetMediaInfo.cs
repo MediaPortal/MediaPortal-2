@@ -93,8 +93,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
           {
             string resourcePathStr = (string)mediaItem[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
             var resourcePath = ResourcePath.Deserialize(resourcePathStr);
-            IResourceAccessor stra = SlimTvResourceAccessor.GetResourceAccessor(resourcePath.BasePathSegment.Path);
-
+            IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
             if (stra is ILocalFsResourceAccessor)
             {
               streamInfo = MediaAnalyzer.ParseVideoFile((ILocalFsResourceAccessor)stra);
@@ -106,7 +105,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
           }
           finally
           {
-            timeshiftControl.StopTimeshift(SlotControl.GetSlotIndex(identifier));
+            timeshiftControl.StopTimeshift(identifier, SlotControl.GetSlotIndex(identifier));
             SlotControl.DeleteSlotIndex(identifier);
           }
 
@@ -116,18 +115,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
           {
             container = streamInfo.Metadata.VideoContainerType.ToString().ToUpperInvariant();
 
-            // Video Stream
+            // Video
             WebVideoStream webVideoStream = new WebVideoStream();
             webVideoStream.Codec = Convert.ToString(streamInfo.Video.Codec);
             webVideoStream.DisplayAspectRatio = Convert.ToDecimal(streamInfo.Video.AspectRatio);
             webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString(Convert.ToDecimal(streamInfo.Video.AspectRatio));
             webVideoStream.Height = Convert.ToInt32(streamInfo.Video.Height);
             webVideoStream.Width = Convert.ToInt32(streamInfo.Video.Width);
-            webVideoStream.ID = 0;
+            webVideoStream.ID = streamInfo.Video.StreamIndex;
             webVideoStream.Index = 0;
             //webVideoStream.Interlaced = true;
             webVideoStreams.Add(webVideoStream);
 
+            //Audio
             for (int i = 0; i < streamInfo.Audio.Count; i++)
             {
               WebAudioStream webAudioStream = new WebAudioStream();
@@ -143,6 +143,22 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
                 if (string.IsNullOrEmpty(webAudioStream.Codec) == false) webAudioStream.Title = webAudioStream.Codec.ToUpperInvariant();
               }
               webAudioStreams.Add(webAudioStream);
+            }
+
+            //Subtitles
+            for (int i = 0; i < streamInfo.Subtitles.Count; i++)
+            {
+              WebSubtitleStream webSubtitleStream = new WebSubtitleStream();
+              webSubtitleStream.Filename = "embedded";
+              webSubtitleStream.ID = streamInfo.Subtitles[i].StreamIndex;
+              webSubtitleStream.Index = webSubtitleStreams.Count;
+              string language = string.IsNullOrEmpty(streamInfo.Audio[i].Language) ? UNDEFINED : streamInfo.Subtitles[i].Language;
+              webSubtitleStream.Language = language;
+              if (language != UNDEFINED)
+              {
+                webSubtitleStream.LanguageFull = new CultureInfo(language).EnglishName;
+              }
+              webSubtitleStreams.Add(webSubtitleStream);
             }
           }
           else if (streamInfo.IsAudio)
@@ -182,7 +198,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
           var videoAspect = item[VideoAspect.Metadata];
           duration = Convert.ToInt64(videoAspect.GetAttributeValue(VideoAspect.ATTR_DURATION) ?? 0);
 
-          // Video Stream
+          // Video
           WebVideoStream webVideoStream = new WebVideoStream();
           webVideoStream.Codec = Convert.ToString(videoAspect.GetAttributeValue(VideoAspect.ATTR_VIDEOENCODING) ?? string.Empty);
           webVideoStream.DisplayAspectRatio = Convert.ToDecimal(videoAspect.GetAttributeValue(VideoAspect.ATTR_ASPECTRATIO) ?? 0);
@@ -194,13 +210,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
           if (item.Aspects.ContainsKey(TranscodeItemVideoAspect.ASPECT_ID))
           {
             var transcodeVideoAspect = item[TranscodeItemVideoAspect.Metadata];
-            webVideoStream.ID = 0;
+            object videoStream = transcodeVideoAspect.GetAttributeValue(TranscodeItemVideoAspect.ATTR_STREAM);
+            webVideoStream.ID = int.Parse(videoStream.ToString());
             webVideoStream.Index = 0;
             //webVideoStream.Interlaced = transcodeVideoAspect[TranscodeItemVideoAspect.];
 
             container = (string)transcodeVideoAspect[TranscodeItemVideoAspect.ATTR_CONTAINER];
 
-            // Audio streams
+            // Audio
             IList<MultipleMediaItemAspect> transcodeItemVideoAudioAspects;
             if (MediaItemAspect.TryGetAspects(item.Aspects, TranscodeItemVideoAudioAspect.Metadata, out transcodeItemVideoAudioAspects))
             {
@@ -218,7 +235,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
                 }
                 if (audioCodec != null)
                   webAudioStream.Codec = audioCodec != null ? audioCodec.ToString() : (string)transcodeItemVideoAudioAspects[0].GetAttributeValue(TranscodeItemVideoAudioAspect.ATTR_AUDIOCODEC);
-                webAudioStream.ID = int.Parse(audioStream.ToString()); ;
+                webAudioStream.ID = int.Parse(audioStream.ToString());
                 webAudioStream.Index = i;
                 if (audioLanguage != null)
                 {
@@ -241,10 +258,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
               for (int i = 0; i < transcodeItemVideoEmbeddedAspects.Count; i++)
               {
                 object subtitleLanguage = transcodeItemVideoEmbeddedAspects[i].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE);
+                object subtitleStream = transcodeItemVideoEmbeddedAspects[i].GetAttributeValue(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBSTREAM);
 
                 WebSubtitleStream webSubtitleStream = new WebSubtitleStream();
                 webSubtitleStream.Filename = "embedded";
-                webSubtitleStream.ID = webSubtitleStreams.Count;
+                webSubtitleStream.ID = int.Parse(subtitleStream.ToString());
                 webSubtitleStream.Index = webSubtitleStreams.Count;
                 if (subtitleLanguage != null)
                 {
@@ -253,7 +271,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
                   webSubtitleStream.LanguageFull = language;
                   if (language != UNDEFINED) webSubtitleStream.LanguageFull = new CultureInfo(language).EnglishName;
                 }
-
                 webSubtitleStreams.Add(webSubtitleStream);
               }
             }
@@ -272,7 +289,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
                       {
                         WebSubtitleStream webSubtitleStream = new WebSubtitleStream();
                         webSubtitleStream.Filename = Path.GetFileName(externalSubtitles[i].Source);
-                        webSubtitleStream.ID = webSubtitleStreams.Count;
+                        webSubtitleStream.ID = -1;
                         webSubtitleStream.Index = webSubtitleStreams.Count;
                         if (string.IsNullOrEmpty(externalSubtitles[i].Language) == false)
                         {
@@ -284,7 +301,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
                           webSubtitleStream.Language = UNDEFINED;
                           webSubtitleStream.LanguageFull = UNDEFINED;
                         }
-
                         webSubtitleStreams.Add(webSubtitleStream);
                       }
                   }

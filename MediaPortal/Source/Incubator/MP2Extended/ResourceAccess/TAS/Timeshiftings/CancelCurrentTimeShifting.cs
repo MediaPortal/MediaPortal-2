@@ -23,7 +23,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 
       ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
 
-      bool result = timeshiftControl.StopTimeshift(SlotControl.GetSlotIndex(userName));
+      bool result = timeshiftControl.StopTimeshift(userName, SlotControl.GetSlotIndex(userName));
       SlotControl.DeleteSlotIndex(userName);
 
 

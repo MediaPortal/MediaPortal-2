@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
@@ -33,17 +32,16 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.DIDL;
+using MediaPortal.Plugins.MediaServer.Filters;
 using MediaPortal.Plugins.MediaServer.Objects;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Plugins.MediaServer.Parser;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.Transcoding.Aspects;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using MediaPortal.Plugins.MediaServer.Profiles;
-using System.Net;
-using MediaPortal.Plugins.MediaServer.Filters;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer
 {
@@ -296,8 +294,7 @@ namespace MediaPortal.Plugins.MediaServer
       AddAction(getX_SetBookmark);
     }
 
-    private static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams,
-                                      CallContext context)
+    private static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       // In parameters
       var objectId = (string)inParams[0];
@@ -306,6 +303,10 @@ namespace MediaPortal.Plugins.MediaServer
       var startingIndex = Convert.ToInt32(inParams[3]);
       var requestedCount = Convert.ToInt32(inParams[4]);
       var sortCriteria = (string)inParams[5];
+
+      Logger.Debug(
+        "MediaServer - entry OnBrowse(objectId=\"{0}\",browseFlag=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
+        objectId, browseFlag, filter, startingIndex, requestedCount, sortCriteria);
 
       // Out parameters
       int numberReturned = 0;
@@ -334,10 +335,6 @@ namespace MediaPortal.Plugins.MediaServer
         objectId = newObjectId;
       }
 
-      Logger.Debug(
-        "MediaServer - OnBrowse(objectId=\"{0}\",browseFlag=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
-        objectId, browseFlag, filter, startingIndex, requestedCount, sortCriteria);
-
       // Find the container object requested
       //var parentDirectoryId = objectId == "0" ? Guid.Empty : MarshallingHelper.DeserializeGuid(objectId);
       var o = deviceClient.RootContainer.FindObject(objectId);
@@ -347,6 +344,7 @@ namespace MediaPortal.Plugins.MediaServer
         // throw error!
         throw new ArgumentException("ObjectID not found");
       }
+      Logger.Debug("MediaServer got object {0} / {1} : {2}, {3}", o, o.Id, o.Key, o.Title, o.Children.Count);
       deviceFilter.FilterContainerClassType(objectId, ref o);
       deviceFilter.FilterClassProperties(objectId, ref o);
 
@@ -366,7 +364,8 @@ namespace MediaPortal.Plugins.MediaServer
           break;
         case "BrowseDirectChildren":
           // Create a new ContainerList based on search criteria
-          var resultList = o.Search(filter, sortCriteria);
+          var resultList = o.Browse(filter, sortCriteria);
+          Logger.Debug("MediaServer: Browse has {0} results", resultList.Count);
           totalMatches = resultList.Count;
 
           // Reduce number of items down to a specific range
@@ -399,7 +398,7 @@ namespace MediaPortal.Plugins.MediaServer
       outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
 
       Logger.Debug(
-        "MediaServer - OnBrowse(objectId=\"{0}\"...) = (numberReturned=\"{1}\",totalMatches=\"{2}\",containerUpdateId=\"{3}\") {4}",
+        "MediaServer - exit OnBrowse(objectId=\"{0}\"...) = (numberReturned=\"{1}\",totalMatches=\"{2}\",containerUpdateId=\"{3}\") {4}",
         objectId, numberReturned, totalMatches, containterUpdateId, xml);
 
       // This upnp action doesn't have a return type.
@@ -432,7 +431,7 @@ namespace MediaPortal.Plugins.MediaServer
     private static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       // In parameters
-      var containerId = (string)inParams[0];
+      var objectId = (string)inParams[0];
       var searchCriteria = inParams[1].ToString();
       var filter = inParams[2].ToString();
       var startingIndex = Convert.ToUInt32(inParams[3]);
@@ -440,8 +439,12 @@ namespace MediaPortal.Plugins.MediaServer
       var sortCriteria = (string)inParams[5];
 
       Logger.Debug(
-        "MediaServer - entry OnSearch(containerId=\"{0}\",searchCriteria=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
-        containerId, searchCriteria, filter, startingIndex, requestedCount, sortCriteria);
+        "MediaServer - entry OnSearch(objectId=\"{0}\",searchCriteria=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
+        objectId, searchCriteria, filter, startingIndex, requestedCount, sortCriteria);
+
+      // Out parameters
+      int numberReturned = 0;
+      int totalMatches = 0;
 
       EndPointSettings deviceClient = ProfileManager.DetectProfile(context.Request.Headers);
 
@@ -452,22 +455,19 @@ namespace MediaPortal.Plugins.MediaServer
       }
 
       GenericContentDirectoryFilter deviceFilter = GenericContentDirectoryFilter.GetContentFilter(deviceClient.Profile.DirectoryContentFilter);
-      var newContainerId = deviceFilter.FilterObjectId(containerId, true);
-      if (newContainerId == null)
+      var newObjectId = deviceFilter.FilterObjectId(objectId, true);
+      if (newObjectId == null)
       {
-        Logger.Debug("MediaServer: Request for container ID {0} ignored", containerId);
+        Logger.Debug("MediaServer: Request for container ID {0} ignored", objectId);
         outParams = null;
         return null;
       }
-      if (containerId != newContainerId)
+      if (objectId != newObjectId)
       {
-        Logger.Debug("MediaServer: Request for container ID {0} intercepted, changing it to {1}", containerId, newContainerId);
-        containerId = newContainerId;
+        Logger.Debug("MediaServer: Request for container ID {0} intercepted, changing it to {1}", objectId, newObjectId);
+        objectId = newObjectId;
       }
 
-      // Out parameters
-      int numberReturned = 0;
-      int totalMatches = 0;
       //TODO: DNLA clients use this ID to determine if the any content was changed/added to the container since last request
       int containterUpdateId = 0;
 
@@ -501,14 +501,14 @@ namespace MediaPortal.Plugins.MediaServer
       IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true);
 
       var msgBuilder = new GenericDidlMessageBuilder();
-      var o = deviceClient.RootContainer.FindObject(containerId);
+      var o = deviceClient.RootContainer.FindObject(objectId);
       if (o == null)
       {
         // We failed to find the container requested
         // throw error!
         throw new ArgumentException("ObjectID not found");
       }
-      IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, MediaLibraryHelper.GetBaseKey(containerId), (BasicContainer)o));
+      IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, (BasicContainer)o));
       msgBuilder.BuildAll(filter, objects);
 
       numberReturned = items.Count;
@@ -518,8 +518,8 @@ namespace MediaPortal.Plugins.MediaServer
       outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
 
       Logger.Debug(
-          "MediaServer - exit OnSearch((numberReturned=\"{0}\",totalMatches=\"{1}\",containerUpdateId=\"{2}\") {3}",
-        numberReturned, totalMatches, containterUpdateId, xml);
+          "MediaServer - exit OnSearch(objectId=\"{0}\"...) = (numberReturned=\"{1}\",totalMatches=\"{2}\",containerUpdateId=\"{3}\") {4}",
+          objectId, numberReturned, totalMatches, containterUpdateId, xml);
 
       // This upnp action doesn't have a return type.
       return null;

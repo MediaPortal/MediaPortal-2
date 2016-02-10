@@ -22,16 +22,17 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Plugins.MediaServer.Profiles;
 
-namespace MediaPortal.Plugins.MediaServer.Tree
+namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  public class TreeNodeList<T> : List<TreeNode<T>>
+  public class MediaLibraryMovieItem : MediaLibraryVideoItem
   {
-    public TreeNode<T> FindNode(string key)
+    public MediaLibraryMovieItem(MediaItem item, EndPointSettings client)
+      : base(item, client)
     {
-      return this.Select(node => node.FindNode(key)).FirstOrDefault(n => n != null);
     }
   }
 }

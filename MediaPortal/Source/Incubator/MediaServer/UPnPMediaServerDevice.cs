@@ -22,17 +22,16 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
+using HttpServer;
+using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MediaServer.Profiles;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using System.Collections.Generic;
-using MediaPortal.Backend.Services.ClientCommunication;
-using HttpServer;
-using System.Net;
-using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer
 {

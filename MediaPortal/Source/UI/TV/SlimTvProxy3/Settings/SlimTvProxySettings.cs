@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,12 +22,24 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.MediaServer.Tree
+using MediaPortal.Common.Settings;
+
+namespace MediaPortal.Plugins.SlimTv.Proxy.Settings
 {
-  public class Tree<T> : TreeNode<T>
+  class SlimTvProxySettings
   {
-    public Tree(string key, T value) : base(key, value)
+    public SlimTvProxySettings()
     {
+      HostName = System.Net.Dns.GetHostName();
+      DatabaseProvider = "MySQL";
+      DatabaseConnectionString = "Server=localhost;Database=MpTvDb;User ID=root;Password=MediaPortal;charset=utf8;Connection Timeout=300;";
     }
+
+    [Setting(SettingScope.Global)]
+    public string HostName { get; private set; }
+    [Setting(SettingScope.Global)]
+    public string DatabaseProvider { get; private set; }
+    [Setting(SettingScope.Global)]
+    public string DatabaseConnectionString { get; private set; }
   }
 }

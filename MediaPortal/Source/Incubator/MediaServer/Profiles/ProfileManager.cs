@@ -28,18 +28,18 @@ using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Net;
-using System.Xml;
 using System.IO;
-using MediaPortal.Common.Logging;
+using System.Xml;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MediaServer.DIDL;
 using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Protocols;
-using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Plugins.MediaServer.Filters;
-using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Plugins.MediaServer.Settings;
+using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Plugins.Transcoding.Service.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     public static IPAddress ResolveIpAddress(string address)
     {
       try
-      { 
+      {
         // Get host IP addresses
         IPAddress[] hostIPs = Dns.GetHostAddresses(address);
         // Get local IP addresses
@@ -67,7 +67,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         foreach (IPAddress hostIP in hostIPs)
         {
           // Is localhost
-          if (IPAddress.IsLoopback(hostIP)) 
+          if (IPAddress.IsLoopback(hostIP))
             return IPAddress.Loopback;
           // Is local address
           foreach (IPAddress localIP in localIPs)
@@ -83,6 +83,17 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
 
     public static EndPointSettings DetectProfile(NameValueCollection headers)
     {
+      //Lazy load profiles. Needed because of localized strings in profiles
+      if(Profiles.Count == 0)
+      {
+        Logger.Info("DetectProfile: Loading profiles and links");
+
+        LoadProfiles(false);
+        LoadProfiles(true);
+
+        LoadProfileLinks();
+      }
+
       // overwrite the automatic profile detection
       if (headers["remote_addr"] != null && ProfileLinks.ContainsKey(IPAddress.Parse(headers["remote_addr"])))
       {
@@ -539,7 +550,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
               if (Profiles.ContainsKey(profile.ID))
               {
                 //User profiles can override defaults
-                if(userProfiles == true)
+                if (userProfiles == true)
                 {
                   profile.Name = profile.Name + " [User]";
                 }

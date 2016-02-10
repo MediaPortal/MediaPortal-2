@@ -22,14 +22,9 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Plugins.MediaServer.Objects;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.MediaServer.Objects.Basic;
 
 namespace MediaPortal.Plugins.MediaServer.Filters
 {

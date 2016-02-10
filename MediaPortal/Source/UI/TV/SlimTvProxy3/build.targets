@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <Target Name="AfterBuild">
+    <!-- Groups must be defined inside target, so they are evaluated at execution time, not parsing time (where the files are not yet copied!) -->
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.pdb" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Integration.MP2.pdb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ReferencesTarget Include="$(TargetDir)SlimTv.Interfaces.dll" />
+      <ReferencesTarget Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
+      <ReferencesTarget Include="$(TargetDir)Common.Utils.dll" />
+      <ReferencesTarget Include="$(TargetDir)MediaPortal.TV.Server.*.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <SetupTvIntegration Include="$(TargetDir)MediaPortal.Common.dll" />
+      <SetupTvIntegration Include="$(TargetDir)MediaPortal.Utilities.dll" />
+      <SetupTvIntegration Include="$(TargetDir)SlimTv.Interfaces.dll" />
+      <SetupTvIntegration Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <References Include="$(ProjectDir)*.ico" />
+      <References Include="$(ProjectDir)References\**\*.*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(ReferencesTarget)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)Integration\%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

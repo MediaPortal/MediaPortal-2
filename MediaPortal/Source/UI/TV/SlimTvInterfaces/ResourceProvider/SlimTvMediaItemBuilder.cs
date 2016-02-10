@@ -77,7 +77,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
+      var resourceAccessor = SlimTvResourceProvider.GetResourceAccessor(slotIndex, path);
       MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
       String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();

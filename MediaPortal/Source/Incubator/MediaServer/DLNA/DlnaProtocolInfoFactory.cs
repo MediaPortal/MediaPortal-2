@@ -22,12 +22,7 @@
 
 #endregion
 
-using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Objects;
-using System;
 
 namespace MediaPortal.Plugins.MediaServer.DLNA
 {
@@ -45,12 +40,12 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         return null;
 
       var info = new DlnaProtocolInfo
-                   {
-                     Protocol = "http-get",
-                     Network = "*",
-                     MediaType = item.DlnaMime,
-                     AdditionalInfo = new DlnaForthField()
-                   };
+      {
+        Protocol = "http-get",
+        Network = "*",
+        MediaType = item.DlnaMime,
+        AdditionalInfo = new DlnaForthField()
+      };
       bool live = false;
       if (item.TranscodingParameter is VideoTranscoding)
       {

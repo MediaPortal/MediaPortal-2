@@ -22,22 +22,34 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Plugins.MediaServer.Tree;
-using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
-  public abstract class BasicObject : TreeNode<object>, IDirectoryObject
+  public abstract class BasicObject : IDirectoryObject
   {
+    public string Key { get; protected set; }
+    public BasicObject Parent { get; protected set; }
+
+    private List<BasicObject> _children;
+
+    public List<BasicObject> Children
+    {
+      get { return _children ?? (_children = new List<BasicObject>()); }
+    }
+
     public EndPointSettings Client { get; private set; }
 
     protected BasicObject(string key, EndPointSettings client)
-      : base(key, null)
     {
       Resources = new List<IDirectoryResource>();
+	  
+      Key = key;
+      Parent = null;
       Client = client;
     }
 
@@ -57,30 +69,59 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 
     public virtual string Creator { get; set; }
 
-    public virtual IList<IDirectoryResource> Resources { get; set; }
+    public IList<IDirectoryResource> Resources { get; set; }
 
     public virtual bool Restricted { get; set; }
 
     public virtual string WriteStatus { get; set; }
 
     public abstract string Class { get; set; }
-
+	
     public abstract void Initialise();
 
-    public virtual List<IDirectoryObject> Search(string filter, string sortCriteria)
+    public void Add(BasicObject node)
     {
-      //var sieve = new ObjectPropertyFilter(filter);
-      //return Children.Cast<IDirectoryObject>().Where(sieve.Matches).ToList();
-      //
+      Console.WriteLine("TreeNode::Add entry, {0} to {1}", node.Key, Key);
+      node.Parent = this;
+      if (!Children.Contains(node))
+      {
+        Children.Add(node);
+      }
+      Console.WriteLine("TreeNode::Add exit, {0} children", Children.Count);
+    }
+
+    //       public TreeNode<T> FindNode(string key)
+    //       {
+    //           return Key == key ? this : Children.FindNode(key);
+    //       }
+
+    public virtual BasicObject FindNode(string key)
+    {
+      return Key == key ? this : Children.Select(node => node.FindNode(key)).FirstOrDefault(n => n != null);
+    }
+
+	  public void Sort()
+    {
+        if (_children != null)
+        {
+            Children.Sort();
+            foreach (var node in Children)
+            {
+                node.Sort();
+            }
+        }
+    }
+
+    public List<IDirectoryObject> Browse(string filter, string sortCriteria)
+    {
+      // TODO: Need to sort based on sortCriteria.
 
       return Children.Cast<IDirectoryObject>().ToList();
-
-      //TODO: Need to sort based on sortCriteria.
     }
 
     public BasicObject FindObject(string objectId)
     {
-      return (BasicObject) FindNode(objectId);
+      return Key == objectId ? this : Children.Select(node => node.FindNode(objectId)).FirstOrDefault(n => n != null);
     }
   }
 }

@@ -22,14 +22,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MediaServer.ResourceAccess;
-using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Plugins.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {

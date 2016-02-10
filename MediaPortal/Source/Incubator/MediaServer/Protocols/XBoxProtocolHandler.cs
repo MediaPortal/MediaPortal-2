@@ -23,17 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
+using System.Net;
 using HttpServer;
 using HttpServer.Sessions;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
-using System.Net;
 
 namespace MediaPortal.Plugins.MediaServer.Protocols
 {

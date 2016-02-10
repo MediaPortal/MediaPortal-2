@@ -4,6 +4,8 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1BA81EB2-6556-4213-A7A5-9E5B508F186F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -16,28 +18,39 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\DLNADevice.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;D:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;D:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\DLNADevice.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <CodeAnalysisRuleSetDirectories>;D:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;D:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Antlr4.Runtime">
@@ -70,6 +83,7 @@
     <Compile Include="Objects\Basic\BasicItem.cs" />
     <Compile Include="Objects\Basic\BasicObject.cs" />
     <Compile Include="Objects\IDirectoryAlbum.cs" />
+    <Compile Include="Objects\IDirectorySeriesArt.cs" />
     <Compile Include="Objects\IDirectoryAlbumArt.cs" />
     <Compile Include="Objects\IDirectoryAudioBook.cs" />
     <Compile Include="Objects\IDirectoryAudioBroadcast.cs" />
@@ -101,13 +115,24 @@
     <Compile Include="Objects\IDirectoryVideoItem.cs" />
     <Compile Include="DIDL\GenericDidlMessageBuilder.cs" />
     <Compile Include="MediaServerPlugin.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryBrowser.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryEpisodeItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMusicArtistContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMusicArtistItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesArtResource.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesArt.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumArt.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumArtResource.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeasonItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAudioItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryContainer.cs" />
     <Compile Include="DIDL\ObjectRenderer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryMusicGenreContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryMovieGenreContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryMovieGenreItem.cs" />
@@ -134,9 +159,6 @@
     <Compile Include="ResourceAccess\DlnaResourceAccessModule.cs" />
     <Compile Include="Settings\MediaServerSettings.cs" />
     <Compile Include="Settings\ProfileLinks.cs" />
-    <Compile Include="Tree\Tree.cs" />
-    <Compile Include="Tree\TreeNode.cs" />
-    <Compile Include="Tree\TreeNodeList.cs" />
     <Compile Include="Parser\UPnP.g4.lexer.cs" />
     <Compile Include="Parser\UPnP.g4.parser.cs" />
     <Compile Include="UPnPConnectionManagerServiceImpl.cs" />
@@ -180,6 +202,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
     <Content Include="Profiles\DLNAProfiles.xml">
       <SubType>Designer</SubType>
@@ -209,11 +232,10 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props'))" />
-    <Error Condition="!Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets'))" />
+    <Error Condition="!Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.props'))" />
+    <Error Condition="!Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets'))" />
   </Target>
   <Import Project="..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets" Condition="Exists('..\..\..\Packages\Antlr4.4.4.1-alpha001\build\Antlr4.targets')" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
