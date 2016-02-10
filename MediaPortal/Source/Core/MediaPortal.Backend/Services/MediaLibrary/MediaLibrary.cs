@@ -595,7 +595,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       } 
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
       IList<MediaItem> items = cmiq.QueryList();
-      Logger.Info("Found media items [{0}]", string.Join(",", items.Select(x => x.MediaItemId)));
+      Logger.Debug("Found media items [{0}]", string.Join(",", items.Select(x => x.MediaItemId)));
       IList<MediaItem> result = new List<MediaItem>(items.Count);
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
       { // The provider resource aspect was not requested and thus has to be removed from the result items
