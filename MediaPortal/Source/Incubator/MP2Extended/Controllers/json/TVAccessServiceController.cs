@@ -440,7 +440,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "TVAccessService")]
     public IList<WebChannelState> GetAllChannelStatesForGroup(int groupId, string userName)
     {
-      throw new NotImplementedException();
+      return new GetAllChannelStatesForGroup().Process(groupId, userName);
     }
 
     #endregion

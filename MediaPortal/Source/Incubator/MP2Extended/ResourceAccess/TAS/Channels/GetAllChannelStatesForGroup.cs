@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HttpServer;
 using HttpServer.Sessions;
 using MediaPortal.Common;
@@ -16,33 +17,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
-  internal class GetAllChannelStatesForGroup : IRequestMicroModuleHandler
+  internal class GetAllChannelStatesForGroup
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public dynamic Process(int groupId, string userName)
     {
-      HttpParam httpParam = request.Param;
-      string groupId = httpParam["groupId"].Value;
-      string userName = httpParam["userName"].Value;
-     
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetAllChannelStatesForGroup: ITvProvider not found");
 
-      if (groupId == null)
-        throw new BadRequestException("GetAllChannelStatesForGroup: groupId is null");
-      if (userName == null)
+      if (userName == String.Empty)
         throw new BadRequestException("GetAllChannelStatesForGroup: userName is null");
 
-      int channelGroupIdInt;
-      if (!int.TryParse(groupId, out channelGroupIdInt))
-        throw new BadRequestException(string.Format("GetAllChannelStatesForGroup: Couldn't convert groupId to int: {0}", groupId));
 
       List<WebChannelState> output = new List<WebChannelState>();
 
 
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
-      IChannelGroup channelGroup = new ChannelGroup { ChannelGroupId = channelGroupIdInt };
+      IChannelGroup channelGroup = new ChannelGroup { ChannelGroupId = groupId };
 
       IList<IChannel> channels = new List<IChannel>();
       if (!channelAndGroupInfo.GetChannels(channelGroup, out channels))
