@@ -8,7 +8,7 @@
     x:Name="FullscreenContentVideoScreen"
     >
   <!-- DataContext model = VideoPlayerModel -->
-  <Grid x:Name="FullscreenLayoutGrid" Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}">
+  <Grid x:Name="FullscreenLayoutGrid" Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}" >
     <Grid.Resources>
       <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
     </Grid.Resources>
@@ -33,6 +33,9 @@
       </Control.TemplateControl>
     </Control-->
 
+    <!--Image Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4" Source="osd_pause.png" IsVisible="{Binding IsPaused}"
+           VerticalAlignment="Center" HorizontalAlignment="Center"/-->
+    
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
           IsVisible="{Binding !IsOSDVisible}"/>
 
