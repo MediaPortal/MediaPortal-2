@@ -60,9 +60,9 @@ using System.Collections;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Proxy.Settings;
 
-namespace MediaPortal.Plugins.SlimTv.Proxy
+namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public class SlimTvProxy : AbstractSlimTvService
+  public class SlimTvService : AbstractSlimTvService
   {
     private Timer _checkForRecordingTimer = null;
     private int _startDelay = 10000;
@@ -73,7 +73,7 @@ namespace MediaPortal.Plugins.SlimTv.Proxy
 
     protected readonly Dictionary<string, IUser> _tvUsers = new Dictionary<string, IUser>();
 
-    public SlimTvProxy()
+    public SlimTvService()
     {
       _serviceName = "SlimTv.Proxy3";
     }

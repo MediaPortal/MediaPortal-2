@@ -30,8 +30,9 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.Dv.DeviceTree;
+using MediaPortal.Plugins.SlimTv.Service.UPnP;
 
-namespace MediaPortal.Plugins.SlimTv.Proxy
+namespace MediaPortal.Plugins.SlimTv.Service
 {
   public class SlimTvProxyPlugin : IPluginStateTracker
   {
@@ -43,10 +44,12 @@ namespace MediaPortal.Plugins.SlimTv.Proxy
       DvDevice device = ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.FindDevicesByDeviceTypeAndVersion(UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION, true).FirstOrDefault();
       if (device != null)
       {
-        var slimTvService = new SlimTvProxy();
+        var slimTvService = new SlimTvService();
         slimTvService.Init();
         ServiceRegistration.Set<ITvProvider>(slimTvService);
         Logger.Debug("SlimTvProxy: Registered SlimTvService.");
+        device.AddService(new SlimTvServiceImpl());
+        Logger.Debug("SlimTvProxy: Adding SlimTvService to MP2 backend root device");
       }
       else
       {

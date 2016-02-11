@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 
-namespace MediaPortal.Plugins.SlimTv.Proxy
+namespace MediaPortal.Plugins.SlimTv.Service
 {
   public class COMRegistration
   {

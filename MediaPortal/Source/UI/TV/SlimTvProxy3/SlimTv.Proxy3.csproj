@@ -8,7 +8,7 @@
     <ProjectGuid>{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Plugins.SlimTv.Proxy</RootNamespace>
+    <RootNamespace>MediaPortal.Plugins.SlimTv.Service</RootNamespace>
     <AssemblyName>SlimTv.Proxy3</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -130,6 +130,9 @@
     </Compile>
     <Compile Include="..\SlimTvService\AbstractSlimTvService.cs">
       <Link>AbstractSlimTvService.cs</Link>
+    </Compile>
+    <Compile Include="..\SlimTvService\UPnP\SlimTvServiceImpl.cs">
+      <Link>UPnP\SlimTvServiceImpl.cs</Link>
     </Compile>
     <Compile Include="COMRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
