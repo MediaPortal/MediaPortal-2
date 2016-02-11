@@ -25,7 +25,7 @@
 
   <Runtime>
     <Assembly FileName="SlimTv.Proxy3.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.Proxy.SlimTvProxyPlugin"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.Service.SlimTvProxyPlugin"/>
   </Runtime>
 </Plugin>
 
