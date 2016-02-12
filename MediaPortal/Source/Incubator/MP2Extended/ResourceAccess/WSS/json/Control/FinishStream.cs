@@ -43,12 +43,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       {
         Logger.Debug("FinishStream: identifier is null");
         result = false;
+        return new WebBoolResult { Result = result };
       }
 
       if (!StreamControl.ValidateIdentifie(identifier))
       {
         Logger.Debug("FinishStream: unknown identifier: {0}", identifier);
         result = false;
+        return new WebBoolResult { Result = result };
       }
 
       // Remove the stream from the stream controller

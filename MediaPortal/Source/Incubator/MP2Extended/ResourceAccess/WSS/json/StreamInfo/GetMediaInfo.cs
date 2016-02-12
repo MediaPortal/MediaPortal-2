@@ -54,7 +54,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
   [ApiFunctionParam(Name = "type", Type = typeof(int), Nullable = false)]
   internal class GetMediaInfo
   {
-    private const string UNDEFINED = "undef";
+    private const string UNDEFINED = "?";
 
     public WebMediaInfo Process(string itemId, WebMediaType type)
     {
@@ -291,7 +291,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
                       {
                         WebSubtitleStream webSubtitleStream = new WebSubtitleStream();
                         webSubtitleStream.Filename = Path.GetFileName(externalSubtitles[i].Source);
-                        webSubtitleStream.ID = -1;
+                        webSubtitleStream.ID = externalSubtitles[i].StreamIndex;
                         webSubtitleStream.Index = webSubtitleStreams.Count;
                         if (string.IsNullOrEmpty(externalSubtitles[i].Language) == false)
                         {
