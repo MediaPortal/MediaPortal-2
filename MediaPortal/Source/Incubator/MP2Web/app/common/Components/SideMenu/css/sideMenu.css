@@ -8,6 +8,7 @@
     position: fixed;
     left: 0px;
     float: left;
+    /*.pull-left();*/
     top: 50px;
     width: 250px;
     height: 100%;
