@@ -138,9 +138,9 @@
   </Grid>
 
   <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5"
-      Width="330" Height="450">
+      Width="330" Height="550">
     <Image.Source>
-      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" VerticalTextureAlignment="Top"
                           Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
     </Image.Source>
   </Image>

@@ -96,17 +96,16 @@
     </media:AudioAspectWrapper>
   </Grid>
 
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Margin="5"
+  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stretch="Fill" Margin="20,40,5,5"
       Width="380" Height="380">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                          Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
+                          FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;380}"/>
     </Image.Source>
     <Image.OpacityMask >
       <ImageBrush ImageSource="music_filmstrip_mask.png"/>
     </Image.OpacityMask>
   </Image>
-
-
 
 </Grid>

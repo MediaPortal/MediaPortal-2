@@ -96,10 +96,10 @@
     </media:MediaAspectWrapper>
   </Grid>
   
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Margin="5"
+  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stretch="Fill" Margin="20,40,5,5"
       Width="380" Height="380" >
     <Image.Source>
-      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" 
                           Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
     </Image.Source>
     <Image.OpacityMask >
