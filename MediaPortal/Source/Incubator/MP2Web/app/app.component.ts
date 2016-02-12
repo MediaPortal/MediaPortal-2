@@ -1,16 +1,15 @@
-import {Component, View} from "angular2/core";
+import {Component, View, OnChanges, SimpleChange} from "angular2/core";
 import {ROUTER_DIRECTIVES, Location, RouteConfig, RouterLink, Router} from "angular2/router";
 import {COMMON_DIRECTIVES, NgIf, NgFor} from "angular2/common";
 import {TranslateService, TranslatePipe} from "ng2-translate/ng2-translate";
 
 import {ComponentHelper} from "./ComponentHelper";
 
-//import {CrisisListComponent}   from "./crisis-list.component";
-//import {HeroListComponent}     from "./hero-list.component";
+
 import {HomeComponent}     from "./modules/home/lib/home.component";
-//import {MoviesComponent}     from "./modules/movies/lib/movies.component";
 import {ConfigurationService} from "./common/lib/ConfigurationService/ConfigurationService";
 import {MP2WebAppRouterConfiguration} from "./common/lib/ConfigurationService/interface.RouteConfiguration";
+import {ServerControllerService} from "./common/lib/ServerControllerService/ServerControllerService";
 
 /*
 Main MP2Web Component
@@ -20,7 +19,6 @@ This Component get's bootstraped and is responsible for the further Application 
 @Component({
     selector: "mp2web",
     templateUrl: "app/modules/main/main.html",
-    //templateUrl: "app/modules/main/main.html",
     directives: [ROUTER_DIRECTIVES, COMMON_DIRECTIVES, NgFor, NgIf],
     pipes: [TranslatePipe]
 })
@@ -35,8 +33,10 @@ export class AppComponent {
 
     loaded: boolean = false;
     configurationServiceLoadedSubscription: any;
+    attachedClients: any;
 
-    constructor(public router: Router, public location: Location, private translate: TranslateService, private configurationService: ConfigurationService) {
+    constructor(public router: Router, public location: Location, private translate: TranslateService,
+                private configurationService: ConfigurationService, public serverControllerService: ServerControllerService) {
         /*
         Wait for Configuration Service
          */
@@ -76,6 +76,11 @@ export class AppComponent {
         // Everything is ready -> tell the App/Template
         console.log("AppComponent: Setup done");
         this.loaded = true;
+
+        /*
+        Attached Clients setup
+         */
+        this.attachedClients = ServerControllerService
     }
 
     /*

@@ -6,6 +6,7 @@ import {HTTP_PROVIDERS} from "angular2/http";
 import {TranslateService} from "ng2-translate/ng2-translate";
 import {MediaLibrary} from "./common/lib/MediaLibrary/MediaLibrary";
 import {ConfigurationService} from "./common/lib/ConfigurationService/ConfigurationService";
+import {ServerControllerService} from "./common/lib/ServerControllerService/ServerControllerService";
 
 bootstrap(AppComponent, [
     ROUTER_PROVIDERS,
@@ -14,5 +15,6 @@ bootstrap(AppComponent, [
     provide(LocationStrategy, {useClass: HashLocationStrategy}),
     TranslateService,
     ConfigurationService,    // starts the ConfigurationService to make the MP2Web Config globally available
-    MediaLibrary           // starts our MediaLibrary Service
+    MediaLibrary,           // starts our MediaLibrary Service
+    ServerControllerService // Provides information about attached clients
 ]);
