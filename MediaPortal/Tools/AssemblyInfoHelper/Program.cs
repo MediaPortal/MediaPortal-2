@@ -24,6 +24,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
 
@@ -32,7 +33,7 @@ namespace AssemblyInfoHelper
   class Program
   {
     private static readonly Regex RE_REPLACE_ADDITIONAL = new Regex("(AssemblyInformationalVersion\\(\").*(\")", RegexOptions.Multiline);
-    private static readonly Regex RE_REPLACE_YEAR_MONTH = new Regex("(Assembly.*Version\\(\".*\\.)\\d{4}(\")", RegexOptions.Multiline);
+    private static readonly Regex RE_REPLACE_VERSION_NUMBER = new Regex("(Assembly.*Version\\(\")([^\"]*)(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_YEAR_COPY = new Regex("(AssemblyCopyright\\(\"Copyright © Team MediaPortal 2007 - )\\d{4}(\")", RegexOptions.Multiline);
 
     static void Main(string[] args)
@@ -53,26 +54,30 @@ namespace AssemblyInfoHelper
       using (Repository repo = new Repository(path))
       {
         Branch branch = repo.Head.TrackedBranch ?? repo.Head;
+        int commits = branch.Commits.Count();
         string versionInfo = string.Format("{0}-{1}", branch.Name, branch.Tip.Sha.Substring(0, 6));
-        WriteToFile(path, versionInfo);
+        WriteToFile(path, versionInfo, commits);
       }
     }
 
-    private static void WriteToFile(string path, string versionInfo)
+    private static void WriteToFile(string path, string versionInfo, int commits)
     {
       string filePath = Path.Combine(path, @"MediaPortal\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs");
       string template = File.ReadAllText(filePath);
-      template = RE_REPLACE_ADDITIONAL.Replace(template, string.Format("${{1}}{0}${{2}}", versionInfo));
 
       DateTime now = DateTime.Now;
-      string yearMonth = now.Year.ToString().Substring(2, 2) + now.Month.ToString().PadLeft(2, '0');
-      template = RE_REPLACE_YEAR_MONTH.Replace(template, string.Format("${{1}}{0}${{2}}", yearMonth));
-
+      string year2 = now.Year.ToString().Substring(2, 2);
       string year = now.Year.ToString();
+      string month = now.Month.ToString().PadLeft(2, '0');
+      string fullVersion = string.Format("2.{0}.{1}.{2}", year2, month, commits);
+      template = RE_REPLACE_VERSION_NUMBER.Replace(template, string.Format("${{1}}{0}${{3}}", fullVersion));
+
       template = RE_REPLACE_YEAR_COPY.Replace(template, string.Format("${{1}}{0}${{2}}", year));
 
+      template = RE_REPLACE_ADDITIONAL.Replace(template, string.Format("${{1}}{0}${{2}}", versionInfo));
+
       File.WriteAllText(filePath, template);
-      Console.WriteLine("AssemblyInfoHelper successfully changed VersionInfo.cs! New branch: {0}, Build month: {1}", versionInfo, yearMonth);
+      Console.WriteLine("AssemblyInfoHelper successfully changed VersionInfo.cs! New branch: {0}, Build number: {1}", versionInfo, fullVersion);
     }
 
     private static string FindRepoRoot()
