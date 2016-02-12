@@ -372,7 +372,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <!--End Home Screen-->
 
-        <Grid x:Name="MainLayoutPanel" DockPanel.Dock="Center" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="11,0,0,-2">
+        <Grid x:Name="MainLayoutPanel" DockPanel.Dock="Center" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="11,0,0,-2" IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
