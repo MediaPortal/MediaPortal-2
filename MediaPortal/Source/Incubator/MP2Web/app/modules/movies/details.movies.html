@@ -6,7 +6,7 @@
             <b>{{movieObj.Title}}</b>
             <!-- watched status -->
             <span class="glyphicon" [ngClass]="{true: 'glyphicon-eye-open', false: 'glyphicon-eye-close'}[movieObj.Watched]"></span>
-            <span class="pull-right"><starrating [rating]="movieObj.TotalRating"></starrating>{{movieObj.TotalRating}}</span>
+            <span class="pull-right"><starrating [rating]="movieObj.TotalRating"></starrating><span class="badge">{{movieObj.TotalRating}}</span></span>
         </div>
         <div class="panel-body">
             <div class="row movies">
