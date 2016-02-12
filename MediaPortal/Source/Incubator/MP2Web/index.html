@@ -21,6 +21,8 @@
     <!-- Bootstrap -->
     <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
 
+    <script src="node_modules/chart.js/Chart.min.js"></script>
+
     <!-- Styles -->
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css" />
@@ -42,7 +44,9 @@
             map: {
                 'ng2-translate': 'node_modules/ng2-translate',
                 'rxjs': 'node_modules/rxjs',
-                'angular2': 'node_modules/angular2'
+                'angular2': 'node_modules/angular2',
+                'ng2-bootstrap': 'node_modules/ng2-bootstrap',
+                'moment': 'node_modules/moment/moment.js'
             }
         });
         System.import('app/boot')
