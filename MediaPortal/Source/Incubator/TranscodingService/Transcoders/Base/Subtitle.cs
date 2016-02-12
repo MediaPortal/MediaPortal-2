@@ -22,8 +22,6 @@
 
 #endregion
 
-
-
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 {
   internal class Subtitle

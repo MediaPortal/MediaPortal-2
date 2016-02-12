@@ -1,12 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using System.Threading;
 using System.Text.RegularExpressions;
 
@@ -213,7 +232,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
             return totalSize;
           }
         }
-        else if (_transcodedStream != null && _transcodedStream.CanRead)
+        else if (_transcodedStream != null && _transcodedStream.CanSeek)
         {
           return _transcodedStream.Length;
         }
@@ -264,44 +283,52 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
 
     internal void ErrorDataReceived(object sender, DataReceivedEventArgs e)
     {
-      //frame= 4152 fps=115 q=30.0 size=   40610kB time=00:02:53.56 bitrate=1916.8kbits/s  
-      if (string.IsNullOrEmpty(e.Data) == false)
+      try
       {
-        Match match = progressRegex.Match(e.Data);
-        if (match.Success)
+        //frame= 4152 fps=115 q=30.0 size=   40610kB time=00:02:53.56 bitrate=1916.8kbits/s  
+        if (string.IsNullOrEmpty(e.Data) == false)
         {
-          lock (_lastSync)
+          Match match = progressRegex.Match(e.Data);
+          if (match.Success)
           {
-            if (match.Groups["size"].Value.EndsWith("kB", StringComparison.InvariantCultureIgnoreCase))
+            lock (_lastSync)
             {
-              if(long.TryParse(match.Groups["size"].Value.Substring(0, match.Groups["size"].Value.Length - 2).Trim(), out _lastSize))
+              if (match.Groups["size"].Value.EndsWith("kB", StringComparison.InvariantCultureIgnoreCase))
               {
-                _lastSize = _lastSize * 1024;
+                if (long.TryParse(match.Groups["size"].Value.Substring(0, match.Groups["size"].Value.Length - 2).Trim(), out _lastSize))
+                {
+                  _lastSize = _lastSize * 1024;
+                }
               }
-            }
-            else if (match.Groups["size"].Value.EndsWith("mB", StringComparison.InvariantCultureIgnoreCase))
-            {
-              if(long.TryParse(match.Groups["size"].Value.Substring(0, match.Groups["size"].Value.Length - 2).Trim(), out _lastSize))
+              else if (match.Groups["size"].Value.EndsWith("mB", StringComparison.InvariantCultureIgnoreCase))
               {
-                _lastSize = _lastSize * 1024 * 1024;
+                if (long.TryParse(match.Groups["size"].Value.Substring(0, match.Groups["size"].Value.Length - 2).Trim(), out _lastSize))
+                {
+                  _lastSize = _lastSize * 1024 * 1024;
+                }
               }
+              TimeSpan.TryParse(match.Groups["time"].Value, out _lastTime);
+              long.TryParse(match.Groups["frame"].Value, out _lastFrame);
+              long.TryParse(match.Groups["fps"].Value, out _lastFPS);
+              long.TryParse(match.Groups["bitrate"].Value, out _lastBitrate);
             }
-            TimeSpan.TryParse(match.Groups["time"].Value, out _lastTime);
-            long.TryParse(match.Groups["frame"].Value, out _lastFrame); 
-            long.TryParse(match.Groups["fps"].Value, out _lastFPS);
-            long.TryParse(match.Groups["bitrate"].Value, out _lastBitrate);
           }
+          _errorOutput.Append(e.Data);
         }
-        _errorOutput.Append(e.Data);
       }
+      catch { }
     }
 
     internal void OutputDataReceived(object sender, DataReceivedEventArgs e)
     {
-      if (string.IsNullOrEmpty(e.Data) == false)
+      try
       {
-        _standardOutput.Append(e.Data);
+        if (string.IsNullOrEmpty(e.Data) == false)
+        {
+          _standardOutput.Append(e.Data);
+        }
       }
+      catch { }
     }
 
     public void Start()

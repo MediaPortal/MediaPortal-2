@@ -837,12 +837,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private static SubtitleStream FindSubtitle(VideoTranscoding video)
     {
       if (video.SourceSubtitleStreamIndex == NO_SUBTITLE) return null;
-      List<SubtitleStream> allSubs = GetSubtitleStreams(video);
-      if (video.SourceSubtitleStreamIndex >= 0 && allSubs.Count > video.SourceSubtitleStreamIndex)
-      {
-        return allSubs[video.SourceSubtitleStreamIndex];
-      }
-
+      
       SubtitleStream currentEmbeddedSub = null;
       SubtitleStream currentExternalSub = null;
 
@@ -851,11 +846,16 @@ namespace MediaPortal.Plugins.Transcoding.Service
       List<SubtitleStream> subsEmbedded = new List<SubtitleStream>();
       List<SubtitleStream> langSubsEmbedded = new List<SubtitleStream>();
 
+      List<SubtitleStream> allSubs = GetSubtitleStreams(video);
       foreach (SubtitleStream sub in allSubs)
       {
         if (sub.IsEmbedded == false)
         {
           continue;
+        }
+        if (video.SourceSubtitleStreamIndex >= 0 && sub.StreamIndex == video.SourceSubtitleStreamIndex)
+        {
+          return sub;
         }
         if (sub.Default == true)
         {
@@ -895,6 +895,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
         if (sub.IsEmbedded == true)
         {
           continue;
+        }
+        if (video.SourceSubtitleStreamIndex < NO_SUBTITLE && 
+          sub.StreamIndex == video.SourceSubtitleStreamIndex)
+        {
+          return sub;
         }
         if (sub.Default == true)
         {
@@ -1003,7 +1008,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
           foreach (string file in files)
           {
             SubtitleStream sub = new SubtitleStream();
-            sub.StreamIndex = -1;
             sub.Codec = SubtitleCodec.Unknown;
             if (string.Compare(Path.GetExtension(file), ".srt", true, CultureInfo.InvariantCulture) == 0)
             {
@@ -1045,6 +1049,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
               {
                 sub.Language = SubtitleAnalyzer.GetLanguage(lfsra, file, _subtitleDefaultEncoding, _subtitleDefaultLanguage);
               }
+              sub.StreamIndex = -(externalSubtitles.Count + 100);
               externalSubtitles.Add(sub);
             }
           }
@@ -1946,7 +1951,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
         try
         {
           AddTranscodeContext(data.ClientId, data.TranscodeId, context);
-          context.TargetFile = Path.Combine(data.WorkPath, data.SegmentPlaylist != null ? data.SegmentPlaylist : data.OutputFilePath);
+          //context.TargetFile = Path.Combine(data.WorkPath, data.SegmentPlaylist != null ? data.SegmentPlaylist : data.OutputFilePath);
+          //if(context.TargetFile.EndsWith("pipe:"))
+          //{
+          //  context.TargetFile = "";
+          //}
           context.Live = data.IsLive;
           context.SegmentDir = null;
           if (data.SegmentPlaylist != null)

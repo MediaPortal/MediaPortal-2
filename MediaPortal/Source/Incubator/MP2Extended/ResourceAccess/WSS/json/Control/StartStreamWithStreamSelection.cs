@@ -90,10 +90,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
         if (audioId >= 0)
           ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceAudioStreamIndex = audioId;
-        if (subtitleId >= 0)
-          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = subtitleId;
-        else
+        if (subtitleId == -1)
           ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = MediaConverter.NO_SUBTITLE;
+        else
+          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = subtitleId;
       }
 
       StreamControl.StartStreaming(identifier, startPosition);

@@ -249,6 +249,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         data.OutputArguments.Add(string.Format("-hls_base_url {0}", "\"" + PlaylistManifest.URL_PLACEHOLDER + "\""));
         data.OutputFilePath = Path.Combine(data.WorkPath, outputFileName);
         transcodingFile = data.SegmentPlaylist;
+        data.IsStream = false;
       }
       else
       {
@@ -261,11 +262,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             data.InputArguments.Add("-re"); //Simulate live stream from file
           }
           data.IsLive = true;
+          data.IsStream = true;
           data.OutputFilePath = "pipe:";
+          transcodingFile = "";
         }
         else
         {
           data.OutputFilePath = transcodingFile;
+          data.IsStream = false;
         }
       }
 
@@ -287,11 +291,13 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         }
 
         data.IsLive = true;
+        data.IsStream = true;
         data.OutputFilePath = "pipe:";
       }
       else
       {
         data.OutputFilePath = transcodingFile;
+        data.IsStream = false;
       }
     }
 
