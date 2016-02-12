@@ -11,7 +11,7 @@ import {HomeSettingsComponent} from "./home.settings.component";
 var routesConfiguredBoolGlobal: boolean = false;
 
 /*
-Main component for the Movies module
+Main component for the Settings module
  */
 @Component({
     templateUrl: "app/modules/settings/settings.html",
