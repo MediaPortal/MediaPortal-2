@@ -1,0 +1,21 @@
+.diskContainer {
+    width: 300px;
+    border: #f8f8f8 solid medium;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 4px;
+    display: inline-block;
+}
+
+.volume-name {
+    margin-left: 4px;
+}
+
+.progress {
+    margin-top: 4px;
+    margin-bottom: 0px !important;
+}
+
+.space-information {
+    color: #959595;
+}

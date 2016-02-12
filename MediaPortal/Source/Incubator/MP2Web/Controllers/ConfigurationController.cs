@@ -143,14 +143,34 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
           },
           new MP2WebAppRouterConfiguration
           {
-            Name = "Settings",
-            Label = "Settings",
-            Path = "/settings/...",
-            ComponentPath = "./app/modules/settings/lib/settings.component",
-            Component = "SettingsComponent",
-            Visible = true
+            Name = "System",
+            Label = "System",
+            Path = "System",
+            Visible = true,
+            Pages = new List<MP2WebAppRouterConfiguration>
+            {
+              new MP2WebAppRouterConfiguration
+              {
+                Name = "Settings",
+                Label = "Settings",
+                Path = "/settings/...",
+                ComponentPath = "./app/modules/settings/lib/settings.component",
+                Component = "SettingsComponent",
+                Visible = true
+              },
+              new MP2WebAppRouterConfiguration
+              {
+                Name = "SystemStatus",
+                Label = "Information",
+                Path = "/systemStatus",
+                ComponentPath = "./app/modules/systemStatus/lib/systemStatus.component",
+                Component = "SystemStatusComponent",
+                Visible = true
+              }
+            }
           }
         },
+
         MoviesPerRow = 5,
         MoviesPerQuery = 6
       };
