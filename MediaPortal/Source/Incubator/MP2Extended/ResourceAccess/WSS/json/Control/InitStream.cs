@@ -107,6 +107,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         optionalMIATypes.Add(TranscodeItemAudioAspect.ASPECT_ID);
         optionalMIATypes.Add(TranscodeItemImageAspect.ASPECT_ID);
         optionalMIATypes.Add(TranscodeItemVideoAspect.ASPECT_ID);
+        optionalMIATypes.Add(TranscodeItemVideoAudioAspect.ASPECT_ID);
+        optionalMIATypes.Add(TranscodeItemVideoEmbeddedAspect.ASPECT_ID);
 
         mediaItem = GetMediaItems.GetMediaItemById(itemGuid, necessaryMIATypes, optionalMIATypes);
         if (mediaItem == null)
