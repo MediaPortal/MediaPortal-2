@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
         slotIndex = SlotControl.GetSlotIndex(userName);
       }
 
-      bool result = timeshiftControl.StopTimeshift(userName, SlotControl.GetSlotIndex(userName));
+      bool result = timeshiftControl.StopTimeshift(userName, slotIndex);
       SlotControl.DeleteSlotIndex(userName);
 
       return new WebBoolResult { Result = result };
