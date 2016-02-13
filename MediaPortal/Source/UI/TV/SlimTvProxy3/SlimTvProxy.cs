@@ -67,9 +67,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
     private Timer _checkForRecordingTimer = null;
     private int _startDelay = 10000;
     private int _checkInterval = 60000;
-    private List<VirtualCard> _currentlyRecording = null;
-    private List<VirtualCard> _allCards = null;
-    private object _recordingSync = new object(); 
+    private Dictionary<Card, string> _currentlyRecording = new Dictionary<TvDatabase.Card, string>();
+    private List<Card> _allCards = null;
+    private TvBusinessLayer _layer = null;
+    private object _recordingSync = new object();
 
     protected readonly Dictionary<string, IUser> _tvUsers = new Dictionary<string, IUser>();
 
@@ -175,6 +176,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
         RemoteControl.HostName = settings.HostName;
         Gentle.Framework.ProviderFactory.SetDefaultProviderConnectionString(settings.DatabaseConnectionString);
         Gentle.Framework.ProviderFactory.SetDefaultProvider(settings.DatabaseProvider);
+
+        _allCards = new List<Card>(Card.ListAll());
       }
       catch (Exception ex)
       {
@@ -187,7 +190,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override bool DeInit()
     {
       RemoteControl.Clear();
-      lock(_recordingSync)
+      lock (_recordingSync)
       {
         _checkForRecordingTimer.Dispose();
         _allCards.Clear();
@@ -206,51 +209,52 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       lock (_recordingSync)
       {
-        if (_allCards == null)
-        {
-          _allCards = new List<VirtualCard>(
-            Card.ListAll()
-                  .Where(card => RemoteControl.Instance.CardPresent(card.IdCard))
-                  .Select(card => RemoteControl.Instance.GetUsersForCard(card.IdCard))
-                  .Where(users => users != null)
-                  .SelectMany(user => user)
-                  .Select(user => new VirtualCard(user, RemoteControl.HostName))
-            );
-        }
-
-        bool firstRun = false;
-        bool getRecording = false;
         TvServerEventType eventType = TvServerEventType.RecordingStarted;
-        if (_currentlyRecording == null)
+        if (_allCards != null)
         {
-          firstRun = true;
-          _currentlyRecording = new List<VirtualCard>();
-        }
-        foreach (VirtualCard card in _allCards)
-        {
-          if (card.IsRecording)
+          foreach (Card card in _allCards)
           {
-            if (_currentlyRecording.Contains(card) == false)
+            if (card == null) continue;
+            if (RemoteControl.Instance.CardPresent(card.IdCard) == false)
             {
-              _currentlyRecording.Add(card);
-              eventType = TvServerEventType.RecordingStarted;
-              if (firstRun == false) getRecording = true;
+              if (_currentlyRecording.ContainsKey(card))
+                _currentlyRecording.Remove(card);
+              continue;
             }
-          }
-          else
-          {
-            if (_currentlyRecording.Contains(card) == true)
-            {
-              _currentlyRecording.Remove(card);
-              eventType = TvServerEventType.RecordingEnded;
-              getRecording = true;
-            }
-          }
 
-          if (getRecording && File.Exists(card.RecordingFileName))
-          {
-            ServiceRegistration.Get<ILogger>().Info("SlimTvProxy: {0}: {1}", eventType, card.RecordingFileName);
-            ImportRecording(card.RecordingFileName);
+            bool cardRecording = false;
+            var users = RemoteControl.Instance.GetUsersForCard(card.IdCard);
+            if (users == null) continue;
+            for (int i = 0; i < users.Count(); i++)
+            {
+              if (RemoteControl.Instance.IsRecording(ref users[i]) == true)
+              {
+                cardRecording = true;
+                if (_currentlyRecording.ContainsKey(card) == false)
+                {
+                  _currentlyRecording.Add(card, RemoteControl.Instance.RecordingFileName(ref users[i]));
+                  eventType = TvServerEventType.RecordingStarted;
+                  if (File.Exists(_currentlyRecording[card]))
+                  {
+                    ServiceRegistration.Get<ILogger>().Info("SlimTvProxy: {0}: {1}", eventType, _currentlyRecording[card]);
+                    ImportRecording(_currentlyRecording[card]);
+                  }
+                  break;
+                }
+              }
+            }
+
+            if (cardRecording == false)
+            {
+              if (_currentlyRecording.ContainsKey(card) == true)
+              {
+                eventType = TvServerEventType.RecordingEnded;
+                ServiceRegistration.Get<ILogger>().Info("SlimTvProxy: {0}: {1}", eventType, _currentlyRecording[card]);
+                ImportRecording(_currentlyRecording[card]);
+                _currentlyRecording.Remove(card);
+              }
+            }
+
           }
         }
       }
@@ -289,9 +293,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override bool GetRecordingConfiguration(out List<string> recordingFolders, out string singlePattern, out string seriesPattern)
     {
-      IList<Card> allCards = Card.ListAll();
       // Get all different recording folders
-      recordingFolders = allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+      recordingFolders = _allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
       TvBusinessLayer layer = new TvBusinessLayer();
       singlePattern = layer.GetSetting("moviesformat", string.Empty).Value;
@@ -305,7 +308,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     private IUser GetUserByUserName(string userName)
     {
-      return Card.ListAll()
+      return _allCards
         .Where(c => c != null && c.Enabled)
         .SelectMany(c => { var users = RemoteControl.Instance.GetUsersForCard(c.IdCard); return users ?? new IUser[] { }; })
         .FirstOrDefault(u => u.Name == userName);
@@ -430,7 +433,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           foreach (GroupMap map in maps)
           {
             TvDatabase.Channel channel = map.ReferencedChannel();
-            if(channel != null && channel.IsRadio) refChannels.Add(channel);
+            if (channel != null && channel.IsRadio) refChannels.Add(channel);
           }
           break;
         }
@@ -506,10 +509,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (group.ChannelGroupId < 0)
       {
         var radioGroup = RadioChannelGroup.Retrieve(-group.ChannelGroupId);
-        var radioChannels = radioGroup.ReferringRadioGroupMap()
-          .OrderBy(rgm => rgm.SortOrder)
-          .Select(rgm => rgm.ReferencedChannel());
-        channels = radioChannels
+        channels = GetChannelsInGroup(radioGroup.IdGroup)
+          .OrderBy(c => c.SortOrder)
           .Where(c => c != null && c.VisibleInGuide)
           .Select(c => c.ToChannel())
           .ToList();
@@ -517,7 +518,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       else
       {
         var tvGroup = TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId);
-        channels = GetChannelsInGroup(tvGroup)
+        channels = GetChannelsInGroup(tvGroup.IdGroup)
           // Bug? SortOrder contains logical channel number, not the group sort order?
           // .OrderBy(c => c.SortOrder)
           .Where(c => c != null && c.VisibleInGuide)
@@ -527,19 +528,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
-    private List<TvDatabase.Channel> GetChannelsInGroup(TvDatabase.ChannelGroup groupFilter)
+    private List<TvDatabase.Channel> GetChannelsInGroup(int groupId)
     {
       List<TvDatabase.Channel> refChannels = new List<TvDatabase.Channel>();
       IList<TvDatabase.ChannelGroup> groups = TvDatabase.ChannelGroup.ListAll();
       foreach (TvDatabase.ChannelGroup group in groups)
       {
-        if (group.IdGroup == groupFilter.IdGroup)
+        if (group.IdGroup == groupId)
         {
           IList<GroupMap> maps = group.ReferringGroupMap();
           foreach (GroupMap map in maps)
           {
             TvDatabase.Channel channel = map.ReferencedChannel();
-            if(channel != null) refChannels.Add(channel);
+            if (channel != null) refChannels.Add(channel);
           }
           break;
         }
@@ -884,20 +885,21 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool GetCards(out List<ICard> cards)
     {
-      cards = Card.ListAll().Select(card => new SlimTvCard()
+      cards = _allCards.Select(card => new SlimTvCard()
       {
-        Name = card.Name, 
-        CardId = card.IdCard, 
-        EpgIsGrabbing = card.GrabEPG, 
-        HasCam = card.CAM, 
-        CamType = card.CamType == (int)CamType.Default ? SlimTvCamType.Default : SlimTvCamType.Astoncrypt2, 
-        DecryptLimit = card.DecryptLimit, Enabled = card.Enabled, 
-        RecordingFolder = card.RecordingFolder, 
-        TimeshiftFolder = card.TimeShiftFolder, 
-        DevicePath = card.DevicePath, 
-        PreloadCard = card.PreloadCard, 
-        Priority = card.Priority, 
-        SupportSubChannels = card.supportSubChannels, 
+        Name = card.Name,
+        CardId = card.IdCard,
+        EpgIsGrabbing = card.GrabEPG,
+        HasCam = card.CAM,
+        CamType = card.CamType == (int)CamType.Default ? SlimTvCamType.Default : SlimTvCamType.Astoncrypt2,
+        DecryptLimit = card.DecryptLimit,
+        Enabled = card.Enabled,
+        RecordingFolder = card.RecordingFolder,
+        TimeshiftFolder = card.TimeShiftFolder,
+        DevicePath = card.DevicePath,
+        PreloadCard = card.PreloadCard,
+        Priority = card.Priority,
+        SupportSubChannels = card.supportSubChannels,
         RecordingFormat = card.RecordingFormat
       }).Cast<ICard>().ToList();
 
@@ -906,7 +908,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool GetActiveVirtualCards(out List<IVirtualCard> cards)
     {
-      IEnumerable<VirtualCard> virtualCards = Card.ListAll()
+      IEnumerable<VirtualCard> virtualCards = _allCards
                 .Where(card => RemoteControl.Instance.CardPresent(card.IdCard))
                 .Select(card => RemoteControl.Instance.GetUsersForCard(card.IdCard))
                 .Where(users => users != null)
