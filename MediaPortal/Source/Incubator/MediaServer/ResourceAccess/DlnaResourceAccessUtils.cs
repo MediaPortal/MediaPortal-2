@@ -37,6 +37,7 @@ using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Utilities.Network;
 using MediaPortal.Plugins.Transcoding.Service.Objects;
+using MediaPortal.Plugins.Transcoding.Service.Helpers;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
@@ -145,12 +146,12 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       if (dlnaItem.IsTranscoded && dlnaItem.IsVideo)
       {
         VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
-        if (MediaConverter.IsSubtitleAvailable(video)) return true;
+        if (SubtitleHelper.IsSubtitleAvailable(video)) return true;
       }
       else if (dlnaItem.IsVideo)
       {
         VideoTranscoding subtitle = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
-        if (MediaConverter.IsSubtitleAvailable(subtitle)) return true;
+        if (SubtitleHelper.IsSubtitleAvailable(subtitle)) return true;
       }
       return false;
     }

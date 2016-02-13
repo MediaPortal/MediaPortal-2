@@ -37,7 +37,6 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
 using MediaPortal.Plugins.Transcoding.Aspects;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Plugins.Transcoding.Service.Metadata.Streams;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
@@ -46,6 +45,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.Transcoding.Service.Analyzers;
 using MediaPortal.Plugins.Transcoding.Service.Metadata;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.Transcoding.Service.Helpers;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
@@ -285,7 +285,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
                 if (fsra.IsFile)
                   using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
                   {
-                    List<SubtitleStream> externalSubtitles = MediaConverter.FindExternalSubtitles(lfsra);
+                    List<SubtitleStream> externalSubtitles = SubtitleHelper.FindExternalSubtitles(lfsra);
                     if (externalSubtitles != null)
                       for (int i = 0; i < externalSubtitles.Count; i++)
                       {
