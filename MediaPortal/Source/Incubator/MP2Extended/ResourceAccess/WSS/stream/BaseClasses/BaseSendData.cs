@@ -138,7 +138,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
         httpContext.Response.ContentLength = length;
       }
 
-      Range byteRange = new Range(0, httpContext.Response.ContentLength.Value);
+      Range byteRange = new Range(0, httpContext.Response.ContentLength ?? 0);
       Send(httpContext, resourceStream, item, client, onlyHeaders, partialResource, byteRange, chunked);
     }
 
@@ -170,6 +170,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       {
         httpContext.Response.StatusCode = StatusCodes.Status206PartialContent;
         httpContext.Response.Headers[HeaderNames.TransferEncoding] = "chunked";
+        httpContext.Response.ContentLength = null;
+      }
+      if(httpContext.Response.ContentLength == 0)
+      {
+        //Not allowed to have a content length of zero
         httpContext.Response.ContentLength = null;
       }
 
