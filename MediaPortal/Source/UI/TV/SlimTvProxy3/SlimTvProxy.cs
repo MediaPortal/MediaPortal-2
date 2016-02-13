@@ -430,7 +430,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           foreach (GroupMap map in maps)
           {
             TvDatabase.Channel channel = map.ReferencedChannel();
-            if(channel.IsRadio) refChannels.Add(channel);
+            if(channel != null && channel.IsRadio) refChannels.Add(channel);
           }
           break;
         }
@@ -450,7 +450,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           foreach (GroupMap map in maps)
           {
             TvDatabase.Channel channel = map.ReferencedChannel();
-            if (channel.IsTv) refChannels.Add(channel);
+            if (channel != null && channel.IsTv) refChannels.Add(channel);
           }
           break;
         }
@@ -506,18 +506,21 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (group.ChannelGroupId < 0)
       {
         var radioGroup = RadioChannelGroup.Retrieve(-group.ChannelGroupId);
-        var radioChannels = radioGroup.ReferringRadioGroupMap().OrderBy(rgm => rgm.SortOrder).Select(rgm => rgm.ReferencedChannel());
+        var radioChannels = radioGroup.ReferringRadioGroupMap()
+          .OrderBy(rgm => rgm.SortOrder)
+          .Select(rgm => rgm.ReferencedChannel());
         channels = radioChannels
-          .Where(c => c.VisibleInGuide)
+          .Where(c => c != null && c.VisibleInGuide)
           .Select(c => c.ToChannel())
           .ToList();
       }
       else
       {
-        channels = GetChannelsInGroup(TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId))
+        var tvGroup = TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId);
+        channels = GetChannelsInGroup(tvGroup)
           // Bug? SortOrder contains logical channel number, not the group sort order?
           // .OrderBy(c => c.SortOrder)
-          .Where(c => c.VisibleInGuide)
+          .Where(c => c != null && c.VisibleInGuide)
           .Select(c => c.ToChannel())
           .ToList();
       }
@@ -535,7 +538,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
           IList<GroupMap> maps = group.ReferringGroupMap();
           foreach (GroupMap map in maps)
           {
-            refChannels.Add(map.ReferencedChannel());
+            TvDatabase.Channel channel = map.ReferencedChannel();
+            if(channel != null) refChannels.Add(channel);
           }
           break;
         }
