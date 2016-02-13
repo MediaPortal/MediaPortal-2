@@ -57,6 +57,7 @@
     <Compile Include="Analyzers\H264Analyzer.cs" />
     <Compile Include="Aspects\TranscodeItemVideoAudioAspect.cs" />
     <Compile Include="Aspects\TranscodeItemVideoEmbeddedAspect.cs" />
+    <Compile Include="Helpers\SubtitleHelper.cs" />
     <Compile Include="MetadataExtractors\TranscodeAudioMetadataExtractor.cs" />
     <Compile Include="MetadataExtractors\TranscodeImageMetadataExtractor.cs" />
     <Compile Include="MetadataExtractors\TranscodeVideoMetadataExtractor.cs" />

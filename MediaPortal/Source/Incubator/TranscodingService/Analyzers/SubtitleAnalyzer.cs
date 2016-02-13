@@ -38,6 +38,22 @@ namespace MediaPortal.Plugins.Transcoding.Service.Analyzers
       return false;
     }
 
+    public static bool IsSubtitleSupportedByContainer(SubtitleCodec codec, VideoContainer sourceContainer, VideoContainer targetContainer)
+    {
+      if (targetContainer != VideoContainer.Unknown && sourceContainer == targetContainer) return true;
+      if (targetContainer == VideoContainer.Matroska) return true;
+      if (targetContainer == VideoContainer.Mpeg2Ps && codec == SubtitleCodec.VobSub) return true;
+      if (targetContainer == VideoContainer.Mpeg2Ts && (codec == SubtitleCodec.DvbSub || codec == SubtitleCodec.DvbTxt)) return true;
+      if (targetContainer == VideoContainer.Avi && codec == SubtitleCodec.Srt) return true;
+      if (targetContainer == VideoContainer.Asf && codec == SubtitleCodec.Srt) return true;
+      if (targetContainer == VideoContainer.Hls && codec == SubtitleCodec.MovTxt) return true;
+      if (targetContainer == VideoContainer.M2Ts && codec == SubtitleCodec.VobSub) return true;
+      if (targetContainer == VideoContainer.Mp4 && codec == SubtitleCodec.MovTxt) return true;
+      if (targetContainer == VideoContainer.Hls && codec == SubtitleCodec.WebVtt) return true;
+      if (targetContainer == VideoContainer.Mpeg1 && codec == SubtitleCodec.VobSub) return true;
+      return false;
+    }
+
     public static string GetEncoding(ILocalFsResourceAccessor lfsra, string subtitleSource, string subtitleLanguage, string defaultEncoding)
     {
       if (string.IsNullOrEmpty(subtitleSource))

@@ -46,6 +46,7 @@ using MediaPortal.Plugins.Transcoding.Service.Metadata;
 using MediaPortal.Plugins.Transcoding.Service.Metadata.Streams;
 using MediaPortal.Plugins.Transcoding.Service.Objects;
 using MediaPortal.Plugins.Transcoding.Service.Analyzers;
+using MediaPortal.Plugins.Transcoding.Service.Helpers;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -837,7 +838,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private static SubtitleStream FindSubtitle(VideoTranscoding video)
     {
       if (video.SourceSubtitleStreamIndex == NO_SUBTITLE) return null;
-      
+
       SubtitleStream currentEmbeddedSub = null;
       SubtitleStream currentExternalSub = null;
 
@@ -846,7 +847,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       List<SubtitleStream> subsEmbedded = new List<SubtitleStream>();
       List<SubtitleStream> langSubsEmbedded = new List<SubtitleStream>();
 
-      List<SubtitleStream> allSubs = GetSubtitleStreams(video);
+      List<SubtitleStream> allSubs = SubtitleHelper.GetSubtitleStreams(video);
       foreach (SubtitleStream sub in allSubs)
       {
         if (sub.IsEmbedded == false)
@@ -876,10 +877,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
             }
           }
         }
-        else
-        {
-          subsEmbedded.Add(sub);
-        }
+        subsEmbedded.Add(sub);
       }
       if (currentEmbeddedSub == null && langSubsEmbedded.Count > 0)
       {
@@ -896,7 +894,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         {
           continue;
         }
-        if (video.SourceSubtitleStreamIndex < NO_SUBTITLE && 
+        if (video.SourceSubtitleStreamIndex < NO_SUBTITLE &&
           sub.StreamIndex == video.SourceSubtitleStreamIndex)
         {
           return sub;
@@ -920,10 +918,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
             }
           }
         }
-        else
-        {
-          subs.Add(sub);
-        }
+        subs.Add(sub);
       }
       if (currentExternalSub == null && langSubs.Count > 0)
       {
@@ -996,68 +991,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
       return null;
     }
 
-    public static List<SubtitleStream> FindExternalSubtitles(ILocalFsResourceAccessor lfsra)
-    {
-      List<SubtitleStream> externalSubtitles = new List<SubtitleStream>();
-      if (lfsra.Exists)
-      {
-        // Impersonation
-        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
-        {
-          string[] files = Directory.GetFiles(Path.GetDirectoryName(lfsra.LocalFileSystemPath), Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + "*.*");
-          foreach (string file in files)
-          {
-            SubtitleStream sub = new SubtitleStream();
-            sub.Codec = SubtitleCodec.Unknown;
-            if (string.Compare(Path.GetExtension(file), ".srt", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.Srt;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".smi", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.Smi;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".ass", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.Ass;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".ssa", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.Ssa;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".sub", true, CultureInfo.InvariantCulture) == 0)
-            {
-              if (File.Exists(Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + ".idx")) == true)
-              {
-                sub.Codec = SubtitleCodec.VobSub;
-              }
-              else
-              {
-                string subContent = File.ReadAllText(file);
-                if (subContent.Contains("[INFORMATION]")) sub.Codec = SubtitleCodec.SubView;
-                else if (subContent.Contains("}{")) sub.Codec = SubtitleCodec.MicroDvd;
-              }
-            }
-            else if (string.Compare(Path.GetExtension(file), ".vtt", true, CultureInfo.InvariantCulture) == 0)
-            {
-              sub.Codec = SubtitleCodec.WebVtt;
-            }
-            if (sub.Codec != SubtitleCodec.Unknown)
-            {
-              sub.Source = file;
-              if (SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec) == false)
-              {
-                sub.Language = SubtitleAnalyzer.GetLanguage(lfsra, file, _subtitleDefaultEncoding, _subtitleDefaultLanguage);
-              }
-              sub.StreamIndex = -(externalSubtitles.Count + 100);
-              externalSubtitles.Add(sub);
-            }
-          }
-        }
-      }
-      return externalSubtitles;
-    }
-
     public static BufferedStream GetSubtitleStream(string clientId, VideoTranscoding video)
     {
       Subtitle sub = GetSubtitle(clientId, video, 0);
@@ -1070,19 +1003,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
         TouchFile(sub.SourceFile);
       }
       return GetReadyFileBuffer(sub.SourceFile);
-    }
-
-    private static bool SubtitleIsUnicode(string encoding)
-    {
-      if (string.IsNullOrEmpty(encoding))
-      {
-        return false;
-      }
-      if (encoding.ToUpperInvariant().StartsWith("UTF-") || encoding.ToUpperInvariant().StartsWith("UNICODE"))
-      {
-        return true;
-      }
-      return false;
     }
 
     private static Subtitle GetSubtitle(string clientId, VideoTranscoding video, double timeStart)
@@ -1101,7 +1021,15 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         res.CharacterEncoding = SubtitleAnalyzer.GetEncoding((ILocalFsResourceAccessor)video.SourceMedia, sourceSubtitle.Source, sourceSubtitle.Language, _subtitleDefaultEncoding);
       }
-
+      if (SubtitleAnalyzer.IsSubtitleSupportedByContainer(sourceSubtitle.Codec, video.SourceVideoContainer, video.TargetVideoContainer) == true)
+      {
+        if (sourceSubtitle.IsEmbedded)
+        {
+          //Subtitle stream can be copied directly
+          res.StreamIndex = sourceSubtitle.StreamIndex;
+          return res;
+        }
+      }
       // SourceSubtitle == TargetSubtitleCodec -> just return
       if (video.TargetSubtitleCodec != SubtitleCodec.Unknown && video.TargetSubtitleCodec == sourceSubtitle.Codec && timeStart == 0)
       {
@@ -1136,7 +1064,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
         }
         res.Codec = targetCodec;
         res.SourceFile = transcodingFile;
-        if (SubtitleIsUnicode(res.CharacterEncoding) == false)
+        if (SubtitleHelper.SubtitleIsUnicode(res.CharacterEncoding) == false)
         {
           res.CharacterEncoding = "UTF-8";
         }
@@ -1179,7 +1107,7 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
       else
       {
-        if (SubtitleIsUnicode(res.CharacterEncoding) == false)
+        if (SubtitleHelper.SubtitleIsUnicode(res.CharacterEncoding) == false)
         {
           if (string.IsNullOrEmpty(res.CharacterEncoding) == false)
           {
@@ -1228,74 +1156,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
         return res;
       }
       return null;
-    }
-
-    private static bool IsExternalSubtitleAvailable(ILocalFsResourceAccessor lfsra)
-    {
-      if (lfsra.Exists)
-      {
-        // Impersonation
-        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
-        {
-          string[] files = Directory.GetFiles(Path.GetDirectoryName(lfsra.LocalFileSystemPath), Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + "*.*");
-          foreach (string file in files)
-          {
-            if (string.Compare(Path.GetExtension(file), ".srt", true, CultureInfo.InvariantCulture) == 0)
-            {
-              return true;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".smi", true, CultureInfo.InvariantCulture) == 0)
-            {
-              return true;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".ass", true, CultureInfo.InvariantCulture) == 0)
-            {
-              return true;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".ssa", true, CultureInfo.InvariantCulture) == 0)
-            {
-              return true;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".sub", true, CultureInfo.InvariantCulture) == 0)
-            {
-              return true;
-            }
-            else if (string.Compare(Path.GetExtension(file), ".vtt", true, CultureInfo.InvariantCulture) == 0)
-            {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    }
-
-    public static bool IsSubtitleAvailable(VideoTranscoding video)
-    {
-      if (video.SourceSubtitles != null && video.SourceSubtitles.Count > 0) return true;
-      if (video.SourceMedia is ILocalFsResourceAccessor)
-      {
-        if (IsExternalSubtitleAvailable((ILocalFsResourceAccessor)video.SourceMedia)) return true;
-      }
-      return false;
-    }
-
-    public static List<SubtitleStream> GetSubtitleStreams(VideoTranscoding video)
-    {
-      List<SubtitleStream> allSubs = new List<SubtitleStream>();
-      if (video.SourceSubtitles != null && video.SourceSubtitles.Count > 0)
-      {
-        //Only add embedded subtitles
-        allSubs.AddRange(video.SourceSubtitles.Where(sub => sub.IsEmbedded == true));
-      }
-
-      //Refresh external subtitles
-      if (video.SourceMedia is ILocalFsResourceAccessor)
-      {
-        ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)video.SourceMedia;
-        allSubs.AddRange(FindExternalSubtitles(lfsra));
-      }
-      return allSubs;
     }
 
     #endregion
@@ -1548,6 +1408,26 @@ namespace MediaPortal.Plugins.Transcoding.Service
         bool useX26XLib = video.TargetVideoCodec == VideoCodec.H264 || video.TargetVideoCodec == VideoCodec.H265;
         _ffMpegCommandline.AddTranscodingThreadsParameters(!useX26XLib, ref data);
 
+        int subCopyStream = -1;
+        if (currentSub != null)
+        {
+          if (currentSub.StreamIndex >= 0)
+          {
+            subCopyStream = currentSub.StreamIndex;
+            _ffMpegCommandline.AddSubtitleCopyParameters(currentSub, ref data);
+          }
+          else if (embeddedSupported)
+          {
+            _ffMpegCommandline.AddSubtitleEmbeddingParameters(currentSub, embeddedSubCodec, timeStart, ref data);
+          }
+        }
+        else
+        {
+          embeddedSupported = false;
+          data.OutputArguments.Add("-sn");
+          video.TargetSubtitleSupport = SubtitleSupport.HardCoded; //Fallback to hardcoded subtitles
+        }
+
         _ffMpegCommandline.AddTimeParameters(timeStart, timeDuration, video.SourceDuration.TotalSeconds, ref data);
 
         FFMpegEncoderConfig encoderConfig = _ffMpegEncoderHandler.GetEncoderConfig(data.Encoder);
@@ -1563,16 +1443,8 @@ namespace MediaPortal.Plugins.Transcoding.Service
           context.TargetSubtitle = currentSub.SourceFile;
         }
         _ffMpegCommandline.AddVideoAudioParameters(video, ref data);
-        if (currentSub != null && embeddedSupported)
-        {
-          _ffMpegCommandline.AddSubtitleEmbeddingParameters(currentSub, embeddedSubCodec, timeStart, ref data);
-        }
-        else
-        {
-          embeddedSupported = false;
-          data.OutputArguments.Add("-sn");
-        }
-        _ffMpegCommandline.AddStreamMapParameters(video.SourceVideoStreamIndex, video.SourceAudioStreamIndex, embeddedSupported, ref data);
+        
+        _ffMpegCommandline.AddStreamMapParameters(video.SourceVideoStreamIndex, video.SourceAudioStreamIndex, subCopyStream, embeddedSupported, ref data);
       }
 
       _logger.Info("MediaConverter: Invoking transcoder to transcode video file '{0}' for transcode '{1}' with arguments '{2}'", video.SourceMedia.Path, video.TranscodeId, String.Join(", ", data.OutputArguments.ToArray()));
@@ -2158,6 +2030,10 @@ namespace MediaPortal.Plugins.Transcoding.Service
           {
             _logger.Debug("MediaConverter: Transcoder command aborted for file '{0}'", data.TranscodeData.OutputFilePath);
           }
+        }
+        else
+        {
+          _logger.Debug("MediaConverter: FFMpeg error \n {0}", data.Context.ConsoleErrorOutput);
         }
         data.Context.DeleteFiles();
       }

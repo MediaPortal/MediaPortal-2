@@ -27,6 +27,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.Base
   internal class Subtitle
   {
     public SubtitleCodec Codec = SubtitleCodec.Unknown;
+    public int StreamIndex = -1;
     public string Language = "";
     public string SourceFile = "";
     public string CharacterEncoding = "";

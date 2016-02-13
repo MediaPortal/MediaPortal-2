@@ -301,17 +301,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    internal void AddStreamMapParameters(int videoStreamIndex, int audioStreamIndex, bool embeddedSubtitle, ref FFMpegTranscodeData data)
+    internal void AddStreamMapParameters(int videoStreamIndex, int audioStreamIndex, int subtitleStreamIndex, bool embeddedSubtitle, ref FFMpegTranscodeData data)
     {
-      if (videoStreamIndex != -1)
+      if (videoStreamIndex >= 0)
       {
         data.OutputArguments.Add(string.Format("-map 0:{0}", videoStreamIndex));
       }
-      if (audioStreamIndex != -1)
+      if (audioStreamIndex >= 0)
       {
         data.OutputArguments.Add(string.Format("-map 0:{0}", audioStreamIndex));
       }
-      if (embeddedSubtitle)
+      if (subtitleStreamIndex >= 0)
+      {
+        data.OutputArguments.Add(string.Format("-map 0:{0}", subtitleStreamIndex));
+      }
+      else if (embeddedSubtitle)
       {
         data.OutputArguments.Add("-map 1:0");
       }
@@ -348,6 +352,30 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         return null;
       }
       return targetFilePath;
+    }
+
+    internal void AddSubtitleCopyParameters(Subtitle subtitle, ref FFMpegTranscodeData data)
+    {
+      if (subtitle == null) return;
+
+      data.OutputArguments.Add("-c:s copy");
+      if (string.IsNullOrEmpty(subtitle.Language) == false)
+      {
+        string languageName = null;
+        CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
+        foreach (CultureInfo culture in cultures)
+        {
+          if (culture.TwoLetterISOLanguageName.ToUpperInvariant() == subtitle.Language)
+          {
+            languageName = culture.ThreeLetterISOLanguageName;
+            break;
+          }
+        }
+        if (string.IsNullOrEmpty(languageName) == false)
+        {
+          data.OutputArguments.Add(string.Format("-metadata:s:s:0 language={0}", languageName.ToLowerInvariant()));
+        }
+      }
     }
 
     internal void AddSubtitleEmbeddingParameters(Subtitle subtitle, SubtitleCodec codec, double timeStart, ref FFMpegTranscodeData data)
