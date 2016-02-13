@@ -41,7 +41,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Analyzers
     public static bool IsSubtitleSupportedByContainer(SubtitleCodec codec, VideoContainer sourceContainer, VideoContainer targetContainer)
     {
       if (targetContainer != VideoContainer.Unknown && sourceContainer == targetContainer) return true;
-      if (targetContainer == VideoContainer.Matroska) return true;
+      if (targetContainer == VideoContainer.Matroska && (codec == SubtitleCodec.VobSub || codec == SubtitleCodec.Ass || 
+        codec == SubtitleCodec.MicroDvd || codec == SubtitleCodec.Smi || codec == SubtitleCodec.Srt || codec == SubtitleCodec.Ssa ||
+        codec == SubtitleCodec.SubView)) return true;
       if (targetContainer == VideoContainer.Mpeg2Ps && codec == SubtitleCodec.VobSub) return true;
       if (targetContainer == VideoContainer.Mpeg2Ts && (codec == SubtitleCodec.DvbSub || codec == SubtitleCodec.DvbTxt)) return true;
       if (targetContainer == VideoContainer.Avi && codec == SubtitleCodec.Srt) return true;
