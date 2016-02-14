@@ -89,17 +89,18 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       BasicContainer parent = new BasicContainer(Id, Client);
       var items = (from share in shares
-           select new
-           {
-             Item = library.LoadItem(share.Value.SystemId,
-                                     share.Value.BaseResourcePath,
-                                     NECESSARY_MIA_TYPE_IDS,
-                                     OPTIONAL_MIA_TYPE_IDS),
-             ShareName = share.Value.Name
-           }).ToList();
+                   select new
+                   {
+                     Item = library.LoadItem(share.Value.SystemId,
+                                             share.Value.BaseResourcePath,
+                                             NECESSARY_MIA_TYPE_IDS,
+                                             OPTIONAL_MIA_TYPE_IDS),
+                     ShareName = share.Value.Name
+                   }).ToList();
       foreach (var item in items)
       {
-        Add((BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, parent, item.ShareName));
+        if(item.Item != null)
+          Add((BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, parent, item.ShareName));
       }
     }
   }

@@ -165,13 +165,16 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         {
           VideoTranscoding video = TranscodeProfileManager.GetVideoSubtitleTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
             info, live, MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID);
-          if (video.TargetVideoContainer == VideoContainer.Hls)
+          if (video != null)
           {
-            IsSegmented = true;
-          }
-          if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false)
-          {
-            video.TargetSubtitleSupport = SubtitleSupport.None;
+            if (video.TargetVideoContainer == VideoContainer.Hls)
+            {
+              IsSegmented = true;
+            }
+            if (MediaServerPlugin.Settings.HardcodedSubtitlesAllowed == false)
+            {
+              video.TargetSubtitleSupport = SubtitleSupport.None;
+            }
           }
           TranscodingParameter = video;
         }
@@ -182,9 +185,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
 
     private void AssignDlnaMetadata(MetadataContainer info)
     {
-      Logger.Debug("Assigning DLNA metadata {0}", info);
       if (info == null) return;
-      Logger.Debug("Assigning DLNA metadata audio={0} image={1} video={2} TranscodingParameter={3]", info.IsAudio, info.IsImage, info.IsVideo, TranscodingParameter);
       List<string> profileList = new List<string>();
       if (TranscodingParameter == null)
       {
@@ -249,7 +250,6 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         }
         else if (info.IsVideo)
         {
-          Logger.Debug("Checkpoint 1");
           VideoTranscoding video = (VideoTranscoding)TranscodingParameter;
           TranscodedVideoMetadata metadata = MediaConverter.GetTranscodedVideoMetadata(video);
           int selectedAudio = 0;
@@ -262,7 +262,6 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
             }
           }
 
-          Logger.Debug("Checkpoint 2");
           DlnaMetadata = new MetadataContainer();
           DlnaMetadata.Metadata.Mime = info.Metadata.Mime;
           DlnaMetadata.Metadata.VideoContainerType = metadata.TargetVideoContainer;
@@ -299,8 +298,6 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
             }
           }
 
-          Logger.Debug("Checkpoint 3");
-
           AudioStream audioStream = new AudioStream();
           audioStream.Bitrate = metadata.TargetAudioBitrate;
           audioStream.Channels = metadata.TargetAudioChannels;
@@ -322,8 +319,6 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           DlnaMetadata.Video.Width = metadata.TargetVideoMaxWidth;
         }
       }
-
-      Logger.Debug("Checkpoint 4");
 
       if (info.IsImage)
       {

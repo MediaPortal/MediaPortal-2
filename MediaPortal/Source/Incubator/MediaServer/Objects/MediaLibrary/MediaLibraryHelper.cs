@@ -117,11 +117,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       }
 
       // Initialise the object
-      if (obj is MediaLibraryContainer)
-      {
-        ((MediaLibraryContainer)obj).Initialise();
-      }
-      else if (obj is MediaLibraryItem)
+      if (obj is MediaLibraryItem)
       {
         ((MediaLibraryItem)obj).Initialise();
       }

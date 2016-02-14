@@ -30,7 +30,7 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
-  public abstract class BasicObject : IDirectoryObject
+  public abstract class BasicObject : IEquatable<BasicObject>, IComparable<BasicObject>, IDirectoryObject
   {
     public string Key { get; protected set; }
     public BasicObject Parent { get; protected set; }
@@ -122,6 +122,33 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
     public BasicObject FindObject(string objectId)
     {
       return Key == objectId ? this : Children.Select(node => node.FindNode(objectId)).FirstOrDefault(n => n != null);
+    }
+
+    public bool Equals(BasicObject other)
+    {
+      if ((object)other == null)
+        return false;
+      return string.Equals(Key, other.Key, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    public int CompareTo(BasicObject other)
+    {
+      if ((object)other == null) return 1;
+      return Title.CompareTo(other.Title);
+    }
+
+    public static bool operator ==(BasicObject x, BasicObject y)
+    {
+      if ((object)x == null || (object)y == null)
+        return Object.Equals(x, y);
+      return string.Equals(x.Key, y.Key, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    public static bool operator !=(BasicObject x, BasicObject y)
+    {
+      if ((object)x == null || (object)y == null)
+        return !Object.Equals(x, y);
+      return !string.Equals(x.Key, y.Key, StringComparison.InvariantCultureIgnoreCase);
     }
   }
 }

@@ -45,6 +45,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 
     protected void Add(BasicObject node)
     {
+      if (node == null) return;
       Console.WriteLine("BasicContainer::Add entry, {0} to {1}", node.Key, Key);
       _children[node.Key] = node;
 	    base.Add(node);

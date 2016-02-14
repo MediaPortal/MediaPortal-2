@@ -48,6 +48,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       TranscodeItemAudioAspect.ASPECT_ID,
       TranscodeItemImageAspect.ASPECT_ID,
       TranscodeItemVideoAspect.ASPECT_ID,
+      TranscodeItemVideoAudioAspect.ASPECT_ID,
+      TranscodeItemVideoEmbeddedAspect.ASPECT_ID,
     };
 
     public MediaLibraryBrowser(MediaItem item, EndPointSettings client)

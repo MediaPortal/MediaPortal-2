@@ -39,11 +39,16 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       VideoAspect.ASPECT_ID,
       MovieAspect.ASPECT_ID,
       TranscodeItemVideoAspect.ASPECT_ID,
+      TranscodeItemVideoAudioAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
 
+    private static readonly Guid[] OPTIONAL_MIA_TYPE_IDS = {
+      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
+    };
+
     public MediaLibraryMovieGenreItem(string id, string title, EndPointSettings client)
-      : base(id, title, NECESSARY_MIA_TYPE_IDS, null, new RelationalFilter(VideoAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
+      : base(id, title, NECESSARY_MIA_TYPE_IDS, OPTIONAL_MIA_TYPE_IDS, new RelationalFilter(VideoAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
     {
       ServiceRegistration.Get<ILogger>().Debug("Created movie genre {0}={1}", id, title);
     }

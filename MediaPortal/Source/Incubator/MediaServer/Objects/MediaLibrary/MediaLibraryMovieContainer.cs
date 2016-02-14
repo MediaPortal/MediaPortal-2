@@ -35,11 +35,16 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
       MediaAspect.ASPECT_ID,
       MovieAspect.ASPECT_ID,
-      TranscodeItemVideoAspect.ASPECT_ID
+      TranscodeItemVideoAspect.ASPECT_ID,
+      TranscodeItemVideoAudioAspect.ASPECT_ID,
+    };
+
+    private static readonly Guid[] OPTIONAL_MIA_TYPE_IDS = {
+      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
     };
 
     public MediaLibraryMovieContainer(string baseKey, IFilter filter, EndPointSettings client)
-      : base(baseKey, "Movies", NECESSARY_MIA_TYPE_IDS, null, filter, client)
+      : base(baseKey, "Movies", NECESSARY_MIA_TYPE_IDS, OPTIONAL_MIA_TYPE_IDS, filter, client)
     {
     }
   }

@@ -60,13 +60,16 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public IList<MediaItem> GetItems()
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.Search(new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, _filter), true);
+      //TODO: Check if this is correct handling of missing filter
+      if(_filter == null && Item != null)
+        return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds, 0, 100);
+      else
+        return library.Search(new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, _filter), true);
     }
 
     public override void Initialise()
     {
       IList<MediaItem> items = GetItems();
-
       foreach (MediaItem item in items)
       {
         Add((BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item, this));

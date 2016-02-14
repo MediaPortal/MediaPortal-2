@@ -57,9 +57,13 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       BitsPerSample = uint.MinValue;
       ColorDepth = uint.MinValue;
       Duration = null;
-      var dlnaProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(dlnaItem, Client.Profile.ProtocolInfo).ToString();
+      var dlnaProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(dlnaItem, Client.Profile.ProtocolInfo);
       if (dlnaProtocolInfo != null)
         ProtocolInfo = dlnaProtocolInfo.ToString();
+      if (dlnaItem.DlnaMetadata == null)
+      {
+        throw new DlnaAspectMissingException("No DLNA metadata found for MediaItem " + dlnaItem.MediaSource.MediaItemId);
+      }
       if (dlnaItem.DlnaMetadata.Metadata.Size > 0)
       {
         Size = Convert.ToUInt64(dlnaItem.DlnaMetadata.Metadata.Size);
