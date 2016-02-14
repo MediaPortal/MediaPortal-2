@@ -22,13 +22,14 @@
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
 
-          <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:01"/>
+          <ResourceWrapper x:Key="TransitionKeyFrame" Resource="00:00:00.300"/>
+          <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:00.500"/>
 
           <!-- Common animation for both "page left" and "page right" transition -->
           <Storyboard x:Key="TransitionBase" FillBehavior="Stop">
             <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="Opacity">
               <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:00.700" Value="1.0"/>
+              <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionKeyFrame}" Value="1.0"/>
               <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1.0"/>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="Opacity">
@@ -251,6 +252,7 @@
 
         <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
             VerticalAlignment="Stretch" SetFocusPrio="Default"
+            BeginNavigation="{Binding Source={StaticResource MenuModel},Path=BeginNavigation,Mode=TwoWay}"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
             IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
           <bv:GridListView.Resources>
