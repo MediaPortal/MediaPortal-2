@@ -344,67 +344,79 @@ namespace MediaPortal.Plugins.Transcoding.Service
         TargetAudioContainer = audio.TargetAudioContainer,
         TargetAudioFrequency = audio.TargetAudioFrequency
       };
+      if (audio.TargetForceCopy)
+      {
+        metadata.TargetAudioBitrate = audio.SourceAudioBitrate;
+        metadata.TargetAudioCodec = audio.SourceAudioCodec;
+        metadata.TargetAudioContainer = audio.SourceAudioContainer;
+        metadata.TargetAudioFrequency = audio.SourceAudioFrequency;
+        metadata.TargetAudioChannels = audio.SourceAudioChannels;
+      }
       if (audio.TargetAudioContainer == AudioContainer.Unknown)
       {
         metadata.TargetAudioContainer = audio.SourceAudioContainer;
       }
-      if (Checks.IsAudioStreamChanged(audio))
+
+      if (audio.TargetForceCopy == false)
       {
-        if (audio.TargetAudioCodec == AudioCodec.Unknown)
+        if (Checks.IsAudioStreamChanged(audio))
         {
-          switch (audio.TargetAudioContainer)
+          if (audio.TargetAudioCodec == AudioCodec.Unknown)
           {
-            case AudioContainer.Unknown:
-              break;
-            case AudioContainer.Ac3:
-              metadata.TargetAudioCodec = AudioCodec.Ac3;
-              break;
-            case AudioContainer.Adts:
-              metadata.TargetAudioCodec = AudioCodec.Aac;
-              break;
-            case AudioContainer.Asf:
-              metadata.TargetAudioCodec = AudioCodec.Wma;
-              break;
-            case AudioContainer.Flac:
-              metadata.TargetAudioCodec = AudioCodec.Flac;
-              break;
-            case AudioContainer.Lpcm:
-              metadata.TargetAudioCodec = AudioCodec.Lpcm;
-              break;
-            case AudioContainer.Mp4:
-              metadata.TargetAudioCodec = AudioCodec.Aac;
-              break;
-            case AudioContainer.Mp3:
-              metadata.TargetAudioCodec = AudioCodec.Mp3;
-              break;
-            case AudioContainer.Mp2:
-              metadata.TargetAudioCodec = AudioCodec.Mp2;
-              break;
-            case AudioContainer.Ogg:
-              metadata.TargetAudioCodec = AudioCodec.Vorbis;
-              break;
-            case AudioContainer.Rtp:
-              metadata.TargetAudioCodec = AudioCodec.Lpcm;
-              break;
-            case AudioContainer.Rtsp:
-              metadata.TargetAudioCodec = AudioCodec.Lpcm;
-              break;
-            default:
-              metadata.TargetAudioCodec = audio.SourceAudioCodec;
-              break;
+            switch (audio.TargetAudioContainer)
+            {
+              case AudioContainer.Unknown:
+                break;
+              case AudioContainer.Ac3:
+                metadata.TargetAudioCodec = AudioCodec.Ac3;
+                break;
+              case AudioContainer.Adts:
+                metadata.TargetAudioCodec = AudioCodec.Aac;
+                break;
+              case AudioContainer.Asf:
+                metadata.TargetAudioCodec = AudioCodec.Wma;
+                break;
+              case AudioContainer.Flac:
+                metadata.TargetAudioCodec = AudioCodec.Flac;
+                break;
+              case AudioContainer.Lpcm:
+                metadata.TargetAudioCodec = AudioCodec.Lpcm;
+                break;
+              case AudioContainer.Mp4:
+                metadata.TargetAudioCodec = AudioCodec.Aac;
+                break;
+              case AudioContainer.Mp3:
+                metadata.TargetAudioCodec = AudioCodec.Mp3;
+                break;
+              case AudioContainer.Mp2:
+                metadata.TargetAudioCodec = AudioCodec.Mp2;
+                break;
+              case AudioContainer.Ogg:
+                metadata.TargetAudioCodec = AudioCodec.Vorbis;
+                break;
+              case AudioContainer.Rtp:
+                metadata.TargetAudioCodec = AudioCodec.Lpcm;
+                break;
+              case AudioContainer.Rtsp:
+                metadata.TargetAudioCodec = AudioCodec.Lpcm;
+                break;
+              default:
+                metadata.TargetAudioCodec = audio.SourceAudioCodec;
+                break;
+            }
+          }
+          long frequency = Validators.GetAudioFrequency(audio.SourceAudioCodec, audio.TargetAudioCodec, audio.SourceAudioFrequency, audio.TargetAudioFrequency);
+          if (frequency > 0)
+          {
+            metadata.TargetAudioFrequency = frequency;
+          }
+          if (audio.TargetAudioContainer != AudioContainer.Lpcm)
+          {
+            metadata.TargetAudioBitrate = Validators.GetAudioBitrate(audio.SourceAudioBitrate, audio.TargetAudioBitrate);
           }
         }
-        long frequency = Validators.GetAudioFrequency(audio.SourceAudioCodec, audio.TargetAudioCodec, audio.SourceAudioFrequency, audio.TargetAudioFrequency);
-        if (frequency > 0)
-        {
-          metadata.TargetAudioFrequency = frequency;
-        }
-        if (audio.TargetAudioContainer != AudioContainer.Lpcm)
-        {
-          metadata.TargetAudioBitrate = Validators.GetAudioBitrate(audio.SourceAudioBitrate, audio.TargetAudioBitrate);
-        }
+        metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(audio.SourceAudioCodec, audio.TargetAudioCodec, audio.SourceAudioChannels, audio.TargetForceAudioStereo);
       }
-      metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(audio.SourceAudioCodec, audio.TargetAudioCodec, audio.SourceAudioChannels, audio.TargetForceAudioStereo);
       return metadata;
     }
 
@@ -470,6 +482,25 @@ namespace MediaPortal.Plugins.Transcoding.Service
         TargetProfile = video.TargetProfile,
         TargetVideoPixelFormat = video.TargetPixelFormat
       };
+      if(video.TargetForceVideoCopy)
+      {
+        metadata.TargetVideoContainer = video.SourceVideoContainer;
+        metadata.TargetVideoAspectRatio = video.SourceVideoAspectRatio;
+        metadata.TargetVideoBitrate = video.SourceVideoBitrate;
+        metadata.TargetVideoCodec = video.SourceVideoCodec;
+        metadata.TargetVideoFrameRate = video.SourceFrameRate;
+        metadata.TargetVideoPixelFormat = video.SourcePixelFormat;
+        metadata.TargetVideoMaxWidth = video.SourceVideoWidth;
+        metadata.TargetVideoMaxHeight = video.SourceVideoHeight;
+      }
+      if (video.TargetForceAudioCopy)
+      {
+        metadata.TargetAudioBitrate = video.SourceAudioBitrate;
+        metadata.TargetAudioCodec = video.SourceAudioCodec;
+        metadata.TargetAudioFrequency = video.SourceAudioFrequency;
+        metadata.TargetAudioChannels = video.SourceAudioChannels;
+        metadata.TargetAudioBitrate = video.SourceAudioBitrate;
+      }
       if (metadata.TargetVideoPixelFormat == PixelFormat.Unknown)
       {
         metadata.TargetVideoPixelFormat = PixelFormat.Yuv420;
@@ -502,49 +533,55 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         metadata.TargetVideoMaxHeight = 1080;
       }
-      float newPixelAspectRatio = video.SourceVideoPixelAspectRatio;
-      if (newPixelAspectRatio <= 0)
+
+      if (video.TargetForceVideoCopy == false)
       {
-        newPixelAspectRatio = 1.0F;
+        float newPixelAspectRatio = video.SourceVideoPixelAspectRatio;
+        if (newPixelAspectRatio <= 0)
+        {
+          newPixelAspectRatio = 1.0F;
+        }
+
+        Size newSize = new Size(video.SourceVideoWidth, video.SourceVideoHeight);
+        Size newContentSize = new Size(video.SourceVideoWidth, video.SourceVideoHeight);
+        bool pixelARChanged = false;
+        bool videoARChanged = false;
+        bool videoHeightChanged = false;
+        _ffMpegCommandline.GetVideoDimensions(video, out newSize, out newContentSize, out newPixelAspectRatio, out pixelARChanged, out videoARChanged, out videoHeightChanged);
+        metadata.TargetVideoPixelAspectRatio = newPixelAspectRatio;
+        metadata.TargetVideoMaxWidth = newSize.Width;
+        metadata.TargetVideoMaxHeight = newSize.Height;
+
+        metadata.TargetVideoFrameRate = video.SourceFrameRate;
+        if (metadata.TargetVideoFrameRate > 23.9 && metadata.TargetVideoFrameRate < 23.99)
+          metadata.TargetVideoFrameRate = 23.976F;
+        else if (metadata.TargetVideoFrameRate >= 23.99 && metadata.TargetVideoFrameRate < 24.1)
+          metadata.TargetVideoFrameRate = 24;
+        else if (metadata.TargetVideoFrameRate >= 24.99 && metadata.TargetVideoFrameRate < 25.1)
+          metadata.TargetVideoFrameRate = 25;
+        else if (metadata.TargetVideoFrameRate >= 29.9 && metadata.TargetVideoFrameRate < 29.99)
+          metadata.TargetVideoFrameRate = 29.97F;
+        else if (metadata.TargetVideoFrameRate >= 29.99 && metadata.TargetVideoFrameRate < 30.1)
+          metadata.TargetVideoFrameRate = 30;
+        else if (metadata.TargetVideoFrameRate >= 49.9 && metadata.TargetVideoFrameRate < 50.1)
+          metadata.TargetVideoFrameRate = 50;
+        else if (metadata.TargetVideoFrameRate >= 59.9 && metadata.TargetVideoFrameRate < 59.99)
+          metadata.TargetVideoFrameRate = 59.94F;
+        else if (metadata.TargetVideoFrameRate >= 59.99 && metadata.TargetVideoFrameRate < 60.1)
+          metadata.TargetVideoFrameRate = 60;
       }
-
-      Size newSize = new Size(video.SourceVideoWidth, video.SourceVideoHeight);
-      Size newContentSize = new Size(video.SourceVideoWidth, video.SourceVideoHeight);
-      bool pixelARChanged = false;
-      bool videoARChanged = false;
-      bool videoHeightChanged = false;
-      _ffMpegCommandline.GetVideoDimensions(video, out newSize, out newContentSize, out newPixelAspectRatio, out pixelARChanged, out videoARChanged, out videoHeightChanged);
-      metadata.TargetVideoPixelAspectRatio = newPixelAspectRatio;
-      metadata.TargetVideoMaxWidth = newSize.Width;
-      metadata.TargetVideoMaxHeight = newSize.Height;
-
-      metadata.TargetVideoFrameRate = video.SourceFrameRate;
-      if (metadata.TargetVideoFrameRate > 23.9 && metadata.TargetVideoFrameRate < 23.99)
-        metadata.TargetVideoFrameRate = 23.976F;
-      else if (metadata.TargetVideoFrameRate >= 23.99 && metadata.TargetVideoFrameRate < 24.1)
-        metadata.TargetVideoFrameRate = 24;
-      else if (metadata.TargetVideoFrameRate >= 24.99 && metadata.TargetVideoFrameRate < 25.1)
-        metadata.TargetVideoFrameRate = 25;
-      else if (metadata.TargetVideoFrameRate >= 29.9 && metadata.TargetVideoFrameRate < 29.99)
-        metadata.TargetVideoFrameRate = 29.97F;
-      else if (metadata.TargetVideoFrameRate >= 29.99 && metadata.TargetVideoFrameRate < 30.1)
-        metadata.TargetVideoFrameRate = 30;
-      else if (metadata.TargetVideoFrameRate >= 49.9 && metadata.TargetVideoFrameRate < 50.1)
-        metadata.TargetVideoFrameRate = 50;
-      else if (metadata.TargetVideoFrameRate >= 59.9 && metadata.TargetVideoFrameRate < 59.99)
-        metadata.TargetVideoFrameRate = 59.94F;
-      else if (metadata.TargetVideoFrameRate >= 59.99 && metadata.TargetVideoFrameRate < 60.1)
-        metadata.TargetVideoFrameRate = 60;
-
-      metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(video.SourceAudioCodec, video.TargetAudioCodec, video.SourceAudioChannels, video.TargetForceAudioStereo);
-      long frequency = Validators.GetAudioFrequency(video.SourceAudioCodec, video.TargetAudioCodec, video.SourceAudioFrequency, video.TargetAudioFrequency);
-      if (frequency != -1)
+      if (video.TargetForceAudioCopy == false)
       {
-        metadata.TargetAudioFrequency = frequency;
-      }
-      if (video.TargetAudioCodec != AudioCodec.Lpcm)
-      {
-        metadata.TargetAudioBitrate = Validators.GetAudioBitrate(video.SourceAudioBitrate, video.TargetAudioBitrate);
+        metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(video.SourceAudioCodec, video.TargetAudioCodec, video.SourceAudioChannels, video.TargetForceAudioStereo);
+        long frequency = Validators.GetAudioFrequency(video.SourceAudioCodec, video.TargetAudioCodec, video.SourceAudioFrequency, video.TargetAudioFrequency);
+        if (frequency != -1)
+        {
+          metadata.TargetAudioFrequency = frequency;
+        }
+        if (video.TargetAudioCodec != AudioCodec.Lpcm)
+        {
+          metadata.TargetAudioBitrate = Validators.GetAudioBitrate(video.SourceAudioBitrate, video.TargetAudioBitrate);
+        }
       }
       return metadata;
     }

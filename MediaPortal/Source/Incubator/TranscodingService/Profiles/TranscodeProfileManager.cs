@@ -1059,11 +1059,82 @@ namespace MediaPortal.Plugins.Transcoding.Service.Profiles
         return null;
       }
 
-      TranscodingSetup transSetup = _profiles[section][profile];
+      int iMatchedAudioStream = 0;
       VideoTranscoding video = new VideoTranscoding();
-      video.SourceMedia = info.Metadata.Source;
+      video.SourceAudioStreamIndex = info.Audio[iMatchedAudioStream].StreamIndex;
+      video.SourceVideoStreamIndex = info.Video.StreamIndex;
+      if (info.Metadata.VideoContainerType != VideoContainer.Unknown)
+      {
+        video.SourceVideoContainer = info.Metadata.VideoContainerType;
+      }
+      if (info.Audio[iMatchedAudioStream].Bitrate > 0)
+      {
+        video.SourceAudioBitrate = info.Audio[iMatchedAudioStream].Bitrate;
+      }
+      if (info.Audio[iMatchedAudioStream].Frequency > 0)
+      {
+        video.SourceAudioFrequency = info.Audio[iMatchedAudioStream].Frequency;
+      }
+      if (info.Audio[iMatchedAudioStream].Channels > 0)
+      {
+        video.SourceAudioChannels = info.Audio[iMatchedAudioStream].Channels;
+      }
+      if (info.Audio[iMatchedAudioStream].Codec != AudioCodec.Unknown)
+      {
+        video.SourceAudioCodec = info.Audio[iMatchedAudioStream].Codec;
+      }
+      video.SourceSubtitles = new List<SubtitleStream>(info.Subtitles);
+
+      if (info.Video.Bitrate > 0)
+      {
+        video.SourceVideoBitrate = info.Video.Bitrate;
+      }
+      if (info.Video.Framerate > 0)
+      {
+        video.SourceFrameRate = info.Video.Framerate;
+      }
+      if (info.Video.PixelFormatType != PixelFormat.Unknown)
+      {
+        video.SourcePixelFormat = info.Video.PixelFormatType;
+      }
+      if (info.Video.AspectRatio > 0)
+      {
+        video.SourceVideoAspectRatio = info.Video.AspectRatio;
+      }
+      if (info.Video.Codec != VideoCodec.Unknown)
+      {
+        video.SourceVideoCodec = info.Video.Codec;
+      }
+      if (info.Video.Height > 0)
+      {
+        video.SourceVideoHeight = info.Video.Height;
+      }
+      if (info.Video.Width > 0)
+      {
+        video.SourceVideoWidth = info.Video.Width;
+      }
+      if (info.Video.PixelAspectRatio > 0)
+      {
+        video.SourceVideoPixelAspectRatio = info.Video.PixelAspectRatio;
+      }
+      if (info.Metadata.Duration > 0)
+      {
+        video.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
+      }
+      if (info.Metadata.Source != null)
+      {
+        video.SourceMedia = info.Metadata.Source;
+      }
+
+      video.TargetVideoContainer = video.SourceVideoContainer;
+      video.TargetAudioCodec = video.SourceAudioCodec;
+      video.TargetVideoCodec = video.SourceVideoCodec;
+      video.TargetLevel = info.Video.HeaderLevel;
+      video.TargetProfile = info.Video.ProfileType;
       video.TargetForceAudioCopy = true;
       video.TargetForceVideoCopy = true;
+
+      TranscodingSetup transSetup = _profiles[section][profile];
       video.TargetSubtitleSupport = transSetup.SubtitleSettings.SubtitleMode;
       video.SourceSubtitles.AddRange(info.Subtitles);
       if (transSetup.SubtitleSettings.SubtitleMode == SubtitleSupport.HardCoded)
@@ -1165,9 +1236,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Profiles
       }
 
       video.TargetVideoContainer = video.SourceVideoContainer;
-
       video.TargetAudioCodec = video.SourceAudioCodec;
       video.TargetVideoCodec = video.SourceVideoCodec;
+      video.TargetLevel = info.Video.HeaderLevel;
+      video.TargetProfile = info.Video.ProfileType;
       video.TargetForceVideoCopy = true;
       video.TargetForceAudioCopy = true;
 
