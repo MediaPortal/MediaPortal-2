@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
@@ -29,6 +30,37 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 {
   public class GridListView : ListView
   {
+    private AbstractProperty _animationCompletedProperty;
+    private AbstractProperty _animationStartedProperty;
+
+    public AbstractProperty AnimationStartedProperty
+    {
+      get { return _animationStartedProperty; }
+    }
+
+    public bool AnimationStarted
+    {
+      get { return (bool)_animationStartedProperty.GetValue(); }
+      set { _animationStartedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AnimationCompletedProperty
+    {
+      get { return _animationCompletedProperty; }
+    }
+
+    public bool AnimationCompleted
+    {
+      get { return (bool)_animationCompletedProperty.GetValue(); }
+      set { _animationCompletedProperty.SetValue(value); }
+    }
+
+    public GridListView()
+    {
+      _animationStartedProperty = new SProperty(typeof(bool), false);
+      _animationCompletedProperty = new SProperty(typeof(bool), false);
+    }
+
     protected override FrameworkElement PrepareItemContainer(object dataItem)
     {
       FrameworkElement container = base.PrepareItemContainer(dataItem);

@@ -41,6 +41,7 @@ using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Xml;
 
@@ -48,12 +49,19 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 {
   public class HomeMenuModel : MenuModel
   {
-    #region Consts
+    #region Consts & Enums
 
     public const string STR_HOMEMENU_MODEL_ID = "A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177";
     public static readonly Guid HOMEMENU_MODEL_ID = new Guid(STR_HOMEMENU_MODEL_ID);
     public const string STR_HOME_STATE_ID = "7F702D9C-F2DD-42da-9ED8-0BA92F07787F";
     public static readonly Guid HOME_STATE_ID = new Guid(STR_HOME_STATE_ID);
+
+    public enum NavigationTypeEnum
+    {
+      None,
+      PageLeft,
+      PageRight
+    }
 
     #endregion
 
@@ -61,10 +69,14 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     readonly ItemsList _mainMenuGroupList = new ItemsList();
     readonly ItemsList _positionedItems = new ItemsList();
+    readonly ItemsList _nextPageItems = new ItemsList();
     protected SettingsChangeWatcher<MenuSettings> _menuSettings;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
     protected AbstractProperty _isHomeScreenProperty;
+    protected AbstractProperty _beginNavigationProperty;
+    protected AbstractProperty _animationStartedProperty;
+    protected AbstractProperty _animationCompletedProperty;
     protected readonly DelayedEvent _delayedMenueUpdateEvent;
     protected bool _noSettingsRefresh;
     protected bool _isPlayerActive;
@@ -111,12 +123,17 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       get
       {
-        SerializableDictionary<Guid, GridPosition> positions;
-        if (_menuSettings == null || !_menuSettings.Settings.MenuItems.TryGetValue(CurrentKey, out positions))
-          return new Dictionary<Guid, GridPosition>();
-
-        return positions;
+        return GetPositions(CurrentKey);
       }
+    }
+
+    protected IDictionary<Guid, GridPosition> GetPositions(string key)
+    {
+      SerializableDictionary<Guid, GridPosition> positions;
+      if (_menuSettings == null || !_menuSettings.Settings.MenuItems.TryGetValue(key, out positions))
+        return new Dictionary<Guid, GridPosition>();
+
+      return positions;
     }
 
     public ItemsList MainMenuGroupList
@@ -133,6 +150,11 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       get { return _positionedItems; }
     }
 
+    public ItemsList NextPageItems
+    {
+      get { return _nextPageItems; }
+    }
+
     public AbstractProperty LastSelectedItemNameProperty
     {
       get { return _lastSelectedItemNameProperty; }
@@ -142,6 +164,39 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     {
       get { return (string)_lastSelectedItemNameProperty.GetValue(); }
       set { _lastSelectedItemNameProperty.SetValue(value); }
+    }
+
+    public AbstractProperty BeginNavigationProperty
+    {
+      get { return _beginNavigationProperty; }
+    }
+
+    public NavigationTypeEnum BeginNavigation
+    {
+      get { return (NavigationTypeEnum)_beginNavigationProperty.GetValue(); }
+      set { _beginNavigationProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AnimationStartedProperty
+    {
+      get { return _animationStartedProperty; }
+    }
+
+    public bool AnimationStarted
+    {
+      get { return (bool)_animationStartedProperty.GetValue(); }
+      set { _animationStartedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AnimationCompletedProperty
+    {
+      get { return _animationCompletedProperty; }
+    }
+
+    public bool AnimationCompleted
+    {
+      get { return (bool)_animationCompletedProperty.GetValue(); }
+      set { _animationCompletedProperty.SetValue(value); }
     }
 
     public AbstractProperty IsHomeProperty
@@ -173,7 +228,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       _lastSelectedItemNameProperty = new WProperty(typeof(string), null);
       _isHomeProperty = new WProperty(typeof(bool), false);
       _isHomeScreenProperty = new WProperty(typeof(bool), false);
+      _beginNavigationProperty = new WProperty(typeof(NavigationTypeEnum), NavigationTypeEnum.None);
+      _animationStartedProperty = new WProperty(typeof(bool), false);
+      _animationCompletedProperty = new WProperty(typeof(bool), false);
       IsHomeProperty.Attach(IsHomeChanged);
+      _animationStartedProperty.Attach(OnAnimationStarted);
+      _animationCompletedProperty.Attach(OnAnimationCompleted);
 
       SubscribeToMessages();
 
@@ -198,6 +258,33 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     public void CloseMenu(MouseButtons buttons, float x, float y)
     {
       ToggleMenu();
+    }
+
+    public void PageLeft()
+    {
+      BeginNavigation = NavigationTypeEnum.PageLeft;
+    }
+
+    public void PageRight()
+    {
+      BeginNavigation = NavigationTypeEnum.PageRight;
+    }
+
+    private void OnAnimationStarted(AbstractProperty property, object oldvalue)
+    {
+      ServiceRegistration.Get<ILogger>().Info("HomeMenuModel OnAnimationStarted: value: {0} oldvalue: {1}", AnimationStarted, oldvalue);
+      if (AnimationStarted)
+        PrepareNextPage();
+    }
+
+    private void OnAnimationCompleted(AbstractProperty property, object oldvalue)
+    {
+      ServiceRegistration.Get<ILogger>().Info("HomeMenuModel OnAnimationCompleted: value: {0} oldvalue: {1}", AnimationCompleted, oldvalue);
+      if (AnimationCompleted)
+      {
+        CyclePositionedItems();
+        BeginNavigation = NavigationTypeEnum.None;
+      }
     }
 
     private void OnSettingsChanged(object sender, EventArgs e)
@@ -344,9 +431,46 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         CreatePositionedItems();
     }
 
+    protected void PrepareNextPage()
+    {
+      int pageDirection = BeginNavigation == NavigationTypeEnum.PageLeft ? -1 : 1;
+      var mainMenuGroupNames = _menuSettings.Settings.MainMenuGroupNames;
+      var nextIndex = GetNextIndex(CurrentKey, pageDirection);
+      var newKey = mainMenuGroupNames[nextIndex].Name;
+      CreatePositionedItems(_nextPageItems, newKey, GetPositions(newKey));
+
+      SetGroup(mainMenuGroupNames[nextIndex].Id.ToString(), true);
+    }
+    protected void CyclePositionedItems()
+    {
+      var tmpItems = _nextPageItems.ToList();
+      _positionedItems.Clear();
+      CollectionUtils.AddAll(_positionedItems, tmpItems);
+      _positionedItems.FireChange();
+    }
+
+    protected int GetNextIndex(string currentKey, int direction)
+    {
+      var mainMenuGroupNames = _menuSettings.Settings.MainMenuGroupNames;
+      var count = mainMenuGroupNames.Count;
+      int currentPos = mainMenuGroupNames.Select(g => g.Name).ToList().IndexOf(currentKey);
+      int newPos = currentPos + direction;
+      if (newPos < 0)
+        newPos += count;
+      if (newPos >= count)
+        newPos = 0;
+      return newPos;
+    }
+
     protected void CreatePositionedItems()
     {
-      _positionedItems.Clear();
+      CreatePositionedItems(_positionedItems, CurrentKey, Positions);
+    }
+
+    protected void CreatePositionedItems(ItemsList list, string currentKey, IDictionary<Guid, GridPosition> gridPositions)
+    {
+      list.Clear();
+
       int x = 0;
       foreach (var menuItem in MenuItems)
       {
@@ -358,7 +482,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
           continue;
 
         // Under "others" all items are places, that do not fit into any other category
-        if (CurrentKey == MenuSettings.MENU_NAME_OTHERS)
+        if (currentKey == MenuSettings.MENU_NAME_OTHERS)
         {
           bool found = IsManuallyPositioned(wfAction);
           if (!found)
@@ -370,14 +494,14 @@ namespace MediaPortal.UiComponents.BlueVision.Models
               GridRowSpan = MenuSettings.DEFAULT_ROWSPAN_SMALL,
               GridColumnSpan = MenuSettings.DEFAULT_COLSPAN_SMALL,
             };
-            _positionedItems.Add(gridItem);
+            list.Add(gridItem);
             x += MenuSettings.DEFAULT_COLSPAN_SMALL;
           }
         }
         else
         {
           GridPosition gridPosition;
-          if (Positions.TryGetValue(wfAction.ActionId, out gridPosition))
+          if (gridPositions.TryGetValue(wfAction.ActionId, out gridPosition))
           {
             GridListItem gridItem = new GridListItem(menuItem)
             {
@@ -386,11 +510,11 @@ namespace MediaPortal.UiComponents.BlueVision.Models
               GridRowSpan = gridPosition.RowSpan,
               GridColumnSpan = gridPosition.ColumnSpan,
             };
-            _positionedItems.Add(gridItem);
+            list.Add(gridItem);
           }
         }
       }
-      _positionedItems.FireChange();
+      list.FireChange();
     }
 
     private bool IsManuallyPositioned(WorkflowAction wfAction)
