@@ -830,11 +830,11 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
+              <RowDefinition Height="12"/>
             </Grid.RowDefinitions>
-            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="7" RadiusY="7"      
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="6" RadiusY="6"      
                        Fill="#26FFFFFF"/>
-            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" RadiusX="7" RadiusY="7"                 
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Stretch" RadiusX="6" RadiusY="6"                 
                        Fill="{ThemeResource ProgressBarFillColor}"/>
           </Grid>
         </ControlTemplate>
