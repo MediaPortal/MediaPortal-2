@@ -287,6 +287,27 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
     }
 
+    private void SetFocusOnNewPage()
+    {
+      var visibleItems = PositionedMenuItems.OfType<GridListItem>().Where(item => item.IsVisible);
+      GridListItem nextFocusItem = null;
+      int gridCol = BeginNavigation == NavigationTypeEnum.PageLeft  ? - 1 : 100;
+      foreach (GridListItem item in visibleItems)
+      {
+        if (BeginNavigation == NavigationTypeEnum.PageLeft && (nextFocusItem == null || item.GridColumn + item.GridColumnSpan > gridCol))
+        {
+          gridCol = item.GridColumn + item.GridColumnSpan;
+          nextFocusItem = item;
+        }
+        if (BeginNavigation == NavigationTypeEnum.PageRight && (nextFocusItem == null || item.GridColumn < gridCol))
+        {
+          gridCol = item.GridColumn;
+          nextFocusItem = item;
+        }
+      }
+      PositionedMenuItems.OfType<GridListItem>().ToList().ForEach(item => item.Selected = item == nextFocusItem);
+    }
+
     private void OnSettingsChanged(object sender, EventArgs e)
     {
       // Invoked from internal update, so skip refreshs
@@ -446,6 +467,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       var tmpItems = _nextPageItems.ToList();
       _positionedItems.Clear();
       CollectionUtils.AddAll(_positionedItems, tmpItems);
+      SetFocusOnNewPage();
       _positionedItems.FireChange();
     }
 
