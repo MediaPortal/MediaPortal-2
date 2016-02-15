@@ -36,6 +36,7 @@
               <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.0"/>
               <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
             </DoubleAnimationUsingKeyFrames>
+
             <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="AnimationStarted">
               <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True" />
             </ObjectAnimationUsingKeyFrames>
@@ -50,6 +51,10 @@
               <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-1920"/>
               <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
             </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="RenderTransform.X">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1920"/>
+            </DoubleAnimationUsingKeyFrames>
           </Storyboard>
 
           <Storyboard x:Key="SlideInRight" FillBehavior="Stop">
@@ -57,6 +62,10 @@
             <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="RenderTransform.X">
               <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1920"/>
               <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="RenderTransform.X">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="-1920"/>
             </DoubleAnimationUsingKeyFrames>
           </Storyboard>
         </DockPanel.Resources>
@@ -258,6 +267,9 @@
           <bv:GridListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </bv:GridListView.Resources>
+          <bv:GridListView.RenderTransform>
+            <TranslateTransform X="0" Y="0"/>
+          </bv:GridListView.RenderTransform>
         </bv:GridListView>
 
         <bv:GridListView x:Name="NextPage" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
