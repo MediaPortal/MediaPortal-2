@@ -117,9 +117,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
 
       <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Center" Orientation="Horizontal">
-        <Button Content="P &lt;" Margin="10" Command="{Command Source={StaticResource MenuModel},Path=PageLeft}" Grid.Column="1"/>
-        <Button Content="P &gt;" Margin="10" Command="{Command Source={StaticResource MenuModel},Path=PageRight}" Grid.Column="1"/>
-
         <Label x:Name="SelectedItem"
                 Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
                 VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
