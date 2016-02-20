@@ -22,7 +22,7 @@
   <Target Name="RestoreDnx">
     <Exec Command="dnvm upgrade -r clr"/>
     <Exec Command="dnvm exec default dnu restore -s https://www.myget.org/F/aspnetvnext/ -f https://www.nuget.org/api/v2/ -f http://www.myget.org/F/mediaportal/"
-		WorkingDirectory="../"/>
+		WorkingDirectory="../Source/"/>
   </Target>
 
   <Target Name="RestoreAllPackages"
