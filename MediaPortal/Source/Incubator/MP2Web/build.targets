@@ -3,6 +3,10 @@
 
   <PropertyGroup>
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)\x86\$(Configuration)\Plugins\$(ProjectName)\</PluginDestination>
+	<DevEnvDir Condition="'$(DevEnvDir)' == '' OR '$(DevEnvDir)' == '*undefined*'">$(VS140COMNTOOLS)..\IDE\</DevEnvDir>
+	<VSExternalWebToolsPath>$(DevEnvDir)Extensions\Microsoft\Web Tools\External\</VSExternalWebToolsPath>
+	<VSNodeExecutable>$(VSExternalWebToolsPath)node\node.exe</VSNodeExecutable>
+	<VSNpmExecutable>&quot;$(VSExternalWebToolsPath)npm.cmd&quot;</VSNpmExecutable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,15 +18,26 @@
     <PluginFiles Include="$(TargetDir)$(Configuration)\net451\*.pdb" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Views Include="$(ProjectDir)Views\**\*.*"/>
-  </ItemGroup>
+  <Target Name="InstallClientDependencies" AfterTargets="BeforeBuild">
+    <Exec Command="$(VSNpmExecutable) install" WorkingDirectory="$(MSBuildProjectDirectory)"></Exec>
+    <Exec Command="&quot;$(VSNodeExecutable)&quot; &quot;node_modules\bower\bin\bower&quot; install --force-latest" WorkingDirectory="$(MSBuildProjectDirectory)"></Exec>
+    <Exec Command="&quot;$(VSNodeExecutable)&quot; &quot;node_modules\gulp\bin\gulp.js&quot; before:build" WorkingDirectory="$(MSBuildProjectDirectory)"></Exec>
+  </Target>
 
-  <Target Name="AfterBuild">
+  <Target Name="GulpDebug" AfterTargets="AfterCompile" Condition="'$(Configuration)' == 'Debug'">
+    <Exec Command="&quot;$(VSNodeExecutable)&quot; &quot;node_modules\gulp\bin\gulp.js&quot; after:compile:debug" WorkingDirectory="$(MSBuildProjectDirectory)"></Exec>
+  </Target>
+
+  <Target Name="GulpRelease" AfterTargets="AfterCompile" Condition="'$(Configuration)' == 'Release'">
+    <Exec Command="&quot;$(VSNodeExecutable)&quot; &quot;node_modules\gulp\bin\gulp.js&quot; after:compile:release" WorkingDirectory="$(MSBuildProjectDirectory)"></Exec>
+  </Target>
+
+  <Target Name="CopyAll" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <WwwRoot Include="$(ProjectDir)wwwroot\**\*.*"/>
+    </ItemGroup>
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(Views)" DestinationFiles="@(Views->'$(PluginDestination)Views\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <Copy SourceFiles="@(WwwRoot)" DestinationFiles="@(WwwRoot->'$(PluginDestination)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"/>
   </Target>
 
-  <Target Name="CopyFiles">
-  </Target>
 </Project>

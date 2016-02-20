@@ -1,8 +1,8 @@
 <Plugin
     DescriptorVersion="1.0" 
-    Name="AspNetServerSample"
+    Name="MP2Web"
     PluginId="{f1c8ce41-d5bf-4f07-8acb-6c70272595c9}"
-    Author="MJGraf"
+    Author="FreakyJ"
     Copyright="GPL"
     AutoActivate="true"
     Description="MP2 Webinterface">

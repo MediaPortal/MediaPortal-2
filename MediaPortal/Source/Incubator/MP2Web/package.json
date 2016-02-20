@@ -1,35 +1,44 @@
 {
-  "name": "angular2-quickstart",
+  "name": "mp2web",
   "version": "1.0.0",
-  "scripts": {
-    "tsc": "tsc",
-    "tsc:w": "tsc -w",
-    "lite": "lite-server",
-    "start": "concurrent \"npm run tsc:w\" \"npm run lite\" "
-  },
-  "license": "ISC",
+  "description": "Webinterface for MP2",
+  "homepage": "www.team-mediaportal.de",
+  "author": "FreakyJ",
+  "license": "GPL-3.0",
+  "private": true,
   "dependencies": {
-    "angular2": "2.0.0-beta.3",
-    "bootstrap": "^3.3.6",
-    "chart.js": "^1.0.2",
-    "es6-promise": "^3.0.2",
-    "es6-shim": "^0.33.3",
-    "font-awesome": "^4.5.0",
-    "jquery": "^2.2.0",
-    "moment": "^2.11.2",
-    "ng2-bootstrap": "^1.0.3",
-    "ng2-translate": "^1.4.1",
+    "angular2": "2.0.0-beta.6",
+    "systemjs": "0.19.22",
+    "es6-promise": "3.0.2",
+    "es6-shim": "0.33.3",
     "reflect-metadata": "0.1.2",
+    "chart.js": "^1.0.2",
     "rxjs": "5.0.0-beta.0",
-    "systemjs": "0.19.6",
-    "zone.js": "0.5.11"
+    "zone.js": "0.5.14",
+    "jquery": "^2.2.0",
+    "moment": "2.11.2",
+    "ng2-bootstrap": "^1.0.3",
+    "ng2-translate": "1.7.2",
+    "bootstrap": "^3.3.6",
+    "font-awesome": "^4.5.0"
   },
+  "//": [
+    "meow is a dependency of gulp; only included to circumvent the max path length problem; remove once VS uses NPMv3",
+    "latest-version is a dependency of tsd; only included to circumvent the max path length problem; remove once VS uses NPMv3",
+    "tsd is a dependency of gulp-tsd; only included to circumvent the max path length problem; remove once VS uses NPMv3"
+  ],
   "devDependencies": {
     "bower": "^1.7.2",
     "concurrently": "^1.0.0",
-    "lite-server": "^2.0.1",
     "typescript": "^1.7.3",
+	
+    "meow": "3.7.0",
     "gulp": "3.9.0",
-    "gulp-clean": "0.3.1"
+	
+    "del": "2.2.0",
+	
+    "latest-version": "1.0.1",
+    "tsd": "0.6.5",
+    "gulp-tsd": "0.1.0"
   }
 }

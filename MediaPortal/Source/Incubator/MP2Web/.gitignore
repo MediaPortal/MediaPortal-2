@@ -1,4 +1,6 @@
 node_modules
 bower_components
+wwwroot
+typings
 app/**/*.js
 app/**/*.map

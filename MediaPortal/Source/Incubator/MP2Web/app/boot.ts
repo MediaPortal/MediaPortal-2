@@ -1,3 +1,5 @@
+///<reference path="../typings/tsd.d.ts"/>
+
 import {bootstrap}    from "angular2/platform/browser"
 import {provide} from "angular2/core";
 import { ROUTER_PROVIDERS, APP_BASE_HREF, LocationStrategy, HashLocationStrategy } from "angular2/router";

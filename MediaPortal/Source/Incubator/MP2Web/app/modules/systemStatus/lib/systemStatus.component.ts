@@ -101,10 +101,10 @@ export class SystemStatusComponent {
 
     updateInformation() {
         if (this.cpuChart == null && this.ramChart == null) {
-            this.cpuChartCtx = document.getElementById("cpuChart").getContext("2d");
+            this.cpuChartCtx = (<HTMLCanvasElement> document.getElementById("cpuChart")).getContext("2d");
             this.cpuChart = new Chart(this.cpuChartCtx).Line(this.dataCpu, this.chartOptions);
 
-            this.ramChartCtx = document.getElementById("ramChart").getContext("2d");
+            this.ramChartCtx = (<HTMLCanvasElement> document.getElementById("ramChart")).getContext("2d");
             this.ramChart = new Chart(this.ramChartCtx).Line(this.dataRam, this.chartOptions);
         }
 

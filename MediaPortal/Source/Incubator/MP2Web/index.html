@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -9,6 +9,7 @@
 
     <!-- IE required polyfill -->
     <script src="node_modules/es6-shim/es6-shim.min.js"></script>
+    <script src="node_modules/systemjs/dist/system-polyfills.js"></script>
 
     <!-- AngularJS 2 -->
     <script src="node_modules/angular2/bundles/angular2-polyfills.js"></script>
@@ -16,10 +17,15 @@
     <script src="node_modules/rxjs/bundles/Rx.js"></script>
     <script src="node_modules/angular2/bundles/angular2.dev.js"></script>
     <script src="node_modules/angular2/bundles/router.dev.js"></script>
+    <script src="node_modules/angular2/bundles/http.dev.js"></script>
+
     <!-- JQuery -->
     <script src="node_modules/jquery/dist/jquery.js"></script>
+    <!-- ng2-translate -->
+    <script src="node_modules/ng2-translate/bundles/ng2-translate.js"></script>
     <!-- Bootstrap -->
     <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="node_modules/ng2-bootstrap/bundles/ng2-bootstrap.min.js"></script>
 
     <script src="node_modules/chart.js/Chart.min.js"></script>
 
@@ -31,22 +37,16 @@
     <!-- 2. Configure SystemJS -->
     <script>
         System.config({
-            defaultJSExtensions: true,
             packages: {
                 app: {
                     format: 'register',
                     defaultExtension: 'js'
-                },
-                "/ng2-translate": {
-                    defaultExtension: 'js'
                 }
             },
             map: {
-                'ng2-translate': 'node_modules/ng2-translate',
-                'rxjs': 'node_modules/rxjs',
-                'angular2': 'node_modules/angular2',
-                'ng2-bootstrap': 'node_modules/ng2-bootstrap',
-                'moment': 'node_modules/moment/moment.js'
+                "ng2-translate/ng2-translate" : "ng2-translate",
+                "moment" : "node_modules/moment/moment.js",
+                "Chart" : "node_modules/chart.js/Chart.min.js"
             }
         });
         System.import('app/boot')
