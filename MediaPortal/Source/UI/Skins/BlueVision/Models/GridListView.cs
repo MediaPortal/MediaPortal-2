@@ -22,17 +22,65 @@
 
 #endregion
 
+using System;
+using MediaPortal.Common.General;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
   public class GridListView : ListView
   {
+    private readonly AbstractProperty _beginNavigationProperty;
+    private readonly AbstractProperty _animationCompletedProperty;
+    private readonly AbstractProperty _animationStartedProperty;
+
+    public AbstractProperty BeginNavigationProperty
+    {
+      get { return _beginNavigationProperty; }
+    }
+
+    public HomeMenuModel.NavigationTypeEnum BeginNavigation
+    {
+      get { return (HomeMenuModel.NavigationTypeEnum)_beginNavigationProperty.GetValue(); }
+      set { _beginNavigationProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AnimationStartedProperty
+    {
+      get { return _animationStartedProperty; }
+    }
+
+    public bool AnimationStarted
+    {
+      get { return (bool)_animationStartedProperty.GetValue(); }
+      set { _animationStartedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AnimationCompletedProperty
+    {
+      get { return _animationCompletedProperty; }
+    }
+
+    public bool AnimationCompleted
+    {
+      get { return (bool)_animationCompletedProperty.GetValue(); }
+      set { _animationCompletedProperty.SetValue(value); }
+    }
+
+    public GridListView()
+    {
+      _beginNavigationProperty = new SProperty(typeof(HomeMenuModel.NavigationTypeEnum), HomeMenuModel.NavigationTypeEnum.None);
+      _animationStartedProperty = new SProperty(typeof(bool), false);
+      _animationCompletedProperty = new SProperty(typeof(bool), false);
+    }
+
     protected override FrameworkElement PrepareItemContainer(object dataItem)
     {
       FrameworkElement container = base.PrepareItemContainer(dataItem);
-      GridListItem gli = dataItem  as GridListItem;
+      GridListItem gli = dataItem as GridListItem;
       if (gli != null)
       {
         Grid.SetColumn(container, gli.GridColumn);
@@ -42,5 +90,31 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
       return container;
     }
+
+    protected override void OnKeyPress(KeyEventArgs e)
+    {
+      e.Handled =
+        e.Key == Key.Left && OnLeft() ||
+        e.Key == Key.Right && OnRight();
+    }
+
+    private bool OnRight()
+    {
+      if (!MoveFocus1(MoveFocusDirection.Right))
+      {
+        BeginNavigation = HomeMenuModel.NavigationTypeEnum.PageRight;
+      }
+      return true;
+    }
+
+    private bool OnLeft()
+    {
+      if (!MoveFocus1(MoveFocusDirection.Left))
+      {
+        BeginNavigation = HomeMenuModel.NavigationTypeEnum.PageLeft;
+      }
+      return true;
+    }
+
   }
 }

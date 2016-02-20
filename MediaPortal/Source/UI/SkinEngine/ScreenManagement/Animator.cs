@@ -263,7 +263,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       lock (_syncObject)
       {
-        foreach (AnimationContext ac in _scheduledAnimations)
+        foreach (AnimationContext ac in new List<AnimationContext>(_scheduledAnimations))
         {
           if (IsWaiting(ac))
             continue;
