@@ -2,8 +2,7 @@ import {Injectable, EventEmitter} from "angular2/core";
 import {HTTP_PROVIDERS, Http, Request, RequestMethod} from "angular2/http";
 import {IConfiguration} from "./interface.ConfigurationService";
 
-// TODO: remove localhost!
-var API_GET_CONFIG = "http://localhost:8080/api/Configuration";
+var API_GET_CONFIG = "/api/Configuration";
 
 /*
 MP2Web Configuration Service

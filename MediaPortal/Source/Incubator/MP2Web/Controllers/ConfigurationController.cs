@@ -71,7 +71,7 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
     {
       return new MP2WebAppConfiguration
       {
-        WebApiUrl = "http://localhost:5555",
+        WebApiUrl = "http://" + HttpContext.Request.Host.Value.Split(':')[0] + ":5555",
         Routes = new List<MP2WebAppRouterConfiguration>
         {
           new MP2WebAppRouterConfiguration

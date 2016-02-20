@@ -4,12 +4,13 @@ import {Router} from "angular2/router";
 
 import {MediaLibrary, Aspects, SeriesAspect, MovieAspect, MovieAspectAttributes, MediaAspect, MediaAspectAttributes} from "../../../common/lib/MediaLibrary/MediaLibrary";
 import {MovieObjInterface, MovieObject} from "../../movies/lib/common.movies";
+import {MoviePosterComponent} from "../../movies/lib/posters.movies.component";
 import {StarratingComponent} from "../../../common/Components/Starrating/lib/starrating";
 import {RouteConfig} from "angular2/router";
 
 @Component({
     templateUrl: "app/modules/home/home.html",
-    directives: [COMMON_DIRECTIVES, CORE_DIRECTIVES, StarratingComponent],
+    directives: [COMMON_DIRECTIVES, CORE_DIRECTIVES, StarratingComponent, MoviePosterComponent],
 })
 export class HomeComponent {
     sortInformationString: string = Aspects.ImporterAspect+".DateAdded.Descending"; // [MediaItemAspectId].[AttributeName].[SortDirection]
@@ -29,10 +30,6 @@ export class HomeComponent {
             }
         });
     }
-
-    getCovers = function(id) {
-        return "http://localhost:5555/api/v1/MediaLibrary/MediaItems/" + id + "/FanArt/Movie/Poster/0?maxWidth=200&maxHeight=300";
-    };
 
     errorLoadingCover = function(event) {
         event.target.src = "images/noCover.png";

@@ -6,13 +6,14 @@ import {RangePipe} from "../../../pipes/range-pipe";
 import {MediaLibrary, Aspects, SeriesAspect, MovieAspect, MovieAspectAttributes, MediaAspect, MediaAspectAttributes} from "../../../common/lib/MediaLibrary/MediaLibrary";
 import {ConfigurationService} from "../../../common/lib/ConfigurationService/ConfigurationService";
 import {MovieObject, MovieObjInterface} from "./common.movies";
+import {MoviePosterComponent} from "./posters.movies.component";
 import {infiniteScroll} from "../../../common/lib/infinite-scroll";
 import {StarratingComponent} from "../../../common/Components/Starrating/lib/starrating";
 
 
 @Component({
     templateUrl: "app/modules/movies/list.movies.html",
-    directives: [COMMON_DIRECTIVES, CORE_DIRECTIVES, infiniteScroll, StarratingComponent],
+    directives: [COMMON_DIRECTIVES, CORE_DIRECTIVES, infiniteScroll, StarratingComponent, MoviePosterComponent],
     pipes: [RangePipe, TranslatePipe]
 })
 export class ListMoviesComponent {
@@ -59,11 +60,6 @@ export class ListMoviesComponent {
             this.moviesLoadingBussy = false;
         });
         this.mlOffset += this.moviesPerQuery;
-    }
-
-    getCovers = function(id) {
-        return "http://localhost:5555/api/v1/MediaLibrary/MediaItems/" + id + "/FanArt/Movie/Poster/0?maxWidth=200&maxHeight=300";
-        //return /*GetArtworkResizedUrl + */"?mediatype=Movie&id=" + id + "&artworktype=Poster&maxWidth=200&maxHeight=300&borders=transparent"
     }
 
     errorLoadingCover = function(event) {

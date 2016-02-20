@@ -12,7 +12,7 @@
                             <div class="img">
                                 <!-- watched status -->
                                 <div [ngClass]="{true: 'side-corner-tag', false: ''}[movieList[x + i].Watched]">
-                                    <img [src]="getCovers(movieList[x + i].ID)" (error)="errorLoadingCover($event)" style="height: 248px;" id="watched">
+                                    <img [movie-poster]="movieList[x + i].ID" (error)="errorLoadingCover($event)" style="height: 248px;" id="watched">
                                     <template [ngIf]="movieList[x + i].Watched">
                                         <p><span>Watched!</span></p>
                                     </template>

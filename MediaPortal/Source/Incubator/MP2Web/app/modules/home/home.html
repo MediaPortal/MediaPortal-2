@@ -11,7 +11,7 @@
                     <div class="img">
                         <!-- watched status -->
                         <div [ngClass]="{true: 'side-corner-tag', false: ''}[movie.Watched]">
-                            <img [src]="getCovers(movie.ID)" (error)="errorLoadingCover($event)" style="height: 248px;" id="watched">
+                            <img [movie-poster]="movie.ID" (error)="errorLoadingCover($event)" style="height: 248px;" id="watched">
                             <template [ngIf]="movie.Watched">
                                 <p><span>Watched!</span></p>
                             </template>
