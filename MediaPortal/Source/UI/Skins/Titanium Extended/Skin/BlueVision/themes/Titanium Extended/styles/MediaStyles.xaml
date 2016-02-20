@@ -110,7 +110,7 @@
                     </Grid>
                   </DockPanel>
                   <!--Rectangle Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" RadiusX="20" RadiusY="20" Fill="#80000000" /-->
-                  <Label x:Name="TimeLabel" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource BigFontSize}"
+                  <Label x:Name="TimeLabel" Color="#FF66b1d8" FontSize="{ThemeResource BigFontSize}"
                         HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
                         Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
                 </Grid>
@@ -252,7 +252,7 @@
 
                   <Rectangle Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" RadiusX="20" RadiusY="20" Fill="#80000000" />
 
-                  <Label x:Name="TimeLabel" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource BigFontSize}"
+                  <Label x:Name="TimeLabel" Color="#FF66b1d8" FontSize="{ThemeResource BigFontSize}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" 
                         Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
 
@@ -541,7 +541,7 @@
               <!-- PiPButton -->
               <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                 Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
-              
+
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                 VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"

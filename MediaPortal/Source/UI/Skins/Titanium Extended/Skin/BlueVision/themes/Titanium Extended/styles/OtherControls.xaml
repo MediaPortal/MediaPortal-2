@@ -2525,24 +2525,26 @@
                 <Label x:Name="PlayerTitle" Grid.Row="0" Grid.Column="2" Color="{ThemeResource HomeNonFocusedColor}" FontSize="{ThemeResource SmallFontSize}"
                     Content="{Binding Title}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="20,0,0,0"/>
               </Grid>
-              <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0">
+              <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0"> 
                 <!-- Workaround to avoid layouting problems with LayoutTransform -->
                 <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal" IsVisible="True">
                   <!--{Binding ShowMouseControls}-->
-                  <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+                  <Button x:Name="SkipBackButton" Style="{ThemeResource DarkSkipBackwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                       Command="{Command Previous}"/>
-                  <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
+                  <Button x:Name="RewindButton" Style="{ThemeResource DarkRewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
                       Command="{Command SeekBackward}"/>
-                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                  <Button x:Name="PlayButton" Style="{ThemeResource DarkPlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
                       Command="{Command Play}"/>
-                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                  <Button x:Name="PauseButton" Style="{ThemeResource DarkPauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
                       Command="{Command Pause}"/>
-                  <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
+                  <Button x:Name="StopButton" Style="{ThemeResource DarkStopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
                       Command="{Command Stop}"/>
-                  <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
+                  <Button x:Name="ForwardButton" Style="{ThemeResource DarkForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
                       Command="{Command SeekForward}"/>
-                  <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
+                  <Button x:Name="SkipForwardButton" Style="{ThemeResource DarkSkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                       Command="{Command Next}"/>
+                  <Button x:Name="ToogleFullScreen" Style="{ThemeResource DarkToogleFullScreenStyle}" Margin="5,-3,5,3" 
+                      Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/> 
                 </StackPanel>
                 <StackPanel.LayoutTransform>
                   <TransformGroup>

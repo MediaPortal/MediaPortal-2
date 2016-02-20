@@ -8,7 +8,7 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
-    DependsOnStyleResources="Colors,Buttons,Consts,Widgets"
+    DependsOnStyleResources="Colors,Buttons,Consts,Widgets,MediaConsts"
     >
 
   <!-- BackgroundManager model -->

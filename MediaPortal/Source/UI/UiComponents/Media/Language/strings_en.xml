@@ -258,6 +258,7 @@
   <string name="Media.SeriesTitleLabel">Series: </string>
   <string name="Media.SeriesSeasonLabel">Season: </string>
   <string name="Media.SeriesEpisodeLabel">Episode(s): </string>
+  <string name="Media.FirstAiredLabel">First aired: </string>
   <string name="Media.SeriesEpisodeNameLabel">Episode title: </string>
 
   <!-- Image currently playing -->
