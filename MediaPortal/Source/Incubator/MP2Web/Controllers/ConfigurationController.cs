@@ -22,20 +22,12 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using System.Xml;
-using HttpServer.Exceptions;
 using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.AspNetWebApi;
 using MediaPortal.Plugins.MP2Web.Configuration;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 
 namespace MediaPortal.Plugins.MP2Web.Controllers
 {
@@ -66,12 +58,13 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
     /// GET /api/Configuration/
     /// </summary>
     /// <returns>The Configuration for the MP2Web App</returns>
-    [HttpGet()]
+    [HttpGet]
     public MP2WebAppConfiguration Get()
     {
+      var webApiPort = ServiceRegistration.Get<IAspNetWebApiService>().Port;
       return new MP2WebAppConfiguration
       {
-        WebApiUrl = "http://" + HttpContext.Request.Host.Value.Split(':')[0] + ":5555",
+        WebApiUrl = "http://" + HttpContext.Request.Host.Value.Split(':')[0] + ":" + webApiPort,
         Routes = new List<MP2WebAppRouterConfiguration>
         {
           new MP2WebAppRouterConfiguration

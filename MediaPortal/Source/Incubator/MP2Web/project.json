@@ -14,7 +14,8 @@
     }
   },
   "dependencies": {
-    "AspNetServer": "1.0.0-*"
+    "AspNetServer": "1.0.0-*",
+    "AspNetWebApi": "1.0.0-*"
   },
 
   "exclude": [
