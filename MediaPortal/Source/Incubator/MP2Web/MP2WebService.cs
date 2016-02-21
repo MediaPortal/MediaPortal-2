@@ -26,6 +26,8 @@ using MediaPortal.Common;
 using System;
 using System.IO;
 using System.Reflection;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetServer;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.FileProviders;
@@ -40,7 +42,6 @@ namespace MediaPortal.Plugins.MP2Web
     #region Consts
 
     private const string WEB_APPLICATION_NAME = "MP2WebApp";
-    private const int PORT = 8080;
     private const string BASE_PATH = "/";
     private static readonly Assembly ASS = Assembly.GetExecutingAssembly();
     internal static readonly string ASSEMBLY_PATH = Path.GetDirectoryName(ASS.Location);
@@ -81,8 +82,23 @@ namespace MediaPortal.Plugins.MP2Web
           });
           app.UseMvc();
         },
-        port: PORT,
+        port: GetPort(),
         basePath: BASE_PATH);
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private int GetPort()
+    {
+      var port = ServiceRegistration.Get<ISettingsManager>().Load<MP2WebSettings>().TcpPort;
+      if (port < 1 || port > 65535)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("MP2WebService: Tcp-Port {0} from settings is invalid; using default port {1}.", port, MP2WebSettings.DEFAULT_PORT);
+        port = MP2WebSettings.DEFAULT_PORT;
+      }
+      return port;
     }
 
     #endregion
