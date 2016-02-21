@@ -24,6 +24,8 @@
 
 using MediaPortal.Common;
 using System;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetServer;
 using MediaPortal.Plugins.AspNetWebApi.Json;
 using Microsoft.AspNet.Builder;
@@ -34,13 +36,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MediaPortal.Plugins.AspNetWebApi
 {
-  public class AspNetWebApiService : IDisposable
+  public class AspNetWebApiService : IAspNetWebApiService, IDisposable
   {
     #region Consts
 
     private const string WEB_APPLICATION_NAME = "MP2WebApi";
-    private const int PORT = 5555;
     private const string BASE_PATH = "/api/";
+
+    #endregion
+
+    #region Private fields
+
+    private int? _port;
 
     #endregion
 
@@ -72,8 +79,29 @@ namespace MediaPortal.Plugins.AspNetWebApi
           app.UseCors("AllowAll");
           app.UseMvc();
         },
-        port: PORT,
+        port: Port,
         basePath: BASE_PATH);
+    }
+
+    #endregion
+
+    #region IAspNetWebApiService implmentation
+
+    public int Port
+    {
+      get
+      {
+        if (_port.HasValue)
+          return _port.Value;
+        var port = ServiceRegistration.Get<ISettingsManager>().Load<AspNetWebApiSettings>().TcpPort;
+        if (port < 1 || port > 65535)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("AspNetWebApiService: Tcp-Port {0} from settings is invalid; using default port {1}.", port, AspNetWebApiSettings.DEFAULT_PORT);
+          port = AspNetWebApiSettings.DEFAULT_PORT;
+        }
+        _port = port;
+        return port;
+      }
     }
 
     #endregion

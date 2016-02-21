@@ -24,7 +24,7 @@
   </Runtime>
 
   <Register Location="/Services">
-    <Service Id="AspNetWebApiService" RegistrationClassName="MediaPortal.Plugins.AspNetWebApi.AspNetWebApiService"
+    <Service Id="AspNetWebApiService" RegistrationClassName="MediaPortal.Plugins.AspNetWebApi.IAspNetWebApiService"
         ServiceClassName="MediaPortal.Plugins.AspNetWebApi.AspNetWebApiService"/>
   </Register>
 </Plugin>
