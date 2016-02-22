@@ -81,7 +81,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.Resources>
 
         <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultLow" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
+        <Grid x:Name="ContentPanel" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>

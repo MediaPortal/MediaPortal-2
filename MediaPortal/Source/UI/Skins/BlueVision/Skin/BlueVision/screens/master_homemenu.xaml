@@ -260,7 +260,7 @@
         <!--End Home Screen-->
 
         <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
-            VerticalAlignment="Stretch" SetFocusPrio="Default"
+            VerticalAlignment="Stretch"
             BeginNavigation="{Binding Source={StaticResource MenuModel},Path=BeginNavigation,Mode=TwoWay}"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
             IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
