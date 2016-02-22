@@ -272,14 +272,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     private void OnAnimationStarted(AbstractProperty property, object oldvalue)
     {
-      ServiceRegistration.Get<ILogger>().Info("HomeMenuModel OnAnimationStarted: value: {0} oldvalue: {1}", AnimationStarted, oldvalue);
       if (AnimationStarted)
         PrepareNextPage();
     }
 
     private void OnAnimationCompleted(AbstractProperty property, object oldvalue)
     {
-      ServiceRegistration.Get<ILogger>().Info("HomeMenuModel OnAnimationCompleted: value: {0} oldvalue: {1}", AnimationCompleted, oldvalue);
       if (AnimationCompleted)
       {
         CyclePositionedItems();
