@@ -23,6 +23,25 @@
           <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
         </DockPanel.Resources>
 
+        <DockPanel.Triggers>
+          <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageLeft">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInLeft_BeginStoryboard" Storyboard="{ThemeResource SlideInLeft}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="SlideInLeft_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+          <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageRight">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInRight_BeginStoryboard" Storyboard="{ThemeResource SlideInRight}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="SlideInRight_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </DockPanel.Triggers>
+
         <!--Begin Home Screen-->
         <Grid DockPanel.Dock="Center" Margin="-90,0,-54,90" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHome}"
               xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI">
@@ -225,12 +244,31 @@
 
         <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" 
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SetFocusPrio="Fallback"
+            BeginNavigation="{Binding Source={StaticResource MenuModel},Path=BeginNavigation,Mode=TwoWay}"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
             IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
           <bv:GridListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </bv:GridListView.Resources>
+          <bv:GridListView.RenderTransform>
+            <TranslateTransform X="0" Y="0"/>
+          </bv:GridListView.RenderTransform>
         </bv:GridListView>
+
+        <bv:GridListView x:Name="NextPage" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" 
+            VerticalAlignment="Stretch" IsEnabled="False"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=NextPageItems,Mode=OneTime}"
+            AnimationStarted="{Binding Source={StaticResource MenuModel},Path=AnimationStarted,Mode=OneWayToSource}"
+            AnimationCompleted="{Binding Source={StaticResource MenuModel},Path=AnimationCompleted,Mode=OneWayToSource}"
+            IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+          <bv:GridListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </bv:GridListView.Resources>
+          <bv:GridListView.RenderTransform>
+            <TranslateTransform X="-1920" Y="0"/>
+          </bv:GridListView.RenderTransform>
+        </bv:GridListView>
+
       </DockPanel>
     </ControlTemplate>
 

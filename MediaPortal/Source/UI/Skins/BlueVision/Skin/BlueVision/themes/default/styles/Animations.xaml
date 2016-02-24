@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
+    xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
+    DependsOnStyleResources="Colors,Buttons,Consts,Widgets"
+    >
+
+  <ResourceWrapper x:Key="TransitionKeyFrame" Resource="00:00:00.300"/>
+  <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:00.500"/>
+
+  <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+
+  <!-- Common animation for both "page left" and "page right" transition -->
+  <Storyboard x:Key="TransitionBase" FillBehavior="Stop">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionKeyFrame}" Value="1.0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1.0"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
+    </DoubleAnimationUsingKeyFrames>
+
+    <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="AnimationStarted">
+      <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True" />
+    </ObjectAnimationUsingKeyFrames>
+    <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="AnimationCompleted">
+      <DiscreteObjectKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="True" />
+    </ObjectAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="SlideInLeft" FillBehavior="Stop">
+    <StaticResource ResourceKey="TransitionBase"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="RenderTransform.X">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-1920"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="RenderTransform.X">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1920"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="SlideInRight" FillBehavior="Stop">
+    <StaticResource ResourceKey="TransitionBase"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="RenderTransform.X">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1920"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="RenderTransform.X">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="-1920"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <!-- Could avoid redundancies inside themes, but not yet working
+  <Style x:Key="AnimationStyle" TargetType="{x:Type DockPanel}">
+    <Style.Triggers>
+      <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageLeft">
+        <DataTrigger.EnterActions>
+          <BeginStoryboard x:Name="SlideInLeft_BeginStoryboard" Storyboard="{ThemeResource SlideInLeft}"/>
+        </DataTrigger.EnterActions>
+        <DataTrigger.ExitActions>
+          <StopStoryboard BeginStoryboardName="SlideInLeft_BeginStoryboard"/>
+        </DataTrigger.ExitActions>
+      </DataTrigger>
+      <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageRight">
+        <DataTrigger.EnterActions>
+          <BeginStoryboard x:Name="SlideInRight_BeginStoryboard" Storyboard="{ThemeResource SlideInRight}"/>
+        </DataTrigger.EnterActions>
+        <DataTrigger.ExitActions>
+          <StopStoryboard BeginStoryboardName="SlideInRight_BeginStoryboard"/>
+        </DataTrigger.ExitActions>
+      </DataTrigger>
+    </Style.Triggers>
+  </Style>
+  -->
+</ResourceDictionary>

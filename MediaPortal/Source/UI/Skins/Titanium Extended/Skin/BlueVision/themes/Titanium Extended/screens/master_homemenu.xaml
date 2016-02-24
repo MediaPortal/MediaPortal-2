@@ -50,6 +50,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
         </DockPanel.Resources>
 
+        <DockPanel.Triggers>
+          <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageLeft">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInLeft_BeginStoryboard" Storyboard="{ThemeResource SlideInLeft}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="SlideInLeft_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+          <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=BeginNavigation}" Value="PageRight">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInRight_BeginStoryboard" Storyboard="{ThemeResource SlideInRight}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="SlideInRight_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </DockPanel.Triggers>
+
         <!--Begin Home Screen-->
         <!--Footer-->
         <!--Movie-->
@@ -384,11 +403,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <bv:GridListView x:Name="MainMenu" Grid.Row="1" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0"
               VerticalAlignment="Top" SetFocusPrio="Fallback"
+              BeginNavigation="{Binding Source={StaticResource MenuModel},Path=BeginNavigation,Mode=TwoWay}"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
               IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
             <bv:GridListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </bv:GridListView.Resources>
+            <bv:GridListView.RenderTransform>
+              <TranslateTransform X="0" Y="0"/>
+            </bv:GridListView.RenderTransform>
+          </bv:GridListView>
+
+          <bv:GridListView x:Name="NextPage" Grid.Row="1" Style="{ThemeResource HomeMenuListViewStyle}" Margin="0,0,0,0" 
+            VerticalAlignment="Stretch" IsEnabled="False"
+            ItemsSource="{Binding Source={StaticResource MenuModel},Path=NextPageItems,Mode=OneTime}"
+            AnimationStarted="{Binding Source={StaticResource MenuModel},Path=AnimationStarted,Mode=OneWayToSource}"
+            AnimationCompleted="{Binding Source={StaticResource MenuModel},Path=AnimationCompleted,Mode=OneWayToSource}"
+            IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+            <bv:GridListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </bv:GridListView.Resources>
+            <bv:GridListView.RenderTransform>
+              <TranslateTransform X="-1920" Y="0"/>
+            </bv:GridListView.RenderTransform>
           </bv:GridListView>
 
           <!-- On HomeScreen we won't have any content visible, so we use this Panel to contain our shutdown button -->
