@@ -14,7 +14,7 @@
     <AssemblyInfoHelperExePath>$(AssemblyInfoHelperDir)\bin\Release\AssemblyInfoHelper.exe</AssemblyInfoHelperExePath>
 
     <!-- OnlineVideos -->
-    <OnlineVideosDir Condition="$(OnlineVideosDir) == ''">$(ProjectRoot)..\..\OnlineVideos</OnlineVideosDir>
+    <OnlineVideosDir Condition="$(OnlineVideosDir) == ''">$(ProjectRoot)\..\OnlineVideos</OnlineVideosDir>
 
     <!-- Build Configuration -->
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
