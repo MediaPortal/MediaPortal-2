@@ -27,6 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Services.Logging;
 using MediaPortal.UI.SkinEngine.DirectX;
 using SharpDX;
 using SharpDX.Direct3D9;
@@ -258,6 +261,19 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <summary>Adds a glyph to the font set by glyph index.</summary>
     /// <param name="glyphIndex">The index of the glyph to add.</param>
     private bool AddGlyph(uint glyphIndex)
+    {
+      try
+      {
+        return AddGlyphInternal(glyphIndex);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error adding glyph, index: {0}", ex, glyphIndex);
+        return false;
+      }
+    }
+
+    private bool AddGlyphInternal(uint glyphIndex)
     {
       // FreeType measures font size in terms Of 1/64ths of a point.
       // 1 point = 1/72th of an inch. Resolution is in dots (pixels) per inch.
