@@ -32,6 +32,9 @@ namespace MediaPortal.Client
     [Option('d', "data", Required = false, HelpText = "Overrides the default application data directory.")]
     public string DataDirectory { get; set; }
 
+    [Option('a', "Autostart", Required = false, HelpText = "Indicates that program was started via Windows auto start.")]
+    public bool AutoStart { get; set; }
+
     [HelpOption]
     public string GetUsage()
     {

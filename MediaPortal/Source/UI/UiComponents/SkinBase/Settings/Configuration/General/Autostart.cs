@@ -49,7 +49,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
       {
         try
         {
-          string applicationPath = ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>");
+          string applicationPath = string.Format("\"{0}\" -a", ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
           if (value)
             WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
           else
