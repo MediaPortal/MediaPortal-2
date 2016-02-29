@@ -567,7 +567,7 @@
           </Grid>
           <ControlTemplate.Triggers>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Context.IsActive}" Value="False">
-              <Setter Property="Opacity" Value="0.6"/>
+              <Setter Property="Opacity" Value="0.4"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=Context.IsActive}" Value="True">
               <!--Setter TargetName="ItemLabel" Property="Color" Value="Black"/-->              
@@ -578,11 +578,11 @@
             </Trigger-->
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/-->
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_GrowOnly}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <!--StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/-->
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">

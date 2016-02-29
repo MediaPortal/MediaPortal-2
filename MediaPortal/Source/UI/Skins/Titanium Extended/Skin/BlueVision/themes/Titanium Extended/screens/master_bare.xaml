@@ -107,7 +107,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
              Template="{DynamicResource ResourceKey=Alternative_Header_Template}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
     </Grid>
-
+    
+    <Grid Width="800" Canvas.Top="20" Canvas.Left="60" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
+      <Label x:Name="SelectedItem"
+          Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
+          VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="Titan"
+          Color="{ThemeResource TextColor}">
+      </Label>
+    </Grid>
+    
     <Grid Canvas.Left="50" Canvas.Top="15" Width="1824" IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHomeScreen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="100"/>
@@ -140,9 +148,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <Border Width="1300" Canvas.Top="13" Canvas.Left="20" BorderThickness="0">
+    <Border Width="1300" Canvas.Top="25" Canvas.Left="320" BorderThickness="0">
           <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
-                 VerticalAlignment="Center" HorizontalAlignment="Left" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
+                 VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
                  HomeMenuModel="{StaticResource MenuModel}" Margin="40,0,40,0" FontFamily="Titan" 
                  ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                  SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
