@@ -45,10 +45,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
       <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     </Canvas.Resources>
-    
-    <Image Canvas.Left="0" Canvas.Top="0" Width="1920" Height="150" Source="groupmenu_fade.png" Stretch="Fill"
-        IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/>
-    <!--Image Canvas.Top="20" Canvas.Left="40" Source="MP2_logo_bw.png" Height="50" Stretch="Uniform"/-->
+
+    <!--Image Canvas.Left="0" Canvas.Top="0" Width="1920" Height="150" Source="groupmenu_fade.png" Stretch="Fill"
+        IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"/-->
     
     <Grid x:Name="HeaderPanel" Canvas.Top="0" Canvas.Left="0" Width="1920">
       <Grid.RowDefinitions>
@@ -148,7 +147,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <Grid Canvas.Top="-30" Canvas.Left="0" Width="1920" Height="120" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
+    <Grid Canvas.Top="-32" Canvas.Left="0" Width="1920" Height="120" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
