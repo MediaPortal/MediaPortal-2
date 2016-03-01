@@ -316,7 +316,7 @@ namespace MediaPortal.Client
 
       Form form = ServiceRegistration.Get<IScreenControl>() as Form;
       if (form != null)
-        form.Deactivate -= PreventDeactivate;
+        form.Deactivate -= EnqueueDeactivationEvent;
 
       _deactivatedEvent.Dispose();
       _deactivatedEvent = null;
