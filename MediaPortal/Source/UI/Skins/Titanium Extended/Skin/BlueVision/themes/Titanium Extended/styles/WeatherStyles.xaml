@@ -9,7 +9,7 @@
   
   <!-- Only override DataTemplate style here, used for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Border x:Name="ForecastItemBorder" Width="310" Height="250" Margin="20" CornerRadius="20" Background="#1AFFFFFF">
+    <Border x:Name="ForecastItemBorder" Width="310" Height="250" Margin="20" CornerRadius="20" Background="#0DFFFFFF">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
         <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}" HorizontalAlignment="Center"/>
         <Image Width="80" Height="80" Source="{Binding BigIconProperty}" Stretch="UniformToFill"/>
