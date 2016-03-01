@@ -148,7 +148,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <Grid Canvas.Top="-30" Canvas.Left="0" Width="1920" Height="120">
+    <Grid Canvas.Top="-30" Canvas.Left="0" Width="1920" Height="120" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
@@ -158,7 +158,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Border Name="mask" Background="#99000000" CornerRadius="23"/>
         <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
-                              VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
+                              VerticalAlignment="Center" HorizontalAlignment="Center"
                               HomeMenuModel="{StaticResource MenuModel}" Margin="20,30,0,0" FontFamily="Titan" 
                               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                               SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
