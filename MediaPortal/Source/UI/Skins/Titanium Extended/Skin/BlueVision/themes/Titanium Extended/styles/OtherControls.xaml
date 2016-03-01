@@ -2361,7 +2361,7 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="40" Height="40" Stretch="Fill" Margin="2,0,2,0">
+    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="40" Height="40" Stretch="Fill" Margin="0,0,0,0">
       <Image.Source>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
           <Binding Source="GroupMenu\"/>

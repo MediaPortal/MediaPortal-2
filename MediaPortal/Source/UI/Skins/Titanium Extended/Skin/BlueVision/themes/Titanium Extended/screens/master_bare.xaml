@@ -111,7 +111,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Grid Width="800" Canvas.Top="20" Canvas.Left="60" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
       <Label x:Name="SelectedItem"
           Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
-          VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="Titan"
+          VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource HeaderFontSize}" FontFamily="Titan"
           Color="{ThemeResource TextColor}">
       </Label>
     </Grid>
@@ -148,17 +148,26 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <Border Width="1300" Canvas.Top="25" Canvas.Left="320" BorderThickness="0">
-          <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
-                 VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
-                 HomeMenuModel="{StaticResource MenuModel}" Margin="40,0,40,0" FontFamily="Titan" 
-                 ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
-                 SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
-      <bvm:GroupMenuListView.Resources>
-        <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-      </bvm:GroupMenuListView.Resources>
-    </bvm:GroupMenuListView>
-    </Border>
+    <Grid Canvas.Top="-30" Canvas.Left="0" Width="1920" Height="120">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Border Name="mask" Background="#99000000" CornerRadius="23"/>
+        <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
+                              VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
+                              HomeMenuModel="{StaticResource MenuModel}" Margin="20,30,0,0" FontFamily="Titan" 
+                              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
+                              SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
+         <bvm:GroupMenuListView.Resources>
+           <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+         </bvm:GroupMenuListView.Resources>
+        </bvm:GroupMenuListView>
+      </Grid>
+    </Grid>
     
     <!-- Player controls, located on top but drawn as last item so it overlays other content, if present-->    
     <Grid Canvas.Left="350" Canvas.Top="120" Width="1220">
