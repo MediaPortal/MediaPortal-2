@@ -5,6 +5,8 @@
     >
 
   <ResourceWrapper x:Key="MEDIA_THUMB_Audio" Resource="175"/>
+  <ResourceWrapper x:Key="MEDIA_AUDIO_WIDTH" Resource="170"/>
+  <ResourceWrapper x:Key="MEDIA_AUDIO_HEIGHT" Resource="162"/>
   
   <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="220"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="405"/>

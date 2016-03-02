@@ -440,19 +440,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Model x:Key="PowerMenuModel" Id="54F798AF-03E1-4A82-938E-D0D0DC608B1A"/>
             </Grid.Resources>
             <!-- Navigates to ShutdownManager.ShutdownDialog, defined by its DialogState ID -->
-            <Image Source="ShutdownIcon_dark.png" Stretch="Uniform" Height="45" Margin="0,80,0,-82"
+            <Image Source="ShutdownIcon_dark.png" Stretch="Uniform" Height="45" Margin="0,90,0,-82"
                    IsVisible="{Binding Source={StaticResource PowerMenuModel},Path=!IsMenuOpen}"/>
 
-            <!--Button Style="{ThemeResource ButtonWideStyle_GrowOnly}" Opacity="0.5" Margin="0,82,0,-80"
-                    Command="{Command Source={StaticResource PowerMenuModel}, Path=ToggleMenu}"
-                    IsVisible="{Binding Source={StaticResource PowerMenuModel},Path=!IsMenuOpen}">
-              <Image Source="ShutdownIcon.png" Stretch="Uniform" Height="40"/>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter Property="Opacity" Value="1.0" />
-                </Trigger>
-              </Button.Triggers>
-            </Button-->
+            <Label Margin="0,5,0,-30" Height="80" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Opacity="0.6"
+                   DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}"
+                   Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True">
+              <Label.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
+                  <Binding Source="{StaticResource MenuModel}" Path="IsHomeScreen"/>
+                  <Binding Source="{StaticResource MenuModel}" Path="!IsHome"/>
+                </MultiBinding>
+              </Label.IsVisible>
+            </Label>
           </Grid>
 
           <Grid x:Name="PowerBottomPanel" Margin="30,5,-30,-600" VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="2"
@@ -538,7 +538,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Button>
           </Grid>        
         </Grid>
-      </DockPanel>  
+      </DockPanel>
+      
     </ControlTemplate>
 
     <ControlTemplate x:Key="Alternative_Header_Template">

@@ -45,7 +45,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="165"/>
       </Grid.RowDefinitions>
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="13.5" Background="#1AFFFFFF" Margin="0"> </Border>
+      <Border Grid.Column="0" Grid.Row="0" CornerRadius="13.5" Background="#0DFFFFFF" Margin="0"> </Border>
             
       <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center"
                MaxWidth="{ResolutionResource NewsItemLogoWidth}"/>
