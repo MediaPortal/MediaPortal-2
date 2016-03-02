@@ -2353,11 +2353,6 @@
           <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}">
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="marker" Property="IsVisible" Value="True"/>
-              </Trigger>
-            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -2366,18 +2361,21 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <DockPanel>
-    <Image x:Name="marker" DockPanel.Dock="Center" Source="marker.png" Height="5" Stretch="Fill" IsVisible="False" VerticalAlignment="Top"/>
-    <Label x:Name="ItemLabel" DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="7,0,7,0" FontSize="{ThemeResource DialogTitleFontSize}" Color="{ThemeResource TextColor}"
-           Content="{Binding Path=[Name]}">
-    </Label>
-    </DockPanel>
+    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="40" Height="40" Stretch="Fill" Margin="0,0,0,0">
+      <Image.Source>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+          <Binding Source="GroupMenu\"/>
+          <Binding Path="AdditionalProperties[Id]"/>
+          <Binding Source=".png"/>
+        </MultiBinding>
+      </Image.Source>
+    </Image>
   </DataTemplate>
 
   <!-- ListView style to be used for main groups menu -->
   <Style x:Key="HomeGroupListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
-    <Setter Property="Template">
+    <!--Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource AutoCenterScrollViewerStyle}"
@@ -2386,7 +2384,7 @@
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
-    </Setter>
+    </Setter-->
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
