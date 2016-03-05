@@ -529,11 +529,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           try
           {
             int numRead = _stream.EndRead(result);
-            if (numRead == 0)
+            _position += numRead;
+            if (numRead == 0 || _position >= _imageBuffer.Length)
               completeOperation = true;
             else
             {
-              _position += numRead;
               // Read next chunk
               _stream.BeginRead(_imageBuffer, _position, _imageBuffer.Length, AsyncLoadCallback_NoLock, null);
             }
