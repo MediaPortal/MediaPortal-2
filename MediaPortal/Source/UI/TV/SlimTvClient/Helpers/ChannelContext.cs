@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
-using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
@@ -105,8 +104,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         if (tvHandler.ChannelAndGroupInfo != null && selectedChannelId != 0)
           Channels.MoveTo(channel => channel.ChannelId == selectedChannelId);
       }
-      // Notify listeners about group change
-      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
     }
   }
 
@@ -180,9 +177,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         if (!condition.Invoke(item))
           continue;
         _current = index;
+        FireCurrentChanged(oldIndex);
         return true;
       }
-      FireCurrentChanged(oldIndex);
       return false;
     }
 
