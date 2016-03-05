@@ -136,6 +136,7 @@
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
+    <Compile Include="Settings\Configuration\HideAllChannelsGroup.cs" />
     <Compile Include="Settings\Configuration\ShowSeriesInfo.cs" />
     <Compile Include="Settings\Configuration\AutoStartTV.cs" />
     <Compile Include="Settings\Configuration\EpgNumberOfHoursSetting.cs" />

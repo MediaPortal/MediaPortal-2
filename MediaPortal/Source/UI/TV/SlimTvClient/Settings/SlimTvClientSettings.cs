@@ -51,5 +51,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = true)]
     public bool ShowSeriesInfo { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, the inbuilt "All Channels" group will be hidden.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool HideAllChannelsGroup { get; set; }
   }
 }

@@ -382,6 +382,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       base.OnCurrentGroupChanged(oldindex, newindex);
       UpdateChannels();
       UpdatePrograms();
+      // Notify listeners about group change
+      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
     }
 
     public override void Reactivate(NavigationContext oldContext, NavigationContext newContext)
