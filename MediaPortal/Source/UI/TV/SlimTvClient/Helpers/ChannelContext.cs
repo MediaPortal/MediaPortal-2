@@ -24,7 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
@@ -67,14 +70,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       InitChannelGroups();
     }
 
-    private void InitChannelGroups()
+    public void InitChannelGroups()
     {
       IList<IChannelGroup> channelGroups;
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannelGroups(out channelGroups))
       {
         ChannelGroups.Clear();
-        ChannelGroups.AddRange(channelGroups);
+        ChannelGroups.AddRange(FilterGroups(channelGroups));
         ChannelGroups.FireListChanged();
 
         int selectedChannelGroupId = tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId;
@@ -83,6 +86,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
         ChannelGroups.FireCurrentChanged(-1);
       }
+    }
+
+    /// <summary>
+    /// Applies a filter to channel groups. This will be used to remove "All Channels" group if needed.
+    /// </summary>
+    /// <param name="channelGroups">Groups</param>
+    /// <returns>Filtered groups</returns>
+    private static IList<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups)
+    {
+      if (!ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>().HideAllChannelsGroup)
+        return channelGroups;
+      return channelGroups.Where(g => g.Name != "All Channels").ToList();
     }
 
     /// <summary>

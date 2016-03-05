@@ -141,6 +141,11 @@
         HelpText="[SlimTvClient.AutoStartTv.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.AutoStartTvSetting"/>
     <ConfigSetting
+        Id="HideAllChannelsGroupSetting"
+        Text="[SlimTvClient.HideAllChannelsGroup]"
+        HelpText="[SlimTvClient.HideAllChannelsGroup.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.HideAllChannelsGroupSetting"/>
+    <ConfigSetting
         Id="ShowSeriesInfoSetting"
         Text="[SlimTvClient.ShowSeriesInfo]"
         HelpText="[SlimTvClient.ShowSeriesInfo.Help]"
