@@ -9,15 +9,21 @@
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
 
   <!-- Button background and effects-->
+  <!-- PopupWindow Buttons-->
   <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#000F3369"/>
   <ResourceWrapper x:Key="ButtonGradient2Color" Resource="#00050F20"/>
   <ResourceWrapper x:Key="FocusedButtonGradient1Color" Resource="#FF0F3369"/>
   <ResourceWrapper x:Key="FocusedButtonGradient2Color" Resource="#FF050F20"/>
   <ResourceWrapper x:Key="FocusedButtonGradient3Color" Resource="#FF050F20"/>
+
+  <!-- ?? -->
   <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF0F3369"/>
   <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF050F20"/>
-  <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#213848"/>
-  <ResourceWrapper x:Key="ButtonFillColor" Resource="#284161"/>
+
+  <!-- Menu Buttons -->
+  <ResourceWrapper x:Key="ButtonStrokeColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="ButtonFillColor" Resource="#4D000000"/>
+  
   <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF959595"/>
   <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#FFB0B0B0"/>
   <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#FFA0A0A0"/>
