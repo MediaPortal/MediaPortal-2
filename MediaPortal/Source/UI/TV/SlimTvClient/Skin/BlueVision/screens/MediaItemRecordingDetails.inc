@@ -37,7 +37,7 @@
     </media:SeriesAspectWrapper>
   </StackPanel>
   
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" Grid.RowSpan="4"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
          Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" HorizontalAlignment="Stretch"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
          Color="{ThemeResource TextColor}" Margin="-10,0,10,25"/>

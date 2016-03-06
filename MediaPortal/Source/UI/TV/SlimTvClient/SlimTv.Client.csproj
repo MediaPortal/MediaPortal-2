@@ -154,11 +154,15 @@
     <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
     <Content Include="Skin\ApolloOne\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemRecordingDetails.inc" />
+    <Content Include="Skin\BlueVision\screens\ProgramInfo.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\ProgramInfo.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\default\images\tvguide_recordserie_button.png" />
+    <Content Include="Skin\default\screens\MediaItemFanArt.inc" />
+    <Content Include="Skin\default\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
     <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
     <Content Include="Skin\default\screens\SlimTvClient-main.xaml" />
@@ -383,6 +387,59 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\master_dialog_bare_transparent.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\RecordingsShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\SlimTvClient-extschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\SlimTvClient-miniguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\SlimTvClient-programsearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\screens\SlimTvClient-schedulelist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\RecordingsByChannel.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\RecordingsByName.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\RecordingsShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ShowRecordingItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-extschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-programsearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-schedulelist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\RecordingsShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-programsearch.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
