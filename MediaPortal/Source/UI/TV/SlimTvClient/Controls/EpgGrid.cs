@@ -584,27 +584,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private void SetTimeIndicator()
     {
-      if (_timeIndicatorControl == null)
+      var timeIndicatorControl = _timeIndicatorControl;
+      if (timeIndicatorControl == null)
       {
-        _timeIndicatorControl = new Control { LogicalParent = this };
+        timeIndicatorControl = _timeIndicatorControl = new Control { LogicalParent = this };
         // Deep copy the styles to each program button.
-        _timeIndicatorControl.Template = MpfCopyManager.DeepCopyCutLVPs(TimeIndicatorTemplate);
-        SetRow(_timeIndicatorControl, 0);
-        SetRowSpan(_timeIndicatorControl, _numberOfRows);
-        Children.Add(_timeIndicatorControl);
+        timeIndicatorControl.Template = MpfCopyManager.DeepCopyCutLVPs(TimeIndicatorTemplate);
+        SetRow(timeIndicatorControl, 0);
+        SetRowSpan(timeIndicatorControl, _numberOfRows);
+        Children.Add(timeIndicatorControl);
       }
       DateTime viewportStart = SlimTvMultiChannelGuideModel.GuideStartTime;
       int currentTimeColumn = (int)Math.Round((DateTime.Now - viewportStart).TotalMinutes / _perCellTime) + 1; // Header offset
       if (currentTimeColumn <= 1 || currentTimeColumn > _numberOfColumns + 1) // Outside viewport
       {
-        _timeIndicatorControl.IsVisible = false;
+        timeIndicatorControl.IsVisible = false;
       }
       else
       {
-        _timeIndicatorControl.IsVisible = true;
-        SetZIndex(_timeIndicatorControl, 100);
-        SetColumn(_timeIndicatorControl, currentTimeColumn);
-        _timeIndicatorControl.InvalidateLayout(true, true); // Required to arrange control on new position
+        timeIndicatorControl.IsVisible = true;
+        SetZIndex(timeIndicatorControl, 100);
+        SetColumn(timeIndicatorControl, currentTimeColumn);
+        timeIndicatorControl.InvalidateLayout(true, true); // Required to arrange control on new position
       }
     }
 
@@ -719,9 +720,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         if (IsViewPortAtBottom)
           return false;
 
-        _channelViewOffset++;
         UpdateViewportVertical(-1);
-        return MoveFocus1(MoveFocusDirection.Down); // After we created a new row, try to set focus again
+        MoveFocus1(MoveFocusDirection.Down); // After we created a new row, try to set focus again
+        return true;
       }
       return true;
     }
@@ -733,43 +734,53 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         if (IsViewPortAtTop)
           return false;
 
-        _channelViewOffset--;
         UpdateViewportVertical(+1);
-        return MoveFocus1(MoveFocusDirection.Up); // After we created a new row, try to set focus again
+        MoveFocus1(MoveFocusDirection.Up); // After we created a new row, try to set focus again
+        return true;
       }
       return true;
     }
 
     private bool OnHome()
     {
-      if (IsViewPortAtTop)
-        return false;
-
-      _channelViewOffset = 0;
-      RecreateAndArrangeChildren();
-      FocusFirstProgramInRow(_channelViewOffset);
+      bool pageIndexChanged = false;
+      if (_channelViewOffset != 0)
+      {
+        pageIndexChanged = true;
+        _channelViewOffset = 0;
+        RecreateAndArrangeChildren();
+      }
+      FocusFirstProgramInRow(_channelViewOffset, pageIndexChanged);
       return true;
     }
 
     private bool OnEnd()
     {
-      if (IsViewPortAtBottom)
-        return false;
-
-      _channelViewOffset = ChannelsPrograms.Count - _numberOfRows;
-      RecreateAndArrangeChildren(true);
-      FocusFirstProgramInRow(Math.Min(ChannelsPrograms.Count, _numberOfRows) - 1);
+      bool pageIndexChanged = false;
+      var lastDataIndex = Math.Max(ChannelsPrograms.Count - _numberOfRows, 0);
+      if (_channelViewOffset != lastDataIndex)
+      {
+        pageIndexChanged = true;
+        _channelViewOffset = lastDataIndex;
+        RecreateAndArrangeChildren(true);
+      }
+      var lastViewIndex = Math.Min(ChannelsPrograms.Count, _numberOfRows) - 1;
+      FocusFirstProgramInRow(lastViewIndex, pageIndexChanged);
       return true;
     }
 
     private bool OnPageDown()
     {
-      return MoveDown(_numberOfRows);
+      MoveDown(_numberOfRows);
+      FocusFirstProgramInRow(Math.Min(ChannelsPrograms.Count, _numberOfRows) - 1, false);
+      return true;
     }
 
     private bool OnPageUp()
     {
-      return MoveUp(_numberOfRows);
+      MoveUp(_numberOfRows);
+      FocusFirstProgramInRow(0, false);
+      return true;
     }
 
     private bool MoveDown(int moveRows)
@@ -788,11 +799,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       return true;
     }
 
-    private void FocusFirstProgramInRow(int rowIndex)
+    private void FocusFirstProgramInRow(int rowIndex, bool pageIndexChanged)
     {
       var firstItem = GetRowItems(rowIndex).FirstOrDefault();
       if (firstItem != null)
-        firstItem.SetFocus = true;
+      {
+        if (pageIndexChanged)
+          firstItem.SetFocus = true;
+        else
+          firstItem.TrySetFocus(true);
+      }
     }
 
     private bool OnRight()
@@ -825,6 +841,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       lock (Children.SyncRoot)
       {
+        _channelViewOffset -= moveOffset;
         List<FrameworkElement> removeList = new List<FrameworkElement>();
         foreach (FrameworkElement element in Children)
         {
