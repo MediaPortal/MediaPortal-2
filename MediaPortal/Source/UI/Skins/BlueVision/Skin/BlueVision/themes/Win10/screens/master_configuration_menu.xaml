@@ -50,6 +50,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">
+
+        <Rectangle Fill="Black" Opacity="0.5" Margin="-69,-9,-66,62" DockPanel.Dock="Center">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
        
         <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="0,20,-90,0" >
           <Grid.ColumnDefinitions>
@@ -86,10 +92,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-
           <Border Grid.Column="0" Grid.Row="0" Margin="0,-19,0,21">
             <Border.Background>
-              <SolidColorBrush Color="#555555" Opacity="1"/>
+              <SolidColorBrush Color="#555555" Opacity="0.8"/>
             </Border.Background>
           </Border>
 
