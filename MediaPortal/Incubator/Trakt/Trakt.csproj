@@ -82,10 +82,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\default\themes\default\images\" />
-    <Folder Include="Skin\default\themes\default\styles\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\TraktConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
