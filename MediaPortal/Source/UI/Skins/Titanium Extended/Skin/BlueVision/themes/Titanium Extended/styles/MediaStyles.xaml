@@ -653,9 +653,11 @@
         <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Margin="40" Source="defaultFolder.png"
-           Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="0,0,0,0"
+             Color="Black" FontSize="{ThemeResource TinyFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="0,0,0,10"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+             FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
       <Image Grid.Row="0" Grid.Column="0" Source="episode_thumb_focus.png" HorizontalAlignment="Center" 
              VerticalAlignment="Center" Stretch="Fill" Margin="-2" Width="{StaticResource GRIDVIEW_FILTER_WIDTH}" Height="{StaticResource GRIDVIEW_FILTER_WIDTH}"
        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -683,8 +685,9 @@
           </ControlTemplate>
         </Control.Resources>
       </Control>
-
-      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}"
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" Margin="0,0,0,30"
+                  Color="Black" FontSize="{ThemeResource TinyFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </ControlTemplate>
