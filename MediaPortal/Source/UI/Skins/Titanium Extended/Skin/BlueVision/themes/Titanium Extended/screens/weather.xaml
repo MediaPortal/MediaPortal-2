@@ -20,7 +20,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="100"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.Triggers>
             <!-- Setting default state of menu to hidden -->
@@ -30,7 +30,7 @@
             </EventTrigger>
           </Grid.Triggers>
 
-          <Image Grid.Row="0" Grid.Column="2" Margin="800,20,-800,0" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+          <Image Grid.Row="0" Grid.Column="2" Margin="0,30,30,0" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Top"/>
           
           <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,40">
