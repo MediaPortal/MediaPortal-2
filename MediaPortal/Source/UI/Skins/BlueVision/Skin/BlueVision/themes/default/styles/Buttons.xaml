@@ -9,7 +9,7 @@
   <!-- ***************************** Storyboards ******************************** -->
 
   <ResourceWrapper x:Key="GroupMenuZoomCoefficient" Resource="1.2"/>
-  <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1.03"/>
+  <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1.03"/> 
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1.02"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.04"/>
 
@@ -382,7 +382,17 @@
     </Setter>
   </Style>
 
-  <Style x:Key="MenuButtonControlStyle" TargetType="{x:Type Control}" BasedOn="{ThemeResource ButtonControlStyle}">
+  <Style x:Key="MenuButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle x:Name="ButtonControlRectangle" Opacity="0" Margin="0,0,0,0"
+              RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
+              Fill="{ThemeResource ButtonFillColorSettings}" Stroke="{ThemeResource ButtonStrokeColor}" StrokeThickness="0">
+          </Rectangle>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="PopupMenuButtonControlStyle" TargetType="{x:Type Control}">
@@ -1082,6 +1092,12 @@
     </Style.Resources>
   </Style>
 
+  <Style x:Key="PowerButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PowerControlTemplate}" />
+    </Style.Resources>
+  </Style>
+  
   <Style x:Key="DefaultCheckBoxStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
