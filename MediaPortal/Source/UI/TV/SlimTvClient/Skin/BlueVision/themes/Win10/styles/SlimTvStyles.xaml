@@ -659,6 +659,10 @@
                 <Setter TargetName="Item2" Property="Background" Value="#003366"/>
                 <Setter TargetName="Item3" Property="Background" Value="#003366"/>
                 <Setter TargetName="Item4" Property="Background" Value="#003366"/>
+                <Setter TargetName="ChannelText" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="TypeLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ProgramEnd" Property="Scroll" Value="Auto"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -1016,14 +1020,14 @@
                                       fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
         </Image>
-        <Label x:Name="ChannelText" Scroll="Auto" Content="{Binding [ChannelName]}" Color="{ThemeResource TextColor}"
+      <Label x:Name="ChannelText" Content="{Binding [ChannelName]}" Color="{ThemeResource TextColor}"
                FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
       </StackPanel>
       
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" Scroll="Auto"
+      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"
              FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 
-      <Label x:Name="TypeLabel" Grid.Column="2" Content="{Binding [ScheduleType]}" VerticalAlignment="Center" Scroll="Auto"
+      <Label x:Name="TypeLabel" Grid.Column="2" Content="{Binding [ScheduleType]}" VerticalAlignment="Center"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" HorizontalAlignment="Stretch" />
 
       <StackPanel Orientation="Horizontal" Grid.Column="3" >
