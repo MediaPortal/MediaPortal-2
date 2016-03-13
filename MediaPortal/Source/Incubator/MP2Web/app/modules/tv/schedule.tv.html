@@ -1,0 +1,32 @@
+<link rel="stylesheet" href="css/schedule.tv.css" />
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Name</th>
+      <th>Channel</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <template ngFor #schedule [ngForOf]="scheduleList" #index="i">
+      <tr>
+        <th scope="row">1</th>
+        <td>{{schedule.Name}}</td>
+        <td>{{getChannel(schedule.ChannelId).Name}}</td>
+        <!--<td>{{schedule.ChannelId}}</td>-->
+        <td>{{dateToString(schedule.StartTime, "DD.MM.YYYY - HH:mm")}}</td>
+        <td>{{dateToString(schedule.EndTime, "DD.MM.YYYY - HH:mm")}}</td>
+        <td><a href="javascript:void(0)" (click)="onDeleteSchedule(schedule.ScheduleId)" class="fa fa-trash"></a></td>
+        </tr>
+    </template>
+  </tbody>
+</table>
+
+<!-- Waiting -->
+<div class="modal-backdrop fade in processing" [style.display]="processing ? 'block' : 'none'">
+  <h3><i class="fa fa-cog fa-spin"></i> Processing...</h3>
+</div>

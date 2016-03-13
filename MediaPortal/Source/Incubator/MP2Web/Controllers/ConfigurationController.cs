@@ -109,6 +109,34 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
           },
           new MP2WebAppRouterConfiguration
           {
+            Name = "Tv",
+            Label = "Tv",
+            Path = "/Tv",
+            Visible = true,
+            Pages = new List<MP2WebAppRouterConfiguration>
+            {
+              new MP2WebAppRouterConfiguration
+              {
+                Name = "EPG",
+                Label = "EPG",
+                Path = "/EPG",
+                ComponentPath = "./app/modules/tv/lib/epg.tv.component",
+                Component = "EpgTvComponent",
+                Visible = true
+              },
+              new MP2WebAppRouterConfiguration
+              {
+                Name = "Schedules",
+                Label = "Schedules",
+                Path = "/Schedules",
+                ComponentPath = "./app/modules/tv/lib/schedules.tv.component",
+                Component = "SchedulesTvComponent",
+                Visible = true
+              }
+            }
+          },
+          new MP2WebAppRouterConfiguration
+          {
             Name = "test",
             Label = "test",
             Visible = true,
