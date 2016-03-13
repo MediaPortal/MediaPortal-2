@@ -65,6 +65,8 @@ namespace MediaPortal.Plugins.AspNetWebApi
           var httpContextAccessor = new HttpContextAccessor();
           services.AddSingleton<IHttpContextAccessor>(httpContextAccessor);
 
+          services.AddCaching();
+
           services.AddMvc(options =>
           {
             var jsonOutputFormatter = new JsonOutputFormatter { SerializerSettings = { ContractResolver = new MediaItemResolver(httpContextAccessor) } };
