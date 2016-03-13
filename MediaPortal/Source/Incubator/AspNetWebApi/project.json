@@ -9,7 +9,8 @@
     "net451": {
       "dependencies": {
         "FanArtService.Interfaces": "1.0.0-*",
-        "MediaPortal.Backend": "1.0.0-*"
+        "MediaPortal.Backend": "1.0.0-*",
+        "SlimTv.Interfaces": "1.0.0-*"
       },
       "frameworkAssemblies": {
         "System.Management": "4.0.0.0"
