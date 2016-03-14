@@ -85,7 +85,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- Shadow -->
       <RowDefinition Height="Auto"/>
       <!-- Footer -->
-      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="230"/>
     </Grid.RowDefinitions>
 
     <Border Grid.Row="0" Grid.Column="0" BorderThickness="0" >
