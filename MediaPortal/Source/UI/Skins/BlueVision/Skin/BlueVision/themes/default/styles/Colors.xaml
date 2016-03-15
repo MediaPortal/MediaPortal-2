@@ -107,4 +107,6 @@
   <!-- Star Rating -->
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#E8E8E8"/>
 
+  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="#336699"/>
+
 </ResourceDictionary>
