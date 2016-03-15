@@ -6,7 +6,7 @@
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
   
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
-  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="Gray"/>
+  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#33FFFFFF"/>
 
   <!-- Button background and effects-->
   <!-- PopupWindow Buttons-->
@@ -91,6 +91,8 @@
       <GradientStop Color="#FF4780A0" Offset="1"/>
     </LinearGradientBrush>
   </ResourceWrapper>
+
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
 
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
 

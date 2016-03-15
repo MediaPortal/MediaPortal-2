@@ -1097,32 +1097,61 @@
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PowerControlTemplate}" />
     </Style.Resources>
   </Style>
-  
-  <Style x:Key="DefaultCheckBoxStyle" TargetType="{x:Type CheckBox}">
+
+  <Style x:Key="RadioButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type CheckBox}">
-          <DockPanel Margin="0,2,0,2" LastChildFill="True">
-            <Grid x:Name="GrowControl" DockPanel.Dock="Left" Margin="2,0,5,0" RenderTransformOrigin="0.5,0.5"
-                  VerticalAlignment="Center" HorizontalAlignment="Center">
-              <Grid.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                </TransformGroup>
-              </Grid.RenderTransform>
-              <Control Grid.Column="0" Grid.Row="0" Width="{ThemeResource CheckBoxControlWidth}" Height="{ThemeResource CheckBoxControlHeight}"
-                       Style="{ThemeResource DialogButtonControlStyle}"/>
-              <Ellipse Grid.Column="0" Grid.Row="0" Height="26" Width="26" Fill="White" Opacity="0.1" />
-              <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
-                    Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
+        <ControlTemplate>
+          <Rectangle x:Name="ButtonControlRectangle" Stroke="{ThemeResource ButtonStrokeColor}"
+              RadiusX="{ThemeResource RadioButtonControlRadiusX}" RadiusY="{ThemeResource RadioButtonControlRadiusY}"
+              Width="{ThemeResource RadioButtonControlWidth}" Height="{ThemeResource RadioButtonControlHeight}">
+            <Rectangle.Fill>
+              <RadialGradientBrush GradientOrigin="0.5,0.5">
+                <!--RadialGradientBrush.RelativeTransform>
+                  <TransformGroup>
+                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
+                    <TranslateTransform X="0.027" Y="-0.006"/>
+                  </TransformGroup>
+                </RadialGradientBrush.RelativeTransform-->
+                <GradientStop Color="#26FFFFFF" Offset="0"/>
+                <GradientStop Color="#26FFFFFF" Offset="1"/>
+              </RadialGradientBrush>
+            </Rectangle.Fill>
+          </Rectangle>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Margin="1" LastChildFill="True">
+            <Grid Margin="2,0,5,0" DockPanel.Dock="Left"
+                VerticalAlignment="Center" HorizontalAlignment="Center">
+              <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
+                  VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                <Control.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                  </TransformGroup>
+                </Control.RenderTransform>
+              </Control>
+              <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="{ThemeResource RadioButtonControlRadiusX}" Height="{ThemeResource RadioButtonControlRadiusY}" Fill="White" Visibility="Hidden"/>
+              <Ellipse x:Name="OuterCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="{ThemeResource RadioButtonControlWidth}" Height="{ThemeResource RadioButtonControlHeight}" Fill="White" Opacity="0" />
             </Grid>
-            <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+            <ContentPresenter x:Name="RadioButtonContentPresenter" DockPanel.Dock="Center"
+                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
           </DockPanel>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+              <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="OuterCircle" Property="Opacity" Value="0.3"/>
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
@@ -1134,7 +1163,7 @@
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                                 HandoffBehavior="TemporaryReplace"/>
+                    HandoffBehavior="TemporaryReplace"/>
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -1150,6 +1179,92 @@
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="DefaultCheckBoxStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Margin="1" LastChildFill="True">
+            <Grid Margin="2,0,5,0" DockPanel.Dock="Left"
+                VerticalAlignment="Center" HorizontalAlignment="Center">
+              <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
+                  VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                <Control.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                  </TransformGroup>
+                </Control.RenderTransform>
+              </Control>
+              <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="{ThemeResource RadioButtonControlRadiusX}" Height="{ThemeResource RadioButtonControlRadiusY}" Fill="White" Visibility="Hidden"/>
+              <Ellipse x:Name="OuterCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="{ThemeResource RadioButtonControlWidth}" Height="{ThemeResource RadioButtonControlHeight}" Fill="White" Opacity="0" />
+            </Grid>
+            <ContentPresenter x:Name="RadioButtonContentPresenter" DockPanel.Dock="Center"
+                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          </DockPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="OuterCircle" Property="Opacity" Value="0.3"/>
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ArrowButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Grid.Row="0" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Path Grid.Row="0" x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill" MaxHeight="20" MaxWidth="20" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Margin="9" Data="M0,0 L0,39 39,19.5 z"/>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
