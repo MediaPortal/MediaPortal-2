@@ -40,8 +40,8 @@
   <ResourceWrapper x:Key="FixedDialogHeight" Resource="280"/>
 
   <!-- Button related -->
-  <ResourceWrapper x:Key="ButtonControlRadiusX" Resource="12"/>
-  <ResourceWrapper x:Key="ButtonControlRadiusY" Resource="12"/>
+  <ResourceWrapper x:Key="ButtonControlRadiusX" Resource="15"/>
+  <ResourceWrapper x:Key="ButtonControlRadiusY" Resource="15"/>
   
   <!-- Radio and Checkbox Button related -->
   <ResourceWrapper x:Key="RadioButtonControlRadiusX" Resource="12"/>
