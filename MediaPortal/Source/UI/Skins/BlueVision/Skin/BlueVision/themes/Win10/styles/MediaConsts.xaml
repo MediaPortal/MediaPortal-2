@@ -13,8 +13,8 @@
 
   <ResourceWrapper x:Key="VIDEO_COVER_HEIGHT" Resource="280"/>
 
-  <ResourceWrapper x:Key="MEDIA_COVERFLOW_WIDTH" Resource="353"/>
-  <ResourceWrapper x:Key="MEDIA_COVERFLOW_HEIGHT" Resource="492"/>
+  <ResourceWrapper x:Key="MEDIA_COVERFLOW_WIDTH" Resource="249"/>
+  <ResourceWrapper x:Key="MEDIA_COVERFLOW_HEIGHT" Resource="373"/>
   
   <ResourceWrapper x:Key="AUDIO_COVERFLOW" Resource="353"/>
 

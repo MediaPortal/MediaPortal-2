@@ -594,12 +594,13 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="ButtonControlRectangle"
+          <!--The focus frame is added directly in mediastyles.xaml to allow variable aspect ratios with fitting focus frame-->
+          <!--Border x:Name="ButtonControlRectangle"
               IsVisible ="False"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="2.5"
               Margin="2.5">
-          </Border>
+          </Border-->
         </ControlTemplate>
       </Setter.Value>
     </Setter>

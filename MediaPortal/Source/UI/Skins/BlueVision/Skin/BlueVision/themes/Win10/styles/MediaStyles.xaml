@@ -442,6 +442,8 @@
           </MultiBinding>
         </Image.Source>
       </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
      
@@ -635,6 +637,8 @@
           </MultiBinding>
         </Image.Source>
       </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
     
@@ -776,6 +780,8 @@
           </MultiBinding>
         </Image.Source>
       </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -918,34 +924,37 @@
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="CoverViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" >
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="{StaticResource MEDIA_COVERFLOW_HEIGHT}" Width="{StaticResource MEDIA_COVERFLOW_WIDTH}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{ThemeResource VIDEO_COVER_HEIGHT}"/> 
-      </Grid.RowDefinitions>
-      
-      <Border Grid.Row="0" Background="#BF666666" BorderThickness="0" />
-      <Image Grid.Row="0" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" Stretch="UniformToFill" Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-      <Image Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="UnwatchedTab_small.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
-      
+      </Grid.ColumnDefinitions>  
+      <Grid Grid.Row="1" Background="#BF666666" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>     
+        <Image Stretch="Uniform">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
+                                Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
+          </Image.Source>
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.7"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>      
+      </Grid>
     </Grid>
   </ControlTemplate>
 
@@ -1300,7 +1309,9 @@
               </MultiBinding>
             </Image.Source>
           </Image>
-      </Grid>
+          <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
   </ControlTemplate>
 
   <!-- Audio Album -->
@@ -1470,6 +1481,8 @@
          </MultiBinding>
        </Image.Source>
       </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
   
