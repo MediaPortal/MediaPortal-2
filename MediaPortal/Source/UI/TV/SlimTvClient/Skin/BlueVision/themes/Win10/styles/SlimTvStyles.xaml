@@ -662,7 +662,7 @@
                 <Setter TargetName="ChannelText" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="TypeLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ProgramEnd" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ProgramStartEnd" Property="Scroll" Value="Auto"/>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -685,13 +685,16 @@
           <Button Margin="0,0,0,0" Style="{ThemeResource TVButtonWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-            <!--Button.Triggers>
+            <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="Item1" Property="Background" Value="#003366"/>
+                <Setter TargetName="ChannelText" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ProgramStartEnd" Property="Scroll" Value="Auto"/>
+                <!--Setter TargetName="Item1" Property="Background" Value="#003366"/>
                 <Setter TargetName="Item2" Property="Background" Value="#003366"/>
-                <Setter TargetName="Item3" Property="Background" Value="#003366"/>
+                <Setter TargetName="Item3" Property="Background" Value="#003366"/-->
               </Trigger>
-            </Button.Triggers-->                     
+            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -984,13 +987,17 @@
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" Scroll="Auto"
              FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center"/>
 
-      <StackPanel Orientation="Horizontal" Grid.Column="2" >
-        <Label x:Name="ProgramStart" Margin="10,0,0,0"  Color="{ThemeResource TextColor}" VerticalAlignment="Center"
-               Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}" VerticalAlignment="Center" />
-        <Label x:Name="ProgramEnd" Content="{Binding [EndTime]}" VerticalAlignment="Center" Margin="0,0,10,0"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto"/>
-      </StackPanel>
+      <Label Grid.Column="2" x:Name="ProgramStartEnd" Margin="10,0,10,0"  Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+             FontSize="{ThemeResource SmallFontSize}">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
+            <Binding Path="[StartTime]"/>
+            <Binding Source=" — "/>
+            <Binding Path="[EndTime]"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
+      
     </Grid>
   </DataTemplate>
 
@@ -1030,13 +1037,17 @@
       <Label x:Name="TypeLabel" Grid.Column="2" Content="{Binding [ScheduleType]}" VerticalAlignment="Center"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" HorizontalAlignment="Stretch" />
 
-      <StackPanel Orientation="Horizontal" Grid.Column="3" >
-        <Label x:Name="ProgramStart" Margin="10,0,0,0"  Color="{ThemeResource TextColor}" VerticalAlignment="Center"
-               Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}"/>
-        <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}" VerticalAlignment="Center" />
-        <Label x:Name="ProgramEnd" Content="{Binding [EndTime]}" VerticalAlignment="Center" Margin="0,0,10,0"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto"/>
-      </StackPanel>
+      <Label Grid.Column="3" x:Name="ProgramStartEnd" Margin="10,0,10,0"  Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+             FontSize="{ThemeResource SmallFontSize}">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
+            <Binding Path="[StartTime]"/>
+            <Binding Source=" — "/>
+            <Binding Path="[EndTime]"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
+      
     </Grid>
   </DataTemplate>
 
