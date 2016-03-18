@@ -514,7 +514,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
             GridListItem gridItem = new GridListItem(menuItem)
             {
               GridColumn = x % MenuSettings.DEFAULT_NUM_COLS,
-              GridRow = (x / MenuSettings.DEFAULT_NUM_COLS) * MenuSettings.DEFAULT_ROWSPAN_SMALL,
+              GridRow = x / MenuSettings.DEFAULT_NUM_COLS * MenuSettings.DEFAULT_ROWSPAN_SMALL,
               GridRowSpan = MenuSettings.DEFAULT_ROWSPAN_SMALL,
               GridColumnSpan = MenuSettings.DEFAULT_COLSPAN_SMALL,
             };
@@ -765,24 +765,24 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
       if (message.ChannelName == MenuModelMessaging.CHANNEL)
       {
-        if (((MenuModelMessaging.MessageType)message.MessageType) == MenuModelMessaging.MessageType.UpdateMenu)
+        if ((MenuModelMessaging.MessageType)message.MessageType == MenuModelMessaging.MessageType.UpdateMenu)
         {
           UpdateShortcuts();
         }
       }
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
-        if (((WorkflowManagerMessaging.MessageType)message.MessageType) == WorkflowManagerMessaging.MessageType.StatePushed)
+        if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.StatePushed)
         {
           if (!string.Equals(_menuSettings.Settings.DefaultMenuGroupId, MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase))
             _lastActiveGroup = _menuSettings.Settings.DefaultMenuGroupId;
           UpdateSelectedGroup();
         }
-        if (((WorkflowManagerMessaging.MessageType)message.MessageType) == WorkflowManagerMessaging.MessageType.StatesPopped)
+        if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.StatesPopped)
         {
           UpdateSelectedGroup();
         }
-        if (((WorkflowManagerMessaging.MessageType)message.MessageType) == WorkflowManagerMessaging.MessageType.NavigationComplete)
+        if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {
           IsHomeScreen = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("7F702D9C-F2DD-42da-9ED8-0BA92F07787F", StringComparison.OrdinalIgnoreCase);
           CheckShortCutsWorkflows();
@@ -794,7 +794,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     private void SetWorkflowName()
     {
       if (!IsHomeScreen)
-        LastSelectedItemName = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.DisplayLabel;
+      {
+        var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
+        // Set DisplayLabel only for non-dialog states
+        if (!context.DialogInstanceId.HasValue)
+          LastSelectedItemName = context.DisplayLabel;
+      }
     }
 
     private void CheckShortCutsWorkflows()
