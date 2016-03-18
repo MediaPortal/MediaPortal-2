@@ -78,6 +78,7 @@
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\PowerMenuModel.cs" />
     <Compile Include="Models\SetupModel.cs" />
+    <Compile Include="Models\SynchronousSettingsChangeWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\MenuSettingsConfiguration.cs" />
     <Compile Include="Settings\MenuSettings.cs" />
