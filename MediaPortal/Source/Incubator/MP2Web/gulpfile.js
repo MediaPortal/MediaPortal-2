@@ -44,6 +44,9 @@ var config = {
 
       "node_modules/ng2-translate/bundles/ng2-translate.js",
 
+      "node_modules/ng2-toastr/bundles/ng2-toastr.js",
+      "node_modules/ng2-toastr/bundles/ng2-toastr.min.css",
+
       "node_modules/moment/moment.js",
       "node_modules/ng2-bootstrap/bundles/ng2-bootstrap.min.js",
       "node_modules/chart.js/Chart.min.js",

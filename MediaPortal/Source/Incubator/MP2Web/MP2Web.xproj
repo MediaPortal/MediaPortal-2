@@ -31,6 +31,7 @@
     <TypeScriptExperimentalDecorators>True</TypeScriptExperimentalDecorators>
     <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
     <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
