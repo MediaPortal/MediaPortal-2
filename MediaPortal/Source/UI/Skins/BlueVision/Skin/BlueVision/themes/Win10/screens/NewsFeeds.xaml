@@ -25,7 +25,7 @@
         <Border BorderThickness="0" Background="{StaticResource GrayBackgroundWithBlurBehind}" Margin="-80,-5,-75,75" DockPanel.Dock="Center"/>       
 
         <!-- Feeds -->
-          <ListView x:Name="newslist" Margin="-75,0,-45,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          <ListView x:Name="newslist" Margin="-75,0,-85,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsFeedsContainerStyle}" DockPanel.Dock="Center" CurrentItem="{Binding Path=FocusedSite, Mode=OneWayToSource}" 
               ItemsSource="{Binding Path=Feeds}" >
             <ListView.Resources>

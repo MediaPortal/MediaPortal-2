@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?> 
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -27,7 +27,7 @@
         <ListView x:Name="ConfigItemsList"
             DockPanel.Dock="Center"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            Style="{ThemeResource ContentsMenuListViewStyle}"
+            Style="{ThemeResource SettingsMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding ConfigSettings}">
           <ListView.Resources>

@@ -25,7 +25,7 @@
         <Border BorderThickness="0" Background="#CC777777" Margin="-80,-5,-75,75" DockPanel.Dock="Center"/>
         
         <!-- Items -->
-        <ListView x:Name="newsitems" Margin="-75,0,-45,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <ListView x:Name="newsitems" Margin="-75,0,-85,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsItemsContainerStyle}" DockPanel.Dock="Center"
               ItemsSource="{Binding Path=SelectedFeed.Items}">
           <ListView.Resources>

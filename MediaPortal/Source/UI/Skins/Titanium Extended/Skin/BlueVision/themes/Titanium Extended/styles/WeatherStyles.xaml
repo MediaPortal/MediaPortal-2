@@ -12,9 +12,13 @@
     <Border x:Name="ForecastItemBorder" Width="310" Height="250" Margin="20" CornerRadius="20" Background="#0DFFFFFF">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
         <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}" HorizontalAlignment="Center"/>
-        <Image Width="80" Height="80" Source="{Binding BigIconProperty}" Stretch="UniformToFill"/>
-        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
-        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Image Width="80" Height="80" Source="{Binding BigIconProperty}" Stretch="UniformToFill" Margin="5,5,15,5"/>
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </StackPanel>
       </StackPanel>
     </Border>
   </DataTemplate>

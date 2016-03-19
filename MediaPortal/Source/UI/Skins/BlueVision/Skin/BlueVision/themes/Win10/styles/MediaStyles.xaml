@@ -442,6 +442,8 @@
           </MultiBinding>
         </Image.Source>
       </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
      
@@ -635,6 +637,8 @@
           </MultiBinding>
         </Image.Source>
       </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
     
@@ -776,6 +780,8 @@
           </MultiBinding>
         </Image.Source>
       </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -918,34 +924,37 @@
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="CoverViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3" >
+    <Grid Margin="3,2,3,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="{StaticResource MEDIA_COVERFLOW_HEIGHT}" Width="{StaticResource MEDIA_COVERFLOW_WIDTH}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{ThemeResource VIDEO_COVER_HEIGHT}"/> 
-      </Grid.RowDefinitions>
-      
-      <Border Grid.Row="0" Background="#BF666666" BorderThickness="0" />
-      <Image Grid.Row="0" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" Stretch="UniformToFill" Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-      <Image Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="UnwatchedTab_small.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
-      
+      </Grid.ColumnDefinitions>  
+      <Grid Grid.Row="1" Background="#BF666666" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>     
+        <Image Stretch="Uniform">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
+                                Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
+          </Image.Source>
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.7"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>      
+      </Grid>
     </Grid>
   </ControlTemplate>
 
@@ -1300,7 +1309,9 @@
               </MultiBinding>
             </Image.Source>
           </Image>
-      </Grid>
+          <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
   </ControlTemplate>
 
   <!-- Audio Album -->
@@ -1470,6 +1481,8 @@
          </MultiBinding>
        </Image.Source>
       </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
   
@@ -2117,6 +2130,79 @@
     <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
   </Style>
 
+  <Style x:Key="PrimaryImageOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
+              BorderThickness="0" Margin="0,0,38,-10"
+              DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <LinearGradientBrush.GradientStops>
+                  <GradientStop Color="#CC000000" Offset="0"  />
+                  <GradientStop Color="#CC000000" Offset="0.95"  />
+                  <GradientStop Color="#00000000" Offset="1"  />
+                </LinearGradientBrush.GradientStops>
+              </LinearGradientBrush>
+            </Border.Background>
+            <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <DockPanel x:Name="HeadLine" Grid.Row="1" Grid.Column="0" LastChildFill="True">
+                <!--Grid x:Name="PlayerStatePanel" DockPanel.Dock="Left">
+                  <Control x:Name="StatePlay" IsVisible="{Binding IsPlaying}" Template="{ThemeResource PlayControlTemplate}"
+                      VerticalAlignment="Center"/>
+                  <Control x:Name="StatePause" IsVisible="{Binding IsPaused}" Template="{ThemeResource PauseControlTemplate}"
+                      VerticalAlignment="Center"/>
+                </Grid-->
+                <!-- PlayerStatePanel -->
+                <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="40,10,40,10" FontFamily="DefaultBold"
+                    Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
+                    HorizontalAlignment="Left" VerticalAlignment="Center"/>
+              </DockPanel>
+              <!-- HeadLine -->
+              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="10,10,10,0" HorizontalAlignment="Center"
+                  IsVisible="{Binding ShowMouseControls}" >
+                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
+                    Command="{Command Previous}"/>
+                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
+                    Command="{Command Play}"/>
+                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
+                    Command="{Command Pause}"/>
+                <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                    Command="{Command Stop}"/>
+                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
+                    Command="{Command Next}"/>
+              </StackPanel>
+              <!-- PlayControlsPanel -->
+            </Grid>
+            <!-- PlayerGrid -->
+          </Border>
+          <!-- OSD_Background -->
+          <!--ControlTemplate.Triggers>
+            <Trigger Property="IsCurrentPlayer" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers-->
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
+  </Style>
 
   <Storyboard x:Key="PressedPiPOSDButtonStoryboard" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetName="PiPControlBorder" Storyboard.TargetProperty="BorderBrush.Color">
@@ -2143,9 +2229,12 @@
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Offset="0" Color="#CCCCCC"/>
-                <GradientStop Offset="1" Color="#CCCCCC"/>
-              </LinearGradientBrush >
+                <LinearGradientBrush.GradientStops>
+                  <GradientStop Color="#CC000000" Offset="0"  />
+                  <GradientStop Color="#CC000000" Offset="0.95"  />
+                  <GradientStop Color="#00000000" Offset="1"  />
+                </LinearGradientBrush.GradientStops>
+              </LinearGradientBrush>
             </Border.Background>
             <Grid x:Name="PlayerGrid" Grid.Column="2" Grid.Row="0" Margin="10,0,10,0"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
