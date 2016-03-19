@@ -25,11 +25,38 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
               <RadioButton x:Name="General" Content="[General.Title]" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True"/>
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True">
+                <Label x:Name="TabLabel" Content="[General.Title]" Color="#B3FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel" Property="Color" Value="White"/> 
+                      <Setter TargetName="TabLabel" Property="FontFamily" Value="DefaultBold"/> 
+                  </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>
               <RadioButton x:Name="CastCrew" Content="[CastCrew.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False">
+                <Label x:Name="TabLabel2" Content="[CastCrew.Title]" Color="#B3FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel2" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel2" Property="FontFamily" Value="DefaultBold"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>
               <RadioButton x:Name="MediaInfo" Content="[MediaInfo.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False">
+                <Label x:Name="TabLabel3" Content="[MediaInfo.Title]" Color="#B3FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel3" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel3" Property="FontFamily" Value="DefaultBold"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>
               <Control>
                 <Control.IsVisible>
                   <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
