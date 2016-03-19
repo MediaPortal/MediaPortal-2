@@ -507,9 +507,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add("1 = 2"); // No comparison values means filter is always false
           return;
         }
-        ICollection<string> clusterExpressions = new List<string>();
+        int clusterCount = 0;
         foreach (IList<object> valuesCluster in CollectionUtils.Cluster(inFilter.Values, MAX_IN_VALUES_SIZE))
         {
+          if(clusterCount > 0) resultParts.Add(" OR ");
+          resultParts.Add(attributeOperand);
           IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
           foreach (object value in valuesCluster)
           {
@@ -517,9 +519,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             bindVarRefs.Add("@" + bindVar.Name);
             resultBindVars.Add(bindVar);
           }
-          clusterExpressions.Add(" IN (" + StringUtils.Join(", ", bindVarRefs) + ")");
+          resultParts.Add(" IN (" + StringUtils.Join(", ", bindVarRefs) + ")");
+          clusterCount++;
         }
-        resultParts.Add(StringUtils.Join(" OR ", clusterExpressions));
         return;
       }
       throw new InvalidDataException("Filter type '{0}' isn't supported by the media library", filter.GetType().Name);
