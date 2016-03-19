@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension
 {
@@ -63,6 +64,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Extension
         }
       }
       catch (Exception)
+      {
+        return default(T);
+      }
+    }
+
+    /// <summary>
+    /// Creates a Dictionary based on the JSON string
+    /// </summary>
+    public static T FromJSONDictionary<T>(this string json)
+    {
+      if (string.IsNullOrEmpty(json)) return default(T);
+
+      try
+      {
+        return JsonConvert.DeserializeObject<T>(json);
+      }
+      catch
       {
         return default(T);
       }
