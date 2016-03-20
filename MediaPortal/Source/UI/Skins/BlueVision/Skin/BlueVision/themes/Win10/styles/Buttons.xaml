@@ -1102,7 +1102,7 @@
                 <LinearGradientBrush.GradientStops>
                   <GradientStop Color="#666666" Offset="0"  />
                   <GradientStop Color="#666666" Offset="0.95"  />
-                  <GradientStop Color="#00666666" Offset="1"  />
+                  <GradientStop Color="#666666" Offset="1"  />
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Border.Background>

@@ -37,26 +37,29 @@
                   <Label.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                       <Setter TargetName="TabLabel" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel" Property="FontFamily" Value="DefaultBold"/>
                     </DataTrigger>
                   </Label.Triggers>
                 </Label>
               </RadioButton>         
-              <RadioButton x:Name="CastCrew" Content="[CastCrew.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-15,0,0,0"
+              <RadioButton x:Name="CastCrew" Content="[CastCrew.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
                            Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False">
                 <Label x:Name="TabLabel2" Content="[CastCrew.Title]" Color="Black" HorizontalAlignment="Center" VerticalAlignment="Center" >
                   <Label.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                       <Setter TargetName="TabLabel2" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel2" Property="FontFamily" Value="DefaultBold"/>
                     </DataTrigger>
                   </Label.Triggers>
                 </Label>
               </RadioButton>          
-              <RadioButton x:Name="MediaInfo" Content="[MediaInfo.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-15,0,0,0"
+              <RadioButton x:Name="MediaInfo" Content="[MediaInfo.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
                            Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False">
                 <Label x:Name="TabLabel3" Content="[MediaInfo.Title]" Color="Black" HorizontalAlignment="Center" VerticalAlignment="Center" >
                   <Label.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                       <Setter TargetName="TabLabel3" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel3" Property="FontFamily" Value="DefaultBold"/>
                     </DataTrigger>
                   </Label.Triggers>
                 </Label>

@@ -29,8 +29,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    x:Name="DialogScreen"
-    >
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    x:Name="DialogScreen">
+  
   <Screen.Resources>
     <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
   </Screen.Resources>
@@ -46,6 +47,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </EventTrigger.Actions>
     </EventTrigger>
   </Screen.Triggers>
+  
   <DockPanel x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="{ThemeResource DialogScreenBackgroundColor}"
       LastChildFill="False">
     <DockPanel.RenderTransform>
@@ -56,6 +58,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <TranslateTransform X="0" Y="0"/>
       </TransformGroup>
     </DockPanel.RenderTransform>
+
+    <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      MousePositionMode="Relative"
+      Buttons="Left"
+      MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}"
+      IsActive="{Binding ElementName=ContentPanel, Path=!IsKeyboardFocusWithin}"/>
+
     <Border x:Name="DialogBorder" Margin="80" DockPanel.Dock="Center"
         CornerRadius="{ThemeResource DialogBorderCornerRadius}"
         VerticalAlignment="Center" HorizontalAlignment="Center">
