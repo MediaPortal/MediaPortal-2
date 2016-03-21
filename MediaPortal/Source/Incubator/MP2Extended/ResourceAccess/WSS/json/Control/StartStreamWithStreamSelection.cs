@@ -34,9 +34,10 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.Utils;
-using MediaPortal.Plugins.Transcoding.Service.Objects;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -68,21 +69,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if (profile == null)
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: unknown profile: {0}", profileName));
 
-      if (!StreamControl.ValidateIdentifie(identifier))
+      if (!StreamControl.ValidateIdentifier(identifier))
         throw new BadRequestException(string.Format("StartStreamWithStreamSelection: unknown identifier: {0}", identifier));
 
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
-      
+      streamItem.StartPosition = startPosition;
       if (streamItem.RequestedMediaItem is LiveTvMediaItem)
       {
-        LiveTvMediaItem tvStream = (LiveTvMediaItem)streamItem.RequestedMediaItem;
-        DateTime tuningStart = (DateTime)tvStream.AdditionalProperties[LiveTvMediaItem.TUNING_TIME];
-        startPosition = Convert.ToInt64((DateTime.Now - tuningStart).TotalSeconds);
+        streamItem.StartPosition = 0;
       }
-      streamItem.StartPosition = startPosition;
-
+      
       EndPointSettings endPointSettings = ProfileManager.GetEndPointSettings(profile.ID);
       streamItem.TranscoderObject = new ProfileMediaItem(identifier, streamItem.RequestedMediaItem, endPointSettings, streamItem.IsLive);
       if ((streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding))
@@ -91,7 +89,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         if (audioId >= 0)
           ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceAudioStreamIndex = audioId;
         if (subtitleId == -1)
-          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = MediaConverter.NO_SUBTITLE;
+          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = Subtitles.NO_SUBTITLE;
         else
           ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = subtitleId;
       }

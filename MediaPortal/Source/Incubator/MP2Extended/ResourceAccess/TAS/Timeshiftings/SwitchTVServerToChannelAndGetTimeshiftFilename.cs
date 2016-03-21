@@ -39,35 +39,35 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
-  internal class SwitchTVServerToChannelAndGetStreamingUrl
+  internal class SwitchTVServerToChannelAndGetTimeshiftFilename
   {
     public WebStringResult Process(string userName, int channelId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
-        throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: ITvProvider not found");
+        throw new BadRequestException("SwitchTVServerToChannelAndGetTimeshiftFilename: ITvProvider not found");
 
       IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
 
       if (userName == null)
-        throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: userName is null");
+        throw new BadRequestException("SwitchTVServerToChannelAndGetTimeshiftFilename: userName is null");
 
       IChannel channel;
       if (!channelAndGroupInfo.GetChannel(channelId, out channel))
-        throw new BadRequestException(string.Format("SwitchTVServerToChannelAndGetStreamingUrl: Couldn't get channel with Id: {0}", channelId));
+        throw new BadRequestException(string.Format("SwitchTVServerToChannelAndGetTimeshiftFilename: Couldn't get channel with Id: {0}", channelId));
 
       ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-      
+
       MediaItem item;
       if (!timeshiftControl.StartTimeshift(userName, SlotControl.GetSlotIndex(userName), channel, out item))
-        throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: Couldn't start timeshifting");
+        throw new BadRequestException("SwitchTVServerToChannelAndGetTimeshiftFilename: Couldn't start timeshifting");
 
       string resourcePathStr = (string)item[ProviderResourceAspect.Metadata][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       var resourcePath = ResourcePath.Deserialize(resourcePathStr);
       var stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
       string url = "";
-      if(stra is INetworkResourceAccessor)
+      if (stra is ILocalFsResourceAccessor)
       {
-        url = ((INetworkResourceAccessor)stra).URL;
+        url = ((ILocalFsResourceAccessor)stra).LocalFileSystemPath;
       }
       else
       {

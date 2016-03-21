@@ -300,7 +300,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
             }
           }
         }
-        // Todo: fix
         if (chunked && clientDisconnected == false)
         {
           SendChunk(httpContext, null, 0, 0);
@@ -383,7 +382,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       httpContext.Response.StatusCode = StatusCodes.Status206PartialContent;
       httpContext.Response.ContentLength = range.Length;
 
-      if (range.Length == 0)
+      if (item.IsLive ||range.Length == 0)
       {
         httpContext.Response.Headers.Add("Content-Range", string.Format("bytes {0}-", range.From));
       }
@@ -395,8 +394,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       {
         httpContext.Response.Headers.Add("Content-Range", string.Format("bytes {0}-{1}/{2}", range.From, range.To - 1, length));
       }
-      httpContext.Response.Headers.Add("X-Content-Duration", item.WebMetadata.Metadata.Duration.ToString("0.00", CultureInfo.InvariantCulture));
-      httpContext.Response.Headers.Add("Content-Duration", item.WebMetadata.Metadata.Duration.ToString("0.00", CultureInfo.InvariantCulture));
+      if (item.IsLive == false)
+      {
+        httpContext.Response.Headers.Add("X-Content-Duration", item.WebMetadata.Metadata.Duration.ToString("0.00", CultureInfo.InvariantCulture));
+        httpContext.Response.Headers.Add("Content-Duration", item.WebMetadata.Metadata.Duration.ToString("0.00", CultureInfo.InvariantCulture));
+      }
 
       bool chunked = false;
       if (mediaTransferMode == TransferMode.Streaming && httpContext.Request.Protocol == HttpHelper.HTTP11 && client.Profile.Settings.Communication.AllowChunckedTransfer)// && item.IsTranscoding == true)

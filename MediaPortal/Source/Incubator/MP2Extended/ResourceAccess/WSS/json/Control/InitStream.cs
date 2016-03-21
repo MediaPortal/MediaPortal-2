@@ -36,7 +36,8 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -69,26 +70,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       MediaItem mediaItem = null;
       if (streamItem.ItemType == WebMediaType.TV || streamItem.ItemType == WebMediaType.Radio)
       {
-        if (!ServiceRegistration.IsRegistered<ITvProvider>())
-          throw new BadRequestException("InitStream: ITvProvider not found");
-
-        IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-
         int channelIdInt;
         if (!int.TryParse(itemId, out channelIdInt))
           throw new BadRequestException(string.Format("InitStream: Couldn't convert channelId to int: {0}", itemId));
 
-        IChannel channel;
-        if (!channelAndGroupInfo.GetChannel(channelIdInt, out channel))
-          throw new BadRequestException(string.Format("InitStream: Couldn't get channel with Id: {0}", channelIdInt));
-
-        ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-
-        if (!timeshiftControl.StartTimeshift(identifier, SlotControl.GetSlotIndex(identifier), channel, out mediaItem))
-          throw new BadRequestException("InitStream: Couldn't start timeshifting");
-
         streamItem.Title = "Live TV";
         if (streamItem.ItemType == WebMediaType.Radio) streamItem.Title = "Live Radio";
+        streamItem.LiveChannelId = channelIdInt;
+
+        if(MediaAnalyzer.ParseChannelStream(channelIdInt, out mediaItem) == null)
+        {
+          throw new BadRequestException(string.Format("InitStream: Couldn't parse channel stream: {0}", channelIdInt));
+        }
       }
       else
       {
@@ -123,6 +116,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       StreamControl.AddStreamItem(identifier, streamItem);
 
       return new WebBoolResult { Result = true };
+    }
+
+    internal static IMediaAnalyzer MediaAnalyzer
+    {
+      get { return ServiceRegistration.Get<IMediaAnalyzer>(); }
     }
 
     internal static ILogger Logger

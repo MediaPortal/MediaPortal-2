@@ -22,7 +22,7 @@
     <ProjectReference Include="..\..\Core\HttpServer\HttpServer.csproj" />
     <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
-    <ProjectReference Include="..\TranscodingService\TranscodingService.csproj" />
+    <ProjectReference Include="..\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />

@@ -465,7 +465,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings(GroupName = "TVAccessService")]
     public WebStringResult SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId)
     {
-      throw new NotImplementedException();
+      return new SwitchTVServerToChannelAndGetTimeshiftFilename().Process(userName, channelId);
     }
 
     [HttpGet]

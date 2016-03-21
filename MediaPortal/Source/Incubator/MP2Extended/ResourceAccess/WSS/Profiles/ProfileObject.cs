@@ -22,14 +22,12 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Plugins.Transcoding.Service.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Plugins.Transcoding.Service.Profiles.Setup;
+using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup;
+using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {

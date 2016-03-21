@@ -31,7 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Plugins.Transcoding.Service.Profiles;
+using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
 {

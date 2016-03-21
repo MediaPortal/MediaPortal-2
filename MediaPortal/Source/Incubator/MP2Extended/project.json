@@ -16,7 +16,7 @@
         "MediaPortal.Utilities": "1.0.0-*",
         "Tve3RecordingMetadataExtractor": "1.0.0-*",
         "FanArtService.Interfaces": "1.0.0-*",
-        "TranscodingService": "1.0.0-*"
+        "TranscodingService.Interfaces": "1.0.0-*"
       },
       "frameworkAssemblies": {
         "System.Drawing": "4.0.0.0",
@@ -32,7 +32,7 @@
     "Microsoft.AspNet.Server.WebListener": "1.0.0-rc2-16067",
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc2-16185",
     "Microsoft.AspNet.StaticFiles": "1.0.0-rc2-16068",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-rc2-16068",
+    "Microsoft.AspNet.Diagnostics": "1.0.0-rc2-16303",
     "Microsoft.AspNet.Cors": "6.0.0-rc2-16069",
     "Swashbuckle.SwaggerGen": "6.0.2-rc2-final",
     "OnlineVideos.Core": "1.0.2",

@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
@@ -56,9 +56,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <returns>Returns true if an item was deleted, false if no item was deleted</returns>
     internal static bool DeleteStreamItem(string identifier)
     {
-      if (ValidateIdentifie(identifier))
+      if (ValidateIdentifier(identifier))
       {
         StopStreaming(identifier);
+        if (STREAM_ITEMS[identifier].TranscoderObject != null)
+          STREAM_ITEMS[identifier].TranscoderObject.StopTranscoding();
         STREAM_ITEMS.Remove(identifier);
         return true;
       }
@@ -83,7 +85,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <returns>Returns the requested stream item otherwise null</returns>
     internal static StreamItem GetStreamItem(string identifier)
     {
-      if (ValidateIdentifie(identifier))
+      if (ValidateIdentifier(identifier))
       {
         return STREAM_ITEMS[identifier];
       }
@@ -99,7 +101,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       return STREAM_ITEMS;
     }
 
-    internal static bool ValidateIdentifie(string identifier)
+    internal static bool ValidateIdentifier(string identifier)
     {
       return STREAM_ITEMS.ContainsKey(identifier);
     }
@@ -111,11 +113,25 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <param name="context">Transcoder context</param>
     internal static void StartStreaming(string identifier, double startTime)
     {
-      if (ValidateIdentifie(identifier))
+      if (ValidateIdentifier(identifier))
       {
         lock (STREAM_ITEMS[identifier].BusyLock)
         {
-          STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetMediaStream(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, startTime, 0, true);
+          if (STREAM_ITEMS[identifier].TranscoderObject == null) return;
+          if (STREAM_ITEMS[identifier].TranscoderObject.StartTrancoding() == false)
+          {
+            Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", STREAM_ITEMS[identifier].RequestedMediaItem.MediaItemId);
+            return;
+          }
+          STREAM_ITEMS[identifier].TranscoderObject.StartStreaming();
+          if (STREAM_ITEMS[identifier].IsLive == true)
+          {
+            STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetLiveStream(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, STREAM_ITEMS[identifier].LiveChannelId, true);
+          }
+          else
+          {
+            STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetMediaStream(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, startTime, 0, true);
+          }
           STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = STREAM_ITEMS[identifier].StreamContext.SegmentDir;
           STREAM_ITEMS[identifier].StreamContext.InUse = true;
           STREAM_ITEMS[identifier].IsActive = true;
@@ -129,18 +145,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <param name="identifier">The unique string which identifies the stream Item</param>
     internal static void StopStreaming(string identifier)
     {
-      if (ValidateIdentifie(identifier))
+      if (ValidateIdentifier(identifier))
       {
-        STREAM_ITEMS[identifier].IsActive = false;
-        if (STREAM_ITEMS[identifier].TranscoderObject != null) 
-          STREAM_ITEMS[identifier].TranscoderObject.StopStreaming();
-
         lock (STREAM_ITEMS[identifier].BusyLock)
         {
+          STREAM_ITEMS[identifier].IsActive = false;
+          if (STREAM_ITEMS[identifier].TranscoderObject != null)
+            STREAM_ITEMS[identifier].TranscoderObject.StopStreaming();
+
           if (STREAM_ITEMS[identifier].StreamContext != null)
             STREAM_ITEMS[identifier].StreamContext.InUse = false;
         }
       }
+    }
+
+    internal static IMediaConverter MediaConverter
+    {
+      get { return ServiceRegistration.Get<IMediaConverter>(); }
     }
 
     internal static ILogger Logger

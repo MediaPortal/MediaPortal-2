@@ -35,8 +35,9 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using MediaPortal.Plugins.Transcoding.Service;
-using MediaPortal.Plugins.Transcoding.Service.Objects;
+using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 {
@@ -54,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       if (identifier == null)
         throw new BadRequestException("RetrieveStream: identifier is null");
 
-      if (!StreamControl.ValidateIdentifie(identifier))
+      if (!StreamControl.ValidateIdentifier(identifier))
         throw new BadRequestException("RetrieveStream: identifier is not valid");
 
       StreamItem streamItem = StreamControl.GetStreamItem(identifier);
@@ -78,11 +79,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
             Logger.Error("RetrieveStream: Request for segment file {0} canceled", hls);
 
             httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            // TODO: fix
-            //response.Chunked = false;
-            httpContext.Response.ContentLength = 0;
+            httpContext.Response.ContentLength = null;
             httpContext.Response.ContentType = null;
-            //response.SendHeaders();
 
             return true;
           }
@@ -93,11 +91,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
           Logger.Error("RetrieveStream: Unable to find segment file {0}", hls);
 
           httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-          // TODO: fix
-          //response.Chunked = false;
-          httpContext.Response.ContentLength = 0;
+          httpContext.Response.ContentLength = null;
           httpContext.Response.ContentType = null;
-          //response.SendHeaders();
 
           return true;
         }
@@ -110,11 +105,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         Logger.Debug("RetrieveStream: Stream for {0} is no longer active", identifier);
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        // TODO: fix
-        //response.Chunked = false;
-        httpContext.Response.ContentLength = 0;
+        httpContext.Response.ContentLength = null;
         httpContext.Response.ContentType = null;
-        //response.SendHeaders();
 
         return true;
       }
@@ -165,9 +157,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         {
           //At least 1 range is needed
           httpContext.Response.StatusCode = StatusCodes.Status416RequestedRangeNotSatisfiable;
-          // TODO: fix
-          //response.Chunked = false;
-          httpContext.Response.ContentLength = 0;
+          httpContext.Response.ContentLength = null;
           httpContext.Response.ContentType = null;
           Logger.Debug("RetrieveStream: Sending headers: " + string.Join(";", httpContext.Response.Headers.Select(x => x.Key + "=" + x.Value).ToArray()));
           return true;
@@ -180,9 +170,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         {
           //At least 1 range is needed
           httpContext.Response.StatusCode = StatusCodes.Status416RequestedRangeNotSatisfiable;
-          // TODO: fix
-          //response.Chunked = false;
-          httpContext.Response.ContentLength = 0;
+          httpContext.Response.ContentLength = null;
           httpContext.Response.ContentType = null;
           Logger.Debug("RetrieveStream: Sending headers: " + string.Join(";", httpContext.Response.Headers.Select(x => x.Key + "=" + x.Value).ToArray()));
           return true;
@@ -207,7 +195,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       {
         if (streamItem.TranscoderObject.WebMetadata.Metadata.Source is ILocalFsResourceAccessor)
         {
-          resourceStream = MediaConverter.GetReadyFileBuffer((ILocalFsResourceAccessor)streamItem.TranscoderObject.WebMetadata.Metadata.Source);
+          resourceStream = MediaConverter.GetFileStream((ILocalFsResourceAccessor)streamItem.TranscoderObject.WebMetadata.Metadata.Source);
         }
       }
 
@@ -224,24 +212,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
       #region Handle transcode
 
-      // Attempting to transcode
-      Logger.Debug("RetrieveStream: Attempting transcoding for mediaitem {0} in mode {1}", streamItem.RequestedMediaItem.MediaItemId, requestedStreamingMode.ToString());
-      if (streamItem.TranscoderObject.StartTrancoding() == false)
-      {
-        Logger.Debug("RetrieveStream: Transcoding busy for mediaitem {0}", streamItem.RequestedMediaItem.MediaItemId);
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        // TODO: fix
-        //response.Chunked = false;
-        httpContext.Response.ContentLength = 0;
-        httpContext.Response.ContentType = null;
-
-        //response.SendHeaders();
-        return true;
-      }
-
       bool partialResource = false;
       if (resourceStream == null)
       {
+        Logger.Debug("RetrieveStream: Attempting to start streaming for mediaitem {0} in mode {1}", streamItem.RequestedMediaItem.MediaItemId, requestedStreamingMode.ToString());
         StreamControl.StopStreaming(identifier);
         StreamControl.StartStreaming(identifier, timeRange.From);
         partialResource = streamItem.StreamContext.Partial;
@@ -280,12 +254,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       if (resourceStream == null)
       {
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        // TODO: fix
-        //response.Chunked = false;
-        httpContext.Response.ContentLength = 0;
+        httpContext.Response.ContentLength = null;
         httpContext.Response.ContentType = null;
 
-        //response.SendHeaders();
         return true;
       }
 
@@ -331,7 +302,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
             }
             else if (containerEnum is SubtitleCodec)
             {
-              httpContext.Response.ContentType = MediaConverter.GetSubtitleMime((SubtitleCodec)containerEnum);
+              httpContext.Response.ContentType = Subtitles.GetSubtitleMime((SubtitleCodec)containerEnum);
             }
             bool onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
             Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
@@ -344,6 +315,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         }
       }
       return false;
+    }
+
+    internal static IMediaConverter MediaConverter
+    {
+      get { return ServiceRegistration.Get<IMediaConverter>(); }
     }
 
     internal static ILogger Logger

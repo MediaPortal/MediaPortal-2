@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         return new WebBoolResult { Result = result };
       }
 
-      if (!StreamControl.ValidateIdentifie(identifier))
+      if (!StreamControl.ValidateIdentifier(identifier))
       {
         Logger.Debug("FinishStream: unknown identifier: {0}", identifier);
         result = false;
@@ -56,14 +56,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       // Remove the stream from the stream controller
       stream.StreamItem item = StreamControl.GetStreamItem(identifier);
       StreamControl.DeleteStreamItem(identifier);
-
-      //Stop timeshifting
-      if (item != null && (item.ItemType == WebMediaType.TV || item.ItemType == WebMediaType.Radio))
-      {
-        ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-        result = timeshiftControl.StopTimeshift(identifier, SlotControl.GetSlotIndex(identifier));
-        SlotControl.DeleteSlotIndex(identifier);
-      }
 
      return new WebBoolResult { Result = result };
     }

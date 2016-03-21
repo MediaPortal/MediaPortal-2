@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses
 {
@@ -66,7 +67,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseC
           maxWidth = Convert.ToInt32((double)maxHeight * (16.0 / 9.0));
         }
 
-        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.VideoContainerType == Transcoding.Service.VideoContainer.Hls)
+        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.VideoContainerType == VideoContainer.Hls)
         {
           transport = "httplive";
           mime = "application/x-mpegURL";

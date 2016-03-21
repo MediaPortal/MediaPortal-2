@@ -26,8 +26,8 @@ using System;
 using System.Threading;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
 {
@@ -110,6 +110,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
         return false;
       }
     }
+
+    /// <summary>
+    /// Gets or sets the live Channel ID
+    /// </summary>
+    internal int LiveChannelId { get; set; }
 
     /// <summary>
     /// Gets or sets the time when the stream was started

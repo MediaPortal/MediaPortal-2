@@ -14,6 +14,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 
       _slotMap.Add(userName, _slotCounter);
       _slotCounter++;
+      //TODO: SlimTv supports a max of 9 slots. Find a better way to determine slot?
+      _slotCounter = _slotCounter % 10;
+      if (_slotCounter <= 0) _slotCounter = 2;
       return _slotMap[userName];
     }
 
