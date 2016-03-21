@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.General
@@ -78,6 +79,20 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_IMAGES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_IMAGES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_SERIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_MOVIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT);
+
+    /// <summary>
+    /// Contains a list of all default navigation root states.
+    /// </summary>
+    public static readonly Guid[] WF_STATE_IDS_MEDIA_ROOTS =
+                                    {
+                                      WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT,
+                                      WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT,
+                                      WF_STATE_ID_AUDIO_NAVIGATION_ROOT,
+                                      WF_STATE_ID_VIDEOS_NAVIGATION_ROOT,
+                                      WF_STATE_ID_IMAGES_NAVIGATION_ROOT,
+                                      WF_STATE_ID_SERIES_NAVIGATION_ROOT,
+                                      WF_STATE_ID_MOVIES_NAVIGATION_ROOT
+                                    };
 
     public static readonly Guid WF_STATE_ID_LATEST_MEDIA = new Guid(STR_WF_STATE_ID_LATEST_MEDIA);
 
