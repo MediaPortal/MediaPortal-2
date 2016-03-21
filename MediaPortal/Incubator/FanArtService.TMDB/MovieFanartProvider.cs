@@ -40,7 +40,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.TMDB
 {
   public class MovieFanartProvider : IFanArtProvider
   {
-    private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, MovieAspect.ASPECT_ID };
+    private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, MovieAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
 
     /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.

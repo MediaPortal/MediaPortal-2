@@ -136,6 +136,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
       MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
       MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.Metadata);
+      MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
 
       try
       {
@@ -146,8 +147,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         using (Stream mediaStream = fsra.OpenRead())
         {
           string mimeType = MimeTypeDetector.GetMimeType(mediaStream) ?? DEFAULT_MIMETYPE;
-          mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
-          mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
         }
         // Extract EXIF information from media item.
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))
