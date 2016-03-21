@@ -22,28 +22,28 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
 {
   internal class FFMpegGetVideoCodec
   {
-    public static string GetVideoCodec(VideoCodec codec, EncoderHandler encoder)
+    public static string GetVideoCodec(VideoCodec codec, FFMpegEncoderHandler.EncoderHandler encoder)
     {
       switch (codec)
       {
         case VideoCodec.H265:
-          if (encoder == EncoderHandler.HardwareIntel)
+          if (encoder == FFMpegEncoderHandler.EncoderHandler.HardwareIntel)
             return "hevc_qsv";
-          else if (encoder == EncoderHandler.HardwareNvidia)
+          else if (encoder == FFMpegEncoderHandler.EncoderHandler.HardwareNvidia)
             return "hevc_nvenc";
           else
             return "libx265";
         case VideoCodec.H264:
-          if (encoder == EncoderHandler.HardwareIntel)
+          if (encoder == FFMpegEncoderHandler.EncoderHandler.HardwareIntel)
             return "h264_qsv";
-          else if (encoder == EncoderHandler.HardwareNvidia)
+          else if (encoder == FFMpegEncoderHandler.EncoderHandler.HardwareNvidia)
             return "nvenc_h264";
           else
             return "libx264";
@@ -56,7 +56,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
         case VideoCodec.MsMpeg4:
           return "msmpeg4";
         case VideoCodec.Mpeg2:
-          if (encoder == EncoderHandler.HardwareIntel)
+          if (encoder == FFMpegEncoderHandler.EncoderHandler.HardwareIntel)
             return "mpeg2_qsv";
           else
             return "mpeg2video";

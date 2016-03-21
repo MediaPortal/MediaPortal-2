@@ -23,25 +23,49 @@
 #endregion
 
 using System.Text;
-using MediaPortal.Common;
+using System.IO;
+using System.Collections.Generic;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
+using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
+using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
-  internal class FFMpegTranscodeData : TranscodeData
+  internal class FFMpegTranscodeData
   {
     private static readonly string BIN_TRANSCODER = FFMpegBinary.FFMpegPath;
+    protected string _overrideParams = null;
 
-    public EncoderHandler Encoder { get; set; } 
-
-    public FFMpegTranscodeData(string workPath) : base(BIN_TRANSCODER, workPath) 
+    public FFMpegTranscodeData(string workPath)
     {
-      Encoder = EncoderHandler.Software;
+      TranscoderBinPath = BIN_TRANSCODER;
+      WorkPath = workPath;
     }
 
-    public override string TranscoderArguments
+    public string ClientId;
+    public string TranscodeId;
+    public string TranscoderBinPath;
+    public List<string> GlobalArguments = new List<string>();
+    public List<string> InputArguments = new List<string>();
+    public List<string> InputSubtitleArguments = new List<string>();
+    public List<string> OutputArguments = new List<string>();
+    public List<string> OutputFilter = new List<string>();
+    public IResourceAccessor InputResourceAccessor;
+    public string InputSubtitleFilePath;
+    public string OutputFilePath;
+    public bool IsLive = false;
+    public bool IsStream = false;
+    public Stream LiveStream = null;
+    public string WorkPath = null;
+    public string SegmentPlaylist = null;
+    public string SegmentBaseUrl = null;
+    public byte[] SegmentManifestData = null;
+    public byte[] SegmentPlaylistData = null;
+    public byte[] SegmentSubsPlaylistData = null;
+    public FFMpegEncoderHandler.EncoderHandler Encoder = FFMpegEncoderHandler.EncoderHandler.Software;
+
+    public string TranscoderArguments
     {
       set
       {
@@ -62,7 +86,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             {
               result.Append(arg + " ");
             }
-            if (InputResourceAccessor is ILocalFsResourceAccessor)
+            if(InputResourceAccessor is IFFMpegLiveAccessor)
+            {
+              result.Append("-i pipe: ");
+            }
+            else if (InputResourceAccessor is ILocalFsResourceAccessor)
             {
               result.Append("-i \"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\" ");
             }
@@ -79,24 +107,29 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             }
             result.Append("-i \"" + InputSubtitleFilePath + "\" ");
           }
-          if (string.IsNullOrEmpty(OutputFilePath) == false)
+          
+          foreach (string arg in OutputArguments)
           {
-            foreach (string arg in OutputArguments)
+            result.Append(arg + " ");
+          }
+          if (OutputFilter.Count > 0)
+          {
+            result.Append("-vf \"");
+            bool firstFilter = true;
+            foreach (string filter in OutputFilter)
             {
-              result.Append(arg + " ");
+              if (firstFilter == false) result.Append(",");
+              result.Append(filter);
+              firstFilter = false;
             }
-            if (OutputFilter.Count > 0)
-            {
-              result.Append("-vf \"");
-              bool firstFilter = true;
-              foreach (string filter in OutputFilter)
-              {
-                if (firstFilter == false) result.Append(",");
-                result.Append(filter);
-                firstFilter = false;
-              }
-              result.Append("\" ");
-            }
+            result.Append("\" ");
+          }
+          if (string.IsNullOrEmpty(OutputFilePath) == true)
+          {
+            result.Append("pipe: ");
+          }
+          else
+          {
             result.Append("\"" + OutputFilePath + "\" ");
           }
           return result.ToString().Trim();
@@ -106,15 +139,15 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           string arg = _overrideParams;
           if (InputResourceAccessor != null)
           {
-            arg = arg.Replace(MediaConverter.INPUT_FILE_TOKEN, "\"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\"");
+            arg = arg.Replace(TranscodeProfileManager.INPUT_FILE_TOKEN, "\"" + ((ILocalFsResourceAccessor)InputResourceAccessor).LocalFileSystemPath + "\"");
           }
           if (string.IsNullOrEmpty(InputSubtitleFilePath) == false)
           {
-            arg = arg.Replace(MediaConverter.SUBTITLE_FILE_TOKEN, "\"" + InputSubtitleFilePath) + "\"";
+            arg = arg.Replace(TranscodeProfileManager.SUBTITLE_FILE_TOKEN, "\"" + InputSubtitleFilePath) + "\"";
           }
           if (string.IsNullOrEmpty(OutputFilePath) == false)
           {
-            arg = arg.Replace(MediaConverter.OUTPUT_FILE_TOKEN, "\"" + OutputFilePath + "\"");
+            arg = arg.Replace(TranscodeProfileManager.OUTPUT_FILE_TOKEN, "\"" + OutputFilePath + "\"");
           }
           return arg;
         }

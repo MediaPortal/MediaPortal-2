@@ -31,8 +31,9 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 using MediaPortal.Utilities.Process;
-using MediaPortal.Plugins.Transcoding.Service.Metadata;
-using MediaPortal.Plugins.Transcoding.Service.Analyzers;
+using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Plugins.Transcoding.Interfaces.Analyzers;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {

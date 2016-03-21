@@ -26,7 +26,8 @@ using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Service.Metadata;
+using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {
@@ -45,7 +46,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
         {
           try
           {
-            raf = File.OpenRead(lfsra.LocalFileSystemPath);
+            raf = File.Open(lfsra.LocalFileSystemPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             byte[] packetBuffer = new byte[193];
             raf.Read(packetBuffer, 0, packetBuffer.Length);
             if (packetBuffer[0] == 0x47) //Sync byte (Standard MPEG2 TS)

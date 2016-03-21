@@ -22,7 +22,7 @@
 
 #endregion
 
-
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
 {

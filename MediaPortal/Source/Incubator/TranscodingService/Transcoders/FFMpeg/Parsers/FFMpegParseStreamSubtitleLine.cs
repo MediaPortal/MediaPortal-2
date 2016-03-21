@@ -26,8 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using MediaPortal.Plugins.Transcoding.Service.Metadata;
-using MediaPortal.Plugins.Transcoding.Service.Metadata.Streams;
+using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {

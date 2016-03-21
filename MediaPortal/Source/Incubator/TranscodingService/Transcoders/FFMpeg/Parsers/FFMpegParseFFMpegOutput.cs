@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Plugins.Transcoding.Service.Metadata;
 using System.Collections.Generic;
 using System.Globalization;
+using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
 {

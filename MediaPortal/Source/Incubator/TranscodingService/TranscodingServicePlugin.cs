@@ -22,24 +22,15 @@
 
 #endregion
 
+using System;
+using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Runtime;
-using System.IO;
-using MediaPortal.Common.PathManager;
-using System.Xml;
-using System;
-using System.Threading;
-using MediaPortal.Plugins.Transcoding.Service;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.Transcoding.Service.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -52,9 +43,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public TranscodingServicePlugin()
     {
-      MediaConverter.StopAllTranscodes();
-      MediaConverter.CleanUpTranscodeCache();
-
       _tidyUpCacheWork = new IntervalWork(TidyUpCache, CACHE_CLEANUP_INTERVAL);
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
       threadPool.AddIntervalWork(_tidyUpCacheWork, false);
@@ -66,11 +54,22 @@ namespace MediaPortal.Plugins.Transcoding.Service
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
       LoadTranscodeSettings();
+
+      var converter = new MediaConverter();
+      converter.CleanUpTranscodeCache();
+      ServiceRegistration.Set<IMediaConverter>(converter);
+      Logger.Debug("TranscodingService: Registered FFMpeg MediaConverter.");
+
+      var analyzer = new MediaAnalyzer();
+      ServiceRegistration.Set<IMediaAnalyzer>(analyzer);
+      Logger.Debug("TranscodingService: Registered FFMpeg MediaAnalyzer.");
     }
 
     private void TidyUpCache()
     {
-      MediaConverter.CleanUpTranscodeCache();
+      IMediaConverter converter = ServiceRegistration.Get<IMediaConverter>(false);
+      if (converter != null && converter is MediaConverter)
+        ((MediaConverter)converter).CleanUpTranscodeCache();
     }
 
     private void LoadTranscodeSettings()
@@ -81,7 +80,6 @@ namespace MediaPortal.Plugins.Transcoding.Service
       {
         Directory.CreateDirectory(Settings.CachePath);
       }
-      MediaConverter.LoadSettings();
     }
 
     private void SaveTranscodeSettings()
@@ -101,14 +99,18 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
     public void Continue()
     {
-      LoadTranscodeSettings();
     }
 
     public void Shutdown()
     {
+      IMediaConverter converter = ServiceRegistration.Get<IMediaConverter>(false);
+      if (converter != null && converter is MediaConverter)
+      {
+        ((MediaConverter)converter).StopAllTranscodes();
+        ((MediaConverter)converter).CleanUpTranscodeCache();
+      }
+
       SaveTranscodeSettings();
-      MediaConverter.StopAllTranscodes();
-      MediaConverter.CleanUpTranscodeCache();
     }
 
     internal static ILogger Logger

@@ -32,13 +32,14 @@ using System.Diagnostics;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.Base;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
-using MediaPortal.Plugins.Transcoding.Service.Objects;
-using MediaPortal.Plugins.Transcoding.Service.Metadata.Streams;
-using MediaPortal.Plugins.Transcoding.Service.Analyzers;
+using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Plugins.Transcoding.Interfaces.Analyzers;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
@@ -184,7 +185,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    internal void AddTargetVideoFormatAndOutputFileParameters(VideoTranscoding video, Subtitle sub, ref string transcodingFile, out long startSegment, double timeStart, ref FFMpegTranscodeData data)
+    internal void AddTargetVideoFormatAndOutputFileParameters(VideoTranscoding video, SubtitleStream sub, ref string transcodingFile, out long startSegment, double timeStart, ref FFMpegTranscodeData data)
     {
       data.SegmentManifestData = null;
       data.SegmentPlaylistData = null;
@@ -192,7 +193,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       startSegment = 0;
       if (video.TargetVideoContainer == VideoContainer.Hls)
       {
-        data.WorkPath = PlaylistManifest.GetPlaylistFolderFromTranscodeFile(_transcoderCachePath, transcodingFile);
+        data.WorkPath = FFMpegPlaylistManifest.GetPlaylistFolderFromTranscodeFile(_transcoderCachePath, transcodingFile);
 
         string outputFileName = MediaConverter.PLAYLIST_FILE_NAME;
         startSegment = Convert.ToInt64(timeStart / Convert.ToDouble(_hlsSegmentTimeInSeconds));
@@ -215,7 +216,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             data.SegmentSubsPlaylistData = PlaylistManifest.CreateSubsPlaylist(video, startSegment);
           }
         }
-        data.SegmentPlaylist = Path.Combine(data.WorkPath, MediaConverter.PLAYLIST_MANIFEST_FILE_NAME);
+        data.SegmentPlaylist = Path.Combine(data.WorkPath, PlaylistManifest.PLAYLIST_MANIFEST_FILE_NAME);
         data.SegmentBaseUrl = video.HlsBaseUrl;
 
         string fileSegments = Path.Combine(data.WorkPath, _hlsSegmentFileTemplate);
@@ -263,7 +264,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           }
           data.IsLive = true;
           data.IsStream = true;
-          data.OutputFilePath = "pipe:";
+          data.OutputFilePath = null;
           transcodingFile = "";
         }
         else
@@ -292,7 +293,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
         data.IsLive = true;
         data.IsStream = true;
-        data.OutputFilePath = "pipe:";
+        data.OutputFilePath = null;
       }
       else
       {
@@ -354,7 +355,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       return targetFilePath;
     }
 
-    internal void AddSubtitleCopyParameters(Subtitle subtitle, ref FFMpegTranscodeData data)
+    internal void AddSubtitleCopyParameters(SubtitleStream subtitle, ref FFMpegTranscodeData data)
     {
       if (subtitle == null) return;
 
@@ -378,12 +379,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    internal void AddSubtitleEmbeddingParameters(Subtitle subtitle, SubtitleCodec codec, double timeStart, ref FFMpegTranscodeData data)
+    internal void AddSubtitleEmbeddingParameters(SubtitleStream subtitle, SubtitleCodec codec, double timeStart, ref FFMpegTranscodeData data)
     {
       if (codec == SubtitleCodec.Unknown) return;
       if (subtitle == null) return;
 
-      data.InputSubtitleFilePath = subtitle.SourceFile;
+      data.InputSubtitleFilePath = subtitle.Source;
 
       string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
       data.InputSubtitleArguments.Add(string.Format("-f {0}", subtitleFormat));
@@ -604,7 +605,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    internal void AddVideoParameters(VideoTranscoding video, string transcodeId, Subtitle subtitle, FFMpegEncoderConfig encoderConfig, ref FFMpegTranscodeData data)
+    internal void AddVideoParameters(VideoTranscoding video, string transcodeId, SubtitleStream subtitle, FFMpegEncoderConfig encoderConfig, ref FFMpegTranscodeData data)
     {
       if (video.TargetVideoCodec == VideoCodec.Unknown)
       {
@@ -677,7 +678,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             data.OutputArguments.Add(string.Format("-crf {0}", quality));
           }
 
-          if (data.Encoder == EncoderHandler.Software)
+          if (data.Encoder == FFMpegEncoderHandler.EncoderHandler.Software)
           {
             data.OutputArguments.Add("-x265-params");
             string args = "";
@@ -804,7 +805,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       {
         if (video.TargetVideoCodec == VideoCodec.H264 || video.TargetVideoCodec == VideoCodec.H265)
         {
-          if (data.Encoder == EncoderHandler.HardwareNvidia)
+          if (data.Encoder == FFMpegEncoderHandler.EncoderHandler.HardwareNvidia)
           {
             data.OutputArguments.Add("-cbr 1");
           }
@@ -818,7 +819,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       return false;
     }
 
-    private void AddVideoFiltersParameters(VideoTranscoding video, Subtitle subtitle, ref FFMpegTranscodeData data)
+    private void AddVideoFiltersParameters(VideoTranscoding video, SubtitleStream subtitle, ref FFMpegTranscodeData data)
     {
       bool sourceSquarePixels = Checks.IsSquarePixel(video.SourceVideoPixelAspectRatio);
       Size newSize = new Size(video.SourceVideoWidth, video.SourceVideoHeight);
@@ -829,6 +830,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       bool videoHeightChanged = false;
 
       GetVideoDimensions(video, out newSize, out newContentSize, out newPixelAspectRatio, out pixelARChanged, out videoARChanged, out videoHeightChanged);
+
+      if(data.InputResourceAccessor is FFMpegLiveAccessor)
+      {
+        data.OutputFilter.Add("yadif=0:-1:0");
+      }
 
       if (videoARChanged || pixelARChanged || videoHeightChanged)
       {
@@ -853,7 +859,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         }
       }
 
-      if (subtitle != null && subtitle.SourceFile != null && _supportHardcodedSubs == true && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
+      if (subtitle != null && subtitle.Source != null && _supportHardcodedSubs == true && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
       {
         if (SubtitleAnalyzer.IsImageBasedSubtitle(subtitle.Codec) == false)
         {
@@ -862,7 +868,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             encoding = subtitle.CharacterEncoding;
           }
-          data.OutputFilter.Add(string.Format("subtitles=filename='{0}':original_size={1}x{2}:charenc='{3}'", EncodeFilePath(subtitle.SourceFile), newSize.Width, newSize.Height, encoding));
+          data.OutputFilter.Add(string.Format("subtitles=filename='{0}':original_size={1}x{2}:charenc='{3}'", EncodeFilePath(subtitle.Source), newSize.Width, newSize.Height, encoding));
         }
       }
     }

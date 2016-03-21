@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Settings
 {

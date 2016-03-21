@@ -9,8 +9,15 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(TargetDir)Ude.dll" />
-      <PluginFiles Include="$(TargetDir)*.pdb" />
+      <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.dll" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+    
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+      <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.pdb" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.pdb" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
