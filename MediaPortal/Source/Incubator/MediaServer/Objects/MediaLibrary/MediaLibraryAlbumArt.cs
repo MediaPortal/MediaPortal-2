@@ -23,11 +23,10 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.MediaServer.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Service;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -44,35 +43,9 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public void Initialise()
     {
-      //bool useFanart = false;
-      //if (Item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
-      //{
-      //  useFanart = true;
-      //}
-      //else if (Item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-      //{
-      //  useFanart = true;
-      //}
+      Uri = DlnaResourceAccessUtils.GetThumbnailBaseURL(Item, Client);
 
-      bool useFanart = true;
-      if (useFanart)
-      {
-        string mediaType = Item.Aspects.ContainsKey(ImageAspect.ASPECT_ID) ? "Image" : "Undefined";
-
-        // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
-        var url = string.Format("{0}/FanartService?mediatype={1}&fanarttype=Thumbnail&name={2}&width={3}&height={4}",
-          DlnaResourceAccessUtils.GetBaseResourceURL(), mediaType, Item.MediaItemId, Client.Profile.Settings.Thumbnails.MaxWidth, Client.Profile.Settings.Thumbnails.MaxHeight);
-        Uri = url;
-      }
-      else
-      {
-        // Using MP2's thumbnails
-        var url = string.Format("{0}{1}?aspect={2}&width={3}&height={4}",
-          DlnaResourceAccessUtils.GetBaseResourceURL(), DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId), "THUMBNAIL", Client.Profile.Settings.Thumbnails.MaxWidth, Client.Profile.Settings.Thumbnails.MaxHeight);
-        Uri = url;
-      }
-
-      string profileId = "";
+      string profileId = "JPEG_TN";
       string mimeType = "image/jpeg";
       DlnaProfiles.FindCompatibleProfile(Client, DlnaProfiles.ResolveImageProfile(ImageContainer.Jpeg, Client.Profile.Settings.Thumbnails.MaxWidth, Client.Profile.Settings.Thumbnails.MaxHeight),
         ref profileId, ref mimeType);

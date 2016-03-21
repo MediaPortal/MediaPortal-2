@@ -35,13 +35,13 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
     {
     }
 
+    public virtual string RefId { get; set; }
+
     public override string Class
     {
       get { return _containerClass; }
       set { _containerClass = value; }
     }
-
-    public virtual string RefId { get; set; }
 
     public override void Initialise()
     {

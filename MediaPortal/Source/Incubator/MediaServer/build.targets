@@ -7,13 +7,20 @@
 
   <Target Name="AfterBuild">
     <ItemGroup>
-      <PluginFiles Include="$(TargetDir)Antlr4.Runtime.*" />
-      <PluginFiles Include="$(TargetDir)MediaServer.dll" />
-      <PluginFiles Include="$(TargetDir)*.pdb" />
+      <PluginFiles Include="$(TargetDir)Antlr4.Runtime.dll" />
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.dll" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
       <PluginFiles Include="$(ProjectDir)Profiles\*.xml" />
       <PluginFiles Include="$(ProjectDir)*.png" />
       <PluginFiles Include="$(ProjectDir)*.jpg" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+      <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.pdb" />
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.pdb" />
     </ItemGroup>
 
     <ItemGroup>

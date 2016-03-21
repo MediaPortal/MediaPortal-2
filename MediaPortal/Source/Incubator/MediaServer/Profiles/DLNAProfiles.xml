@@ -99,6 +99,7 @@
       <MediaFormat mime="video/mpeg">AVC_TS_HP_HD_MPEG1_L2_ISO</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HP_HD_MPEG1_L2_T</MediaFormat>
       <MediaFormat mime="video/x-ms-wmv">WMVMED_BASE</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">WMVHIGH_BASE</MediaFormat>      
       <MediaFormat mime="video/x-ms-wmv">WMVMED_FULL</MediaFormat>
       <MediaFormat mime="video/x-ms-wmv">WMVHIGH_FULL</MediaFormat>
       <MediaFormat mime="video/x-ms-wmv">WMVMED_PRO</MediaFormat>
@@ -117,6 +118,8 @@
       <MediaFormat mime="video/3gpp">AVC_3GPP_BL_QCIF15_AAC</MediaFormat>
       <MediaFormat mime="video/3gpp">MPEG4_H263_3GPP_P0_L10_AMR</MediaFormat>
       <MediaFormat mime="video/3gpp">MPEG4_H263_MP4_P0_L10_AAC</MediaFormat>
+      <MediaFormat mime="application/sdp">RTSP</MediaFormat>
+      <MediaFormat mime="application/sdp">RTP</MediaFormat>
     </DLNAMediaFormats>
     <DLNAProtocolInfo>DLNA</DLNAProtocolInfo>
     <DirectoryContentBuilder>GenericContentBuilder</DirectoryContentBuilder>
@@ -126,7 +129,7 @@
       <ModelName>MediaPortal Media Server</ModelName>
     </UPNPDeviceDescription>
     <Settings>
-      <Thumbnails maxWidth="160" maxHeight="160" delivery="AlbumArt" />
+      <Thumbnails maxWidth="160" maxHeight="160" delivery="All" />
       <Video maxHeight="1080" qualityFactor="3" />
       <H262Video qualityFactor="3" preset="Fast" profile="Main" />
       <H264Video levelCheck="Any" qualityFactor="25" preset="Veryfast" profile="Baseline" level="3.0" />
@@ -207,6 +210,8 @@
         <VideoSource container="Flv" />
         <VideoSource container="Ogg" />
         <VideoSource container="RealMedia" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="M2Ts" audioCodec="Ac3" forceTranscoding="true">
         <VideoSource container="Asf" videoCodec="Mpeg2" />
@@ -228,6 +233,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -275,6 +282,8 @@
         <VideoSource container="Flv" />
         <VideoSource container="RealMedia" />
         <VideoSource container="Mp4" videoCodec="H264" audioCodec="Aac" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3">
         <AudioSource container="Flac" />
@@ -285,6 +294,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -333,6 +344,8 @@
         <VideoSource container="Asf" videoCodec="Vc1" audioCodec="WmaPro" />
         <VideoSource container="Asf" videoCodec="Wmv" />
         <VideoSource container="RealMedia" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm" audioFrequency="48000">
         <AudioSource container="Flac" />
@@ -342,6 +355,8 @@
         <AudioSource container="Mp2" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -379,6 +394,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -406,6 +423,8 @@
         <VideoSource container="Flv" />
         <VideoSource container="Gp3" />
         <VideoSource container="RealMedia" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3">
         <AudioSource container="Flac" />
@@ -416,6 +435,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -471,6 +492,8 @@
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" forceInheritance="true">
         <VideoSource container="Asf" videoCodec="Wmv" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Mp4" />
@@ -481,6 +504,8 @@
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
         <AudioSource container="Asf" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -656,6 +681,8 @@
         <VideoSource container="Asf" videoCodec="Vc1" audioCodec="WmaPro" />
         <VideoSource container="Avi" videoCodec="DvVideo" />
         <VideoSource container="Mp4" videoCodec="DvVideo" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Flac" />
@@ -665,6 +692,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
       <ImageTarget container="Jpeg" pixelFormat="Yuv420" forceInheritance="true">
         <ImageSource container="Jpeg" pixelFormat="Yuv444" />
@@ -738,6 +767,8 @@
         <VideoSource container="Wtv" videoCodec="H264" />
         <VideoSource container="Matroska" videoCodec="Mpeg2" />
         <VideoSource container="Mpeg2Ts" videoCodec="H264" audioCodec="Mp3" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" forceInheritance="true">
         <VideoSource container="Mpeg2Ts" videoCodec="Vc1" />
@@ -758,6 +789,8 @@
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -804,6 +837,8 @@
         <VideoSource container="Mp4" videoCodec="DvVideo" />
         <VideoSource container="Avi" videoCodec="MJpeg" />
         <VideoSource container="Mp4" videoCodec="MJpeg" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Ogg" />
@@ -811,6 +846,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -919,6 +956,8 @@
         <VideoSource container="Mpeg2Ps" audioCodec="Lpcm" />
         <VideoSource container="Ogg" videoCodec="Mpeg4" />
         <VideoSource container="Mp4" audioCodec="Lpcm" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
         <VideoSource container="Matroska" />
@@ -969,6 +1008,8 @@
         <VideoSource container="Mpeg2Ps" audioCodec="Mp3" />
         <VideoSource container="Mpeg2Ps" audioCodec="Dts" />
         <VideoSource container="Mpeg2Ps" audioCodec="DtsHd" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3">
         <AudioSource container="Mp4" />
@@ -979,6 +1020,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1084,6 +1127,8 @@
         <VideoSource container="Matroska" videoCodec="Vp8" />
         <VideoSource videoCodec="H265" />
         <VideoSource container="RealMedia" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
     </MediaTranscoding>
   </Profile>
@@ -1120,6 +1165,8 @@
         <VideoSource container="Asf" />
         <VideoSource container="Avi" />
         <VideoSource container="RealMedia" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3">
         <AudioSource container="Mp4" />
@@ -1131,6 +1178,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1153,6 +1202,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1187,6 +1238,8 @@
         <VideoSource container="Mp4" audioCodec="Ac3" />
         <VideoSource container="Asf" />
         <VideoSource container="RealMedia" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm">
         <AudioSource container="Asf" />
@@ -1195,6 +1248,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1283,6 +1338,8 @@
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" audioCodec="Ac3">
         <VideoSource container="Ogg" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3">
         <VideoSource audioCodec="Dts" />
@@ -1305,6 +1362,8 @@
         <VideoSource container="Mpeg2Ps" audioCodec="Mp3" />
         <VideoSource container="Mpeg2Ps" audioCodec="Dts" />
         <VideoSource container="Mpeg2Ps" audioCodec="DtsHd" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
     </MediaTranscoding>
   </Profile>
@@ -1348,6 +1407,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1397,6 +1458,8 @@
         <VideoSource container="Asf" />
         <VideoSource container="Ogg" />
         <VideoSource container="RealMedia" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384">
         <VideoSource container="Avi" />
@@ -1411,6 +1474,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1534,6 +1599,8 @@
         <AudioSource container="Rtsp" />
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1582,6 +1649,8 @@
         <VideoSource container="Gp3" />
         <VideoSource container="RealMedia" />
         <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
     </MediaTranscoding>
   </Profile>
@@ -1648,6 +1717,8 @@
         <VideoSource container="Matroska" audioCodec="Vorbis" />
         <VideoSource container="Ogg" videoCodec="Mpeg4" />
         <VideoSource container="Mp4" audioCodec="Lpcm" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts">
         <VideoSource container="Matroska" videoCodec="H264" />
@@ -1669,6 +1740,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1857,6 +1930,8 @@
         <VideoSource videoCodec="H264" videoProfile="High10" />
         <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
         <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts">
         <VideoSource videoCodec="Mpeg4" audioCodec="Aac" />
@@ -1945,6 +2020,8 @@
         <VideoSource audioCodec="Dts" />
         <VideoSource audioCodec="DtsHd" />
         <VideoSource videoCodec="H264" videoLevel="4.1" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3" audioBitrate="320">
         <AudioSource container="Flac" />
@@ -1954,6 +2031,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1978,6 +2057,8 @@
         <VideoSource videoCodec="H264" audioCodec="Flac" />
         <VideoSource container="Gp3" videoCodec="Mpeg4" audioCodec="Amr" />
         <VideoSource container="Flv" videoCodec="H264" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts">
         <VideoSource container="Matroska" videoCodec="Vc1" />
@@ -2003,6 +2084,8 @@
         <AudioSource container="MusePack" />
         <AudioSource container="Ogg" />
         <AudioSource container="WavPack" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -2020,6 +2103,10 @@
       </Subtitles>
     </Settings>
     <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" audioCodec="Mp3">
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+      </VideoTarget>
       <VideoTarget audioCodec="Mp3">
         <VideoSource audioCodec="Dts" />
         <VideoSource audioCodec="DtsHd" />
@@ -2032,6 +2119,101 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="8player" name="8player" baseProfile="DLNADefault" active="true">
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*8player*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
+    <Settings>
+      <Communication allowChunckedTransfer="false" />
+      <Subtitles support="SoftCoded">
+        <Subtitle format="Srt" mime="text/srt" />
+      </Subtitles>
+    </Settings>
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" audioCodec="Mp3">
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+      </VideoTarget>
+      <VideoTarget audioCodec="Mp3">
+        <VideoSource audioCodec="Dts" />
+        <VideoSource audioCodec="DtsHd" />
+        <VideoSource audioCodec="Ac3" />
+      </VideoTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+<Profile id="WMP" name="Windows Media Player" baseProfile="DLNADefault" active="true">
+    <DLNAMediaFormats>
+      <MediaFormat mime="video/avi">AVI</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L1_WMA</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L2_WMA</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L3_WMA</MediaFormat>
+    </DLNAMediaFormats>
+    <DLNAProtocolInfo>Simple</DLNAProtocolInfo>
+    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
+    <UPNPDeviceDescription>
+      <FriendlyName>MediaPortal ({computerName}): 1</FriendlyName>
+      <ModelName>Windows Media Player Sharing</ModelName>
+      <ModelNumber>12.0</ModelNumber>
+    </UPNPDeviceDescription>
+    <Detections>
+      <Detection>
+        <UPnPSearch>
+          <ModelName>Windows Media Player</ModelName>
+          <Manufacturer>Microsoft Corporation</Manufacturer>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
+    <Settings>
+      <Thumbnails maxWidth="320" maxHeight="320" />
+      <Subtitles support="HardCoded" />
+    </Settings>
+    <MediaTranscoding>
+      <VideoTarget container="Asf" videoCodec="Wmv" videoMaxBitrate="15360" audioCodec="Wma" forceStereo="true">
+        <VideoSource container="Matroska" />
+        <VideoSource container="Mpeg2Ps" />
+        <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Avi" videoCodec="H264" />
+        <VideoSource container="Avi" videoCodec="MsMpeg4" />
+        <VideoSource container="Avi" videoCodec="Wmv" />
+        <VideoSource container="Avi" videoCodec="DvVideo" />
+        <VideoSource container="Mp4" videoCodec="DvVideo" />
+        <VideoSource container="Mp4" videoCodec="H265" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="Ogg" />
+        <VideoSource container="Gp3" />
+        <VideoSource container="Flv" />
+        <VideoSource container="RealMedia" />
+        <VideoSource container="Mp4" videoCodec="H264" audioCodec="Aac" />
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+      </VideoTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource container="Flac" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Adts" />
+        <AudioSource container="Mp4" />
+        <AudioSource container="Mp2" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>

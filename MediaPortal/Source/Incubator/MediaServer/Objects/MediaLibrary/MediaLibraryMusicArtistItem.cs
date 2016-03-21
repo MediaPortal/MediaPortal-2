@@ -22,44 +22,25 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   class MediaLibraryMusicArtistItem : MediaLibraryContainer, IDirectoryMusicArtist
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-	    MediaAspect.ASPECT_ID,
-	    AudioAspect.ASPECT_ID,
-	    TranscodeItemAudioAspect.ASPECT_ID,
-	    ProviderResourceAspect.ASPECT_ID
-	  };
-
     public MediaLibraryMusicArtistItem(string id, string title, EndPointSettings client)
-      : base(id, title, NECESSARY_MIA_TYPE_IDS, null, new RelationalFilter(AudioAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
+      : base(id, title, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, new RelationalFilter(AudioAspect.ATTR_ARTISTS, RelationalOperator.EQ, title), client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Created music artist {0}={1}", id, title);
     }
 
     public override string Class
     {
-      get { return "object.container.artist.TODO"; }
+      get { return "object.container.person.musicArtist"; }
     }
 
-    public string LongDescription{ get; set; }
-    public string Description{ get; set; }
-
-    public IList<string> Language
-    {
-      get { throw new NotImplementedException(); }
-      set { throw new NotImplementedException(); }
-    }
+    public IList<string> Language { get; set; }
   }
 }

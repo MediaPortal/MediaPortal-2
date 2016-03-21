@@ -30,18 +30,12 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryMovieGenreContainer : BasicContainer
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-      MediaAspect.ASPECT_ID,
-      MovieAspect.ASPECT_ID,
-      TranscodeItemVideoAspect.ASPECT_ID
-    };
-
     public MediaLibraryMovieGenreContainer(string id, EndPointSettings client)
       : base(id, client)
     {
@@ -49,8 +43,10 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public HomogenousMap GetItems()
     {
+      List<Guid> necessaryMias = new List<Guid>(NECESSARY_MOVIE_MIA_TYPE_IDS);
+      if (necessaryMias.Contains(VideoAspect.ASPECT_ID)) necessaryMias.Remove(VideoAspect.ASPECT_ID); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(VideoAspect.ATTR_GENRES, null, ProjectionFunction.None, NECESSARY_MIA_TYPE_IDS, null, true);
+      return library.GetValueGroups(VideoAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true);
     }
 
     public override void Initialise()
@@ -59,7 +55,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       foreach (KeyValuePair<object, object> item in items)
       {
-        string title = (string)item.Key ?? "<Unknown>";
+        if (item.Key == null) continue;
+        string title = item.Key.ToString();
         string key = Id + ":" + title;
 
         Add(new MediaLibraryMovieGenreItem(key, title, Client));

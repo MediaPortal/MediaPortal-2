@@ -22,15 +22,18 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryEpisodeItem : MediaLibraryVideoItem
+  internal class MediaLibrarySeriesUnwatchedContainer : MediaLibrarySeriesEpisodeFilterContainer
   {
-    public MediaLibraryEpisodeItem(MediaItem item, EndPointSettings client)
-      : base(item, client)
+    public MediaLibrarySeriesUnwatchedContainer(string id, EndPointSettings client)
+      : base(id, BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+        new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT),
+        new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0)), client)
     {
     }
   }

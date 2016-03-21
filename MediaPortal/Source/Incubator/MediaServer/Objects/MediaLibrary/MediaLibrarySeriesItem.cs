@@ -24,45 +24,108 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common.General;
+using MediaPortal.Common;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibrarySeriesItem : MediaLibraryContainer
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-      MediaAspect.ASPECT_ID,
-      SeriesAspect.ASPECT_ID,
-    };
+    private IFilter _episodeFilter = null;
 
-    public MediaLibrarySeriesItem(MediaItem item, EndPointSettings client)
-      : base(item, NECESSARY_MIA_TYPE_IDS, null, new RelationshipFilter(item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON), client)
+    public MediaLibrarySeriesItem(MediaItem item, IFilter epsiodeFilter, EndPointSettings client)
+      : base(item, NECESSARY_SEASON_MIA_TYPE_IDS, OPTIONAL_SEASON_MIA_TYPE_IDS, null, client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Create season {0}={1}", Item.MediaItemId, Title);
+      _episodeFilter = epsiodeFilter;
+
+      Genre = new List<string>();
+      Artist = new List<string>();
+      Contributor = new List<string>();
+
+      if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
+      {
+        SingleMediaItemAspect seriesAspect;
+        if (MediaItemAspect.TryGetAspect(Item.Aspects, SeriesAspect.Metadata, out seriesAspect))
+        {
+          var descriptionObj = seriesAspect.GetAttributeValue(SeriesAspect.ATTR_DESCRIPTION);
+          if (descriptionObj != null)
+            Description = descriptionObj.ToString();
+        }
+      }
+
+      //Support alternative ways to get album art
+      var albumArt = new MediaLibraryAlbumArt(Item, Client);
+      if (albumArt != null)
+      {
+        albumArt.Initialise();
+        if (Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.Resource)
+        {
+          var albumResource = new MediaLibraryAlbumArtResource(albumArt);
+          albumResource.Initialise();
+          Resources.Add(albumResource);
+        }
+        if (Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.AlbumArt)
+        {
+          AlbumArtUrl = albumArt.Uri;
+        }
+      }
+    }
+
+    public IList<MediaItem> GetItems()
+    {
+      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+      if (_episodeFilter != null)
+      {
+        List<Guid> necessaryMias = new List<Guid>(NECESSARY_EPISODE_MIA_TYPE_IDS);
+        if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID)) necessaryMias.Remove(EpisodeAspect.ASPECT_ID); //Group MIA cannot be present
+        HomogenousMap seasonItems = library.GetValueGroups(EpisodeAspect.ATTR_SEASON, null, ProjectionFunction.None, necessaryMias.ToArray(),
+          _episodeFilter, true);
+
+        List<object> seasonNumbers = new List<object>();
+        foreach (object o in seasonItems.Keys)
+        {
+          if (o is int)
+          {
+            seasonNumbers.Add(o);
+          }
+        }
+
+        return library.Search(new MediaItemQuery(NECESSARY_SEASON_MIA_TYPE_IDS, null,
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new InFilter(SeasonAspect.ATTR_SEASON, seasonNumbers),
+          new RelationshipFilter(Item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON)))
+          , true);
+      }
+      else
+      {
+        return library.Search(new MediaItemQuery(NECESSARY_SEASON_MIA_TYPE_IDS, null,
+          new RelationshipFilter(Item.MediaItemId, SeriesAspect.ROLE_SERIES, SeasonAspect.ROLE_SEASON)), true);
+      }
+    }
+
+    public override void Initialise()
+    {
+      _children.Clear();
+      IList<MediaItem> items = GetItems();
+      foreach (MediaItem item in items)
+      {
+        Add(new MediaLibrarySeasonItem(item, _episodeFilter, Client));
+      }
     }
 
     public override string Class
     {
-      get { return "object.container.series.TODO"; }
+      get { return "object.container.album.musicAlbum"; }
     }
 
-    public string StorageMedium { get; set; }
-    public string LongDescription { get; set; }
     public string Description { get; set; }
-    public IList<string> Publisher { get; set; }
     public IList<string> Contributor { get; set; }
-    public string Date { get; set; }
-    public string Relation { get; set; }
-    public IList<string> Rights { get; set; }
     public IList<string> Artist { get; set; }
     public IList<string> Genre { get; set; }
-    public IList<string> Producer { get; set; }
-    public string SeriesArtUrl { get; set; }
-    public string Toc { get; set; }
+    public string AlbumArtUrl { get; set; }
   }
 }

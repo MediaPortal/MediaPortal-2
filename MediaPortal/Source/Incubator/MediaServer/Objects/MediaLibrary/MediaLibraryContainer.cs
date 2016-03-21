@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
@@ -61,22 +62,32 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       //TODO: Check if this is correct handling of missing filter
-      if(_filter == null && Item != null)
-        return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds, 0, 100);
+      if (_filter == null && Item != null)
+      {
+        return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds);
+      }
       else
+      {
         return library.Search(new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, _filter), true);
+      }
+    }
+
+    public override List<IDirectoryObject> Browse(string sortCriteria)
+    {
+      _children.Sort();
+      return _children.Cast<IDirectoryObject>().ToList();
     }
 
     public override void Initialise()
     {
+      _children.Clear();
       IList<MediaItem> items = GetItems();
       foreach (MediaItem item in items)
       {
-        Add((BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item, this));
+        Add((BasicObject)MediaLibraryHelper.InstansiateMediaLibraryObject(item, this));
       }
     }
 
     public MediaItem Item { get; protected set; }
-	
   }
 }

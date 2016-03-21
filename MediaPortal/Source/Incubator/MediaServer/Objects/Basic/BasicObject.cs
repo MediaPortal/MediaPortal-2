@@ -24,25 +24,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
   public abstract class BasicObject : IEquatable<BasicObject>, IComparable<BasicObject>, IDirectoryObject
   {
-    public string Key { get; protected set; }
-    public BasicObject Parent { get; protected set; }
-
-    private List<BasicObject> _children;
-
-    public List<BasicObject> Children
-    {
-      get { return _children ?? (_children = new List<BasicObject>()); }
-    }
-
+    public string Key { get; private set; }
     public EndPointSettings Client { get; private set; }
+
+    public BasicObject Parent { get; set; }
 
     protected BasicObject(string key, EndPointSettings client)
     {
@@ -79,51 +73,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 	
     public abstract void Initialise();
 
-    public void Add(BasicObject node)
-    {
-      Console.WriteLine("TreeNode::Add entry, {0} to {1}", node.Key, Key);
-      node.Parent = this;
-      if (!Children.Contains(node))
-      {
-        Children.Add(node);
-      }
-      Console.WriteLine("TreeNode::Add exit, {0} children", Children.Count);
-    }
-
-    //       public TreeNode<T> FindNode(string key)
-    //       {
-    //           return Key == key ? this : Children.FindNode(key);
-    //       }
-
-    public virtual BasicObject FindNode(string key)
-    {
-      return Key == key ? this : Children.Select(node => node.FindNode(key)).FirstOrDefault(n => n != null);
-    }
-
-	  public void Sort()
-    {
-        if (_children != null)
-        {
-            Children.Sort();
-            foreach (var node in Children)
-            {
-                node.Sort();
-            }
-        }
-    }
-
-    public List<IDirectoryObject> Browse(string filter, string sortCriteria)
-    {
-      // TODO: Need to sort based on sortCriteria.
-
-      return Children.Cast<IDirectoryObject>().ToList();
-    }
-
-    public BasicObject FindObject(string objectId)
-    {
-      return Key == objectId ? this : Children.Select(node => node.FindNode(objectId)).FirstOrDefault(n => n != null);
-    }
-
     public bool Equals(BasicObject other)
     {
       if ((object)other == null)
@@ -137,18 +86,9 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       return Title.CompareTo(other.Title);
     }
 
-    public static bool operator ==(BasicObject x, BasicObject y)
+    internal static ILogger Logger
     {
-      if ((object)x == null || (object)y == null)
-        return Object.Equals(x, y);
-      return string.Equals(x.Key, y.Key, StringComparison.InvariantCultureIgnoreCase);
-    }
-
-    public static bool operator !=(BasicObject x, BasicObject y)
-    {
-      if ((object)x == null || (object)y == null)
-        return !Object.Equals(x, y);
-      return !string.Equals(x.Key, y.Key, StringComparison.InvariantCultureIgnoreCase);
+      get { return ServiceRegistration.Get<ILogger>(); }
     }
   }
 }

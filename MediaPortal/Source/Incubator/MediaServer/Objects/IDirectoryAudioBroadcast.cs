@@ -27,8 +27,13 @@ namespace MediaPortal.Plugins.MediaServer.Objects
   /// <summary>
   /// An ‘audioBroadcast’ instance is a continuus stream of audio that should be interpreted as an audio broadcast (as opposed to, for example, a song or an audio book).
   /// </summary>
-  public interface IDirectoryAudioBroadcast : IDirectoryAudioItem
+  public interface IDirectoryAudioBroadcast : IDirectoryItem
   {
+    /// <summary>
+    /// Some icon that a control point can use in its UI to display the content, e.g. a CNN logo for a Tuner channel. Recommend same format as the icon element in the UPnP device description document schema. (PNG). Values must be properly escaped URIs as described in [RFC 2396].
+    /// </summary>
+    [DirectoryProperty("upnp:icon", Required = false)]
+    string Icon { get; set; }
     /// <summary>
     /// Some identification of the region, associated with the ‘source’ of the object, e.g. “US”, “Latin America”, “Seattlle”.
     /// </summary>
@@ -58,5 +63,11 @@ namespace MediaPortal.Plugins.MediaServer.Objects
     /// </summary>
     [DirectoryProperty("upnp:channelNr", Required = false)]
     int ChannelNr { get; set; }
+
+    /// <summary>
+    /// Used to identify the channel, not the program content.
+    /// </summary>
+    [DirectoryProperty("upnp:channelName", Required = false)]
+    string ChannelName { get; set; }
   }
 }

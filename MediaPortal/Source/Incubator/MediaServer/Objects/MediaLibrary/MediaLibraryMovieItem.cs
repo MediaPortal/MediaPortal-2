@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary

@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public void Initialise()
     {
       DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item, false);
-      var url = DlnaResourceAccessUtils.GetBaseResourceURL() + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId);
+      var url = DlnaResourceAccessUtils.GetBaseResourceURL() + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId.ToString());
       if (dlnaItem.IsSegmented == true)
       {
         url += "/playlist.m3u8";

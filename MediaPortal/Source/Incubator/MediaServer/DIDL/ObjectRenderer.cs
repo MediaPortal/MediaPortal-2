@@ -67,7 +67,11 @@ namespace MediaPortal.Plugins.MediaServer.DIDL
 
       foreach (var p in properties)
       {
-        if (!(p.Attribute.Required || filter.IsAllowed(p.Attribute.XmlPart))) continue;
+        if (!(p.Attribute.Required || filter.IsAllowed(p.Attribute.XmlPart)))
+        {
+          //Console.WriteLine("Ignored: " + p.Attribute.XmlPart);
+          continue;
+        }
 
         var match = Regex.Match(p.Attribute.XmlPart, @"(\w*):?(\w*)@?(\w*):?(\w*)");
 

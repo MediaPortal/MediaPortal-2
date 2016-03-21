@@ -64,6 +64,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\MediaServerClientManager.cs" />
     <Compile Include="Database\MediaServer_SubSchema.cs" />
     <Compile Include="DIDL\PacketVideoDidlMessageBuilder.cs" />
     <Compile Include="DIDL\PropertyFilter.cs" />
@@ -73,6 +74,29 @@
     <Compile Include="DLNA\DlnaMediaItem.cs" />
     <Compile Include="DLNA\DlnaProtocolInfo.cs" />
     <Compile Include="DLNA\DlnaProtocolInfoFactory.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryImageYearContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesEpisodeFilterContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesRecentContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesUnwatchedContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesAttributeGroupContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesAttributeGroupsContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryImageAlbumContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryYearItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryYearContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryUnwatchedContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryRecentContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryEpisodeRecentContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesGenresContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesActorsContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieActorsContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieActorItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMusicRecentContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieRecentContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryImageRecentContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieYearContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMovieUnwatchedContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryLiveResource.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryEpisodeUnwatchedContainer.cs" />
     <Compile Include="Filters\SimpleContentDirectoryFilter.cs" />
     <Compile Include="Filters\GenericContentDirectoryFilter.cs" />
     <Compile Include="Filters\SamsungContentDirectoryFilter.cs" />
@@ -115,12 +139,17 @@
     <Compile Include="Objects\IDirectoryVideoItem.cs" />
     <Compile Include="DIDL\GenericDidlMessageBuilder.cs" />
     <Compile Include="MediaServerPlugin.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryMusicYearContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesYearContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryVideoBroadcastItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryBroadcastChannelContainer.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryBroadcastGroupChannelContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryBrowser.cs" />
-    <Compile Include="Objects\MediaLibrary\MediaLibraryEpisodeItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryBroadcastGroupContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryMusicArtistContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryMusicArtistItem.cs" />
-    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesArtResource.cs" />
-    <Compile Include="Objects\MediaLibrary\MediaLibrarySeriesArt.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryAudioBroadcastItem.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryPlaylistContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumArt.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumArtResource.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryAlbumContainer.cs" />
@@ -141,7 +170,7 @@
     <Compile Include="Objects\MediaLibrary\MediaLibraryImageItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryMusicTrack.cs" />
-    <Compile Include="Objects\MediaLibrary\MediaLibraryPlaylist.cs" />
+    <Compile Include="Objects\MediaLibrary\MediaLibraryPlaylistItem.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryResource.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibraryShareContainer.cs" />
     <Compile Include="Objects\MediaLibrary\MediaLibrarySubtitle.cs" />
@@ -157,6 +186,8 @@
     <Compile Include="Protocols\XBoxProtocolHandler.cs" />
     <Compile Include="ResourceAccess\DlnaResourceAccessUtils.cs" />
     <Compile Include="ResourceAccess\DlnaResourceAccessModule.cs" />
+    <Compile Include="ResourceAccess\StreamControl.cs" />
+    <Compile Include="ResourceAccess\StreamItem.cs" />
     <Compile Include="Settings\MediaServerSettings.cs" />
     <Compile Include="Settings\ProfileLinks.cs" />
     <Compile Include="Parser\UPnP.g4.lexer.cs" />
@@ -192,13 +223,17 @@
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
       <Name>UPnP</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+      <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
+      <Name>FanArtService.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
       <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TranscodingService\TranscodingService.csproj">
-      <Project>{38eded2d-21cc-4ffc-b1f4-2597e4823b7a}</Project>
-      <Name>TranscodingService</Name>
+    <ProjectReference Include="..\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj">
+      <Project>{5057ebd5-a262-42a6-a975-360730cfe322}</Project>
+      <Name>TranscodingService.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

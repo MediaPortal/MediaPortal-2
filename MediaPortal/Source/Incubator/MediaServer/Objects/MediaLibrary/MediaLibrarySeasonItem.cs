@@ -24,8 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -33,22 +31,50 @@ using MediaPortal.Plugins.MediaServer.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibrarySeasonItem : MediaLibraryContainer
+  public class MediaLibrarySeasonItem : MediaLibraryContainer, IDirectoryMusicAlbum
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-      MediaAspect.ASPECT_ID,
-      SeasonAspect.ASPECT_ID,
-    };
-
-    public MediaLibrarySeasonItem(MediaItem item, EndPointSettings client)
-      : base(item, NECESSARY_MIA_TYPE_IDS, null, new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE), client)
+    public MediaLibrarySeasonItem(MediaItem item, IFilter episodeFilter, EndPointSettings client)
+      : base(item, NECESSARY_EPISODE_MIA_TYPE_IDS, OPTIONAL_EPISODE_MIA_TYPE_IDS, 
+          episodeFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, episodeFilter, 
+            new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE)) :
+           new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE), client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Create season {0}={1}", Item.MediaItemId, Title);
+      Genre = new List<string>();
+      Artist = new List<string>();
+      Contributor = new List<string>();
+
+      if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
+      {
+        SingleMediaItemAspect seriesAspect;
+        if (MediaItemAspect.TryGetAspect(Item.Aspects, SeasonAspect.Metadata, out seriesAspect))
+        {
+          var descriptionObj = seriesAspect.GetAttributeValue(SeasonAspect.ATTR_DESCRIPTION);
+          if (descriptionObj != null)
+            Description = descriptionObj.ToString();
+        }
+      }
+
+      //Support alternative ways to get album art
+      var albumArt = new MediaLibraryAlbumArt(Item, Client);
+      if (albumArt != null)
+      {
+        albumArt.Initialise();
+        if (Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.Resource)
+        {
+          var albumResource = new MediaLibraryAlbumArtResource(albumArt);
+          albumResource.Initialise();
+          Resources.Add(albumResource);
+        }
+        if (Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || Client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.AlbumArt)
+        {
+          AlbumArtUrl = albumArt.Uri;
+        }
+      }
     }
 
     public override string Class
     {
-      get { return "object.container.series.TODO"; }
+      get { return "object.container.album.musicAlbum"; }
     }
 
     public string StorageMedium { get; set; }
@@ -62,7 +88,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public IList<string> Artist { get; set; }
     public IList<string> Genre { get; set; }
     public IList<string> Producer { get; set; }
-    public string SeriesArtUrl { get; set; }
+    public string AlbumArtUrl { get; set; }
     public string Toc { get; set; }
   }
 }

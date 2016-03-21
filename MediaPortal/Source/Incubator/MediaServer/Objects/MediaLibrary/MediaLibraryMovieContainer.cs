@@ -26,25 +26,14 @@ using System;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryMovieContainer : MediaLibraryContainer
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-      MediaAspect.ASPECT_ID,
-      MovieAspect.ASPECT_ID,
-      TranscodeItemVideoAspect.ASPECT_ID,
-      TranscodeItemVideoAudioAspect.ASPECT_ID,
-    };
-
-    private static readonly Guid[] OPTIONAL_MIA_TYPE_IDS = {
-      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
-    };
-
     public MediaLibraryMovieContainer(string baseKey, IFilter filter, EndPointSettings client)
-      : base(baseKey, "Movies", NECESSARY_MIA_TYPE_IDS, OPTIONAL_MIA_TYPE_IDS, filter, client)
+      : base(baseKey, "Movies", NECESSARY_MOVIE_MIA_TYPE_IDS, OPTIONAL_MOVIE_MIA_TYPE_IDS, filter, client)
     {
     }
   }

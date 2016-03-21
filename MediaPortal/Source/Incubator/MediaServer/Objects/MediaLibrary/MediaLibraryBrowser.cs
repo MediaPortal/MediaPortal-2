@@ -22,45 +22,16 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryBrowser : MediaLibraryContainer
   {
-    private static readonly Guid[] NECSSARY_MIA_TYPE_IDS = {
-      ProviderResourceAspect.ASPECT_ID,
-      MediaAspect.ASPECT_ID,
-    };
-
-    private static readonly Guid[] OPTIONAL_MIA_TYPE_IDS = {
-      DirectoryAspect.ASPECT_ID,
-      VideoAspect.ASPECT_ID,
-      AudioAspect.ASPECT_ID,
-      ImageAspect.ASPECT_ID,
-      TranscodeItemAudioAspect.ASPECT_ID,
-      TranscodeItemImageAspect.ASPECT_ID,
-      TranscodeItemVideoAspect.ASPECT_ID,
-      TranscodeItemVideoAudioAspect.ASPECT_ID,
-      TranscodeItemVideoEmbeddedAspect.ASPECT_ID,
-    };
-
     public MediaLibraryBrowser(MediaItem item, EndPointSettings client)
-      : base(item, NECSSARY_MIA_TYPE_IDS, OPTIONAL_MIA_TYPE_IDS, null, client)
+      : base(item, NECSSARY_GENERIC_MIA_TYPE_IDS, OPTIONAL_GENERIC_MIA_TYPE_IDS, null, client)
     {
-    }
-
-    public IList<MediaItem> GetItems()
-    {
-      IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.Browse(Item.MediaItemId, NECSSARY_MIA_TYPE_IDS, OPTIONAL_MIA_TYPE_IDS);
     }
   }
 }

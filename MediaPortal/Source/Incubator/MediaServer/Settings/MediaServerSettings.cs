@@ -19,11 +19,6 @@
 #endregion
 
 using MediaPortal.Common.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MediaServer.Settings
 {
@@ -33,6 +28,7 @@ namespace MediaPortal.Plugins.MediaServer.Settings
     {
       TranscodingAllowed = true;
       HardcodedSubtitlesAllowed = true;
+      UpdateWatchCount = true;
       PreferredSubtitleLanguages = "EN";
       DefaultSubtitleEncodings = "";
       PreferredAudioLanguages = "EN";
@@ -42,6 +38,8 @@ namespace MediaPortal.Plugins.MediaServer.Settings
     public bool TranscodingAllowed { get; private set; }
     [Setting(SettingScope.Global)]
     public bool HardcodedSubtitlesAllowed { get; private set; }
+    [Setting(SettingScope.Global)]
+    public bool UpdateWatchCount { get; private set; }
     [Setting(SettingScope.Global)]
     public string PreferredSubtitleLanguages { get; private set; }
     [Setting(SettingScope.Global)]

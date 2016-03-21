@@ -22,29 +22,17 @@
 
 #endregion
 
-using System;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   class MediaLibraryMusicGenreItem : MediaLibraryContainer, IDirectoryMusicGenre
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-        MediaAspect.ASPECT_ID,
-        AudioAspect.ASPECT_ID,
-        TranscodeItemAudioAspect.ASPECT_ID,
-        ProviderResourceAspect.ASPECT_ID
-      };
-
     public MediaLibraryMusicGenreItem(string id, string title, EndPointSettings client)
-      : base(id, title, NECESSARY_MIA_TYPE_IDS, null, new RelationalFilter(AudioAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
+      : base(id, title, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, new RelationalFilter(AudioAspect.ATTR_GENRES, RelationalOperator.EQ, title), client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Created music genre {0}={1}", id, title);
     }
 
     public override string Class

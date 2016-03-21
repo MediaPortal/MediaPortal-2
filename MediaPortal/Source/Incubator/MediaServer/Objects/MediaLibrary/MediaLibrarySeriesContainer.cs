@@ -22,8 +22,6 @@
 
 #endregion
 
-using System;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
@@ -31,13 +29,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibrarySeriesContainer : MediaLibraryContainer
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-      MediaAspect.ASPECT_ID,
-      SeriesAspect.ASPECT_ID,
-    };
-
     public MediaLibrarySeriesContainer(string baseKey, IFilter filter, EndPointSettings client)
-      : base(baseKey, "Series", NECESSARY_MIA_TYPE_IDS, null, filter, client)
+      : base(baseKey, "Series", NECESSARY_SERIES_MIA_TYPE_IDS, null, filter, client)
     {
     }
   }

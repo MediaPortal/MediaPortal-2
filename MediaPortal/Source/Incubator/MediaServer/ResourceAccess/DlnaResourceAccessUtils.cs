@@ -34,10 +34,12 @@ using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Service;
 using MediaPortal.Utilities.Network;
-using MediaPortal.Plugins.Transcoding.Service.Objects;
-using MediaPortal.Plugins.Transcoding.Service.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 
 namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 {
@@ -56,13 +58,14 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
     public const string SYNTAX = RESOURCE_ACCESS_PATH + "/[media item guid]";
 
-    public static string GetResourceUrl(Guid mediaItem)
+    public static string GetResourceUrl(string mediaItem)
     {
       return RESOURCE_ACCESS_PATH + "/" + mediaItem;
     }
 
     public static bool ParseMediaItem(Uri resourceUri, out Guid mediaItemGuid)
     {
+      mediaItemGuid = Guid.Empty;
       try
       {
         var r = Regex.Match(resourceUri.PathAndQuery, RESOURCE_ACCESS_PATH + @"\/([\w-]*)\/?");
@@ -71,16 +74,56 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         {
           mediaItem = mediaItem.Substring(0, mediaItem.IndexOf("."));
         }
-        mediaItemGuid = new Guid(mediaItem);
+        if (Guid.TryParse(mediaItem, out mediaItemGuid))
+        {
+          return true;
+        }
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("ParseMediaItem: Failed with input url {0}", e, resourceUri.OriginalString);
-        mediaItemGuid = Guid.Empty;
-        return false;
       }
 
-      return true;
+      return false;
+    }
+
+    public static bool ParseRadioChannel(Uri resourceUri, out int radioChannel)
+    {
+      radioChannel = 0;
+      try
+      {
+
+        var r = Regex.Match(resourceUri.PathAndQuery, RESOURCE_ACCESS_PATH + @"\/5244494F-0000-0000-0000-([\w-]*)\/?");
+        var channel = r.Groups[1].Value;
+        if (int.TryParse(channel, out radioChannel))
+        {
+          return true;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ParseRadioChannel: Failed with input url {0}", e, resourceUri.OriginalString);
+      }
+      return false;
+    }
+
+    public static bool ParseTVChannel(Uri resourceUri, out int tvChannel)
+    {
+      tvChannel = 0;
+      try
+      {
+        var r = Regex.Match(resourceUri.PathAndQuery, RESOURCE_ACCESS_PATH + @"\/54560000-0000-0000-0000-([\w-]*)\/?");
+        var channel = r.Groups[1].Value;
+        if (int.TryParse(channel, out tvChannel))
+        {
+          return true;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ParseTVChannel: Failed with input url {0}", e, resourceUri.OriginalString);
+      }
+      return false;
     }
 
     public static bool UseSoftCodedSubtitle(EndPointSettings client, out SubtitleCodec targetCodec, out string targetMime)
@@ -93,7 +136,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         if (string.IsNullOrEmpty(client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Mime) == false)
           targetMime = client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Mime;
         else
-          targetMime = MediaConverter.GetSubtitleMime(targetCodec);
+          targetMime = Subtitles.GetSubtitleMime(targetCodec);
         return true;
       }
       return false;
@@ -146,14 +189,63 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       if (dlnaItem.IsTranscoded && dlnaItem.IsVideo)
       {
         VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
-        if (SubtitleHelper.IsSubtitleAvailable(video)) return true;
+        if (Subtitles.IsSubtitleAvailable(video)) return true;
       }
       else if (dlnaItem.IsVideo)
       {
         VideoTranscoding subtitle = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
-        if (SubtitleHelper.IsSubtitleAvailable(subtitle)) return true;
+        if (Subtitles.IsSubtitleAvailable(subtitle)) return true;
       }
       return false;
+    }
+
+    public static string GetThumbnailBaseURL(MediaItem item, EndPointSettings client)
+    {
+      //bool useFanart = false;
+      //if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+      //{
+      //  useFanart = true;
+      //}
+      //else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+      //{
+      //  useFanart = true;
+      //}
+
+      string url;
+      bool useFanart = true;
+      if (useFanart)
+      {
+        string mediaType = FanArtMediaTypes.Undefined;
+        if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Image;
+        else if (item.Aspects.ContainsKey(MovieAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Movie;
+        else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Series;
+        else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Audio;
+        else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Album;
+        else if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Episode;
+        else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.SeriesSeason;
+
+        // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
+        url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}&name={3}&width={4}&height={5}",
+          GetBaseResourceURL(), mediaType, FanArtTypes.Thumbnail, item.MediaItemId, 
+          client.Profile.Settings.Thumbnails.MaxWidth, client.Profile.Settings.Thumbnails.MaxHeight);
+      }
+      else
+      {
+        // Using MP2's thumbnails
+        url = string.Format("{0}{1}?aspect={2}&width={3}&height={4}",
+          GetBaseResourceURL(), GetResourceUrl(item.MediaItemId.ToString()), "THUMBNAIL", 
+          client.Profile.Settings.Thumbnails.MaxWidth, client.Profile.Settings.Thumbnails.MaxHeight);
+      }
+      return url;
+    }
+
+    public static string GetChannelLogoBaseURL(string channelName, EndPointSettings client, bool isTV)
+    {
+      string mediaType = isTV ? FanArtMediaTypes.ChannelTv : FanArtMediaTypes.ChannelRadio;
+      string url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}l&name={3}&width={4}&height={5}",
+          GetBaseResourceURL(), mediaType, FanArtTypes.Thumbnail, WebUtility.UrlEncode(channelName),
+          client.Profile.Settings.Thumbnails.MaxWidth, client.Profile.Settings.Thumbnails.MaxHeight);
+      return url;
     }
 
     public static string GetSubtitleBaseURL(MediaItem item, EndPointSettings client, out string subMime, out string subExtension)
@@ -192,7 +284,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         }
 
         return string.Format(GetBaseResourceURL()
-                    + GetResourceUrl(item.MediaItemId)
+                    + GetResourceUrl(item.MediaItemId.ToString())
                     + "?aspect=SUBTITLE&type={0}&file=subtitle.{1}", subType, subExtension);
       }
       return null;

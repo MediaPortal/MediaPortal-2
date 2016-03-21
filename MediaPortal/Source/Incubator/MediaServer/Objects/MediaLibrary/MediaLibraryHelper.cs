@@ -30,7 +30,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Plugins.Transcoding.Aspects;
+using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -41,6 +41,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public const string CONTAINER_VIDEO_KEY = "V";
     public const string CONTAINER_IMAGES_KEY = "I";
     public const string CONTAINER_MEDIA_SHARES_KEY = "M";
+    public const string CONTAINER_BROADCAST_KEY = "B";
 
     public static MediaItem GetMediaItem(Guid id)
     {
@@ -60,6 +61,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
                                    TranscodeItemAudioAspect.ASPECT_ID,
                                    TranscodeItemImageAspect.ASPECT_ID,
                                    TranscodeItemVideoAspect.ASPECT_ID,
+                                   TranscodeItemVideoAudioAspect.ASPECT_ID,
+                                   TranscodeItemVideoEmbeddedAspect.ASPECT_ID
                                  };
 
       return library.GetMediaItem(id, necessaryMIATypeIDs, optionalMIATypeIDs);
@@ -96,6 +99,14 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         {
           obj = new MediaLibraryVideoItem(item, parent.Client);
         }
+        else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        {
+          obj = new MediaLibrarySeriesItem(item, null, parent.Client);
+        }
+        else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        {
+          obj = new MediaLibrarySeasonItem(item, null, parent.Client);
+        }
         else
         {
           Logger.Warn("MediaServer item {0} {1} contains no valid aspects", item.MediaItemId, title);
@@ -117,10 +128,10 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       }
 
       // Initialise the object
-      if (obj is MediaLibraryItem)
-      {
-        ((MediaLibraryItem)obj).Initialise();
-      }
+      //if (obj is MediaLibraryItem)
+      //{
+      //  ((MediaLibraryItem)obj).Initialise();
+      //}
       obj.Restricted = true;
       Logger.Debug("Created object of type {0} for MediaItem {1}", obj.GetType().Name, item.MediaItemId);
       if (title != null)

@@ -28,7 +28,6 @@ using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
@@ -36,15 +35,6 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryShareContainer : BasicContainer
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-	    ProviderResourceAspect.ASPECT_ID,
-	    MediaAspect.ASPECT_ID,
-	  };
-
-    private static readonly Guid[] OPTIONAL_MIA_TYPE_IDS = {
-       DirectoryAspect.ASPECT_ID
-     };
-	
     protected IList<string> CategoryFilter { get; set; }
 
     public MediaLibraryShareContainer(string id, EndPointSettings client, params string[] categories)
@@ -64,25 +54,25 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
         return library.GetShares(null);
       }
 
-        Dictionary<Guid, Share> shares = new Dictionary<Guid, Share>();
-        foreach (KeyValuePair<Guid, Share> share in library.GetShares(null))
+      Dictionary<Guid, Share> shares = new Dictionary<Guid, Share>();
+      foreach (KeyValuePair<Guid, Share> share in library.GetShares(null))
+      {
+        foreach (string category in CategoryFilter)
         {
-          foreach(string category in CategoryFilter)
+          if (share.Value.MediaCategories.Where(x => x.Contains(category)).FirstOrDefault() != null)
           {
-            if(share.Value.MediaCategories.Where(x => x.Contains(category)).FirstOrDefault() != null)
-            {
-              shares.Add(share.Key, share.Value);
-              break;
-            }
+            shares.Add(share.Key, share.Value);
+            break;
           }
         }
-        return shares;
+      }
+      return shares;
     }
 
     public override void Initialise()
     {
-      Console.WriteLine("MediaLibraryShareContainer::Initialise");
-	  
+      Console.WriteLine("MediaLibraryShareContainer: Initialise");
+
       IDictionary<Guid, Share> shares = GetShares();
 
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
@@ -93,14 +83,14 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
                    {
                      Item = library.LoadItem(share.Value.SystemId,
                                              share.Value.BaseResourcePath,
-                                             NECESSARY_MIA_TYPE_IDS,
-                                             OPTIONAL_MIA_TYPE_IDS),
+                                             NECESSARY_SHARE_MIA_TYPE_IDS,
+                                             OPTIONAL_SHARE_MIA_TYPE_IDS),
                      ShareName = share.Value.Name
                    }).ToList();
       foreach (var item in items)
       {
-        if(item.Item != null)
-          Add((BasicItem)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, parent, item.ShareName));
+        if (item.Item != null)
+          Add((BasicObject)MediaLibraryHelper.InstansiateMediaLibraryObject(item.Item, parent, item.ShareName));
       }
     }
   }

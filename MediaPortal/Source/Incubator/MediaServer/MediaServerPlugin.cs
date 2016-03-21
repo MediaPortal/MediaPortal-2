@@ -76,7 +76,7 @@ namespace MediaPortal.Plugins.MediaServer
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       settingsManager.Save(Settings);
 
-      ProfileManager.SaveProfileLinks();
+      //ProfileManager.SaveProfileLinks();
     }
 
     public bool RequestEnd()

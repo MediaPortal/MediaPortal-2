@@ -37,13 +37,13 @@ namespace MediaPortal.Plugins.MediaServer
 {
   public class MediaServerUpnPDeviceInformation : ILocalizedDeviceInformation
   {
-    public const string RES_DEFAULT_FRIENDLY_NAME = "[MediaServer.DefaultFriendlyName]";
-    public const string RES_MANUFACTURER = "[MediaServer.Manufacturer]";
-    public const string RES_MANUFACTURER_URL = "[MediaServer.ManufacturerUrl]";
-    public const string RES_MODEL_DESCRIPTION = "[MediaServer.ModelDescription]";
-    public const string RES_MODEL_NAME = "[MediaServer.ModelName]";
-    public const string RES_MODEL_NUMBER = "[MediaServer.ModelNumber]";
-    public const string RES_MODEL_URL = "[MediaServer.ModelUrl]";
+    private const string RES_DEFAULT_FRIENDLY_NAME = "[MediaServer.DefaultFriendlyName]";
+    private const string RES_MANUFACTURER = "[MediaServer.Manufacturer]";
+    private const string RES_MANUFACTURER_URL = "[MediaServer.ManufacturerUrl]";
+    private const string RES_MODEL_DESCRIPTION = "[MediaServer.ModelDescription]";
+    private const string RES_MODEL_NAME = "[MediaServer.ModelName]";
+    private const string RES_MODEL_NUMBER = "[MediaServer.ModelNumber]";
+    private const string RES_MODEL_URL = "[MediaServer.ModelUrl]";
 
     public string FriendlyName = null;
     public string Manufacturer = null;

@@ -65,7 +65,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public override string Class
     {
-      get { return "object.item.imageItem"; }
+      get { return "object.item.imageItem.photo"; }
     }
 
     public string LongDescription { get; set; }

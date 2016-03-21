@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Plugins.Transcoding.Service.Objects;
+using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 
 namespace MediaPortal.Plugins.MediaServer.DLNA
 {
@@ -113,6 +113,8 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         dlnaField.OperationsParameter.Show = false;
         dlnaField.FlagsParameter.Show = false;
         dlnaField.PlaySpeedParameter.Show = false;
+
+        dlnaField.ProfileParameter.ProfileName = item.DlnaProfile;
       }
       else
       {

@@ -40,7 +40,7 @@ using MediaPortal.Plugins.MediaServer.Filters;
 using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Plugins.MediaServer.Settings;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Plugins.Transcoding.Service.Profiles;
+using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -94,10 +94,17 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         LoadProfileLinks();
       }
 
-      // overwrite the automatic profile detection
-      if (headers["remote_addr"] != null && ProfileLinks.ContainsKey(IPAddress.Parse(headers["remote_addr"])))
+      if (headers["remote_addr"] == null)
       {
-        IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
+        Logger.Error("DetectProfile: Couldn't find Header 'remote_addr'!");
+        return null;
+      }
+
+      IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
+
+      // overwrite the automatic profile detection
+      if (ProfileLinks.ContainsKey(ip))
+      {
         if (ProfileLinks[ip].Profile != null)
         {
           //Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
@@ -108,12 +115,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           //Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: None", ip);
           return null;
         }
-      }
-
-      if (headers["remote_addr"] == null)
-      {
-        Logger.Warn("DetectProfile: Couldn't find Header 'remote_addr'!");
-      }
+      }      
 
       foreach (KeyValuePair<string, EndPointProfile> profile in Profiles)
       {
@@ -121,18 +123,17 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         foreach (Detection detection in profile.Value.Detections)
         {
           // check if HTTP header matches
-          if (detection.HttpHeaders.Count > 0) match = true;
-          foreach (KeyValuePair<string, string> header in detection.HttpHeaders)
+          if (detection.HttpHeaders.Count > 0)
           {
-            if (headers[header.Key] == null)
+            match = true;
+
+            foreach (KeyValuePair<string, string> header in detection.HttpHeaders)
             {
-              match = false;
-              break;
-            }
-            if (header.Value == null || Regex.IsMatch(headers[header.Key], header.Value, RegexOptions.IgnoreCase) == false)
-            {
-              match = false;
-              break;
+              if (header.Value != null && (headers[header.Key] == null || !Regex.IsMatch(headers[header.Key], header.Value, RegexOptions.IgnoreCase)))
+              {
+                match = false;
+                break;
+              }
             }
           }
 
@@ -140,25 +141,20 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           if (detection.HttpHeaders.Count > 0 && !match) break;
 
           // check UPnP Fields
-          if (match && detection.UPnPSearch.Count() > 0)
+          if (detection.UPnPSearch.Count() > 0)
           {
-            Logger.Info("DetectProfile: Matching UPnP Fields");
-            match = true;
-
-            if (headers["remote_addr"] == null)
-            {
-              break;
-            }
-            List<TrackedDevice> trackedDevices = MediaServerPlugin.Tracker.GeTrackedDevicesByIp(IPAddress.Parse(headers["remote_addr"]));
+            List<TrackedDevice> trackedDevices = MediaServerPlugin.Tracker.GeTrackedDevicesByIp(ip);
             if (trackedDevices == null || trackedDevices.Count == 0)
             {
               Logger.Warn("DetectProfile: No matching Devices");
               break;
             }
 
+            match = true;
+
             foreach (TrackedDevice trackedDevice in trackedDevices)
             {
-              if (trackedDevice.FriendlyName != null && (detection.UPnPSearch.FriendlyName != null && !Regex.IsMatch(trackedDevice.FriendlyName, detection.UPnPSearch.FriendlyName, RegexOptions.IgnoreCase)))
+              if (detection.UPnPSearch.FriendlyName != null && (trackedDevice.FriendlyName == null || !Regex.IsMatch(trackedDevice.FriendlyName, detection.UPnPSearch.FriendlyName, RegexOptions.IgnoreCase)))
               {
                 match = false;
 #if DEBUG
@@ -167,7 +163,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                 break;
               }
 
-              if (trackedDevice.ModelName != null && (detection.UPnPSearch.ModelName != null && !Regex.IsMatch(trackedDevice.ModelName, detection.UPnPSearch.ModelName, RegexOptions.IgnoreCase)))
+              if (detection.UPnPSearch.ModelName != null && (trackedDevice.ModelName == null || !Regex.IsMatch(trackedDevice.ModelName, detection.UPnPSearch.ModelName, RegexOptions.IgnoreCase)))
               {
                 match = false;
 #if DEBUG
@@ -176,7 +172,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                 break;
               }
 
-              if (trackedDevice.ModelNumber != null && (detection.UPnPSearch.ModelNumber != null && !Regex.IsMatch(trackedDevice.ModelNumber, detection.UPnPSearch.ModelNumber, RegexOptions.IgnoreCase)))
+              if (detection.UPnPSearch.ModelNumber != null && (trackedDevice.ModelNumber == null || !Regex.IsMatch(trackedDevice.ModelNumber, detection.UPnPSearch.ModelNumber, RegexOptions.IgnoreCase)))
               {
                 match = false;
 #if DEBUG
@@ -185,7 +181,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                 break;
               }
 
-              if (trackedDevice.ProductNumber != null && (detection.UPnPSearch.ProductNumber != null && !Regex.IsMatch(trackedDevice.ProductNumber, detection.UPnPSearch.ProductNumber, RegexOptions.IgnoreCase)))
+              if (detection.UPnPSearch.ProductNumber != null && (trackedDevice.ProductNumber == null || !Regex.IsMatch(trackedDevice.ProductNumber, detection.UPnPSearch.ProductNumber, RegexOptions.IgnoreCase)))
               {
                 match = false;
 #if DEBUG
@@ -194,7 +190,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                 break;
               }
 
-              if (trackedDevice.Server != null && (detection.UPnPSearch.Server != null && !Regex.IsMatch(trackedDevice.Server, detection.UPnPSearch.Server, RegexOptions.IgnoreCase)))
+              if (detection.UPnPSearch.Server != null && (trackedDevice.Server == null || !Regex.IsMatch(trackedDevice.Server, detection.UPnPSearch.Server, RegexOptions.IgnoreCase)))
               {
                 match = false;
 #if DEBUG
@@ -203,7 +199,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
                 break;
               }
 
-              if (trackedDevice.Manufacturer != null && (detection.UPnPSearch.Manufacturer != null && !Regex.IsMatch(trackedDevice.Manufacturer, detection.UPnPSearch.Manufacturer, RegexOptions.IgnoreCase)))
+              if (detection.UPnPSearch.Manufacturer != null && (trackedDevice.Manufacturer == null || !Regex.IsMatch(trackedDevice.Manufacturer, detection.UPnPSearch.Manufacturer, RegexOptions.IgnoreCase)))
               {
                 match = false;
 #if DEBUG
@@ -217,26 +213,16 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           if (match)
           {
             Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
-            if (headers["remote_addr"] != null)
-            {
-              IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
-              if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), profile.Value.ID));
-              return ProfileLinks[ip];
-            }
-            return GetEndPointSettings(profile.Key, profile.Value.ID);
+            if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), profile.Value.ID));
+            return ProfileLinks[ip];
           }
         }
       }
 
-      // no match => return Defaul Profile
+      // no match => return Default Profile
       Logger.Info("DetectProfile: No profile found => using {0}, headers={1}", DLNA_DEFAULT_PROFILE_ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
-      if (headers["remote_addr"] != null)
-      {
-        IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
-        if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
-        return ProfileLinks[ip];
-      }
-      return GetEndPointSettings(headers["remote_addr"], DLNA_DEFAULT_PROFILE_ID);
+      if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
+      return ProfileLinks[ip];
     }
 
     public static void LoadProfiles(bool userProfiles)

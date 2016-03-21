@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Profiles;
 
@@ -32,13 +30,8 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAlbumContainer : MediaLibraryContainer
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-      MediaAspect.ASPECT_ID,
-      AudioAlbumAspect.ASPECT_ID,
-    };
-
     public MediaLibraryAlbumContainer(string id, EndPointSettings client)
-      : base(id, "Albums", NECESSARY_MIA_TYPE_IDS, null, null, client)
+      : base(id, "Albums", NECESSARY_ALBUM_MIA_TYPE_IDS, OPTIONAL_ALBUM_MIA_TYPE_IDS, null, client)
     {
     }
   }

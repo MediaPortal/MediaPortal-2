@@ -30,17 +30,11 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryMusicGenreContainer : BasicContainer
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-        MediaAspect.ASPECT_ID,
-        TranscodeItemAudioAspect.ASPECT_ID
-      };
-
     public MediaLibraryMusicGenreContainer(string id, EndPointSettings client)
       : base(id, client)
     {
@@ -48,8 +42,10 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
     public HomogenousMap GetItems()
     {
+      List<Guid> necessaryMias = new List<Guid>(NECESSARY_MUSIC_MIA_TYPE_IDS);
+      if (necessaryMias.Contains(AudioAspect.ASPECT_ID)) necessaryMias.Remove(AudioAspect.ASPECT_ID); //Group MIA cannot be present
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      return library.GetValueGroups(AudioAspect.ATTR_GENRES, null, ProjectionFunction.None, NECESSARY_MIA_TYPE_IDS, null, true);
+      return library.GetValueGroups(AudioAspect.ATTR_GENRES, null, ProjectionFunction.None, necessaryMias.ToArray(), null, true);
     }
 
     public override void Initialise()
@@ -58,10 +54,11 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       foreach (KeyValuePair<object, object> item in items)
       {
-        string title = (string)item.Key ?? "<Unknown>";
+        if (item.Key == null) continue;
+        string title = item.Key.ToString();
         string key = Id + ":" + title;
 
-        Add(new MediaLibraryMovieGenreItem(key, title, Client));
+        Add(new MediaLibraryMusicGenreItem(key, title, Client));
       }
     }
   }

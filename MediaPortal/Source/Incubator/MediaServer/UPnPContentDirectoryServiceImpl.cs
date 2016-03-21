@@ -25,6 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Dv;
+using UPnP.Infrastructure.Dv.DeviceTree;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -38,10 +41,7 @@ using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Plugins.MediaServer.Parser;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
-using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.Dv;
-using UPnP.Infrastructure.Dv.DeviceTree;
+using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer
 {
@@ -338,17 +338,18 @@ namespace MediaPortal.Plugins.MediaServer
       // Find the container object requested
       //var parentDirectoryId = objectId == "0" ? Guid.Empty : MarshallingHelper.DeserializeGuid(objectId);
       var o = deviceClient.RootContainer.FindObject(objectId);
-      if (o == null)
+      if (o as BasicContainer == null)
       {
         // We failed to find the container requested
         // throw error!
-        throw new ArgumentException("ObjectID not found");
+        throw new ArgumentException(string.Format("Container with ObjectID {0} not found", objectId));
       }
-      Logger.Debug("MediaServer got object {0} / {1} : {2}, {3}", o, o.Id, o.Key, o.Title, o.Children.Count);
       deviceFilter.FilterContainerClassType(objectId, ref o);
       deviceFilter.FilterClassProperties(objectId, ref o);
 
-      Logger.Debug("MediaServer: Using didl content builder {0}", deviceClient.Profile.DirectoryContentBuilder);
+      BasicContainer c = o as BasicContainer;
+      Logger.Debug("MediaServer Got object {0} / {1} : {2}, {3}", c, c.Id, c.Key, c.Title, c.ChildCount);
+      Logger.Debug("MediaServer: Using DIDL content builder {0}", deviceClient.Profile.DirectoryContentBuilder);
       var msgBuilder = GenericDidlMessageBuilder.GetDidlMessageBuilder(deviceClient.Profile.DirectoryContentBuilder);
 
       // Start to build the XML DIDL-Lite document.
@@ -363,9 +364,9 @@ namespace MediaPortal.Plugins.MediaServer
           totalMatches = 1;
           break;
         case "BrowseDirectChildren":
-          // Create a new ContainerList based on search criteria
-          o.Initialise();
-          var resultList = o.Browse(filter, sortCriteria);
+          // Create a new object based on search criteria
+          c.Initialise();
+          var resultList = c.Browse(sortCriteria);
           Logger.Debug("MediaServer: Browse has {0} results", resultList.Count);
           totalMatches = resultList.Count;
 
@@ -483,6 +484,8 @@ namespace MediaPortal.Plugins.MediaServer
       {
         optionalMIATypes.Add(VideoAspect.ASPECT_ID);
         optionalMIATypes.Add(TranscodeItemVideoAspect.ASPECT_ID);
+        optionalMIATypes.Add(TranscodeItemVideoAudioAspect.ASPECT_ID);
+        optionalMIATypes.Add(TranscodeItemVideoEmbeddedAspect.ASPECT_ID);
       }
       if (necessaryMIATypes.Contains(AudioAspect.ASPECT_ID) == false)
       {
@@ -494,6 +497,10 @@ namespace MediaPortal.Plugins.MediaServer
         optionalMIATypes.Add(ImageAspect.ASPECT_ID);
         optionalMIATypes.Add(TranscodeItemImageAspect.ASPECT_ID);
       }
+      optionalMIATypes.Add(DirectoryAspect.ASPECT_ID);
+      optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
+      optionalMIATypes.Add(SeasonAspect.ASPECT_ID);
+
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter);
       searchQuery.Offset = startingIndex;
       searchQuery.Limit = requestedCount;

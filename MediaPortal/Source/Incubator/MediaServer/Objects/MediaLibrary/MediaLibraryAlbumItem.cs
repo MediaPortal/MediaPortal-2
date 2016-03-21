@@ -22,33 +22,22 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Aspects;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAlbumItem : MediaLibraryContainer, IDirectoryMusicAlbum
   {
-    private static readonly Guid[] NECESSARY_MIA_TYPE_IDS = {
-      MediaAspect.ASPECT_ID,
-      AudioAspect.ASPECT_ID,
-      TranscodeItemAudioAspect.ASPECT_ID,
-      ProviderResourceAspect.ASPECT_ID
-    };
-
     public MediaLibraryAlbumItem(MediaItem item, EndPointSettings client)
-      : base(item, NECESSARY_MIA_TYPE_IDS, null, new RelationshipFilter(item.MediaItemId, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK), client)
+      : base(item, NECESSARY_MUSIC_MIA_TYPE_IDS, OPTIONAL_MUSIC_MIA_TYPE_IDS, 
+          new RelationshipFilter(item.MediaItemId, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK), client)
     {
-      ServiceRegistration.Get<ILogger>().Debug("Created album {0}={1}", Item.MediaItemId, Title);
     }
 
     public override string Class

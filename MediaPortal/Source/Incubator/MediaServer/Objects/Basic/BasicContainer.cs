@@ -25,12 +25,107 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using System.Linq;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.Basic
 {
-  public class BasicContainer : BasicItem, IDirectoryContainer
+  public class BasicContainer : BasicObject, IDirectoryContainer
   {
-    protected readonly Dictionary<string, BasicObject> _children = new Dictionary<string, BasicObject>();
+    protected static readonly Guid[] NECSSARY_GENERIC_MIA_TYPE_IDS = {
+      ProviderResourceAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+    };
+    protected static readonly Guid[] OPTIONAL_GENERIC_MIA_TYPE_IDS = {
+      DirectoryAspect.ASPECT_ID,
+      VideoAspect.ASPECT_ID,
+      AudioAspect.ASPECT_ID,
+      ImageAspect.ASPECT_ID,
+      TranscodeItemAudioAspect.ASPECT_ID,
+      TranscodeItemImageAspect.ASPECT_ID,
+      TranscodeItemVideoAspect.ASPECT_ID,
+      TranscodeItemVideoAudioAspect.ASPECT_ID,
+      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
+    };
+
+    protected static readonly Guid[] NECESSARY_SHARE_MIA_TYPE_IDS = {
+      ProviderResourceAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+    };
+
+    protected static readonly Guid[] OPTIONAL_SHARE_MIA_TYPE_IDS = {
+       DirectoryAspect.ASPECT_ID
+     };
+
+    protected static readonly Guid[] NECESSARY_MUSIC_MIA_TYPE_IDS = {
+      ImporterAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+      AudioAspect.ASPECT_ID,
+      TranscodeItemAudioAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID
+    };
+    protected static readonly Guid[] OPTIONAL_MUSIC_MIA_TYPE_IDS = null;
+
+    protected static readonly Guid[] NECESSARY_ALBUM_MIA_TYPE_IDS = {
+      MediaAspect.ASPECT_ID,
+      AudioAlbumAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID
+    };
+    protected static readonly Guid[] OPTIONAL_ALBUM_MIA_TYPE_IDS = null;
+
+    protected static readonly Guid[] NECESSARY_EPISODE_MIA_TYPE_IDS = {
+      ImporterAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+      VideoAspect.ASPECT_ID,
+      EpisodeAspect.ASPECT_ID,
+      TranscodeItemVideoAspect.ASPECT_ID,
+      TranscodeItemVideoAudioAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID
+    };
+    protected static readonly Guid[] OPTIONAL_EPISODE_MIA_TYPE_IDS = {
+      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
+    };
+
+    protected static readonly Guid[] NECESSARY_SEASON_MIA_TYPE_IDS = {
+      MediaAspect.ASPECT_ID,
+      SeasonAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID
+    };
+    protected static readonly Guid[] OPTIONAL_SEASON_MIA_TYPE_IDS = null;
+
+    protected static readonly Guid[] NECESSARY_SERIES_MIA_TYPE_IDS = {
+      MediaAspect.ASPECT_ID,
+      SeriesAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID
+    };
+    protected static readonly Guid[] OPTIONAL_SERIES_MIA_TYPE_IDS = null;
+
+    protected static readonly Guid[] NECESSARY_IMAGE_MIA_TYPE_IDS = {
+      ImporterAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+      ImageAspect.ASPECT_ID,
+      TranscodeItemImageAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID
+    };
+    protected static readonly Guid[] OPTIONAL_IMAGE_MIA_TYPE_IDS = null;
+
+    protected static readonly Guid[] NECESSARY_MOVIE_MIA_TYPE_IDS = {
+      ImporterAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+      VideoAspect.ASPECT_ID,
+      MovieAspect.ASPECT_ID,
+      TranscodeItemVideoAspect.ASPECT_ID,
+      TranscodeItemVideoAudioAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID
+    };
+    protected static readonly Guid[] OPTIONAL_MOVIE_MIA_TYPE_IDS = {
+      TranscodeItemVideoEmbeddedAspect.ASPECT_ID
+    };
+
+    protected readonly List<BasicObject> _children = new List<BasicObject>();
+
+    private string _containerClass = "object.container";
 
     public BasicContainer(string id, EndPointSettings client) 
       : base(id, client)
@@ -40,16 +135,47 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       SearchClass = new List<IDirectorySearchClass>();
       CreateClass = new List<IDirectoryCreateClass>();
       WriteStatus = "NOT_WRITABLE";
-      Class = "object.container";
     }
 
-    protected void Add(BasicObject node)
+    public void Add(BasicObject node)
     {
       if (node == null) return;
       Console.WriteLine("BasicContainer::Add entry, {0} to {1}", node.Key, Key);
-      _children[node.Key] = node;
-	    base.Add(node);
+      node.Parent = this;
+      if (!_children.Contains(node))
+      {
+        _children.Add(node);
+      }
       Console.WriteLine("BasicContainer::Add exit, {0} children", _children.Count);
+    }
+
+    public virtual BasicObject FindObject(string key)
+    {
+      return Key == key ? this : _children
+        .Where(node => node is BasicContainer)
+        .Select(node => ((BasicContainer)node).FindObject(key))
+        .FirstOrDefault(n => n != null);
+    }
+
+    public void Sort()
+    {
+      _children.Sort();
+      //TODO: Sort children of children?
+      //foreach (BasicContainer container in _children)
+      //{
+      //  container.Sort();
+      //}
+    }
+
+    public virtual List<IDirectoryObject> Browse(string sortCriteria)
+    {
+      // TODO: Need to sort based on sortCriteria.
+      _children.Sort();
+      return _children.Cast<IDirectoryObject>().ToList();
+    }
+
+    public override void Initialise()
+    {
     }
 
     public void ContainerUpdated()
@@ -58,17 +184,23 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       LastUpdate = DateTime.Now;
     }
 
+    public override string Class
+    {
+      get { return _containerClass; }
+      set { _containerClass = value; }
+    }
+
+    public virtual IList<IDirectoryCreateClass> CreateClass { get; set; }
+
     public virtual IList<IDirectorySearchClass> SearchClass { get; set; }
 
     public virtual bool Searchable { get; set; }
 
     public virtual int ChildCount
     {
-      get { return Children.Count; }
+      get { return _children.Count; }
       set { } //Meaningless in this implementation
     }
-
-    public virtual IList<IDirectoryCreateClass> CreateClass { get; set; }
 
     public int UpdateId { get; set; }
 

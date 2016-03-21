@@ -27,6 +27,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.PathManager;
+using System;
 
 namespace MediaPortal.Plugins.MediaServer.Database
 {
@@ -50,16 +51,24 @@ namespace MediaPortal.Plugins.MediaServer.Database
       }
     }
 
-    public static IDbCommand SelectDlnaMediaInfoCommand(ITransaction transaction, out int systemIdIndex, out int lastHostNameIndex, out int lastClientNameIndex)
+    public static bool SelectAttachedClientsCommand(ITransaction transaction, string systemId, out string lastHostName, out string lastClientName)
     {
-      var result = transaction.CreateCommand();
-
-      //result.CommandText = "SELECT SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME FROM DLNA_MEDIA_INFO";
-
-      systemIdIndex = 0;
-      lastHostNameIndex = 1;
-      lastClientNameIndex = 2;
-      return result;
+      var command = transaction.CreateCommand();
+      command.CommandText = "SELECT LAST_HOSTNAME, LAST_CLIENT_NAME FROM ATTACHED_CLIENTS WHERE SYSTEM_ID = @SYSTEM_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
+      using (IDataReader reader = command.ExecuteReader())
+      {
+        if (reader.Read())
+        {
+          lastHostName = Convert.ToString(database.ReadDBValue(typeof(string), reader, 0));
+          lastClientName = Convert.ToString(database.ReadDBValue(typeof(string), reader, 1));
+          return true;
+        }
+      }
+      lastHostName = null;
+      lastClientName = null;
+      return false;
     }
 
     public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId, string hostName, string clientName)
@@ -73,14 +82,12 @@ namespace MediaPortal.Plugins.MediaServer.Database
       return result;
     }
 
-    public static IDbCommand UpdateAttachedClientDataCommand(ITransaction transaction, string systemId,
-                                                             SystemName system,
-                                                             string clientName)
+    public static IDbCommand UpdateAttachedClientDataCommand(ITransaction transaction, string systemId, string hostName, string clientName)
     {
       var result = transaction.CreateCommand();
       result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = @LAST_HOSTNAME, LAST_CLIENT_NAME = @LAST_CLIENT_NAME WHERE SYSTEM_ID = @SYSTEM_ID";
       ISQLDatabase database = transaction.Database;
-      database.AddParameter(result, "LAST_HOSTNAME", system == null ? null : system.HostName, typeof (string));
+      database.AddParameter(result, "LAST_HOSTNAME", hostName, typeof (string));
       database.AddParameter(result, "LAST_CLIENT_NAME", clientName, typeof (string));
       database.AddParameter(result, "SYSTEM_ID", systemId, typeof (string));
       return result;
