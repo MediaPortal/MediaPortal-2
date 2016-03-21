@@ -35,8 +35,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Include.Resources>
     <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
-    <Model x:Key="PowerMenuModel" Id="54F798AF-03E1-4A82-938E-D0D0DC608B1A"/>
-
+    
     <!-- Defines the default margins for the content area -->
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0,210,-4,-35" />
     
@@ -78,8 +77,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                    Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
 
-        <Grid x:Name="LeftPanel" Margin="-550,-130,10,5" VerticalAlignment="Stretch"
-              Width="550" HorizontalAlignment="Left">
+        <Grid x:Name="LeftPanel" Margin="-650,-130,10,5" VerticalAlignment="Stretch"
+              Width="650" HorizontalAlignment="Left">
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
@@ -99,14 +98,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Storyboard>
           </Grid.Resources>
           <Grid.Triggers>
-            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-              <Trigger.EnterActions>
-                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsKeyboardFocusWithin" Value="False" />
+                <Condition Property="IsMouseOver" Value="False" />
+              </MultiTrigger.Conditions>
+              <MultiTrigger.EnterActions>
                 <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-              </Trigger.ExitActions>
-            </Trigger>
+              </MultiTrigger.EnterActions>
+              <MultiTrigger.ExitActions>
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+              </MultiTrigger.ExitActions>
+            </MultiTrigger>
             <!-- Setting default state of menu to hidden -->
             <EventTrigger RoutedEvent="Screen.Show">
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
@@ -117,14 +120,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{ThemeResource SlideInStoryboard}"/>
               </DataTrigger.EnterActions>
               <DataTrigger.ExitActions>
-                <BeginStoryboard x:Name="SlideOut_BeginStoryboard" Storyboard="{ThemeResource SlideOutStoryboard}"/>
+                <!--BeginStoryboard x:Name="SlideOut_BeginStoryboard" Storyboard="{ThemeResource SlideOutStoryboard}"/-->
                 <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
               </DataTrigger.ExitActions>
               <Setter TargetName="MainMenu" Property="SetFocusPrio" Value="Highest" />
               <Setter TargetName="MainMenu" Property="SetFocus" Value="True" />
             </DataTrigger>
-          </Grid.Triggers>          
+          </Grid.Triggers>
           <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
             <ColumnDefinition Width="550"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
@@ -133,11 +137,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RenderTransform>
             <TranslateTransform X="0"/>
           </Grid.RenderTransform>
-          <Image Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
+          <Image Grid.Column="1" Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
           </Image>
           <!--Image Source="menu_bg.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,10,-60,10">   
           </Image-->
-          <Rectangle RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}"
+          <Rectangle Grid.Column="1" RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,67,0">
             <Rectangle.Fill>
               <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
@@ -145,8 +149,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
               </LinearGradientBrush>
             </Rectangle.Fill>
-          </Rectangle>       
-          <ListView x:Name="MainMenu" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="20,10,80,10"
+          </Rectangle>
+          <ListView x:Name="MainMenu" Grid.Column="1" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="20,10,80,10"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
@@ -155,15 +159,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
           <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource ButtonWideStyle_GrowOnly}"
-                  Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" Height="180" Margin="20,0,0,0"
+                  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Height="180" Margin="20,0,0,0"
                   IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
             <Image Source="hiddenmenu_tab.png" Stretch="Uniform" Margin="0,0,0,0"/>
           </Button>
         </Grid>
 
-        <Grid x:Name="TopPanel" Margin="0,-1100,10,5" VerticalAlignment="Top"
-              Width="550" HorizontalAlignment="Center">
+        <Grid x:Name="TopPanel" Margin="0,-1134,10,5" VerticalAlignment="Top"
+              Width="550" Height="900" HorizontalAlignment="Center">
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
@@ -172,7 +176,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Storyboard x:Key="SlideDownStoryboard" FillBehavior="HoldEnd">
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="TopPanel" Storyboard.TargetProperty="RenderTransform.Y">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.25" Value="850"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.25" Value="800"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
             <Storyboard x:Key="SlideUpStoryboard" FillBehavior="HoldEnd">
@@ -183,14 +187,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Storyboard>
           </Grid.Resources>
           <Grid.Triggers>
-            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-              <Trigger.EnterActions>
-                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsKeyboardFocusWithin" Value="False" />
+                <Condition Property="IsMouseOver" Value="False" />
+              </MultiTrigger.Conditions>
+              <MultiTrigger.EnterActions>
                 <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-              </Trigger.ExitActions>
-            </Trigger>
+              </MultiTrigger.EnterActions>
+              <MultiTrigger.ExitActions>
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+              </MultiTrigger.ExitActions>
+            </MultiTrigger>
             <!-- Setting default state of menu to hidden -->
             <EventTrigger RoutedEvent="Screen.Show">
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
@@ -201,7 +209,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <BeginStoryboard x:Name="SlideDown_BeginStoryboard" Storyboard="{ThemeResource SlideDownStoryboard}"/>
               </DataTrigger.EnterActions>
               <DataTrigger.ExitActions>
-                <BeginStoryboard x:Name="SlideUp_BeginStoryboard" Storyboard="{ThemeResource SlideUpStoryboard}"/>
+                <!--BeginStoryboard BeginStoryboardName="SlideUp_BeginStoryboard"/-->
                 <StopStoryboard BeginStoryboardName="SlideDown_BeginStoryboard"/>
               </DataTrigger.ExitActions>
               <Setter TargetName="TopMenu" Property="SetFocusPrio" Value="Highest" />
@@ -212,6 +220,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <ColumnDefinition Width="550"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="800"/>
           </Grid.RowDefinitions>
           <Grid.RenderTransform>
@@ -219,8 +228,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.RenderTransform>
           <!--Image Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
           </Image-->
-          <Rectangle RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}"
-                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,67,0">
+          <Rectangle Grid.Row="1" RadiusX="{ThemeResource DialogBorderCornerRadius}" RadiusY="{ThemeResource DialogBorderCornerRadius}"
+                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,67">
             <Rectangle.Fill>
               <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}"/>
@@ -228,7 +237,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </LinearGradientBrush>
             </Rectangle.Fill>
           </Rectangle>
-          <ListView x:Name="TopMenu" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="20,10,80,10"
+          <ListView x:Name="TopMenu" Grid.Row="1" Style="{ThemeResource HiddenMenuListViewStyle}" Margin="10,20,10,80"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
@@ -237,10 +246,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
           <Button x:Name="MenuShowTopButton" Content="Menu" Style="{ThemeResource ButtonWideStyle_GrowOnly}"
-                  Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Height="60" Margin="0,0,0,0"
+                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Width="180" Margin="0,0,0,0"
                   IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
-            <Image Source="hiddenmenu_tab_up.png" Stretch="Uniform" Margin="-40,57,0,-57"/>
+            <Image Source="hiddenmenu_tab_up.png" Stretch="Uniform" Margin="-40,0,0,0"/>
           </Button>
         </Grid>
         

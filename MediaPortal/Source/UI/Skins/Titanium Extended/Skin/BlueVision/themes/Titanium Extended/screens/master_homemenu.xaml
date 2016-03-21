@@ -319,7 +319,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Row="0" Content="[Games.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
+            <!--Label Grid.Row="0" Content="[Games.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/-->
             <ListView x:Name="Cames" Grid.Row="1" ItemsSource="{Binding Games}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
@@ -455,7 +455,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Label>
           </Grid>
 
-          <Grid x:Name="PowerBottomPanel" Margin="30,5,-30,-600" VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="2"
+          <Grid x:Name="PowerBottomPanel" Margin="30,5,-30,-800" VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="2"
                   Width="550" HorizontalAlignment="Center">
             <Grid.Resources>
               <Model x:Key="PowerMenuModel" Id="54F798AF-03E1-4A82-938E-D0D0DC608B1A"/>
@@ -467,43 +467,50 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </Storyboard>
               <Storyboard x:Key="SlideDownStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PowerBottomPanel" Storyboard.TargetProperty="RenderTransform.Y">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-600"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.01" Value="-500"/>
                   <SplineDoubleKeyFrame KeyTime="00:00:00.25" Value="0"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
             </Grid.Resources>
             <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Trigger.EnterActions>
-                  <TriggerCommand Command="{Command Source={StaticResource PowerMenuModel}, Path=OpenMenu}"/>
-                </Trigger.EnterActions>
-                <Trigger.ExitActions>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="IsKeyboardFocusWithin" Value="False" />
+                  <Condition Property="IsMouseOver" Value="False" />
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
                   <TriggerCommand Command="{Command Source={StaticResource PowerMenuModel}, Path=CloseMenu}"/>
-                </Trigger.ExitActions>
-              </Trigger>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                  <TriggerCommand Command="{Command Source={StaticResource PowerMenuModel}, Path=OpenMenu}"/>
+                </MultiTrigger.ExitActions>
+              </MultiTrigger>
+              
               <!-- Setting default state of menu to hidden -->
               <EventTrigger RoutedEvent="Screen.Show">
                 <TriggerCommand Command="{Command Source={StaticResource PowerMenuModel}, Path=CloseMenu}"/>
+                <StopStoryboard BeginStoryboardName="SlideDown_BeginStoryboard"/>
               </EventTrigger>
+              
               <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
               <DataTrigger Binding="{Binding Source={StaticResource PowerMenuModel},Path=IsMenuOpen}" Value="True">
                 <DataTrigger.EnterActions>
                   <BeginStoryboard x:Name="SlideUp_BeginStoryboard" Storyboard="{ThemeResource SlideUpStoryboard}"/>
                 </DataTrigger.EnterActions>
                 <DataTrigger.ExitActions>
-                  <BeginStoryboard x:Name="SlideDown_BeginStoryboard" Storyboard="{ThemeResource SlideDownStoryboard}"/>
+                  <!--BeginStoryboard x:Name="SlideDown_BeginStoryboard" Storyboard="{ThemeResource SlideDownStoryboard}"/-->
                   <StopStoryboard BeginStoryboardName="SlideUp_BeginStoryboard"/>
-                  <!--StopStoryboard BeginStoryboardName="SlideDown_BeginStoryboard"/-->
                 </DataTrigger.ExitActions>
                 <Setter TargetName="PowerMenu" Property="SetFocusPrio" Value="Highest" />
                 <Setter TargetName="PowerMenu" Property="SetFocus" Value="True" />
-              </DataTrigger>
+              </DataTrigger>              
             </Grid.Triggers>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="650"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="500"/>
+              <RowDefinition Height="200"/>
             </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TranslateTransform Y="0"/>

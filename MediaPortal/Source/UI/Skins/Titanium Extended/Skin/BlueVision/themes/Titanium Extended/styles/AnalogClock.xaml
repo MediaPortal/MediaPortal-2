@@ -8,22 +8,22 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate x:Name="AnalogClockTemplate">
-          <Grid Width="54" Height="54" x:Name="AnalogClockGrid">
-            <Ellipse VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Fill="{ThemeResource AnalogClockBackgroundColor}" StrokeThickness="3">
+          <Grid Width="364" Height="364" x:Name="AnalogClockGrid">
+            <!--Ellipse VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Fill="{ThemeResource AnalogClockBackgroundColor}" StrokeThickness="3">
               <Ellipse.Stroke>
                 <LinearGradientBrush>
                   <GradientStop Color="{ThemeResource AnalogClockBorderGradientDarkColor}" Offset="0" />
                   <GradientStop Color="{ThemeResource AnalogClockBorderGradientLightColor}" Offset="1" />
                 </LinearGradientBrush>
               </Ellipse.Stroke>
-            </Ellipse>
-
-            <Canvas Width="51" Height="51">
+            </Ellipse-->
+            <Image Source="TE_Clock.png" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Canvas Width="306" Height="306">
               <Canvas.Resources>
                 <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
               </Canvas.Resources>
 
-              <Ellipse Width="4" Height="4" Fill="{ThemeResource AnalogClockHandColor}" Canvas.Top="24" Canvas.Left="23" />
+              <!--Ellipse Width="4" Height="4" Fill="{ThemeResource AnalogClockHandColor}" Canvas.Top="24" Canvas.Left="23" />
 
               <Rectangle Canvas.Top="2.5" Canvas.Left="24" Fill="{ThemeResource AnalogClockTickMarkColor}" Width="2" Height="4">
                 <Rectangle.RenderTransform>
@@ -95,18 +95,18 @@
                 <Rectangle.RenderTransform>
                   <RotateTransform CenterX="1" CenterY="24" Angle="330" />
                 </Rectangle.RenderTransform>
-              </Rectangle>
+              </Rectangle-->
 
 
-              <Rectangle x:Name="HourHand" Canvas.Top="10.5" Canvas.Left="24" Fill="{ThemeResource AnalogClockHandColor}" Width="2" Height="15">
+              <Rectangle x:Name="HourHand" Canvas.Top="63" Canvas.Left="150" RadiusX="4" RadiusY="4" Fill="{ThemeResource AnalogClockHandColor}" Width="8" Height="90">
                 <Rectangle.RenderTransform>
-                  <RotateTransform x:Name="HourHand2" CenterX="1" CenterY="15" Angle="{Binding Source={StaticResource TimeModel},Path=HourAngle}"/>
+                  <RotateTransform x:Name="HourHand2" CenterX="6" CenterY="90" Angle="{Binding Source={StaticResource TimeModel},Path=HourAngle}"/>
                 </Rectangle.RenderTransform>
               </Rectangle>
 
-              <Rectangle x:Name="MinuteHand" Canvas.Top="3" Canvas.Left="24.5" Fill="{ThemeResource AnalogClockHandColor}" Width="1" Height="22.5">
+              <Rectangle x:Name="MinuteHand" Canvas.Top="18" Canvas.Left="153" RadiusX="2" RadiusY="2" Fill="{ThemeResource AnalogClockHandColor}" Width="4" Height="147">
                 <Rectangle.RenderTransform>
-                  <RotateTransform CenterX="0.5" CenterY="22.5" Angle="{Binding Source={StaticResource TimeModel},Path=MinuteAngle}"/>
+                  <RotateTransform CenterX="3" CenterY="147" Angle="{Binding Source={StaticResource TimeModel},Path=MinuteAngle}"/>
                 </Rectangle.RenderTransform>
               </Rectangle>
             </Canvas>
