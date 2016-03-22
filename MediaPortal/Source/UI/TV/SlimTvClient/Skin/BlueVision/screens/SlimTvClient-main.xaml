@@ -16,7 +16,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  
             DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="-30,0,-75,-230">
 
         <Grid.ColumnDefinitions>
@@ -45,8 +45,15 @@
                    Height="20" Stretch="Uniform" Margin="5"/>
           </Button>
           <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}" VerticalAlignment="Center"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/> 
         </StackPanel>
+
+        <Label x:Name="CurrentProgramLabel" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="165,0,10,0"/>
+        <Label x:Name="NextProgramLabel" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="690,0,10,0"/>
+        <Label x:Name="ProgressLabel" Content="[SlimTvClient.Progress]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="1205,0,10,0"/>
 
         <StackPanel x:Name="PiPControl" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
                      HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal"
