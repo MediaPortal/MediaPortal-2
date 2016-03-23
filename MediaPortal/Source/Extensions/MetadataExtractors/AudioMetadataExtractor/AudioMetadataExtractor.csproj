@@ -60,13 +60,8 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="AudioCDHelper.cs" />
     <Compile Include="AudioRelationshipExtractor.cs" />
-    <Compile Include="FreeDB\CDInfo.cs" />
-    <Compile Include="FreeDB\CDInfoDetail.cs" />
-    <Compile Include="FreeDB\CDTrackDetail.cs" />
-    <Compile Include="FreeDB\FreeDBQuery.cs" />
-    <Compile Include="FreeDB\FreeDBSite.cs" />
-    <Compile Include="FreeDB\XMCDParser.cs" />
     <Compile Include="AudioMetadataExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\AudioMetadataExtractorSettings.cs" />

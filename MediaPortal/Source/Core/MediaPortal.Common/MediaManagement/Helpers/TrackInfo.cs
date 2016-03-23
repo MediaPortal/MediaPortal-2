@@ -39,6 +39,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool Matched { get; set; }
 
     public string MusicBrainzId { get; set; }
+    public string CdDdId { get; set; }
+    public string AudioDbId { get; set; }
 
     public string Title { get; set; }
     public string ArtistId { get; set; }
@@ -59,6 +61,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, Title);
       if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, MusicBrainzId);
+      if (!string.IsNullOrEmpty(CdDdId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_TRACK, CdDdId);
       if (!string.IsNullOrEmpty(ArtistName)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ARTISTS, new string[] { ArtistName});
 
       if (Year > 0) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(Year, 1, 1));

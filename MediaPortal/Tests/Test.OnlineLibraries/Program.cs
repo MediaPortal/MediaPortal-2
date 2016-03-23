@@ -98,10 +98,36 @@ namespace Test.OnlineLibraries
       track.Year = year;
       track.TrackNum = trackNum;
       if (matcher.FindAndUpdateTrack(track))
-        Console.WriteLine("Found track title={0} artist={1} album={2} genre={3} year={4} trackNum={5} language={6}:\n{7}", title, artist, album, genre, year, trackNum, language, track);
+        Console.WriteLine("Found track title={0} artist={1} album={2} genre={3} year={4} trackNum={5} language={6}:\nTitle={7} Artist={8} Album={9} Year={10} Track={11}", 
+          title, artist, album, genre, year, trackNum, language, track.Title, track.ArtistName, track.AlbumName, track.Year, track.TrackNum);
       else
       {
-        Console.WriteLine("Cannot find track title={0} artist={1} album={2} genre={3} year={4} trackNum={5} language={6}", title, artist, album, genre, year, trackNum, language);
+        Console.WriteLine("Cannot find track title={0} artist={1} album={2} genre={3} year={4} trackNum={5} language={6}", 
+          title, artist, album, genre, year, trackNum, language);
+      }
+    }
+
+    private static void TestFreeDB(string cdDbId, string title)
+    {
+      ServiceRegistration.Set<IPathManager>(new PathManager());
+      ServiceRegistration.Get<IPathManager>().SetPath("DATA", "_Test/data");
+      ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_Test/log");
+      ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_Test/config");
+      ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
+      ServiceRegistration.Set<ILocalization>(new NoLocalization());
+
+      FreeDbMatcher matcher = new FreeDbMatcher();
+      matcher.Init();
+
+      TrackInfo track = new TrackInfo();
+      track.CdDdId = cdDbId;
+      track.Title = title;
+      if (matcher.FindAndUpdateTrack(track))
+        Console.WriteLine("Found track CDDB ID={0} title={1}:\nTitle={2} Artist={3} Album={4} Year={5} Track={6}", 
+          cdDbId, title, track.Title, track.ArtistName, track.AlbumName, track.Year, track.TrackNum);
+      else
+      {
+        Console.WriteLine("Cannot find track CDDB ID={0} title={1}", cdDbId, title);
       }
     }
 
@@ -169,6 +195,7 @@ namespace Test.OnlineLibraries
     static void Usage()
     {
       Console.WriteLine("Usage: Test.OnlineLibraries musicbrainz <title> <artist> <album> <genre> <year> <track #>");
+      Console.WriteLine("Usage: Test.OnlineLibraries freedb <CDDB ID> <title>");
       Console.WriteLine("Usage:                      recording <TVE XML file>");
       Environment.Exit(1);
     }
@@ -181,6 +208,9 @@ namespace Test.OnlineLibraries
         {
           if (args[0] == "musicbrainz" && args.Length == 7)
             TestMusicBrainz(args[1], args[2], args[3], args[4], Int32.Parse(args[5]), Int32.Parse(args[6]), "GB");
+
+          else if (args[0] == "freedb" && args.Length == 3)
+            TestFreeDB(args[1], args[2]);
 
           else if (args[0] == "recording" && args.Length == 2)
             TestRecording(args[1]);
