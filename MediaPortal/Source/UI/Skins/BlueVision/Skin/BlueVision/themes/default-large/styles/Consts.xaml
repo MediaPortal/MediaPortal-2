@@ -44,10 +44,9 @@
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="320"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="30"/>
-  
+
   <!-- width and margin for small OSD buttons -->
   <ResourceWrapper x:Key="OSDControlWidth" Resource="20" />
-  <ResourceWrapper x:Key="OSDControlMargin" Resource="8" />
 
   <!-- Progress bar -->
   <ResourceWrapper x:Key="ProgressBarRadius" Resource="5"/>
