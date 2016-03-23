@@ -71,4 +71,42 @@
             Value="{ThemeResource SystemStateConfigurationItemContainerStyle}" />
   </Style>
 
+  <Style x:Key="SystemStateMenuItemContainerStyle"
+           BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid x:Name="ParentPanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="SelectButton"
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch"                    
+                    Context="{Binding}"
+                    Command="{DynamicResource ResourceKey=Menu_Command}"/>
+
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for items in SystemStateMenu -->
+  <Style x:Key="SystemStateMenuListViewStyle"
+           BasedOn="{ThemeResource DefaultListViewStyle}">
+    <!--
+    <Setter Property="ItemTemplate"
+            Value="{ThemeResource DefaultItemDataTemplate}" />
+    <Setter Property="DataStringProvider"
+            Value="{ThemeResource DefaultItemDataStringProvider}" />
+    -->
+    <Setter Property="ItemContainerStyle"
+            Value="{ThemeResource SystemStateMenuItemContainerStyle}" />
+  </Style>
+
 </ResourceDictionary>
