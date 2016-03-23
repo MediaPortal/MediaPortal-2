@@ -121,7 +121,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
           pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
           MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
-        movieInfo.ImdbId = imdbId;
+        movieInfo.ImDbId = imdbId;
 
       // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
       foreach (string path in pathsToTest)

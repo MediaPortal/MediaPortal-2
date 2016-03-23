@@ -59,6 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       MediaItemAspect.SetAttribute(seriesAspects, SeriesAspect.ATTR_SERIESNAME, seriesDetail.SeriesName);
       MediaItemAspect.SetAttribute(seriesAspects, SeriesAspect.ATTR_DESCRIPTION, seriesDetail.Overview);
       MediaItemAspect.SetAttribute(seriesAspects, MediaAspect.ATTR_TITLE, seriesDetail.SeriesName);
+      MediaItemAspect.SetAttribute(seriesAspects, MediaAspect.ATTR_RECORDINGTIME, seriesDetail.FirstAired);
       MediaItemAspect.AddOrUpdateExternalIdentifier(seriesAspects, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, id);
       MediaItemAspect.AddOrUpdateExternalIdentifier(seriesAspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, seriesDetail.ImdbId);
 

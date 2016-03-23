@@ -113,7 +113,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           if (movieDetails.Popularity.HasValue) movieInfo.Popularity = movieDetails.Popularity.Value;
           if (movieDetails.Rating.HasValue) movieInfo.TotalRating = movieDetails.Rating.Value;
           if (movieDetails.RatingCount.HasValue) movieInfo.RatingCount = movieDetails.RatingCount.Value;
-          movieInfo.ImdbId = movieDetails.ImdbId;
+          movieInfo.ImDbId = movieDetails.ImdbId;
           movieInfo.MovieDbId = movieDetails.Id;
           if (movieDetails.Genres.Count > 0)
           {
@@ -171,7 +171,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     private bool MatchByImdbId(MovieInfo movieInfo, out Movie movieDetails)
     {
-      if (!string.IsNullOrEmpty(movieInfo.ImdbId) && _movieDb.GetMovie(movieInfo.ImdbId, out movieDetails))
+      if (!string.IsNullOrEmpty(movieInfo.ImDbId) && _movieDb.GetMovie(movieInfo.ImDbId, out movieDetails))
       {
         SaveMatchToPersistentCache(movieDetails, movieDetails.Title);
         return true;

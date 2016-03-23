@@ -179,6 +179,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
       _supportedAttributes.Add(TryWriteSeriesAspectTvDbId);
       _supportedAttributes.Add(TryWriteSeriesAspectSeriesName);
+      _supportedAttributes.Add(TryWriteSeriesAspectSeriesYear);
       _supportedAttributes.Add(TryWriteSeriesAspectSeason);
       _supportedAttributes.Add(TryWriteSeriesAspectSeriesSeason);
       _supportedAttributes.Add(TryWriteSeriesAspectEpisode);
@@ -1139,6 +1140,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_useSeriesStubs && _seriesStubs[0].ShowTitle != null)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIESNAME, _seriesStubs[0].ShowTitle);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_RECORDINGTIME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectSeriesYear(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      //priority 1:
+      if (_stubs[0].Premiered != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _stubs[0].Premiered);
+        return true;
+      }
+      //priority 2:
+      if ( _seriesStubs[0].Year != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _seriesStubs[0].Year);
         return true;
       }
       return false;
