@@ -44,6 +44,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
 {
   public class TraktHandler : IDisposable
   {
+    private const string APP_VERSION = "0.2.0";
     private AsynchronousMessageQueue _messageQueue;
     private readonly SettingsChangeWatcher<TraktSettings> _settings = new SettingsChangeWatcher<TraktSettings>();
     private TraktScrobbleMovie _dataMovie = new TraktScrobbleMovie();
@@ -105,8 +106,11 @@ namespace MediaPortal.UiComponents.Trakt.Service
           case PlayerManagerMessaging.MessageType.PlayerResumeState:
             IResumeState resumeState = (IResumeState)message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
             PositionResumeState positionResume = resumeState as PositionResumeState;
-            TimeSpan resumePosition = positionResume.ResumePosition;
-            _progress = Math.Min((int)(resumePosition.TotalSeconds * 100 / _duration.TotalSeconds), 100);
+            if (positionResume != null)
+            {
+              TimeSpan resumePosition = positionResume.ResumePosition;
+              _progress = Math.Min((int)(resumePosition.TotalSeconds * 100 / _duration.TotalSeconds), 100);
+            }
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
@@ -125,47 +129,42 @@ namespace MediaPortal.UiComponents.Trakt.Service
     private void CreateScrobbleData(IPlayerSlotController psc)
     {
       IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
+      if (pc == null || pc.CurrentMediaItem == null)
+        return;
       IMediaPlaybackControl pmc = pc.CurrentPlayer as IMediaPlaybackControl;
       if (pmc == null)
-      {
         return;
-      }
+
+      var mediaItem = pc.CurrentMediaItem;
 
       _duration = pmc.Duration;
-      bool isMovie = pc.CurrentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
-      bool isSeries = pc.CurrentMediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
+      bool isMovie = mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID);
+      bool isSeries = mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID);
 
       if (isMovie)
-      {
-        _dataMovie = CreateMovieData(pc);
-        _dataMovie.AppDate = DateTime.Now.ToString(CultureInfo.InvariantCulture);
-        _dataMovie.AppVersion = "0.2.0";
-      }
+        _dataMovie = CreateMovieData(mediaItem);
 
       if (isSeries)
-      {
-        _dataEpisode = CreateEpisodeData(pc);
-        _dataMovie.AppDate = DateTime.Now.ToString(CultureInfo.InvariantCulture);
-        _dataMovie.AppVersion = "0.2.0";
-      }
-
+        _dataEpisode = CreateEpisodeData(mediaItem);
     }
 
-    private TraktScrobbleMovie CreateMovieData(IPlayerContext pc)
+    private TraktScrobbleMovie CreateMovieData(MediaItem mediaItem)
     {
       var movieScrobbleData = new TraktScrobbleMovie
       {
         Movie = new TraktMovie
         {
-          Ids = new TraktMovieId { Imdb = GetMovieImdb(pc.CurrentMediaItem), Tmdb = GetMovieTmdb(pc.CurrentMediaItem) },
-          Title = GetMovieTitle(pc.CurrentMediaItem),
-          Year = GetVideoYear(pc.CurrentMediaItem)
-        }
+          Ids = new TraktMovieId { Imdb = GetMovieImdb(mediaItem), Tmdb = GetMovieTmdb(mediaItem) },
+          Title = GetMovieTitle(mediaItem),
+          Year = GetVideoYear(mediaItem)
+        },
+        AppDate = DateTime.Now.ToString(CultureInfo.InvariantCulture),
+        AppVersion = APP_VERSION
       };
       return movieScrobbleData;
     }
 
-    private TraktScrobbleEpisode CreateEpisodeData(IPlayerContext pc)
+    private TraktScrobbleEpisode CreateEpisodeData(MediaItem mediaItem)
     {
       var episodeScrobbleData = new TraktScrobbleEpisode
       {
@@ -173,23 +172,25 @@ namespace MediaPortal.UiComponents.Trakt.Service
         {
           Ids = new TraktEpisodeId
           {
-            Tvdb = GetSeriesTvdbId(pc.CurrentMediaItem),
-            Imdb = GetSeriesImdbId(pc.CurrentMediaItem)
+            Tvdb = GetSeriesTvdbId(mediaItem),
+            Imdb = GetSeriesImdbId(mediaItem)
           },
-          Title = GetSeriesTitle(pc.CurrentMediaItem),
-          Season = GetSeasonIndex(pc.CurrentMediaItem),
-          Number = GetEpisodeIndex(pc.CurrentMediaItem)
+          Title = GetSeriesTitle(mediaItem),
+          Season = GetSeasonIndex(mediaItem),
+          Number = GetEpisodeIndex(mediaItem)
         },
         Show = new TraktShow
         {
           Ids = new TraktShowId
           {
-            Tvdb = GetSeriesTvdbId(pc.CurrentMediaItem),
-            Imdb = GetSeriesImdbId(pc.CurrentMediaItem)
+            Tvdb = GetSeriesTvdbId(mediaItem),
+            Imdb = GetSeriesImdbId(mediaItem)
           },
-          Title = GetSeriesTitle(pc.CurrentMediaItem),
-          Year = GetVideoYear(pc.CurrentMediaItem)
-        }
+          Title = GetSeriesTitle(mediaItem),
+          Year = GetVideoYear(mediaItem)
+        },
+        AppDate = DateTime.Now.ToString(CultureInfo.InvariantCulture),
+        AppVersion = APP_VERSION
       };
 
       return episodeScrobbleData;
@@ -202,7 +203,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
       if (string.IsNullOrEmpty(settings.TraktOAuthToken))
       {
-        TraktLogger.Error("0Auth Token not available");
+        TraktLogger.Info("0Auth Token not available");
         return;
       }
 
