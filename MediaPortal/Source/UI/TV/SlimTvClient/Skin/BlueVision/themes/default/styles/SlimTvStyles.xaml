@@ -10,7 +10,7 @@
     DependsOnStyleResources="SlimTvColors,SlimTvConsts,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls,MediaStyles,OSD"
     >
   <!-- SlimTvClient model -->
-  <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+  <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/> 
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
@@ -636,6 +636,55 @@
     </Setter>
   </Style>
 
+    <Style x:Key="TVButtonWideStyle2" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          </Grid>
+
+          <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+              <Setter TargetName="Item1" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
+              <Setter TargetName="Item2" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
+              <Setter TargetName="Item3" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
+              <Setter TargetName="Item4" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Program.IsScheduled}" Value="True">
+              <Setter TargetName="Item3_record" Property="Background" Value="{ThemeResource ProgramScheduledFill}"/>
+              <Setter TargetName="Item4_record" Property="Background" Value="{ThemeResource ProgramRecordFill}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
+              <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
+            </DataTrigger>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="Item1_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
+              <Setter TargetName="Item2_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
+              <Setter TargetName="Item3_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
+              <Setter TargetName="Item4_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
+              <Setter TargetName="CurrentProgramLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="NextProgramLabel" Property="Scroll" Value="Auto"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <Style x:Key="TVItemContainerStyle" TargetType="{x:Type ListViewItem}">
     <Style.Triggers>
       <Trigger Property="Selected" Value="True">
@@ -648,6 +697,33 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Margin="50,0,20,0" Style="{ThemeResource TVButtonWideStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <!--Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="Item1" Property="Background" Value="#003366"/>
+                <Setter TargetName="Item2" Property="Background" Value="#003366"/>
+                <Setter TargetName="Item3" Property="Background" Value="#003366"/>
+              </Trigger>
+            </Button.Triggers-->
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="TVItemContainerStyle2" TargetType="{x:Type ListViewItem}">
+    <Style.Triggers>
+      <Trigger Property="Selected" Value="True">
+        <!-- Hack: It is sufficient to set the attached ZIndex property for one panel type; the MP2 SkinEngine maps it to the
+             same internal property for all panel types -->
+        <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+      </Trigger>
+    </Style.Triggers>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Margin="50,0,20,0" Style="{ThemeResource TVButtonWideStyle2}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <!--Button.Triggers>
@@ -754,11 +830,11 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
+              <RowDefinition Height="12"/>
             </Grid.RowDefinitions>
-            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="7" RadiusY="7"      
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="6" RadiusY="6"      
                        Fill="#26FFFFFF"/>
-            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" RadiusX="7" RadiusY="7"                 
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Stretch" RadiusX="6" RadiusY="6"                 
                        Fill="{ThemeResource ProgressBarFillColor}"/>
           </Grid>
         </ControlTemplate>
@@ -836,6 +912,7 @@
         <ColumnDefinition Width="400"/>
         <!-- Channel Name -->
         <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
         <!-- Program Title -->
         <ColumnDefinition Width="200"/>
         <!-- Program Time -->
@@ -852,20 +929,24 @@
       <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
               Background="#FF000000" BorderThickness="0" Margin="0,-5,5,-5"/>
       <Border x:Name="Item2" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#FF000000" BorderThickness="0" Margin="0,-5,15,-5"/>
+              Background="#FF000000" BorderThickness="0" Margin="0,-5,5,-5"/>
       <Border x:Name="Item3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="#FF000000" BorderThickness="0" Margin="0,-5,15,-5"/>
+      <Border x:Name="Item4" Grid.Row="0" Grid.Column="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="#FF000000" BorderThickness="0" Margin="-10,-5,-15,-5"/>
 
-      <Border x:Name="Item2_record" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
       <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
+      <Border x:Name="Item4_record" Grid.Row="0" Grid.Column="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
 
       <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,5,-5"/>
       <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
+              Background="Transparent" BorderThickness="0" Margin="0,-5,5,-5"/>
       <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
+      <Border x:Name="Item4_overlay" Grid.Row="0" Grid.Column="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
       
       <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,4,0,4" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"
@@ -877,12 +958,15 @@
         </Image.Source>
       </Image>
 
-      <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,4,0,4"
-        Content="{Binding Programs[0].Program.Title}" FontSize="{ThemeResource SmallFontSize}"
-        Color="{ThemeResource TextColor}"/>
+      <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,4,5,4"
+             Content="{Binding Programs[0].Program.Title}" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+      <Label Grid.Column="3" Grid.Row="0" x:Name="NextProgramLabel" Margin="5,4,15,4"
+             Content="{Binding Programs[1].Program.Title}" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
 
       <!-- Shows the progress of current time in relation to the current playing program -->
-      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="3" Grid.Row="0" Height="15" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="4" Grid.Row="0" Height="15" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                     Value="{Binding Programs[0].Progress}" Style="{ThemeResource TVProgressBarStyle}"/>
     </Grid>
   </DataTemplate>
@@ -957,7 +1041,7 @@
 
   <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource TVListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithCurrentProgramDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource TVItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource TVItemContainerStyle2}"/>
   </Style>
 
   <Style x:Key="SingleChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource TVListViewStyle}">

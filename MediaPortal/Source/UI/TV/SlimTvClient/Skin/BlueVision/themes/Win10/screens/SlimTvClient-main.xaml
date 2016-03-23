@@ -54,6 +54,13 @@
                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
         </StackPanel>
 
+        <Label x:Name="CurrentProgramLabel" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="170,0,10,0"/>
+        <Label x:Name="NextProgramLabel" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="710,0,10,0"/>
+        <Label x:Name="ProgressLabel" Content="[SlimTvClient.Progress]" VerticalAlignment="Center" Grid.Column="1"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="1245,0,10,0"/>
+        
         <StackPanel x:Name="PiPControl" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
                      HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal"
                      IsVisible="{Binding PiPAvailable}">
