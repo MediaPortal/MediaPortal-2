@@ -33,6 +33,9 @@
     <Model Id="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"
            Name="SystemStateConfigurationModel"
            ClassName="MediaPortal.Plugins.SystemStateMenu.Models.SystemStateConfigurationModel"/>
+    <Model Id="40FDD1C3-CFAB-4731-9636-96726301B648"
+           Name="SleepTimerModel"
+           ClassName="MediaPortal.Plugins.SystemStateMenu.Models.SleepTimerModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -48,6 +51,12 @@
                  DialogScreen="dialogSystemStateConfiguration"
                  DisplayLabel="[SystemState.ShutdownConfigurationDialogStateDisplayLabel]"
                  WorkflowModel="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"/>
+    <!-- SleepTimer Dialog -->
+    <DialogState Id="5BFE10D3-6D66-46D8-B0BE-74F4190DA6A9"
+                 Name="dialogSleepTimer"
+                 DialogScreen="dialogSleepTimer"
+                 DisplayLabel="[SystemState.ShutdownDialogStateDisplayLabel]"
+                 WorkflowModel="40FDD1C3-CFAB-4731-9636-96726301B648"/>
   </Register>
 
   <Register Location="/Resources/Language">

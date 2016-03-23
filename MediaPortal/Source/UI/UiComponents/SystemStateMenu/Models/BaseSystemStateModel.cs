@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.Plugins.SystemStateMenu.Models
 {
@@ -55,6 +56,13 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       ISettingsManager sm = ServiceRegistration.Get<ISettingsManager>();
       List<SystemStateItem> systemStateItems = sm.Load<SystemStateDialogSettings>().ShutdownItemList;
 
+      bool timerActive = false;
+      Models.SleepTimerModel stm = ServiceRegistration.Get<IWorkflowManager>().GetModel(Consts.WF_STATE_ID_SLEEP_TIMER_MODEL) as Models.SleepTimerModel;
+      if (stm != null && stm.IsSleepTimerActive == true)
+      {
+        timerActive = true;
+      }
+
       _shutdownItems.Clear();
       if (systemStateItems != null)
       {
@@ -63,7 +71,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
           SystemStateItem systemStateItem = systemStateItems[i];
           if (!systemStateItem.Enabled)
             continue;
-          ListItem item = new ListItem(Consts.KEY_NAME, Consts.GetResourceIdentifierForMenuItem(systemStateItem.Action));
+          ListItem item = new ListItem(Consts.KEY_NAME, Consts.GetResourceIdentifierForMenuItem(systemStateItem.Action, timerActive));
           item.Command = new MethodDelegateCommand(() => DoAction(systemStateItem.Action));
           _shutdownItems.Add(item);
         }
@@ -71,8 +79,23 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       _shutdownItems.FireChange();
     }
 
+    protected void DoClose(SystemStateAction action)
+    {
+      switch(action)
+      {
+        case SystemStateAction.SleepTimer:
+          return;
+        default:
+          ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
+          return;
+      }      
+    }
+
     protected void DoAction(SystemStateAction action)
     {
+      // I don't like this way, but I need it...
+      DoClose(action);
+
       switch (action)
       {
         case SystemStateAction.Suspend:
@@ -96,7 +119,22 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
         case SystemStateAction.MinimizeMP:
           ServiceRegistration.Get<IScreenControl>().Minimize();
           return;
-      }
+        case SystemStateAction.SleepTimer:
+          Models.SleepTimerModel stm = ServiceRegistration.Get<IWorkflowManager>().GetModel(Consts.WF_STATE_ID_SLEEP_TIMER_MODEL) as Models.SleepTimerModel;
+          if (stm == null || stm.IsSleepTimerActive == false)
+          {
+            ServiceRegistration.Get<IWorkflowManager>().NavigatePop(1);
+
+            ServiceRegistration.Get<IWorkflowManager>().NavigatePush(
+              Consts.WF_STATE_ID_SLEEP_TIMER_DIALOG);
+          }
+          else
+          {
+            stm.Stop();
+            UpdateShutdownItems();
+          }          
+          return;
+      }        
     }
   }
 }

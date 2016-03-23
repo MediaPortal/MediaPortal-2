@@ -29,6 +29,7 @@ namespace MediaPortal.Plugins.SystemStateMenu
     Shutdown,
     Suspend,
     Hibernate,
+    SleepTimer,
     Restart,
     Logoff,
     MinimizeMP,
