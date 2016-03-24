@@ -61,12 +61,6 @@
     <Compile Include="IMediaAnalyzer.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Helpers\Subtitles.cs" />
-    <Compile Include="MetaDataExtractors\Settings\TranscodeAudioMetadataExtractorSettings.cs" />
-    <Compile Include="MetaDataExtractors\Settings\TranscodeImageMetadataExtractorSettings.cs" />
-    <Compile Include="MetaDataExtractors\Settings\TranscodeVideoMetadataExtractorSettings.cs" />
-    <Compile Include="MetaDataExtractors\TranscodeAudioMetadataExtractor.cs" />
-    <Compile Include="MetaDataExtractors\TranscodeImageMetadataExtractor.cs" />
-    <Compile Include="MetaDataExtractors\TranscodeVideoMetadataExtractor.cs" />
     <Compile Include="MetaData\MetadataContainer.cs" />
     <Compile Include="MetaData\Streams\AudioStream.cs" />
     <Compile Include="MetaData\Streams\ImageStream.cs" />

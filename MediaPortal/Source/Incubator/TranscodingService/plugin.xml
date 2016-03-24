@@ -23,17 +23,5 @@
     <PluginStateTracker ClassName="MediaPortal.Plugins.Transcoding.Service.TranscodingServicePlugin"/>
   </Runtime>
 
-  <Register Location="/Media/MetadataExtractors">
-    <Instance
-        Id="TranscodeVideoMetadataExtractor"
-        ClassName="MediaPortal.Plugins.Transcoding.MetadataExtractors.TranscodeVideoMetadataExtractor"/>
-    <Instance
-        Id="TranscodeAudioMetadataExtractor"
-        ClassName="MediaPortal.Plugins.Transcoding.MetadataExtractors.TranscodeAudioMetadataExtractor"/>
-    <Instance
-        Id="TranscodeImageMetadataExtractor"
-        ClassName="MediaPortal.Plugins.Transcoding.MetadataExtractors.TranscodeImageMetadataExtractor"/>
-  </Register>
-
 </Plugin>
 

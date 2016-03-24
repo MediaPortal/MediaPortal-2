@@ -33,11 +33,12 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.Settings;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor
 {
   public class TranscodeVideoMetadataExtractor : IMetadataExtractor
   {
@@ -118,7 +119,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors
       return false;
     }
 
-    public static void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_CONTAINER, info.Metadata.VideoContainerType.ToString());
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemVideoAspect.ATTR_STREAM, info.Video.StreamIndex);

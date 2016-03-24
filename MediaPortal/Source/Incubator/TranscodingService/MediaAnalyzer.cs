@@ -37,7 +37,6 @@ using MediaPortal.Plugins.Transcoding.Interfaces;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
@@ -45,8 +44,13 @@ using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
 using MediaPortal.Plugins.Transcoding.Interfaces.SlimTv;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using System.Xml.Linq;
+using System.Xml.Serialization;
+using System.Xml;
+using MediaPortal.Common.PathManager;
+using System.IO;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -72,6 +76,53 @@ namespace MediaPortal.Plugins.Transcoding.Service
     private ICollection<string> _audioExtensions = new List<string>();
     private ICollection<string> _videoExtensions = new List<string>();
     private ICollection<string> _imageExtensions = new List<string>();
+    private readonly string[] DEFAULT_AUDIO_FILE_EXTENSIONS = new string[]
+      {
+          ".ape",
+          ".flac",
+          ".mp3",
+          ".ogg",
+          ".wv",
+          ".wav",
+          ".wma",
+          ".mp4",
+          ".m4a",
+          ".m4p",
+          ".mpc",
+          ".mp+",
+          ".mpp",
+          ".dsf",
+          ".dff",
+      };
+    private readonly string[] DEFAULT_IMAGE_FILE_EXTENSIONS = new string[]
+      {
+          ".jpg",
+          ".jpeg",
+          ".png",
+          ".bmp",
+          ".gif",
+          ".tga",
+          ".tiff",
+          ".tif",
+      };
+    private readonly string[] DEFAULT_VIDEO_FILE_EXTENSIONS = new string[]
+      {
+          ".mkv",
+          ".mk3d",
+          ".ogm",
+          ".avi",
+          ".wmv",
+          ".mpg",
+          ".mp4",
+          ".m4v",
+          ".ts",
+          ".flv",
+          ".m2ts",
+          ".mts",
+          ".mov",
+          ".wtv",
+          ".dvr-ms",
+      };
 
     public MediaAnalyzer()
     {
@@ -80,14 +131,17 @@ namespace MediaPortal.Plugins.Transcoding.Service
       _analyzerStreamTimeout = TranscodingServicePlugin.Settings.AnalyzerStreamTimeout;
       _logger = ServiceRegistration.Get<ILogger>();
 
-      TranscodeAudioMetadataExtractorSettings audioSettings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodeAudioMetadataExtractorSettings>();
-      _audioExtensions = new List<string>(audioSettings.AudioExtensions.Select(e => e.ToLowerInvariant()));
+      _audioExtensions = new List<string>(
+        ReadExtensions("MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.Settings.TranscodeAudioMetadataExtractorSettings.xml",
+        "AudioFileExtensions", DEFAULT_AUDIO_FILE_EXTENSIONS).Select(e => e.ToLowerInvariant()));
 
-      TranscodeVideoMetadataExtractorSettings videoSettings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodeVideoMetadataExtractorSettings>();
-      _videoExtensions = new List<string>(videoSettings.VideoFileExtensions.Select(e => e.ToLowerInvariant()));
+      _videoExtensions = new List<string>(
+        ReadExtensions("MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.Settings.TranscodeVideoMetadataExtractorSettings.xml",
+        "VideoFileExtensions", DEFAULT_VIDEO_FILE_EXTENSIONS).Select(e => e.ToLowerInvariant()));
 
-      TranscodeImageMetadataExtractorSettings imageSettings = ServiceRegistration.Get<ISettingsManager>().Load<TranscodeImageMetadataExtractorSettings>();
-      _imageExtensions = new List<string>(imageSettings.ImageFileExtensions.Select(e => e.ToLowerInvariant()));
+      _imageExtensions = new List<string>(
+        ReadExtensions("MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.Settings.TranscodeImageMetadataExtractorSettings.xml",
+        "ImageFileExtensions", DEFAULT_IMAGE_FILE_EXTENSIONS).Select(e => e.ToLowerInvariant()));
 
       _h264MaxDpbMbs.Add(1F, 396);
       _h264MaxDpbMbs.Add(1.1F, 396);
@@ -133,6 +187,37 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
       string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
       return _imageExtensions.Contains(ext);
+    }
+
+    private string[] ReadExtensions(string settingsFile, string propertyName, string[] defaults)
+    {
+      object array = null;
+      try
+      {
+        IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+        string dataPath = pathManager.GetPath("<CONFIG>");
+        settingsFile = Path.Combine(dataPath, settingsFile);
+        if (File.Exists(settingsFile))
+        {
+          XDocument document = XDocument.Load(settingsFile);
+          XmlSerializer ser = new XmlSerializer(typeof(string[]));
+          IEnumerable<XElement> properties =
+            from element in document.Root.Elements("Property")
+            where (string)element.Attribute("Name") == propertyName
+            select element;
+          foreach (XElement prop in properties)
+          {
+            array = ser.Deserialize(prop.FirstNode.CreateReader());
+            break;
+          }
+        }
+      }
+      catch(Exception ex)
+      {
+        _logger.Error("MediaAnalyzer: Could not load {0}, using defaults", ex, propertyName);
+      }
+      if(array != null) return (string[])array;
+      return defaults;
     }
 
     private ProcessExecutionResult ParseFile(ILocalFsResourceAccessor lfsra, string arguments)
@@ -736,13 +821,71 @@ namespace MediaPortal.Plugins.Transcoding.Service
 
           if (info.IsAudio || ChannelMediaItem[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_RADIO)
           {
-            TranscodeAudioMetadataExtractor.ConvertMetadataToAspectData(info, ChannelMediaItem.Aspects);
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemAudioAspect.ATTR_CONTAINER, info.Metadata.AudioContainerType.ToString());
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemAudioAspect.ATTR_STREAM, info.Audio[0].StreamIndex);
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemAudioAspect.ATTR_CODEC, info.Audio[0].Codec.ToString());
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemAudioAspect.ATTR_CHANNELS, info.Audio[0].Channels);
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemAudioAspect.ATTR_FREQUENCY, info.Audio[0].Frequency);
+
             if (info.Metadata.Bitrate > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, AudioAspect.ATTR_BITRATE, info.Metadata.Bitrate);
             //MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, AudioAspect.ATTR_DURATION, 0);
           }
           else if (info.IsVideo || ChannelMediaItem[ProviderResourceAspect.Metadata].GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE).ToString() == LiveTvMediaItem.MIME_TYPE_TV)
           {
-            TranscodeVideoMetadataExtractor.ConvertMetadataToAspectData(info, ChannelMediaItem.Aspects);
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_CONTAINER, info.Metadata.VideoContainerType.ToString());
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_STREAM, info.Video.StreamIndex);
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_CODEC, info.Video.Codec.ToString());
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_FOURCC, StringUtils.TrimToNull(info.Video.FourCC));
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_BRAND, StringUtils.TrimToNull(info.Metadata.MajorBrand));
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_PIXEL_FORMAT, info.Video.PixelFormatType.ToString());
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_PIXEL_ASPECTRATIO, info.Video.PixelAspectRatio);
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_H264_PROFILE, info.Video.ProfileType.ToString());
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_H264_HEADER_LEVEL, info.Video.HeaderLevel);
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_H264_REF_LEVEL, info.Video.RefLevel);
+            MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, TranscodeItemVideoAspect.ATTR_TS_TIMESTAMP, info.Video.TimestampType.ToString());
+
+            foreach (AudioStream audio in info.Audio)
+            {
+              MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(TranscodeItemVideoAudioAspect.Metadata);
+              aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOSTREAM, audio.StreamIndex.ToString());
+              aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOCODEC, audio.Codec.ToString());
+              if (audio.Language == null)
+              {
+                aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOLANGUAGE, "");
+              }
+              else
+              {
+                aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOLANGUAGE, audio.Language);
+              }
+              aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOBITRATE, audio.Bitrate.ToString());
+              aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOCHANNEL, audio.Channels.ToString());
+              aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIOFREQUENCY, audio.Frequency.ToString());
+              aspect.SetAttribute(TranscodeItemVideoAudioAspect.ATTR_AUDIODEFAULT, audio.Default ? "1" : "0");
+              MediaItemAspect.AddOrUpdateAspect(ChannelMediaItem.Aspects, aspect);
+            }
+
+            foreach (SubtitleStream sub in info.Subtitles)
+            {
+              MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(TranscodeItemVideoEmbeddedAspect.Metadata);
+              if (sub.IsEmbedded)
+              {
+                aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBSTREAM, sub.StreamIndex.ToString());
+                aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBCODEC, sub.Codec.ToString());
+
+                if (sub.Language == null)
+                {
+                  aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE, "");
+                }
+                else
+                {
+                  aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBLANGUAGE, sub.Language);
+                }
+
+                aspect.SetAttribute(TranscodeItemVideoEmbeddedAspect.ATTR_EMBEDDED_SUBDEFAULT, sub.Default ? "1" : "0");
+                MediaItemAspect.AddOrUpdateAspect(ChannelMediaItem.Aspects, aspect);
+              }
+            }
+
             if (info.Video.Height > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_HEIGHT, info.Video.Height);
             if (info.Video.Width > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_WIDTH, info.Video.Width);
             if (info.Video.AspectRatio > 0) MediaItemAspect.SetAttribute(ChannelMediaItem.Aspects, VideoAspect.ATTR_ASPECTRATIO, info.Video.AspectRatio);

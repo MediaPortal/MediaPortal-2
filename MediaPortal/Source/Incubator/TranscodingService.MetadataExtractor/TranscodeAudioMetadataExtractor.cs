@@ -32,10 +32,11 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.Settings;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor
 {
   public class TranscodeAudioMetadataExtractor : IMetadataExtractor
   {
@@ -63,7 +64,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors
     /// <param name="settings">Settings object to read the data from.</param>
     internal static void InitializeExtensions(TranscodeAudioMetadataExtractorSettings settings)
     {
-      AUDIO_EXTENSIONS = new List<string>(settings.AudioExtensions.Select(e => e.ToLowerInvariant()));
+      AUDIO_EXTENSIONS = new List<string>(settings.AudioFileExtensions.Select(e => e.ToLowerInvariant()));
     }
 
     public TranscodeAudioMetadataExtractor()
@@ -115,7 +116,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors
       return false;
     }
 
-    public static void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemAudioAspect.ATTR_CONTAINER, info.Metadata.AudioContainerType.ToString());
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemAudioAspect.ATTR_STREAM, info.Audio[0].StreamIndex);

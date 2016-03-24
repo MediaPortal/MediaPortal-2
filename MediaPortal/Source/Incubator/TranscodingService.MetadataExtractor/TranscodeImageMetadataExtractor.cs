@@ -31,11 +31,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces.Aspects;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor.Settings;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors
+namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor
 {
   public class TranscodeImageMetadataExtractor : IMetadataExtractor
   {
@@ -114,7 +115,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.MetadataExtractors
       return false;
     }
 
-    public static void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private void ConvertMetadataToAspectData(MetadataContainer info, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemImageAspect.ATTR_CONTAINER, info.Metadata.ImageContainerType.ToString());
       MediaItemAspect.SetAttribute(extractedAspectData, TranscodeItemImageAspect.ATTR_PIXEL_FORMAT, info.Image.PixelFormatType.ToString());
