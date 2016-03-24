@@ -66,11 +66,14 @@
         </StackPanel>
 
         <ListView  x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-10,0,-10,0"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-10,0,15,0"
               Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
               ItemsSource="{Binding Path=CurrentGroupChannels}"
               SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="15" />
+            </ResourceWrapper>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>

@@ -27,7 +27,13 @@
           <ListView Name="ServerSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SharesConfigListViewStyle}"
               IsVisible="{Binding IsHomeServerConnected}"
-              ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
+              ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}">
+            <ListView.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+                <TranslateTransform X="25" />
+              </ResourceWrapper>
+            </ListView.Resources>
+          </ListView>
           <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
               Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Wrap="true"
               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
@@ -44,7 +50,13 @@
           <ListView Name="ClientSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SharesConfigListViewStyle}"
               IsVisible="{Binding ShowLocalShares}"
-              ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
+              ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}">
+            <ListView.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+                <TranslateTransform X="25" />
+              </ResourceWrapper>
+            </ListView.Resources>
+          </ListView>
           <Label Margin="10" Grid.Row="1" IsVisible="{Binding !ShowLocalShares}"
               Content="[SharesConfig.NoConfigLocalSharesHomeServerLocal]" Wrap="true"
               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
