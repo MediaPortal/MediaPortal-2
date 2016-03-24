@@ -2131,7 +2131,6 @@
       </Detection>
     </Detections>
     <Settings>
-      <Communication allowChunckedTransfer="false" />
       <Subtitles support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
       </Subtitles>
