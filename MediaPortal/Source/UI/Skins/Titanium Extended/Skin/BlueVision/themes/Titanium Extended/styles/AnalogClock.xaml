@@ -104,9 +104,9 @@
                 </Rectangle.RenderTransform>
               </Rectangle>
 
-              <Rectangle x:Name="MinuteHand" Canvas.Top="18" Canvas.Left="153" RadiusX="2" RadiusY="2" Fill="{ThemeResource AnalogClockHandColor}" Width="4" Height="147">
+              <Rectangle x:Name="MinuteHand" Canvas.Top="28" Canvas.Left="153" RadiusX="2" RadiusY="2" Fill="{ThemeResource AnalogClockHandColor}" Width="4" Height="127">
                 <Rectangle.RenderTransform>
-                  <RotateTransform CenterX="3" CenterY="147" Angle="{Binding Source={StaticResource TimeModel},Path=MinuteAngle}"/>
+                  <RotateTransform CenterX="3" CenterY="127" Angle="{Binding Source={StaticResource TimeModel},Path=MinuteAngle}"/>
                 </Rectangle.RenderTransform>
               </Rectangle>
             </Canvas>

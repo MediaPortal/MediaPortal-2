@@ -4,7 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails"
+  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails" 
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
@@ -22,7 +22,25 @@
       HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
       Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-  <Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="27,-7,17,30"
+
+  <Grid Grid.Column="0" Height="520" Width="380" Margin="27,-7,17,30">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+      
+      <Image x:Name="thumb" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Height="520" Width="380">
+        <Image.Source>
+          <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" VerticalTextureAlignment="Top"
+                              Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
+        </Image.Source>
+      </Image>
+    </Grid>
+
+
+  <!--Image Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="27,-7,17,30"
       Width="380" Height="520">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
@@ -32,7 +50,7 @@
     <Image.OpacityMask >
       <ImageBrush ImageSource="filmstrip_mask.png"/>
     </Image.OpacityMask>
-  </Image>
+  </Image-->
 
   <Grid Grid.Column="1" Margin="10,0,-350,-40" HorizontalAlignment="Center" VerticalAlignment="Bottom">
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
