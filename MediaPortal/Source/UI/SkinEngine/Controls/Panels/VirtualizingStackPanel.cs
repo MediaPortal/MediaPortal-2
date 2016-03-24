@@ -190,7 +190,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           break;
         FrameworkElement item = GetItem(end + 1, itemProvider, true);
         if (item == null || !item.IsVisible)
+        {
+          end++;
           continue;
+        }
         if (ct-- == 0)
           break;
         float childExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
