@@ -23,9 +23,8 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.MP2Web.Configuration
+namespace MediaPortal.Plugins.MP2Web.WebAppConfiguration
 {
   public class MP2WebModuleDefinition
   {

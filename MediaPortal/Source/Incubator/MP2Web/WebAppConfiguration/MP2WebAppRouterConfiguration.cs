@@ -22,23 +22,12 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.MP2Web.Configuration
+namespace MediaPortal.Plugins.MP2Web.WebAppConfiguration
 {
-  public class MP2WebMenuDefinition
+  public class MP2WebAppRouterConfiguration
   {
-    /// <summary>
-    /// Id of the Menu Item
-    /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
-    /// Defines the order of the menu items
-    /// </summary>
-    public int Priority { get; set; }
-
     /// <summary>
     /// Identifier for the Route: [routerLink]="['Name']"
     /// It must start with an upper case!
@@ -51,6 +40,16 @@ namespace MediaPortal.Plugins.MP2Web.Configuration
     public string Label { get; set; }
 
     /// <summary>
+    /// Defines to which Category it belongs in the Dropdown menu
+    /// </summary>
+    public string Category { get; set; }
+
+    /// <summary>
+    /// Defines the order of the menu items
+    /// </summary>
+    public int Priority { get; set; }
+
+    /// <summary>
     /// Route Path: "/Path"
     /// If the Component defines own Routes the Route must end with "/..."
     /// e.g. "movies/..."
@@ -58,8 +57,26 @@ namespace MediaPortal.Plugins.MP2Web.Configuration
     public string Path { get; set; }
 
     /// <summary>
+    /// relative path which points to the Component called in <see cref="Component"/>
+    /// e.g. "./app/crisis-list.component"
+    /// </summary>
+    public string ComponentPath { get; set; }
+
+    /// <summary>
+    /// Angular Component to call. e.g. "ListMoviesComponent"
+    /// Shpuld be Empty if there are Supages <see cref="Pages"/>, otherwise it gets ignored.
+    /// </summary>
+    public string Component { get; set; }
+
+    /// <summary>
     /// Is the entry visble in the Navigation
     /// </summary>
     public bool Visible { get; set; }
+
+    /// <summary>
+    /// Subpages.
+    /// If not Empty a Dropndown menu will be shown.
+    /// </summary>
+    public List<MP2WebAppRouterConfiguration> Pages { get; set; }
   }
 }
