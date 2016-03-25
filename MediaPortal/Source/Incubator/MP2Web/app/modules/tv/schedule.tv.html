@@ -1,30 +1,21 @@
-<link rel="stylesheet" href="css/schedule.tv.css" />
+<link rel="stylesheet" href="css/schedule.tv.css"/>
+<link href="/node_modules/ag-grid/dist/styles/ag-grid.css" rel="stylesheet" />
+<link href="/app/common/css/ag-grid-theme.css" rel="stylesheet" />
 
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Name</th>
-      <th>Channel</th>
-      <th>Start Time</th>
-      <th>End Time</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <template ngFor #schedule [ngForOf]="scheduleList" #index="i">
-      <tr>
-        <th scope="row">1</th>
-        <td>{{schedule.Name}}</td>
-        <td>{{getChannel(schedule.ChannelId).Name}}</td>
-        <!--<td>{{schedule.ChannelId}}</td>-->
-        <td>{{dateToString(schedule.StartTime, "DD.MM.YYYY - HH:mm")}}</td>
-        <td>{{dateToString(schedule.EndTime, "DD.MM.YYYY - HH:mm")}}</td>
-        <td><a href="javascript:void(0)" (click)="onDeleteSchedule(schedule.ScheduleId)" class="fa fa-trash"></a></td>
-        </tr>
-    </template>
-  </tbody>
-</table>
+<!--
+https://www.ag-grid.com/best-angular-2-data-grid/index.php
+Angular Compiling is NOT supported inside ag-Grid for Angular 2.
+We need to wait until this is supported!
+-->
+<input #filter type="text" style="width: 400px;" (input)="onQuickFilterChanged(filter.value)" placeholder="Filter..."/>
+<span class="ag-table-actions">
+  <b>Selected: </b><a href="javascript:void(0)" (click)="onDeleteSelectedSchedules()" class="fa fa-trash"></a>
+</span>
+<ag-grid-ng2 #agGrid class="ag-mpweb ag-table"
+              [gridOptions]="gridOptions" [columnDefs]="columnDefs" [rowData]="rowData"
+              rowHeight="37">
+  <!--suppressRowClickSelection-->
+</ag-grid-ng2>
 
 <!-- Waiting -->
 <div class="modal-backdrop fade in processing" [style.display]="processing ? 'block' : 'none'">
