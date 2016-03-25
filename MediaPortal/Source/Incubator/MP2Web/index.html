@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=10"/>
@@ -43,14 +43,22 @@
         System.config({
             packages: {
                 app: {
-                    format: 'register',
-                    defaultExtension: 'js'
+                    format: "register",
+                    defaultExtension: "js"
+                },
+                "ag-grid-ng2": {
+                  defaultExtension: "js"
+                },
+                "ag-grid": {
+                  defaultExtension: "js"
                 }
             },
             map: {
                 "ng2-translate/ng2-translate" : "ng2-translate",
                 "moment" : "node_modules/moment/moment.js",
-                "Chart" : "node_modules/chart.js/Chart.min.js"
+                "Chart" : "node_modules/chart.js/Chart.min.js",
+                "ag-grid-ng2": "node_modules/ag-grid-ng2",
+                "ag-grid": "node_modules/ag-grid" 
             }
         });
         System.import('app/boot')
@@ -60,7 +68,7 @@
 </head>
 
 <!-- 3. Display the application -->
-<body>
+<body style="height: 100%;">
 
 <mp2web>
     <link rel="stylesheet" href="app/common/css/loading.css" />

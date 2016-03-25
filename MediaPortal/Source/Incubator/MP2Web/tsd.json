@@ -6,22 +6,22 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "es6-shim/es6-shim.d.ts": {
-      "commit": "ce8ae773688d2244ba11fdf3378fcd68f773e1c4"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     },
     "moment/moment.d.ts": {
-      "commit": "ce8ae773688d2244ba11fdf3378fcd68f773e1c4"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     },
     "moment/moment-node.d.ts": {
-      "commit": "ce8ae773688d2244ba11fdf3378fcd68f773e1c4"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     },
     "angular2/angular2.d.ts": {
       "commit": "e72dc16dbe4afa3428c4524901cbd2501a84a98b"
     },
     "jquery/jquery.d.ts": {
-      "commit": "ce8ae773688d2244ba11fdf3378fcd68f773e1c4"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     },
     "bootstrap/bootstrap.d.ts": {
-      "commit": "ce8ae773688d2244ba11fdf3378fcd68f773e1c4"
+      "commit": "a44529fcb1e1cdc0355e71c42a6048de99b57c34"
     }
   }
 }

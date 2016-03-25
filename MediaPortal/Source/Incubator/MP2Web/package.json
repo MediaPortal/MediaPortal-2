@@ -7,7 +7,7 @@
   "license": "GPL-3.0",
   "private": true,
   "dependencies": {
-    "angular2": "2.0.0-beta.9",
+    "angular2": "2.0.0-beta.8",
     "systemjs": "0.19.24",
     "es6-promise": "3.0.2",
     "es6-shim": "0.33.3",
@@ -17,11 +17,13 @@
     "zone.js": "0.5.15",
     "jquery": "^2.2.0",
     "moment": "2.11.2",
-    "ng2-bootstrap": "1.0.7",
+    "ng2-bootstrap": "1.0.6",
     "ng2-translate": "1.7.3",
     "bootstrap": "^3.3.6",
     "font-awesome": "^4.5.0",
-    "ng2-toastr": "^0.1.6"
+    "ng2-toastr": "^0.1.6",
+    "ag-grid": "4.0.2",
+    "ag-grid-ng2": "4.0.2"
   },
   "//": [
     "meow is a dependency of gulp; only included to circumvent the max path length problem; remove once VS uses NPMv3",

@@ -47,6 +47,15 @@ var config = {
       "node_modules/ng2-toastr/bundles/ng2-toastr.js",
       "node_modules/ng2-toastr/bundles/ng2-toastr.min.css",
 
+      "node_modules/ag-grid/main.d.ts",
+      "node_modules/ag-grid/main.js",
+      "node_modules/ag-grid/main-with-styles.js",
+      "node_modules/ag-grid/dist/**/*.*",
+
+      "node_modules/ag-grid-ng2/main.d.ts",
+      "node_modules/ag-grid-ng2/main.js",
+      "node_modules/ag-grid-ng2/lib/*.*",
+
       "node_modules/moment/moment.js",
       "node_modules/ng2-bootstrap/bundles/ng2-bootstrap.min.js",
       "node_modules/chart.js/Chart.min.js",
