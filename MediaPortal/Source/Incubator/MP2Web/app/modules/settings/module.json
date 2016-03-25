@@ -1,0 +1,12 @@
+﻿[
+  {
+    "Menu": "393F2063-36BE-448D-8E49-BE139A681551",
+    "Name": "Settings",
+    "Label": "Settings",
+    "Path": "/settings/...",
+    "Priority": 0,
+    "ComponentPath": "./app/modules/settings/lib/settings.component",
+    "Component": "SettingsComponent",
+    "Visible": true
+  }
+]

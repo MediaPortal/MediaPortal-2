@@ -1,0 +1,13 @@
+﻿[
+  {
+    "Menu": "70A31167-2C9C-40B4-9D47-DFA4B316F72F",
+    "Name": "Home",
+    "Label": "Home",
+    "Path": "/",
+    "Category": "test",
+    "Priority": 0,
+    "ComponentPath": "./app/modules/home/lib/home.component",
+    "Component": "HomeComponent",
+    "Visible": true
+  }
+]

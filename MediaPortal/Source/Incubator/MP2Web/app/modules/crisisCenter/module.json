@@ -1,0 +1,11 @@
+﻿[
+  {
+    "Menu": "9F1F8799-33D1-499C-8228-E94D3E7D1768",
+    "Name": "CrisisCenter",
+    "Label": "CrisisCenter",
+    "Path": "/crisis-center",
+    "ComponentPath": "./app/crisis-list.component",
+    "Component": "CrisisListComponent",
+    "Visible": true
+  }
+]

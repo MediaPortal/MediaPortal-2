@@ -22,12 +22,18 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.MP2Web.Configuration
 {
-  public class MP2WebAppRouterConfiguration
+  public class MP2WebModuleDefinition
   {
+    /// <summary>
+    /// Defines the Menupoint in the Navigationbar
+    /// </summary>
+    public Guid? Menu { get; set; }
+
     /// <summary>
     /// Identifier for the Route: [routerLink]="['Name']"
     /// It must start with an upper case!
@@ -72,11 +78,5 @@ namespace MediaPortal.Plugins.MP2Web.Configuration
     /// Is the entry visble in the Navigation
     /// </summary>
     public bool Visible { get; set; }
-
-    /// <summary>
-    /// Subpages.
-    /// If not Empty a Dropndown menu will be shown.
-    /// </summary>
-    public List<MP2WebAppRouterConfiguration> Pages { get; set; }
   }
 }

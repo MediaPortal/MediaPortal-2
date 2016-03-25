@@ -22,40 +22,44 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.MP2Web.Configuration
 {
-  /// <summary>
-  /// This class defines the Configuration Object which gets send to the Web App.
-  /// ATTENTION:
-  /// It must be in line with interface.ConfigurationService.ts
-  /// </summary>
-  public class MP2WebAppConfiguration
+  public class MP2WebMenuDefinition
   {
     /// <summary>
-    /// URL to the WebAPI, e.g. "http://localhost:5555"
+    /// Id of the Menu Item
     /// </summary>
-    public string WebApiUrl { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
-    /// All availble Routes inseide the MP2WebApp except the "/" Route which is hardcoded inside the MP2WebApp.
+    /// Defines the order of the menu items
     /// </summary>
-    public List<MP2WebAppRouterConfiguration> Routes { get; set; }
+    public int Priority { get; set; }
 
     /// <summary>
-    /// How many Movies are shown in one row
+    /// Identifier for the Route: [routerLink]="['Name']"
+    /// It must start with an upper case!
     /// </summary>
-    public int MoviesPerRow { get; set; }
-    
-    /// <summary>
-    /// How many Movies are requested per Request
-    /// </summary>
-    public int MoviesPerQuery { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
-    /// Which group should be shown when entering the EPG
+    /// Label which is shown in the Navigationbar
     /// </summary>
-    public int DefaultEpgGroupId { get; set; }
+    public string Label { get; set; }
+
+    /// <summary>
+    /// Route Path: "/Path"
+    /// If the Component defines own Routes the Route must end with "/..."
+    /// e.g. "movies/..."
+    /// </summary>
+    public string Path { get; set; }
+
+    /// <summary>
+    /// Is the entry visble in the Navigation
+    /// </summary>
+    public bool Visible { get; set; }
   }
 }

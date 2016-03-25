@@ -22,12 +22,16 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Plugins.AspNetWebApi;
 using MediaPortal.Plugins.MP2Web.Configuration;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Web.Controllers
 {
@@ -39,6 +43,9 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
   {
     #region Private fields
 
+    const string MODULES_PATH = "./wwwroot/app/modules";
+    const string MODULE_DEFINITION_FILE = "module.json";
+    const string MENU_DEFINITION_FILE = "menu.json";
     private readonly ILogger _logger;
 
     #endregion
@@ -62,139 +69,136 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
     public MP2WebAppConfiguration Get()
     {
       var webApiPort = ServiceRegistration.Get<IAspNetWebApiService>().Port;
+      
       return new MP2WebAppConfiguration
       {
         WebApiUrl = "http://" + HttpContext.Request.Host.Value.Split(':')[0] + ":" + webApiPort,
-        Routes = new List<MP2WebAppRouterConfiguration>
+        Routes = GenerateRoutes(),
+        MoviesPerRow = 5,
+        MoviesPerQuery = 6,
+        DefaultEpgGroupId = 1
+      };
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Iterates through all modules and looks for a module.json file
+    /// If found it trys to parse it
+    /// </summary>
+    /// <returns></returns>
+    private List<MP2WebAppRouterConfiguration> GenerateRoutes()
+    {
+      List<MP2WebAppRouterConfiguration> routes = new List<MP2WebAppRouterConfiguration>();
+      Dictionary<Guid, List<MP2WebAppRouterConfiguration>> routeDictionary = new Dictionary<Guid, List<MP2WebAppRouterConfiguration>>();
+
+      try
+      {
+        // Get all modules and go through each one
+        string[] modules = Directory.GetDirectories(Path.Combine(MP2WebService.ASSEMBLY_PATH, MODULES_PATH));
+        foreach (var module in modules)
         {
-          new MP2WebAppRouterConfiguration
+          try
           {
-            Name = "MediaLibrary",
-            Label = "Media Library",
-            Path = "/MediaLibrary",
-            Visible = true,
-            Pages = new List<MP2WebAppRouterConfiguration>
+            // If the module has a definition file, process it
+            string moduleDefinitionPath = Path.Combine(module, MODULE_DEFINITION_FILE);
+            if (System.IO.File.Exists(moduleDefinitionPath))
             {
-              new MP2WebAppRouterConfiguration
+              List<MP2WebModuleDefinition> moduleDefinitions = JsonConvert.DeserializeObject<List<MP2WebModuleDefinition>>(System.IO.File.ReadAllText(moduleDefinitionPath));
+              foreach (var moduleDefinition in moduleDefinitions)
               {
-                Name = "Home",
-                Label = "Home",
-                Category = "test",
-                Path = "/",
-                ComponentPath = "./app/modules/home/lib/home.component",
-                Component = "HomeComponent",
-                Visible = true
-              },
-              new MP2WebAppRouterConfiguration
-              {
-                Name = "Heroes",
-                Label = "Heroes",
-                Category = "test",
-                Path = "/heroes",
-                ComponentPath = "./app/hero-list.component",
-                Component = "HeroListComponent",
-                Visible = true
-              },
-              new MP2WebAppRouterConfiguration
-              {
-                Name = "Movies",
-                Label = "Movies",
-                Category = "Movies",
-                Path = "/movies/...",
-                ComponentPath = "./app/modules/movies/lib/movies.component",
-                Component = "MoviesComponent",
-                Visible = true
-              }
-            }
-          },
-          new MP2WebAppRouterConfiguration
-          {
-            Name = "Tv",
-            Label = "Tv",
-            Path = "/Tv",
-            Visible = true,
-            Pages = new List<MP2WebAppRouterConfiguration>
-            {
-              new MP2WebAppRouterConfiguration
-              {
-                Name = "EPG",
-                Label = "EPG",
-                Path = "/EPG",
-                ComponentPath = "./app/modules/tv/lib/epg.tv.component",
-                Component = "EpgTvComponent",
-                Visible = true
-              },
-              new MP2WebAppRouterConfiguration
-              {
-                Name = "Schedules",
-                Label = "Schedules",
-                Path = "/Schedules",
-                ComponentPath = "./app/modules/tv/lib/schedules.tv.component",
-                Component = "SchedulesTvComponent",
-                Visible = true
-              }
-            }
-          },
-          new MP2WebAppRouterConfiguration
-          {
-            Name = "test",
-            Label = "test",
-            Visible = true,
-            Pages = new List<MP2WebAppRouterConfiguration>
-            {
-              new MP2WebAppRouterConfiguration
-              {
-                Name = "CrisisCenter",
-                Label = "CrisisCenter",
-                Path = "/crisis-center",
-                ComponentPath = "./app/crisis-list.component",
-                Component = "CrisisListComponent",
-                Visible = true
-              }
-            }
-          },
-          new MP2WebAppRouterConfiguration
-          {
-            Name = "Heroes",
-            Label = "Heroes",
-            Path = "/heroes",
-            ComponentPath = "./app/hero-list.component",
-            Component = "HeroListComponent",
-            Visible = true
-          },
-          new MP2WebAppRouterConfiguration
-          {
-            Name = "System",
-            Label = "System",
-            Path = "System",
-            Visible = true,
-            Pages = new List<MP2WebAppRouterConfiguration>
-            {
-              new MP2WebAppRouterConfiguration
-              {
-                Name = "Settings",
-                Label = "Settings",
-                Path = "/settings/...",
-                ComponentPath = "./app/modules/settings/lib/settings.component",
-                Component = "SettingsComponent",
-                Visible = true
-              },
-              new MP2WebAppRouterConfiguration
-              {
-                Name = "SystemStatus",
-                Label = "Information",
-                Path = "/systemStatus",
-                ComponentPath = "./app/modules/systemStatus/lib/systemStatus.component",
-                Component = "SystemStatusComponent",
-                Visible = true
+                // create Route
+                MP2WebAppRouterConfiguration route = new MP2WebAppRouterConfiguration
+                {
+                  Name = moduleDefinition.Name,
+                  Label = moduleDefinition.Label,
+                  Path = moduleDefinition.Path,
+                  Category = moduleDefinition.Category,
+                  Priority = moduleDefinition.Priority,
+                  Component = moduleDefinition.Component,
+                  ComponentPath = moduleDefinition.ComponentPath,
+                  Visible = moduleDefinition.Visible
+                };
+
+                // if "Menu" == null it is a direct link in the NavigationBar
+                if (moduleDefinition.Menu == null)
+                {
+                  routes.Add(route);
+                }
+                else
+                {
+                  if (!routeDictionary.ContainsKey(moduleDefinition.Menu.Value))
+                  {
+                    routeDictionary.Add(moduleDefinition.Menu.Value, new List<MP2WebAppRouterConfiguration>());
+                  }
+
+                  routeDictionary[moduleDefinition.Menu.Value].Add(route);
+                }
               }
             }
           }
-        },
+          catch (Exception e)
+          {
+            _logger.LogError("Error accessing dir", e);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError("Error generating Routes", ex);
+      }
 
-        MoviesPerRow = 5,
-        MoviesPerQuery = 6
-      };
+      routes.AddRange(LoadMenuDefinitionAndAddSubpages(routeDictionary));
+      // Sort
+      routes = routes.OrderBy(x => x.Priority).ToList();
+
+      return routes;
+    }
+
+    /// <summary>
+    /// Gets the menu items from the definition file and adds the routes to each menu point
+    /// </summary>
+    /// <param name="routeDictionary"></param>
+    /// <returns></returns>
+    private List<MP2WebAppRouterConfiguration> LoadMenuDefinitionAndAddSubpages(Dictionary<Guid, List<MP2WebAppRouterConfiguration>> routeDictionary)
+    {
+      List<MP2WebAppRouterConfiguration> routes = new List<MP2WebAppRouterConfiguration>();
+
+      try
+      {
+        string menuDefinitionPath = Path.Combine(MP2WebService.ASSEMBLY_PATH, MODULES_PATH, MENU_DEFINITION_FILE);
+        if (System.IO.File.Exists(menuDefinitionPath))
+        {
+          List<MP2WebMenuDefinition> menuDefinitions = JsonConvert.DeserializeObject<List<MP2WebMenuDefinition>>(System.IO.File.ReadAllText(menuDefinitionPath));
+
+          foreach (var menuDefinition in menuDefinitions)
+          {
+            List<MP2WebAppRouterConfiguration> pages = null;
+            if (routeDictionary.ContainsKey(menuDefinition.Id))
+            {
+              pages = routeDictionary[menuDefinition.Id].OrderBy(r => r.Priority).ToList();
+            }
+
+            routes.Add(new MP2WebAppRouterConfiguration
+            {
+              Name = menuDefinition.Name,
+              Label = menuDefinition.Label,
+              Path = menuDefinition.Path,
+              Priority = menuDefinition.Priority,
+              Visible = menuDefinition.Visible,
+              Pages = pages
+            });
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError("Error generating Menu", ex);
+      }
+
+      return routes;
     }
 
     #endregion
