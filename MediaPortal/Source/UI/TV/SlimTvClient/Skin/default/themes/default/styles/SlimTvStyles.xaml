@@ -815,4 +815,23 @@
     </Setter>
   </Style>
 
+  <ControlTemplate x:Key="PiPControlTemplate">
+    <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}"
+                    IsVisible="{Binding PiPAvailable}"
+                    Command="{Command TogglePiP}">
+      <Button.Content>
+        <Image x:Name="PiPIndicatorImage">
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0}?{1}:{2})">
+              <Binding Path="PiPEnabled"/>
+              <Binding Source="PIP_on.png"/>
+              <Binding Source="PIP_off.png"/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
+      </Button.Content>
+    </Button>
+  </ControlTemplate>
+
+
 </ResourceDictionary>

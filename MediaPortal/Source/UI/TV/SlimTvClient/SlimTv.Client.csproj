@@ -160,6 +160,8 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\ProgramInfo.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\default\images\PIP_off.png" />
+    <Content Include="Skin\default\images\PIP_on.png" />
     <Content Include="Skin\default\images\tvguide_recordserie_button.png" />
     <Content Include="Skin\default\screens\MediaItemFanArt.inc" />
     <Content Include="Skin\default\screens\MediaItemRecordingDetails.inc" />

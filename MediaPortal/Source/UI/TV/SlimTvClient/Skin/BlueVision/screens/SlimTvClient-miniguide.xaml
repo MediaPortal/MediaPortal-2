@@ -67,13 +67,9 @@
                    FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}" Margin="7,0,0,0"/>
           </StackPanel>
 
-          <StackPanel x:Name="PiPControl" IsVisible="{Binding PiPAvailable}" Margin="20,0,20,0"
-                      HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
-            <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}"
-                Content="PiP enabled:" Command="{Command TogglePiP}" />
-            <Label x:Name="PiPStatusLabel" Margin="10,0,0,0" Content="{Binding PiPEnabled}" VerticalAlignment="Center"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-          </StackPanel>   
+          <Control Template="{ThemeResource PiPControlTemplate}" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
+                 HorizontalAlignment="Left"/>
+
         </StackPanel>
         <Label x:Name="TimeLabel" Grid.Column="1" Grid.Row="0"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
                FontSize="{ThemeResource SmallFontSize}" Margin="0,0,60,0" FontFamily="DefaultBold"

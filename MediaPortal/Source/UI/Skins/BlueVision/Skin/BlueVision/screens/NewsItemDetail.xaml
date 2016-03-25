@@ -28,7 +28,9 @@
 
         <ScrollViewer CanContentScroll="False" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" Focusable="True" Margin="0,0,10,0">
           <ScrollViewer.Resources>
-            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="30" />
+            </ResourceWrapper>
           </ScrollViewer.Resources>
 
           <Label Color="{ThemeResource TextColor}" Content="{Binding SelectedItem.Summary}" Wrap="True"/>
