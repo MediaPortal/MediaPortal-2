@@ -1,13 +1,25 @@
 import {Injectable, EventEmitter} from "angular2/core";
-import {HTTP_PROVIDERS, Http, Request, RequestMethod} from "angular2/http";
+import {HTTP_PROVIDERS, Http, Request, Response, RequestMethod} from "angular2/http";
+import {Observable} from "rxjs/Observable";
+import "rxjs/add/operator/catch";
+import "rxjs/add/observable/throw";
 import {ConfigurationService} from "../../../common/lib/ConfigurationService/ConfigurationService";
+import {MessageService} from "../../../common/lib/MessageService/MessageService";
+import {MessageType} from "../../../common/lib/MessageService/IMessageType";
 
 @Injectable()
 export class MediaLibrary {
     BASE_URL: string;
 
-    constructor(private http: Http, private configurationService: ConfigurationService) {
+    constructor(private http: Http, private configurationService: ConfigurationService, private messageService: MessageService) {
         this.BASE_URL = configurationService.config.WebApiUrl;
+    }
+
+    /*
+    Construtor class for all http requests. Saves code for the error handling
+    */
+    private newHttp(request: Request, errorTitle: string = "Http Error in TvService"): Observable<Response> {
+      return this.http.request(request).catch(err => this.onHttpError(errorTitle, err));
     }
 
     public Search(necessaryMiaIds?: string[], optionalMiaIds?: string[], sortInformationStrings = null, offset = null, limit = null) {
@@ -22,17 +34,17 @@ export class MediaLibrary {
             url += "&limit="+limit;
         }
 
-        return this.http.request(new Request({
-            method: RequestMethod.Get,
-            url: url
-        }));
+        return this.newHttp(new Request({
+          method: RequestMethod.Get,
+          url: url
+        }), "Failed to search for MediaItem");
     }
 
     public GetMediaItem(id: string, filterOnlyOnline: boolean = false) {
-        return this.http.request(new Request({
-            method: RequestMethod.Get,
-            url: this.BASE_URL + "/api/v1/MediaLibrary/MediaItems/" + id + "?filterOnlyOnline=" + filterOnlyOnline
-        }));
+        return this.newHttp(new Request({
+          method: RequestMethod.Get,
+          url: this.BASE_URL + "/api/v1/MediaLibrary/MediaItems/" + id + "?filterOnlyOnline=" + filterOnlyOnline
+        }), "Failed to retrieve MediaItem");
     }
 
     public GetAspect(item, aspect) {
@@ -41,6 +53,20 @@ export class MediaLibrary {
                 return item.Aspects[i];
             }
         }
+    }
+
+    /*
+    Error handling
+    - send a notification to the user
+    - log to the console
+    - pass the error to the calling Component
+    */
+    private onHttpError(title: string, err: Response) {
+      this.messageService.addNotificationMessage(title, MessageType.Error, "Status: " + err.status + " " + err.statusText);
+      console.error(title);
+      console.error(err.url);
+      console.error(err);
+      return Observable.throw(err); // pass the error to the calling Component e.g. the EPG component
     }
 }
 
