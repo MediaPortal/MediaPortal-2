@@ -2,6 +2,7 @@ import {Component, View, EventEmitter, OnChanges, SimpleChange, OnInit, ElementR
 import {COMMON_DIRECTIVES, CORE_DIRECTIVES} from "angular2/common";
 import * as moment from "moment";
 
+import {ConfigurationService} from "../../../lib/ConfigurationService/ConfigurationService";
 import {INavigation} from "./INavigation";
 import {ITimeindicator} from "./ITimeindicator";
 import {TvService} from "../../../lib/TvService/TvService";
@@ -45,12 +46,23 @@ export class EpgComponent {
   dayLine: INavigation[] = [];
   timeindicator: ITimeindicator = {Visible: false, Width: 0};
 
-  constructor(public tvService: TvService, private elements: ElementRef) {
+  constructor(public tvService: TvService, private configurationService: ConfigurationService, private elements: ElementRef) {
     // Load Channel groups
     tvService.GetGroups().map(res => res.json()).map(res => tvService.ToGroupList(res)).subscribe(
       res => {
         this.channelGroups = res;
-        this.selectedGroup = res[0]; // TVE always has at least the "All Channels" Group
+        for (let group of this.channelGroups) {
+          console.log(group);
+          if (group.Id === configurationService.config.DefaultEpgGroupId) {
+            this.selectedGroup = group;
+            break;
+          }
+        }
+
+        if (this.selectedGroup == null) {
+          console.log("No group found with Id: " + configurationService.config.DefaultEpgGroupId + " => Taking default group");
+          this.selectedGroup = res[0]; // TVE always has at least the "All Channels" Group
+        }
         // get the Channels for the Group
         this.GetChannelsByGroup(this.selectedGroup.Id);
         // get the Programs for the Group
