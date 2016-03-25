@@ -1,4 +1,4 @@
-import {Component, View, OnChanges, SimpleChange} from "angular2/core";
+import {Component, View, OnChanges, SimpleChange, provide} from "angular2/core";
 import {ROUTER_DIRECTIVES, Location, RouteConfig, RouterLink, Router} from "angular2/router";
 import {COMMON_DIRECTIVES, NgIf, NgFor} from "angular2/common";
 import {TranslateService, TranslatePipe} from "ng2-translate/ng2-translate";
@@ -10,6 +10,10 @@ import {HomeComponent}     from "./modules/home/lib/home.component";
 import {ConfigurationService} from "./common/lib/ConfigurationService/ConfigurationService";
 import {MP2WebAppRouterConfiguration} from "./common/lib/ConfigurationService/interface.RouteConfiguration";
 import {ServerControllerService} from "./common/lib/ServerControllerService/ServerControllerService";
+import {MessageService} from "./common/lib/MessageService/MessageService";
+import {IMessage} from "./common/lib/MessageService/IMessage";
+import {MessageType} from "./common/lib/MessageService/IMessageType";
+import {ToastsManager, ToastOptions} from "ng2-toastr/ng2-toastr";
 
 /*
 Main MP2Web Component
@@ -20,7 +24,8 @@ This Component get's bootstraped and is responsible for the further Application 
     selector: "mp2web",
     templateUrl: "app/modules/main/main.html",
     directives: [ROUTER_DIRECTIVES, COMMON_DIRECTIVES, NgFor, NgIf],
-    pipes: [TranslatePipe]
+    pipes: [TranslatePipe],
+    providers: [ToastsManager, provide(ToastOptions, { useValue: new ToastOptions({ positionClass: "toast-bottom-left" }) })]
 })
 export class AppComponent {
     routes: MP2WebAppRouterConfiguration[];
@@ -33,10 +38,12 @@ export class AppComponent {
 
     loaded: boolean = false;
     configurationServiceLoadedSubscription: any;
+    messageServiceNewNotificationMessageSubscription: any;
     attachedClients: any;
 
     constructor(public router: Router, public location: Location, private translate: TranslateService,
-                private configurationService: ConfigurationService, public serverControllerService: ServerControllerService) {
+      private configurationService: ConfigurationService, public serverControllerService: ServerControllerService,
+      public messageService: MessageService, private toastr: ToastsManager) {
         /*
         Wait for Configuration Service
          */
@@ -44,6 +51,14 @@ export class AppComponent {
             console.log("AppComponent: Config loaded");
             this.setup();
         });
+
+        /*
+        Subscribe to new Notification Messages
+        */
+        this.messageServiceNewNotificationMessageSubscription = this.messageService.getNotificationMessageEmitter()
+          .subscribe(message => {
+            this.newNotificationMessage(message);
+          });
     }
 
     setup() {
@@ -80,7 +95,7 @@ export class AppComponent {
         /*
         Attached Clients setup
          */
-        this.attachedClients = ServerControllerService
+        this.attachedClients = ServerControllerService;
     }
 
     /*
@@ -185,5 +200,24 @@ export class AppComponent {
         }
 
         return false;
+    }
+
+    /*
+    Gets called if there is a new Notification Message
+    */
+    newNotificationMessage(message: IMessage) {
+      switch (message.type) {
+        case MessageType.Error:
+          this.toastr.error(message.text, message.title);
+          break;
+        case MessageType.Warning:
+          this.toastr.warning(message.text, message.title);
+          break;
+        case MessageType.Info:
+          this.toastr.info(message.text, message.title);
+          break;
+        default:
+          this.toastr.info(message.text, message.title);
+      }
     }
 }

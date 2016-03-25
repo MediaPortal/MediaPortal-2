@@ -42,7 +42,7 @@
                 -->
                 <!-- Clients -->
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <a href="javascript: void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         <span>
                             <i class="fa fa-desktop"></i>
                             <template [ngIf]="serverControllerService.onlineClients > 0">
@@ -54,7 +54,7 @@
                     <ul class="dropdown-menu">
                         <template ngFor #client [ngForOf]="serverControllerService.attachedClients">
                             <li>
-                                <a>
+                                <a href="javascript: void(0);">
                                     <i [class]="client.Online ? 'fa fa-check-circle' : 'fa fa-circle-thin'"></i>
                                     <span [class]="client.Online ? '' : 'text-muted'">{{client.LastClientName}}</span>
                                 </a>
@@ -64,15 +64,19 @@
                 </li>
                 <!-- Alerts -->
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <a href="javascript: void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" (click)="messageService.onMessagesView()">
                         <span>
                             <i class="fa fa-bell"></i>
-                            <span class="badge">5</span>
+                            <template [ngIf]="messageService.unreadNotificationMessages > 0">
+                              <span class="badge">{{messageService.unreadNotificationMessages}}</span>
+                            </template>
                         </span>
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a>Client</a></li>
+                      <template ngFor #message [ngForOf]="messageService.notificationMessages">
+                        <li><a><i [class]="messageService.getFontAweasomeIcon(message.type)"></i> {{message.title}}</a></li>
+                      </template>
                     </ul>
                 </li>
             </ul>
@@ -82,7 +86,7 @@
 </template>
 
 <!-- CONTENT -->
-<div id="main" class="container" style="padding-top: 60px; padding-bottom: 60px;">
+<div id="main" class="container" style="padding-top: 60px; padding-bottom: 60px; height: 80%;">
     <router-outlet></router-outlet>
 </div>
 
