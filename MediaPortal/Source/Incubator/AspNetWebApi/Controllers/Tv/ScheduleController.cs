@@ -137,21 +137,27 @@ namespace MediaPortal.Plugins.AspNetWebApi.Controllers.Tv
     /// <summary>
     /// GET /api/v1/Tv/Schedule/Schedule
     /// </summary>
-    /// <param name="scheduleId">Id of the schedule which should be delted</param>
+    /// <param name="scheduleIds">Ids of the schedules which should be delted</param>
     /// <returns>Retunrs true on success, otherwise false</returns>
     [HttpDelete("Schedule/{scheduleId}")]
-    public bool RemoveSchedule(int scheduleId)
+    [HttpDelete("Schedules")]
+    public bool RemoveSchedule(int[] scheduleIds)
     {
       TvHelper.TvAvailable();
 
       IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      bool result = true;
+      foreach (var scheduleId in scheduleIds)
+      {
+        ISchedule schedule = GetSchedule(scheduleId);
 
-      ISchedule schedule = GetSchedule(scheduleId);
-
-      bool result = false;
-      if (scheduleControl != null)
-        result = scheduleControl.RemoveSchedule(schedule);
-
+        if (scheduleControl != null)
+          if (!scheduleControl.RemoveSchedule(schedule))
+          {
+            result = false;
+          }
+      }
+      
       ProgramInfoController.ClearCache();
 
       return result;
