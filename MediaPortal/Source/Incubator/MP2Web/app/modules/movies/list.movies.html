@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="css/movies.css" />
 <link rel="stylesheet" href="../../common/css/cornor_ribbon.css" />
 
-<div style="text-align: center;">
+<div style="text-align: center; padding-bottom: 60px;"> <!-- the padding prevents hiding text under the footer -->
     <div infinite-scroll (infinite-scroll-action)="loadMoreMovies()" [infinite-scroll-disabled]="moviesLoadingBussy" infinite-scroll-distance="1" style="margin: auto; display: inline-block">
         <div class="row movies" *ngFor="#movie of movieList; #x = index">
             <template [ngIf]="x % movieCoversPerRow == 0">
