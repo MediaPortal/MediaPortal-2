@@ -12,6 +12,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Starttijd</string>
   <string name="SlimTvClient.ProgramEndLabel">Eindtijd</string>
   <string name="SlimTvClient.EpisodeLabel">Aflevering</string>
+  <string name="SlimTvClient.Progress">Voortgang</string>
   <string name="SlimTvClient.Guide">TV-gids</string>
   <string name="SlimTvClient.NoProgram">Geen programma-informatie</string>
   <string name="SlimTvClient.ChooseProgramAction">Kies programma actie...</string>
@@ -44,6 +45,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Weekeinden</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Werkdagen</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Iedere keer wekelijks op deze zender</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Opnames op naam</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Opnames op naam</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Details geplande opname</string>
   <string name="SlimTvClient.ScheduleName">Geplande opnamenaam</string>

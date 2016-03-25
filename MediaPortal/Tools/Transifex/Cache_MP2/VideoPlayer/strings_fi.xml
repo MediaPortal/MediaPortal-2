@@ -9,6 +9,8 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Aseta videokoodekki MPEG4:lle (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC videokoodekki</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Aseta videokoodekki AVC:lle (HDTV, Bluray)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC videokoodekki</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Aseta videokoodekki HEVC:lle (HD, UHD)</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Äänikoodekit</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Äänilähtö</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 äänikoodekki</string>

@@ -9,4 +9,7 @@
   <string name="SystemState.Logoff">Afskrá</string>
   <string name="SystemState.MinimizeMP">Minnka MediaPortal</string>
   <string name="SystemState.ShutdownMP">Loka MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Valmynd lokunar</string>
+  <string name="SleepTimer.Start">Byrja</string>
+  <string name="SleepTimer.Stop">Stöðva</string>
 </resources>

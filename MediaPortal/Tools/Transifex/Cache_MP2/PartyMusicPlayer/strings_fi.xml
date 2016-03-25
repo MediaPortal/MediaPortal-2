@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.MenuItem">Party musiikkisoitin</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Aloita soittolista ja estä MediaPortalin käyttö sillä aikaa.</string>
   <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party musiikkisoitin</string>
   <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party musiikkisoitin</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Party musiikkisoittimen asetukset</string>

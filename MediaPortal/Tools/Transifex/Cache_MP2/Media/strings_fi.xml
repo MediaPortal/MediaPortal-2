@@ -8,6 +8,7 @@
   <string name="Media.SeriesMenuItem">Sarjat</string>
   <string name="Media.MoviesMenuItem">Elokuvat</string>
   <string name="Media.ImagesMenuItem">Kuvat</string>
+  <string name="Media.LatestMediaMenuItem">Viimeisimmät mediat</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Suodata artistin mukaan</string>
   <string name="Media.FilterByAlbumMenuItem">Suodata albumin mukaan</string>
@@ -79,6 +80,7 @@
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Sarjakirjasto</string>
   <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Elokuvakirjasto</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Kuvakirjasto</string>
+  <string name="Media.LatestMediaWorkflowNavigationContextDisplayLabel">Viimeisin media</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Nykyinen video</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Kokonäytön videokuva</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Nykyinen audio</string>
@@ -189,6 +191,9 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Oletus</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Säilytä PiP video</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.SetWatched">Aseta katsotuksi</string>
+  <string name="Media.SetUnwatched">Nollaa katsontakerrat</string>
+  <string name="Media.DeleteFromStorage">Poista varastosta</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Toista kappale</string>
   <string name="Media.PlayAudioItems">Toista audiokappaleita</string>
@@ -212,6 +217,7 @@
   <string name="Media.AudioContextName">Ääni</string>
   <!--Video currently playing-->
   <string name="Media.VideoCurrentlyPlayingHeader">Nykyisen videon tiedot</string>
+  <string name="Media.Rating">Arviointi:</string>
   <string name="Media.VideoTitleLabel">Otsikko:</string>
   <string name="Media.VideoGenreLabel">Tyyli:</string>
   <string name="Media.VideoCollectionLabel">Kokoelma:</string>
@@ -294,6 +300,8 @@
   <string name="Media.LargeList">Suuri lista</string>
   <string name="Media.LargeGrid">Ruudukko</string>
   <string name="Media.CoverLayout">Päälliset</string>
+  <string name="Media.Watched">Katsottu</string>
+  <string name="Media.Unwatched">Katsomaton</string>
   <string name="Media.SwitchSortingMenuItem">Lajittelu</string>
   <string name="Media.SwitchSortingDialogTitle">Lajittelu</string>
   <string name="Media.SortByTitle">Lajittele otsikon mukaan</string>

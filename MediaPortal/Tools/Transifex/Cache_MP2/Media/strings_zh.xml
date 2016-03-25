@@ -212,6 +212,7 @@
   <string name="Media.AudioContextName">音频</string>
   <!--Video currently playing-->
   <string name="Media.VideoCurrentlyPlayingHeader">当前视频信息</string>
+  <string name="Media.Rating">星级：</string>
   <string name="Media.VideoTitleLabel">标题：</string>
   <string name="Media.VideoGenreLabel">流派：</string>
   <string name="Media.VideoCollectionLabel">选集：</string>
@@ -294,6 +295,8 @@
   <string name="Media.LargeList">大列表</string>
   <string name="Media.LargeGrid">格</string>
   <string name="Media.CoverLayout">封面</string>
+  <string name="Media.Watched">已观看</string>
+  <string name="Media.Unwatched">未观看</string>
   <string name="Media.SwitchSortingMenuItem">排序</string>
   <string name="Media.SwitchSortingDialogTitle">排序</string>
   <string name="Media.SortByTitle">按标题排序</string>

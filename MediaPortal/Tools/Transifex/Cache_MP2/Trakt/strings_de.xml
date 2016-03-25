@@ -1,14 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Trakt.Enable">Aufzeichnung aktivieren</string>
+  <string name="Trakt.Close">Schließen</string>
   <string name="Trakt.UsernamePasswordGroup">Kontodetails</string>
   <string name="Trakt.Username">Benutzername</string>
-  <string name="Trakt.Password">Passwort</string>
-  <string name="Trakt.TestAccount">Konto testen</string>
+  <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
+  <string name="Trakt.PinCode">Erhaltener Pin-Code</string>
+  <string name="Trakt.Authorize">Autorisieren</string>
   <string name="Trakt.SyncMovies">Filme werden synchronisiert...</string>
   <string name="Trakt.SyncSeries">Serien werden synchronisiert...</string>
   <string name="Trakt.SyncFinished">Synchronisierung abgeschlossen!</string>
   <string name="Trakt.MediaLibraryNotConnected">Der Server ist gerade nicht verbunden, keine Synchronisation möglich!</string>
+  <string name="Trakt.WrongToken">Token nicht verfügbar</string>
+  <string name="Trakt.EmptyUsername">Bitte Nutzernamen eingeben</string>
+  <string name="Trakt.NotAuthorized">Zuerst autorisieren!</string>
+  <string name="Trakt.CheckPin">Anmeldung bei Trakt nicht möglich, falsche Pin?</string>
+  <string name="Trakt.LoggedIn">Anmeldung erfolgreich!</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Trakt.tv einrichten</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Legt Konto für Trakt.tv fest</string>

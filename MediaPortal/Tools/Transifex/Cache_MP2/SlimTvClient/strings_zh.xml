@@ -3,6 +3,7 @@
   <string name="SlimTvClient.Title">Slim TV客户端</string>
   <string name="SlimTvClient.Main">电视</string>
   <string name="SlimTvClient.TvGuide">电视指南</string>
+  <string name="SlimTvClient.SingleChannelGuide">频道指南</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">节目信息</string>
   <string name="SlimTvClient.ChannelLabel">频道</string>
   <string name="SlimTvClient.ProgramLabel">节目</string>
@@ -11,16 +12,29 @@
   <string name="SlimTvClient.ProgramStartLabel">开始时间</string>
   <string name="SlimTvClient.ProgramEndLabel">结束时间</string>
   <string name="SlimTvClient.EpisodeLabel">集</string>
+  <string name="SlimTvClient.Progress">进度</string>
   <string name="SlimTvClient.Guide">电视指南</string>
   <string name="SlimTvClient.NoProgram">没有节目数据</string>
   <string name="SlimTvClient.ChooseProgramAction">选择节目动作...</string>
   <string name="SlimTvClient.ChooseChannelGroup">选择频道组</string>
   <string name="SlimTvClient.ProgramOver">节目已经结束</string>
   <string name="SlimTvClient.WatchNow">现在观看节目</string>
+  <string name="SlimTvClient.WatchFromBeginning">从头开始观看录制</string>
   <string name="SlimTvClient.RecordNow">现在录制</string>
   <string name="SlimTvClient.DeleteSchedule">删除计划</string>
   <string name="SlimTvClient.CreateSchedule">计划录制</string>
+  <string name="SlimTvClient.ProgramSearch">搜索节目</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">录制行动</string>
+  <string name="SlimTvClient.StopCurrentRecording">停止当前录制 \'{0}\'</string>
+  <string name="SlimTvClient.RecordCurrentProgram">录制节目 \'{0}\'</string>
+  <string name="SlimTvClient.RecordManual">录制直到手动结束</string>
+  <string name="SlimTvClient.ManualRecordingTitle">手动录制</string>
+  <string name="SlimTvClient.RecordProgram">录制节目</string>
+  <string name="SlimTvClient.DontRecordProgram">不要录制</string>
+  <string name="SlimTvClient.ChooseScheduleType">选择录制方案类型</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">按名称录制</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">按名称录制</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">没有可用的电视提供商</string>
   <!--Settings-->

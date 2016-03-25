@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Starttid</string>
   <string name="SlimTvClient.ProgramEndLabel">Sluttid</string>
   <string name="SlimTvClient.EpisodeLabel">Episode</string>
+  <string name="SlimTvClient.Progress">Fremgang</string>
   <string name="SlimTvClient.Guide">TV-Guide</string>
   <string name="SlimTvClient.NoProgram">Ingen programdata.</string>
   <string name="SlimTvClient.ChooseProgramAction">Velg innstillinger for program...</string>
@@ -20,6 +21,8 @@
   <string name="SlimTvClient.DeleteSchedule">Fjerne planlagt</string>
   <string name="SlimTvClient.CreateSchedule">Planlegg opptak</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Opptak etter navn</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Opptak etter navn</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV kilde er tilgjengelig (enda)</string>
   <!--Settings-->

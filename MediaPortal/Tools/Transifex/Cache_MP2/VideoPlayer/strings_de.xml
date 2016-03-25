@@ -5,11 +5,11 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2-Videocodec</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Legen Sie den für MPEG2-Video verwendeten Codec fest (DVD, DVB-SD)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4-Videocodec</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Legt den Codec für MPEG4 Video fest (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Legt den Codec für MPEG4 Video fest (H.263, DivX, XVid)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC-Videocodec</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Legen Sie den für AVC-Video verwendeten Codec fest (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Legen Sie den für AVC-Video verwendeten Codec fest (H264, HDTV, BluRay)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC-Videocodec</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Legt den Codec für HEVC Video fest (HD, UHD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Legt den Codec für HEVC Video fest (H265, HD, UHD)</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Audiocodecs</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Audio Ausgabegerät</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2-Audiocodec</string>

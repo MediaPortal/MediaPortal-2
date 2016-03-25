@@ -12,6 +12,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Čas začátku</string>
   <string name="SlimTvClient.ProgramEndLabel">Čas konce</string>
   <string name="SlimTvClient.EpisodeLabel">Epizoda</string>
+  <string name="SlimTvClient.Progress">Průběh</string>
   <string name="SlimTvClient.Guide">TV program</string>
   <string name="SlimTvClient.NoProgram">Žádná programová data.</string>
   <string name="SlimTvClient.ChooseProgramAction">Vyberte akci programu...</string>
@@ -44,6 +45,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">O víkendech</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">V pracovní dny</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Týdně ve stejnou dobu na tomto kanále</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nahrávky podle názvu</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nahrávky podle názvu</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Detaily plánovaného nahrávání</string>
   <string name="SlimTvClient.ScheduleName">Název plánovaného nahrávání</string>

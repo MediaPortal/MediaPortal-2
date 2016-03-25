@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Neuigkeiten</string>
+  <string name="News.Title.Help">Ausgewählte Nachrichtenfeeds lesen.</string>
   <string name="News.FeedsStateDisplayLabel">Neuigkeiten</string>
   <string name="News.Published">Veröffentlicht</string>
   <string name="News.ConfiguredFeeds">Feeds konfigurieren</string>

@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Uutiset</string>
+  <string name="News.Title.Help">Lue suosikki uutissivustojasi.</string>
   <string name="News.FeedsStateDisplayLabel">Uutiset</string>
   <string name="News.Published">Julkaistu</string>
   <string name="News.ConfiguredFeeds">Määritetyt uutissyötteet</string>

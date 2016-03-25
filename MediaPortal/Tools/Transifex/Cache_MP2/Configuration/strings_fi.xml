@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">Asetukset</string>
+  <string name="Configuration.Name.Help">Määritä media lähteet ja muuta MediaPortalin ulkoasua.</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Asetukset</string>
   <string name="Configuration.MainSettings">Perusasetukset</string>
   <!--2nd Header for root configuration section-->

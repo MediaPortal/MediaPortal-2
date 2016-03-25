@@ -8,6 +8,7 @@
   <string name="Menu.Settings">Asetukset</string>
   <string name="Menu.Others">Muut</string>
   <string name="Menu.Home">Koti</string>
+  <string name="Menu.Main">Päävalikko</string>
   <string name="Movies.Title">Elokuvat</string>
   <string name="Series.Title">Sarjat</string>
   <string name="Audio.Title">Ääni</string>
