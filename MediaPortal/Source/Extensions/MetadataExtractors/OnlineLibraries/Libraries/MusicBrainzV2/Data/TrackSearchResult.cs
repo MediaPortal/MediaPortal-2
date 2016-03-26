@@ -29,90 +29,6 @@ using System.Runtime.Serialization;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
   [DataContract]
-  public class ArtistSection
-  {
-    [DataMember(Name = "id")]
-    public string Id { get; set; }
-
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
-
-    [DataMember(Name = "sort-name")]
-    public string SortName { get; set; }
-
-    public override string ToString()
-    {
-      return string.Format("Id: {0}, Name: {1}, SortName: {2}", Id, Name, SortName);
-    }
-  }
-
-  [DataContract]
-  public class ArtistCreditSection
-  {
-    [DataMember(Name = "artist")]
-    public ArtistSection Artist { get; set; }
-
-    public override string ToString()
-    {
-      return string.Format("Artist: {0}", Artist);
-    }
-  }
-
-  [DataContract]
-  public class TrackSection
-  {
-    [DataMember(Name = "id")]
-    public string Id { get; set; }
-
-    [DataMember(Name = "number")]
-    public string Number { get; set; }
-
-    [DataMember(Name = "title")]
-    public string Title { get; set; }
-
-    [DataMember(Name = "length")]
-    public int Length { get; set; }
-
-    public override string ToString()
-    {
-      return string.Format("Id: {0}, Number: {1}, Title: {2}, Length: {3}", Id, Number, Title, Length);
-    }
-  }
-
-  [DataContract]
-  public class MediaSection
-  {
-    [DataMember(Name = "track")]
-    public IList<TrackSection> Tracks { get; set; }
-
-    public override string ToString()
-    {
-      return string.Format("Tracks: [{0}]", string.Join(",", Tracks));
-    }
-  }
-
-  [DataContract]
-  public class Release
-  {
-    [DataMember(Name = "id")]
-    public string Id { get; set; }
-
-    [DataMember(Name = "title")]
-    public string Title { get; set; }
-
-    [DataMember(Name = "media")]
-    public IList<MediaSection> Media { get; set; }
-
-    [DataMember(Name = "artist-credit")]
-    public IList<ArtistCreditSection> Artists { get; set; }
-
-    public override string ToString()
-    {
-      return string.Format("Id: {0}, Title: {1}, Media: [{2}]", Id, Title, string.Join(",", Media));
-    }
-  }
-
-  [DataContract]
   public class TrackSearchResult
   {
     [DataMember(Name = "id")]
@@ -121,66 +37,104 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     [DataMember(Name = "title")]
     public string Title { get; set; }
 
-    [DataMember(Name = "artist_id")]
-    public string ArtistId { get; set; }
-
-    [DataMember(Name = "artist_name")]
-    public string ArtistName { get; set; }
-
-    [DataMember(Name = "album_id")]
-    public string AlbumId { get; set; }
-
-    [DataMember(Name = "album_name")]
-    public string AlbumName { get; set; }
-
-    [DataMember(Name = "genre")]
-    public string Genre { get; set; }
-
-    [DataMember(Name = "release_date")]
-    public DateTime? ReleaseDate { get; set; }
-
-    [DataMember(Name = "track_num")]
-    public int TrackNum { get; set; }
-
-    [DataMember(Name = "album_artist_id")]
-    public string AlbumArtistId { get; set; }
-
-    [DataMember(Name = "album_artist_name")]
-    public string AlbumArtistName { get; set; }
-
     [DataMember(Name = "artist-credit")]
-    public IList<ArtistCreditSection> Artists
-    {
-      get { return null; }
-      set
-      {
-        ArtistId = value[0].Artist.Id;
-        ArtistName = value[0].Artist.Name;
-      }
-    }
+    public IList<TrackArtistCredit> Artists { get; set; }
 
     [DataMember(Name = "releases")]
-    public IList<Release> Releases
-    {
-      get { return null; }
-      set
-      {
-        //Console.WriteLine("Release:{0}", value[0]);
-        AlbumId = value[0].Id;
-        AlbumName = value[0].Title;
+    public IList<TrackRelease> Releases { get; set; }
 
-        if(value[0].Artists != null)
-        {
-          Console.WriteLine("Artists:[{0}]", value[0].Artists);
-          AlbumArtistId = value[0].Artists[0].Artist.Id;
-          AlbumArtistName = value[0].Artists[0].Artist.Name;
-        }
-      }
-    }
+    [DataMember(Name = "tags")]
+    public IList<TrackTag> Tags { get; set; }
 
     public override string ToString()
     {
-      return string.Format("Id: {0}, Title: {1}, ArtistId: {2}, ArtistName: {3}, AlbumId: {4}, AlbumName: {5}, Genre: {6}, ReleaseDate: {7}, TrackNum: {8}, AlbumArtistId: {9}, AlbumArtistName: {10}", Id, Title, ArtistId, ArtistName, AlbumId, AlbumName, Genre, ReleaseDate, TrackNum, AlbumArtistId, AlbumArtistName);
+      return string.Format("Id: {0}, Title: {1}", Id, Title);
     }
+
+    public List<TrackResult> GetTracks()
+    {
+      List<TrackResult> tracks = new List<TrackResult>();
+      foreach(TrackRelease release in Releases)
+      {
+        if (!release.Status.Equals("Official", StringComparison.InvariantCultureIgnoreCase)) //Only official releases
+          continue;
+
+        if (release.ReleaseGroup != null && !release.ReleaseGroup.PrimaryType.Equals("Album", StringComparison.InvariantCultureIgnoreCase)) //Only album releases
+          continue;
+
+        if (Artists == null)
+          continue;
+
+        foreach (TrackMedia media in release.Media)
+        {
+          if (media.Track == null || media.Track.Count <= 0)
+            continue;
+
+          TrackResult track = new TrackResult();
+          track.AlbumId = release.Id;
+          track.Album = release.Title;
+          track.AlbumBarcode = release.Barcode;
+          track.DiscCount = media.Discs != null ? media.Discs.Count : 0;
+          track.Artists = new List<string>();
+          foreach (TrackArtistCredit artistCredit in Artists)
+          {
+            track.Artists.Add(artistCredit.Artist.Name);
+          }
+          track.Country = release.Country;
+          //track.Id = media.Tracks[0].Id;
+          track.Id = Id;
+          DateTime releaseDate;
+          if (DateTime.TryParse(release.Date, out releaseDate))
+            track.ReleaseDate = releaseDate;
+          else if (DateTime.TryParse(release.Date + "-01", out releaseDate))
+            track.ReleaseDate = releaseDate;
+          else if (DateTime.TryParse(release.Date + "-01-01", out releaseDate))
+            track.ReleaseDate = releaseDate;
+
+          track.Title = media.Track[0].Title;
+          int trackNum;
+          if (int.TryParse(media.Track[0].Number, out trackNum))
+            track.TrackNum = trackNum;
+          if (release.ReleaseGroup != null && release.ReleaseGroup.SecondaryTypes != null)
+            track.FromCompilation = release.ReleaseGroup.SecondaryTypes.Contains("Compilation");
+
+          tracks.Add(track);
+        }
+      }
+
+      return tracks;
+    }
+  }
+
+  [DataContract]
+  public class RecordingResult
+  {
+    [DataMember(Name = "recordings")]
+    public IList<TrackSearchResult> Results { get; set; }
+  }
+
+  public class TrackResult
+  {
+    public string Id { get; set; }
+
+    public string Title { get; set; }
+
+    public List<string> Artists { get; set; }
+
+    public string AlbumId { get; set; }
+
+    public string Album { get; set; }
+
+    public string AlbumBarcode { get; set; }
+
+    public int DiscCount { get; set; }
+
+    public DateTime? ReleaseDate { get; set; }
+
+    public int TrackNum { get; set; }
+
+    public bool FromCompilation { get; set; }
+
+    public string Country { get; set; }
   }
 }

@@ -42,6 +42,7 @@ using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Mock;
 using MediaPortal.Utilities;
+using System.Threading;
 
 namespace Test.OnlineLibraries
 {
@@ -78,7 +79,7 @@ namespace Test.OnlineLibraries
       }
     }
 
-    private static void TestMusicBrainz(string title, string artist, string album, string genre, int year, int trackNum, string language)
+    private static void TestMusicBrainz(string title, string artist, string album, int year, int trackNum)
     {
       ServiceRegistration.Set<IPathManager>(new PathManager());
       ServiceRegistration.Get<IPathManager>().SetPath("DATA", "_Test/data");
@@ -92,18 +93,21 @@ namespace Test.OnlineLibraries
 
       TrackInfo track = new TrackInfo();
       track.Title = title;
-      track.ArtistName = artist;
-      track.AlbumName = album;
-      track.Genre = genre;
+      track.Artists.Add(artist);
+      track.Album = album;
       track.Year = year;
       track.TrackNum = trackNum;
       if (matcher.FindAndUpdateTrack(track))
-        Console.WriteLine("Found track title={0} artist={1} album={2} genre={3} year={4} trackNum={5} language={6}:\nTitle={7} Artist={8} Album={9} Year={10} Track={11}", 
-          title, artist, album, genre, year, trackNum, language, track.Title, track.ArtistName, track.AlbumName, track.Year, track.TrackNum);
+      {
+        Console.WriteLine("Found track title={0} artist={1} album={2} year={3} trackNum={4}:\nTitle={5} Artists={6} Album={7} Year={8} Track={9}",
+          title, artist, album, year, trackNum, track.Title, string.Join(", ", track.Artists), track.Album, track.Year, track.TrackNum);
+
+        Thread.Sleep(5000); //Let fanart download
+      }
       else
       {
-        Console.WriteLine("Cannot find track title={0} artist={1} album={2} genre={3} year={4} trackNum={5} language={6}", 
-          title, artist, album, genre, year, trackNum, language);
+        Console.WriteLine("Cannot find track title={0} artist={1} album={2} year={3} trackNum={4}",
+          title, artist, album, year, trackNum);
       }
     }
 
@@ -123,8 +127,12 @@ namespace Test.OnlineLibraries
       track.CdDdId = cdDbId;
       track.Title = title;
       if (matcher.FindAndUpdateTrack(track))
-        Console.WriteLine("Found track CDDB ID={0} title={1}:\nTitle={2} Artist={3} Album={4} Year={5} Track={6}", 
-          cdDbId, title, track.Title, track.ArtistName, track.AlbumName, track.Year, track.TrackNum);
+      {
+        Console.WriteLine("Found track CDDB ID={0} title={1}:\nTitle={2} Artists={3} Album={4} Year={5} Track={6}",
+          cdDbId, title, track.Title, string.Join(", ", track.Artists), track.Album, track.Year, track.TrackNum);
+
+        Thread.Sleep(5000); //Let fanart download
+      }
       else
       {
         Console.WriteLine("Cannot find track CDDB ID={0} title={1}", cdDbId, title);
@@ -194,7 +202,7 @@ namespace Test.OnlineLibraries
 
     static void Usage()
     {
-      Console.WriteLine("Usage: Test.OnlineLibraries musicbrainz <title> <artist> <album> <genre> <year> <track #>");
+      Console.WriteLine("Usage: Test.OnlineLibraries musicbrainz <title> <artist> <album> <year> <track #>");
       Console.WriteLine("Usage: Test.OnlineLibraries freedb <CDDB ID> <title>");
       Console.WriteLine("Usage:                      recording <TVE XML file>");
       Environment.Exit(1);
@@ -206,8 +214,8 @@ namespace Test.OnlineLibraries
       {
         if (args.Length >= 1)
         {
-          if (args[0] == "musicbrainz" && args.Length == 7)
-            TestMusicBrainz(args[1], args[2], args[3], args[4], Int32.Parse(args[5]), Int32.Parse(args[6]), "GB");
+          if (args[0] == "musicbrainz" && args.Length == 6)
+            TestMusicBrainz(args[1], args[2], args[3], Int32.Parse(args[4]), Int32.Parse(args[5]));
 
           else if (args[0] == "freedb" && args.Length == 3)
             TestFreeDB(args[1], args[2]);

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2014 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2014 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,38 +28,12 @@ using System.Runtime.Serialization;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
   [DataContract]
-  public class TrackImage
+  public class TrackImageCollection
   {
-    [DataMember(Name = "id")]
-    public long Id { get; set; }
+    [DataMember(Name = "images")]
+    public List<TrackImage> Images { get; set; }
 
-    [DataMember(Name = "types")]
-    public List<string> Types { get; set; }
-
-    [DataMember(Name = "front")]
-    public bool Front { get; set; }
-
-    [DataMember(Name = "back")]
-    public bool Back { get; set; }
-
-    [DataMember(Name = "comment")]
-    public string Comment { get; set; }
-
-    [DataMember(Name = "image")]
-    public string ImageUrl { get; set; }
-
-    [DataMember(Name = "thumbnails")]
-    public TrackImageThumbnail Thumbnails { get; set; }
-
-    [DataMember(Name = "approved")]
-    public bool Approved { get; set; }
-
-    [DataMember(Name = "edit")]
-    public int Edit { get; set; }
-
-    public override string ToString()
-    {
-      return ImageUrl;
-    }
+    [DataMember(Name = "release")]
+    public string ReleaseUrl { get; set; }
   }
 }

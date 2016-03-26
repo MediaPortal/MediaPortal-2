@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -22,44 +22,39 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
   [DataContract]
-  public class TrackImage
+  public class TrackMedia
   {
-    [DataMember(Name = "id")]
-    public long Id { get; set; }
+    [DataMember(Name = "position")]
+    public int Position { get; set; }
 
-    [DataMember(Name = "types")]
-    public List<string> Types { get; set; }
+    [DataMember(Name = "title")]
+    public string Title { get; set; }
 
-    [DataMember(Name = "front")]
-    public bool Front { get; set; }
+    [DataMember(Name = "format")]
+    public string Format { get; set; }
 
-    [DataMember(Name = "back")]
-    public bool Back { get; set; }
+    [DataMember(Name = "track-count")]
+    public int TrackCount { get; set; }
 
-    [DataMember(Name = "comment")]
-    public string Comment { get; set; }
+    [DataMember(Name = "track")]
+    public IList<TrackData> Track { get; set; }
 
-    [DataMember(Name = "image")]
-    public string ImageUrl { get; set; }
+    [DataMember(Name = "tracks")]
+    public IList<TrackData> Tracks { get; set; }
 
-    [DataMember(Name = "thumbnails")]
-    public TrackImageThumbnail Thumbnails { get; set; }
-
-    [DataMember(Name = "approved")]
-    public bool Approved { get; set; }
-
-    [DataMember(Name = "edit")]
-    public int Edit { get; set; }
+    [DataMember(Name = "discs")]
+    public IList<TrackDisc> Discs { get; set; }
 
     public override string ToString()
     {
-      return ImageUrl;
+      return string.Format("Position: {0}, Format: {1}, TrackCount: {2}, Tracks: [{3}]", Position, Format, TrackCount, string.Join(",", Track));
     }
   }
 }

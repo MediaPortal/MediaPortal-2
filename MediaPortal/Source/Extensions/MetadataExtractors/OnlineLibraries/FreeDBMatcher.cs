@@ -78,24 +78,24 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         if (trackDetails != null)
         {
-          trackInfo.AlbumId = trackDetails.DiscID;
-          trackInfo.AlbumName = trackDetails.Title;
-          trackInfo.AlbumArtistId = null;
-          trackInfo.AlbumArtistName = trackDetails.Artist;
-          trackInfo.Genre = trackDetails.Genre;
+          trackInfo.Album = trackDetails.Title;
+          trackInfo.AlbumArtists.Add(trackDetails.Artist);
+          trackInfo.Genres.Add(trackDetails.Genre);
           trackInfo.Year = trackDetails.Year;
 
           List<CDTrackDetail> tracks = new List<CDTrackDetail>(trackDetails.Tracks);
-          if(_freeDb.FindTrack(trackInfo.Title, ref tracks))
-          { 
-              trackInfo.Title = tracks[0].Title;
-              trackInfo.ArtistId = null;
-              trackInfo.ArtistName = tracks[0].Artist;
-              if (string.IsNullOrEmpty(trackInfo.ArtistName))
-              {
-                trackInfo.ArtistName = trackDetails.Artist;
-              }
-              trackInfo.TrackNum = tracks[0].TrackNumber;
+          if (_freeDb.FindTrack(trackInfo.Title, ref tracks))
+          {
+            trackInfo.Title = tracks[0].Title;
+            if (string.IsNullOrEmpty(tracks[0].Artist))
+            {
+              trackInfo.Artists.Add(trackDetails.Artist);
+            }
+            else
+            {
+              trackInfo.Artists.Add(tracks[0].Artist);
+            }
+            trackInfo.TrackNum = tracks[0].TrackNumber;
           }
           else
           {
@@ -105,7 +105,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           // Add this match to cache
           DiscIdMatch onlineMatch = new DiscIdMatch
           {
-            CdDbId = trackInfo.AlbumId,
+            CdDbId = trackDetails.DiscID,
             ItemName = trackInfo.Title
           };
           // Save cache
@@ -122,7 +122,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (!string.IsNullOrEmpty(cdDbId))
       {
         List<CDInfoDetail> discs = new List<CDInfoDetail>();
-        if(_freeDb.SearchDisc(cdDbId, trackName, out discs))
+        if (_freeDb.SearchDisc(cdDbId, trackName, out discs))
         {
           trackDetails = discs[0];
           ServiceRegistration.Get<ILogger>().Debug("FreeDBMatcher: Found online match for \"{0}\": \"{1}\"", cdDbId, trackDetails.Title);
@@ -166,14 +166,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (cacheOnly)
           return false;
 
-        if(MatchByCdDbId(cdDbId, trackName, out cdDetail))
+        if (MatchByCdDbId(cdDbId, trackName, out cdDetail))
         {
           return true;
         }
 
         ServiceRegistration.Get<ILogger>().Debug("FreeDBMatcher: No unique CD found for \"{0}\"", cdDbId);
         // Also save "non matches" to avoid retrying
-        _storage.TryAddMatch(new DiscIdMatch {  CdDbId = cdDbId, ItemName = trackName });
+        _storage.TryAddMatch(new DiscIdMatch { CdDbId = cdDbId, ItemName = trackName });
         return false;
       }
       catch (Exception ex)

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,31 +22,17 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
   [DataContract]
-  public class ImageCollection
+  public class TrackImageThumbnail
   {
-    [DataMember(Name = "id")]
-    public int Id { get; set; }
+      [DataMember(Name = "small")]
+      public string SmallUrl { get; set; }
 
-    [DataMember(Name = "backdrops")]
-    public List<TrackImage> Backdrops { get; set; }
-
-    [DataMember(Name = "covers")]
-    public List<TrackImage> Covers { get; set; }
-
-    [DataMember(Name = "posters")]
-    public List<TrackImage> Posters { get; set; }
-
-    public void SetTrackIds()
-    {
-      if (Covers != null) Covers.ForEach(c => c.TrackId = Id);
-      if (Backdrops != null) Backdrops.ForEach(c => c.TrackId = Id);
-      if (Posters != null) Posters.ForEach(c => c.TrackId = Id);
-    }
+      [DataMember(Name = "large")]
+      public string LargeUrl { get; set; }
   }
 }

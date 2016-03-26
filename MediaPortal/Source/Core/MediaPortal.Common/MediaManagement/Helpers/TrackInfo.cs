@@ -43,17 +43,29 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string AudioDbId { get; set; }
 
     public string Title { get; set; }
-    public string ArtistId { get; set; }
-    public string ArtistName { get; set; }
-    public string AlbumId { get; set; }
-    public string AlbumName { get; set; }
-    public string Genre { get; set; }
+    public string Album { get; set; }
     public int Year { get; set; }
     public int TrackNum { get; set; }
-    public string AlbumArtistId { get; set; }
-    public string AlbumArtistName { get; set; }
+    public int TotalTracks { get; set; }
+    public int DiscNum { get; set; }
+    public int TotalDiscs { get; set; }
+    public double TotalRating { get; set; }
+    public int RatingCount { get; set; }
 
-      /// <summary>
+    public List<string> Artists { get; internal set; }
+    public List<string> AlbumArtists { get; internal set; }
+    public List<string> Composers { get; internal set; }
+    public List<string> Genres { get; internal set; }
+
+    public TrackInfo()
+    {
+      Artists = new List<string>();
+      AlbumArtists = new List<string>();
+      Composers = new List<string>();
+      Genres = new List<string>();
+    }
+
+    /// <summary>
     /// Copies the contained track information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
@@ -62,7 +74,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, Title);
       if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, MusicBrainzId);
       if (!string.IsNullOrEmpty(CdDdId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_TRACK, CdDdId);
-      if (!string.IsNullOrEmpty(ArtistName)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ARTISTS, new string[] { ArtistName});
+      if (!string.IsNullOrEmpty(AudioDbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_TRACK, AudioDbId);
+
+      if (!string.IsNullOrEmpty(Album)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ALBUM, Album);
+      if (DiscNum > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_DISCID, DiscNum);
+      if (TotalDiscs > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_NUMDISCS, TotalDiscs);
+      if (TrackNum > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_TRACK, TrackNum);
+      if (TotalTracks > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_NUMTRACKS, TotalTracks);
+
+      if (Artists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ARTISTS, Artists);
+      if (AlbumArtists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, AlbumArtists);
+      if (Composers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, Composers);
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_GENRES, Genres);
 
       if (Year > 0) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(Year, 1, 1));
 

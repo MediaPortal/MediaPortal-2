@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
@@ -39,11 +38,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
   {
     #region Constants
 
-    public const string DefaultLanguage = "GB";
+    public const string DefaultLanguage = "US";
 
     private const string URL_API_BASE = "http://musicbrainz.org/ws/2/";
-    private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?fmt=json";
+    private const string URL_FANART_API_BASE = "http://coverartarchive.org/";
+
+    private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
     private const string URL_QUERYRECORDING = URL_API_BASE + "recording?query={0}&limit=5&fmt=json";
+    private const string URL_FANART_LIST = URL_FANART_API_BASE + "release/{0}/";
 
     #endregion
 
@@ -76,15 +78,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     #region Public members
 
     /// <summary>
-    /// Search for tracks by name given in <paramref name="query"/> using the <paramref name="language"/>.
+    /// Search for tracks by name given in <paramref name="query"/>.
     /// </summary>
     /// <param name="language">Language</param>
     /// <returns>List of possible matches</returns>
-    public IList<TrackSearchResult> SearchTrack(string title, string artist, string album, string genre, int? year, int? trackNum, string language)
+    public List<TrackResult> SearchTrack(string title, string[] artists, string album, int? year, int? trackNum)
     {
       string query = string.Format("\"{0}\"", title);
-	    if(!string.IsNullOrEmpty(artist))
-        query += string.Format(" and artistname:\"{0}\"", artist);
+      if (artists != null && artists.Length > 0)
+      {
+        if (artists.Length > 1) query += " and (";
+        else query += " and ";
+        for (int artist = 0; artist <artists.Length; artist++)
+        {
+          if(artist > 0) query += " and ";
+          query += string.Format("artistname:\"{0}\"", artists[artist]);
+        }
+        if (artists.Length > 1) query += ")";
+      }
       if (!string.IsNullOrEmpty(album))
       {
         if(album.IndexOf(" ") > 0)
@@ -99,98 +110,110 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
       string url = GetUrl(URL_QUERYRECORDING, Uri.EscapeDataString(query));
 
-      Logger.Debug("Loading '{0}','{1}','{2}','{3}','{4}','{5}','{6} -> {7}", title, artist, album, genre, year, trackNum, language, url);
+      Logger.Debug("Loading '{0}','{1}','{2}','{3}','{4} -> {5}", title, string.Join(",", artists), album, year, trackNum, url);
 	
       return Parse(url);
     }
 
-    [DataContract]
-    private class RecordingResult
-    {
-      [DataMember(Name = "recordings")]
-      public IList<TrackSearchResult> Results { get; set; }
-    }
-
-    public IList<TrackSearchResult> Parse(string url)
+    public List<TrackResult> Parse(string url)
     {
       Logger.Debug("Loading {0}", url + " as " + _downloader.Headers["User-Agent"]);
 
-      IList<TrackSearchResult> results = _downloader.Download<RecordingResult>(url).Results;
-      foreach(TrackSearchResult result in results)
-      {
-        Logger.Debug("Result: Id={0} Title={1} ArtistId={2} ArtistName={3} AlbumId={4} AlbumName={5} AlbumArtistId={6} AlbumArtistName={7}",
-          result.Id, result.Title,
-          result.ArtistId, result.ArtistName,
-          result.AlbumId, result.AlbumName,
-          result.AlbumArtistId, result.AlbumArtistName);
-      }
-
-      return results;
+      List<TrackResult> tracks = new List<TrackResult>();
+      List<TrackSearchResult> results = new List<TrackSearchResult>(_downloader.Download<RecordingResult>(url).Results);
+      foreach (TrackSearchResult result in results) tracks.AddRange(result.GetTracks());
+      return tracks;
     }
 
     /// <summary>
     /// Returns detailed information for a single <see cref="Track"/> with given <paramref name="id"/>. This method caches request
     /// to same tracks using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
     /// </summary>
-    /// <param name="musicBrainzId">MusicBrainz id of track</param>
+    /// <param name="id">MusicBrainz id of track</param>
     /// <param name="language">Language</param>
     /// <returns>Track information</returns>
-    public Track GetTrack(string musicBrainzId, string language)
+    public Track GetTrack(string id, string language)
     {
-      string cache = CreateAndGetCacheName(musicBrainzId, language);
+      string cache = CreateAndGetCacheName(id, "track", language);
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<Track>(json);
       }
 
-      string url = GetUrl(URL_GETRECORDING, musicBrainzId);
+      string url = GetUrl(URL_GETRECORDING, id);
       return _downloader.Download<Track>(url, cache);
     }
 
     /// <summary>
-    /// Returns a <see cref="Data.ImageCollection"/> for the given <paramref name="id"/>.
+    /// Returns a <see cref="Data.TrackImageCollection"/> for the given <paramref name="id"/>.
     /// </summary>
-    /// <param name="id">MusicBrainz id of track</param>
-    /// <param name="language">Language</param>
+    /// <param name="id">MusicBrainz id of album</param>
     /// <returns>Image collection</returns>
-    public ImageCollection GetImages(string id, string language)
+    public TrackImageCollection GetImages(string albumId, string language)
     {
-      // TODO: Fix
-      throw new NotImplementedException();
+      string cache = CreateAndGetCacheName(albumId, "image", language);
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<TrackImageCollection>(json);
+      }
+
+      string url = GetUrl(URL_FANART_LIST, albumId);
+      return _downloader.Download<TrackImageCollection>(url, cache);
+    }
+
+    public bool HasImages(string albumId, string category = "Front")
+    {
+      try
+      {
+        string url = GetUrl(URL_FANART_LIST, albumId);
+        TrackImageCollection imageCollection = _downloader.Download<TrackImageCollection>(url);
+        if (imageCollection != null)
+        {
+          foreach (TrackImage image in imageCollection.Images)
+          {
+            foreach (string imageType in image.Types)
+            {
+              if (imageType.Equals(category, StringComparison.InvariantCultureIgnoreCase))
+                if (!string.IsNullOrEmpty(image.ImageUrl)) return true;
+            }
+          }
+        }
+      }
+      catch { }
+
+      return false;
     }
 
     /// <summary>
     /// Downloads images in "original" size and saves them to cache.
     /// </summary>
     /// <param name="image">Image to download</param>
-    /// <param name="category">Image category (Poster, Cover, Backdrop...)</param>
+    /// <param name="category">Image category (Front, Back, ...)</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(TrackImage image, string category)
+    public bool DownloadImage(string albumId, TrackImage image, string category)
     {
-      string cacheFileName = CreateAndGetCacheName(image, category);
+      string cacheFileName = CreateAndGetCacheName(albumId, image, category);
       if (string.IsNullOrEmpty(cacheFileName))
         return false;
 
-      // TODO: Fix
-      throw new NotImplementedException();
-    }
-
-    public bool DownloadImages(TrackCollection trackCollection)
-    {
-      DownloadImages(trackCollection, true);
-      DownloadImages(trackCollection, false);
+      _downloader.DownloadFile(image.ImageUrl, cacheFileName);
       return true;
     }
 
-    private bool DownloadImages(TrackCollection trackCollection, bool usePoster)
+    public bool DownloadImages(string albumId, TrackImageCollection imageCollection, string category = "Front")
     {
-      string cacheFileName = CreateAndGetCacheName(trackCollection, usePoster);
-      if (string.IsNullOrEmpty(cacheFileName))
-        return false;
-
-      // TODO: Fix
-      throw new NotImplementedException();
+      if (imageCollection == null) return false;
+        foreach (TrackImage image in imageCollection.Images)
+      {
+        foreach (string imageType in image.Types)
+        {
+          if (imageType.Equals(category, StringComparison.InvariantCultureIgnoreCase))
+            DownloadImage(albumId, image, category);
+        }
+      }
+      return true;
     }
 
     #endregion
@@ -213,39 +236,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <param name="image"></param>
     /// <param name="category"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(TrackImage image, string category)
+    protected string CreateAndGetCacheName(string Id, TrackImage image, string category)
     {
       try
       {
-        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", image.TrackId, category));
+        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", Id, category));
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
-        return Path.Combine(folder, image.FilePath.TrimStart(new[] { '/' }));
-      }
-      catch
-      {
-        // TODO: logging
-        return null;
-      }
-    }
-
-    /// <summary>
-    /// Creates a local file name for loading and saving images of a <see cref="TrackCollection"/>.
-    /// </summary>
-    /// <param name="collection">TrackCollection</param>
-    /// <param name="usePoster"><c>true</c> for Poster, <c>false</c> for Backdrop</param>
-    /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(TrackCollection collection, bool usePoster)
-    {
-      try
-      {
-        string folder = Path.Combine(_cachePath, string.Format(@"COLL_{0}\{1}", collection.Id, usePoster ? "Posters" : "Backdrops"));
-        if (!Directory.Exists(folder))
-          Directory.CreateDirectory(folder);
-        string fileName = usePoster ? collection.PosterPath : collection.BackdropPath;
-        if (string.IsNullOrEmpty(fileName))
-          return null;
-        return Path.Combine(folder, fileName.TrimStart(new[] { '/' }));
+        return Path.Combine(folder, image.ImageUrl.Substring(image.ImageUrl.LastIndexOf('/') + 1));
       }
       catch
       {
@@ -260,14 +258,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <param name="trackId"></param>
     /// <param name="language"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName<TE>(TE trackId, string language)
+    protected string CreateAndGetCacheName<TE>(TE trackId, string prefix, string language)
     {
       try
       {
         string folder = Path.Combine(_cachePath, trackId.ToString());
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
-        return Path.Combine(folder, string.Format("track_{0}.json", language));
+        return Path.Combine(folder, string.Format("{0}_{1}.json", prefix, language));
       }
       catch
       {

@@ -26,7 +26,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -35,7 +34,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.MusicBrainz;
-using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
+using System.IO;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -53,11 +52,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\MusicBrainz\");
+    protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
 
     protected override string MatchesSettingsFile
     {
-      get { return null; }
+      get { return _matchesSettingsFile; }
     }
 
     #endregion
@@ -66,35 +66,36 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
     protected ConcurrentDictionary<string, Track> _memoryCache = new ConcurrentDictionary<string, Track>(StringComparer.OrdinalIgnoreCase);
-
     private MusicBrainzWrapper _musicBrainzDb;
 
     #endregion
 
     public bool FindAndUpdateTrack(TrackInfo trackInfo)
     {
-      string preferredLookupLanguage = FindBestMatchingLanguage(trackInfo);
       Track trackDetails;
       if (
         /* Best way is to get details by an unique IMDB id */
         MatchByMusicBrainzId(trackInfo, out trackDetails) ||
-        TryMatch(trackInfo.Title, trackInfo.ArtistName, trackInfo.AlbumName, trackInfo.Genre, trackInfo.Year, trackInfo.TrackNum, trackInfo.AlbumArtistName, preferredLookupLanguage, false, out trackDetails)
+        TryMatch(trackInfo.Title, trackInfo.Artists.ToArray(), trackInfo.Album, trackInfo.Year, trackInfo.TrackNum, false, out trackDetails)
         )
       {
-        string trackDbId = null;
+        string albumId = null;
         if (trackDetails != null)
         {
-          trackDbId = trackDetails.Id;
+          albumId = trackDetails.AlbumId;
+
           trackInfo.Title = trackDetails.Title;
-          trackInfo.ArtistId = trackDetails.ArtistId;
-          trackInfo.ArtistName = trackDetails.ArtistName;
-          trackInfo.AlbumId = trackDetails.AlbumId;
-          trackInfo.AlbumName = trackDetails.AlbumName;
-          trackInfo.Genre = trackDetails.Genre;
+          trackInfo.Artists.AddRange(trackDetails.TrackArtists);
+          trackInfo.Composers.AddRange(trackDetails.Composers);
+          trackInfo.Album = trackDetails.Album;
+          trackInfo.AlbumArtists.AddRange(trackDetails.AlbumArtists);
+          trackInfo.Genres.AddRange(trackDetails.Genre);
           trackInfo.TrackNum = trackDetails.TrackNum;
-          trackInfo.AlbumArtistId = trackDetails.AlbumArtistId;
-          trackInfo.AlbumArtistName = trackDetails.AlbumArtistName;
-          trackInfo.MusicBrainzId = trackDetails.MusicBrainzId;
+          trackInfo.TotalTracks = trackDetails.TotalTracks;
+          trackInfo.DiscNum = trackDetails.DiscId;
+          trackInfo.TotalRating = trackDetails.RatingValue * 2.0; //From 5 star to 10 star
+          trackInfo.RatingCount = trackDetails.RatingVotes;
+          trackInfo.MusicBrainzId = trackDetails.Id;
 
           if (trackDetails.ReleaseDate.HasValue)
           {
@@ -104,16 +105,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           }
         }
 
-        if (!string.IsNullOrEmpty(trackDbId))
-          //ScheduleDownload(trackDbId);
+        if (!string.IsNullOrEmpty(albumId))
+          ScheduleDownload(albumId);
         return true;
       }
       return false;
-    }
-
-    private static string FindBestMatchingLanguage(TrackInfo trackInfo)
-    {
-      return null;
     }
 
     private bool MatchByMusicBrainzId(TrackInfo trackInfo, out Track trackDetails)
@@ -134,7 +130,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    protected bool TryMatch(string title, string artist, string album, string genre, int year, int trackNum, string albumArtist, string language, bool cacheOnly, out Track trackDetail)
+    protected bool TryMatch(string title, string[] artists, string album, int year, int trackNum, bool cacheOnly, out Track trackDetail)
     {
       trackDetail = null;
       try
@@ -161,17 +157,20 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (cacheOnly)
           return false;
 
-        IList<TrackSearchResult> tracks;
-        if (_musicBrainzDb.SearchTrackUnique(title, artist, album, genre, year, trackNum, albumArtist, language, out tracks))
+        List<TrackResult> tracks;
+        if (_musicBrainzDb.SearchTrackUnique(title, artists, album, year, trackNum, out tracks))
         {
-          TrackSearchResult trackResult = tracks[0];
+          TrackResult trackResult = tracks[0];
           ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Found unique online match for \"{0}\": \"{1}\"", title, trackResult.Title);
-          if (_musicBrainzDb.GetTrack(tracks[0].Id, out trackDetail))
+          if (_musicBrainzDb.GetTrack(trackResult.Id, out trackDetail))
           {
+            trackDetail.InitProperties(trackResult.AlbumId);
+
             // Add this match to cache
             TrackMatch onlineMatch = new TrackMatch
               {
                 Id = trackDetail.Id,
+                ItemName = trackDetail.Title,
                 TrackName = title
               };
 
@@ -221,7 +220,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       _musicBrainzDb = new MusicBrainzWrapper();
       // Try to lookup online content in the configured language
       CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-      _musicBrainzDb.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
+      string lang = currentCulture.Name;
+      if (lang.Contains("-")) lang = lang.Split('-')[1];
+      _musicBrainzDb.SetPreferredLanguage(lang);
       return _musicBrainzDb.Init();
     }
 
@@ -234,21 +235,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
-        // If track belongs to a collection, also download collection poster and fanart
-        Track track;
-        if (_musicBrainzDb.GetTrack(musicBrainzId, out track) && track.Collection != null)
-          SaveBanners(track.Collection);
-
-        ImageCollection imageCollection;
+        TrackImageCollection imageCollection;
         if (!_musicBrainzDb.GetTrackFanArt(musicBrainzId, out imageCollection))
           return;
 
         // Save Banners
-        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download: Begin saving banners for ID {0}", musicBrainzId);
-        SaveBanners(imageCollection.Backdrops, "Backdrops");
-        SaveBanners(imageCollection.Covers, "Covers");
-        SaveBanners(imageCollection.Posters, "Posters");
-        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download: Finished saving banners for ID {0}", musicBrainzId);
+        bool result = _musicBrainzDb.DownloadImages(musicBrainzId, imageCollection);
+        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Saved FanArt for release {0} {1}", imageCollection.ReleaseUrl, result);
 
         // Remember we are finished
         FinishDownloadFanArt(musicBrainzId);
@@ -257,34 +250,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Exception downloading FanArt for ID {0}", ex, musicBrainzId);
       }
-    }
-
-    private void SaveBanners(TrackCollection trackCollection)
-    {
-      bool result = _musicBrainzDb.DownloadImages(trackCollection);
-      ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download Collection: Saved {0} {1}", trackCollection.Name, result);
-    }
-
-    private int SaveBanners(IEnumerable<TrackImage> banners, string category)
-    {
-      if (banners == null)
-        return 0;
-
-      int idx = 0;
-      foreach (TrackImage banner in banners.Where(b => b.Language == null || b.Language == _musicBrainzDb.PreferredLanguage))
-      {
-        if (idx >= MAX_FANART_IMAGES)
-          break;
-        if (_musicBrainzDb.DownloadImage(banner, category))
-          idx++;
-      }
-      ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download: Saved {0} {1}", idx, category);
-      return idx;
-    }
-
-    public bool FindAndUpdateSong(object movieInfo)
-    {
-      throw new NotImplementedException();
     }
   }
 }

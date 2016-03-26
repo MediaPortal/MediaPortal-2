@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -22,44 +22,25 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
   [DataContract]
-  public class TrackImage
+  public class TrackArtist
   {
     [DataMember(Name = "id")]
-    public long Id { get; set; }
+    public string Id { get; set; }
 
-    [DataMember(Name = "types")]
-    public List<string> Types { get; set; }
+    [DataMember(Name = "name")]
+    public string Name { get; set; }
 
-    [DataMember(Name = "front")]
-    public bool Front { get; set; }
-
-    [DataMember(Name = "back")]
-    public bool Back { get; set; }
-
-    [DataMember(Name = "comment")]
-    public string Comment { get; set; }
-
-    [DataMember(Name = "image")]
-    public string ImageUrl { get; set; }
-
-    [DataMember(Name = "thumbnails")]
-    public TrackImageThumbnail Thumbnails { get; set; }
-
-    [DataMember(Name = "approved")]
-    public bool Approved { get; set; }
-
-    [DataMember(Name = "edit")]
-    public int Edit { get; set; }
+    [DataMember(Name = "sort-name")]
+    public string SortName { get; set; }
 
     public override string ToString()
     {
-      return ImageUrl;
+      return string.Format("Id: {0}, Name: {1}, SortName: {2}", Id, Name, SortName);
     }
   }
 }
