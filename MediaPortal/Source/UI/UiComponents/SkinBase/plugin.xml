@@ -161,7 +161,10 @@
         Name="PlayerChooseGeometryDialog" DisplayLabel="[Players.ChoosePlayerGeometry]" DialogScreen="DialogPlayerChooseGeometry"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
     <DialogState Id="DAD585DF-16FC-45AB-A6D7-FE5600080C7A"
-        Name="PlayerChooseGeometryDialog" DisplayLabel="[Players.ChoosePlayerEffect]" DialogScreen="DialogPlayerChooseEffect"
+        Name="PlayerChooseEffectDialog" DisplayLabel="[Players.ChoosePlayerEffect]" DialogScreen="DialogPlayerChooseEffect"
+        WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
+   <DialogState Id="29907D7A-2507-41C8-B082-D4BDA0728885"
+        Name="PlayerChooseSubtitleDialog" DisplayLabel="[Players.ChoosePlayerSubtitle]" DialogScreen="DialogPlayerChooseSubtitle"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
 
     <!-- Notification states -->
