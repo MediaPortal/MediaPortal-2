@@ -39,7 +39,7 @@ export class MessageService {
     clearInterval(this.cleanupInterval);
   }
 
-  addNotificationMessage(title: string, type: MessageType, text: string = "") {
+  addNotificationMessage(title: string, type: MessageType, text: string = "", persist: boolean = true) {
     var message: IMessage = {
       title: title,
       text: text,
@@ -47,8 +47,10 @@ export class MessageService {
       created: Date.now(),
       viewed: 0 // 0 indicates not yet viewed
     }
-    this.notificationMessages.unshift(message);
-    this.unreadNotificationMessages++;
+    if (persist) {
+      this.notificationMessages.unshift(message);
+      this.unreadNotificationMessages++;
+    }
     // notify all subscribers
     this.newNotificationMessages.emit(message);
   }
@@ -63,7 +65,10 @@ export class MessageService {
         icon += "fa-exclamation-triangle";
         break;
       case MessageType.Info:
-        icon += "fa-info-circle ";
+        icon += "fa-info-circle";
+        break;
+      case MessageType.Success:
+        icon += "fa-check";
         break;
       default:
         icon += "fa-info-circle";

@@ -216,6 +216,9 @@ export class AppComponent {
         case MessageType.Info:
           this.toastr.info(message.text, message.title);
           break;
+        case MessageType.Success:
+          this.toastr.success(message.text, message.title);
+          break;
         default:
           this.toastr.info(message.text, message.title);
       }
