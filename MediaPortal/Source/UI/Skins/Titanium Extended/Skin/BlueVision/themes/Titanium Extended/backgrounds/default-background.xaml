@@ -73,7 +73,6 @@ Default background image - no media present
                   </Trigger>
                 </Image.Triggers>
               </Image>
-              <Image Source="fanart_overlay.png" />
             </Grid>
           </VisualBrush.Visual>
         </VisualBrush>

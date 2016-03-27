@@ -60,16 +60,9 @@
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="710,0,10,0"/>
         <Label x:Name="ProgressLabel" Content="[SlimTvClient.Progress]" VerticalAlignment="Center" Grid.Column="1"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="1245,0,10,0"/>
-        
-        <StackPanel x:Name="PiPControl" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
-                     HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal"
-                     IsVisible="{Binding PiPAvailable}">
-          <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}" 
-                    Content="PiP enabled:" Command="{Command TogglePiP}" Margin="5,0,5,0" />
-          <Label x:Name="PiPStatusLabel" Margin="5,0,0,0" Content="{Binding PiPEnabled}" VerticalAlignment="Center"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
-        </StackPanel>
+        <Control Template="{ThemeResource PiPControlTemplate}" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
+                 HorizontalAlignment="Left"/>
 
         <ListView  x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

@@ -39,7 +39,7 @@
     </tv:RecordingAspectWrapper.Template>
   </tv:RecordingAspectWrapper>
 
-  <Image Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="22,20,20,20">
+  <Image Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="22,20,20,30">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520;False}"
@@ -125,7 +125,20 @@
     </media:SeriesAspectWrapper>
 
     <Label x:Name="DescriptionLabel" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-    <Label x:Name="Description" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+    <Label x:Name="Description" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,35"
            Wrap="True" Scroll="Auto" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Color="{ThemeResource TextColor}"/>
   </Grid>
+
+  <Grid Grid.Column="1" Grid.Row="1" Margin="10,0,-350,-39" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAspectWrapper.Template>
+        <ControlTemplate>
+          <Label DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
+                 HorizontalAlignment="Center"/>
+        </ControlTemplate>
+      </media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
+  </Grid>
+  
 </Grid>
