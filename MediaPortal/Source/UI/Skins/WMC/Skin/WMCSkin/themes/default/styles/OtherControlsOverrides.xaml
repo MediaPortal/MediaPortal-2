@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
+    xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
+    DependsOnStyleResources="Colors,Buttons,Consts,OtherControls"
+    >
+
+  <!-- BackgroundManager model -->
+  <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+  <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
+  <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
+
+  <!-- default brush used to paint the background of a page/window -->
+  <ResourceWrapper x:Key="BackgroundBrush">
+    <ImageBrush x:Name="BackdropImageBackground" ImageSource="Background.png" />
+  </ResourceWrapper>
+
+  <Style x:Key="VerticalScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="None"
+                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+              <ScrollContentPresenter.OpacityMask>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                  <GradientStop Color="Transparent" Offset="0.01" />
+                  <GradientStop Color="Black" Offset="0.15" />
+                  <GradientStop Color="Black" Offset="0.85" />
+                  <GradientStop Color="Transparent" Offset="0.99" />
+                </LinearGradientBrush>
+              </ScrollContentPresenter.OpacityMask>  
+            </ScrollContentPresenter>  
+            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+                Grid.ZIndex="0" Margin="2,10,2,2"
+                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
+
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+
+              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
+                  Height="{ThemeResource ScrollBarWidth}"
+                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
+                  Fill="{ThemeResource ScrollBarBackgroundColor}">
+              </Rectangle>
+
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
+                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarKnobWidth}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
+                Grid.ZIndex="0" Margin="10,2,2,2"
+                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
+
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+
+              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
+                  Width="{ThemeResource ScrollBarWidth}"
+                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
+                  Fill="{ThemeResource ScrollBarBackgroundColor}">
+              </Rectangle>
+
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+    <Style x:Key="AutoCenterScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                    <Grid x:Name="ScrollViewerGrid">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!-- Content -->
+                        <wmc:SubItemsContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
+                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            <!--ScrollContentPresenter.OpacityMask>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="Transparent" Offset="0.01" />
+                                    <GradientStop Color="Black" Offset="0.15" />
+                                    <GradientStop Color="Black" Offset="0.85" />
+                                    <GradientStop Color="Transparent" Offset="0.99" />
+                                </LinearGradientBrush>
+                            </ScrollContentPresenter.OpacityMask-->
+                        </wmc:SubItemsContentPresenter>
+                        <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+                Grid.ZIndex="0" Margin="2,10,2,2"
+                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
+                  Height="{ThemeResource ScrollBarWidth}"
+                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
+                  Fill="{ThemeResource ScrollBarBackgroundColor}">
+                            </Rectangle>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
+                                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarKnobWidth}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                                </Rectangle>
+                            </StackPanel>
+                        </Grid>
+                        <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
+                Grid.ZIndex="0" Margin="10,2,2,2"
+                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
+                  Width="{ThemeResource ScrollBarWidth}"
+                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
+                  Fill="{ThemeResource ScrollBarBackgroundColor}">
+                            </Rectangle>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
+                                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
+                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                                </Rectangle>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SubItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource SubItemButtonStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ButtonControlGrid" Property="IsVisible" Value="True"/>
+                <Setter TargetName="ItemLabelUnfocused" Property="IsVisible" Value="False"/>
+                <Setter TargetName="ItemLabelUnfocused" Property="Opacity" Value="1"/>
+                <Setter TargetName="ItemLabel" Property="IsVisible" Value="True"/>
+                <!--Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/-->
+                <!--Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/-->
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <!-- ListView style to be used for main menu -->
+  <DataTemplate x:Key="SubMenuItemDataTemplate">
+    <DataTemplate.Resources>
+      <Storyboard x:Key="MoveRight" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Bling_horizontal" Storyboard.TargetProperty="RenderTransform.X">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.500" Value="-200"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02.500" Value="20"/>
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Bling_horizontal" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:00.500" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:01.000" Value="0.8"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02.050" Value="0.8"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02.501" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard x:Key="MoveDown" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Bling_vertical" Storyboard.TargetProperty="RenderTransform.Y">
+          <SplineDoubleKeyFrame KeyTime="00:00:02.200" Value="-10"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:04.000" Value="80"/>
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Bling_vertical" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:02.050" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:03.450" Value="0.8"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:04.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+    </DataTemplate.Resources>
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" Margin="5" Grid.Row="0" Grid.Column="0">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=focus.png}"/>
+            <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=nofocus.png}"/>
+          </MultiBinding>
+        </Image.Source>
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="258"/>
+            <Binding Source="162"/>
+          </MultiBinding>
+        </Image.Width>
+      </Image>
+      <Image x:Name="Bling_horizontal" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
+             Height="4" Width="60" Grid.Row="0" Grid.Column="0" Source="Bling_hori.png" Margin="0,0,0,4"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}">
+        <Image.RenderTransform>
+          <TranslateTransform X="0"/>
+        </Image.RenderTransform>
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="MoveRight_BeginStoryboard" Storyboard="{ThemeResource MoveRight}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="MoveRight_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </Image.Triggers>
+      </Image>
+      <Image x:Name="Bling_vertical" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
+             Height="60" Width="4" Grid.Row="0" Grid.Column="0" Source="Bling_vert.png" Margin="0,0,-1,0" 
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}">
+        <Image.RenderTransform>
+          <TranslateTransform Y="0"/>
+        </Image.RenderTransform>
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="MoveDown_BeginStoryboard" Storyboard="{ThemeResource MoveDown}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="MoveDown_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </Image.Triggers>
+      </Image>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="SubMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <EventSetter Event="MouseWheel" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnMouseWheel}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListView}">
+             <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource AutoCenterScrollViewerStyle}" 
+                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            </ScrollViewer>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+     <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SubMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SubItemContainerStyle}"/>
+  </Style>
+
+  <DataTemplate x:Key="MyMainMenuItemDataTemplate">
+    <StackPanel x:Name="ItemControl" Orientation="Horizontal">
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}"
+            HorizontalAlignment="Left" VerticalAlignment="Center"
+            Color="{ThemeResource TextColor}"
+			      FontSize="{ThemeResource HugeFontSize}">
+        <Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="Selected"/>
+            <Binding Source="{ThemeResource MenuTextForeground}"/>
+            <Binding Source="{ThemeResource MenuTextBackground}"/>
+          </MultiBinding>
+        </Label.Color>
+        <Label.Margin>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="Selected"/>
+            <Binding Source="0,0,0,170"/>
+            <Binding Source="20,0,0,0"/>
+          </MultiBinding>
+        </Label.Margin>
+      </Label>
+    </StackPanel>
+  </DataTemplate>
+
+  <Style x:Key="MyMainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}"/>
+    <EventSetter Event="MouseWheel" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnMouseWheel}"/>
+    <!--<EventSetter Event="KeyPressed" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>-->
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="False" Margin="5" Style="{ThemeResource VerticalScrollViewerStyle}" 
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="True" Orientation="Vertical"
+                      KeyPress="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource MyMainMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\home_editor_master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[HomeEditor.Configuration.Header]"/>
+
+    <!-- Home editor model -->
+    <Model x:Key="Model" Id="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Margin="10" Content="[HomeEditor.Configuration.Label]" Color="{ThemeResource TextColor}"/>
+        <ListView Name="GroupList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource HomeEditorMovableListViewStyle}"
+              ItemsSource="{Binding Path=ItemsList,Mode=OneTime}">
+          <ListView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="EditGroup" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            <Command x:Key="MoveUp_Command" Source="{StaticResource Model}" Path="MoveGroupUp" Parameters="{LateBoundValue BindingValue={Binding}}" />
+            <Command x:Key="MoveDown_Command" Source="{StaticResource Model}" Path="MoveGroupDown" Parameters="{LateBoundValue BindingValue={Binding}}" />
+          </ListView.Resources>
+        </ListView>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

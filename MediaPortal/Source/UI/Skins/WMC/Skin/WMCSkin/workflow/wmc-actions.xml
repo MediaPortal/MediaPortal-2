@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+
+    <!-- Note: the following definitions are copied from SlimTVClient plugin, but got another changed ActionID and "Home" as SourceStates -->
+    <PushNavigationTransition Id="A298DFBE-9DA8-4C16-A3EA-A9B354F3910C"
+      Name="SlimTvClient->Guide"
+      DisplayCategory="A-1SlimTvClientMultiChannelGuide"
+      SortOrder="b"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
+      DisplayTitle="[SlimTvClient.TvGuide]"
+      HelpText="[SlimTvClient.TvGuide.Help]"/>
+
+    <PushNavigationTransition Id="87355E05-A15B-452A-85B8-98D4FC80034E"
+      Name="SlimTvClient->Schedules"
+      DisplayCategory="A-1SlimTvClientSchedules"
+      SortOrder="c"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="88842E97-2EF9-4658-AD35-8D74E3C689A4"
+      DisplayTitle="[SlimTvClient.Schedules]"
+      HelpText="[SlimTvClient.Schedules.Help]"/>
+
+    <PushNavigationTransition Id="D91738E9-3F85-443B-ABBD-EF01731734AD"
+      Name="SlimTvClient->ProgramSearch"
+      DisplayCategory="A-2SlimTvClientProgramSearch"
+      SortOrder="c"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
+      DisplayTitle="[SlimTvClient.ProgramSearch]"/>
+
+    <WorkflowContributorAction Id="7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51"
+      Name="SlimTvClient->Recordings"
+      DisplayCategory="A-2Recordings"
+      SortOrder="d"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"
+      HelpText="[SlimTvClient.Recordings.Help]"/>  <!-- Recordings action -->
+
+    <!-- Custom home actions, only displayed by supported skins -->
+    <PushNavigationTransition Id="C5B14E9C-7F54-4B75-BEB0-8BE2EA1F4394"
+      Name="Home->PowerMenu"
+      DisplayCategory="A-HomeEditor"
+      SortOrder="a"
+      SourceStates="B285DC02-AA8C-47F2-8795-0B13B6E66306"
+      TargetState="BBFA7DB7-5055-48D5-A904-0F0C79849369"
+      DisplayTitle="[SystemState.ShutdownDialogStateDisplayLabel]"/>
+    
+    <PushNavigationTransition Id="AEBAE6B5-71B3-4164-992F-296E2ACF8E5C"
+      Name="Home->HomeEditor"
+      DisplayCategory="A-HomeEditor"
+      SortOrder="b"
+      SourceStates="B285DC02-AA8C-47F2-8795-0B13B6E66306"
+      TargetState="BF7E11F6-87DE-4CB6-9A94-1A738CC52710"
+      DisplayTitle="[HomeEditor.Configuration]"/>
+
+  </MenuActions>
+</Workflow>
