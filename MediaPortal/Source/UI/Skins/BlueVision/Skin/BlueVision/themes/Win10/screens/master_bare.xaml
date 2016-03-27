@@ -49,7 +49,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
       <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OnScreenShow}"/>
       <EventTrigger.Actions>
         <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
       </EventTrigger.Actions>
@@ -74,10 +73,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
-    
+
     <Grid.RowDefinitions>
       <!-- Header -->
-      <RowDefinition Height="Auto"/>      
+      <RowDefinition Height="Auto"/>
       <!-- Breadcrumb -->
       <RowDefinition Height="30"/>
       <!-- Content -->
@@ -133,9 +132,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Control x:Name="NotificationControl" Margin="0,-10,20,-20" Grid.Column="0" Style="{ThemeResource NotificationControlStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
 
     </Grid-->
-    
+
     <!-- HeaderPanel -->
-    
+
     <Grid  Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,40,0,0">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
@@ -149,9 +148,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"> </Control>
-      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"> </Control>
-      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"> </Control>
+      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
+      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
+      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
       <Border Height="74" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0,-20,5,20" >
         <!--Border.Background>
@@ -167,17 +166,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Control.TemplateControl>
               <Include Source="screens\MediaItemsListHeader.inc"/>
             </Control.TemplateControl>
-          </Control>       
+          </Control>
         </StackPanel>
       </Border>
-            
-        <!-- Main Menu Group tabs -->
-        <!-- use custom ListView to modify focus behavior -->
+
+      <!-- Main Menu Group tabs -->
+      <!-- use custom ListView to modify focus behavior -->
 
       <!--Image Source="Menu_Background.png" Grid.Row="0" Grid.Column="1" Opacity="0.25" Stretch="Fill" Height="90" Margin="15,-5,15,-5"
                VerticalAlignment="Center" HorizontalAlignment="Center"/-->
 
-        <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
+      <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
                                HomeMenuModel="{StaticResource MenuModel}" Margin="0,-25,0,0"
                                ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
@@ -205,15 +204,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
           HorizontalAlignment="Center" VerticalAlignment="Center"
           IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
           Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-      </Button>    
-      
+      </Button>
+
       <!--Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" /-->
     </Grid>
 
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
     <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,17,115,-3">
     </Control>
-    
+
     <!--Image Source="shadow_bottom.png" Margin="-115,0,-115,0" Grid.Row="3" VerticalAlignment="Top" /-->
 
     <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top">
