@@ -766,8 +766,10 @@ namespace MediaPortal.UI.Players.Video
           subtitleStreams.EnableStream(forced.Name);
         }
         else
-        {
-          subtitleStreams.EnableStream(NO_SUBTITLES);
+        {          
+          StreamInfo noSubtitleStream = subtitleStreams.FindSimilarStream(NO_SUBTITLES);
+          if(noSubtitleStream != null)
+            subtitleStreams.EnableStream(noSubtitleStream.Name);
         }
       }
       else
