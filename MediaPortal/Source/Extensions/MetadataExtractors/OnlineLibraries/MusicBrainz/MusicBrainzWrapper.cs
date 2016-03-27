@@ -190,13 +190,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
       return false;
     }
 
-    private bool CompareArtists(string[] trackArtits, string[] searchArtists, bool strict)
+    private bool CompareArtists(string[] trackArtists, string[] searchArtists, bool strict)
     {
       if(strict)
       {
         int matchCount = 0;
         foreach (string artist in searchArtists)
-          foreach (string trackArtist in trackArtits)
+          foreach (string trackArtist in trackArtists)
             if (trackArtist == artist || GetLevenshteinDistance(trackArtist, artist) == 0)
             {
               matchCount++;
@@ -207,7 +207,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
       else
       {
         foreach (string artist in searchArtists)
-          foreach (string trackArtist in trackArtits)
+          foreach (string trackArtist in trackArtists)
             if (GetLevenshteinDistance(trackArtist, artist) <= MAX_LEVENSHTEIN_DIST)
               return true;
       }
@@ -241,7 +241,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
 
     public bool GetTrack(string musicBrainzId, out Track trackDetail)
     {
-      trackDetail = _musicBrainzHandler.GetTrack(musicBrainzId, PreferredLanguage);
+      trackDetail = _musicBrainzHandler.GetTrack(musicBrainzId);
       return trackDetail != null;
     }
 
@@ -253,7 +253,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
     /// <returns><c>true</c> if successful</returns>
     public bool GetTrackFanArt(string albumId, out TrackImageCollection imageCollection)
     {
-      imageCollection = _musicBrainzHandler.GetImages(albumId, PreferredLanguage); // Download all image information, filter later!
+      imageCollection = _musicBrainzHandler.GetImages(albumId); // Download all image information, filter later!
       return imageCollection != null;
     }
 

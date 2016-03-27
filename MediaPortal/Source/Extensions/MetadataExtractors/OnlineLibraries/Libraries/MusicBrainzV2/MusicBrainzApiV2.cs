@@ -130,11 +130,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// to same tracks using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
     /// </summary>
     /// <param name="id">MusicBrainz id of track</param>
-    /// <param name="language">Language</param>
     /// <returns>Track information</returns>
-    public Track GetTrack(string id, string language)
+    public Track GetTrack(string id)
     {
-      string cache = CreateAndGetCacheName(id, "track", language);
+      string cache = CreateAndGetCacheName(id, "track");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -150,9 +149,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// </summary>
     /// <param name="id">MusicBrainz id of album</param>
     /// <returns>Image collection</returns>
-    public TrackImageCollection GetImages(string albumId, string language)
+    public TrackImageCollection GetImages(string albumId)
     {
-      string cache = CreateAndGetCacheName(albumId, "image", language);
+      string cache = CreateAndGetCacheName(albumId, "image");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -230,6 +229,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     {
       return string.Format(urlBase, args);
     }
+
     /// <summary>
     /// Creates a local file name for loading and saving <see cref="TrackImage"/>s.
     /// </summary>
@@ -258,14 +258,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <param name="trackId"></param>
     /// <param name="language"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName<TE>(TE trackId, string prefix, string language)
+    protected string CreateAndGetCacheName<TE>(TE trackId, string prefix)
     {
       try
       {
         string folder = Path.Combine(_cachePath, trackId.ToString());
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
-        return Path.Combine(folder, string.Format("{0}_{1}.json", prefix, language));
+        return Path.Combine(folder, string.Format("{0}.json", prefix));
       }
       catch
       {

@@ -146,6 +146,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         TrackMatch match = null;
 
+        match = matches.Find(m =>
+          string.Equals(m.TrackName, title, StringComparison.OrdinalIgnoreCase));
+        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Try to lookup track \"{0}\" from cache: {1}", title, match != null && string.IsNullOrEmpty(match.Id) == false);
+
         // Try online lookup
         if (!Init())
           return false;
@@ -239,7 +243,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!_musicBrainzDb.GetTrackFanArt(musicBrainzId, out imageCollection))
           return;
 
-        // Save Banners
+        // Save Fronts
         bool result = _musicBrainzDb.DownloadImages(musicBrainzId, imageCollection);
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Saved FanArt for release {0} {1}", imageCollection.ReleaseUrl, result);
 
