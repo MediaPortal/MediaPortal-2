@@ -73,6 +73,15 @@
     <Compile Include="FreeDbMatcher.cs" />
     <Compile Include="FreeDB\FreeDbWrapper.cs" />
     <Compile Include="GeoLocationService.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbTracks.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbTrack.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbMvids.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbMvid.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbArtists.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbArtist.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbAlbum.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbAlbums.cs" />
+    <Compile Include="Libraries\AudioDbV1\AudioDbApiV1.cs" />
     <Compile Include="Libraries\Common\CompressionWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -207,8 +216,10 @@
     <Compile Include="Matches\DiscIdMatch.cs" />
     <Compile Include="Matches\MovieCollectionMatch.cs" />
     <Compile Include="Matches\TrackMatch.cs" />
+    <Compile Include="TheAudioDbMatcher.cs" />
     <Compile Include="MusicBrainzMatcher.cs" />
     <Compile Include="MusicBrainz\MusicBrainzWrapper.cs" />
+    <Compile Include="TheAudioDB\TheAudioDbWrapper.cs" />
     <Compile Include="TheMovieDB\NamePreprocessor.cs" />
     <Compile Include="Matches\BaseMatcher.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />

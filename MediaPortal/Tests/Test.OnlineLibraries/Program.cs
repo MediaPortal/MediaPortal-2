@@ -139,6 +139,38 @@ namespace Test.OnlineLibraries
       }
     }
 
+    private static void TestAudioDB(string title, string artist, string album, int year, int trackNum)
+    {
+      ServiceRegistration.Set<IPathManager>(new PathManager());
+      ServiceRegistration.Get<IPathManager>().SetPath("DATA", "_Test/data");
+      ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_Test/log");
+      ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_Test/config");
+      ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
+      ServiceRegistration.Set<ILocalization>(new NoLocalization());
+
+      TheAudioDbMatcher matcher = new TheAudioDbMatcher();
+      matcher.Init();
+
+      TrackInfo track = new TrackInfo();
+      track.Title = title;
+      track.Artists.Add(artist);
+      track.Album = album;
+      track.Year = year;
+      track.TrackNum = trackNum;
+      if (matcher.FindAndUpdateTrack(track))
+      {
+        Console.WriteLine("Found track title={0} artist={1} album={2} year={3} trackNum={4}:\nTitle={5} Artists={6} Album={7} Year={8} Track={9}",
+          title, artist, album, year, trackNum, track.Title, string.Join(", ", track.Artists), track.Album, track.Year, track.TrackNum);
+
+        Thread.Sleep(5000); //Let fanart download
+      }
+      else
+      {
+        Console.WriteLine("Cannot find track title={0} artist={1} album={2} year={3} trackNum={4}",
+          title, artist, album, year, trackNum);
+      }
+    }
+
     private static void TestRecording(string filename)
     {
       if(Directory.Exists("_Test"))
@@ -203,6 +235,7 @@ namespace Test.OnlineLibraries
     static void Usage()
     {
       Console.WriteLine("Usage: Test.OnlineLibraries musicbrainz <title> <artist> <album> <year> <track #>");
+      Console.WriteLine("Usage: Test.OnlineLibraries audiodb <title> <artist> <album> <year> <track #>");
       Console.WriteLine("Usage: Test.OnlineLibraries freedb <CDDB ID> <title>");
       Console.WriteLine("Usage:                      recording <TVE XML file>");
       Environment.Exit(1);
@@ -216,6 +249,9 @@ namespace Test.OnlineLibraries
         {
           if (args[0] == "musicbrainz" && args.Length == 6)
             TestMusicBrainz(args[1], args[2], args[3], Int32.Parse(args[4]), Int32.Parse(args[5]));
+
+          else if (args[0] == "audiodb" && args.Length == 6)
+            TestAudioDB(args[1], args[2], args[3], Int32.Parse(args[4]), Int32.Parse(args[5]));
 
           else if (args[0] == "freedb" && args.Length == 3)
             TestFreeDB(args[1], args[2]);
