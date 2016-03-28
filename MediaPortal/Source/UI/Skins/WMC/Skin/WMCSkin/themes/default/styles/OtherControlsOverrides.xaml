@@ -257,8 +257,8 @@
         <Image.Width>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="258"/>
-            <Binding Source="162"/>
+            <Binding Source="387"/>
+            <Binding Source="243"/>
           </MultiBinding>
         </Image.Width>
       </Image>
@@ -341,8 +341,8 @@
         <Label.Margin>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="Selected"/>
-            <Binding Source="0,0,0,200"/>
-            <Binding Source="20,0,0,0"/>
+            <Binding Source="0,0,0,300"/>
+            <Binding Source="30,0,0,0"/>
           </MultiBinding>
         </Label.Margin>
       </Label>

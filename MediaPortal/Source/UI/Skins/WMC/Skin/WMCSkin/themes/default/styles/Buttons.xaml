@@ -314,11 +314,11 @@
         <ControlTemplate>
           <Grid>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="240"/>
+              <ColumnDefinition Width="360"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="130"/>
-              <RowDefinition Height="35"/>
+              <RowDefinition Height="195"/>
+              <RowDefinition Height="52"/>
             </Grid.RowDefinitions>
             <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}"
                    HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
