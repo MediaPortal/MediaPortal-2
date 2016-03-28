@@ -43,8 +43,8 @@
                   <GradientStop Color="Black" Offset="0.85" />
                   <GradientStop Color="Transparent" Offset="0.99" />
                 </LinearGradientBrush>
-              </ScrollContentPresenter.OpacityMask>  
-            </ScrollContentPresenter>  
+              </ScrollContentPresenter.OpacityMask>
+            </ScrollContentPresenter>
             <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
                 Grid.ZIndex="0" Margin="2,10,2,2"
                 RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
@@ -103,23 +103,23 @@
     </Setter>
   </Style>
 
-    <Style x:Key="AutoCenterScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                    <Grid x:Name="ScrollViewerGrid">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <!-- Content -->
-                        <wmc:SubItemsContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
+  <Style x:Key="AutoCenterScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <wmc:SubItemsContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                            <!--ScrollContentPresenter.OpacityMask>
+              <!--ScrollContentPresenter.OpacityMask>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                     <GradientStop Color="Transparent" Offset="0.01" />
                                     <GradientStop Color="Black" Offset="0.15" />
@@ -127,66 +127,66 @@
                                     <GradientStop Color="Transparent" Offset="0.99" />
                                 </LinearGradientBrush>
                             </ScrollContentPresenter.OpacityMask-->
-                        </wmc:SubItemsContentPresenter>
-                        <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+            </wmc:SubItemsContentPresenter>
+            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
                 Grid.ZIndex="0" Margin="2,10,2,2"
                 RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
 
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
 
-                            <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
                   Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
                   Height="{ThemeResource ScrollBarWidth}"
                   ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
                   Fill="{ThemeResource ScrollBarBackgroundColor}">
-                            </Rectangle>
+              </Rectangle>
 
-                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
-                                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarKnobWidth}"
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
+                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarKnobWidth}"
                     Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
                     Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                                </Rectangle>
-                            </StackPanel>
-                        </Grid>
-                        <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
                 Grid.ZIndex="0" Margin="10,2,2,2"
                 RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
 
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
 
-                            <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
                   Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
                   Width="{ThemeResource ScrollBarWidth}"
                   ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
                   Fill="{ThemeResource ScrollBarBackgroundColor}">
-                            </Rectangle>
+              </Rectangle>
 
-                            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
-                                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
-                                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
                     Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
                     Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                                </Rectangle>
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
-    <Style x:Key="SubItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+  <Style x:Key="SubItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -209,7 +209,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <!-- ListView style to be used for main menu -->
   <DataTemplate x:Key="SubMenuItemDataTemplate">
     <DataTemplate.Resources>
@@ -302,17 +302,17 @@
   <Style x:Key="SubMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
     <EventSetter Event="MouseWheel" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnMouseWheel}"/>
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="{x:Type ListView}">
-             <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource AutoCenterScrollViewerStyle}" 
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource AutoCenterScrollViewerStyle}" 
                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
-              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            </ScrollViewer>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-     <Setter Property="ItemsPanel">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
           <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
@@ -330,7 +330,7 @@
       <Label x:Name="ItemLabel" Content="{Binding [Name]}"
             HorizontalAlignment="Left" VerticalAlignment="Center"
             Color="{ThemeResource TextColor}"
-			      FontSize="{ThemeResource HugeFontSize}">
+            FontSize="{ThemeResource HugeFontSize}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="Selected"/>
@@ -341,7 +341,7 @@
         <Label.Margin>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="Selected"/>
-            <Binding Source="0,0,0,170"/>
+            <Binding Source="0,0,0,200"/>
             <Binding Source="20,0,0,0"/>
           </MultiBinding>
         </Label.Margin>
@@ -356,7 +356,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="False" Margin="5" Style="{ThemeResource VerticalScrollViewerStyle}" 
+          <ScrollViewer CanContentScroll="False" Margin="10" Style="{ThemeResource VerticalScrollViewerStyle}" 
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           </ScrollViewer>
