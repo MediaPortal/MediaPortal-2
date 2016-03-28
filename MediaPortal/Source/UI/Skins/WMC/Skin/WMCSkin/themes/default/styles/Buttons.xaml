@@ -181,7 +181,7 @@
                 </LinearGradientBrush>
               </Rectangle.Stroke>
             </Rectangle>            
-            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3" RadiusY="3"  StrokeThickness="0" Margin="3">
+            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3" RadiusY="3" StrokeThickness="0" Margin="3">
               <Rectangle.Fill>
                 <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
               </Rectangle.Fill>
@@ -193,7 +193,6 @@
                 </LinearGradientBrush>
               </Rectangle.OpacityMask-->
             </Rectangle>
-            <!--Rectangle DockPanel.Dock="Center" RadiusX="1" RadiusY="1" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" /-->
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -377,8 +376,19 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="0"/>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Margin="3" StrokeThickness="0" 
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}" 
+                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0">
+              <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0.012,1.4">
+                  <GradientStop Color="#00000000" Offset="0"/>
+                  <GradientStop Color="#1A000000" Offset="0.7"/>
+                  <GradientStop Color="#40000000" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

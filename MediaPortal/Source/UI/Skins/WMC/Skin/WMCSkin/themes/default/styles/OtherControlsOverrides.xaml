@@ -342,7 +342,7 @@
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="Selected"/>
             <Binding Source="0,0,0,300"/>
-            <Binding Source="30,0,0,0"/>
+            <Binding Source="20,0,0,0"/>
           </MultiBinding>
         </Label.Margin>
       </Label>
@@ -374,6 +374,38 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource MyMainMenuItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  </Style>
+
+    <Style x:Key="TopMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                    <Button Style="{ThemeResource ButtonWideStyle}" Margin="20,0,20,0"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                        <Button.Triggers>
+                            <Trigger Property="HasFocus" Value="True">
+                                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                            </Trigger>
+                        </Button.Triggers>
+                    </Button>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="TopMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+     <Setter Property="ItemsPanel">
+        <Setter.Value>
+           <ItemsPanelTemplate>
+              <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+           </ItemsPanelTemplate>
+        </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
+     <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+     <Setter Property="ItemContainerStyle" Value="{ThemeResource TopMenuItemContainerStyle}"/>
   </Style>
 
 </ResourceDictionary>
