@@ -172,7 +172,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-            <Rectangle Name="ButtonBase" DockPanel.Dock="Center" RadiusX="2.5" RadiusY="2.5" StrokeThickness="2">
+            <Rectangle Name="ButtonBase" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="3">
               <Rectangle.Stroke>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
                   <GradientStop Color="#CCFFFFFF" Offset="0"/>
@@ -181,7 +181,7 @@
                 </LinearGradientBrush>
               </Rectangle.Stroke>
             </Rectangle>            
-            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="2" RadiusY="2"  StrokeThickness="0" Margin="2">
+            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3" RadiusY="3"  StrokeThickness="0" Margin="3">
               <Rectangle.Fill>
                 <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
               </Rectangle.Fill>
