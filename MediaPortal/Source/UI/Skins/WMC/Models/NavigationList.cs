@@ -69,9 +69,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       if (Count == 0)
         return;
       int oldIndex = CurrentIndex;
-      _current+= count;
+      _current += count;
       if (_current >= Count)
-        _current = 0;
+        _current = _current % Count;
       FireCurrentChanged(oldIndex);
     }
 
@@ -87,7 +87,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       int oldIndex = CurrentIndex;
       _current -= count;
       if (_current < 0)
-        _current = Count - 1;
+        _current = Count + (_current % Count);
       FireCurrentChanged(oldIndex);
     }
 
