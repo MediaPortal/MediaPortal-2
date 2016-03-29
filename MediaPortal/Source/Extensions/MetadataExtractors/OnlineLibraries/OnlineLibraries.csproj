@@ -70,6 +70,9 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="FanArtTvMovieMatcher.cs" />
+    <Compile Include="FanArtTvMusicMatcher.cs" />
+    <Compile Include="FanArtTV\FanArtTVWrapper.cs" />
     <Compile Include="FreeDbMatcher.cs" />
     <Compile Include="FreeDB\FreeDbWrapper.cs" />
     <Compile Include="GeoLocationService.cs" />
@@ -90,6 +93,19 @@
     <Compile Include="Libraries\Common\IRequestRateLimiter.cs" />
     <Compile Include="Libraries\Common\RequestRatePerTimeSpanLimiter.cs" />
     <Compile Include="Libraries\Common\TraceRoute.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\SeasonThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\TVThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\MovieThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\LabelThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\CDArtThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\AlbumThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\AlbumDetails.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\LabelThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\MovieDiscThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\MovieThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\ArtistThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\Thumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\FanArtTVApiV3.cs" />
     <Compile Include="Libraries\FreeDB\Data\CDInfo.cs" />
     <Compile Include="Libraries\FreeDB\Data\CDInfoDetail.cs" />
     <Compile Include="Libraries\FreeDB\Data\CDTrackDetail.cs" />
@@ -216,6 +232,7 @@
     <Compile Include="Matches\DiscIdMatch.cs" />
     <Compile Include="Matches\MovieCollectionMatch.cs" />
     <Compile Include="Matches\TrackMatch.cs" />
+    <Compile Include="FanArtTvSeriesMatcher.cs" />
     <Compile Include="TheAudioDbMatcher.cs" />
     <Compile Include="MusicBrainzMatcher.cs" />
     <Compile Include="MusicBrainz\MusicBrainzWrapper.cs" />
