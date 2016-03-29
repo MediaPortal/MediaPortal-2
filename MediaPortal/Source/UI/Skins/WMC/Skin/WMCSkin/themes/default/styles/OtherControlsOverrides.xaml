@@ -14,8 +14,9 @@
   <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
   <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
+  <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
 
-  <!-- default brush used to paint the background of a page/window -->
+    <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
     <ImageBrush x:Name="BackdropImageBackground" ImageSource="Background.png" />
   </ResourceWrapper>
@@ -376,20 +377,46 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 
+    <DataTemplate x:Key="TopMenuItemDataTemplate">
+        <DockPanel x:Name="ItemControl" LastChildFill="False">
+            <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   Width="25" Height="25" Stretch="Fill" Margin="1" Opacity="0.4">
+                <Image.Source>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
+                        <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
+                        <Binding Source=".png"/>
+                    </MultiBinding>
+                </Image.Source>
+            </Image>
+        </DockPanel>
+    </DataTemplate>
+
     <Style x:Key="TopMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                    <Button Style="{ThemeResource ButtonWideStyle}" Margin="20,0,20,0"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-                        <Button.Triggers>
-                            <Trigger Property="HasFocus" Value="True">
-                                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-                            </Trigger>
-                        </Button.Triggers>
+                    <DockPanel x:Name="ItemGroup">
+                    <Button Style="{ThemeResource ButtonWideStyle}" Margin="20,0,5,0" DockPanel.Dock="Left"
+                            Command="{DynamicResource ResourceKey=Menu_Command}"
+                               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                            <Button.Triggers>
+                                <Trigger Property="HasFocus" Value="True">
+                                    <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                                    <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
+                                    <Setter TargetName="ItemGroup" Property="Margin" Value="10,0,10,0"/>
+                                    <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                                </Trigger>
+                            </Button.Triggers>
                     </Button>
+                    <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Right"
+                            HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,0" Opacity="0.4"
+                            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                    <!--Label FontSize="11"  Margin="10,0,10,-10" DockPanel.Dock="Bottom" Color="{ThemeResource TextColor}">
+                      <Label.Content>
+                        <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
+                      </Label.Content>
+                    </-->
+                    </DockPanel>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -402,8 +429,8 @@
               <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
            </ItemsPanelTemplate>
         </Setter.Value>
-        </Setter>
-        <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
+     </Setter>
+     <Setter Property="ItemTemplate" Value="{ThemeResource TopMenuItemDataTemplate}"/>
      <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
      <Setter Property="ItemContainerStyle" Value="{ThemeResource TopMenuItemContainerStyle}"/>
   </Style>

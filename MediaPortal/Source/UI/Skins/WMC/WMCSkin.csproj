@@ -66,11 +66,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\fonts\default-font.xml" />
+    <Content Include="Skin\WMCSkin\images\03189090-a3c1-4346-9a84-4acd6725dde0.png" />
     <Content Include="Skin\WMCSkin\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
     <Content Include="Skin\WMCSkin\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
     <Content Include="Skin\WMCSkin\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
     <Content Include="Skin\WMCSkin\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
     <Content Include="Skin\WMCSkin\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\WMCSkin\images\b15ea757-905e-46fa-a71d-c132885c221e.png" />
     <Content Include="Skin\WMCSkin\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\WMCSkin\images\defaultBackground.jpg" />
     <Content Include="Skin\WMCSkin\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
