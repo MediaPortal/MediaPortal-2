@@ -35,7 +35,7 @@
     </ResourceWrapper.Resource>
   </ResourceWrapper> 
 
-  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FF3F5768"/>
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#80FFFFFF"/>
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
   <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="Yellow"/>
@@ -119,7 +119,10 @@
   <!-- Black -->
   <ResourceWrapper x:Key="DialogCloseButtonCrossColor" Resource="#FF484848"/>
 
-  <!-- Light blue with some green -->
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#1A000000"/>
+    
+
+    <!-- Light blue with some green -->
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
 
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FFA0A0A0"/>
