@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -51,8 +50,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     #region Fields
 
-    private static readonly FileVersionInfo FILE_VERSION_INFO;
-
     private readonly string _cachePath;
     private readonly Downloader _downloader;
 
@@ -60,17 +57,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     #region Constructor
 
-    static MusicBrainzApiV2()
-    {
-      FILE_VERSION_INFO = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
-    }
-
     public MusicBrainzApiV2(string cachePath)
     {
       _cachePath = cachePath;
       _downloader = new Downloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
-      _downloader.Headers["User-Agent"] = "MediaPortal/" + FILE_VERSION_INFO.FileVersion + " (http://www.team-mediaportal.com/)";
     }
 
     #endregion
@@ -201,7 +192,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       return true;
     }
 
-    public bool DownloadImages(string albumId, TrackImageCollection imageCollection, string category = "Front")
+    public bool DownloadImages(string albumId, TrackImageCollection imageCollection, string category = "Front", string folderCategory = "Covers")
     {
       if (imageCollection == null) return false;
         foreach (TrackImage image in imageCollection.Images)
@@ -209,7 +200,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
         foreach (string imageType in image.Types)
         {
           if (imageType.Equals(category, StringComparison.InvariantCultureIgnoreCase))
-            DownloadImage(albumId, image, category);
+            DownloadImage(albumId, image, folderCategory);
         }
       }
       return true;

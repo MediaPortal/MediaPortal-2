@@ -22,14 +22,13 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Web;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data;
 using Newtonsoft.Json;
-using System.Diagnostics;
-using System;
+
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
 {
@@ -57,9 +56,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     #endregion
 
     #region Fields
-
-    private static readonly FileVersionInfo FILE_VERSION_INFO;
-
+    
     private readonly string _apiKey;
     private readonly string _cachePath;
     private readonly Downloader _downloader;
@@ -68,18 +65,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
 
     #region Constructor
 
-    static AudioDbApiV1()
-    {
-      FILE_VERSION_INFO = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
-    }
-
     public AudioDbApiV1(string apiKey, string cachePath)
     {
       _apiKey = apiKey;
       _cachePath = cachePath;
       _downloader = new Downloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
-      _downloader.Headers["User-Agent"] = "MediaPortal/" + FILE_VERSION_INFO.FileVersion + " (http://www.team-mediaportal.com/)";
     }
 
     #endregion
@@ -359,7 +350,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         string url = null;
         if (front)
         {
-          category = "Front";
+          category = "Covers";
           url = album.AlbumThumb;
         }
         string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", album.AlbumId, category));

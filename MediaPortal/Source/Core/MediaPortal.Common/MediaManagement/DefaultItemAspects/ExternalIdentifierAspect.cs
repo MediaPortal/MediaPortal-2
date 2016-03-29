@@ -49,6 +49,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string TYPE_PERSON = "person"; // Someone in real life
     public static readonly string TYPE_SERIES = "series";
     public static readonly string TYPE_TRACK = "track";
+    public static readonly string TYPE_ALBUM = "album";
 
     /// <summary>
     /// Media item aspect id of the relationship aspect.
