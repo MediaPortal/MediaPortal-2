@@ -15,6 +15,7 @@
   <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
+  <StringFormatConverter x:Key="StringFormatConverter"/>
 
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
@@ -382,10 +383,7 @@
       <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
                    Width="25" Height="25" Stretch="Fill" Margin="1" Opacity="0.4">
         <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
-            <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
-            <Binding Source=".png"/>
-          </MultiBinding>
+          <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}.png"/>
         </Image.Source>
       </Image>
     </DockPanel>
