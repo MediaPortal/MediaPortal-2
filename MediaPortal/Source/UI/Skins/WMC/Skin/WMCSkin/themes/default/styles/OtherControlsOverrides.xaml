@@ -424,7 +424,8 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+          <UniformGrid Columns="4" Rows="2" x:Name="ListItemsHost" IsItemsHost="True" Height="30"/>
+          <!--StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/-->
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
