@@ -74,9 +74,6 @@
     <Content Include="Skin\WMCSkin\images\f400fbea-6e32-4735-be52-15dfdbb64fcc.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skin\WMCSkin\images\3cca4436-2d3e-468b-a50d-740da5aeaea5.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Skin\WMCSkin\images\b15ea757-905e-46fa-a71d-c132885c221e.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -84,6 +81,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Skin\WMCSkin\images\preview.png" />
+    <Content Include="Skin\WMCSkin\images\search.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\0.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\1.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\10.png" />
@@ -281,6 +279,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\SimpleShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SimpleFilterItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -66,16 +66,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </ListView.Resources>
         </ListView>
 
-        <!--Original vertical menu-->
-        <!--ListView x:Name="MainMenu" DockPanel.Dock="Left" Margin="10,30,0,10" Style="{ThemeResource MainMenuListViewStyle}"
-            Width="350" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
-            ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
-          <ListView.Resources>
-            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-          </ListView.Resources>   
-        </ListView-->
-
-                <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
+        <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
         <Grid x:Name="ContentPanel" SetFocusPrio="DefaultLow">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
