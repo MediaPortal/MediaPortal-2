@@ -71,16 +71,16 @@
     <Content Include="Skin\WMCSkin\images\09eae702-d9ec-4325-82d9-4843502c966b.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skin\WMCSkin\images\1400fbea-6e32-4735-be52-15dfdbb64fcc.png">
+    <Content Include="Skin\WMCSkin\images\f400fbea-6e32-4735-be52-15dfdbb64fcc.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skin\WMCSkin\images\7e3a1e37-0dad-45d8-abb8-a673cf1565d2.png">
+    <Content Include="Skin\WMCSkin\images\3cca4436-2d3e-468b-a50d-740da5aeaea5.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Skin\WMCSkin\images\b15ea757-905e-46fa-a71d-c132885c221e.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skin\WMCSkin\images\d205e9bc-a970-429d-88f8-bbb92cf3fl9a.png">
+    <Content Include="Skin\WMCSkin\images\d205e9bc-a970-429d-88f8-bbb92cf3f19a.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Skin\WMCSkin\images\preview.png" />
