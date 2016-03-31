@@ -1019,7 +1019,7 @@
                 <Image.OpacityMask>
                     <VisualBrush>
                         <VisualBrush.Visual>
-                            <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+                            <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
                         </VisualBrush.Visual>
                     </VisualBrush>
                 </Image.OpacityMask>
@@ -1227,7 +1227,7 @@
             </Grid.RowDefinitions>
 
             <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                       RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3"
+                       RadiusX="5" RadiusY="5" StrokeThickness="3" Margin="-3"
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
                 <Rectangle.Stroke>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
@@ -1243,7 +1243,7 @@
                 <Image.OpacityMask>
                     <VisualBrush>
                         <VisualBrush.Visual>
-                            <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+                            <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
                         </VisualBrush.Visual>
                     </VisualBrush>
                 </Image.OpacityMask>
