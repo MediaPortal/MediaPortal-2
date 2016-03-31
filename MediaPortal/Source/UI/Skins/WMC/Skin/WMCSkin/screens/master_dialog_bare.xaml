@@ -104,7 +104,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                </Grid.RowDefinitions>
                <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="10,0,10,0"
                       Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center"
+                      VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="DefaultBold"
                       IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Content,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
                <Control x:Name="AlternativeHeaderControl" Grid.Row="0" Grid.Column="0"

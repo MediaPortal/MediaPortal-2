@@ -45,4 +45,7 @@
     <ResourceWrapper x:Key="AUDIO_COVER_WIDTH" Resource="260"/>
     <ResourceWrapper x:Key="AUDIO_COVER_HEIGHT" Resource="260"/>
 
+    <ResourceWrapper x:Key="BANNER_GRID_WIDTH" Resource="460"/>
+    <ResourceWrapper x:Key="BANNER_GRID_HEIGHT" Resource="105"/>
+
 </ResourceDictionary>
