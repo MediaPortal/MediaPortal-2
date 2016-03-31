@@ -3,8 +3,12 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
-  <ResourceWrapper x:Key="HugeFontSize" Resource="71"/>
 
+    <!-- Footer Details -->
+  <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="60,0,60,20"/>
+
+  <ResourceWrapper x:Key="HugeFontSize" Resource="71"/>
   <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
 

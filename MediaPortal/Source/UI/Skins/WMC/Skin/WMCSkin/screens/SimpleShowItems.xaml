@@ -32,6 +32,8 @@
                 </Control>
             </Grid>
         </ControlTemplate>
-
+        <ControlTemplate x:Key="Alternative_Footer_Template">
+            <Include Source="screens\MultiDetails.inc"/>
+        </ControlTemplate>
     </Include.Resources>
 </Include>
