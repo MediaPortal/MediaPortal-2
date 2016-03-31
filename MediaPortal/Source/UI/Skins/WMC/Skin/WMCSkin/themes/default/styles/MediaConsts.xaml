@@ -17,7 +17,6 @@
     <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_CP" Resource="200"/>
     <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="95"/>
 
-
     <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="225"/>
     <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="130"/>
 
@@ -37,7 +36,7 @@
     <ResourceWrapper x:Key="POSTER_GRID_HEIGHT" Resource="250"/>
 
     <ResourceWrapper x:Key="POSTER_COVER_WIDTH" Resource="260"/>
-    <ResourceWrapper x:Key="POSTER_COVER_HEIGHT" Resource="420"/>
+    <ResourceWrapper x:Key="POSTER_COVER_HEIGHT" Resource="410"/>
 
     <ResourceWrapper x:Key="AUDIO_GRID_WIDTH" Resource="162.5"/> 
     <ResourceWrapper x:Key="AUDIO_GRID_HEIGHT" Resource="162.5"/>
