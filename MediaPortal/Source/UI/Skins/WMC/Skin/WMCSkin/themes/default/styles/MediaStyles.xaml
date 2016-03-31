@@ -1158,13 +1158,36 @@
     <ControlTemplate x:Key="CoverViewMovieItemTemplate">
         <Grid x:Name="ItemControl">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource MEDIA_POSTER_CONTAINER_WIDTH}"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="{StaticResource COVERVIEW_FILTER_HEIGHT}"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="60"/>
             </Grid.RowDefinitions>
 
+            <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+                <Rectangle.Stroke>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+                        <GradientStop Color="#CCFFFFFF" Offset="0"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
+                        <GradientStop Color="#66FFFFFF" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Stroke>
+            </Rectangle>
+ 
+            <Image Width="{StaticResource MEDIA_COVER_WIDTH}" Height="{StaticResource MEDIA_COVER_HEIGHT}" Stretch="Fill"
+                   Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" Margin="0">
+                <Image.OpacityMask>
+                    <VisualBrush>
+                        <VisualBrush.Visual>
+                            <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </Image.OpacityMask>
+            </Image>
+            
             <!-- Unwatched indicator -->
             <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,20,0,0">
                 <Image.IsVisible>
@@ -1172,14 +1195,24 @@
                 </Image.IsVisible>
             </Image>
 
-            <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center" FontSize="{ThemeResource SmallFontSize}">
-                <Label.Color>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-                        <Binding Path="PlayCount"/>
-                        <Binding Source="{ThemeResource TextColor}"/>
-                        <Binding Source="{ThemeResource WatchedTextColor}"/>
+            <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+                <Rectangle.Fill>
+                    <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
+                </Rectangle.Fill>
+            </Rectangle>
+
+            <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
+                   Color="{ThemeResource TextColor}"
+                   HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource MEDIA_COVER_WIDTH}">
+                <Label.Opacity>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                        <Binding Source="1.0"/>
+                        <Binding Source="0.4"/>
                     </MultiBinding>
-                </Label.Color>
+                </Label.Opacity>
             </Label>
         </Grid>
     </ControlTemplate>
@@ -1755,7 +1788,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                    <Button Style="{ThemeResource ButtonWideStyle}"
+                    <Button Style="{ThemeResource ButtonWideStyle_Cover}"
                             Command="{DynamicResource ResourceKey=Menu_Command}"
                             IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
                         <Button.Triggers>
@@ -1820,7 +1853,7 @@
                             <Binding>
                                 <Binding.Source>
                                     <ItemsPanelTemplate>
-                                        <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+                                        <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/>
                                     </ItemsPanelTemplate>
                                 </Binding.Source>
                             </Binding>
