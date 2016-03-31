@@ -20,7 +20,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Control Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch">
+                <Control Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,20,15,-20">
                     <Control.TemplateControl>
                         <Include Source="screens\MediaItemsListHeader.inc"/>
                     </Control.TemplateControl>

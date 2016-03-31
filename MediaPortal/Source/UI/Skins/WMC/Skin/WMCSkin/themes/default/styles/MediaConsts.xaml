@@ -31,10 +31,18 @@
     <ResourceWrapper x:Key="FANART_POSTER_WIDTH" Resource="180"/>
     <ResourceWrapper x:Key="FANART_POSTER_HEIGHT" Resource="220"/>
 
-    <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="162.5"/>
-    <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="250"/>
+    <!--New constants, previous to be elminated later-->
+    
+    <ResourceWrapper x:Key="POSTER_GRID_WIDTH" Resource="162.5"/>
+    <ResourceWrapper x:Key="POSTER_GRID_HEIGHT" Resource="250"/>
 
-    <ResourceWrapper x:Key="MEDIA_COVER_WIDTH" Resource="260"/>
-    <ResourceWrapper x:Key="MEDIA_COVER_HEIGHT" Resource="420"/>
+    <ResourceWrapper x:Key="POSTER_COVER_WIDTH" Resource="260"/>
+    <ResourceWrapper x:Key="POSTER_COVER_HEIGHT" Resource="420"/>
+
+    <ResourceWrapper x:Key="AUDIO_GRID_WIDTH" Resource="162.5"/> 
+    <ResourceWrapper x:Key="AUDIO_GRID_HEIGHT" Resource="162.5"/>
+
+    <ResourceWrapper x:Key="AUDIO_COVER_WIDTH" Resource="260"/>
+    <ResourceWrapper x:Key="AUDIO_COVER_HEIGHT" Resource="260"/>
 
 </ResourceDictionary>
