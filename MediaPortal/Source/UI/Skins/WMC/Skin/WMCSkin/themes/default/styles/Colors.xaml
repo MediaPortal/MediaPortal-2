@@ -40,7 +40,8 @@
   <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="Yellow"/>
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
-  
+  <ResourceWrapper x:Key="WatchedTextColor" Resource="Orange"/>
+    
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FFD3D3D3"/>
   <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF6BB2BA"/>
 

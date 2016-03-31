@@ -36,7 +36,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Grid x:Name="RootElement">
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
+      <RowDefinition Height="250"/>
+        </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>

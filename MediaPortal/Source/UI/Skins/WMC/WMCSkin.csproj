@@ -184,6 +184,7 @@
     <Content Include="Skin\WMCSkin\images\Weather\64x64\na.png" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc" />
     <Content Include="Skin\WMCSkin\skin.xml" />
     <Content Include="Skin\WMCSkin\themes\default\images\FilterLarge.png" />
     <Content Include="Skin\WMCSkin\themes\default\images\FilterSmall.png" />
