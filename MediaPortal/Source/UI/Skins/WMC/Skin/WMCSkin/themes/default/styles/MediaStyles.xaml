@@ -902,16 +902,12 @@
     <ControlTemplate x:Key="GridViewContainerItemTemplate">
         <Grid x:Name="ItemControl">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
+                <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
             </Grid.RowDefinitions>
-            <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"
-           Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
-            <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center"/>
+            <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"/>
         </Grid>
     </ControlTemplate>
 
@@ -1343,33 +1339,19 @@
     <ControlTemplate x:Key="GridViewVideoItemTemplate">
         <Grid x:Name="ItemControl">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
+                <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
             </Grid.RowDefinitions>
-            <Image Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}" Stretch="Uniform"
-             Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
+            <Image Stretch="Uniform" Margin="2"
+                   Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
             </Image>
-            <!--<Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="{Binding MediaItem}"
-           Thumbnail="True" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
-           FallbackSource="VideoLarge.png"/>-->
-            <!-- Unwatched indicator -->
             <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <Image.IsVisible>
                     <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
                 </Image.IsVisible>
             </Image>
-            <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center">
-                <Label.Color>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-                        <Binding Path="PlayCount"/>
-                        <Binding Source="{ThemeResource TextColor}"/>
-                        <Binding Source="{ThemeResource WatchedTextColor}"/>
-                    </MultiBinding>
-                </Label.Color>
-            </Label>
         </Grid>
     </ControlTemplate>
 
