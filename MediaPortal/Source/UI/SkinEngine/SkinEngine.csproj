@@ -132,6 +132,7 @@
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
     <Compile Include="Controls\ImageSources\BinaryTextureImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
+    <Compile Include="Controls\Panels\AnimatedStackPanel.cs" />
     <Compile Include="Controls\Panels\IVirtualizingPanel.cs" />
     <Compile Include="Controls\Panels\VirtualizingWrapPanel.cs" />
     <Compile Include="Controls\Visuals\AnimatedScrollContentPresenter.cs" />
