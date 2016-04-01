@@ -94,6 +94,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
       }
       else if (eventname == Screen.CLOSE_EVENT)
       {
+        // Check if the UI state is already persisted, then we don't do it here again.
+        // This is especially required if the layout already changed before screen is closed (like done in MediaNavigationModel)
+        bool? uiStatePeristed = _context.GetContextVariable(_contextVariable + "_persisted", false) as bool?;
+        if (uiStatePeristed.HasValue && uiStatePeristed.Value)
+        {
+          _context.ResetContextVariable(_contextVariable + "_persisted");
+          return;
+        }
+
         // Mapping of context variable name -> UI state
         IDictionary<string, IDictionary<string, object>> state =
             (IDictionary<string, IDictionary<string, object>>) _context.GetContextVariable(_contextVariable, false) ??
