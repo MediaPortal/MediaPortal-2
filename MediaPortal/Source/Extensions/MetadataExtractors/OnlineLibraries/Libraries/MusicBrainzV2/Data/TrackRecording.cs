@@ -22,53 +22,59 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
-  //            {
-  //              "title": "New Life",
-  //              "artist-credit": [
-  //                {
-  //                  "artist": {
-  //                    "disambiguation": "",
-  //                    "name": "Depeche Mode",
-  //                    "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
-  //                    "sort-name": "Depeche Mode"
-  //                  },
-  //                  "name": "Depeche Mode",
-  //                  "joinphrase": ""
-  //                }
-  //              ],
-  //              "id": "40a141c2-08f2-36b9-9ccd-d75f47c847b1",
-  //              "number": "A",
-  //              "length": 223000
-  //            }
+//          {
+//            "artist-credit": [
+//              {
+//                "name": "Autechre",
+//                "joinphrase": " & ",
+//                "artist": {
+//                  "disambiguation": "",
+//                  "sort-name": "Autechre",
+//                  "id": "410c9baf-5469-44f6-9852-826524b80c61",
+//                  "name": "Autechre"
+//                }
+//              },
+//              {
+//                "artist": {
+//                  "name": "The Hafler Trio",
+//                  "disambiguation": "",
+//                  "sort-name": "Hafler Trio, The",
+//                  "id": "146c01d0-d3a2-44c3-acb5-9208bce75e14"
+//                },
+//                "joinphrase": "",
+//                "name": "The Hafler Trio"
+//              }
+//            ],
+//            "length": 974546,
+//            "title": "æ³o",
+//            "video": false,
+//            "id": "af87f070-238b-46c1-aa3e-f831ab91fa20",
+//            "disambiguation": ""
+//          }
   [DataContract]
-  public class TrackData
+  public class TrackRecording
   {
     [DataMember(Name = "id")]
     public string Id { get; set; }
 
-    [DataMember(Name = "number")]
-    public string Number { get; set; }
-
     [DataMember(Name = "title")]
     public string Title { get; set; }
-
-    [DataMember(Name = "length")]
-    public long Length { get; set; }
 
     [DataMember(Name = "artist-credit")]
     public IList<TrackArtistCredit> Artists { get; set; }
 
-    [DataMember(Name = "recording")]
-    public TrackRecording Recording { get; set; }
+    [DataMember(Name = "length")]
+    public long Length { get; set; }
 
     public override string ToString()
     {
-      return string.Format("Id: {0}, Number: {1}, Title: {2}, Length: {3}", Id, Number, Title, Length);
+      return string.Format("Id: {0}, Title: {1}", Id, Title);
     }
   }
 }

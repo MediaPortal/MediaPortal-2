@@ -77,6 +77,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
   //        "script": "Latn",
   //        "language": "eng"
   //      },
+  //      "cover-art-archive": {
+  //        "back": false,
+  //        "darkened": false,
+  //        "front": true,
+  //        "count": 1,
+  //        "artwork": true
+  //      },
+  //      "label-info": [
+  //        {
+  //          "catalog-number": "pgram002",
+  //          "label": {
+  //            "label-code": null,
+  //            "name": "Phonometrography",
+  //            "disambiguation": "",
+  //            "id": "a0759efa-f583-49ea-9a8d-d5bbce55541c",
+  //            "sort-name": "Phonometrography"
+  //          }
+  //        }
+  //      ],
   //      "id": "76a2c55d-37a7-4258-97d1-8d3d7da094fc",
   //      "packaging": "Cardboard/Paper Sleeve",
   //      "title": "New Life",
@@ -132,6 +151,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     [DataMember(Name = "artist-credit")]
     public IList<TrackArtistCredit> Artists { get; set; }
+
+    [DataMember(Name = "label-info")]
+    public IList<TrackLabel> Labels { get; set; }
+
+    [DataMember(Name = "cover-art-archive")]
+    public TrackCoverArt CoverArt { get; set; }
 
     public override string ToString()
     {

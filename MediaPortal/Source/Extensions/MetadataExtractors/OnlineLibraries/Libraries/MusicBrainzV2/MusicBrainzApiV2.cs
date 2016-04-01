@@ -43,6 +43,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     private const string URL_FANART_API_BASE = "http://coverartarchive.org/";
 
     private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
+    private const string URL_GETRELEASE = URL_API_BASE + "release/{0}?inc=artist-credits+labels+discids+recordings+tags&fmt=json";
     private const string URL_QUERYRECORDING = URL_API_BASE + "recording?query={0}&limit=5&fmt=json";
     private const string URL_FANART_LIST = URL_FANART_API_BASE + "release/{0}/";
 
@@ -124,7 +125,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <returns>Track information</returns>
     public Track GetTrack(string id)
     {
-      string cache = CreateAndGetCacheName(id, "track");
+      string cache = CreateAndGetCacheName(id, "Track");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -133,6 +134,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
       string url = GetUrl(URL_GETRECORDING, id);
       return _downloader.Download<Track>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns detailed information for an album <see cref="TrackRelease"/> with given <paramref name="id"/>. This method caches request
+    /// to same albums using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of album</param>
+    /// <returns>Track information</returns>
+    public TrackRelease GetAlbum(string id)
+    {
+      string cache = CreateAndGetCacheName(id, "Album");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<TrackRelease>(json);
+      }
+
+      string url = GetUrl(URL_GETRELEASE, id);
+      return _downloader.Download<TrackRelease>(url, cache);
     }
 
     /// <summary>

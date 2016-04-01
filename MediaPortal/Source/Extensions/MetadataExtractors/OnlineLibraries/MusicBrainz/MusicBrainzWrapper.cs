@@ -245,6 +245,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
       return trackDetail != null;
     }
 
+    public bool GetAlbum(string musicBrainzId, out TrackRelease albumDetail)
+    {
+      albumDetail = _musicBrainzHandler.GetAlbum(musicBrainzId);
+      return albumDetail != null;
+    }
+
     /// <summary>
     /// Gets images for the requested movie.
     /// </summary>

@@ -72,7 +72,11 @@
     </Compile>
     <Compile Include="Libraries\MovieDbV3\Data\SeriesRating.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\SeriesRatingResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabelDetail.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabel.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackCoverArt.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecordingResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecording.cs" />
     <Compile Include="Libraries\OmDbV1\Data\BaseResponse.cs" />
     <Compile Include="Libraries\OmDbV1\Data\SearchItem.cs" />
     <Compile Include="Libraries\OmDbV1\Data\SearchResult.cs" />
@@ -261,7 +265,6 @@
     <Compile Include="MusicTheAudioDbMatcher.cs" />
     <Compile Include="MusicBrainzMatcher.cs" />
     <Compile Include="MusicBrainz\MusicBrainzWrapper.cs" />
-    <Compile Include="TheAudioDB\TheAudioDbWrapper.cs" />
     <Compile Include="NamePreprocessor.cs" />
     <Compile Include="Matches\BaseMatcher.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
@@ -312,10 +315,11 @@
     <Compile Include="Matches\MovieMatch.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\MovieSearchResult.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\PagedMovieSearchResult.cs" />
-    <Compile Include="TheMovieDB\TheMovieDbWrapper.cs" />
+    <Compile Include="TheAudioDB\TheAudioDbWrapper.cs" />
     <Compile Include="Matches\BaseMatch.cs" />
     <Compile Include="Matches\SeriesMatch.cs" />
     <Compile Include="Libraries\Common\Settings.cs" />
+    <Compile Include="TheMovieDB\TheMovieDbWrapper.cs" />
     <Compile Include="TheTvDB\TvDbWrapper.cs" />
     <Compile Include="UniqueEventedQueue.cs" />
   </ItemGroup>

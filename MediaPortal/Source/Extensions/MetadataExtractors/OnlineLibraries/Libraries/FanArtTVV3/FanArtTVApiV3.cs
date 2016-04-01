@@ -69,7 +69,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
 
     #region Public members
 
-
     public ArtistThumbs GetArtistThumbs(string artistMbid)
     {
       string cache = CreateAndGetCacheName(artistMbid, "Artist");
