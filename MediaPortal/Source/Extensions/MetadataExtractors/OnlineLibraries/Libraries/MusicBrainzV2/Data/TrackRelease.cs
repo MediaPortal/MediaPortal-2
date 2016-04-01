@@ -22,12 +22,85 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
-   [DataContract]
+  //    {
+  //      "media": [
+  //        {
+  //          "title": "",
+  //          "position": 1,
+  //          "discs": [
+  //          ],
+  //          "track-count": 2,
+  //          "tracks": [
+  //            {
+  //              "title": "New Life",
+  //              "artist-credit": [
+  //                {
+  //                  "artist": {
+  //                    "disambiguation": "",
+  //                    "name": "Depeche Mode",
+  //                    "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
+  //                    "sort-name": "Depeche Mode"
+  //                  },
+  //                  "name": "Depeche Mode",
+  //                  "joinphrase": ""
+  //                }
+  //              ],
+  //              "id": "40a141c2-08f2-36b9-9ccd-d75f47c847b1",
+  //              "number": "A",
+  //              "length": 223000
+  //            }
+  //          ],
+  //          "format": "7\" Vinyl",
+  //          "track-offset": 0
+  //        }
+  //      ],
+  //      "status": "Official",
+  //      "artist-credit": [
+  //        {
+  //          "name": "Depeche Mode",
+  //          "artist": {
+  //            "sort-name": "Depeche Mode",
+  //            "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
+  //            "name": "Depeche Mode",
+  //            "disambiguation": ""
+  //          },
+  //          "joinphrase": ""
+  //        }
+  //      ],
+  //      "text-representation": {
+  //        "script": "Latn",
+  //        "language": "eng"
+  //      },
+  //      "id": "76a2c55d-37a7-4258-97d1-8d3d7da094fc",
+  //      "packaging": "Cardboard/Paper Sleeve",
+  //      "title": "New Life",
+  //      "barcode": "",
+  //      "release-events": [
+  //        {
+  //          "date": "1981-06-13",
+  //          "area": {
+  //            "id": "8a754a16-0027-3a29-b6d7-2b40ea0481ed",
+  //            "name": "United Kingdom",
+  //            "sort-name": "United Kingdom",
+  //            "iso-3166-1-codes": [
+  //              "GB"
+  //            ],
+  //            "disambiguation": ""
+  //          }
+  //        }
+  //      ],
+  //      "date": "1981-06-13",
+  //      "quality": "normal",
+  //      "country": "GB",
+  //      "disambiguation": ""
+  //    }
+  [DataContract]
   public class TrackRelease
   {
     [DataMember(Name = "id")]
@@ -43,7 +116,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public TrackReleaseGroup ReleaseGroup { get; set; }
     
     [DataMember(Name = "date")]
-    public string Date { get; set; }
+    public DateTime? Date { get; set; }
 
     [DataMember(Name = "country")]
     public string Country { get; set; }

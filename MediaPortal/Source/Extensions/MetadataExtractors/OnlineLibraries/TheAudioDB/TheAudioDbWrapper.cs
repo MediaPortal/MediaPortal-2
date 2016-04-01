@@ -70,9 +70,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init()
+    public bool Init(string cachePath)
     {
-      _audioDbHandler = new AudioDbApiV1("975376238723lcbzmsjwq98", TheAudioDbMatcher.CACHE_PATH);
+      _audioDbHandler = new AudioDbApiV1("975376238723lcbzmsjwq98", cachePath);
       return true;
     }
 
@@ -198,6 +198,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       return trackDetail != null;
     }
 
+    public bool GetAlbumFromId(string id, out AudioDbAlbum albumDetail)
+    {
+      albumDetail = _audioDbHandler.GetAlbumByTadb(id);
+      if (albumDetail != null) albumDetail.SetLanguage(PreferredLanguage);
+      return albumDetail != null;
+    }
+
+    public bool DownloadImage(string id, string url, string category)
+    {
+      if (string.IsNullOrEmpty(id)) return false;
+      if (string.IsNullOrEmpty(url)) return false;
+      if (string.IsNullOrEmpty(category)) return false;
+      return _audioDbHandler.DownloadImage(id, url, category);
+    }
+
     /// <summary>
     /// Returns the Levenshtein distance for a <paramref name="trackName"/> and a given <paramref name="searchName"/>.
     /// </summary>
@@ -221,13 +236,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'", "(", ")", "[", "]" }.Aggregate(name, (current, s) => current.Replace(s, ""));
       result = result.Replace("&", "and");
       return StringUtils.RemoveDiacritics(result);
-    }
-
-    public bool DownloadImages(string albumId)
-    {
-      AudioDbAlbum album = _audioDbHandler.GetAlbumByTadb(albumId);
-      if (album == null) return false;
-      return _audioDbHandler.DownloadImages(album, true);
     }
   }
 }

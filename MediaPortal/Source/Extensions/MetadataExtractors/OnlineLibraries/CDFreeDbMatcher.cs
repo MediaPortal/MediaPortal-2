@@ -36,13 +36,13 @@ using MediaPortal.Extensions.OnlineLibraries.Freedb;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
-  public class FreeDbMatcher : BaseMatcher<DiscIdMatch, string>
+  public class CDFreeDbMatcher : BaseMatcher<DiscIdMatch, string>
   {
     #region Static instance
 
-    public static FreeDbMatcher Instance
+    public static CDFreeDbMatcher Instance
     {
-      get { return ServiceRegistration.Get<FreeDbMatcher>(); }
+      get { return ServiceRegistration.Get<CDFreeDbMatcher>(); }
     }
 
     #endregion
@@ -73,7 +73,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       CDInfoDetail trackDetails;
       if (
         /* Best way is to get details by an unique CDDB id */
-        TryMatch(trackInfo.CdDdId, trackInfo.Title, false, out trackDetails)
+        TryMatch(trackInfo.AlbumCdDdId, trackInfo.Title, false, out trackDetails)
         )
       {
         if (trackDetails != null)
@@ -81,7 +81,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           trackInfo.Album = trackDetails.Title;
           trackInfo.AlbumArtists.Add(trackDetails.Artist);
           trackInfo.Genres.Add(trackDetails.Genre);
-          trackInfo.Year = trackDetails.Year;
+          trackInfo.ReleaseDate = new DateTime(trackDetails.Year, 1, 1);
 
           List<CDTrackDetail> tracks = new List<CDTrackDetail>(trackDetails.Tracks);
           if (_freeDb.FindTrack(trackInfo.Title, ref tracks))
@@ -210,12 +210,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return true;
 
       _freeDb = new FreeDbWrapper();
-      return _freeDb.Init();
+      return _freeDb.Init(CACHE_PATH);
     }
 
     protected override void DownloadFanArt(string itemId)
     {
-      throw new NotImplementedException();
     }
   }
 }

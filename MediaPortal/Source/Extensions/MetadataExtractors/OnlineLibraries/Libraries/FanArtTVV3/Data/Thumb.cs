@@ -26,16 +26,21 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
+  //    {
+  //      "id": "19374",
+  //      "url": "http://assets.fanart.tv/fanart/tv/75682/showbackground/bones-500994f33356b.jpg",
+  //      "likes": "2",
+  //    }
   [DataContract]
   public class Thumb
   {
     [DataMember(Name = "id")]
-    public string Id { get; set; }
+    public int Id { get; set; }
 
     [DataMember(Name = "url")]
     public string Url { get; set; }
 
     [DataMember(Name = "likes")]
-    public string Likes { get; set; }
+    public int? Likes { get; set; }
   }
 }

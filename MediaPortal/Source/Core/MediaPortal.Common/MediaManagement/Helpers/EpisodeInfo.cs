@@ -113,6 +113,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public int TvdbId { get; set; }
 
+    public int MovieDbId { get; set; }
+
     /// <summary>
     /// Gets or sets the episode title.
     /// </summary>
@@ -167,6 +169,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public ICollection<string> Genres { get; internal set; }
 
+    public List<string> Languages { get; internal set; }
+
     public double TotalRating { get; set; }
 
     public int RatingCount { get; set; }
@@ -181,6 +185,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       Directors = new HashSet<string>();
       Writers = new HashSet<string>();
       Genres = new HashSet<string>();
+      Languages = new List<string>();
     }
 
     #endregion
@@ -211,8 +216,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_FIRSTAIRED, FirstAired.Value);
       MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers);
       MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
+
       if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, ImdbId);
       if (TvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, TvdbId.ToString());
+      if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, MovieDbId.ToString());
+
       if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_TOTAL_RATING, TotalRating);
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_RATING_COUNT, RatingCount);
 

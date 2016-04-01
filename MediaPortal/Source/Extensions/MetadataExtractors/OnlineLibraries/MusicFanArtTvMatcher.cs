@@ -33,19 +33,22 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.FanArtTV;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
   /// <summary>
-  /// <see cref="FanArtTvMovieMatcher"/> is used to download movie images from FanArt.tv.
+  /// <see cref="MusicFanArtTvMatcher"/> is used to download music images from FanArt.tv.
   /// </summary>
-  public class FanArtTvMovieMatcher : BaseMatcher<MovieMatch, int>
+  public class MusicFanArtTvMatcher : BaseMatcher<TrackMatch, string>
   {
     #region Static instance
 
-    public static FanArtTvMovieMatcher Instance
+    public static MusicFanArtTvMatcher Instance
     {
-      get { return ServiceRegistration.Get<FanArtTvMovieMatcher>(); }
+      get { return ServiceRegistration.Get<MusicFanArtTvMatcher>(); }
     }
 
     #endregion
@@ -53,7 +56,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArtTV\");
-    protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "MovieMatches.xml");
+    protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "TrackMatches.xml");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
 
     protected override string MatchesSettingsFile
@@ -66,7 +69,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
-    protected ConcurrentDictionary<int, int> _memoryCache = new ConcurrentDictionary<int, int>();
+    protected ConcurrentDictionary<string, string> _memoryCache = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Contains the initialized FanArtTvWrapper.
@@ -76,26 +79,26 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #endregion
 
     /// <summary>
-    /// Tries to lookup the Movie from FanArt.tv and downloads imges.
+    /// Tries to lookup the music from FanArt.tv and downloads images.
     /// </summary>
-    /// <param name="movieInfo">Movie to check</param>
+    /// <param name="trackInfo">Track to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool FindAndUpdateMovie(MovieInfo movieInfo)
+    public bool FindAndUpdateTrack(TrackInfo trackInfo)
     {
       // Try online lookup
       if (!Init())
         return false;
 
-      int id = 0;
-      if (movieInfo.MovieDbId > 0)
+      if (!string.IsNullOrEmpty(trackInfo.AlbumMusicBrainzId))
       {
+        string mbId = "";
         CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(movieInfo.MovieDbId, out id))
+        if (_memoryCache.TryGetValue(trackInfo.AlbumMusicBrainzId, out mbId))
         {
           return true;
         }
 
-        ScheduleDownload(movieInfo.MovieDbId);
+        ScheduleDownload(trackInfo.AlbumMusicBrainzId);
         return true;
       }
       return false;
@@ -125,7 +128,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       try
       {
         _fanArt = new FanArtTVWrapper();
-        bool res = _fanArt.Init();
+        bool res = _fanArt.Init(CACHE_PATH);
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
         _fanArt.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
@@ -137,45 +140,63 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    protected override void DownloadFanArt(int tmDbid)
+    protected override void DownloadFanArt(string mbId)
     {
       try
       {
-        ServiceRegistration.Get<ILogger>().Debug("FanArtTvMovieMatcher Download: Started for ID {0}", tmDbid);
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Started for ID {0}", mbId);
 
         if (!Init())
           return;
 
-        // Save Banners
-        ServiceRegistration.Get<ILogger>().Debug("FanArtTvMovieMatcher Download: Begin saving banners for ID {0}", tmDbid);
-        _fanArt.DownloadMovieBanners(tmDbid.ToString());
+        AlbumDetails thumbs = _fanArt.GetAlbumFanArt(mbId);
+        if (thumbs == null)
+          return;
 
-        // Save Posters
-        ServiceRegistration.Get<ILogger>().Debug("FanArtTvMovieMatcher Download: Begin saving posters for ID {0}", tmDbid);
-        _fanArt.DownloadMoviePosters(tmDbid.ToString());
-
-        // Save FanArt
-        ServiceRegistration.Get<ILogger>().Debug("FanArtTvMovieMatcher Download: Begin saving fanarts for ID {0}", tmDbid);
-        _fanArt.DownloadMovieFanArt(tmDbid.ToString());
-
-        ServiceRegistration.Get<ILogger>().Debug("FanArtTvMovieMatcher Download: Finished ID {0}", tmDbid);
-
-        MovieMatch onlineMatch = new MovieMatch
+        if (thumbs.Albums.ContainsKey(mbId) == true)
         {
-          ItemName = tmDbid.ToString(),
-          Id = tmDbid
+          // Save Album Covers
+          ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving album covers for ID {0}", mbId);
+          SaveBanners(mbId, thumbs.Albums[mbId].AlbumCovers, "Covers");
+
+          //Save CD Art
+          SaveBanners(mbId, thumbs.Albums[mbId].CDArts, "CDArt");
+        }
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Finished ID {0}", mbId);
+
+        TrackMatch onlineMatch = new TrackMatch
+        {
+          ItemName = mbId,
+          Id = mbId
         };
 
         // Save cache
         _storage.TryAddMatch(onlineMatch);
 
         // Remember we are finished
-        FinishDownloadFanArt(tmDbid);
+        FinishDownloadFanArt(mbId);
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug("FanArtTvMovieMatcher: Exception downloading FanArt for ID {0}", ex, tmDbid);
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception downloading FanArt for ID {0}", ex, mbId);
       }
+    }
+
+    private int SaveBanners(string id, IEnumerable<Thumb> banners, string category)
+    {
+      if (banners == null)
+        return 0;
+
+      int idx = 0;
+      foreach (Thumb banner in banners)
+      {
+        if (idx >= MAX_FANART_IMAGES)
+          break;
+        if (_fanArt.DownloadFanArt(id, banner, category))
+          idx++;
+      }
+      ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Saved {0} {1}", idx, category);
+      return idx;
     }
   }
 }

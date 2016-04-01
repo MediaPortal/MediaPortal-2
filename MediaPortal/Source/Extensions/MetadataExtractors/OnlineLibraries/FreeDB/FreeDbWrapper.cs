@@ -37,7 +37,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
 {
   class FreeDbWrapper
   {
-    private string _cache = FreeDbMatcher.CACHE_PATH;
+    private string _cache = "";
     private string _fileFormat = "CD_{0}.xmcd";
 
     protected FreeDBQuery _freeDbHandler;
@@ -47,8 +47,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns><c>true</c> if successful</returns>
-    public bool Init()
+    public bool Init(string cachePath)
     {
+      _cache = cachePath;
       _freeDbHandler = new FreeDBQuery();
       if (Directory.Exists(_cache) == false)
         Directory.CreateDirectory(_cache);

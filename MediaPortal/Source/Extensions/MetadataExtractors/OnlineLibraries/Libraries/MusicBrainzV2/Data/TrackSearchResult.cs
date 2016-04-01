@@ -28,6 +28,78 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //    {
+  //      "id": "6c00f85c-7966-42bb-8639-e83875d46225",
+  //      "score": "100",
+  //      "title": "Break Ya Back",
+  //      "length": 186000,
+  //      "video": null,
+  //      "artist-credit": [
+  //        {
+  //          "artist": {
+  //            "id": "e03cf5b6-d2ec-4465-adee-226b518bcfcd",
+  //            "name": "Jay Sean",
+  //            "sort-name": "Sean, Jay",
+  //            "aliases": [
+  //              {
+  //                "sort-name": "Jay Sean ft. Nicki Minaj",
+  //                "name": "Jay Sean ft. Nicki Minaj",
+  //                "locale": null,
+  //                "type": null,
+  //                "primary": null,
+  //                "begin-date": null,
+  //                "end-date": null
+  //              }
+  //            ]
+  //          }
+  //        }
+  //      ],
+  //      "releases": [
+  //        {
+  //          "id": "2f32ab2d-05cf-4e80-a93f-f1fd5e4c98b1",
+  //          "title": "Hit the Lights",
+  //          "release-group": {
+  //            "id": "4126ce35-f290-4ecf-871b-612ad573a58c",
+  //            "primary-type": "Album",
+  //            "secondary-types": [
+  //              "Compilation"
+  //            ]
+  //          },
+  //          "date": "2012-01-18",
+  //          "country": "JP",
+  //          "release-events": [
+  //            {
+  //              "date": "2012-01-18",
+  //              "area": {
+  //                "id": "2db42837-c832-3c27-b4a3-08198f75693c",
+  //                "name": "Japan",
+  //                "sort-name": "Japan",
+  //                "iso-3166-1-codes": [
+  //                  "JP"
+  //                ]
+  //              }
+  //            }
+  //          ],
+  //          "track-count": 10,
+  //          "media": [
+  //            {
+  //              "position": 1,
+  //              "format": "CD",
+  //              "track": [
+  //                {
+  //                  "id": "e3c787ae-3b0d-38ee-ad8a-b0abdfe70a85",
+  //                  "number": "3",
+  //                  "title": "Break Ya Back",
+  //                  "length": 186000
+  //                }
+  //              ],
+  //              "track-count": 10,
+  //              "track-offset": 2
+  //            }
+  //          ]
+  //        }
+  //      ]
+  //    }
   [DataContract]
   public class TrackSearchResult
   {
@@ -83,13 +155,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
           track.Country = release.Country;
           //track.Id = media.Tracks[0].Id;
           track.Id = Id;
-          DateTime releaseDate;
-          if (DateTime.TryParse(release.Date, out releaseDate))
-            track.ReleaseDate = releaseDate;
-          else if (DateTime.TryParse(release.Date + "-01", out releaseDate))
-            track.ReleaseDate = releaseDate;
-          else if (DateTime.TryParse(release.Date + "-01-01", out releaseDate))
-            track.ReleaseDate = releaseDate;
+          //DateTime releaseDate;
+          //if (DateTime.TryParse(release.Date, out releaseDate))
+          //  track.ReleaseDate = releaseDate;
+          //else if (DateTime.TryParse(release.Date + "-01", out releaseDate))
+          //  track.ReleaseDate = releaseDate;
+          //else if (DateTime.TryParse(release.Date + "-01-01", out releaseDate))
+          //  track.ReleaseDate = releaseDate;
 
           track.Title = media.Track[0].Title;
           int trackNum;
@@ -104,13 +176,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
       return tracks;
     }
-  }
-
-  [DataContract]
-  public class RecordingResult
-  {
-    [DataMember(Name = "recordings")]
-    public IList<TrackSearchResult> Results { get; set; }
   }
 
   public class TrackResult

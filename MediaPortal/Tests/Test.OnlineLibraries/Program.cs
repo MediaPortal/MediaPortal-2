@@ -120,11 +120,11 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
-      FreeDbMatcher matcher = new FreeDbMatcher();
+      CDFreeDbMatcher matcher = new CDFreeDbMatcher();
       matcher.Init();
 
       TrackInfo track = new TrackInfo();
-      track.CdDdId = cdDbId;
+      track.AlbumCdDdId = cdDbId;
       track.Title = title;
       if (matcher.FindAndUpdateTrack(track))
       {
@@ -148,7 +148,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
-      TheAudioDbMatcher matcher = new TheAudioDbMatcher();
+      MusicTheAudioDbMatcher matcher = new MusicTheAudioDbMatcher();
       matcher.Init();
 
       TrackInfo track = new TrackInfo();

@@ -298,24 +298,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     /// <summary>
     /// Downloads images in "original" size and saves them to cache.
     /// </summary>
-    /// <param name="image">Image to download</param>
+    /// <param name="url">Image to download</param>
     /// <param name="category">Image category (Poster, Cover, Backdrop...)</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(AudioDbAlbum album, bool front)
+    public bool DownloadImage(string id, string url, string category)
     {
-      string cacheFileName = CreateAndGetCacheName(album, front);
+      string cacheFileName = CreateAndGetCacheName(id, url, category);
       if (string.IsNullOrEmpty(cacheFileName))
         return false;
 
-      string sourceUri = null;
-      if (front) sourceUri = album.AlbumThumb;
-      _downloader.DownloadFile(sourceUri, cacheFileName);
-      return true;
-    }
-
-    public bool DownloadImages(AudioDbAlbum album, bool front)
-    {
-      if(front) DownloadImage(album, true);
+      _downloader.DownloadFile(url, cacheFileName);
       return true;
     }
 
@@ -342,18 +334,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     /// <param name="album"></param>
     /// <param name="category"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(AudioDbAlbum album, bool front)
+    protected string CreateAndGetCacheName(string id, string url, string category)
     {
       try
       {
-        string category = null;
-        string url = null;
-        if (front)
-        {
-          category = "Covers";
-          url = album.AlbumThumb;
-        }
-        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", album.AlbumId, category));
+        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", id, category));
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
         return Path.Combine(folder, url.Substring(url.LastIndexOf('/') + 1));

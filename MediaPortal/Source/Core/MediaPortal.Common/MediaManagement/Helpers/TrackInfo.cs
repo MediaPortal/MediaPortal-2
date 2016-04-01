@@ -39,12 +39,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool Matched { get; set; }
 
     public string MusicBrainzId { get; set; }
-    public string CdDdId { get; set; }
     public string AudioDbId { get; set; }
 
-    public string Title { get; set; }
     public string Album { get; set; }
-    public int Year { get; set; }
+    public string AlbumMusicBrainzId { get; set; }
+    public string AlbumCdDdId { get; set; }
+    public string AlbumAudioDbId { get; set; }
+
+    public string Title { get; set; }
+    public DateTime? ReleaseDate { get; set; }
     public int TrackNum { get; set; }
     public int TotalTracks { get; set; }
     public int DiscNum { get; set; }
@@ -73,8 +76,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, Title);
       if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, MusicBrainzId);
-      if (!string.IsNullOrEmpty(CdDdId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_TRACK, CdDdId);
       if (!string.IsNullOrEmpty(AudioDbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_TRACK, AudioDbId);
+
+      if (!string.IsNullOrEmpty(AlbumCdDdId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, AlbumCdDdId);
+      if (!string.IsNullOrEmpty(AlbumMusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_ALBUM, AlbumMusicBrainzId);
+      if (!string.IsNullOrEmpty(AlbumAudioDbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_ALBUM, AlbumAudioDbId);
 
       if (!string.IsNullOrEmpty(Album)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ALBUM, Album);
       if (DiscNum > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_DISCID, DiscNum);
@@ -87,7 +93,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Composers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, Composers);
       if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_GENRES, Genres);
 
-      if (Year > 0) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(Year, 1, 1));
+      if (ReleaseDate.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, ReleaseDate.Value);
 
       return true;
     }

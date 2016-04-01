@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// <summary>
   /// <see cref="SeriesTvDbMatcher"/> is used to look up online series information from TheTvDB.com.
   /// </summary>
-  public class SeriesTvDbMatcher : BaseMatcher<SeriesMatch, int>
+  public class SeriesTvDbMatcher : BaseMatcher<SeriesMatch, string>
   {
     #region Static instance
 
@@ -126,7 +126,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         }
 
         if (tvDbId > 0)
-          ScheduleDownload(tvDbId);
+          ScheduleDownload(tvDbId.ToString());
         return true;
       }
       return false;
@@ -245,9 +245,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // Use cached values before doing online query
       SeriesMatch match = matches.Find(m => m.ItemName == seriesName || m.TvDBName == seriesName);
-      if (match != null && match.Id != 0)
+      if (match != null && !string.IsNullOrEmpty(match.Id))
       {
-        tvDbId = match.Id;
+        tvDbId = Convert.ToInt32(match.Id);
         return true;
       }
       return false;
@@ -294,17 +294,24 @@ namespace MediaPortal.Extensions.OnlineLibraries
           (
           string.Equals(m.ItemName, seriesNameOrImdbId, StringComparison.OrdinalIgnoreCase) ||
           string.Equals(m.TvDBName, seriesNameOrImdbId, StringComparison.OrdinalIgnoreCase)
-          ) && (tvdbid == 0 || m.Id == tvdbid));
+          ) && (tvdbid == 0 || m.Id == tvdbid.ToString()));
 
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesNameOrImdbId, match != null && match.Id != 0);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesNameOrImdbId, match != null && !string.IsNullOrEmpty(match.Id));
 
         // Try online lookup
         if (!Init())
           return false;
 
-        // If this is a known series, only return the series details (including episodes).
-        if (match != null)
-          return match.Id != 0 && _tv.GetSeries(match.Id, true, out seriesDetail);
+        int tvDb = 0;
+        if (!string.IsNullOrEmpty(match.Id))
+        {
+          if (int.TryParse(match.Id, out tvDb))
+          {
+            // If this is a known series, only return the series details (including episodes).
+            if (match != null)
+              return tvDb != 0 && _tv.GetSeries(tvDb, true, out seriesDetail);
+          }
+        }
 
         if (cacheOnly)
           return false;
@@ -341,7 +348,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           SeriesMatch onlineMatch = new SeriesMatch
               {
                 ItemName = seriesNameOrImdbId,
-                Id = seriesDetail.Id,
+                Id = seriesDetail.Id.ToString(),
                 TvDBName = seriesDetail.SeriesName
               };
 
@@ -411,7 +418,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    protected override void DownloadFanArt(int tvDbId)
+    protected override void DownloadFanArt(string tvDbId)
     {
       try
       {
@@ -420,8 +427,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
+        int tvDb = 0;
+        if (!int.TryParse(tvDbId, out tvDb))
+          return;
+
         TvdbSeries seriesDetail;
-        if (!_tv.GetSeriesFanArt(tvDbId, out seriesDetail))
+        if (!_tv.GetSeriesFanArt(tvDb, out seriesDetail))
           return;
 
         // Save Banners

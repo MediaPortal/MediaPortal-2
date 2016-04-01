@@ -22,15 +22,12 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.IO;
-using System.Web;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
 using Newtonsoft.Json;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common;
-using System;
 using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
@@ -46,7 +43,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
     private const string URL_GETMUSICARTIST = URL_API_BASE + "music/{0}";
     private const string URL_GETMUSICALBUM =  URL_API_BASE + "music/albums/{0}";
     private const string URL_GETMUSICLABEL = URL_API_BASE + "music/labels/{0}";
-    private const string URL_GETSHOW =  URL_API_BASE + "tv/{0}";
+    private const string URL_GETSERIES =  URL_API_BASE + "tv/{0}";
 
     #endregion
 
@@ -125,16 +122,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       return _downloader.Download<MovieThumbs>(url, cache);
     }
 
-    public TVThumbs GetShowThumbs(string ttvdbid)
+    public TVThumbs GetSeriesThumbs(string ttvdbid)
     {
-      string cache = CreateAndGetCacheName(ttvdbid, "Show");
+      string cache = CreateAndGetCacheName(ttvdbid, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TVThumbs>(json);
       }
 
-      string url = GetUrl(URL_GETSHOW, ttvdbid);
+      string url = GetUrl(URL_GETSERIES, ttvdbid);
       return _downloader.Download<TVThumbs>(url, cache);
     }
 
@@ -152,344 +149,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
 
       string sourceUri = image.Url;
       _downloader.DownloadFile(sourceUri, cacheFileName);
-      return true;
-    }
-
-    public bool DownloadArtistBanners(ArtistThumbs artist)
-    {
-      bool returnVal = false;
-      string id = artist.MusicBrainzID;
-      try
-      {
-        foreach (Thumb image in artist.ArtistBanners) if(DownloadImage(id, image, "Banners")) returnVal = true;       
-      }
-      catch(Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Artist Banner", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadArtistFanArt(ArtistThumbs artist)
-    {
-      bool returnVal = false;
-      string id = artist.MusicBrainzID;
-      try
-      {
-        foreach (Thumb image in artist.ArtistFanart) if (DownloadImage(id, image, "Backdrop")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Artist FanArt", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadArtistThumbs(ArtistThumbs artist)
-    {
-      bool returnVal = false;
-      string id = artist.MusicBrainzID;
-      try
-      {
-        foreach (Thumb image in artist.ArtistThumbnails) if (DownloadImage(id, image, "Thumbs")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Artist Thumb", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadArtistLogos(ArtistThumbs artist)
-    {
-      bool returnVal = false;
-      string id = artist.MusicBrainzID;
-      try
-      {
-        foreach (Thumb image in artist.ArtistLogos) if (DownloadImage(id, image, "Logos")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Artist Logo", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadAlbumCovers(AlbumDetails albums)
-    {
-      bool returnVal = false;
-      foreach (KeyValuePair<string, AlbumThumbs> album in albums.Albums)
-      {
-        try
-        {
-          foreach (Thumb image in album.Value.AlbumCovers) if (DownloadImage(album.Key, image, "Covers")) returnVal = true;
-        }
-        catch (Exception ex)
-        {
-          Logger.Error("FanArtTVV3: Error downloading Album Cover", ex);
-        }
-      }
-      return returnVal;
-    }
-
-    public bool DownloadAlbumCDArt(AlbumDetails albums)
-    {
-      bool returnVal = false;
-      foreach (KeyValuePair<string, AlbumThumbs> album in albums.Albums)
-      {
-        try
-        {
-          foreach (Thumb image in album.Value.CDArts) if (DownloadImage(album.Key, image, "CDArt")) returnVal = true;
-        }
-        catch (Exception ex)
-        {
-          Logger.Error("FanArtTVV3: Error downloading Album CDArt", ex);
-        }
-      }
-      return returnVal;
-    }
-
-    public bool DownloadLabelLogos(LabelThumbs label)
-    {
-      bool returnVal = false;
-      string id = label.MusicBrainzID;
-      try
-      {
-        foreach (Thumb image in label.LabelLogos) if (DownloadImage(id, image, "Logos")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Label Logo", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadMovieBanners(MovieThumbs movie, string language)
-    {
-      bool returnVal = false;
-      string id = string.IsNullOrEmpty(movie.ImDbID) ? movie.TheMovieDbID : movie.ImDbID;
-      try
-      {
-        foreach (MovieThumb image in movie.MovieBanners) if (DownloadMovieThumb(id, image, language, "Banners")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Movie Banner", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadMovieClearArt(MovieThumbs movie, string language)
-    {
-      bool returnVal = false;
-      string id = string.IsNullOrEmpty(movie.ImDbID) ? movie.TheMovieDbID : movie.ImDbID;
-      try
-      {
-        foreach (MovieThumb image in movie.MovieClearArt) if (DownloadMovieThumb(id, image, language, "ClearArt")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Movie ClearArt", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadMovieFanArt(MovieThumbs movie, string language)
-    {
-      bool returnVal = false;
-      string id = string.IsNullOrEmpty(movie.ImDbID) ? movie.TheMovieDbID : movie.ImDbID;
-      try
-      {
-        foreach (MovieThumb image in movie.MovieFanArt) if (DownloadMovieThumb(id, image, language, "Backdrops")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Movie FanArt", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadMovieCDArt(MovieThumbs movie, string language)
-    {
-      bool returnVal = false;
-      string id = string.IsNullOrEmpty(movie.ImDbID) ? movie.TheMovieDbID : movie.ImDbID;
-      try
-      {
-        foreach (MovieThumb image in movie.MovieCDArt) if (DownloadMovieThumb(id, image, language, "CDArt")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Movie CDArt", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadMoviePosters(MovieThumbs movie, string language)
-    {
-      bool returnVal = false;
-      string id = string.IsNullOrEmpty(movie.ImDbID) ? movie.TheMovieDbID : movie.ImDbID;
-      try
-      {
-        foreach (MovieThumb image in movie.MoviePosters) if (DownloadMovieThumb(id, image, language, "Posters")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Movie Poster", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadMovieLogos(MovieThumbs movie, string language)
-    {
-      bool returnVal = false;
-      string id = string.IsNullOrEmpty(movie.ImDbID) ? movie.TheMovieDbID : movie.ImDbID;
-      try
-      {
-        foreach (MovieThumb image in movie.MovieLogos) if (DownloadMovieThumb(id, image, language, "Logos")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Movie Logo", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadMovieThumbs(MovieThumbs movie, string language)
-    {
-      bool returnVal = false;
-      string id = string.IsNullOrEmpty(movie.ImDbID) ? movie.TheMovieDbID : movie.ImDbID;
-      try
-      {
-        foreach (MovieThumb image in movie.MovieThumbnails) if (DownloadMovieThumb(id, image, language, "Thumbs")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Movie Thumb", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadShowBanners(TVThumbs show, string language, bool includeSeasons)
-    {
-      bool returnVal = false;
-      string id = show.TheTVDbID;
-      try
-      {
-        foreach (SeasonThumb image in show.SeasonBanners) if (DownloadMovieThumb(id, image, language, string.Format(@"Banners\Season {0}", image.Season))) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Season Banner", ex);
-      }
-      try
-      {
-        if(includeSeasons)
-          foreach (MovieThumb image in show.ShowBanners) if (DownloadMovieThumb(id, image, language, "Banners")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Show Banner", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadShowPosters(TVThumbs show, string language, bool includeSeasons)
-    {
-      bool returnVal = false;
-      string id = show.TheTVDbID;
-      try
-      {
-        if(includeSeasons)
-          foreach (SeasonThumb image in show.SeasonPosters) if (DownloadMovieThumb(id, image, language, string.Format(@"Posters\Season {0}", image.Season))) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Season Poster", ex);
-      }
-      try
-      {
-        foreach (MovieThumb image in show.ShowPosters) if (DownloadMovieThumb(id, image, language, "Posters")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Show Poster", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadShowThumbs(TVThumbs show, string language, bool includeSeasons)
-    {
-      bool returnVal = false;
-      string id = show.TheTVDbID;
-      try
-      {
-        if(includeSeasons)
-          foreach (SeasonThumb image in show.SeasonThumbnails) if (DownloadMovieThumb(id, image, language, string.Format(@"Thumbs\Season {0}", image.Season))) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Season Thumb", ex);
-      }
-      try
-      {
-        foreach (MovieThumb image in show.ShowThumbnails) if (DownloadMovieThumb(id, image, language, "Thumbs")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Show Thumb", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadShowClearArt(TVThumbs show, string language)
-    {
-      bool returnVal = false;
-      string id = show.TheTVDbID;
-      try
-      {
-        foreach (MovieThumb image in show.ShowClearArt) if (DownloadMovieThumb(id, image, language, "ClearArt")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Show ClearArt", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadShowFanArt(TVThumbs show, string language)
-    {
-      bool returnVal = false;
-      string id = show.TheTVDbID;
-      try
-      {
-        foreach (MovieThumb image in show.ShowFanArt) if (DownloadMovieThumb(id, image, language, "Backdrops")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Show FanArt", ex);
-      }
-      return returnVal;
-    }
-
-    public bool DownloadShowLogos(TVThumbs show, string language)
-    {
-      bool returnVal = false;
-      string id = show.TheTVDbID;
-      try
-      {
-        foreach (MovieThumb image in show.ShowLogos) if (DownloadMovieThumb(id, image, language, "Logos")) returnVal = true;
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("FanArtTVV3: Error downloading Show Logo", ex);
-      }
-      return returnVal;
-    }
-
-    private bool DownloadMovieThumb(string id, MovieThumb image, string language, string category)
-    {
-      if (string.IsNullOrEmpty(language) || language.Equals(image.Language, StringComparison.InvariantCultureIgnoreCase))
-        return DownloadImage(id, image, category);
       return true;
     }
 

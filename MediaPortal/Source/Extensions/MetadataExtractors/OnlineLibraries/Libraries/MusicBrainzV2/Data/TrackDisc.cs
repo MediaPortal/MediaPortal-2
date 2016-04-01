@@ -26,6 +26,23 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //{
+  //  "sectors": 230747,
+  //  "offset-count": 10,
+  //  "offsets": [
+  //    197,
+  //    19430,
+  //    51860,
+  //    65960,
+  //    87067,
+  //    106445,
+  //    124757,
+  //    147382,
+  //    176332,
+  //    207470
+  //  ],
+  //  "id": "1H8ozo72BOtL._vrJwfqzeU6zqk-"
+  //}
   [DataContract]
   public class TrackDisc
   {

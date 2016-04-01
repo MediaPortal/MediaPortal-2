@@ -26,6 +26,16 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //{
+  //          "direction": "backward",
+  //          "type": "composer",
+  //          "artist": {
+  //              "id": "d997d399-355e-4c49-9c7b-75a93d76bc0e",
+  //              "name": "Tsunku",
+  //              "sort-name": "Tsunku",
+  //              "disambiguation": null
+  //          }
+  //      }
   [DataContract]
   public class TrackRelation
   {

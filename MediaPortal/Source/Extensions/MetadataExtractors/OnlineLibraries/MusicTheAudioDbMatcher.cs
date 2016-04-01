@@ -38,13 +38,13 @@ using MediaPortal.Extensions.OnlineLibraries.TheAudioDB;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
-  public class TheAudioDbMatcher : BaseMatcher<TrackMatch, string>
+  public class MusicTheAudioDbMatcher : BaseMatcher<TrackMatch, string>
   {
     #region Static instance
 
-    public static TheAudioDbMatcher Instance
+    public static MusicTheAudioDbMatcher Instance
     {
-      get { return ServiceRegistration.Get<TheAudioDbMatcher>(); }
+      get { return ServiceRegistration.Get<MusicTheAudioDbMatcher>(); }
     }
 
     #endregion
@@ -86,17 +86,22 @@ namespace MediaPortal.Extensions.OnlineLibraries
         string albumId = null;
         if (trackDetails != null)
         {
-          albumId = trackDetails.AlbumId;
+          albumId = trackDetails.AlbumId.ToString();
+          trackInfo.AlbumAudioDbId = trackDetails.AlbumId.ToString();
+          trackInfo.AlbumMusicBrainzId = trackDetails.MusicBrainzAlbumID;
 
           trackInfo.Title = trackDetails.Track;
+          trackInfo.Artists.Clear();
           trackInfo.Artists.AddRange(new string[] { trackDetails.Artist });
           trackInfo.Album = trackDetails.Album;
+          trackInfo.AlbumArtists.Clear();
           trackInfo.AlbumArtists.AddRange(new string[] { trackDetails.Artist });
+          trackInfo.Genres.Clear();
           trackInfo.Genres.AddRange(new string[] { trackDetails.Genre });
           trackInfo.TrackNum = trackDetails.TrackNumber;
           trackInfo.DiscNum = trackDetails.CD.HasValue ? trackDetails.CD.Value : 0;
           trackInfo.MusicBrainzId = trackDetails.MusicBrainzID;
-          trackInfo.AudioDbId = trackDetails.TrackId;
+          trackInfo.AudioDbId = trackDetails.TrackId.ToString();
         }
 
         if (!string.IsNullOrEmpty(albumId))
@@ -113,7 +118,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         var onlineMatch = new TrackMatch
         {
-          Id = trackDetails.TrackId,
+          Id = trackDetails.TrackId.ToString(),
           ItemName = trackDetails.Track,
           TrackName = trackDetails.Track,
           RecordingName = trackDetails.Track,
@@ -164,11 +169,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           AudioDbTrack trackResult = tracks[0];
           ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher: Found unique online match for \"{0}\": \"{1}\"", title, trackResult.Track);
-          if (_audioDb.GetTrackFromId(trackResult.TrackId, out trackDetail))
+          if (_audioDb.GetTrackFromId(trackResult.TrackId.ToString(), out trackDetail))
           {
             var onlineMatch = new TrackMatch
             {
-              Id = trackDetail.TrackId,
+              Id = trackDetail.TrackId.ToString(),
               ItemName = trackDetail.Track,
               TrackName = trackDetail.Track,
               RecordingName = trackDetail.Track,
@@ -220,7 +225,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // Try to lookup online content in the configured language
       CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       _audioDb.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
-      return _audioDb.Init();
+      return _audioDb.Init(CACHE_PATH);
     }
 
     protected override void DownloadFanArt(string albumId)
@@ -232,9 +237,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
-        // Save Fronts
-        bool result = _audioDb.DownloadImages(albumId);
-        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher: Saved FanArt for ID {0} {1}", albumId, result);
+        AudioDbAlbum album;
+        if (!_audioDb.GetAlbumFromId(albumId, out album))
+          return;
+
+        // Save Cover
+        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Begin saving fanarts for ID {0}", albumId);
+        _audioDb.DownloadImage(albumId, album.AlbumThumb, "Covers");
+        _audioDb.DownloadImage(albumId, album.AlbumCDart, "CDArt");
+        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Finished ID {0}", albumId);
 
         // Remember we are finished
         FinishDownloadFanArt(albumId);

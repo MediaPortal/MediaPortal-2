@@ -22,11 +22,12 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
 
-namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
+namespace MediaPortal.Extensions.OnlineLibraries
 {
   /// <summary>
   /// <see cref="NamePreprocessor"/> tries to match movie title, year and other information from filenames, and cleans up titles for online lookup 
@@ -64,7 +65,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
         if (match.Groups[GROUP_TITLE].Length > 0 || match.Groups[GROUP_YEAR].Length > 0)
         {
           movieInfo.MovieName = match.Groups[GROUP_TITLE].Value.Trim(new[] { ' ', '-' });
-          movieInfo.Year = int.Parse(match.Groups[GROUP_YEAR].Value);
+          movieInfo.ReleaseDate = new DateTime(int.Parse(match.Groups[GROUP_YEAR].Value), 1, 1);
           return true;
         }
       }

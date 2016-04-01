@@ -28,17 +28,57 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
 {
+  //    {
+  //      "idTrack": "32730340",
+  //      "idAlbum": "2110240",
+  //      "idArtist": "111279",
+  //      "idLyric": "331605",
+  //      "idIMVDB": null,
+  //      "strTrack": "Nothing Else Matters",
+  //      "strAlbum": "Metallica",
+  //      "strArtist": "Metallica",
+  //      "strArtistAlternate": null,
+  //      "intCD": null,
+  //      "intDuration": "388760",
+  //      "strGenre": "Thrash Metal",
+  //      "strMood": null,
+  //      "strStyle": null,
+  //      "strTheme": null,
+  //      "strDescriptionEN": "\"Nothing Else Matters\" is a rock single by the American heavy metal band Metallica.",
+  //      "strTrackThumb": "http://www.theaudiodb.com/images/media/track/thumb/xwxsrv1379922617.jpg",
+  //      "strTrackLyrics": "",
+  //      "strMusicVid": "http://www.youtube.com/watch?v=tAGnKpE4NCI",
+  //      "strMusicVidDirector": "Adam Dubin",
+  //      "strMusicVidCompany": "",
+  //      "strMusicVidScreen1": null,
+  //      "strMusicVidScreen2": null,
+  //      "strMusicVidScreen3": null,
+  //      "intMusicVidViews": "11826333",
+  //      "intMusicVidLikes": "57685",
+  //      "intMusicVidDislikes": "2018",
+  //      "intMusicVidFavorites": null,
+  //      "intMusicVidComments": null,
+  //      "intTrackNumber": "8",
+  //      "intLoved": "1",
+  //      "intScore": null,
+  //      "intScoreVotes": null,
+  //      "strMusicBrainzID": "2dacc772-bff6-4347-a586-8bff3a7d7c79",
+  //      "strMusicBrainzAlbumID": "e8f70201-8899-3f0c-9e07-5d6495bc8046",
+  //      "strMusicBrainzArtistID": "65f4f0c5-ef9e-490c-aee3-909e7ae6b2ab",
+  //      "strLocked": "unlocked",
+  //      "strDebugTime": "0 Secconds"
+  //    }
   [DataContract]
   public class AudioDbTrack
   {
     [DataMember(Name = "idTrack")]
-    public string TrackId { get; set; }
+    public int TrackId { get; set; }
 
     [DataMember(Name = "idAlbum")]
-    public string AlbumId { get; set; }
+    public int AlbumId { get; set; }
 
     [DataMember(Name = "idArtist")]
-    public string ArtistId { get; set; }
+    public int ArtistId { get; set; }
 
     [DataMember(Name = "strTrack")]
     public string Track { get; set; }
@@ -53,7 +93,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
     public int? CD { get; set; }
 
     [DataMember(Name = "intDuration")]
-    public int Duration { get; set; }
+    public int? Duration { get; set; }
 
     [DataMember(Name = "strGenre")]
     public string Genre { get; set; }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,26 +24,15 @@
 
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 {
   [DataContract]
-  public class TrackCollection
+  public class SeriesRating
   {
-    [DataMember(Name = "id")]
-    public string Id { get; set; }
+    [DataMember(Name = "iso_3166_1")]
+    public string CountryId { get; set; }
 
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
-
-    [DataMember(Name = "backdrop_path")]
-    public string BackdropPath { get; set; }
-
-    [DataMember(Name = "poster_path")]
-    public string PosterPath { get; set; }
-
-    public override string ToString()
-    {
-      return Name;
-    }
+    [DataMember(Name = "rating")]
+    public string ContentRating { get; set; }
   }
 }

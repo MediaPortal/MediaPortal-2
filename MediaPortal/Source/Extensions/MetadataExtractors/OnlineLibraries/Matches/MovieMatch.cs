@@ -27,7 +27,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <summary>
   /// MovieMatch stores name matches for Movies.
   /// </summary>
-  public class MovieMatch : BaseMatch<int>
+  public class MovieMatch : BaseMatch<string>
   {
     /// <summary>
     /// Contains the name found in online library.

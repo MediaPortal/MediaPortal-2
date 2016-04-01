@@ -22,10 +22,8 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
-using MediaPortal.Common.PathManager;
 
 namespace MediaPortal.Extensions.OnlineLibraries.FanArtTV
 {
@@ -56,151 +54,40 @@ namespace MediaPortal.Extensions.OnlineLibraries.FanArtTV
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init()
+    public bool Init(string cachePath)
     {
-      string cache = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArtTV\");
-      _fanArtTvHandler = new FanArtTVApiV3("53b9498b23f38abf1e1cbe11de2f8102", cache);
+      _fanArtTvHandler = new FanArtTVApiV3("53b9498b23f38abf1e1cbe11de2f8102", cachePath);
       return true;
     }
 
-    public bool DownloadArtistBanners(string musicBrainzId)
+    public bool DownloadFanArt(string id, Thumb thumb, string category)
     {
-      ArtistThumbs thumbs = _fanArtTvHandler.GetArtistThumbs(musicBrainzId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadArtistBanners(thumbs);
+      return _fanArtTvHandler.DownloadImage(id, thumb, category);
     }
 
-    public bool DownloadArtistFanArt(string musicBrainzId)
+    public ArtistThumbs GetArtistFanArt(string musicBrainzId)
     {
-      ArtistThumbs thumbs = _fanArtTvHandler.GetArtistThumbs(musicBrainzId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadArtistFanArt(thumbs);
+      return _fanArtTvHandler.GetArtistThumbs(musicBrainzId);
     }
 
-    public bool DownloadArtistLogos(string musicBrainzId)
+    public AlbumDetails GetAlbumFanArt(string musicBrainzId)
     {
-      ArtistThumbs thumbs = _fanArtTvHandler.GetArtistThumbs(musicBrainzId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadArtistLogos(thumbs);
+      return _fanArtTvHandler.GetAlbumThumbs(musicBrainzId);
     }
 
-    public bool DownloadArtistThumbs(string musicBrainzId)
+    public LabelThumbs GetLabelFanArt(string musicBrainzId)
     {
-      ArtistThumbs thumbs = _fanArtTvHandler.GetArtistThumbs(musicBrainzId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadArtistThumbs(thumbs);
+      return _fanArtTvHandler.GetLabelThumbs(musicBrainzId);
     }
 
-    public bool DownloadAlbumCovers(string musicBrainzId)
+    public MovieThumbs GetMovieFanArt(string imDbIdOrtmDbId)
     {
-      AlbumDetails thumbs = _fanArtTvHandler.GetAlbumThumbs(musicBrainzId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadAlbumCovers(thumbs);
+      return _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
     }
 
-    public bool DownloadAlbumCDArt(string musicBrainzId)
+    public TVThumbs GetSeriesFanArt(string ttvDbId)
     {
-      AlbumDetails thumbs = _fanArtTvHandler.GetAlbumThumbs(musicBrainzId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadAlbumCDArt(thumbs);
-    }
-
-    public bool DownloadLabelLogos(string musicBrainzId)
-    {
-      LabelThumbs thumbs = _fanArtTvHandler.GetLabelThumbs(musicBrainzId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadLabelLogos(thumbs);
-    }
-
-    public bool DownloadMovieBanners(string imDbIdOrtmDbId)
-    {
-      MovieThumbs thumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadMovieBanners(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadMovieCDArt(string imDbIdOrtmDbId)
-    {
-      MovieThumbs thumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadMovieCDArt(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadMovieClearArt(string imDbIdOrtmDbId)
-    {
-      MovieThumbs thumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadMovieClearArt(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadMovieFanArt(string imDbIdOrtmDbId)
-    {
-      MovieThumbs thumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadMovieFanArt(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadMovieLogos(string imDbIdOrtmDbId)
-    {
-      MovieThumbs thumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadMovieLogos(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadMoviePosters(string imDbIdOrtmDbId)
-    {
-      MovieThumbs thumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadMoviePosters(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadMovieThumbs(string imDbIdOrtmDbId)
-    {
-      MovieThumbs thumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadMovieThumbs(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadShowBanners(string ttvDbId, bool includeSeasons)
-    {
-      TVThumbs thumbs = _fanArtTvHandler.GetShowThumbs(ttvDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadShowBanners(thumbs, PreferredLanguage, includeSeasons);
-    }
-
-    public bool DownloadShowPosters(string ttvDbId, bool includeSeasons)
-    {
-      TVThumbs thumbs = _fanArtTvHandler.GetShowThumbs(ttvDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadShowPosters(thumbs, PreferredLanguage, includeSeasons);
-    }
-
-    public bool DownloadShowThumbs(string ttvDbId, bool includeSeasons)
-    {
-      TVThumbs thumbs = _fanArtTvHandler.GetShowThumbs(ttvDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadShowThumbs(thumbs, PreferredLanguage, includeSeasons);
-    }
-
-    public bool DownloadShowClearArt(string ttvDbId)
-    {
-      TVThumbs thumbs = _fanArtTvHandler.GetShowThumbs(ttvDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadShowClearArt(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadShowFanArt(string ttvDbId)
-    {
-      TVThumbs thumbs = _fanArtTvHandler.GetShowThumbs(ttvDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadShowFanArt(thumbs, PreferredLanguage);
-    }
-
-    public bool DownloadShowLogos(string ttvDbId)
-    {
-      TVThumbs thumbs = _fanArtTvHandler.GetShowThumbs(ttvDbId);
-      if (thumbs == null) return false;
-      return _fanArtTvHandler.DownloadShowLogos(thumbs, PreferredLanguage);
+      return _fanArtTvHandler.GetSeriesThumbs(ttvDbId);
     }
   }
 }

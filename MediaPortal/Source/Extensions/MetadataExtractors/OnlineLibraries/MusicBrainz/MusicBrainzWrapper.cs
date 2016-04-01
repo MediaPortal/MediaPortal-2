@@ -75,9 +75,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init()
+    public bool Init(string cachePath)
     {
-      _musicBrainzHandler = new MusicBrainzApiV2(MusicBrainzMatcher.CACHE_PATH);
+      _musicBrainzHandler = new MusicBrainzApiV2(cachePath);
       return true;
     }
 
@@ -251,15 +251,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
     /// <param name="albumId">MusicBrainz ID of album</param>
     /// <param name="imageCollection">Returns the ImageCollection</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool GetTrackFanArt(string albumId, out TrackImageCollection imageCollection)
+    public bool GetAlbumFanArt(string albumId, out TrackImageCollection imageCollection)
     {
       imageCollection = _musicBrainzHandler.GetImages(albumId); // Download all image information, filter later!
       return imageCollection != null;
     }
 
-    public bool DownloadImages(string Id, TrackImageCollection imageCollection)
+    public bool DownloadImage(string albumId, TrackImage image, string category)
     {
-      return _musicBrainzHandler.DownloadImages(Id, imageCollection, "Front");
+      return _musicBrainzHandler.DownloadImage(albumId, image, category); // Download all image information, filter later!
     }
   }
 }

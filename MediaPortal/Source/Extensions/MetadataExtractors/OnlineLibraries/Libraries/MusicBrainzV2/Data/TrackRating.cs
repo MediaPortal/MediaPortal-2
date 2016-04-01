@@ -26,6 +26,10 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //  {
+  //    "value": null,
+  //    "votes-count": 0
+  //  }
   [DataContract]
   public class TrackRating
   {

@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       Logger.Debug("Loading {0}", url + " as " + _downloader.Headers["User-Agent"]);
 
       List<TrackResult> tracks = new List<TrackResult>();
-      List<TrackSearchResult> results = new List<TrackSearchResult>(_downloader.Download<RecordingResult>(url).Results);
+      List<TrackSearchResult> results = new List<TrackSearchResult>(_downloader.Download<TrackRecordingResult>(url).Results);
       foreach (TrackSearchResult result in results) tracks.AddRange(result.GetTracks());
       return tracks;
     }
@@ -189,20 +189,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
         return false;
 
       _downloader.DownloadFile(image.ImageUrl, cacheFileName);
-      return true;
-    }
-
-    public bool DownloadImages(string albumId, TrackImageCollection imageCollection, string category = "Front", string folderCategory = "Covers")
-    {
-      if (imageCollection == null) return false;
-        foreach (TrackImage image in imageCollection.Images)
-      {
-        foreach (string imageType in image.Types)
-        {
-          if (imageType.Equals(category, StringComparison.InvariantCultureIgnoreCase))
-            DownloadImage(albumId, image, folderCategory);
-        }
-      }
       return true;
     }
 

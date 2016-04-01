@@ -27,6 +27,24 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
+  //  {
+  //  "name": "Profile Records",
+  //  "id": "e832b688-546b-45e3-83e5-9f8db5dcde1d",
+  //  "musiclabel": [
+  //    {
+  //      "id": "120425",
+  //      "url": "http://assets.fanart.tv/labels/e832b688-546b-45e3-83e5-9f8db5dcde1d/musiclabel/profile-records-53633ee474306.png",
+  //      "colour": "colour",
+  //      "likes": "0"
+  //    },
+  //    {
+  //      "id": "120426",
+  //      "url": "http://assets.fanart.tv/labels/e832b688-546b-45e3-83e5-9f8db5dcde1d/musiclabel/profile-records-53633ef28bf22.png",
+  //      "colour": "white",
+  //      "likes": "0"
+  //    }
+  //  ]
+  //}
   [DataContract]
   public class LabelThumbs
   {

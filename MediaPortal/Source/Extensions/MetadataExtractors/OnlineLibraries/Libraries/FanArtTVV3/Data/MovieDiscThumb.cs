@@ -26,11 +26,19 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
+  //    {
+  //      "id": "29003",
+  //      "url": "http://assets.fanart.tv/fanart/movies/120/moviedisc/the-lord-of-the-rings-the-fellowship-of-the-ring-5156389dc28f2.png",
+  //      "lang": "en",
+  //      "likes": "5",
+  //      "disc": "1",
+  //      "disc_type": "bluray"
+  //    }
   [DataContract]
   public class MovieDiscThumb : MovieThumb
   {
     [DataMember(Name = "disc")]
-    public string Disc { get; set; }
+    public int? Disc { get; set; }
 
     [DataMember(Name = "disc_type")]
     public string DiscType { get; set; }

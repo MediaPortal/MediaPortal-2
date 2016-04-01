@@ -27,6 +27,19 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
 {
+  //  {
+  //  "mvids": [
+  //    {
+  //      "idArtist": "111279",
+  //      "idAlbum": "2110231",
+  //      "idTrack": "32730241",
+  //      "strTrack": "The View",
+  //      "strTrackThumb": "http://www.theaudiodb.com/images/media/track/thumb/xswuyt1379925150.jpg",
+  //      "strMusicVid": "http://www.youtube.com/watch?v=fJlU_9Vyvqs",
+  //      "strDescriptionEN": "\"The View\" is the first (and only) single by American singer Lou Reed and American heavy metal band Metallica..."
+  //    }
+  //  ]
+  //}
   [DataContract]
   public class AudioDbMvids
   {

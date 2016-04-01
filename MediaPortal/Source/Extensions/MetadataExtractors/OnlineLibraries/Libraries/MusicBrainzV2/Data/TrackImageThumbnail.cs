@@ -26,6 +26,10 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //      {
+  //        "large": "http://coverartarchive.org/release/2f32ab2d-05cf-4e80-a93f-f1fd5e4c98b1/2884943713-500.jpg",
+  //        "small": "http://coverartarchive.org/release/2f32ab2d-05cf-4e80-a93f-f1fd5e4c98b1/2884943713-250.jpg"
+  //      }
   [DataContract]
   public class TrackImageThumbnail
   {

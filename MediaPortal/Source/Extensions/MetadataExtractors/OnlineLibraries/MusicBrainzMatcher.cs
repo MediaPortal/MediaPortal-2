@@ -76,20 +76,27 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (
         /* Best way is to get details by an unique IMDB id */
         MatchByMusicBrainzId(trackInfo, out trackDetails) ||
-        TryMatch(trackInfo.Title, trackInfo.Artists.ToArray(), trackInfo.Album, trackInfo.Year, trackInfo.TrackNum, false, out trackDetails)
+        TryMatch(trackInfo.Title, trackInfo.Artists.ToArray(), trackInfo.Album, 
+        trackInfo.ReleaseDate.HasValue ? trackInfo.ReleaseDate.Value.Year : 0, trackInfo.TrackNum, false, out trackDetails)
         )
       {
         string albumId = null;
         if (trackDetails != null)
         {
           albumId = trackDetails.AlbumId;
+          trackInfo.AlbumMusicBrainzId = trackDetails.AlbumId;
 
           trackInfo.Title = trackDetails.Title;
+          trackInfo.Artists.Clear();
           trackInfo.Artists.AddRange(trackDetails.TrackArtists);
+          trackInfo.Composers.Clear();
           trackInfo.Composers.AddRange(trackDetails.Composers);
           trackInfo.Album = trackDetails.Album;
+          trackInfo.AlbumArtists.Clear();
           trackInfo.AlbumArtists.AddRange(trackDetails.AlbumArtists);
-          trackInfo.Genres.AddRange(trackDetails.Genre);
+          //Tags are not really good as genre
+          //trackInfo.Genres.Clear(); 
+          //trackInfo.Genres.AddRange(trackDetails.TagValues);
           trackInfo.TrackNum = trackDetails.TrackNum;
           trackInfo.TotalTracks = trackDetails.TotalTracks;
           trackInfo.DiscNum = trackDetails.DiscId;
@@ -99,9 +106,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
           if (trackDetails.ReleaseDate.HasValue)
           {
-            int year = trackDetails.ReleaseDate.Value.Year;
-            if (year > 0)
-              trackInfo.Year = year;
+            trackInfo.ReleaseDate = trackDetails.ReleaseDate;
           }
         }
 
@@ -227,7 +232,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       string lang = currentCulture.Name;
       if (lang.Contains("-")) lang = lang.Split('-')[1];
       _musicBrainzDb.SetPreferredLanguage(lang);
-      return _musicBrainzDb.Init();
+      return _musicBrainzDb.Init(CACHE_PATH);
     }
 
     protected override void DownloadFanArt(string musicBrainzId)
@@ -240,12 +245,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return;
 
         TrackImageCollection imageCollection;
-        if (!_musicBrainzDb.GetTrackFanArt(musicBrainzId, out imageCollection))
+        if (!_musicBrainzDb.GetAlbumFanArt(musicBrainzId, out imageCollection))
           return;
 
-        // Save Fronts
-        bool result = _musicBrainzDb.DownloadImages(musicBrainzId, imageCollection);
-        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Saved FanArt for release {0} {1}", imageCollection.ReleaseUrl, result);
+        // Save Cover
+        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download: Begin saving fanarts for ID {0}", musicBrainzId);
+        DownloadImages(musicBrainzId, imageCollection, "Front", "Covers");
+        DownloadImages(musicBrainzId, imageCollection, "Medium", "CDArt");
+        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download: Finished ID {0}", musicBrainzId);
 
         // Remember we are finished
         FinishDownloadFanArt(musicBrainzId);
@@ -255,5 +262,32 @@ namespace MediaPortal.Extensions.OnlineLibraries
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Exception downloading FanArt for ID {0}", ex, musicBrainzId);
       }
     }
+
+    private int DownloadImages(string albumId, TrackImageCollection imageCollection, string type, string category)
+    {
+      if (imageCollection == null) return 0;
+
+      int idx = 0;
+      foreach (TrackImage image in imageCollection.Images)
+      {
+        if (idx >= MAX_FANART_IMAGES)
+          break;
+
+        foreach (string imageType in image.Types)
+        {
+          if (imageType.Equals(type, StringComparison.InvariantCultureIgnoreCase))
+          {
+            if(_musicBrainzDb.DownloadImage(albumId, image, category))
+              idx++;
+            break;
+          }
+        }
+      }
+      return idx;
+    }
+
+
+
+
   }
 }

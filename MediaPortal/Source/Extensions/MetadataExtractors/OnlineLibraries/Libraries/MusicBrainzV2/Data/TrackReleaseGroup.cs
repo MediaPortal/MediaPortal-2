@@ -27,6 +27,31 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //  {
+  //    "id": "c9fdb94c-4975-4ed6-a96f-ef6d80bb7738",
+  //    "first-release-date": "2012-05-22",
+  //    "title": "The Lost Tape",
+  //    "artist-credit": [
+  //        "name": "50 Cent",
+  //        "joinphrase": "",
+  //        "artist": {
+  //            "id": "8e68819d-71be-4e7d-b41d-f1df81b01d3f",
+  //            "name": "50 Cent",
+  //            "sort-name": "50 Cent",
+  //            "disambiguation": null
+  //        }
+  //    ],
+  //    "primary-type": "Album",
+  //    "disambiguation": null,
+  //    "secondary-types": [ "Mixtape/Street" ],
+  //    "releases": [
+  //        {
+  //            "id": "2ec84eb6-ab92-4ac3-9720-32ad84c34f11",
+  //            "title": "The Lost Tape",
+  //            /* some properties omitted to keep this example shorter. */
+  //        }
+  //    ]
+  //}
   [DataContract]
   public class TrackReleaseGroup
   {

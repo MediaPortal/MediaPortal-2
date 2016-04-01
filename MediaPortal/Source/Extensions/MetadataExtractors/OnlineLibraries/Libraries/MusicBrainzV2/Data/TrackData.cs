@@ -27,6 +27,24 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //            {
+  //              "title": "New Life",
+  //              "artist-credit": [
+  //                {
+  //                  "artist": {
+  //                    "disambiguation": "",
+  //                    "name": "Depeche Mode",
+  //                    "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
+  //                    "sort-name": "Depeche Mode"
+  //                  },
+  //                  "name": "Depeche Mode",
+  //                  "joinphrase": ""
+  //                }
+  //              ],
+  //              "id": "40a141c2-08f2-36b9-9ccd-d75f47c847b1",
+  //              "number": "A",
+  //              "length": 223000
+  //            }
   [DataContract]
   public class TrackData
   {

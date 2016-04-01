@@ -39,7 +39,7 @@ using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
-  public class MovieTheMovieDbMatcher : BaseMatcher<MovieMatch, int>
+  public class MovieTheMovieDbMatcher : BaseMatcher<MovieMatch, string>
   {
     #region Static instance
 
@@ -94,9 +94,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (
         /* Best way is to get details by an unique IMDB id */
         MatchByImdbId(movieInfo, out movieDetails) ||
-        TryMatch(movieInfo.MovieName, movieInfo.Year, preferredLookupLanguage, false, out movieDetails) ||
+        TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.HasValue ? movieInfo.ReleaseDate.Value.Year : 0, preferredLookupLanguage, false, out movieDetails) ||
         /* Prefer passed year, if no year given, try to process movie title and split between title and year */
-        (movieInfo.Year != 0 || NamePreprocessor.MatchTitleYear(movieInfo)) && TryMatch(movieInfo.MovieName, movieInfo.Year, preferredLookupLanguage, false, out movieDetails)
+        (movieInfo.ReleaseDate.HasValue || NamePreprocessor.MatchTitleYear(movieInfo)) && TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.Value.Year, 
+        preferredLookupLanguage, false, out movieDetails)
         )
       {
         int movieDbId = 0;
@@ -133,9 +134,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           }
           if (movieDetails.ReleaseDate.HasValue)
           {
-            int year = movieDetails.ReleaseDate.Value.Year;
-            if (year > 0)
-              movieInfo.Year = year;
+            movieInfo.ReleaseDate = movieDetails.ReleaseDate.Value;
           }
 
           if (movieDetails.Collection != null &&
@@ -147,7 +146,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         }
 
         if (movieDbId > 0)
-          ScheduleDownload(movieDbId);
+          ScheduleDownload(movieDbId.ToString());
         return true;
       }
       return false;
@@ -219,15 +218,22 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MovieMatch match = matches.Find(m => 
           string.Equals(m.ItemName, movieName, StringComparison.OrdinalIgnoreCase) || 
           string.Equals(m.MovieDBName, movieName, StringComparison.OrdinalIgnoreCase));
-        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Try to lookup movie \"{0}\" from cache: {1}", movieName, match != null && match.Id != 0);
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Try to lookup movie \"{0}\" from cache: {1}", movieName, match != null && !string.IsNullOrEmpty(match.Id));
 
         // Try online lookup
         if (!Init())
           return false;
 
-        // If this is a known movie, only return the movie details.
-        if (match != null)
-          return match.Id != 0 && _movieDb.GetMovie(match.Id, out movieDetail);
+        int tmDb = 0;
+        if (!string.IsNullOrEmpty(match.Id))
+        {
+          if (int.TryParse(match.Id, out tmDb))
+          {
+            // If this is a known movie, only return the movie details.
+            if (match != null)
+              return !string.IsNullOrEmpty(match.Id) && _movieDb.GetMovie(tmDb, out movieDetail);
+          }
+        }
 
         if (cacheOnly)
           return false;
@@ -264,7 +270,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       var onlineMatch = new MovieMatch
       {
-        Id = movieDetails.Id,
+        Id = movieDetails.Id.ToString(),
         ItemName = movieName,
         MovieDBName = movieDetails.Title
       };
@@ -307,10 +313,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // Try to lookup online content in the configured language
       CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       _movieDb.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
-      return _movieDb.Init();
+      return _movieDb.Init(CACHE_PATH);
     }
 
-    protected override void DownloadFanArt(int movieDbId)
+    protected override void DownloadFanArt(string movieDbId)
     {
       try
       {
@@ -319,13 +325,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
-        // If movie belongs to a collection, also download collection poster and fanart
-        Movie movie;
-        if (_movieDb.GetMovie(movieDbId, out movie) && movie.Collection != null)
+        int tmDb = 0;
+        if (!int.TryParse(movieDbId, out tmDb))
+          return;
+
+          // If movie belongs to a collection, also download collection poster and fanart
+          Movie movie;
+        if (_movieDb.GetMovie(tmDb, out movie) && movie.Collection != null)
           SaveBanners(movie.Collection);
 
         ImageCollection imageCollection;
-        if (!_movieDb.GetMovieFanArt(movieDbId, out imageCollection))
+        if (!_movieDb.GetMovieFanArt(tmDb, out imageCollection))
           return;
 
         // Save Banners
@@ -350,13 +360,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download Collection: Saved {0} {1}", movieCollection.Name, result);
     }
 
-    private int SaveBanners(IEnumerable<MovieImage> banners, string category)
+    private int SaveBanners(IEnumerable<ImageItem> banners, string category)
     {
       if (banners == null)
         return 0;
 
       int idx = 0;
-      foreach (MovieImage banner in banners.Where(b => b.Language == null || b.Language == _movieDb.PreferredLanguage))
+      foreach (ImageItem banner in banners.Where(b => b.Language == null || b.Language == _movieDb.PreferredLanguage))
       {
         if (idx >= MAX_FANART_IMAGES)
           break;

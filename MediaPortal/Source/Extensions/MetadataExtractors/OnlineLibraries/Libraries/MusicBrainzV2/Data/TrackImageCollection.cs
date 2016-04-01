@@ -27,6 +27,27 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+//  {
+//  "images": [
+//    {
+//      "types": [
+//        "Front"
+//      ],
+//      "front": true,
+//      "back": false,
+//      "edit": 20239360,
+//      "image": "http://coverartarchive.org/release/2f32ab2d-05cf-4e80-a93f-f1fd5e4c98b1/2884943713.jpg",
+//      "comment": "",
+//      "approved": true,
+//      "thumbnails": {
+//        "large": "http://coverartarchive.org/release/2f32ab2d-05cf-4e80-a93f-f1fd5e4c98b1/2884943713-500.jpg",
+//        "small": "http://coverartarchive.org/release/2f32ab2d-05cf-4e80-a93f-f1fd5e4c98b1/2884943713-250.jpg"
+//      },
+//      "id": "2884943713"
+//    }
+//  ],
+//  "release": "http://musicbrainz.org/release/2f32ab2d-05cf-4e80-a93f-f1fd5e4c98b1"
+//}
   [DataContract]
   public class TrackImageCollection
   {

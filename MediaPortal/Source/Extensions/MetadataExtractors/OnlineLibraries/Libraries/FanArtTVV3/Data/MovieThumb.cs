@@ -26,6 +26,12 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
+  //    {
+  //      "id": "12355",
+  //      "url": "http://assets.fanart.tv/fanart/movies/120/moviebanner/the-lord-of-the-rings-the-fellowship-of-the-ring-50485f0da465c.jpg",
+  //      "lang": "en",
+  //      "likes": "1"
+  //    }
   [DataContract]
   public class MovieThumb : Thumb
   {

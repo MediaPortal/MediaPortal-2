@@ -28,6 +28,52 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //{
+  //"title": "",
+  //"tracks": [
+  //  {
+  //    "id": "a1c3df99-8a10-3dd3-9f31-2e838747a0d9",
+  //    "number": "1",
+  //    "title": "Hit the Lights",
+  //    "length": 257440,
+  //    "artist-credit": [
+  //      {
+  //        "joinphrase": "",
+  //        "name": "Metallica",
+  //        "artist": {
+  //          "name": "Metallica",
+  //          "disambiguation": "",
+  //          "id": "65f4f0c5-ef9e-490c-aee3-909e7ae6b2ab",
+  //          "sort-name": "Metallica"
+  //        }
+  //      }
+  //    ]
+  //  }
+  //],
+  //"track-count": 10,
+  //"track-offset": 0,
+  //"discs": [
+  //  {
+  //    "sectors": 230747,
+  //    "offset-count": 10,
+  //    "offsets": [
+  //      197,
+  //      19430,
+  //      51860,
+  //      65960,
+  //      87067,
+  //      106445,
+  //      124757,
+  //      147382,
+  //      176332,
+  //      207470
+  //    ],
+  //    "id": "1H8ozo72BOtL._vrJwfqzeU6zqk-"
+  //  }
+  //],
+  //"format": "CD",
+  //"position": 1
+  //}
   [DataContract]
   public class TrackMedia
   {

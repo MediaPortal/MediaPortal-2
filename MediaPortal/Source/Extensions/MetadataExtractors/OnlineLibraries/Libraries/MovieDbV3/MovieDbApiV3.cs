@@ -37,12 +37,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
 
     public const string DefaultLanguage = "en";
 
-    private const string URL_API_BASE =   "http://api.themoviedb.org/3/";
-    private const string URL_QUERY =      URL_API_BASE + "search/movie";
-    private const string URL_GETMOVIE =   URL_API_BASE + "movie/{0}";
-    private const string URL_GETCASTCREW = URL_API_BASE + "movie/{0}/casts";
-    private const string URL_GETIMAGES =  URL_API_BASE + "movie/{0}/images";
-    private const string URL_GETCONFIG =  URL_API_BASE + "configuration";
+    private const string URL_API_BASE = "http://api.themoviedb.org/3/";
+    private const string URL_MOVIEQUERY = URL_API_BASE + "search/movie";
+    private const string URL_GETMOVIE = URL_API_BASE + "movie/{0}";
+    private const string URL_GETMOVIECASTCREW = URL_API_BASE + "movie/{0}/casts";
+    private const string URL_GETMOVIEIMAGES = URL_API_BASE + "movie/{0}/images";
+    private const string URL_GETPERSON = URL_API_BASE + "person/{0}";
+    private const string URL_GETPERSONIMAGES = URL_API_BASE + "person/{0}/images";
+    private const string URL_SERIESUERY = URL_API_BASE + "search/tv";
+    private const string URL_GETSERIES = URL_API_BASE + "tv/{0}";
+    private const string URL_GETSERIESIMAGES = URL_API_BASE + "tv/{0}/images";
+    private const string URL_GETSERIESCASTCREW = URL_API_BASE + "tv/{0}/credits";
+    private const string URL_GETSEASON = URL_API_BASE + "tv/{0}/season/{1}";
+    private const string URL_GETSEASONIMAGES = URL_API_BASE + "tv/{0}/season/{1}/images";
+    private const string URL_GETSEASONCASTCREW = URL_API_BASE + "tv/{0}/season/{1}/credits";
+    private const string URL_GETEPISODE = URL_API_BASE + "tv/{0}/season/{1}/episode/{2}";
+    private const string URL_GETEPISODEIMAGES = URL_API_BASE + "tv/{0}/season/{1}/episode/{2}/images";
+    private const string URL_GETEPISODECASTCREW = URL_API_BASE + "tv/{0}/season/{1}/episode/{2}/credits";
+    private const string URL_GETCONFIG = URL_API_BASE + "configuration";
 
     #endregion
 
@@ -85,6 +97,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     #region Public members
 
     /// <summary>
+    /// Returns configuration about image download servers and available sizes.
+    /// </summary>
+    /// <returns></returns>
+    public Configuration GetImageConfiguration()
+    {
+      string url = GetUrl(URL_GETCONFIG, null);
+      return _downloader.Download<Configuration>(url);
+    }
+
+    /// <summary>
     /// Search for movies by name given in <paramref name="query"/> using the <paramref name="language"/>.
     /// </summary>
     /// <param name="query">Full or partly name of movie</param>
@@ -92,8 +114,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>List of possible matches</returns>
     public List<MovieSearchResult> SearchMovie(string query, string language)
     {
-      string url = GetUrl(URL_QUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
+      string url = GetUrl(URL_MOVIEQUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
       PagedMovieSearchResult results = _downloader.Download<PagedMovieSearchResult>(url);
+      return results.Results;
+    }
+
+    /// <summary>
+    /// Search for series by name given in <paramref name="query"/> using the <paramref name="language"/>.
+    /// </summary>
+    /// <param name="query">Full or partly name of series</param>
+    /// <param name="language">Language</param>
+    /// <returns>List of possible matches</returns>
+    public List<SeriesSearchResult> SearchSeries(string query, string language)
+    {
+      string url = GetUrl(URL_SERIESUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
+      PagedSeriesSearchResult results = _downloader.Download<PagedSeriesSearchResult>(url);
       return results.Results;
     }
 
@@ -106,7 +141,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Movie information</returns>
     public Movie GetMovie(int id, string language)
     {
-      string cache = CreateAndGetCacheName(id, language);
+      string cache = CreateAndGetCacheName(id, language, "Movie");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -125,7 +160,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Movie information</returns>
     public Movie GetMovie(string imdbId, string language)
     {
-      string cache = CreateAndGetCacheName(imdbId, language);
+      string cache = CreateAndGetCacheName(imdbId, language, "Movie");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -136,23 +171,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     }
 
     /// <summary>
-    /// Returns configuration about image download servers and available sizes.
-    /// </summary>
-    /// <returns></returns>
-    public Configuration GetImageConfiguration()
-    {
-      string url = GetUrl(URL_GETCONFIG, null);
-      return _downloader.Download<Configuration>(url);
-    }
-
-    /// <summary>
     /// Returns a <see cref="MovieCasts"/> for the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">TMDB id of movie</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetCastCrew(int id)
+    public MovieCasts GetMovieCastCrew(int id)
     {
-      string url = GetUrl(URL_GETCASTCREW, null, id);
+      string url = GetUrl(URL_GETMOVIECASTCREW, null, id);
       MovieCasts result = _downloader.Download<MovieCasts>(url);
       return result;
     }
@@ -163,9 +188,186 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of movie</param>
     /// <param name="language">Language</param>
     /// <returns>Image collection</returns>
-    public ImageCollection GetImages(int id, string language)
+    public ImageCollection GetMovieImages(int id, string language)
     {
-      string url = GetUrl(URL_GETIMAGES, language, id);
+      string url = GetUrl(URL_GETMOVIEIMAGES, language, id);
+      ImageCollection result = _downloader.Download<ImageCollection>(url);
+      result.SetMovieIds();
+      return result;
+    }
+
+    /// <summary>
+    /// Returns detailed information for a single <see cref="Person"/> with given <paramref name="id"/>. This method caches request
+    /// to same person using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="id">TMDB id of person</param>
+    /// <param name="language">Language</param>
+    /// <returns>Person information</returns>
+    public Person GetPerson(int id, string language)
+    {
+      string cache = CreateAndGetCacheName(id, language, "Person");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<Person>(json);
+      }
+      string url = GetUrl(URL_GETPERSON, language, id) + "&append_to_response=external_ids";
+      return _downloader.Download<Person>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="ImageCollection"/> for the given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">TMDB id of person</param>
+    /// <param name="language">Language</param>
+    /// <returns>Image collection</returns>
+    public ImageCollection GetPersonImages(int id, string language)
+    {
+      string url = GetUrl(URL_GETPERSONIMAGES, language, id);
+      ImageCollection result = _downloader.Download<ImageCollection>(url);
+      result.SetMovieIds();
+      return result;
+    }
+
+    /// <summary>
+    /// Returns detailed information for a single <see cref="Series"/> with given <paramref name="id"/>. This method caches request
+    /// to same series using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <param name="language">Language</param>
+    /// <returns>Series information</returns>
+    public Series GetSeries(int id, string language)
+    {
+      string cache = CreateAndGetCacheName(id, language, "Series");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<Series>(json);
+      }
+      string url = GetUrl(URL_GETSERIES, language, id) + "&append_to_response=external_ids,content_ratings";
+      return _downloader.Download<Series>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="MovieCasts"/> for the given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <returns>Cast and Crew</returns>
+    public MovieCasts GetSeriesCastCrew(int id)
+    {
+      string url = GetUrl(URL_GETSERIESCASTCREW, null, id);
+      MovieCasts result = _downloader.Download<MovieCasts>(url);
+      return result;
+    }
+
+    /// <summary>
+    /// Returns a <see cref="ImageCollection"/> for the given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <param name="language">Language</param>
+    /// <returns>Image collection</returns>
+    public ImageCollection GetSeriesImages(int id, string language)
+    {
+      string url = GetUrl(URL_GETSERIESIMAGES, language, id);
+      ImageCollection result = _downloader.Download<ImageCollection>(url);
+      result.SetMovieIds();
+      return result;
+    }
+
+    /// <summary>
+    /// Returns detailed information for a single <see cref="Season"/> with given <paramref name="id"/>. This method caches request
+    /// to same seasons using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <param name="season">Season number</param>
+    /// <param name="language">Language</param>
+    /// <returns>Season information</returns>
+    public Season GetSeriesSeason(int id, int season, string language)
+    {
+      string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}", season));
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<Season>(json);
+      }
+      string url = GetUrl(URL_GETSEASON, language, id, season) + "&append_to_response=external_ids";
+      return _downloader.Download<Season>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="MovieCasts"/> for the given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <param name="season">Season number</param>
+    /// <returns>Cast and Crew</returns>
+    public MovieCasts GetSeriesSeasonCastCrew(int id, int season)
+    {
+      string url = GetUrl(URL_GETSEASONCASTCREW, null, id, season);
+      MovieCasts result = _downloader.Download<MovieCasts>(url);
+      return result;
+    }
+
+    /// <summary>
+    /// Returns a <see cref="ImageCollection"/> for the given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <param name="season">Season number</param>
+    /// <param name="language">Language</param>
+    /// <returns>Image collection</returns>
+    public ImageCollection GetSeriesSeasonImages(int id, int season, string language)
+    {
+      string url = GetUrl(URL_GETSEASONIMAGES, language, id, season);
+      ImageCollection result = _downloader.Download<ImageCollection>(url);
+      result.SetMovieIds();
+      return result;
+    }
+
+    /// <summary>
+    /// Returns detailed information for a single <see cref="Episode"/> with given <paramref name="id"/>. This method caches request
+    /// to same episodes using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <param name="season">Season number</param>
+    /// <param name="episode">Episode number</param>
+    /// <param name="language">Language</param>
+    /// <returns>Episode information</returns>
+    public Episode GetSeriesEpisode(int id, int season, int episode, string language)
+    {
+      string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Episode{1}", season, episode));
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<Episode>(json);
+      }
+      string url = GetUrl(URL_GETEPISODE, language, id, season, episode) + "&append_to_response=external_ids";
+      return _downloader.Download<Episode>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="MovieCasts"/> for the given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <param name="season">Season number</param>
+    /// <param name="episode">Episode number</param>
+    /// <returns>Cast and Crew</returns>
+    public MovieCasts GetSeriesEpisodeCastCrew(int id, int season, int episode)
+    {
+      string url = GetUrl(URL_GETEPISODECASTCREW, null, id, season, episode);
+      MovieCasts result = _downloader.Download<MovieCasts>(url);
+      return result;
+    }
+
+    /// <summary>
+    /// Returns a <see cref="ImageCollection"/> for the given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <param name="season">Season number</param>
+    /// <param name="episode">Episode number</param>
+    /// <param name="language">Language</param>
+    /// <returns>Image collection</returns>
+    public ImageCollection GetSeriesEpisodeImages(int id, int season, int episode, string language)
+    {
+      string url = GetUrl(URL_GETEPISODEIMAGES, language, id, season, episode);
       ImageCollection result = _downloader.Download<ImageCollection>(url);
       result.SetMovieIds();
       return result;
@@ -177,7 +379,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="image">Image to download</param>
     /// <param name="category">Image category (Poster, Cover, Backdrop...)</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(MovieImage image, string category)
+    public bool DownloadImage(ImageItem image, string category)
     {
       string cacheFileName = CreateAndGetCacheName(image, category);
       if (string.IsNullOrEmpty(cacheFileName))
@@ -223,16 +425,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return string.Format("{0}?api_key={1}", replacedUrl, _apiKey) + (string.IsNullOrEmpty(language) ? "" : "&language=" + language);
     }
     /// <summary>
-    /// Creates a local file name for loading and saving <see cref="MovieImage"/>s.
+    /// Creates a local file name for loading and saving <see cref="ImageItem"/>s.
     /// </summary>
     /// <param name="image"></param>
     /// <param name="category"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(MovieImage image, string category)
+    protected string CreateAndGetCacheName(ImageItem image, string category)
     {
       try
       {
-        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", image.MovieId, category));
+        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", image.Id, category));
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
         return Path.Combine(folder, image.FilePath.TrimStart(new[] { '/' }));
@@ -275,14 +477,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="movieId"></param>
     /// <param name="language"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName<TE>(TE movieId, string language)
+    protected string CreateAndGetCacheName<TE>(TE movieId, string language, string prefix)
     {
       try
       {
         string folder = Path.Combine(_cachePath, movieId.ToString());
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
-        return Path.Combine(folder, string.Format("movie_{0}.json", language));
+        return Path.Combine(folder, string.Format("{0}_{1}.json", prefix, language));
       }
       catch
       {

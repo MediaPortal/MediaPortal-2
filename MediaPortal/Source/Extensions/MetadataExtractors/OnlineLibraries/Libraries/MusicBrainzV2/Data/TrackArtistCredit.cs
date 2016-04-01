@@ -26,6 +26,18 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //  "artist-credit": [
+  //    {
+  //      "joinphrase": "",
+  //      "artist": {
+  //        "disambiguation": "",
+  //        "sort-name": "Depeche Mode",
+  //        "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
+  //        "name": "Depeche Mode"
+  //      },
+  //      "name": "Depeche Mode"
+  //    }
+  //  ]
   [DataContract]
   public class TrackArtistCredit
   {

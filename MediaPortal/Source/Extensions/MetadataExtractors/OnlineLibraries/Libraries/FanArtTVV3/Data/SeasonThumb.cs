@@ -26,10 +26,17 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
+  //    {
+  //      "id": "19374",
+  //      "url": "http://assets.fanart.tv/fanart/tv/75682/showbackground/bones-500994f33356b.jpg",
+  //      "lang": "en",
+  //      "likes": "2",
+  //      "season": "7"
+  //    }
   [DataContract]
   public class SeasonThumb : MovieThumb
   {
     [DataMember(Name = "season")]
-    public string Season { get; set; }
+    public int? Season { get; set; }
   }
 }

@@ -26,7 +26,11 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
-  [DataContract]
+  //{
+  //    "count": 2,
+  //    "name": "américain"
+  //  }
+[DataContract]
   public class TrackTag
   {
     [DataMember(Name = "count")]

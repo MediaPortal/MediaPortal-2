@@ -28,6 +28,107 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //{
+  //  "tags": [
+  //  ],
+  //  "artist-credit": [
+  //    {
+  //      "joinphrase": "",
+  //      "artist": {
+  //        "disambiguation": "",
+  //        "sort-name": "Depeche Mode",
+  //        "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
+  //        "name": "Depeche Mode"
+  //      },
+  //      "name": "Depeche Mode"
+  //    }
+  //  ],
+  //  "relations": [
+  //  ],
+  //  "video": false,
+  //  "id": "282acfcf-6a05-47b6-b344-8aa05423a65d",
+  //  "length": 223000,
+  //  "releases": [
+  //    {
+  //      "media": [
+  //        {
+  //          "title": "",
+  //          "position": 1,
+  //          "discs": [
+  //          ],
+  //          "track-count": 2,
+  //          "tracks": [
+  //            {
+  //              "title": "New Life",
+  //              "artist-credit": [
+  //                {
+  //                  "artist": {
+  //                    "disambiguation": "",
+  //                    "name": "Depeche Mode",
+  //                    "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
+  //                    "sort-name": "Depeche Mode"
+  //                  },
+  //                  "name": "Depeche Mode",
+  //                  "joinphrase": ""
+  //                }
+  //              ],
+  //              "id": "40a141c2-08f2-36b9-9ccd-d75f47c847b1",
+  //              "number": "A",
+  //              "length": 223000
+  //            }
+  //          ],
+  //          "format": "7\" Vinyl",
+  //          "track-offset": 0
+  //        }
+  //      ],
+  //      "status": "Official",
+  //      "artist-credit": [
+  //        {
+  //          "name": "Depeche Mode",
+  //          "artist": {
+  //            "sort-name": "Depeche Mode",
+  //            "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
+  //            "name": "Depeche Mode",
+  //            "disambiguation": ""
+  //          },
+  //          "joinphrase": ""
+  //        }
+  //      ],
+  //      "text-representation": {
+  //        "script": "Latn",
+  //        "language": "eng"
+  //      },
+  //      "id": "76a2c55d-37a7-4258-97d1-8d3d7da094fc",
+  //      "packaging": "Cardboard/Paper Sleeve",
+  //      "title": "New Life",
+  //      "barcode": "",
+  //      "release-events": [
+  //        {
+  //          "date": "1981-06-13",
+  //          "area": {
+  //            "id": "8a754a16-0027-3a29-b6d7-2b40ea0481ed",
+  //            "name": "United Kingdom",
+  //            "sort-name": "United Kingdom",
+  //            "iso-3166-1-codes": [
+  //              "GB"
+  //            ],
+  //            "disambiguation": ""
+  //          }
+  //        }
+  //      ],
+  //      "date": "1981-06-13",
+  //      "quality": "normal",
+  //      "country": "GB",
+  //      "disambiguation": ""
+  //    }
+  //  ],
+  //  "title": "New Life",
+  //  "rating": {
+  //    "value": null,
+  //    "votes-count": 0
+  //  },
+  //  "disambiguation": ""
+  //}
   [DataContract]
   public class Track
   {
@@ -63,7 +164,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     public string Album { get; set; }
 
-    public List<string> Genre { get; set; }
+    public List<string> TagValues { get; set; }
 
     public int TrackNum { get; set; }
 
@@ -123,22 +224,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
               Composers.Add(relation.Artist.Name);
           }
 
-          Genre = new List<string>();
+          TagValues = new List<string>();
           foreach (TrackTag tag in Tags)
           {
-            if(tag.Count > 1) Genre.Add(tag.Name); //Only use tags with multiple taggings
+            if(tag.Count > 1) TagValues.Add(tag.Name); //Only use tags with multiple taggings
           }
 
           RatingValue = Rating.Value.HasValue ? Rating.Value.Value : 0;
           RatingVotes = Rating.VoteCount;
 
-          DateTime releaseDate;
-          if (DateTime.TryParse(release.Date, out releaseDate))
-            ReleaseDate = releaseDate;
-          else if (DateTime.TryParse(release.Date + "-01", out releaseDate))
-            ReleaseDate = releaseDate;
-          else if (DateTime.TryParse(release.Date + "-01-01", out releaseDate))
-            ReleaseDate = releaseDate;
+          //DateTime releaseDate;
+          //if (DateTime.TryParse(release.Date, out releaseDate))
+          //  ReleaseDate = releaseDate;
+          //else if (DateTime.TryParse(release.Date + "-01", out releaseDate))
+          //  ReleaseDate = releaseDate;
+          //else if (DateTime.TryParse(release.Date + "-01-01", out releaseDate))
+          //  ReleaseDate = releaseDate;
 
           int trackNum;
           if (int.TryParse(media.Tracks[0].Number, out trackNum))
