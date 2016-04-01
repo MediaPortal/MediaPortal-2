@@ -156,9 +156,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Begin saving banners for ID {0}", tmDbid);
-        SaveBanners(id, thumbs.MovieFanArt, "Backdrops");
-        SaveBanners(id, thumbs.MovieBanners, "Banners");
-        SaveBanners(id, thumbs.MoviePosters, "Posters");
+        SaveBanners(id, thumbs.MovieFanArt.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
+        SaveBanners(id, thumbs.MovieBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
+        SaveBanners(id, thumbs.MoviePosters.OrderByDescending(b => b.Likes).ToList(), "Posters");
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Finished saving banners for ID {0}", tmDbid);
 
         MovieMatch onlineMatch = new MovieMatch

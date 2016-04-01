@@ -155,7 +155,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("SeriesFanArtTvMatcher Download: Begin saving banners for ID {0}", tvDbId);
-        SaveBanners(tvDbId, thumbs.SeriesBanners, "Banners");
+        SaveBanners(tvDbId, thumbs.SeriesBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
 
         // Save Season Banners
         foreach (int season in thumbs.SeasonBanners.Select(b => b.Season).Distinct().ToList())
@@ -164,7 +164,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save Posters
         ServiceRegistration.Get<ILogger>().Debug("SeriesFanArtTvMatcher Download: Begin saving posters for ID {0}", tvDbId);
-        SaveBanners(tvDbId, thumbs.SeriesPosters, "Posters");
+        SaveBanners(tvDbId, thumbs.SeriesPosters.OrderByDescending(b => b.Likes).ToList(), "Posters");
 
         // Save Season Posters
         foreach (int season in thumbs.SeasonBanners.Select(b => b.Season).Distinct().ToList())
@@ -173,7 +173,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save FanArt
         ServiceRegistration.Get<ILogger>().Debug("SeriesFanArtTvMatcher Download: Begin saving fanarts for ID {0}", tvDbId);
-        SaveBanners(tvDbId, thumbs.SeriesFanArt, "Backdrops");
+        SaveBanners(tvDbId, thumbs.SeriesFanArt.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
 
         ServiceRegistration.Get<ILogger>().Debug("SeriesFanArtTvMatcher Download: Finished ID {0}", tvDbId);
 

@@ -157,10 +157,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           // Save Album Covers
           ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving album covers for ID {0}", mbId);
-          SaveBanners(mbId, thumbs.Albums[mbId].AlbumCovers, "Covers");
+          SaveBanners(mbId, thumbs.Albums[mbId].AlbumCovers.OrderByDescending(b => b.Likes).ToList(), "Covers");
 
           //Save CD Art
-          SaveBanners(mbId, thumbs.Albums[mbId].CDArts, "CDArt");
+          SaveBanners(mbId, thumbs.Albums[mbId].CDArts.OrderByDescending(b => b.Likes).ToList(), "CDArt");
         }
         ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Finished ID {0}", mbId);
 
