@@ -134,6 +134,7 @@
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
     <Compile Include="Controls\Panels\IVirtualizingPanel.cs" />
     <Compile Include="Controls\Panels\VirtualizingWrapPanel.cs" />
+    <Compile Include="Controls\Visuals\AnimatedScrollContentPresenter.cs" />
     <Compile Include="Controls\Visuals\BackgroundEffect.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />

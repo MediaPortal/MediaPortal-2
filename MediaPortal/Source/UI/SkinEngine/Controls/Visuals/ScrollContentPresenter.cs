@@ -123,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (dlgt != null) dlgt(this);
     }
 
-    public void SetScrollOffset(float scrollOffsetX, float scrollOffsetY)
+    public virtual void SetScrollOffset(float scrollOffsetX, float scrollOffsetY)
     {
       if (_scrollOffsetX == scrollOffsetX && _scrollOffsetY == scrollOffsetY)
         return;
