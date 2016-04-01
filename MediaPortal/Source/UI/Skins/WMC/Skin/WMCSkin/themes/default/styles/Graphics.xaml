@@ -142,4 +142,19 @@
     </Grid>
   </ControlTemplate>
 
+    <!-- Star shape for rating control -->
+
+    <!-- Unselected stars-->
+    <ControlTemplate x:Key="StarPolygonTemplate">
+        <Canvas x:Name="star" Margin="1,0,2,0">
+            <Path Width="18" Height="18" Stretch="Fill" Opacity="0.1" Fill="{ThemeResource StarRatingSelectedColor}" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001"/>
+        </Canvas>
+    </ControlTemplate>
+    <!-- Selected stars-->
+    <ControlTemplate x:Key="StarPolygonSelectedTemplate">
+        <Canvas x:Name="star" Margin="1,0,2,0">
+            <Path Width="18" Height="18" Stretch="Fill" Fill="{ThemeResource StarRatingSelectedColor}" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001"/>
+        </Canvas>
+    </ControlTemplate>
+
 </ResourceDictionary>

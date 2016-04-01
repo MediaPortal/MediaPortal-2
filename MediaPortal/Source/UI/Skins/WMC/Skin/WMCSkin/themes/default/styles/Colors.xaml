@@ -33,7 +33,9 @@
         <GradientStop Offset="1" Color="#40505050"/>
       </LinearGradientBrush >
     </ResourceWrapper.Resource>
-  </ResourceWrapper> 
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
 
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="#80FFFFFF"/>
   <ResourceWrapper x:Key="TextColor" Resource="White"/>

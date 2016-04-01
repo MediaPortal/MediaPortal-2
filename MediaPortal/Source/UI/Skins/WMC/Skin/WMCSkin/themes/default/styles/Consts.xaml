@@ -6,7 +6,7 @@
 
     <!-- Footer Details -->
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
-  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="60,0,60,20"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="60,0,290,50"/>
 
   <ResourceWrapper x:Key="HugeFontSize" Resource="71"/>
   <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
@@ -14,8 +14,8 @@
 
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="30"/>
   <ResourceWrapper x:Key="NormalFontSize" Resource="45"/>
-  <ResourceWrapper x:Key="SmallFontSize" Resource="34"/>
-  <ResourceWrapper x:Key="SmallerFontSize" Resource="24"/>
+  <ResourceWrapper x:Key="SmallFontSize" Resource="33"/>
+  <ResourceWrapper x:Key="SmallerFontSize" Resource="27"/>
   <ResourceWrapper x:Key="TinyFontSize" Resource="13"/>
 
   <ResourceWrapper x:Key="DialogButtonMinWidth" Resource="300"/>
