@@ -110,7 +110,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           //Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
           return ProfileLinks[ip];
         }
-        else
+        else if(ProfileLinks[ip].AutoProfile == false)
         {
           //Logger.Info("DetectProfile: overwrite automatic profile detection for IP: {0}, using: None", ip);
           return null;
@@ -214,6 +214,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           {
             Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
             if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), profile.Value.ID));
+            else ProfileLinks[ip] = GetEndPointSettings(ip.ToString(), profile.Value.ID);
             return ProfileLinks[ip];
           }
         }
@@ -222,6 +223,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       // no match => return Default Profile
       Logger.Info("DetectProfile: No profile found => using {0}, headers={1}", DLNA_DEFAULT_PROFILE_ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
       if (ProfileLinks.ContainsKey(ip) == false) ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
+      else ProfileLinks[ip] = GetEndPointSettings(ip.ToString(), DLNA_DEFAULT_PROFILE_ID);
       return ProfileLinks[ip];
     }
 
@@ -604,6 +606,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           IPAddress ip = IPAddress.Parse(link.IP);
 
           EndPointSettings settings = new EndPointSettings();
+          settings.AutoProfile = false;
           if (string.IsNullOrEmpty(link.PreferredAudioLanguages) == false)
           {
             settings.PreferredAudioLanguages = link.PreferredAudioLanguages;
@@ -637,6 +640,10 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           {
             settings.Profile = null;
           }
+          else if (link.Profile == "Auto")
+          {
+            settings.Profile = null;
+          }
           else if (Profiles.ContainsKey(DLNA_DEFAULT_PROFILE_ID) == true)
           {
             settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
@@ -666,7 +673,11 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         {
           ProfileLink link = new ProfileLink();
           link.IP = pair.Key.ToString();
-          if (pair.Value.Profile == null)
+          if (pair.Value.AutoProfile == true)
+          {
+            link.Profile = "Auto";
+          }
+          else if (pair.Value.Profile == null)
           {
             link.Profile = "None";
           }

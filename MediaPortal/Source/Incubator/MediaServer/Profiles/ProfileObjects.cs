@@ -143,6 +143,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     public string PreferredAudioLanguages = null;
     public string ClientId = null;
     public bool EstimateTransodedSize = true;
+    public bool AutoProfile = true;
     public BasicContainer RootContainer = null;
     public Dictionary<Guid, DlnaMediaItem> DlnaMediaItems = new Dictionary<Guid, DlnaMediaItem>();
 
