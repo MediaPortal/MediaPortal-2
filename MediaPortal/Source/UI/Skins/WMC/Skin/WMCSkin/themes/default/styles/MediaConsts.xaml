@@ -50,4 +50,7 @@
     <ResourceWrapper x:Key="VIDEO_GRID_WIDTH" Resource="225"/>
     <ResourceWrapper x:Key="VIDEO_GRID_HEIGHT" Resource="162"/>
 
+    <ResourceWrapper x:Key="VIDEO_COVER_WIDTH" Resource="260"/>
+    <ResourceWrapper x:Key="VIDEO_COVER_HEIGHT" Resource="410"/>
+
 </ResourceDictionary>

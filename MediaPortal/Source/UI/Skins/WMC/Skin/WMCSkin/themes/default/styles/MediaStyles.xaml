@@ -1356,31 +1356,64 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="CoverViewVideoItemTemplate">
-        <Grid x:Name="ItemControl">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource COVERVIEW_FILTER_WIDTH}"/>
-            </Grid.ColumnDefinitions>
+        <Grid x:Name="ItemControl" Width="{StaticResource VIDEO_COVER_WIDTH}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="{StaticResource COVERVIEW_FILTER_HEIGHT}"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="{StaticResource VIDEO_COVER_HEIGHT}"/>
             </Grid.RowDefinitions>
 
-            <!-- Unwatched indicator -->
+            <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                  MaxHeight="{StaticResource VIDEO_COVER_HEIGHT}" Width="{StaticResource VIDEO_COVER_WIDTH}">
+                <Grid.OpacityMask>
+                    <VisualBrush>
+                        <VisualBrush.Visual>
+                            <Border Name="mask" Background="White" CornerRadius="7" BorderThickness="0" BorderBrush="Black"/>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </Grid.OpacityMask>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                </Grid>
+                <Image Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="0,0,0,0"
+                       Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" >
+                    <Image.Opacity>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                            <Binding Source="1.0"/>
+                            <Binding Source="0.8"/>
+                        </MultiBinding>
+                    </Image.Opacity>
+                </Image>
+            </Grid>
+
+            <Grid IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+                  Margin="-6">
+                <Rectangle Name="ButtonBase" VerticalAlignment="Stretch"
+                           RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="0">
+                    <Rectangle.Stroke>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+                            <GradientStop Color="#CCFFFFFF" Offset="0"/>
+                            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
+                            <GradientStop Color="#66FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Stroke>
+                </Rectangle>
+
+                <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                           RadiusX="4" RadiusY="4" StrokeThickness="0" Margin="0,0,0,0">
+                    <Rectangle.Fill>
+                        <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+            </Grid>
+
+            <!-- Unwatched indicator>
             <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,20,0,0">
                 <Image.IsVisible>
                     <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
                 </Image.IsVisible>
-            </Image>
-
-            <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center">
-                <Label.Color>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-                        <Binding Path="PlayCount"/>
-                        <Binding Source="{ThemeResource TextColor}"/>
-                        <Binding Source="{ThemeResource WatchedTextColor}"/>
-                    </MultiBinding>
-                </Label.Color>
-            </Label>
+            </Image-->
         </Grid>
     </ControlTemplate>
 

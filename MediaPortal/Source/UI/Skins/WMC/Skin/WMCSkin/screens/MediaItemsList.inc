@@ -31,6 +31,27 @@
             Parameters="{LateBoundValue BindingValue={Binding}}"/>
       </ListView.Resources>
     </ListView>
+    
+    <DockPanel DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
+               VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false"
+               IsVisible="{Binding IsItemsValid}"> <!-- Model = MediaNavigationModel -->
+       <StackPanel DockPanel.Dock="Right" Margin="0,40,15,-40" Orientation="Horizontal">
+          <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding Source="{StaticResource FanArtBackgroundModel}" Path="SelectedItem"/>
+                <Binding Source="{Binding ElementName=MediaItemsList}" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallFontSize}"
+                 Opacity="0.4"/>
+          <Label Color="{ThemeResource TextColor}" Content="{Binding NumItemsStr}" FontSize="{ThemeResource SmallFontSize}"
+                 FontFamily="DefaultBold" Opacity="0.4"/>    
+       </StackPanel>
+    </DockPanel>
+    
     <Label IsVisible="{Binding ShowListHint}"
         HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
         Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>

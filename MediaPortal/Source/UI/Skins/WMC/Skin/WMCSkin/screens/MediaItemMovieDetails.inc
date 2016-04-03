@@ -60,7 +60,7 @@
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                          Grid.Column="0" Grid.Row="4" Margin="15,6,0,1">
+                          Grid.Column="0" Grid.Row="4" Margin="15,5,0,2">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                              Maximum="5" VerticalAlignment="Center"
                                              Value="{Binding TotalRating}">
