@@ -46,18 +46,77 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 {
   public class HomeMenuModel : MenuModel
   {
+    #region Protected Members
+
     protected const string KEY_ITEM_SUB_ITEMS = "HomeMenuModel: SubItems";
+
     private readonly DelayedEvent _delayedMenueUpdateEvent;
-    private NavigationList<ListItem> _navigationList;
-    
+    private NavigationList<ListItem> _navigationList;    
     protected List<HomeMenuGroup> _groups;
     protected List<ListItem> _groupItems;
     protected HashSet<Guid> _groupedActions;
     protected bool _refreshNeeded;
     protected SettingsChangeWatcher<HomeEditorSettings> _settings;
 
+    #endregion
+
+    #region Ctor
+
+    public HomeMenuModel()
+    {
+      _navigationList = new NavigationList<ListItem>();
+      _groupItems = new List<ListItem>();
+      _groupedActions = new HashSet<Guid>();
+      NestedMenuItems = new ItemsList();
+      SubItems = new ItemsList();
+
+      _settings = new SettingsChangeWatcher<HomeEditorSettings>();
+      _settings.SettingsChanged += OnSettingsChanged;
+      SubscribeToMessages();
+
+      _delayedMenueUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
+      _delayedMenueUpdateEvent.OnEventHandler += ReCreateMenuItems;
+
+      _navigationList.OnCurrentChanged += SetSelection;
+    }
+
+    #endregion
+
+    #region Message Handling
+
+    private void SubscribeToMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      //if (message.ChannelName == MenuModelMessaging.CHANNEL)
+      //{
+      //  if (((MenuModelMessaging.MessageType)message.MessageType) == MenuModelMessaging.MessageType.UpdateMenu)
+      {
+        UpdateMenu();
+      }
+      //}
+    }
+
+    private void UpdateMenu()
+    {
+      _delayedMenueUpdateEvent.EnqueueEvent(this, EventArgs.Empty);
+    }
+
+    #endregion
+
+    #region Public Properties
+
     public ItemsList NestedMenuItems { get; private set; }
     public ItemsList SubItems { get; private set; }
+
+    #endregion
+
+    #region Public Methods
 
     public void MoveNext()
     {
@@ -73,6 +132,50 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       var item = e.FirstAddedItem as NestedItem;
       SetSubItems(item);
+    }
+
+    public void OnKeyPress(object sender, KeyPressEventArgs e)
+    {
+
+    }
+
+    public void OnMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+      if (e.NumDetents > 0)
+        _navigationList.MovePrevious(e.NumDetents);
+      else
+        _navigationList.MoveNext(-e.NumDetents);
+    }
+
+    #endregion
+
+    private void UpdateList(bool recreateList)
+    {
+      // Get new menu entries from base list
+      if (recreateList)
+      {
+        RecreateGroupItems();
+        var previousSelected = _navigationList.Current;
+        _navigationList.Clear();
+        CollectionUtils.AddAll(_navigationList, _groupItems);
+        if (!_navigationList.MoveTo(i => i == previousSelected))
+          _navigationList.CurrentIndex = 0;
+      }
+      var currentIndex = _navigationList.CurrentIndex;
+      NestedMenuItems.Clear();
+      int fillItems = 3;
+      var count = _navigationList.Count;
+      for (int i = currentIndex - fillItems; i < currentIndex + count; i++)
+      {
+        var item = _navigationList.GetAt(i) ?? new NestedItem(Consts.KEY_NAME, ""); /* Placeholder for empty space before current list item */
+        NestedMenuItems.Add(item);
+      }
+      foreach (var nestedItem in NestedMenuItems)
+      {
+        nestedItem.Selected = nestedItem == _navigationList.Current;
+      }
+      NestedMenuItems.FireChange();
+      SetSubItems(_navigationList.Current);
     }
 
     protected void LoadGroupsFromSettings()
@@ -156,37 +259,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       }
     }
 
-    public void OnKeyPress(object sender, KeyPressEventArgs e)
-    {
-
-    }
-
-    public void OnMouseWheel(object sender, MouseWheelEventArgs e)
-    {
-      if (e.NumDetents > 0)
-        _navigationList.MovePrevious(e.NumDetents);
-      else
-        _navigationList.MoveNext(-e.NumDetents);
-    }
-
-    public HomeMenuModel()
-    {
-      _navigationList = new NavigationList<ListItem>();
-      _groupItems = new List<ListItem>();
-      _groupedActions = new HashSet<Guid>();
-      NestedMenuItems = new ItemsList();
-      SubItems = new ItemsList();
-
-      _settings = new SettingsChangeWatcher<HomeEditorSettings>();
-      _settings.SettingsChanged += OnSettingsChanged;
-      SubscribeToMessages();
-
-      _delayedMenueUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
-      _delayedMenueUpdateEvent.OnEventHandler += ReCreateMenuItems;
-
-      _navigationList.OnCurrentChanged += SetSelection;
-    }
-
     private void OnSettingsChanged(object sender, EventArgs e)
     {
       _refreshNeeded = true;
@@ -197,61 +269,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       UpdateList(true);
     }
 
-    private void UpdateList(bool recreateList)
-    {
-      // Get new menu entries from base list
-      if (recreateList)
-      {
-        RecreateGroupItems();
-        var previousSelected = _navigationList.Current;
-        _navigationList.Clear();
-        CollectionUtils.AddAll(_navigationList, _groupItems);
-        if (!_navigationList.MoveTo(i => i == previousSelected))
-          _navigationList.CurrentIndex = 0;
-      }
-      var currentIndex = _navigationList.CurrentIndex;
-      NestedMenuItems.Clear();
-      int fillItems = 3;
-      var count = _navigationList.Count;
-      for (int i = currentIndex - fillItems; i < currentIndex + count; i++)
-      {
-        var item = _navigationList.GetAt(i) ?? new NestedItem(Consts.KEY_NAME, ""); /* Placeholder for empty space before current list item */
-        NestedMenuItems.Add(item);
-      }
-      foreach (var nestedItem in NestedMenuItems)
-      {
-        nestedItem.Selected = nestedItem == _navigationList.Current;
-      }
-      NestedMenuItems.FireChange();
-      SetSubItems(_navigationList.Current);
-    }
-
     private void SetSelection(int oldindex, int newindex)
     {
       UpdateList(false);
-    }
-
-    private void SubscribeToMessages()
-    {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.MessageReceived += OnMessageReceived;
-    }
-
-    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      //if (message.ChannelName == MenuModelMessaging.CHANNEL)
-      //{
-      //  if (((MenuModelMessaging.MessageType)message.MessageType) == MenuModelMessaging.MessageType.UpdateMenu)
-      {
-        UpdateMenu();
-      }
-      //}
-    }
-
-    private void UpdateMenu()
-    {
-      _delayedMenueUpdateEvent.EnqueueEvent(this, EventArgs.Empty);
     }
   }
 }
