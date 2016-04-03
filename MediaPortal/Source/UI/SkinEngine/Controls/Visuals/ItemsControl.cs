@@ -637,6 +637,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         oldPreparedChildren = _preparedChildren;
         _preparedItems = preparedItems;
         _preparedChildren = preparedChildren;
+        if (_preparedItems != null)
+          _preparedItems.SetItemIndexes();
+        if (_preparedChildren != null)
+          _preparedChildren.SetItemIndexes();
         _setItems = setItems;
         _setChildren = setChildren;
       }

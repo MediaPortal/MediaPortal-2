@@ -64,6 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ListViewItem lvi = (ListViewItem) source;
       Selected = lvi.Selected;
+      ItemIndex = lvi.ItemIndex;
       Attach();
     }
 
