@@ -1,3 +1,12 @@
-<sideMenu title="Settings" title-class="fa fa-cog" [menu-items]="settingsMenu" (routes-configured)="routesConfigured($event)" [routes-configured]="routesConfiguredBool">
+<div style="margin-left: 200px" class="alert alert-warning" role="alert">
+  <strong><i class="fa fa-exclamation-triangle"></i> Be careful changing settings.</strong> If you don't know what you're doing leave it alone.
+</div>
+<template [ngIf]="ready">
+  <sideMenu title="Settings" title-class="fa fa-cog" [menu-items]="settingsMenu" (routes-configured)="routesConfigured($event)" [routes-configured]="routesConfiguredBool">
     <router-outlet></router-outlet>
-</sideMenu>
+  </sideMenu>
+</template>
+
+<template [ngIf]="!ready">
+  <i class="fa fa-cog fa-spin"></i> Loading...
+</template>
