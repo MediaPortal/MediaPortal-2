@@ -42,6 +42,24 @@ namespace MediaPortal.Plugins.MP2Web
     [Setting(SettingScope.Global, DEFAULT_PORT)]
     public int TcpPort { get; set; }
 
+    /// <summary>
+    /// How many Media items are shown in one row
+    /// </summary>
+    [Setting(SettingScope.Global, 5)]
+    public int MediaItemsPerRow { get; set; }
+
+    /// <summary>
+    /// How many Media items are loaded on each request
+    /// </summary>
+    [Setting(SettingScope.Global, 6)]
+    public int MediaItemsPerQuery { get; set; }
+
+    /// <summary>
+    /// ID of the group which is shown when intering the EPG
+    /// </summary>
+    [Setting(SettingScope.Global, 1)]
+    public int DefaultEpgGroupId { get; set; }
+
     #endregion
   }
 }

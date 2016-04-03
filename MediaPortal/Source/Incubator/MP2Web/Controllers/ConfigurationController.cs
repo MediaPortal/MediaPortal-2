@@ -27,8 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetWebApi;
-using MediaPortal.Plugins.MP2Web.Configuration;
+using MediaPortal.Plugins.MP2Web.WebAppConfiguration;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -69,14 +70,15 @@ namespace MediaPortal.Plugins.MP2Web.Controllers
     public MP2WebAppConfiguration Get()
     {
       var webApiPort = ServiceRegistration.Get<IAspNetWebApiService>().Port;
-      
+      var mp2WebSettings = ServiceRegistration.Get<ISettingsManager>().Load<MP2WebSettings>();
+
       return new MP2WebAppConfiguration
       {
         WebApiUrl = "http://" + HttpContext.Request.Host.Value.Split(':')[0] + ":" + webApiPort,
         Routes = GenerateRoutes(),
-        MoviesPerRow = 5,
-        MoviesPerQuery = 6,
-        DefaultEpgGroupId = 1
+        MoviesPerRow = mp2WebSettings.MediaItemsPerRow,
+        MoviesPerQuery = mp2WebSettings.MediaItemsPerQuery,
+        DefaultEpgGroupId = mp2WebSettings.DefaultEpgGroupId
       };
     }
 
