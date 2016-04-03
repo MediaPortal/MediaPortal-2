@@ -3,15 +3,16 @@
     font-family: verdana;
     font-size: 12px;
     font-weight: 200;
+    bottom: 50px; /* has to be the size of the footer*/
     /*background-color: #2e353d;*/
     background-color: #f8f8f8;
     position: fixed;
     left: 0px;
     float: left;
     /*.pull-left();*/
-    top: 50px;
+    top: 50px; /* has to be the size of the navbar */
     width: 250px;
-    height: 100%;
+    /*height: 100%;*/
     color: #e1ffff;
 }
 .nav-side-menu .brand {

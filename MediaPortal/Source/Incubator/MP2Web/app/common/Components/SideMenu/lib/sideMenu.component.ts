@@ -57,25 +57,24 @@ export class sideMenuComponent {
      Build the route definitions for the actual AngularJS Router
      */
     public buildRoutes(): RouteDefinition[] {
-        if (this.routesConfigured) {
-            return;
-        }
-
-        for (var i = 0; i < this.menuItems.length; i++) {
-            // no dropdown
-            if (this.menuItems[i].Pages == null || this.menuItems[i].Pages.length == 0) {
-                this.addRoute(this.menuItems[i].Path, this.menuItems[i].Name, this.menuItems[i].Component, this.menuItems[i].ComponentPath)
-            // dropdown
-            }else {
-                for (var x = 0; x < this.menuItems[i].Pages.length; x++) {
-                    this.addRoute(this.menuItems[i].Path + this.menuItems[i].Pages[x].Path,
-                        this.generateSubentryRoutename(this.menuItems[i].Name, this.menuItems[i].Pages[x].Name),
-                        this.menuItems[i].Pages[x].Component, this.menuItems[i].Pages[x].ComponentPath)
-                }
-            }
-        }
-
-        return this.routerRoutes;
+      if (this.routesConfigured) {
+          return;
+      }
+      for (var i = 0; i < this.menuItems.length; i++) {
+          // no dropdown
+          if (this.menuItems[i].Pages == null || this.menuItems[i].Pages.length == 0) {
+              this.addRoute(this.menuItems[i].Path, this.menuItems[i].Name, this.menuItems[i].Component, this.menuItems[i].ComponentPath)
+          // dropdown
+          }else {
+              for (var x = 0; x < this.menuItems[i].Pages.length; x++) {
+                  this.addRoute(this.menuItems[i].Path + this.menuItems[i].Pages[x].Path,
+                      this.generateSubentryRoutename(this.menuItems[i].Name, this.menuItems[i].Pages[x].Name),
+                      this.menuItems[i].Pages[x].Component, this.menuItems[i].Pages[x].ComponentPath)
+              }
+          }
+      }
+      console.log(this.routerRoutes);
+      return this.routerRoutes;
     }
 
     /*
