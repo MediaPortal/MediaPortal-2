@@ -317,6 +317,7 @@
     <Compile Include="MpfElements\Converters\expr\Variable.cs" />
     <Compile Include="MpfElements\Converters\DurationConverter.cs" />
     <Compile Include="MpfElements\Converters\MPFConverter.cs" />
+    <Compile Include="MpfElements\Converters\GetIndexMultiConverter.cs" />
     <Compile Include="MpfElements\Converters\PriorityBindingConverter.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
