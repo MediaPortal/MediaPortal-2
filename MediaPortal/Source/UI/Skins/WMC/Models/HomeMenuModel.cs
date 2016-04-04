@@ -48,6 +48,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
   {
     #region Protected Members
 
+    public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
     protected const string KEY_ITEM_SUB_ITEMS = "HomeMenuModel: SubItems";
 
     private readonly DelayedEvent _delayedMenueUpdateEvent;
@@ -56,6 +57,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected List<ListItem> _groupItems;
     protected HashSet<Guid> _groupedActions;
     protected bool _refreshNeeded;
+    protected Guid? _lastSelectedActionId;
     protected SettingsChangeWatcher<HomeEditorSettings> _settings;
 
     #endregion
@@ -93,13 +95,27 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      //if (message.ChannelName == MenuModelMessaging.CHANNEL)
-      //{
-      //  if (((MenuModelMessaging.MessageType)message.MessageType) == MenuModelMessaging.MessageType.UpdateMenu)
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
-        UpdateMenu();
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
+        if (messageType == WorkflowManagerMessaging.MessageType.StatePushed)
+        {
+          if (((NavigationContext)message.MessageData[WorkflowManagerMessaging.CONTEXT]).WorkflowState.StateId == HOME_STATE_ID)
+            UpdateMenu();
+        }
+        else if (messageType == WorkflowManagerMessaging.MessageType.StatesPopped)
+        {
+          var contexts = (IDictionary<Guid, NavigationContext>)message.MessageData[WorkflowManagerMessaging.CONTEXTS];
+          foreach (var context in contexts.Values)
+          {
+            if (context.Predecessor != null && context.Predecessor.WorkflowState.StateId == HOME_STATE_ID)
+            {
+              UpdateMenu();
+              break;
+            }
+          }
+        }
       }
-      //}
     }
 
     private void UpdateMenu()
@@ -222,7 +238,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         {
           var listItem = new ListItem(Consts.KEY_NAME, groupAction.DisplayName);
           listItem.AdditionalProperties[Consts.KEY_ITEM_ACTION] = workflowAction;
-          listItem.Command = new MethodDelegateCommand(() => workflowAction.Execute());
+          listItem.Command = new MethodDelegateCommand(() => ExecuteAction(workflowAction));
           items.Add(listItem);
         }
       }
@@ -231,32 +247,51 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     private void SetSubItems(ListItem item)
     {
-      if (item != null)
+      if (item == null)
+        return;
+
+      SubItems.Clear();
+      object oSubItems;
+      if (item.AdditionalProperties.TryGetValue(KEY_ITEM_SUB_ITEMS, out oSubItems))
       {
-        SubItems.Clear();
-        object oSubItems;
-        if (item.AdditionalProperties.TryGetValue(KEY_ITEM_SUB_ITEMS, out oSubItems))
+        IEnumerable<ListItem> subItems = oSubItems as IEnumerable<ListItem>;
+        if (subItems != null)
         {
-          IEnumerable<ListItem> subItems = oSubItems as IEnumerable<ListItem>;
-          if (subItems != null)
-            CollectionUtils.AddAll(SubItems, subItems);
-        }
-        else
-        {
-          //Get items without a group
-          foreach (var menuItem in MenuItems)
+          foreach (var subItem in subItems)
           {
-            object oAction;
-            if (menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out oAction))
+            subItem.Selected = ((WorkflowAction)subItem.AdditionalProperties[Consts.KEY_ITEM_ACTION]).ActionId == _lastSelectedActionId;
+            SubItems.Add(subItem);
+          }
+        }
+      }
+      else
+      {
+        //Get items without a group
+        foreach (var menuItem in MenuItems)
+        {
+          object oAction;
+          if (menuItem.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out oAction))
+          {
+            WorkflowAction action = oAction as WorkflowAction;
+            if (action != null && !_groupedActions.Contains(action.ActionId))
             {
-              WorkflowAction action = oAction as WorkflowAction;
-              if (action != null && !_groupedActions.Contains(action.ActionId))
-                SubItems.Add(menuItem);
+              var listItem = new ListItem(Consts.KEY_NAME, action.DisplayTitle);
+              listItem.AdditionalProperties[Consts.KEY_ITEM_ACTION] = action;
+              listItem.Command = new MethodDelegateCommand(() => ExecuteAction(action));
+              listItem.Selected = action.ActionId == _lastSelectedActionId;
+              SubItems.Add(listItem);
             }
           }
         }
-        SubItems.FireChange();
       }
+      _lastSelectedActionId = null;
+      SubItems.FireChange();
+    }
+
+    protected void ExecuteAction(WorkflowAction action)
+    {
+      _lastSelectedActionId = action.ActionId;
+      action.Execute();
     }
 
     private void OnSettingsChanged(object sender, EventArgs e)
