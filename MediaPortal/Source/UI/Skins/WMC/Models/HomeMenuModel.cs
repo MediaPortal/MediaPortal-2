@@ -41,6 +41,7 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UiComponents.WMCSkin.Models
 {
@@ -48,6 +49,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
   {
     #region Protected Members
 
+    public static readonly Guid MODEL_ID = new Guid("2EAA2DAB-241F-432F-A487-CDD35CCD4309");
     public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
     protected const string KEY_ITEM_SUB_ITEMS = "HomeMenuModel: SubItems";
 
@@ -161,6 +163,11 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         _navigationList.MovePrevious(e.NumDetents);
       else
         _navigationList.MoveNext(-e.NumDetents);
+    }
+
+    public void CloseTopmostDialog(MouseButtons buttons, float x, float y)
+    {
+      ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
     }
 
     #endregion
