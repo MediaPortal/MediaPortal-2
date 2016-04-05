@@ -37,7 +37,7 @@
                IsVisible="{Binding IsItemsValid}"> <!-- Model = MediaNavigationModel -->
        <StackPanel DockPanel.Dock="Right" Margin="0,60,15,-60" Orientation="Horizontal">
           <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
-                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
             <Label.Content>
               <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
                 <Binding Source="{StaticResource FanArtBackgroundModel}" Path="SelectedItem"/>
@@ -45,9 +45,9 @@
               </MultiBinding>
             </Label.Content>
           </Label>
-          <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallFontSize}"
+          <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
                  Opacity="0.4"/>
-          <Label Color="{ThemeResource TextColor}" Content="{Binding NumItemsStr}" FontSize="{ThemeResource SmallFontSize}"
+          <Label Color="{ThemeResource TextColor}" Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}"
                  FontFamily="DefaultBold" Opacity="0.4"/>    
        </StackPanel>
     </DockPanel>

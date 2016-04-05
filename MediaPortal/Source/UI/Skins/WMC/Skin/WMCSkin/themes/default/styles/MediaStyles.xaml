@@ -1219,7 +1219,7 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="60"/>
+                <RowDefinition Height="65"/>
             </Grid.RowDefinitions>
 
             <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
@@ -1359,6 +1359,7 @@
         <Grid x:Name="ItemControl" Width="{StaticResource VIDEO_COVER_WIDTH}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="{StaticResource VIDEO_COVER_HEIGHT}"/>
+                <RowDefinition Height="65"/>
             </Grid.RowDefinitions>
 
             <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
@@ -1387,10 +1388,9 @@
                 </Image>
             </Grid>
 
-            <Grid IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
-                  Margin="-6">
                 <Rectangle Name="ButtonBase" VerticalAlignment="Stretch"
-                           RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="0">
+                           RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-2"
+                           IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
                     <Rectangle.Stroke>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
                             <GradientStop Color="#CCFFFFFF" Offset="0"/>
@@ -1401,12 +1401,24 @@
                 </Rectangle>
 
                 <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                           RadiusX="4" RadiusY="4" StrokeThickness="0" Margin="0,0,0,0">
+                           RadiusX="4" RadiusY="4" StrokeThickness="0" Margin="0,0,0,0"
+                           IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
                     <Rectangle.Fill>
                         <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
                     </Rectangle.Fill>
                 </Rectangle>
-            </Grid>
+
+            <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
+                   Color="{ThemeResource TextColor}"
+                   HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource VIDEO_COVER_WIDTH}">
+                <Label.Opacity>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                        <Binding Source="1.0"/>
+                        <Binding Source="0.4"/>
+                    </MultiBinding>
+                </Label.Opacity>
+            </Label>
 
             <!-- Unwatched indicator>
             <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,20,0,0">
