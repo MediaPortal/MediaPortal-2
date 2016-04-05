@@ -11,7 +11,7 @@
   <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1"/>
-  <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.2"/>
+  <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.17"/>
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.15"/>
 
     <Storyboard x:Key="FocusedButtonWideStoryboard_Poster" FillBehavior="HoldEnd">

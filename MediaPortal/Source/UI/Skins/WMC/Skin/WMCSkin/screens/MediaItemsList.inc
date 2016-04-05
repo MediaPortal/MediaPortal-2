@@ -35,7 +35,7 @@
     <DockPanel DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
                VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false"
                IsVisible="{Binding IsItemsValid}"> <!-- Model = MediaNavigationModel -->
-       <StackPanel DockPanel.Dock="Right" Margin="0,40,15,-40" Orientation="Horizontal">
+       <StackPanel DockPanel.Dock="Right" Margin="0,60,15,-60" Orientation="Horizontal">
           <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
             <Label.Content>

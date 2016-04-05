@@ -190,7 +190,6 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemOthersDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc" />
-    <Content Include="Skin\WMCSkin\screens\MediaItemsListHeader.inc" />
     <Content Include="Skin\WMCSkin\screens\MultiDetails.inc" />
     <Content Include="Skin\WMCSkin\skin.xml" />
     <Content Include="Skin\WMCSkin\themes\default\images\FilterLarge.png" />
