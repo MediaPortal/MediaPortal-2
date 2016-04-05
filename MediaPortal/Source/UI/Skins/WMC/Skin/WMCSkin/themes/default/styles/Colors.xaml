@@ -122,7 +122,7 @@
   <!-- Black -->
   <ResourceWrapper x:Key="DialogCloseButtonCrossColor" Resource="#FF484848"/>
 
-  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#1A000000"/>
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#4D000000"/>
     
 
     <!-- Light blue with some green -->

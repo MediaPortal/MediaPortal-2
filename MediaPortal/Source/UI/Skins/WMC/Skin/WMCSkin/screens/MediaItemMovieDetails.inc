@@ -60,10 +60,14 @@
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                          Grid.Column="0" Grid.Row="4" Margin="15,5,0,2">
+                          Grid.Column="0" Grid.Row="4" Margin="15,4,0,3">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                                             Maximum="5" VerticalAlignment="Center"
-                                             Value="{Binding TotalRating}">
+                                             Maximum="5" VerticalAlignment="Center">
+                  <StarRatingPanel.Value>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
+                      <Binding Path="TotalRating"/>
+                    </MultiBinding>  
+                  </StarRatingPanel.Value>
                   <StarRatingPanel.LayoutTransform>
                     <TransformGroup>
                       <ScaleTransform ScaleX="1.6" ScaleY="1.5"/>
