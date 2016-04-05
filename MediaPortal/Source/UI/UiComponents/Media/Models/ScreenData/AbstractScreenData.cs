@@ -42,6 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     // Lazily initialized
     protected ItemsList _items = null;
     protected AbstractProperty _numItemsStrProperty = null;
+    protected AbstractProperty _numItemsProperty = null;
     protected AbstractProperty _isItemsValidProperty = null;
     protected AbstractProperty _isItemsEmptyProperty = null;
     protected AbstractProperty _tooManyItemsProperty = null;
@@ -119,6 +120,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       get { return (string) _numItemsStrProperty.GetValue(); }
       protected set { _numItemsStrProperty.SetValue(value); }
+    }
+
+    public AbstractProperty NumItemsProperty
+    {
+      get { return _numItemsProperty; }
+    }
+
+    /// <summary>
+    /// Gets the absolute number of items in the <see cref="Items"/> list.
+    /// </summary>
+    public int NumItems
+    {
+      get { return (int) _numItemsProperty.GetValue(); }
+      protected set { _numItemsProperty.SetValue(value); }
     }
 
     public AbstractProperty IsItemsValidProperty
@@ -248,6 +263,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         throw new IllegalCallException("Screen data is already initialized");
       _navigationData = navigationData;
       _numItemsStrProperty = new WProperty(typeof(string), string.Empty);
+      _numItemsProperty = new WProperty(typeof(int), 0);
       _isItemsValidProperty = new WProperty(typeof(bool), true);
       _isItemsEmptyProperty = new WProperty(typeof(bool), true);
       _tooManyItemsProperty = new WProperty(typeof(bool), false);
@@ -265,6 +281,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       _navigationData = null;
       _numItemsStrProperty = null;
+      _numItemsProperty = null;
       _isItemsValidProperty = null;
       _isItemsEmptyProperty = null;
       _tooManyItemsProperty = null;
@@ -307,6 +324,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ShowListHint = true;
       IsItemsValid = true;
       NumItemsStr = "?";
+      NumItems = 0;
     }
 
     protected virtual void Display_TooManyItems(int numItems)
@@ -318,6 +336,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ShowListHint = true;
       IsItemsValid = true;
       NumItemsStr = Utils.BuildNumItemsStr(numItems, null);
+      NumItems = numItems;
     }
 
     protected virtual void Display_Normal(int numItems, int? total)
@@ -338,6 +357,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       }
       IsItemsValid = true;
       NumItemsStr = Utils.BuildNumItemsStr(numItems, total);
+      NumItems = numItems;
     }
 
     protected virtual void Display_ItemsInvalid()
@@ -349,6 +369,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ShowListHint = false;
       ListHint = string.Empty;
       NumItemsStr = "-";
+      NumItems = 0;
     }
   }
 }
