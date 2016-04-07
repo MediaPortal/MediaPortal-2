@@ -8,7 +8,7 @@
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
   <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="60,0,290,50"/>
 
-  <ResourceWrapper x:Key="HugeFontSize" Resource="71"/>
+  <ResourceWrapper x:Key="HugeFontSize" Resource="72"/>
   <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
 
