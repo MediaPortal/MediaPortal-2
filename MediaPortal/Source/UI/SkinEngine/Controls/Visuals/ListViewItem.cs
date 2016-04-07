@@ -23,78 +23,78 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-    public class ListViewItem : ContentControl, ISelectableItemContainer
+  public class ListViewItem : ContentControl, ISelectableItemContainer
+  {
+    #region Protected fields
+
+    protected AbstractProperty _selectedProperty;
+    protected AbstractProperty _itemIndexProperty;
+
+    #endregion
+
+    public ListViewItem()
     {
-        #region Protected fields
-
-        protected AbstractProperty _selectedProperty;
-        protected AbstractProperty _itemIndexProperty;
-
-        #endregion
-
-        public ListViewItem()
-        {
-            Init();
-            Attach();
-        }
-
-        void Init()
-        {
-            _selectedProperty = new SProperty(typeof(bool), false);
-            _itemIndexProperty = new SProperty(typeof(int), 0);
-        }
-
-        void Attach()
-        {
-            _selectedProperty.Attach(OnSelectedChanged);
-        }
-
-        void Detach()
-        {
-            _selectedProperty.Detach(OnSelectedChanged);
-        }
-
-        public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-        {
-            Detach();
-            base.DeepCopy(source, copyManager);
-            ListViewItem lvi = (ListViewItem)source;
-            Selected = lvi.Selected;
-            ItemIndex = lvi.ItemIndex;
-            Attach();
-        }
-
-        void OnSelectedChanged(AbstractProperty prop, object oldVal)
-        {
-            ItemsControl ic = FindParentOfType<ItemsControl>();
-            if (ic != null)
-                ic.UpdateSelectedItem(this);
-        }
-
-        public AbstractProperty SelectedProperty
-        {
-            get { return _selectedProperty; }
-        }
-
-        public bool Selected
-        {
-            get { return (bool)_selectedProperty.GetValue(); }
-            set { _selectedProperty.SetValue(value); }
-        }
-
-        public AbstractProperty ItemIndexProperty
-        {
-            get { return _itemIndexProperty; }
-        }
-
-        /// <summary>
-        /// Gets or sets the absolute index of this item based on the total amount of available items.
-        /// This is especially used for virtualization, where only a subset of total items are allocated.
-        /// </summary>
-        public int ItemIndex
-        {
-            get { return (int)_itemIndexProperty.GetValue(); }
-            set { _itemIndexProperty.SetValue(value); }
-        }
+      Init();
+      Attach();
     }
+
+    void Init()
+    {
+      _selectedProperty = new SProperty(typeof(bool), false);
+      _itemIndexProperty = new SProperty(typeof(int), 0);
+    }
+
+    void Attach()
+    {
+      _selectedProperty.Attach(OnSelectedChanged);
+    }
+
+    void Detach()
+    {
+      _selectedProperty.Detach(OnSelectedChanged);
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      Detach();
+      base.DeepCopy(source, copyManager);
+      ListViewItem lvi = (ListViewItem)source;
+      Selected = lvi.Selected;
+      ItemIndex = lvi.ItemIndex;
+      Attach();
+    }
+
+    void OnSelectedChanged(AbstractProperty prop, object oldVal)
+    {
+      ItemsControl ic = FindParentOfType<ItemsControl>();
+      if (ic != null)
+        ic.UpdateSelectedItem(this);
+    }
+
+    public AbstractProperty SelectedProperty
+    {
+      get { return _selectedProperty; }
+    }
+
+    public bool Selected
+    {
+      get { return (bool)_selectedProperty.GetValue(); }
+      set { _selectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ItemIndexProperty
+    {
+      get { return _itemIndexProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the absolute index of this item based on the total amount of available items.
+    /// This is especially used for virtualization, where only a subset of total items are allocated.
+    /// </summary>
+    public int ItemIndex
+    {
+      get { return (int)_itemIndexProperty.GetValue(); }
+      set { _itemIndexProperty.SetValue(value); }
+    }
+  }
 }

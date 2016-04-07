@@ -27,26 +27,26 @@ using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
-    public class GetIndexMultiConverter : IMultiValueConverter
+  public class GetIndexMultiConverter : IMultiValueConverter
+  {
+    public bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
     {
-        public bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
-        {
-            var enumerable = values[1].Value as IEnumerable;
-            if (enumerable != null)
-            {
-                var collection = new List<object>(enumerable.OfType<object>());
-                var itemIndex = collection.IndexOf(values[0].Value);
-                int indexOffset;
-                // Support offset, usually "1" to show "1/50" instead "0/50"
-                if (int.TryParse(parameter as string, out indexOffset))
-                    itemIndex += indexOffset;
-                result = itemIndex;
-            }
-            else
-            {
-                result = -1;
-            }
-            return true;
-        }
+      var enumerable = values[1].Value as IEnumerable;
+      if (enumerable != null)
+      {
+        var collection = new List<object>(enumerable.OfType<object>());
+        var itemIndex = collection.IndexOf(values[0].Value);
+        int indexOffset;
+        // Support offset, usually "1" to show "1/50" instead "0/50"
+        if (int.TryParse(parameter as string, out indexOffset))
+          itemIndex += indexOffset;
+        result = itemIndex;
+      }
+      else
+      {
+        result = -1;
+      }
+      return true;
     }
+  }
 }
