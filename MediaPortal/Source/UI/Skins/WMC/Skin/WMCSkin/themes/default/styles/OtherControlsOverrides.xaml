@@ -304,7 +304,6 @@
 
   <Style x:Key="SubMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <!--<EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>-->
-    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}"/>
     <EventSetter Event="MouseWheel" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnMouseWheel}"/>
     <Setter Property="Template">
       <Setter.Value>

@@ -68,7 +68,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ListView  Grid.Row="2" Grid.Column="0" Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 
                    SetFocusPrio="DefaultHigh"
                    ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
-                   Style="{ThemeResource SubMenuListViewStyle}">
+                   Style="{ThemeResource SubMenuListViewStyle}"
+                   SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
