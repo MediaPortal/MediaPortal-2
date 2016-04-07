@@ -54,16 +54,14 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
     public static readonly Guid CUSTOM_HOME_STATE_ID = new Guid("B285DC02-AA8C-47F2-8795-0B13B6E66306");
     protected const string KEY_ITEM_GROUP = "HomeMenuModel: Group";
+    protected const string KEY_ITEM_SELECTED_ACTION_ID = "HomeMenuModel: SelectedActionId";
 
     private readonly DelayedEvent _delayedMenuUpdateEvent;
     private NavigationList<ListItem> _navigationList;    
     protected List<HomeMenuGroup> _groups;
-    protected List<ListItem> _groupItems;
     protected Dictionary<Guid, HomeMenuAction> _groupedActions;
     protected Dictionary<Guid, WorkflowAction> _availableActions;
     protected bool _refreshNeeded;
-    protected ListItem _lastSelectedGroupItem;
-    protected Guid? _lastSelectedActionId;
     protected SettingsChangeWatcher<HomeEditorSettings> _settings;
 
     #endregion
@@ -135,8 +133,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
-      var item = e.FirstAddedItem as NestedItem;
-      SetSubItems(item, false);
+      var item = e.FirstAddedItem as ListItem;
+      if (item != null)
+        SetCurrentSubItem(item);
     }
 
     public void OnKeyPress(object sender, KeyPressEventArgs e)
@@ -237,7 +236,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         CollectionUtils.AddAll(SubItems, CreateSubItems(actions));
         fireChange = true;
       }
-      FocusCurrentSubItem();
+      FocusCurrentSubItem(item);
       if (fireChange)
         SubItems.FireChange();
     }
@@ -342,27 +341,33 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         else
           listItem = new ListItem(Consts.KEY_NAME, workflowAction.DisplayTitle);
         listItem.AdditionalProperties[Consts.KEY_ITEM_ACTION] = workflowAction;
-        listItem.Command = new MethodDelegateCommand(() => ExecuteAction(workflowAction));
+        listItem.Command = new MethodDelegateCommand(workflowAction.Execute);
         items.Add(listItem);
       }
       return items;
     }
 
-    protected void FocusCurrentSubItem()
+    protected void SetCurrentSubItem(ListItem item)
     {
+      ListItem currentItem = _navigationList.Current;
+      WorkflowAction action;
+      if (currentItem != null && TryGetAction(item, out action))
+        currentItem.AdditionalProperties[KEY_ITEM_SELECTED_ACTION_ID] = action.ActionId;
+    }
+
+    protected void FocusCurrentSubItem(ListItem parentItem)
+    {
+      Guid? currentActionId = null;
+      object oActionId;
+      if (parentItem != null && parentItem.AdditionalProperties.TryGetValue(KEY_ITEM_SELECTED_ACTION_ID, out oActionId))
+        currentActionId = oActionId as Guid?;
+
       WorkflowAction action;
       for (int i = 0; i < SubItems.Count; i++)
       {
-        SubItems[i].Selected = (_lastSelectedActionId == null && i == 0) ||
-          (TryGetAction(SubItems[i], out action) && action.ActionId == _lastSelectedActionId);
+        SubItems[i].Selected = (currentActionId == null && i == 0) ||
+          (TryGetAction(SubItems[i], out action) && action.ActionId == currentActionId);
       }
-      _lastSelectedActionId = null;
-    }
-
-    protected void ExecuteAction(WorkflowAction action)
-    {
-      _lastSelectedActionId = action.ActionId;
-      action.Execute();
     }
 
     private void SetSelection(int oldindex, int newindex)
