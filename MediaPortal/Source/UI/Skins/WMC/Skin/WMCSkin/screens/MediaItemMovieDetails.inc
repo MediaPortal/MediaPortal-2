@@ -110,9 +110,11 @@
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-            
-              <Label x:Name="Duration" Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
-                      Content="{Binding Path=Runtime, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm}" Color="{ThemeResource TextColor}"/>
+              <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal">
+                <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
+                       Content="{Binding Path=Runtime}" Color="{ThemeResource TextColor}"/>
+                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"/>                
+              </StackPanel>
             </Grid>
           </ControlTemplate>
         </media:MovieAspectWrapper.Template>

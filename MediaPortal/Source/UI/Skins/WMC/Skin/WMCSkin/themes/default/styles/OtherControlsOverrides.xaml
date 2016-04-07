@@ -43,7 +43,7 @@
                   <GradientStop Color="Transparent" Offset="0.01" />
                   <GradientStop Color="Black" Offset="0.15" />
                   <GradientStop Color="Black" Offset="0.85" />
-                  <GradientStop Color="Transparent" Offset="0.99" />
+                  <GradientStop Color="Transparent" Offset="0.98" />
                 </LinearGradientBrush>
               </ScrollContentPresenter.OpacityMask>
             </ScrollContentPresenter>
@@ -368,7 +368,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="True" Orientation="Vertical"
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="False" Orientation="Vertical"
                       KeyPress="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>
         </ItemsPanelTemplate>
       </Setter.Value>

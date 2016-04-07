@@ -1219,11 +1219,11 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="65"/>
+                <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
 
             <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                       RadiusX="5" RadiusY="5" StrokeThickness="3" Margin="-3"
+                       RadiusX="5" RadiusY="5" StrokeThickness="3" Margin="-2"
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
                 <Rectangle.Stroke>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
@@ -1359,7 +1359,7 @@
         <Grid x:Name="ItemControl" Width="{StaticResource VIDEO_COVER_WIDTH}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="{StaticResource VIDEO_COVER_HEIGHT}"/>
-                <RowDefinition Height="65"/>
+                <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
 
             <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
