@@ -332,7 +332,7 @@
     <StackPanel x:Name="ItemControl" Orientation="Horizontal">
       <Label x:Name="ItemLabel" Content="{Binding [Name]}"
             HorizontalAlignment="Left" VerticalAlignment="Center"
-            Color="{ThemeResource TextColor}"
+            Color="{ThemeResource TextColor}" Height="91"
             FontSize="{ThemeResource HugeFontSize}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -344,7 +344,7 @@
         <Label.Margin>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="Selected"/>
-            <Binding Source="0,0,0,300"/>
+            <Binding Source="0,20,0,280"/>
             <Binding Source="20,0,0,0"/>
           </MultiBinding>
         </Label.Margin>
