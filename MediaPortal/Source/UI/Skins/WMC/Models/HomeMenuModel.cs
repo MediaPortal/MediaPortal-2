@@ -204,7 +204,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
       var currentIndex = _navigationList.CurrentIndex;
       NestedMenuItems.Clear();
-      int fillItems = 3;
+      int fillItems = 4;
       var count = _navigationList.Count;
       for (int i = currentIndex - fillItems; i < currentIndex + count; i++)
       {
