@@ -1344,7 +1344,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
             </Grid.RowDefinitions>
-            <Image Stretch="Uniform" Margin="2"
+            <Image Stretch="Uniform" Margin="1"
                    Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
             </Image>
             <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">

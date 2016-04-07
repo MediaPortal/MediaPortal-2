@@ -249,7 +249,7 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" 
-             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.85">
+             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
