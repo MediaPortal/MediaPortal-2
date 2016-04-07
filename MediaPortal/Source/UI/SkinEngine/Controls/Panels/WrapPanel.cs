@@ -33,6 +33,8 @@ using SharpDX;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -817,6 +819,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int start = _arrangedLines[_actualFirstVisibleLineIndex].StartIndex;
       int end = _arrangedLines[_actualLastVisibleLineIndex].EndIndex;
       return visibleChildren.Skip(start).Take(end - start + 1);
+    }
+
+    /// <summary>
+    /// Required to clip any items that are partially within the panel's bounds
+    /// </summary>
+    /// <param name="parentRenderContext"></param>
+    public override void Render(RenderContext parentRenderContext)
+    {
+      if (OpacityMask == null && _actualPhysicalOffset != 0)
+      {
+        SolidColorBrush brush = new SolidColorBrush { Color = Color.Black };
+        OpacityMask = brush;
+        _forcedOpacityMask = true;
+      }
+      else if (_forcedOpacityMask && _actualPhysicalOffset == 0 && OpacityMask != null)
+      {
+        OpacityMask.Dispose();
+        OpacityMask = null;
+        _opacityMaskContext.Dispose();
+        _opacityMaskContext = null;
+        _forcedOpacityMask = false;
+      }
+      base.Render(parentRenderContext);
+    }
+
+    public override void RenderOverride(RenderContext localRenderContext)
+    {
+      base.RenderOverride(localRenderContext); // Do the actual rendering
+      // After rendering our children the following line resets the RenderContext's bounds so
+      // that rendering with an OpacityMask will clip the final output correctly to our scrolled viewport.
+      localRenderContext.SetUntransformedBounds(ActualBounds);
     }
 
     #endregion
