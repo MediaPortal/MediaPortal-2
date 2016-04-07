@@ -135,16 +135,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Layouting
 
-    public override void SetScrollIndex(int lineIndex, bool first)
+    public override void SetPartialScrollIndex(double lineIndex, bool first)
     {
+      int index = (int)lineIndex;
+      float offset = (float)(lineIndex % 1);
       lock (Children.SyncRoot)
       {
-        if (_pendingScrollIndex == lineIndex && _scrollToFirst == first ||
-            (!_pendingScrollIndex.HasValue &&
+        if (_pendingScrollIndex == lineIndex && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
+            (!_pendingScrollIndex.HasValue && _actualPhysicalOffset == offset &&
              ((_scrollToFirst && _actualFirstVisibleLineIndex == lineIndex) ||
               (!_scrollToFirst && _actualLastVisibleLineIndex == lineIndex))))
           return;
-        _pendingScrollIndex = lineIndex;
+        _pendingScrollIndex = index;
+        _pendingPhysicalOffset = offset;
         _scrollToFirst = first;
       }
       InvalidateLayout(true, true);
@@ -322,6 +325,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // Hint: We cannot skip the arrangement of lines above _actualFirstVisibleLineIndex or below _actualLastVisibleLineIndex
           // because the rendering and focus system also needs the bounds of the currently invisible children
           float startPosition = 0;
+
+          //Percentage of child size to offset child positions
+          float physicalOffset = _actualPhysicalOffset;
+
           // If set to true, we'll check available space from the last to first visible child.
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
@@ -330,11 +337,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             {
               fireScrolled = true;
               int pendingSI = _pendingScrollIndex.Value;
+              physicalOffset = _actualPhysicalOffset = _pendingPhysicalOffset;
               if (_scrollToFirst)
                 _actualFirstVisibleLineIndex = pendingSI;
               else
               {
                 _actualLastVisibleLineIndex = pendingSI;
+                //If we have an offset then there will be part of an additional item visible
+                if (physicalOffset != 0)
+                  _actualLastVisibleLineIndex++;
                 invertLayouting = true;
               }
               _pendingScrollIndex = null;
@@ -371,6 +382,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (_doScroll)
           { // Calculate last visible child
             float spaceLeft = actualExtendsInNonOrientationDirection;
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+              spaceLeft += _assumedLineExtendsInNonOrientationDirection;
             if (invertLayouting)
             {
               if (_actualLastVisibleLineIndex == int.MaxValue) // when scroll to last item (END) was requested
@@ -451,6 +465,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
           // 2) Calculate start position (so the first visible line starts at 0)
           startPosition -= (_actualFirstVisibleLineIndex - _firstArrangedLineIndex) * _assumedLineExtendsInNonOrientationDirection;
+          if (physicalOffset != 0)
+            startPosition -= physicalOffset * _assumedLineExtendsInNonOrientationDirection;
 
           // 3) Arrange children
           if (Orientation == Orientation.Vertical)
