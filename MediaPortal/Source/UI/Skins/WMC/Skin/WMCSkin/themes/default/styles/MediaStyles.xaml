@@ -47,7 +47,7 @@
               <ControlTemplate x:Key="OSD_InfoArea_Template">
 
                 <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
@@ -57,11 +57,10 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
+                  <!--DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
                     <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
                       <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
                       VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Must be located the same as Audio_Mouse -->
                         <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
                         <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
                           <Control.IsVisible>
@@ -74,7 +73,6 @@
                       </Grid>
                       <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
                       VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Must be located the same as Audio_NoMouse -->
                         <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
                         Command="{Command AudioButtonPressed}"/>
                         <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
@@ -91,7 +89,7 @@
                       <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
                           Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     </Grid>
-                  </DockPanel>
+                  </DockPanel-->
                 </Grid>
               </ControlTemplate>
 
@@ -156,19 +154,20 @@
                       <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="5,0,5,0"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
-                      <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="5,0,5,0"
+                      <!--Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="5,0,5,0"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/-->
                       <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="5,0,5,0"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
-                      <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="5,0,5,0"
+                      <!--Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="5,0,5,0"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/-->
                       <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
-
+                      <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="5,0,5,0"
+                          IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}"/>                         
                     </StackPanel>
                     <!-- PlayControlsPanel -->
                   </Grid>

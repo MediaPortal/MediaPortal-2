@@ -3,6 +3,8 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     DependsOnStyleResources="Colors,Graphics,Consts"
     >
 
@@ -13,6 +15,8 @@
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1"/>
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.17"/>
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.15"/>
+    
+  <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
 
     <Storyboard x:Key="FocusedButtonWideStoryboard_Poster" FillBehavior="HoldEnd">
       <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
@@ -1086,156 +1090,6 @@
     </Setter>
   </Style>
 
-  <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}"/>
-
-  <Style x:Key="PlayButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PlayControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
-  <Style x:Key="PauseButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PauseControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
-  <Style x:Key="StopButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource StopControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
-  <Style x:Key="ForwardButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource ForwardControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
-  <Style x:Key="RewindButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource RewindControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
-  <Style x:Key="SkipForwardButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SkipForwardControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
-  <Style x:Key="SkipBackButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SkipBackControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
-  <!-- audio mute control style -->
-  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type CheckBox}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special_controls:PlayerControl}},Path=IsMuted}"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type CheckBox}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Control Style="{ThemeResource OSDButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  
   <!-- Global buttons -->
 
   <Style x:Key="PowerButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
@@ -1262,11 +1116,28 @@
     </Style.Resources>
   </Style>
 
-  <Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
+  <Style x:Key="NavigateBackButtonStyle" TargetType="{x:Type Button}">
+      <Setter Property="Template">
+          <Setter.Value>
+              <ControlTemplate TargetType="{x:Type Button}">
+                  <Grid>
+                      <Image x:Name="image" Source="PlayerControl\GOBACK.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                  </Grid>
+                  <ControlTemplate.Triggers>
+                      <Trigger Property="HasFocus" Value="True">
+                          <Setter TargetName="image" Property="Source" Value="PlayerControl\GOBACK.FOCUS.PNG"/>
+                      </Trigger>
+                  </ControlTemplate.Triggers>
+              </ControlTemplate>
+          </Setter.Value>
+      </Setter>
+  </Style>
+
+  <!--Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
     </Style.Resources>
-  </Style>
+  </-->
 
   <!-- ********************************* PlusMinus button ******************************** -->
 
@@ -1321,131 +1192,221 @@
     </Setter>
   </Style>
 
-<!-- To be removed
-  <!- ***************************** Zoom buttons ******************************** ->
+ <!--PlayerControlButtons-->
+    <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}" >
+                    <Grid>
+                        <Image Source="PlayerControl\MUTE.NOFOCUS.PNG.png" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
+                            <Image.IsVisible>
+                                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                                    <Binding Path="!IsMuted"/>
+                                </MultiBinding>
+                            </Image.IsVisible>
+                        </Image>
+                        <Image Source="PlayerControl\MUTE.FOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
+                            <Image.IsVisible>
+                                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                                    <Binding Path="!IsMuted"/>
+                                </MultiBinding>
+                            </Image.IsVisible>
+                        </Image>
+                        <Image Source="PlayerControl\MUTEON.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
+                            <Image.IsVisible>
+                                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                                    <Binding Path="IsMuted"/>
+                                </MultiBinding>
+                            </Image.IsVisible>
+                        </Image>
+                        <Image Source="PlayerControl\MUTEON.FOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="05" VerticalAlignment="Center">
+                            <Image.IsVisible>
+                                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                                    <Binding Path="IsMuted"/>
+                                </MultiBinding>
+                            </Image.IsVisible>
+                        </Image>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <Storyboard x:Key="FocusedZoomButtonStoryBoard" FillBehavior="Stop">
-    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
-    <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
-  </Storyboard>
+    <Style x:Key="PlayButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\PLAY.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\PLAY.FOCUS.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <Style x:Key="ZoomInButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Image x:Name="Focused" Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
-            <Image x:Name="Unfocused" Source="zoom_in_disabled.png" Width="32" Height="32"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedZoomButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
+    <Style x:Key="PauseButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\PAUSE.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\PAUSE.FOCUS.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <Style x:Key="ZoomOutButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Image x:Name="Focused" Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
-            <Image x:Name="Unfocused" Source="zoom_out_disabled.png" Width="32" Height="32"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedZoomButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
+    <Style x:Key="StopButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\STOP.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\STOP.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\STOP.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <!- ***************************** Rotate buttons ******************************** ->
+    <Style x:Key="ForwardButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\FORWARD.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\FORWARD.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\FORWARD.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <Storyboard x:Key="FocusedRotateButtonStoryBoard" FillBehavior="Stop">
-    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
-    <DoubleAnimation BeginTime="00:00:00" From="1" To="0" Duration="00:00:00.3000000" Storyboard.TargetName="Unfocused" Storyboard.TargetProperty="Opacity"/>
-  </Storyboard>
+    <Style x:Key="RewindButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\BACKWARD.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\BACKWARD.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\BACKWARD.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <Style x:Key="RotateLeftButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Image x:Name="Focused" Source="rotate_left_enabled.png" Width="32" Height="32" Opacity="0"/>
-            <Image x:Name="Unfocused" Source="rotate_left_disabled.png" Width="32" Height="32"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedRotateButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
+    <Style x:Key="SkipForwardButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\NEXT.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\NEXT.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\NEXT.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <Style x:Key="RotateRightButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Image x:Name="Focused" Source="rotate_right_enabled.png" Width="32" Height="32" Opacity="0"/>
-            <Image x:Name="Unfocused" Source="rotate_right_disabled.png" Width="32" Height="32"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedRotateButtonStoryBoard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
--->
+    <Style x:Key="SkipBackButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\PREVIOUS.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\PREVIOUS.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\PREVIOUS.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SelectSubtitleButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\SUBTITLES.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\SUBTITLES.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\SUBTITLES.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SelectChapterButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\GUIDE.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\GUIDE.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\GUIDE.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
