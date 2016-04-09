@@ -408,13 +408,8 @@
               </Button.Triggers>
             </Button>
             <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Right"
-                            HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Opacity="0.4"
-                            Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-           <!--Label FontSize="12"  Margin="10,0,10,-10" DockPanel.Dock="Right" Color="{ThemeResource TextColor}" Scroll="Auto">
-                      <Label.Content>
-                        <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId"/>
-                      </Label.Content>
-           </Label-->
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Opacity="0.4"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -426,7 +421,6 @@
       <Setter.Value>
         <ItemsPanelTemplate>
           <UniformGrid Columns="4" Rows="2" x:Name="ListItemsHost" IsItemsHost="True" Height="30"/>
-          <!--StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/-->
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

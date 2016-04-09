@@ -293,9 +293,7 @@
     <Content Include="Skin\WMCSkin\themes\default\styles\MediaConsts.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_menu.xaml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Skin\WMCSkin\backgrounds\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
@@ -343,6 +341,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\SimpleFilterItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\video-background.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
