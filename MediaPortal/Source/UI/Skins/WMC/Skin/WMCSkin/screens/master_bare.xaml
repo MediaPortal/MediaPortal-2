@@ -86,9 +86,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Control x:Name="AlternativeFooterControl" HorizontalAlignment="Stretch" Grid.Column="0" Grid.ColumnSpan="3"
                  Template="{DynamicResource ResourceKey=Alternative_Footer_Template}">
         </Control>
-             <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
+             <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
                   AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="2"/>
-             <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
+             <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
                   AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Left" VerticalAlignment="Bottom" Grid.Column="0"/>
     </Grid>
     <!-- FooterPanel -->
