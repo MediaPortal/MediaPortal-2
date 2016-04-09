@@ -1198,7 +1198,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}" >
                     <Grid>
-                        <Image Source="PlayerControl\MUTE.NOFOCUS.PNG.png" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
+                        <Image Source="PlayerControl\MUTE.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
                             <Image.IsVisible>
                                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                                     <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
@@ -1222,7 +1222,7 @@
                                 </MultiBinding>
                             </Image.IsVisible>
                         </Image>
-                        <Image Source="PlayerControl\MUTEON.FOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="05" VerticalAlignment="Center">
+                        <Image Source="PlayerControl\MUTEON.FOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
                             <Image.IsVisible>
                                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                                     <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
@@ -1449,5 +1449,45 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
+    <Style x:Key="VolumeDownButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\MINUS.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\MINUS.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\MINUS.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VolumeUpButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <Image x:Name="image" Source="PlayerControl\PLUS.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\PLUS.FOCUS.PNG"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="image" Property="Source" Value="PlayerControl\PLUS.DISABLED.PNG"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

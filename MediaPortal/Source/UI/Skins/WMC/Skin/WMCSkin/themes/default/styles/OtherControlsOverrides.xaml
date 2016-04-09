@@ -456,4 +456,61 @@
         </DockPanel>
     </ControlTemplate>
 
+    <!-- ****************************** PlayerControl ********************************** -->
+
+    <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+                    <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                          IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Bottom">
+                        
+                            <Grid x:Name="MediaInfoPanel">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                            <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+                                            Content="{Binding MediaItemTitle}" HorizontalAlignment="Center" VerticalAlignment="Center" Scroll="Auto">
+                                    <Label.Triggers>
+                                        <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
+                                            <Setter Property="Color" Value="{ThemeResource PlayerControlInactiveMediaItemColor}"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <StackPanel Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0">
+                                    <!-- Workaround to avoid layouting problems with LayoutTransform -->
+                                    <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal">
+                                        <StackPanel.LayoutTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform ScaleX="1.1" ScaleY="1.1"/>
+                                            </TransformGroup>
+                                        </StackPanel.LayoutTransform>
+                                        <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}"
+                                                Command="{Command Previous}"/>
+                                        <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="0" IsVisible="{Binding CanSeekBackward}"
+                                                Command="{Command SeekBackward}"/>
+                                        <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                                                Command="{Command Play}"/>
+                                        <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                                                Command="{Command Pause}"/>
+                                        <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
+                                                Command="{Command Stop}"/>
+                                        <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSeekForward}"
+                                                Command="{Command SeekForward}"/>
+                                        <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}"
+                                                Command="{Command Next}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
