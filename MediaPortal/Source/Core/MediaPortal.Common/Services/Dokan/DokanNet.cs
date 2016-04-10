@@ -5,15 +5,16 @@ namespace Dokan
 {
     public class DokanOptions
     {
-        public char DriveLetter;
+        public ushort Version;
         public ushort ThreadCount;
         public bool DebugMode;
         public bool UseStdErr;
         public bool UseAltStream;
-        public bool UseKeepAlive;
         public bool NetworkDrive;
+        public bool RemovableDrive;
         public string VolumeLabel;
-    }
+        public string MountPoint;
+  }
 
 
     // this struct must be the same layout as DOKAN_OPERATIONS
@@ -43,15 +44,21 @@ namespace Dokan
         public Proxy.GetDiskFreeSpaceDelegate GetDiskFreeSpace;
         public Proxy.GetVolumeInformationDelegate GetVolumeInformation;
         public Proxy.UnmountDelegate Unmount;
-    }
+        public Proxy.MountedDelegate Mounted;
+        public Proxy.UnmountedDelegate Unmounted;
+        public Proxy.GetFileSecurityDelegate GetFileSecurity;
+        public Proxy.SetFileSecurityDelegate SetFileSecurity;
+  }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto, Pack = 4)]
     struct DOKAN_OPTIONS
     {
-        public char DriveLetter; // driver letter to be mounted
+        public ushort Version;
         public ushort ThreadCount; // number of threads to be used
         public uint Options;
         public ulong Dummy1;
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public string MountPoint;
     }
 
 
@@ -62,6 +69,10 @@ namespace Dokan
 
         [DllImport("dokan.dll")]
         public static extern int DokanUnmount(int driveLetter);
+
+        [DllImport("dokan.dll")]
+        public static extern int DokanRemoveMountPoint(
+        [MarshalAs(UnmanagedType.LPWStr)] string mountPoint);
 
         [DllImport("dokan.dll")]
         public static extern uint DokanVersion();
@@ -76,26 +87,28 @@ namespace Dokan
 
     public class DokanNet
     {
-        public const int ERROR_FILE_NOT_FOUND       = 2;
-        public const int ERROR_PATH_NOT_FOUND       = 3;
-        public const int ERROR_ACCESS_DENIED        = 5;
-        public const int ERROR_SHARING_VIOLATION    = 32;
-        public const int ERROR_INVALID_NAME         = 123;
-        public const int ERROR_FILE_EXISTS          = 80;
-        public const int ERROR_ALREADY_EXISTS       = 183;
+        public const int ERROR_FILE_NOT_FOUND = 2;
+        public const int ERROR_PATH_NOT_FOUND = 3;
+        public const int ERROR_ACCESS_DENIED = 5;
+        public const int ERROR_SHARING_VIOLATION = 32;
+        public const int ERROR_INVALID_NAME = 123;
+        public const int ERROR_FILE_EXISTS = 80;
+        public const int ERROR_ALREADY_EXISTS = 183;
 
-        public const int DOKAN_SUCCESS              = 0;
-        public const int DOKAN_ERROR                = -1; // General Error
-        public const int DOKAN_DRIVE_LETTER_ERROR   = -2; // Bad Drive letter
+        public const int DOKAN_SUCCESS = 0;
+        public const int DOKAN_ERROR = -1; // General Error
+        public const int DOKAN_DRIVE_LETTER_ERROR = -2; // Bad Drive letter
         public const int DOKAN_DRIVER_INSTALL_ERROR = -3; // Can't install driver
-        public const int DOKAN_START_ERROR          = -4; // Driver something wrong
-        public const int DOKAN_MOUNT_ERROR          = -5; // Can't assign drive letter
+        public const int DOKAN_START_ERROR = -4; // Driver something wrong
+        public const int DOKAN_MOUNT_ERROR = -5; // Can't assign drive letter
+
+        public const int DOKAN_VERSION = 100; // ver 1.0.0
 
         private const uint DOKAN_OPTION_DEBUG = 1;
         private const uint DOKAN_OPTION_STDERR = 2;
         private const uint DOKAN_OPTION_ALT_STREAM = 4;
-        private const uint DOKAN_OPTION_KEEP_ALIVE = 8;
         private const uint DOKAN_OPTION_NETWORK = 16;
+        private const uint DOKAN_OPTION_REMOVABLE = 32;
 
         public static int DokanMain(DokanOptions options, DokanOperations operations)
         {
@@ -108,13 +121,19 @@ namespace Dokan
 
             DOKAN_OPTIONS dokanOptions = new DOKAN_OPTIONS();
 
-            dokanOptions.DriveLetter = options.DriveLetter;
+            dokanOptions.Version = options.Version;
+            if (dokanOptions.Version == 0)
+            {
+              dokanOptions.Version = DOKAN_VERSION;
+            }
+
+            dokanOptions.MountPoint = options.MountPoint;
             dokanOptions.ThreadCount = options.ThreadCount;
             dokanOptions.Options |= options.DebugMode ? DOKAN_OPTION_DEBUG : 0;
             dokanOptions.Options |= options.UseStdErr ? DOKAN_OPTION_STDERR : 0;
             dokanOptions.Options |= options.UseAltStream ? DOKAN_OPTION_ALT_STREAM : 0;
-            dokanOptions.Options |= options.UseKeepAlive ? DOKAN_OPTION_KEEP_ALIVE : 0;
             dokanOptions.Options |= options.NetworkDrive ? DOKAN_OPTION_NETWORK : 0;
+            dokanOptions.Options |= options.RemovableDrive ? DOKAN_OPTION_REMOVABLE : 0;
 
             DOKAN_OPERATIONS dokanOperations = new DOKAN_OPERATIONS();
             dokanOperations.CreateFile = proxy.CreateFileProxy;
@@ -139,6 +158,8 @@ namespace Dokan
             dokanOperations.GetDiskFreeSpace = proxy.GetDiskFreeSpaceProxy;           
             dokanOperations.GetVolumeInformation = proxy.GetVolumeInformationProxy;        
             dokanOperations.Unmount = proxy.UnmountProxy;
+            dokanOperations.Mounted = proxy.MountedProxy;
+            dokanOperations.Unmounted = proxy.UnmountedProxy;
 
             return Dokan.DokanMain(ref dokanOptions, ref dokanOperations);
         }
@@ -149,6 +170,10 @@ namespace Dokan
             return Dokan.DokanUnmount(driveLetter);
         }
 
+        public static int DokanRemoveMountPoint(string mountPoint)
+        {
+            return Dokan.DokanRemoveMountPoint(mountPoint);
+        }
 
         public static uint DokanVersion()
         {

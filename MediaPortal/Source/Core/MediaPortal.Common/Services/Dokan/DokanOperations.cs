@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Security;
 
 namespace Dokan
 {
@@ -51,12 +52,8 @@ namespace Dokan
 
     public interface DokanOperations
     {
-        int CreateFile(
+        int ZwCreateFile(
                 string filename,
-                FileAccess access,
-                FileShare share,
-                FileMode mode,
-                FileOptions options,
                 DokanFileInfo info);
 
         int OpenDirectory(
@@ -81,7 +78,7 @@ namespace Dokan
                 ref uint readBytes,
                 long offset,
                 DokanFileInfo info);
-
+        
         int WriteFile(
                 string filename,
                 byte[] buffer,
@@ -158,6 +155,12 @@ namespace Dokan
                 DokanFileInfo info);
 
         int Unmount(
+                DokanFileInfo info);
+
+        int Mounted(
+                DokanFileInfo info);
+
+        int Unmounted(
                 DokanFileInfo info);
 
     }
