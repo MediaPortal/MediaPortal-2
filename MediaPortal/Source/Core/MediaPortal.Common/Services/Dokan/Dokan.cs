@@ -27,6 +27,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Security;
 using System.Threading;
 using Dokan;
 using MediaPortal.Common.Logging;
@@ -135,7 +136,7 @@ namespace MediaPortal.Common.Services.Dokan
       {
         DokanOptions opt = new DokanOptions
           {
-              DriveLetter = _driveLetter,
+              MountPoint = _driveLetter + "\\",
               VolumeLabel = VOLUME_LABEL,
               //UseKeepAlive = true,
               //DebugMode = true,
@@ -247,18 +248,14 @@ namespace MediaPortal.Common.Services.Dokan
 
     #region DokanOperations implementation
 
-    public int CreateFile(string filename, FileAccess access, FileShare share, FileMode mode, FileOptions options, DokanFileInfo info)
+    public int ZwCreateFile(string filename, DokanFileInfo info)
     {
       lock (_syncObj)
       {
         VirtualFileSystemResource resource = ParseFileName(filename);
         if (resource == null)
           return -DokanNet.ERROR_FILE_NOT_FOUND;
-        FileHandle handle = new FileHandle(resource);
-        info.Context = handle;
-        resource.AddFileHandle(handle);
-        if (resource is VirtualBaseDirectory)
-          info.IsDirectory = true; // Necessary for the Dokan driver to set this, see docs
+        // TODO: create file
         return DokanNet.DOKAN_SUCCESS;
       }
     }
@@ -471,6 +468,15 @@ namespace MediaPortal.Common.Services.Dokan
       return DokanNet.DOKAN_SUCCESS;
     }
 
+    public int Mounted(DokanFileInfo info)
+    {
+      return DokanNet.DOKAN_SUCCESS;
+    }
+
+    public int Unmounted(DokanFileInfo info)
+    {
+      return DokanNet.DOKAN_SUCCESS;
+    }
     #endregion
   }
 }

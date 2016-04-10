@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -36,6 +37,31 @@ namespace Dokan
         public byte SynchronousIo;
         public byte Nocache;
         public byte WriteToEndOfFile;
+    }
+
+    [Flags]
+    enum SECURITY_INFORMATION : uint
+    {
+      OWNER_SECURITY_INFORMATION = 0x00000001,
+      GROUP_SECURITY_INFORMATION = 0x00000002,
+      DACL_SECURITY_INFORMATION = 0x00000004,
+      SACL_SECURITY_INFORMATION = 0x00000008,
+      UNPROTECTED_SACL_SECURITY_INFORMATION = 0x10000000,
+      UNPROTECTED_DACL_SECURITY_INFORMATION = 0x20000000,
+      PROTECTED_SACL_SECURITY_INFORMATION = 0x40000000,
+      PROTECTED_DACL_SECURITY_INFORMATION = 0x80000000
+    }
+
+    [StructLayoutAttribute(LayoutKind.Sequential, Pack = 4)]
+    struct SECURITY_DESCRIPTOR
+    {
+      public byte revision;
+      public byte size;
+      public short control;
+      public IntPtr owner;
+      public IntPtr group;
+      public IntPtr sacl;
+      public IntPtr dacl;
     }
 
 
@@ -214,7 +240,7 @@ namespace Dokan
                         break;
                 }
 
-                int ret = operations_.CreateFile(file, access, share, mode, options, info);
+                int ret = operations_.ZwCreateFile(file, info);
 
                 if (info.IsDirectory)
                     rawFileInfo.IsDirectory = 1;
@@ -935,5 +961,77 @@ namespace Dokan
                 return -1;
             }
         }
+
+        public delegate int GetFileSecurityDelegate(
+            IntPtr rawFileName,
+            ref SECURITY_INFORMATION rawRequestedInformation,
+            ref SECURITY_DESCRIPTOR rawSecurityDescriptor,
+            uint rawSecurityDescriptorLength,
+            ref uint rawSecurityDescriptorLengthNeeded,
+            ref DOKAN_FILE_INFO rawFileInfo);
+
+        public int GetFileSecurity(
+            IntPtr rawFileName,
+            ref SECURITY_INFORMATION rawRequestedInformation,
+            ref SECURITY_DESCRIPTOR rawSecurityDescriptor,
+            uint rawSecurityDescriptorLength,
+            ref uint rawSecurityDescriptorLengthNeeded,
+            ref DOKAN_FILE_INFO rawFileInfo)
+        {
+          return -1;
+        }
+
+        public delegate int SetFileSecurityDelegate(
+            IntPtr rawFileName,
+            ref SECURITY_INFORMATION rawSecurityInformation,
+            ref SECURITY_DESCRIPTOR rawSecurityDescriptor,
+            uint rawSecurityDescriptorLength,
+            ref DOKAN_FILE_INFO rawFileInfo);
+
+        public int SetFileSecurity(
+            IntPtr rawFileName,
+            ref SECURITY_INFORMATION rawSecurityInformation,
+            ref SECURITY_DESCRIPTOR rawSecurityDescriptor,
+            ref uint rawSecurityDescriptorLengthNeeded,
+            ref DOKAN_FILE_INFO rawFileInfo)
+        {
+          return -1;
+        }
+
+
+        public delegate int UnmountedDelegate(
+            ref DOKAN_FILE_INFO rawFileInfo);
+
+        public int UnmountedProxy(
+            ref DOKAN_FILE_INFO rawFileInfo)
+        {
+            try
+            {
+              return operations_.Unmounted(GetFileInfo(ref rawFileInfo));
+            }
+            catch (Exception e)
+            {
+                  Console.Error.WriteLine((e.ToString()));
+                  return -1;
+            }
+        }
+
+        public delegate int MountedDelegate(
+            ref DOKAN_FILE_INFO rawFileInfo);
+
+        public int MountedProxy(
+            ref DOKAN_FILE_INFO rawFileInfo)
+        {
+            try
+            {
+              return operations_.Mounted(GetFileInfo(ref rawFileInfo));
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine((e.ToString()));
+                return -1;
+            }
+        }
+
     }
 }
