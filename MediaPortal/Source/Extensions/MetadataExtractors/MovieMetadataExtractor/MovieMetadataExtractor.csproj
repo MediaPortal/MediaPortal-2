@@ -58,6 +58,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="FanArtProvider\MovieFanartProvider.cs" />
     <Compile Include="Matchers\MatroskaMatcher.cs" />
     <Compile Include="Matchers\NfoReader.cs" />
     <Compile Include="MovieMetadataExtractorSettings.cs" />
@@ -73,6 +74,10 @@
     <ProjectReference Include="..\..\..\..\Incubator\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
       <Name>FanArtService.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
+      <Project>{5b27eb95-b829-40f4-b445-0225ca206f85}</Project>
+      <Name>MediaPortal.Backend</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
