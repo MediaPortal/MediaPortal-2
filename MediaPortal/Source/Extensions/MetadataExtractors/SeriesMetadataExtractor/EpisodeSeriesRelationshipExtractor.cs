@@ -19,18 +19,11 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Drawing;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -68,7 +61,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, SeriesAspect.ATTR_SERIESNAME, out index);
+      return MediaItemAspect.TryGetAttribute(aspects, SeriesAspect.ATTR_SERIES_NAME, out index);
     }
 
     internal static ILogger Logger

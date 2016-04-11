@@ -34,14 +34,14 @@ using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class EpisodeSeasonRelationshipExtractor : IRelationshipRoleExtractor
+  class SeriesProductionRelationshipExtractor : IRelationshipRoleExtractor
   {
-    private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
-    private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
+    private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
+    private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
 
     public Guid Role
     {
-      get { return EpisodeAspect.ROLE_EPISODE; }
+      get { return SeriesAspect.ROLE_SERIES; }
     }
 
     public Guid[] RoleAspects
@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return SeasonAspect.ROLE_SEASON; }
+      get { return CompanyAspect.ROLE_COMPANY; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -63,61 +63,60 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      // Build the season MI
-
-      SeasonInfo seasonInfo;
-      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(aspects, out seasonInfo))
+      SingleMediaItemAspect seriesAspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, SeriesAspect.Metadata, out seriesAspect))
         return false;
 
-      SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo);
-      SeriesTvDbMatcher.Instance.UpdateSeason(seasonInfo);
-      SeriesOmDbMatcher.Instance.UpdateSeason(seasonInfo);
+      IEnumerable<string> productionCompanys = seriesAspect.GetCollectionAttribute<string>(SeriesAspect.ATTR_COMPANYS);
+     
+      // Build the person MI
 
-      if (string.IsNullOrEmpty(seasonInfo.Series))
+      List<CompanyInfo> companys = new List<CompanyInfo>();
+      if (productionCompanys != null)
+        foreach (string company in productionCompanys)
+          companys.Add(new CompanyInfo() { Name = company, Type = CompanyType.ProductionStudio });
+
+      SeriesInfo seriesInfo;
+      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(aspects, out seriesInfo))
+        return false;
+
+      SeriesTheMovieDbMatcher.Instance.UpdateSeriesCompanys(seriesInfo, companys, CompanyType.ProductionStudio);
+      SeriesTvMazeMatcher.Instance.UpdateSeriesCompanys(seriesInfo, companys, CompanyType.ProductionStudio);
+      SeriesTvDbMatcher.Instance.UpdateSeriesCompanys(seriesInfo, companys, CompanyType.ProductionStudio);
+
+      if (companys.Count == 0)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      extractedLinkedAspects.Add(seasonAspects);
 
-      seasonInfo.SetMetadata(seasonAspects);
+      foreach (CompanyInfo company in companys)
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        extractedLinkedAspects.Add(companyAspects);
+        company.SetMetadata(companyAspects);
+      }
       return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      int linkedSeasonNum;
-      if (!MediaItemAspect.TryGetAttribute(linkedAspects, EpisodeAspect.ATTR_SEASON, out linkedSeasonNum))
+      if (!existingAspects.ContainsKey(CompanyAspect.ASPECT_ID))
         return false;
 
-      int existingSeasonNum;
-      if (!MediaItemAspect.TryGetAttribute(existingAspects, SeasonAspect.ATTR_SEASON, out existingSeasonNum))
+      int linkedType;
+      if (!MediaItemAspect.TryGetAttribute(linkedAspects, CompanyAspect.ATTR_COMPANY_TYPE, out linkedType))
         return false;
 
-      return linkedSeasonNum == existingSeasonNum;
+      int existingType;
+      if (!MediaItemAspect.TryGetAttribute(existingAspects, CompanyAspect.ATTR_COMPANY_TYPE, out existingType))
+        return false;
+
+      return linkedType == existingType;
     }
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
     {
-      //index = -1;
-
-      //SingleMediaItemAspect aspect;
-      //if (!MediaItemAspect.TryGetAspect(aspects, EpisodeAspect.Metadata, out aspect))
-      //  return false;
-
-      //IEnumerable<object> indexes = aspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
-      //if (indexes == null)
-      //  return false;
-
-      //IList<object> episodeNums = indexes.ToList();
-      //Logger.Info("Getting first index from [{0}]", string.Join(",", episodeNums));
-      //if (episodeNums.Count == 0)
-      //  return false;
-
-      //index = Int32.Parse(episodeNums.First().ToString());
-      //return true;
-
-      return MediaItemAspect.TryGetAttribute(aspects, EpisodeAspect.ATTR_EPISODE, out index);
+      return MediaItemAspect.TryGetAttribute(aspects, SeriesAspect.ATTR_COMPANYS, out index);
     }
 
     internal static ILogger Logger

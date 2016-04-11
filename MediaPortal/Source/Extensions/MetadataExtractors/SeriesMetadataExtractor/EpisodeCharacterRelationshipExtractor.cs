@@ -34,10 +34,10 @@ using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class EpisodeSeasonRelationshipExtractor : IRelationshipRoleExtractor
+  class EpisodeCharacterRelationshipExtractor : IRelationshipRoleExtractor
   {
-    private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
-    private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
+    private static readonly Guid[] ROLE_ASPECTS = { VideoAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID };
+    private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
 
     public Guid Role
     {
@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return SeasonAspect.ROLE_SEASON; }
+      get { return CharacterAspect.ROLE_CHARACTER; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -63,61 +63,58 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      // Build the season MI
-
-      SeasonInfo seasonInfo;
-      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(aspects, out seasonInfo))
+      SingleMediaItemAspect videoAspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out videoAspect))
         return false;
 
-      SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo);
-      SeriesTvDbMatcher.Instance.UpdateSeason(seasonInfo);
-      SeriesOmDbMatcher.Instance.UpdateSeason(seasonInfo);
+      IEnumerable<string> characters = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_CHARACTERS);
 
-      if (string.IsNullOrEmpty(seasonInfo.Series))
+      // Build the character MI
+
+      List<CharacterInfo> characterInfos = new List<CharacterInfo>();
+      if (characters != null) foreach (string character in characters) characterInfos.Add(new CharacterInfo() { Name = character });
+
+      EpisodeInfo episodeInfo;
+      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(aspects, out episodeInfo))
+        return false;
+
+      SeriesTheMovieDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, characterInfos);
+      SeriesTvMazeMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, characterInfos);
+      SeriesTvDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, characterInfos);
+
+      if (characterInfos.Count == 0)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      extractedLinkedAspects.Add(seasonAspects);
 
-      seasonInfo.SetMetadata(seasonAspects);
+      foreach (CharacterInfo character in characterInfos)
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        extractedLinkedAspects.Add(characterAspects);
+        character.SetMetadata(characterAspects);
+      }
       return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      int linkedSeasonNum;
-      if (!MediaItemAspect.TryGetAttribute(linkedAspects, EpisodeAspect.ATTR_SEASON, out linkedSeasonNum))
+      if (!existingAspects.ContainsKey(CharacterAspect.ASPECT_ID))
         return false;
 
-      int existingSeasonNum;
-      if (!MediaItemAspect.TryGetAttribute(existingAspects, SeasonAspect.ATTR_SEASON, out existingSeasonNum))
+      string linkedName;
+      if (!MediaItemAspect.TryGetAttribute(linkedAspects, CharacterAspect.ATTR_CHARACTER_NAME, out linkedName))
         return false;
 
-      return linkedSeasonNum == existingSeasonNum;
+      string existingName;
+      if (!MediaItemAspect.TryGetAttribute(existingAspects, CharacterAspect.ATTR_CHARACTER_NAME, out existingName))
+        return false;
+
+      return linkedName == existingName;
     }
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
     {
-      //index = -1;
-
-      //SingleMediaItemAspect aspect;
-      //if (!MediaItemAspect.TryGetAspect(aspects, EpisodeAspect.Metadata, out aspect))
-      //  return false;
-
-      //IEnumerable<object> indexes = aspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
-      //if (indexes == null)
-      //  return false;
-
-      //IList<object> episodeNums = indexes.ToList();
-      //Logger.Info("Getting first index from [{0}]", string.Join(",", episodeNums));
-      //if (episodeNums.Count == 0)
-      //  return false;
-
-      //index = Int32.Parse(episodeNums.First().ToString());
-      //return true;
-
-      return MediaItemAspect.TryGetAttribute(aspects, EpisodeAspect.ATTR_EPISODE, out index);
+      return MediaItemAspect.TryGetAttribute(aspects, VideoAspect.ATTR_CHARACTERS, out index);
     }
 
     internal static ILogger Logger
