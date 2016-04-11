@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
-    protected ConcurrentDictionary<string, string> _memoryCache = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    protected ConcurrentDictionary<string, TrackInfo> _memoryCache = new ConcurrentDictionary<string, TrackInfo>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Contains the initialized FanArtTvWrapper.
@@ -89,17 +89,21 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (!Init())
         return false;
 
-      if (!string.IsNullOrEmpty(trackInfo.AlbumMusicBrainzId))
+      if (!string.IsNullOrEmpty(trackInfo.MusicBrainzId))
       {
-        string mbId = "";
+        TrackInfo oldTrackInfo;
         CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(trackInfo.AlbumMusicBrainzId, out mbId))
+        if (_memoryCache.TryGetValue(trackInfo.MusicBrainzId, out oldTrackInfo))
         {
+          //Already downloaded
           return true;
         }
 
-        ScheduleDownload(trackInfo.AlbumMusicBrainzId);
-        return true;
+        if (_memoryCache.TryAdd(trackInfo.MusicBrainzId, trackInfo))
+        {
+          ScheduleDownload(trackInfo.MusicBrainzId);
+          return true;
+        }
       }
       return false;
     }
@@ -146,22 +150,58 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Started for ID {0}", mbId);
 
+        TrackInfo trackInfo;
+        if (!_memoryCache.TryGetValue(mbId, out trackInfo))
+          return;
+
         if (!Init())
           return;
 
-        AlbumDetails thumbs = _fanArt.GetAlbumFanArt(mbId);
-        if (thumbs == null)
+        FanArtAlbumDetails thumbs;
+        if (!_fanArt.GetAlbumFanArt(trackInfo.AlbumGroupMusicBrainzId, out thumbs))
           return;
 
         if (thumbs.Albums.ContainsKey(mbId) == true)
         {
-          // Save Album Covers
-          ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving album covers for ID {0}", mbId);
+          // Save Album Covers and CD Art
+          ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving album banners for ID {0}", mbId);
           SaveBanners(mbId, thumbs.Albums[mbId].AlbumCovers.OrderByDescending(b => b.Likes).ToList(), "Covers");
-
-          //Save CD Art
           SaveBanners(mbId, thumbs.Albums[mbId].CDArts.OrderByDescending(b => b.Likes).ToList(), "CDArt");
         }
+
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving artist banners for ID {0}", mbId);
+        FanArtArtistThumbs artistThumbs;
+        foreach (PersonInfo person in trackInfo.Artists.Where(p => !string.IsNullOrEmpty(p.MusicBrainzId)))
+        {
+          if (_fanArt.GetArtistFanArt(person.MusicBrainzId, out artistThumbs))
+          {
+            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
+            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistFanart.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
+            SaveBanners(person.MusicBrainzId, artistThumbs.HDArtistLogos.OrderByDescending(b => b.Likes).ToList(), "Logos");
+            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistThumbnails.OrderByDescending(b => b.Likes).ToList(), "Thumbnails");
+          }
+        }
+        foreach (PersonInfo person in trackInfo.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.MusicBrainzId)))
+        {
+          if (_fanArt.GetArtistFanArt(person.MusicBrainzId, out artistThumbs))
+          {
+            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
+            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistFanart.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
+            SaveBanners(person.MusicBrainzId, artistThumbs.HDArtistLogos.OrderByDescending(b => b.Likes).ToList(), "Logos");
+            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistThumbnails.OrderByDescending(b => b.Likes).ToList(), "Thumbnails");
+          }
+        }
+
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving label banners for ID {0}", mbId);
+        FanArtLabelThumbs labelThumbs;
+        foreach (CompanyInfo company in trackInfo.MusicLabels.Where(l => !string.IsNullOrEmpty(l.MusicBrainzId)))
+        {
+          if (_fanArt.GetLabelFanArt(company.MusicBrainzId, out labelThumbs))
+          {
+            SaveBanners(company.MusicBrainzId, labelThumbs.LabelLogos.OrderByDescending(b => b.Likes).ToList(), "Logos");
+          }
+        }
+
         ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Finished ID {0}", mbId);
 
         TrackMatch onlineMatch = new TrackMatch
@@ -182,13 +222,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private int SaveBanners(string id, IEnumerable<Thumb> banners, string category)
+    private int SaveBanners(string id, IEnumerable<FanArtThumb> banners, string category)
     {
       if (banners == null)
         return 0;
 
       int idx = 0;
-      foreach (Thumb banner in banners)
+      foreach (FanArtThumb banner in banners)
       {
         if (idx >= MAX_FANART_IMAGES)
           break;

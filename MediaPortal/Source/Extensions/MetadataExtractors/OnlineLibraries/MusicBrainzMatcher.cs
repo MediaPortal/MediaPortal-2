@@ -35,6 +35,8 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.MusicBrainz;
 using System.IO;
+using System.Linq;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -74,47 +76,71 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       Track trackDetails;
       if (
-        /* Best way is to get details by an unique IMDB id */
+        /* Best way is to get details by an unique MusicBrainz id */
         MatchByMusicBrainzId(trackInfo, out trackDetails) ||
-        TryMatch(trackInfo.Title, trackInfo.Artists.ToArray(), trackInfo.Album, 
+        TryMatch(trackInfo.TrackName, trackInfo.Artists.Select(a => a.Name).ToList(), trackInfo.Album, 
         trackInfo.ReleaseDate.HasValue ? trackInfo.ReleaseDate.Value.Year : 0, trackInfo.TrackNum, false, out trackDetails)
         )
       {
-        string albumId = null;
+        string mbid = null;
         if (trackDetails != null)
         {
-          albumId = trackDetails.AlbumId;
-          trackInfo.AlbumMusicBrainzId = trackDetails.AlbumId;
+          mbid = trackDetails.Id;
 
-          trackInfo.Title = trackDetails.Title;
-          trackInfo.Artists.Clear();
-          trackInfo.Artists.AddRange(trackDetails.TrackArtists);
-          trackInfo.Composers.Clear();
-          trackInfo.Composers.AddRange(trackDetails.Composers);
-          trackInfo.Album = trackDetails.Album;
-          trackInfo.AlbumArtists.Clear();
-          trackInfo.AlbumArtists.AddRange(trackDetails.AlbumArtists);
+          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzId, trackDetails.AlbumId);
+          MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackDetails.Id);
+
+          MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackDetails.Title, true);
+          MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackDetails.Album, true);
+          MetadataUpdater.SetOrUpdateValue(ref trackInfo.ReleaseDate, trackDetails.ReleaseDate);
+          MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, trackDetails.TrackNum);
+          MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalTracks, trackDetails.TotalTracks);
+          MetadataUpdater.SetOrUpdateValue(ref trackInfo.DiscNum, trackDetails.DiscId);
+          MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalRating, trackDetails.RatingValue > 0 ? trackDetails.RatingValue * 2.0 : 0);
+          MetadataUpdater.SetOrUpdateValue(ref trackInfo.RatingCount, trackDetails.RatingVotes);
+
+          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, ConvertToPersons(trackDetails.TrackArtists, PersonOccupation.Artist), true);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Composers, ConvertToPersons(trackDetails.Composers, PersonOccupation.Composer), true);
+          MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, ConvertToPersons(trackDetails.AlbumArtists, PersonOccupation.Artist), true);
           //Tags are not really good as genre
-          //trackInfo.Genres.Clear(); 
-          //trackInfo.Genres.AddRange(trackDetails.TagValues);
-          trackInfo.TrackNum = trackDetails.TrackNum;
-          trackInfo.TotalTracks = trackDetails.TotalTracks;
-          trackInfo.DiscNum = trackDetails.DiscId;
-          trackInfo.TotalRating = trackDetails.RatingValue * 2.0; //From 5 star to 10 star
-          trackInfo.RatingCount = trackDetails.RatingVotes;
-          trackInfo.MusicBrainzId = trackDetails.Id;
+          //MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackDetails.TagValues, false);
 
-          if (trackDetails.ReleaseDate.HasValue)
+          TrackRelease trackRelease;
+          if(_musicBrainzDb.GetAlbum(trackDetails.AlbumId, out trackRelease))
           {
-            trackInfo.ReleaseDate = trackDetails.ReleaseDate;
+            MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumGroupMusicBrainzId, trackRelease.ReleaseGroup.Id);
+
+            MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, ConvertToCompanys(trackRelease.Labels, CompanyType.MusicLabel), true);
           }
         }
 
-        if (!string.IsNullOrEmpty(albumId))
-          ScheduleDownload(albumId);
+        if (!string.IsNullOrEmpty(mbid))
+          ScheduleDownload(mbid);
         return true;
       }
       return false;
+    }
+
+    private List<PersonInfo> ConvertToPersons(List<TrackArtist> artist, PersonOccupation occupation)
+    {
+      if (artist == null || artist.Count == 0)
+        return new List<PersonInfo>();
+
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (TrackArtist person in artist)
+        retValue.Add(new PersonInfo() { MusicBrainzId = person.Id, Name = person.Name, Occupation = occupation });
+      return retValue;
+    }
+
+    private List<CompanyInfo> ConvertToCompanys(List<TrackLabel> companys, CompanyType type)
+    {
+      if (companys == null || companys.Count == 0)
+        return new List<CompanyInfo>();
+
+      List<CompanyInfo> retValue = new List<CompanyInfo>();
+      foreach (TrackLabel label in companys)
+        retValue.Add(new CompanyInfo() { MusicBrainzId = label.Label.Id, Name = label.Label.Name, Type = type });
+      return retValue;
     }
 
     private bool MatchByMusicBrainzId(TrackInfo trackInfo, out Track trackDetails)
@@ -125,7 +151,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         TrackMatch onlineMatch = new TrackMatch
         {
           Id = trackDetails.Id,
-          ItemName = trackDetails.Title,
+          ItemName = trackInfo.TrackName,
+          TrackName = trackDetails.Title
         };
         // Save cache
         _storage.TryAddMatch(onlineMatch);
@@ -135,7 +162,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    protected bool TryMatch(string title, string[] artists, string album, int year, int trackNum, bool cacheOnly, out Track trackDetail)
+    protected bool TryMatch(string title, List<string> artists, string album, int year, int trackNum, bool cacheOnly, out Track trackDetail)
     {
       trackDetail = null;
       try
@@ -152,7 +179,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         TrackMatch match = null;
 
         match = matches.Find(m =>
-          string.Equals(m.TrackName, title, StringComparison.OrdinalIgnoreCase));
+          string.Equals(m.TrackName, title, StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(m.ItemName, title, StringComparison.OrdinalIgnoreCase));
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Try to lookup track \"{0}\" from cache: {1}", title, match != null && string.IsNullOrEmpty(match.Id) == false);
 
         // Try online lookup
@@ -179,8 +207,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
             TrackMatch onlineMatch = new TrackMatch
               {
                 Id = trackDetail.Id,
-                ItemName = trackDetail.Title,
-                TrackName = title
+                ItemName = title,
+                TrackName = trackDetail.Title
               };
 
             // Save cache
@@ -244,11 +272,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
-        TrackImageCollection imageCollection;
-        if (!_musicBrainzDb.GetAlbumFanArt(musicBrainzId, out imageCollection))
+        Track track;
+        if (!_musicBrainzDb.GetTrack(musicBrainzId, out track))
           return;
 
-        // Save Cover
+        TrackImageCollection imageCollection;
+        if (!_musicBrainzDb.GetAlbumFanArt(track.AlbumId, out imageCollection))
+          return;
+
+        // Save Cover and CDArt
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download: Begin saving fanarts for ID {0}", musicBrainzId);
         DownloadImages(musicBrainzId, imageCollection, "Front", "Covers");
         DownloadImages(musicBrainzId, imageCollection, "Medium", "CDArt");
@@ -285,9 +317,5 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       return idx;
     }
-
-
-
-
   }
 }

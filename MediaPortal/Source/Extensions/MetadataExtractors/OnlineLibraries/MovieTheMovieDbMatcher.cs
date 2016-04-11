@@ -36,6 +36,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -104,44 +105,39 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (movieDetails != null)
         {
           movieDbId = movieDetails.Id;
-          movieInfo.MovieName = movieDetails.Title;
-          movieInfo.OriginalName = movieDetails.OriginalTitle;
-          movieInfo.Summary = movieDetails.Overview;
-          movieInfo.Tagline = movieDetails.Tagline;
-          if (movieDetails.Budget.HasValue) movieInfo.Budget = movieDetails.Budget.Value;
-          if (movieDetails.Revenue.HasValue) movieInfo.Revenue = movieDetails.Revenue.Value;
-          if (movieDetails.Runtime.HasValue) movieInfo.Runtime = movieDetails.Runtime.Value;
-          if (movieDetails.Popularity.HasValue) movieInfo.Popularity = movieDetails.Popularity.Value;
-          if (movieDetails.Rating.HasValue) movieInfo.TotalRating = movieDetails.Rating.Value;
-          if (movieDetails.RatingCount.HasValue) movieInfo.RatingCount = movieDetails.RatingCount.Value;
-          movieInfo.ImDbId = movieDetails.ImdbId;
-          movieInfo.MovieDbId = movieDetails.Id;
-          if (movieDetails.Genres.Count > 0)
-          {
-            movieInfo.Genres.Clear();
-            movieInfo.Genres.AddRange(movieDetails.Genres.Select(p => p.Name));
-          }
 
+          MetadataUpdater.SetOrUpdateId(ref movieInfo.ImDbId, movieDetails.ImdbId);
+          MetadataUpdater.SetOrUpdateId(ref movieInfo.MovieDbId, movieDetails.Id);
+
+          MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, movieDetails.Title, false);
+          MetadataUpdater.SetOrUpdateString(ref movieInfo.OriginalName, movieDetails.OriginalTitle, false);
+          MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, movieDetails.Overview, false);
+          MetadataUpdater.SetOrUpdateString(ref movieInfo.Tagline, movieDetails.Tagline, false);
+
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, movieDetails.ReleaseDate);
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Budget, movieDetails.Budget.HasValue ? movieDetails.Budget.Value : 0);
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Revenue, movieDetails.Revenue.HasValue ? movieDetails.Revenue.Value : 0);
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Runtime, movieDetails.Runtime.HasValue ? movieDetails.Runtime.Value : 0);
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Popularity, movieDetails.Popularity.HasValue ? movieDetails.Popularity.Value : 0);
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.TotalRating, movieDetails.Rating.HasValue ? movieDetails.Rating.Value : 0);
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.RatingCount, movieDetails.RatingCount.HasValue ? movieDetails.RatingCount.Value : 0);
+
+          MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieDetails.Genres.Select(p => p.Name).ToList(), true);
+          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanys, ConvertToCompanys(movieDetails.ProductionCompanies, CompanyType.ProductionStudio), true);
+         
           MovieCasts movieCasts;
           if (_movieDb.GetMovieCast(movieDbId, out movieCasts))
           {
-            movieInfo.Actors.Clear();
-            movieInfo.Actors.AddRange(movieCasts.Cast.Select(p => p.Name));
-            movieInfo.Directors.Clear();
-            movieInfo.Directors.AddRange(movieCasts.Crew.Where(p => p.Job == "Director").Select(p => p.Name));
-            movieInfo.Writers.Clear();
-            movieInfo.Writers.AddRange(movieCasts.Crew.Where(p => p.Job == "Author").Select(p => p.Name));
-          }
-          if (movieDetails.ReleaseDate.HasValue)
-          {
-            movieInfo.ReleaseDate = movieDetails.ReleaseDate.Value;
+            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieCasts.Cast, PersonOccupation.Actor), true);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonOccupation.Writer), true);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), PersonOccupation.Director), true);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Characters, ConvertToCharacters(movieInfo.MovieDbId, movieInfo.MovieName, movieCasts.Cast), true);
           }
 
-          if (movieDetails.Collection != null &&
-            movieDetails.Collection.Id > 0)
+          if (movieDetails.Collection != null && movieDetails.Collection.Id > 0)
           {
-            movieInfo.CollectionMovieDbId = movieDetails.Collection.Id;
-            movieInfo.CollectionName = movieDetails.Collection.Name;
+            MetadataUpdater.SetOrUpdateId(ref movieInfo.CollectionMovieDbId, movieDetails.Collection.Id);
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.CollectionName, movieDetails.Collection.Name, false);
           }
         }
 
@@ -150,6 +146,58 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return true;
       }
       return false;
+    }
+
+    private List<PersonInfo> ConvertToPersons(List<CrewItem> crew, PersonOccupation occupation)
+    {
+      if (crew == null || crew.Count == 0)
+        return new List<PersonInfo>();
+
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (CrewItem person in crew)
+        retValue.Add(new PersonInfo() { MovieDbId = person.PersonId, Name = person.Name, Occupation = occupation });
+      return retValue;
+    }
+
+    private List<PersonInfo> ConvertToPersons(List<CastItem> cast, PersonOccupation occupation)
+    {
+      if (cast == null || cast.Count == 0)
+        return new List<PersonInfo>();
+
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (CastItem person in cast)
+        retValue.Add(new PersonInfo() { MovieDbId = person.PersonId, Name = person.Name, Occupation = occupation });
+      return retValue;
+    }
+
+    private List<CharacterInfo> ConvertToCharacters(int movieId, string movieTitle, List<CastItem> characters)
+    {
+      if (characters == null || characters.Count == 0)
+        return new List<CharacterInfo>();
+
+      List<CharacterInfo> retValue = new List<CharacterInfo>();
+      foreach (CastItem person in characters)
+        retValue.Add(new CharacterInfo()
+        {
+          MediaIsMovie = true,
+          MediaMovieDbId = movieId,
+          MediaTitle = movieTitle,
+          ActorMovieDbId = person.PersonId,
+          ActorName = person.Name,
+          Name = person.Character
+        });
+      return retValue;
+    }
+
+    private List<CompanyInfo> ConvertToCompanys(List<ProductionCompany> companys, CompanyType type)
+    {
+      if (companys == null || companys.Count == 0)
+        return new List<CompanyInfo>();
+
+      List<CompanyInfo> retValue = new List<CompanyInfo>();
+      foreach (ProductionCompany company in companys)
+        retValue.Add(new CompanyInfo() { MovieDbId = company.Id, Name = company.Name, Type = type });
+      return retValue;
     }
 
     private static string FindBestMatchingLanguage(MovieInfo movieInfo)
@@ -329,9 +377,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!int.TryParse(movieDbId, out tmDb))
           return;
 
-          // If movie belongs to a collection, also download collection poster and fanart
-          Movie movie;
-        if (_movieDb.GetMovie(tmDb, out movie) && movie.Collection != null)
+        // If movie belongs to a collection, also download collection poster and fanart
+        Movie movie;
+        if (!_movieDb.GetMovie(tmDb, out movie))
+          return;
+
+        if(movie.Collection != null)
           SaveBanners(movie.Collection);
 
         ImageCollection imageCollection;
@@ -341,8 +392,48 @@ namespace MediaPortal.Extensions.OnlineLibraries
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Begin saving banners for ID {0}", movieDbId);
         SaveBanners(imageCollection.Backdrops, "Backdrops");
-        SaveBanners(imageCollection.Covers, "Covers");
         SaveBanners(imageCollection.Posters, "Posters");
+
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Begin saving cast and crew for ID {0}", movieDbId);
+        MovieCasts movieCasts;
+        if (_movieDb.GetMovieCast(tmDb, out movieCasts))
+        {
+          foreach(CastItem actor in movieCasts.Cast)
+          {
+            if(_movieDb.GetPersonFanArt(actor.PersonId, out imageCollection))
+            {
+              SaveBanners(imageCollection.Profiles, "Thumbnails");
+            }
+          }
+          foreach (CrewItem crew in movieCasts.Crew.Where(p => p.Job == "Director").ToList())
+          {
+            if (_movieDb.GetPersonFanArt(crew.PersonId, out imageCollection))
+            {
+              SaveBanners(imageCollection.Profiles, "Thumbnails");
+            }
+          }
+          foreach (CrewItem crew in movieCasts.Crew.Where(p => p.Job == "Author").ToList())
+          {
+            if (_movieDb.GetPersonFanArt(crew.PersonId, out imageCollection))
+            {
+              SaveBanners(imageCollection.Profiles, "Thumbnails");
+            }
+          }
+        }
+
+        //Save company banners
+        Company company;
+        foreach (ProductionCompany proCompany in movie.ProductionCompanies)
+        {
+          if (_movieDb.GetCompany(proCompany.Id, out company))
+          {
+            ImageItem image = new ImageItem();
+            image.Id = company.Id;
+            image.FilePath = company.LogoPath;
+            SaveBanners(new ImageItem[] { image }, "Logos");
+          }
+        }
+
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Finished saving banners for ID {0}", movieDbId);
 
         // Remember we are finished

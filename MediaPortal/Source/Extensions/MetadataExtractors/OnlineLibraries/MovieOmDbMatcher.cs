@@ -33,6 +33,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
 using MediaPortal.Extensions.OnlineLibraries.OmDB;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -63,7 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
-    protected ConcurrentDictionary<string, Movie> _memoryCache = new ConcurrentDictionary<string, Movie>(StringComparer.OrdinalIgnoreCase);
+    protected ConcurrentDictionary<string, OmDbMovie> _memoryCache = new ConcurrentDictionary<string, OmDbMovie>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Contains the initialized OmDbWrapper.
@@ -81,7 +82,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       /* Clear the names from unwanted strings */
       NamePreprocessor.CleanupTitle(movieInfo);
-      Movie movieDetails;
+      OmDbMovie movieDetails;
       if (
         /* Best way is to get details by an unique IMDB id */
         MatchByImdbId(movieInfo, out movieDetails) ||
@@ -93,52 +94,75 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         if (movieDetails != null)
         {
-          movieInfo.ImDbId = movieDetails.ImdbID;
-          movieInfo.MovieName = movieDetails.Title;
-          movieInfo.Summary = movieDetails.Plot;
-          if(!string.IsNullOrEmpty(movieDetails.Rated)) movieInfo.Certification = movieDetails.Rated;
-          if (movieDetails.Revenue.HasValue) movieInfo.Revenue = movieDetails.Revenue.Value;
-          if (movieDetails.Runtime.HasValue) movieInfo.Runtime = movieDetails.Runtime.Value;
+          MetadataUpdater.SetOrUpdateId(ref movieInfo.ImDbId, movieDetails.ImdbID);
+          MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, movieDetails.Title, true);
+          MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, movieDetails.Plot, true);
+          MetadataUpdater.SetOrUpdateString(ref movieInfo.Certification, movieDetails.Rated, true);
+
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Revenue, movieDetails.Revenue.HasValue ? movieDetails.Revenue.Value : 0);
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Runtime, movieDetails.Runtime.HasValue ? movieDetails.Runtime.Value : 0);
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, movieDetails.Released);
+
+          List<string> awards = new List<string>();
+          if(!string.IsNullOrEmpty(movieDetails.Awards))
+          {
+            if(movieDetails.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase)  >= 0 || 
+              movieDetails.Awards.IndexOf(" Oscar", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+              awards.Add("Oscar");
+            }
+            if (movieDetails.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+              movieDetails.Awards.IndexOf(" Golden Globe", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            {
+              awards.Add("Golden Globe");
+            }
+            MetadataUpdater.SetOrUpdateList(movieInfo.Awards, awards, true);
+          }
+
           if (movieDetails.ImdbRating.HasValue)
           {
-            movieInfo.TotalRating = movieDetails.ImdbRating.Value;
-            if (movieDetails.ImdbVotes.HasValue)
-              movieInfo.RatingCount = movieDetails.ImdbVotes.Value;
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.TotalRating, movieDetails.ImdbRating.HasValue ? movieDetails.ImdbRating.Value : 0);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.RatingCount, movieDetails.ImdbVotes.HasValue ? movieDetails.ImdbVotes.Value : 0);
           }
           else if (movieDetails.TomatoRating.HasValue)
           {
-            movieInfo.TotalRating = movieDetails.TomatoRating.Value;
-            if (movieDetails.TomatoTotalReviews.HasValue)
-              movieInfo.RatingCount = movieDetails.TomatoTotalReviews.Value;
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.TotalRating, movieDetails.TomatoRating.HasValue ? movieDetails.TomatoRating.Value : 0);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.RatingCount, movieDetails.TomatoTotalReviews.HasValue ? movieDetails.TomatoTotalReviews.Value : 0);
           }
           else if (movieDetails.TomatoUserRating.HasValue)
           {
-            movieInfo.TotalRating = movieDetails.TomatoUserRating.Value;
-            if (movieDetails.TomatoUserTotalReviews.HasValue)
-              movieInfo.RatingCount = movieDetails.TomatoUserTotalReviews.Value;
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.TotalRating, movieDetails.TomatoUserRating.HasValue ? movieDetails.TomatoUserRating.Value : 0);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.RatingCount, movieDetails.TomatoUserTotalReviews.HasValue ? movieDetails.TomatoUserTotalReviews.Value : 0);
           }
-          if (movieDetails.Genres.Count > 0)
-          {
-            movieInfo.Genres.Clear();
-            movieInfo.Genres.AddRange(movieDetails.Genres);
-          }
+          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Score, movieDetails.Metascore.HasValue ? movieDetails.Metascore.Value : 0);
+
+          MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieDetails.Genres, false);
 
           //Only use these if absolutely necessary because there is no way to ID them
-          if(movieInfo.Actors.Count == 0) movieInfo.Actors.AddRange(movieDetails.Actors);
-          if (movieInfo.Writers.Count == 0) movieInfo.Writers.AddRange(movieDetails.Writers);
-          if (movieInfo.Directors.Count == 0) movieInfo.Directors.AddRange(movieDetails.Directors);
-
-          if (movieDetails.Released.HasValue)
-          {
-            movieInfo.ReleaseDate = movieDetails.Released.Value;
-          }
+          if (movieInfo.Actors.Count == 0)
+            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieDetails.Actors, PersonOccupation.Actor), false);
+          if (movieInfo.Writers.Count == 0)
+            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieDetails.Writers, PersonOccupation.Writer), false);
+          if (movieInfo.Directors.Count == 0)
+            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieDetails.Directors, PersonOccupation.Director), false);
         }
         return true;
       }
       return false;
     }
 
-    private bool MatchByImdbId(MovieInfo movieInfo, out Movie movieDetails)
+    private List<PersonInfo> ConvertToPersons(List<string> names, PersonOccupation occupation)
+    {
+      if (names == null || names.Count == 0)
+        return new List<PersonInfo>();
+
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (string name in names)
+        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation });
+      return retValue;
+    }
+
+    private bool MatchByImdbId(MovieInfo movieInfo, out OmDbMovie movieDetails)
     {
       if (!string.IsNullOrEmpty(movieInfo.ImDbId) && _omDb.GetMovie(movieInfo.ImDbId, out movieDetails))
       {
@@ -149,7 +173,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    protected bool TryMatch(string movieName, int year, bool cacheOnly, out Movie movieDetail)
+    protected bool TryMatch(string movieName, int year, bool cacheOnly, out OmDbMovie movieDetail)
     {
       movieDetail = null;
       try
@@ -182,10 +206,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (cacheOnly)
           return false;
 
-        List<SearchItem> movies;
+        List<OmDbSearchItem> movies;
         if (_omDb.SearchMovieUnique(movieName, year, out movies))
         {
-          SearchItem movieResult = movies[0];
+          OmDbSearchItem movieResult = movies[0];
           ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Found unique online match for \"{0}\": \"{1}\"", movieName, movieResult.Title);
           if (_omDb.GetMovie(movies[0].ImdbID, out movieDetail))
           {
@@ -210,7 +234,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private void SaveMatchToPersistentCache(Movie movieDetails, string movieName)
+    private void SaveMatchToPersistentCache(OmDbMovie movieDetails, string movieName)
     {
       var onlineMatch = new MovieMatch
       {

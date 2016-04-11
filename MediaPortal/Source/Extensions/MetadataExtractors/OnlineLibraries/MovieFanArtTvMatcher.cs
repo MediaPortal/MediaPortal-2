@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
-    protected ConcurrentDictionary<int, int> _memoryCache = new ConcurrentDictionary<int, int>();
+    protected ConcurrentDictionary<string, MovieInfo> _memoryCache = new ConcurrentDictionary<string, MovieInfo>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Contains the initialized FanArtTvWrapper.
@@ -89,17 +89,21 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (!Init())
         return false;
 
-      int id = 0;
       if (movieInfo.MovieDbId > 0)
       {
         CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(movieInfo.MovieDbId, out id))
+        MovieInfo oldMovieInfo;
+        if (_memoryCache.TryGetValue(movieInfo.MovieDbId.ToString(), out oldMovieInfo))
         {
+          //Already downloaded
           return true;
         }
 
-        ScheduleDownload(movieInfo.MovieDbId.ToString());
-        return true;
+        if (_memoryCache.TryAdd(movieInfo.MovieDbId.ToString(), movieInfo))
+        {
+          ScheduleDownload(movieInfo.MovieDbId.ToString());
+          return true;
+        }
       }
       return false;
     }
@@ -146,12 +150,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Started for ID {0}", tmDbid);
 
+        MovieInfo movieInfo;
+        if (!_memoryCache.TryGetValue(tmDbid, out movieInfo))
+          return;
+
         if (!Init())
           return;
 
         string id = tmDbid.ToString();
-        MovieThumbs thumbs = _fanArt.GetMovieFanArt(id);
-        if (thumbs == null)
+        FanArtMovieThumbs thumbs;
+        if (!_fanArt.GetMovieFanArt(id, out thumbs))
           return;
 
         // Save Banners
@@ -159,11 +167,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
         SaveBanners(id, thumbs.MovieFanArt.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
         SaveBanners(id, thumbs.MovieBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
         SaveBanners(id, thumbs.MoviePosters.OrderByDescending(b => b.Likes).ToList(), "Posters");
+        SaveBanners(id, thumbs.MovieCDArt.OrderByDescending(b => b.Likes).ToList(), "DVDArt");
+        SaveBanners(id, thumbs.HDMovieClearArt.OrderByDescending(b => b.Likes).ToList(), "ClearArt");
+        SaveBanners(id, thumbs.HDMovieLogos.OrderByDescending(b => b.Likes).ToList(), "Logos");
+        SaveBanners(id, thumbs.MovieThumbnails.OrderByDescending(b => b.Likes).ToList(), "Thumbnails");
+
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Finished saving banners for ID {0}", tmDbid);
 
         MovieMatch onlineMatch = new MovieMatch
         {
-          ItemName = tmDbid.ToString(),
+          ItemName = tmDbid,
           Id = tmDbid
         };
 
@@ -179,13 +192,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private int SaveBanners(string id, IEnumerable<MovieThumb> banners, string category)
+    private int SaveBanners(string id, IEnumerable<FanArtMovieThumb> banners, string category)
     {
       if (banners == null)
         return 0;
 
       int idx = 0;
-      foreach (MovieThumb banner in banners.Where(b => b.Language == null || b.Language == _fanArt.PreferredLanguage))
+      foreach (FanArtMovieThumb banner in banners.Where(b => b.Language == null || b.Language == _fanArt.PreferredLanguage))
       {
         if (idx >= MAX_FANART_IMAGES)
           break;
