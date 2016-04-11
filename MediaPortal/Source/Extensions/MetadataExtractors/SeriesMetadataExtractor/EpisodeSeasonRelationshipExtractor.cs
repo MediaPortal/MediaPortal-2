@@ -66,7 +66,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       // Build the season MI
 
       SeasonInfo seasonInfo;
-      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(aspects, out seasonInfo))
+      if (!SeriesRelationshipExtractor.GetBaseInfo(aspects, out seasonInfo))
         return false;
 
       SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo);

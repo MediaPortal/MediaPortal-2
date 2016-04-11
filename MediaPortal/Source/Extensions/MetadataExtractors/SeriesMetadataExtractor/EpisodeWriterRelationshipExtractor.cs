@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (writers != null) foreach (string person in writers) persons.Add(new PersonInfo() { Name = person, Occupation = PersonOccupation.Writer });
 
       EpisodeInfo episodeInfo;
-      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(aspects, out episodeInfo))
+      if (!SeriesRelationshipExtractor.GetBaseInfo(aspects, out episodeInfo))
         return false;
 
       SeriesTheMovieDbMatcher.Instance.UpdateEpisodePersons(episodeInfo, persons, PersonOccupation.Writer);

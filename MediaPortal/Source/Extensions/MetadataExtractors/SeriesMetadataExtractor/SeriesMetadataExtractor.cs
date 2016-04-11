@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       EpisodeInfo episodeInfo;
-      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(extractedAspectData, out episodeInfo))
+      if (!SeriesRelationshipExtractor.GetBaseInfo(extractedAspectData, out episodeInfo))
         return false;
 
       string title = null;

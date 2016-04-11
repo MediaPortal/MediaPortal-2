@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           companys.Add(new CompanyInfo() { Name = company, Type = CompanyType.ProductionStudio });
 
       SeriesInfo seriesInfo;
-      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(aspects, out seriesInfo))
+      if (!SeriesRelationshipExtractor.GetBaseInfo(aspects, out seriesInfo))
         return false;
 
       SeriesTheMovieDbMatcher.Instance.UpdateSeriesCompanys(seriesInfo, companys, CompanyType.ProductionStudio);

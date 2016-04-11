@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           characterInfos.Add(new CharacterInfo() { Name = character });
 
       SeriesInfo seriesInfo;
-      if (!SeriesBaseTryExtractRelationships.GetBaseInfo(aspects, out seriesInfo))
+      if (!SeriesRelationshipExtractor.GetBaseInfo(aspects, out seriesInfo))
         return false;
 
       SeriesTheMovieDbMatcher.Instance.UpdateSeriesCharacters(seriesInfo, characterInfos);
