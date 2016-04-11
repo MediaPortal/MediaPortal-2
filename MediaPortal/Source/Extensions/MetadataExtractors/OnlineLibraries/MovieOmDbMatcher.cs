@@ -140,12 +140,34 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
           //Only use these if absolutely necessary because there is no way to ID them
           if (movieInfo.Actors.Count == 0)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieDetails.Actors, PersonOccupation.Actor), false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieDetails.Actors, PersonOccupation.Actor), true);
           if (movieInfo.Writers.Count == 0)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieDetails.Writers, PersonOccupation.Writer), false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieDetails.Writers, PersonOccupation.Writer), true);
           if (movieInfo.Directors.Count == 0)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieDetails.Directors, PersonOccupation.Director), false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieDetails.Directors, PersonOccupation.Director), true);
         }
+        return true;
+      }
+      return false;
+    }
+
+    public bool UpdateMoviePersons(MovieInfo movieInfo, List<PersonInfo> persons, PersonOccupation occupation)
+    {
+      OmDbMovie movieDetails;
+
+      // Try online lookup
+      if (!Init())
+        return false;
+
+      if (!string.IsNullOrEmpty(movieInfo.ImDbId) && _omDb.GetMovie(movieInfo.ImDbId, out movieDetails))
+      {
+        if (occupation == PersonOccupation.Actor)
+          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieDetails.Actors, PersonOccupation.Actor), false);
+        if (occupation == PersonOccupation.Writer)
+          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieDetails.Writers, PersonOccupation.Writer), false);
+        if (occupation == PersonOccupation.Director)
+          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieDetails.Directors, PersonOccupation.Director), false);
+
         return true;
       }
       return false;

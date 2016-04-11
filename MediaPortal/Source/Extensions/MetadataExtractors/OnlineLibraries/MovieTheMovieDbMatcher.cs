@@ -148,6 +148,64 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
+    public bool UpdateMoviePersons(MovieInfo movieInfo, List<PersonInfo> persons, PersonOccupation occupation)
+    {
+      // Try online lookup
+      if (!Init())
+        return false;
+
+      MovieCasts movieCasts;
+      if (movieInfo.MovieDbId > 0 && _movieDb.GetMovieCast(movieInfo.MovieDbId, out movieCasts))
+      {
+        if(occupation == PersonOccupation.Actor)
+          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieCasts.Cast, PersonOccupation.Actor), false);
+        if (occupation == PersonOccupation.Writer)
+          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonOccupation.Writer), false);
+        if (occupation == PersonOccupation.Director)
+          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), PersonOccupation.Director), false);
+
+        return true;
+      }
+      return false;
+    }
+
+    public bool UpdateMovieCharacters(MovieInfo movieInfo, List<CharacterInfo> characters)
+    {
+      // Try online lookup
+      if (!Init())
+        return false;
+
+      MovieCasts movieCasts;
+      if (movieInfo.MovieDbId > 0 && _movieDb.GetMovieCast(movieInfo.MovieDbId, out movieCasts))
+      {
+        MetadataUpdater.SetOrUpdateList(characters, ConvertToCharacters(movieInfo.MovieDbId, movieInfo.MovieName, movieCasts.Cast), false);
+
+        return true;
+      }
+      return false;
+    }
+
+    public bool UpdateMovieCompanys(MovieInfo movieInfo, List<CompanyInfo> companys, CompanyType type)
+    {
+      Movie movieDetails;
+
+      // Try online lookup
+      if (!Init())
+        return false;
+
+      if (type != CompanyType.ProductionStudio)
+        return false;
+
+      if (movieInfo.MovieDbId > 0 && _movieDb.GetMovie(movieInfo.MovieDbId, out movieDetails))
+      {
+        if (type == CompanyType.ProductionStudio)
+          MetadataUpdater.SetOrUpdateList(companys, ConvertToCompanys(movieDetails.ProductionCompanies, CompanyType.ProductionStudio), false);
+
+        return true;
+      }
+      return false;
+    }
+
     private List<PersonInfo> ConvertToPersons(List<CrewItem> crew, PersonOccupation occupation)
     {
       if (crew == null || crew.Count == 0)
@@ -155,7 +213,24 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (CrewItem person in crew)
-        retValue.Add(new PersonInfo() { MovieDbId = person.PersonId, Name = person.Name, Occupation = occupation });
+      {
+        Person personDetail;
+        if (_movieDb.GetPerson(person.PersonId, out personDetail))
+        {
+          retValue.Add(new PersonInfo()
+          {
+            MovieDbId = person.PersonId,
+            Name = person.Name,
+            Biography = personDetail.Biography,
+            DateOfBirth = personDetail.DateOfBirth,
+            DateOfDeath = personDetail.DateOfDeath,
+            Orign = personDetail.PlaceOfBirth,
+            ImdbId = personDetail.ExternalId.ImDbId,
+            TvdbId = personDetail.ExternalId.TvDbId.HasValue ? personDetail.ExternalId.TvDbId.Value : 0,
+            Occupation = occupation
+          });
+        }
+      }
       return retValue;
     }
 
@@ -166,7 +241,23 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (CastItem person in cast)
-        retValue.Add(new PersonInfo() { MovieDbId = person.PersonId, Name = person.Name, Occupation = occupation });
+      {
+        Person personDetail;
+        if (_movieDb.GetPerson(person.PersonId, out personDetail))
+        {
+          retValue.Add(new PersonInfo()
+          {
+            MovieDbId = person.PersonId,
+            Name = person.Name,
+            Biography = personDetail.Biography,
+            DateOfBirth = personDetail.DateOfBirth,
+            DateOfDeath = personDetail.DateOfDeath,
+            Orign = personDetail.PlaceOfBirth,
+            ImdbId = personDetail.ExternalId.ImDbId,
+            Occupation = occupation
+          });
+        }
+      }
       return retValue;
     }
 
@@ -196,7 +287,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       List<CompanyInfo> retValue = new List<CompanyInfo>();
       foreach (ProductionCompany company in companys)
-        retValue.Add(new CompanyInfo() { MovieDbId = company.Id, Name = company.Name, Type = type });
+      {
+        Company companyDetail;
+        if (_movieDb.GetCompany(company.Id, out companyDetail))
+        {
+          retValue.Add(new CompanyInfo()
+          {
+            MovieDbId = company.Id,
+            Name = company.Name,
+            Description = companyDetail.Description,
+            Type = type
+          });
+        }
+      }
       return retValue;
     }
 

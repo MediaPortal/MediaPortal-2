@@ -164,11 +164,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         //Only use these if absolutely necessary because there is no way to ID them
         if (seriesDetail.Actors.Count == 0)
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, ConvertToPersons(seriesDetail.Actors, PersonOccupation.Actor), false);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, ConvertToPersons(seriesDetail.Actors, PersonOccupation.Actor), true);
         if (seriesDetail.Directors.Count == 0)
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Directors, ConvertToPersons(seriesDetail.Writers, PersonOccupation.Director), false);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Directors, ConvertToPersons(seriesDetail.Writers, PersonOccupation.Director), true);
         if (seriesDetail.Writers.Count == 0)
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Writers, ConvertToPersons(seriesDetail.Directors, PersonOccupation.Writer), false);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Writers, ConvertToPersons(seriesDetail.Directors, PersonOccupation.Writer), true);
 
         return true;
       }
