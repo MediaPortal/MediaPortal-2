@@ -290,6 +290,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
       return movieCast != null;
     }
 
+    public bool GetPerson(int id, out Person personDetail)
+    {
+      personDetail = _movieDbHandler.GetPerson(id, PreferredLanguage);
+      return personDetail != null;
+    }
+
+    public bool GetCompany(int id, out Company companyDetail)
+    {
+      companyDetail = _movieDbHandler.GetCompany(id, PreferredLanguage);
+      return companyDetail != null;
+    }
+
     public bool GetSeries(int id, out Series seriesDetail)
     {
       seriesDetail = _movieDbHandler.GetSeries(id, PreferredLanguage);

@@ -81,13 +81,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
       return true;
     }
 
-    public bool SearchTrack(string title, string[] artists, string album, int year, int trackNum, out List<TrackResult> tracks)
+    public bool SearchTrack(string title, List<string> artists, string album, int year, int trackNum, out List<TrackResult> tracks)
     {
       tracks = _musicBrainzHandler.SearchTrack(title, artists, album, year, trackNum);
       return tracks.Count > 0;
     }
 
-    public bool SearchTrackUnique(string title, string[] artists, string album, int year, int trackNum, out List<TrackResult> tracks)
+    public bool SearchTrackUnique(string title, List<string> artists, string album, int year, int trackNum, out List<TrackResult> tracks)
     {
       tracks = _musicBrainzHandler.SearchTrack(title, artists, album, year, trackNum);
       if (TestMatch(title, artists, album, year, trackNum, ref tracks))
@@ -96,7 +96,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
       return false;
     }
 
-    private bool TestMatch(string title, string[] artists, string album, int year, int trackNum, ref List<TrackResult> tracks)
+    private bool TestMatch(string title, List<string> artists, string album, int year, int trackNum, ref List<TrackResult> tracks)
     {
       if (tracks.Count == 1)
       {
@@ -127,14 +127,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
           var lastGood = exactMatches;
           foreach (ValueToCheck checkValue in Enum.GetValues(typeof(ValueToCheck)))
           {
-            if (checkValue == ValueToCheck.ArtistLax && artists != null && artists.Length > 0)
-              exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artists.ToArray(), artists, false));
+            if (checkValue == ValueToCheck.ArtistLax && artists != null && artists.Count > 0)
+              exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artists, artists, false));
 
             if (checkValue == ValueToCheck.AlbumLax && !string.IsNullOrEmpty(album))
               exactMatches = exactMatches.FindAll(s => GetLevenshteinDistance(s.Album, album) <= MAX_LEVENSHTEIN_DIST);
 
-            if (checkValue == ValueToCheck.ArtistStrict && artists != null && artists.Length > 0)
-              exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artists.ToArray(), artists, true));
+            if (checkValue == ValueToCheck.ArtistStrict && artists != null && artists.Count > 0)
+              exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artists, artists, true));
 
             if (checkValue == ValueToCheck.AlbumStrict && !string.IsNullOrEmpty(album))
               exactMatches = exactMatches.FindAll(s => s.Album == album || GetLevenshteinDistance(s.Album, album) == 0);
@@ -190,7 +190,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
       return false;
     }
 
-    private bool CompareArtists(string[] trackArtists, string[] searchArtists, bool strict)
+    private bool CompareArtists(List<string> trackArtists, List<string> searchArtists, bool strict)
     {
       if(strict)
       {
@@ -202,7 +202,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
               matchCount++;
               break;
             }
-        return matchCount >= searchArtists.Length;
+        return matchCount >= searchArtists.Count;
       }
       else
       {

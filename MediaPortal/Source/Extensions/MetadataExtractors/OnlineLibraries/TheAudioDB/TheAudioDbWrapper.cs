@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       return true;
     }
 
-    public bool SearchTrack(string title, string[] artists, out List<AudioDbTrack> tracks)
+    public bool SearchTrack(string title, List<string> artists, out List<AudioDbTrack> tracks)
     {
       tracks = new List<AudioDbTrack>();
       foreach (string artist in artists) tracks.AddRange(_audioDbHandler.SearchTrack(artist, title));
@@ -84,7 +84,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       return tracks.Count > 0;
     }
 
-    public bool SearchTrackUnique(string title, string[] artists, string album, int trackNum, out List<AudioDbTrack> tracks)
+    public bool SearchTrackUnique(string title, List<string> artists, string album, int trackNum, out List<AudioDbTrack> tracks)
     {
       tracks = new List<AudioDbTrack>();
       foreach (string artist in artists) tracks.AddRange(_audioDbHandler.SearchTrack(artist, title));
@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       return false;
     }
 
-    private bool TestMatch(string title, string[] artists, string album, int trackNum, ref List<AudioDbTrack> tracks)
+    private bool TestMatch(string title, List<string> artists, string album, int trackNum, ref List<AudioDbTrack> tracks)
     {
       if (tracks.Count == 1)
       {
@@ -125,13 +125,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
           var lastGood = exactMatches;
           foreach (ValueToCheck checkValue in Enum.GetValues(typeof(ValueToCheck)))
           {
-            if (checkValue == ValueToCheck.ArtistLax && artists != null && artists.Length > 0)
+            if (checkValue == ValueToCheck.ArtistLax && artists != null && artists.Count > 0)
               exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artist, artists, false));
 
             if (checkValue == ValueToCheck.AlbumLax && !string.IsNullOrEmpty(album))
               exactMatches = exactMatches.FindAll(s => GetLevenshteinDistance(s.Album, album) <= MAX_LEVENSHTEIN_DIST);
 
-            if (checkValue == ValueToCheck.ArtistStrict && artists != null && artists.Length > 0)
+            if (checkValue == ValueToCheck.ArtistStrict && artists != null && artists.Count > 0)
               exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artist, artists, true));
 
             if (checkValue == ValueToCheck.AlbumStrict && !string.IsNullOrEmpty(album))
@@ -167,7 +167,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       return false;
     }
 
-    private bool CompareArtists(string trackArtist, string[] searchArtists, bool strict)
+    private bool CompareArtists(string trackArtist, List<string> searchArtists, bool strict)
     {
       if (strict)
       {
@@ -184,7 +184,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       return false;
     }
 
-    public bool GetTrackFromId(string id, out AudioDbTrack trackDetail)
+    public bool GetTrackFromId(long id, out AudioDbTrack trackDetail)
     {
       trackDetail = _audioDbHandler.GetTrackByTadb(id);
       if (trackDetail != null) trackDetail.SetLanguage(PreferredLanguage);
@@ -198,16 +198,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       return trackDetail != null;
     }
 
-    public bool GetAlbumFromId(string id, out AudioDbAlbum albumDetail)
+    public bool GetAlbumFromId(long id, out AudioDbAlbum albumDetail)
     {
       albumDetail = _audioDbHandler.GetAlbumByTadb(id);
       if (albumDetail != null) albumDetail.SetLanguage(PreferredLanguage);
       return albumDetail != null;
     }
 
-    public bool DownloadImage(string id, string url, string category)
+    public bool GetArtistFromId(long id, out AudioDbArtist artistDetail)
     {
-      if (string.IsNullOrEmpty(id)) return false;
+      artistDetail = _audioDbHandler.GetArtistByTadb(id);
+      if (artistDetail != null) artistDetail.SetLanguage(PreferredLanguage);
+      return artistDetail != null;
+    }
+
+    public bool DownloadImage(long id, string url, string category)
+    {
+      if (id <= 0) return false;
       if (string.IsNullOrEmpty(url)) return false;
       if (string.IsNullOrEmpty(category)) return false;
       return _audioDbHandler.DownloadImage(id, url, category);

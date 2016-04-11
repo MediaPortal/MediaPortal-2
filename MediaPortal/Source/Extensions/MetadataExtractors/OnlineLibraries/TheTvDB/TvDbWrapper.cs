@@ -169,9 +169,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     /// <param name="loadEpisodes"><c>true</c> to load episodes</param>
     /// <param name="series">Returns the Series information</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool GetSeries(int seriesId, bool loadEpisodes, out TvdbSeries series)
+    public bool GetSeries(int seriesId, bool loadEpisodes, bool loadActors, out TvdbSeries series)
     {
-      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, loadEpisodes, false, false);
+      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, loadEpisodes, loadActors, false);
       return series != null;
     }
 
@@ -195,7 +195,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     /// <returns><c>true</c> if successful</returns>
     public bool GetSeriesFanArt(int seriesId, out TvdbSeries series)
     {
-      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, false, false, true);
+      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, false, true, true);
       return series != null;
     }
 
