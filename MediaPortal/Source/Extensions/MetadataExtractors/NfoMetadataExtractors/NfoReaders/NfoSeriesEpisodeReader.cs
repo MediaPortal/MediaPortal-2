@@ -1245,7 +1245,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="EpisodeAspect.ATTR_EPISODENAME"/>
+    /// Tries to write metadata into <see cref="EpisodeAspect.ATTR_EPISODE_NAME"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1253,7 +1253,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODENAME, string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray()));
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODE_NAME, string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray()));
         return true;
       }
       return false;

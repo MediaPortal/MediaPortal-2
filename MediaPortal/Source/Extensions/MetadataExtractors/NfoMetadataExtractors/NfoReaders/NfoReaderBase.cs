@@ -441,13 +441,45 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns>
     /// <c>null</c> if <see cref="ParseSimpleString"/> returns <c>null</c> for <paramref name="element"/>
     /// or <see cref="ParseSimpleString"/> for <paramref name="element"/> does not contain a valid <see cref="decimal"/> value;
-    /// otherwise (decimal?)<paramref name="element"/>
+    /// otherwise (decimal?)<paramref name="element"/>.
+    /// If a fraction or ratio is found it will try to convert those to a decimal value.
     /// </returns>
     protected decimal? ParseSimpleDecimal(XElement element)
     {
       var decimalString = ParseSimpleString(element);
       if (decimalString == null)
         return null;
+
+      try
+      {
+        //Decimal defined as fraction
+        if (decimalString.Contains("/"))
+        {
+          string[] numbers = decimalString.Split('/');
+          return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
+        }
+      }
+      catch (Exception)
+      {
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a fraction, but it does not: {1}", _miNumber, element);
+        return null;
+      }
+
+      try
+      {
+        //Decimal defined as ratio
+        if (decimalString.Contains(":"))
+        {
+          string[] numbers = decimalString.Split(':');
+          return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
+        }
+      }
+      catch (Exception)
+      {
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a ratio, but it does not: {1}", _miNumber, element);
+        return null;
+      }
+
       decimal? result = null;
       try
       {
