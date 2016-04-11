@@ -212,10 +212,16 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
         // Handle series information
         EpisodeInfo episodeInfo = GetSeriesFromTags(tags);
-        if (episodeInfo.IsCompleteMatch)
+        if (episodeInfo.AreReqiredFieldsFilled)
         {
           if (!forceQuickMode)
-            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(episodeInfo);
+          {
+            SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID, TMDBID and TVDBID
+            SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides TvMazeID, IMDBID and TVDBID
+            SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID and TVDBID
+            SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID
+            SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo);
+          }
 
           episodeInfo.SetMetadata(extractedAspectData);
         }

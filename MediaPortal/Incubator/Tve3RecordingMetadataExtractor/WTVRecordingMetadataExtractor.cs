@@ -187,12 +187,19 @@ namespace MediaPortal.Extensions.MetadataExtractors
       {
         // Handle series information
         IDictionary tags = rec.GetAttributes();
-        EpisodeInfo seriesInfo = GetSeriesFromTags(tags);
-
-        if (!forceQuickMode)
+        EpisodeInfo episodeInfo = GetSeriesFromTags(tags);
+        if (episodeInfo.AreReqiredFieldsFilled)
         {
-          if (SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo))
-            seriesInfo.SetMetadata(extractedAspectData);
+          if (!forceQuickMode)
+          {
+            SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID, TMDBID and TVDBID
+            SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides TvMazeID, IMDBID and TVDBID
+            SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID and TVDBID
+            SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID
+            SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo);
+          }
+
+          episodeInfo.SetMetadata(extractedAspectData);
         }
 
         // Force MimeType
