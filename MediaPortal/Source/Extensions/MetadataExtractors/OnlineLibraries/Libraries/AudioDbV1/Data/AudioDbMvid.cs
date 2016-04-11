@@ -39,11 +39,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
   [DataContract]
   public class AudioDbMvid
   {
-    [DataMember(Name = "idAlbum")]
-    public int AlbumId { get; set; }
-
     [DataMember(Name = "idArtist")]
-    public int ArtistId { get; set; }
+    public long ArtistId { get; set; }
+
+    [DataMember(Name = "idAlbum")]
+    public long? AlbumId { get; set; }
 
     [DataMember(Name = "idTrack")]
     public int TrackId { get; set; }

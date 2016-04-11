@@ -76,16 +76,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
   public class AudioDbAlbum
   {
     [DataMember(Name = "idAlbum")]
-    public int AlbumId { get; set; }
+    public long AlbumId { get; set; }
 
     [DataMember(Name = "idArtist")]
-    public int ArtistId { get; set; }
+    public long? ArtistId { get; set; }
+
+    [DataMember(Name = "idLabel")]
+    public long? LabelId { get; set; }
 
     [DataMember(Name = "strAlbum")]
     public string Album { get; set; }
 
     [DataMember(Name = "strArtist")]
     public string Artist { get; set; }
+
+    [DataMember(Name = "strLabel")]
+    public string Label { get; set; }
 
     [DataMember(Name = "intYearReleased")]
     public int? Year { get; set; }
@@ -173,6 +179,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
 
     [DataMember(Name = "strLocation")]
     public string Location { get; set; }
+
+    [DataMember(Name = "intScore")]
+    public double? Rating { get; set; }
+
+    [DataMember(Name = "intScoreVotes")]
+    public int? RatingCount { get; set; }
 
     [DataMember(Name = "strMusicBrainzID")]
     public string MusicBrainzID { get; set; }

@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
   public class AudioDbArtist
   {
     [DataMember(Name = "idArtist")]
-    public int ArtistId { get; set; }
+    public long ArtistId { get; set; }
 
     [DataMember(Name = "strArtist")]
     public string Artist { get; set; }

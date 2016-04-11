@@ -72,13 +72,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
   public class AudioDbTrack
   {
     [DataMember(Name = "idTrack")]
-    public int TrackId { get; set; }
+    public long TrackId { get; set; }
 
     [DataMember(Name = "idAlbum")]
-    public int AlbumId { get; set; }
+    public long? AlbumId { get; set; }
 
     [DataMember(Name = "idArtist")]
-    public int ArtistId { get; set; }
+    public long? ArtistId { get; set; }
 
     [DataMember(Name = "strTrack")]
     public string Track { get; set; }
@@ -130,6 +130,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
 
     [DataMember(Name = "intLoved")]
     public int? Loved { get; set; }
+
+    [DataMember(Name = "intScore")]
+    public double? Rating { get; set; }
+
+    [DataMember(Name = "intScoreVotes")]
+    public int? RatingCount { get; set; }
 
     [DataMember(Name = "strMusicBrainzID")]
     public string MusicBrainzID { get; set; }

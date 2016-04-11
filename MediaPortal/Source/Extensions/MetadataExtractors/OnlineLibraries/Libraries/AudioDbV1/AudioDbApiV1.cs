@@ -29,7 +29,6 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data;
 using Newtonsoft.Json;
 
-
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
 {
   internal class AudioDbApiV1
@@ -105,7 +104,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public AudioDbArtist GetArtistByTadb(string tadbArtistID)
+    public AudioDbArtist GetArtistByTadb(long tadbArtistID)
     {
       AudioDbArtists audioDbArtists = null;
       string cache = CreateAndGetCacheName(tadbArtistID, "Artist_tadbId");
@@ -152,7 +151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbAlbum> GetAlbumByArtistTadb(string tadbArtistId)
+    public List<AudioDbAlbum> GetAlbumByArtistTadb(long tadbArtistId)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(tadbArtistId, "AlbumArtist_tadbId");
@@ -171,7 +170,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public AudioDbAlbum GetAlbumByTadb(string tadbAlbumId)
+    public AudioDbAlbum GetAlbumByTadb(long tadbAlbumId)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(tadbAlbumId, "Album_tadbId");
@@ -219,7 +218,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public AudioDbTrack GetTrackByTadb(string tadbTrackId)
+    public AudioDbTrack GetTrackByTadb(long tadbTrackId)
     {
       AudioDbTracks audioDbTracks = null;
       string cache = CreateAndGetCacheName(tadbTrackId, "Track_tadbId");
@@ -301,7 +300,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     /// <param name="url">Image to download</param>
     /// <param name="category">Image category (Poster, Cover, Backdrop...)</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(string id, string url, string category)
+    public bool DownloadImage(long id, string url, string category)
     {
       string cacheFileName = CreateAndGetCacheName(id, url, category);
       if (string.IsNullOrEmpty(cacheFileName))
@@ -334,7 +333,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     /// <param name="album"></param>
     /// <param name="category"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(string id, string url, string category)
+    protected string CreateAndGetCacheName(long id, string url, string category)
     {
       try
       {
