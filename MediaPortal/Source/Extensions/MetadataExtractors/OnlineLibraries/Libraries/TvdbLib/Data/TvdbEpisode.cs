@@ -45,6 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
   ///      <Overview>Chuck Bartowski is an average computer geek...</Overview> <br/>
   ///      <ProductionCode></ProductionCode> <br/>
   ///      <Rating>9.0</Rating> <br/>
+  ///      <RatingCount>109</RatingCount> <br/>
   ///      <SeasonNumber>1</SeasonNumber> <br/>
   ///      <Writer>|Josh Schwartz|Chris Fedak|</Writer> <br/>
   ///      <absolute_number></absolute_number> <br/>
@@ -217,6 +218,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     public double Rating { get; set; }
 
     /// <summary>
+    /// Rating count for this episode
+    /// </summary>
+    public int RatingCount { get; set; }
+
+    /// <summary>
     /// Production code for this episode
     /// </summary>
     public string ProductionCode { get; set; }
@@ -368,6 +374,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
       Overview = episode.Overview;
       ProductionCode = episode.ProductionCode;
       Rating = episode.Rating;
+      RatingCount = episode.RatingCount;
       SeasonId = episode.SeasonId;
       SeasonNumber = episode.SeasonNumber;
       Writer = episode.Writer;

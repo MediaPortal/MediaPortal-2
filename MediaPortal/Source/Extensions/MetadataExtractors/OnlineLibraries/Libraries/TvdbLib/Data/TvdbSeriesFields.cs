@@ -41,6 +41,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
   ///       <Network>ABC</Network>
   ///       <Overview>After Oceanic Air flight 815...</Overview>
   ///       <Rating>8.9</Rating>
+  ///       <RatingCount>8</RatingCount>
   ///       <Runtime>60</Runtime>
   ///       <SeriesID>24313</SeriesID>
   ///       <SeriesName>Lost</SeriesName>
@@ -64,9 +65,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     private List<String> _genre;
     private String _imdbId;
     private TvdbLanguage _language;
+    private int _networkId;
     private String _network;
     private String _overview;
     private double _rating;
+    private int _ratingCount;
     private double _runtime;
     private int _tvDotComId;
     private String _status;
@@ -170,6 +173,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     {
       get { return _seriesName; }
       set { _seriesName = value; }
+    }
+
+    /// <summary>
+    /// Series network ID
+    /// </summary>
+    public int NetworkID
+    {
+      get { return _networkId; }
+      set { _networkId = value; }
     }
 
     /// <summary>
@@ -281,6 +293,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     }
 
     /// <summary>
+    /// Rating count of the series
+    /// </summary>
+    public int RatingCount
+    {
+      get { return _ratingCount; }
+      set { _ratingCount = value; }
+    }
+
+    /// <summary>
     /// Overview of the series
     /// </summary>
     public String Overview
@@ -361,8 +382,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
       ImdbId = fields.ImdbId;
       Language = fields.Language;
       Network = fields.Network;
+      NetworkID = fields.NetworkID;
       Overview = fields.Overview;
       Rating = fields.Rating;
+      RatingCount = fields.RatingCount;
       Runtime = fields.Runtime;
       TvDotComId = fields.TvDotComId;
       SeriesName = fields.SeriesName;
