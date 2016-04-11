@@ -39,14 +39,20 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Series name.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIESNAME =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIES_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the certification.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CERTIFICATION =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the number of the season, usually starting at 1. A value of 0 is also valid for specials.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SEASON =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Season", typeof(int), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Season", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains a combination of <see cref="ATTR_SERIESNAME"/> and the <see cref="ATTR_SEASON"/> to allow filtering and retrieval of season banners.
@@ -72,14 +78,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Name of the episode. We only store the first episode name (or combined name) if the file contains multiple episodes.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_EPISODENAME =
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_EPISODE_NAME =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("EpisodeName", 300, Cardinality.Inline, false);
-
-    /// <summary>
-    /// First aired date of episode.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_FIRSTAIRED =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("FirstAired", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the overall rating of the episode. Value ranges from 0 (very bad) to 10 (very good).
@@ -95,13 +95,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "EpisodeItem", new[] {
-            ATTR_SERIESNAME,
+            ATTR_SERIES_NAME,
+            ATTR_CERTIFICATION,
             ATTR_SEASON,
             ATTR_SERIES_SEASON,
             ATTR_EPISODE,
             ATTR_DVDEPISODE,
-            ATTR_EPISODENAME,
-            ATTR_FIRSTAIRED,
+            ATTR_EPISODE_NAME,
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT
         });

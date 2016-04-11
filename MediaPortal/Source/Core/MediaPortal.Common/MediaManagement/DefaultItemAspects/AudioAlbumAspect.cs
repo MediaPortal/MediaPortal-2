@@ -37,6 +37,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ASPECT_ID = new Guid("352151B1-50AA-45D4-89E6-517ED8C8F411");
 
     /// <summary>
+    /// Album name.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ALBUM =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Album", 100, Cardinality.Inline, true);
+
+    /// <summary>
     /// Album description
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DESCRIPTION =
@@ -49,10 +55,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
-    /// Enumeration of artist names.
+    /// List of music labels involved in making the album.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPOSERS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LABELS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Labels", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Enumeration of genre names.
@@ -61,26 +67,62 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
+    /// Contains list of awards.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Awards", 20, Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Number of tracks on the CD.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUMTRACKS =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumTracks", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
-    /// ID of the disc. TODO: Specification.
+    /// ID of the disc in a collection.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DISCID =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("DiscId", typeof(int), Cardinality.Inline, false);
 
+    /// <summary>
+    /// Number of discs in the collection.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUMDISCS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumDiscs", typeof(int), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains the number of sold albums.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SALES =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Sales", typeof(long), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains the overall rating of the album. Value ranges from 0 (very bad) to 10 (very good).
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TOTAL_RATING =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the overall number ratings of the album.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "AlbumItem", new[] {
+            ATTR_ALBUM,
             ATTR_DESCRIPTION,
             ATTR_ARTISTS,
-            ATTR_COMPOSERS,
+            ATTR_LABELS,
             ATTR_GENRES,
+            ATTR_AWARDS,
             ATTR_NUMTRACKS,
             ATTR_DISCID,
+            ATTR_NUMDISCS,
+            ATTR_SALES,
+            ATTR_TOTAL_RATING,
+            ATTR_RATING_COUNT
         });
 
     public static readonly Guid ROLE_ALBUM = new Guid("CCCA5512-1CBA-4859-BD53-1D7AE96EBBCE");

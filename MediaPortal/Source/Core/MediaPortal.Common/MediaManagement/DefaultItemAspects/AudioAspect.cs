@@ -37,6 +37,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ASPECT_ID = new Guid("493F2B3B-8025-4DB1-80DC-C3CD39683C9F");
 
     /// <summary>
+    /// Track name.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TRACKNAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("TrackName", 100, Cardinality.Inline, true);
+
+    /// <summary>
     /// Enumeration of artist names.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ARTISTS =
@@ -59,6 +65,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DURATION =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Set to <c>true</c> if this track item represents a CD track.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISCD =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsCD", typeof(bool), Cardinality.Inline, false);
 
     /// <summary>
     /// Track number.
@@ -97,7 +109,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("BitRate", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
-    /// ID of the disc. TODO: Specification.
+    /// ID of the disc in the collection.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DISCID =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("DiscId", typeof(int), Cardinality.Inline, false);
@@ -108,13 +120,27 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUMDISCS =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumDiscs", typeof(int), Cardinality.Inline, false);
 
+    /// <summary>
+    /// Contains the overall rating of the track. Value ranges from 0 (very bad) to 10 (very good).
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TOTAL_RATING =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the overall number ratings of the track.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "AudioItem", new[] {
+            ATTR_TRACKNAME,
             ATTR_ARTISTS,
             ATTR_ALBUM,
             ATTR_GENRES,
             ATTR_DURATION,
+            ATTR_ISCD,
             ATTR_TRACK,
             ATTR_NUMTRACKS,
             ATTR_ALBUMARTISTS,
@@ -123,6 +149,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_BITRATE,
             ATTR_DISCID,
             ATTR_NUMDISCS,
+            ATTR_TOTAL_RATING,
+            ATTR_RATING_COUNT
         });
 
       public static readonly Guid ROLE_TRACK = new Guid("10C134B1-4E35-4750-836D-76F3AB58D40A");

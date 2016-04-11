@@ -58,15 +58,21 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Encoding. TODO: Describe format.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOENCODING =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AudioEncoding", 50, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOENCODINGS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AudioEncodings", 50, Cardinality.ManyToMany, false);
 
     /// <summary>
     /// Bitrate of the first audio stream in kbits/second.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOBITRATE =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AudioBitRate", typeof(long), Cardinality.Inline, false);
-    
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOBITRATES =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AudioBitRates", typeof(long), Cardinality.ManyToMany, false);
+
+    /// <summary>
+    /// Number of audio channels.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOCHANNELS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AudioChannels", typeof(int), Cardinality.ManyToMany, false);
+
     /// <summary>
     /// List of available audio languages. Values are stored as <see cref="CultureInfo.TwoLetterISOLanguageName"/>.
     /// </summary>
@@ -129,6 +135,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Writers", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
+    /// Enumeration of fictional character name strings.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CHARACTERS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Characters", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Set to <c>true</c> if this video item represents a DVD.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISDVD =
@@ -146,8 +158,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_GENRES,
             ATTR_DURATION,
             ATTR_AUDIOSTREAMCOUNT,
-            ATTR_AUDIOENCODING,
-            ATTR_AUDIOBITRATE,
+            ATTR_AUDIOENCODINGS,
+            ATTR_AUDIOBITRATES,
+            ATTR_AUDIOCHANNELS,
             ATTR_AUDIOLANGUAGES,
             ATTR_VIDEOENCODING,
             ATTR_VIDEOBITRATE,
@@ -158,6 +171,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ACTORS,
             ATTR_DIRECTORS,
             ATTR_WRITERS,
+            ATTR_CHARACTERS,
             ATTR_ISDVD,
             ATTR_STORYPLOT,
         });

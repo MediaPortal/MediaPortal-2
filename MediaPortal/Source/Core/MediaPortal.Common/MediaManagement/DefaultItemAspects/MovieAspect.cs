@@ -70,10 +70,22 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, false);
 
     /// <summary>
+    /// Contains list of awards.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Awards", 20, Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Contains a short comment for the movie.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TAGLINE =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Tagline", 255, Cardinality.Inline, false);
+
+    /// <summary>
+    /// List of production company's involved in making the movie.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPANYS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Companys", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Contains a popularity of movies, based on user votings.
@@ -119,6 +131,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_RUNTIME_M,
             ATTR_CERTIFICATION,
             ATTR_TAGLINE,
+            ATTR_AWARDS,
+            ATTR_COMPANYS,
             ATTR_POPULARITY,
             ATTR_BUDGET,
             ATTR_REVENUE,

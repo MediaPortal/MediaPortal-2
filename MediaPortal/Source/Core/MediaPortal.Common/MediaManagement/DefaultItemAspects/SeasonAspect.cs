@@ -39,7 +39,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Series name.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIESNAME =
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIES_NAME =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("Season", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a combination of <see cref="ATTR_SERIESNAME"/> and the <see cref="ATTR_SEASON"/> to allow filtering and retrieval of season banners.
+    /// Contains a combination of <see cref="ATTR_SERIES_NAME"/> and the <see cref="ATTR_SEASON"/> to allow filtering and retrieval of season banners.
     /// This name must be built in form "{0} S{1}", using SeriesName and Season.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIES_SEASON =
@@ -61,33 +61,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DESCRIPTION =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Description", 5000, Cardinality.Inline, false);
 
-    /// <summary>
-    /// First aired date of episode.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_FIRSTAIRED =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("FirstAired", typeof(DateTime), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the overall rating of the episode. Value ranges from 0 (very bad) to 10 (very good).
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TOTAL_RATING =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
-
-    /// <summary>
-    /// Contains the overall number ratings of the episode.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "SeasonItem", new[] {
-            ATTR_SERIESNAME,
+            ATTR_SERIES_NAME,
             ATTR_SEASON,
             ATTR_SERIES_SEASON,
-            ATTR_DESCRIPTION,
-            ATTR_FIRSTAIRED,
-            ATTR_TOTAL_RATING,
-            ATTR_RATING_COUNT
+            ATTR_DESCRIPTION
         });
 
     public static readonly Guid ROLE_SEASON = new Guid("830D5DCD-708C-4E30-B043-CCDCBF593E12");

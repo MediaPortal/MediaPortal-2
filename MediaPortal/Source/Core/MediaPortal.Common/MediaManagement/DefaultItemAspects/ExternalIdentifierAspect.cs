@@ -41,15 +41,18 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string SOURCE_TVDB = "tvdb";
     public static readonly string SOURCE_CDDB = "cddb";
     public static readonly string SOURCE_AUDIODB = "audiodb";
+    public static readonly string SOURCE_TVMAZE = "tvmaze";
 
     public static readonly string TYPE_CHARACTER = "character"; // Someone in a movie / series
     public static readonly string TYPE_COLLECTION = "collection";
     public static readonly string TYPE_EPISODE = "episode";
+    public static readonly string TYPE_SEASON = "season";
     public static readonly string TYPE_MOVIE = "movie";
     public static readonly string TYPE_PERSON = "person"; // Someone in real life
     public static readonly string TYPE_SERIES = "series";
     public static readonly string TYPE_TRACK = "track";
     public static readonly string TYPE_ALBUM = "album";
+    public static readonly string TYPE_COMAPANY = "company";
 
     /// <summary>
     /// Media item aspect id of the relationship aspect.

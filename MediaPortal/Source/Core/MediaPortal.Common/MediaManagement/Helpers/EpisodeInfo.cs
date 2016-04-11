@@ -35,18 +35,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// <see cref="EpisodeInfo"/> contains metadata information about a series episode item.
   /// </summary>
   /// <remarks>
-  /// If all required fields are filled, the <see cref="IsCompleteMatch"/> 
-  /// returns <c>true</c>. The <see cref="ToString"/> method returns a well formatted series title if <see cref="IsCompleteMatch"/> is <c>true</c>.
+  /// If all required fields are filled, the <see cref="AreReqiredFieldsFilled"/> 
+  /// returns <c>true</c>. The <see cref="ToString"/> method returns a well formatted series title if <see cref="AreReqiredFieldsFilled"/> is <c>true</c>.
   /// </remarks>
   public class EpisodeInfo
   {
-    #region Fields
-
-    protected string _series;
-    protected string _episode;
-
-    #endregion
-
     /// <summary>
     /// Returns the index for "Series" used in <see cref="FormatString"/>.
     /// </summary>
@@ -86,7 +79,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Indicates that all required fields are filled.
     /// </summary>
-    public bool IsCompleteMatch
+    public bool AreReqiredFieldsFilled
     {
       get
       {
@@ -95,100 +88,68 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     }
 
     /// <summary>
-    /// Gets or sets the series title.
-    /// </summary>
-    public string Series
-    {
-      get { return _series; }
-      set { _series = value; }
-    }
-
-    /// <summary>
     /// Gets or sets the series IMDB id.
     /// </summary>
-    public string ImdbId { get; set; }
-
+    public string ImdbId = null;
     /// <summary>
     /// Gets or sets the series TheTvDB id.
     /// </summary>
-    public int TvdbId { get; set; }
+    public int TvdbId = 0;
+    public int MovieDbId = 0;
+    public int TvMazeId = 0;
 
-    public int MovieDbId { get; set; }
-
+    /// <summary>
+    /// Gets or sets the series title.
+    /// </summary>
+    public string Series = null;
     /// <summary>
     /// Gets or sets the episode title.
     /// </summary>
-    public string Episode
-    {
-      get { return _episode; }
-      set { _episode = value; }
-    }
-
+    public string Episode = null;
     /// <summary>
     /// Gets or sets the season number. A "0" value will be treated as valid season number.
     /// </summary>
-    public int? SeasonNumber { get; set; }
-
+    public int? SeasonNumber = null;
     /// <summary>
     /// Gets a list of episode numbers.
     /// </summary>
-    public IList<int> EpisodeNumbers { get; internal set; }
-
+    public List<int> EpisodeNumbers = new List<int>();
     /// <summary>
     /// Gets a list of episode numbers as they are released on DVD.
     /// </summary>
-    public IList<double> DvdEpisodeNumbers { get; internal set; }
-
+    public List<double> DvdEpisodeNumbers = new List<double>();
     /// <summary>
     /// Gets or sets the first aired date of episode.
     /// </summary>
-    public DateTime? FirstAired { get; set; }
-
+    public DateTime? FirstAired = null;
     /// <summary>
     /// Gets or sets the episode summary.
     /// </summary>
-    public string Summary { get; set; }
+    public string Summary = null;
+    public string Certification = null;
+    public double TotalRating = 0;
+    public int RatingCount = 0;
 
     /// <summary>
     /// Gets a list of actors.
     /// </summary>
-    public ICollection<string> Actors { get; internal set; }
-
+    public List<PersonInfo> Actors = new List<PersonInfo>();
     /// <summary>
     /// Gets a list of directors.
     /// </summary>
-    public ICollection<string> Directors { get; internal set; }
-
+    public List<PersonInfo> Directors = new List<PersonInfo>();
     /// <summary>
     /// Gets a list of directors.
     /// </summary>
-    public ICollection<string> Writers { get; internal set; }
-
+    public List<PersonInfo> Writers = new List<PersonInfo>();
+    public List<CharacterInfo> Characters = new List<CharacterInfo>();
+    public List<CompanyInfo> Networks = new List<CompanyInfo>();
+    public List<CompanyInfo> ProductionCompanys = new List<CompanyInfo>();
     /// <summary>
     /// Gets a list of genres.
     /// </summary>
-    public ICollection<string> Genres { get; internal set; }
-
-    public List<string> Languages { get; internal set; }
-
-    public double TotalRating { get; set; }
-
-    public int RatingCount { get; set; }
-
-    #region Constructor
-
-    public EpisodeInfo()
-    {
-      EpisodeNumbers = new List<int>();
-      DvdEpisodeNumbers = new List<double>();
-      Actors = new HashSet<string>();
-      Directors = new HashSet<string>();
-      Writers = new HashSet<string>();
-      Genres = new HashSet<string>();
-      Languages = new List<string>();
-    }
-
-    #endregion
+    public List<string> Genres = new List<string>();
+    public List<string> Languages = new List<string>();
 
     #region Members
 
@@ -206,20 +167,22 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
     public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
-      if (!IsCompleteMatch)
+      if (!AreReqiredFieldsFilled)
         return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIESNAME, Series);
-      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODENAME, Episode);
+      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, Series);
+      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, Episode);
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, SeasonNumber.Value);
-      if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_FIRSTAIRED, FirstAired.Value);
+      if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
       MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers);
       MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
+      if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_CERTIFICATION, Certification);
 
       if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, ImdbId);
       if (TvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, TvdbId.ToString());
       if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, MovieDbId.ToString());
+      if (TvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_SERIES, TvMazeId.ToString());
 
       if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_TOTAL_RATING, TotalRating);
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_RATING_COUNT, RatingCount);
@@ -230,16 +193,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_SEASON, seriesSeason);
 
       if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, Summary);
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors);
-      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors);
-      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers);
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList());
+      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Select(p => p.Name).ToList());
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Select(p => p.Name).ToList());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList());
+
       if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres);
       return true;
     }
 
     public string FormatString(string format)
     {
-      if (IsCompleteMatch)
+      if (AreReqiredFieldsFilled)
       {
         return string.Format(format,
           Series,
