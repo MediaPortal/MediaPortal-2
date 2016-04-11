@@ -29,17 +29,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data
 	/// <summary>
 	/// Contains Information about a CD
 	/// </summary>
-	public class CDInfo
+	public class FreeDBCDInfo
 	{
     private string m_category;
     private string m_discid;
     private string m_title;
 
-		public CDInfo()
+		public FreeDBCDInfo()
 		{
 		}
 
-    public CDInfo(string discid, string category, string title)
+    public FreeDBCDInfo(string discid, string category, string title)
     {
       m_discid = discid;
       m_category = category;

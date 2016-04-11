@@ -25,51 +25,46 @@
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data
 {
 	/// <summary>
-	/// Contains Details about the CD
+	/// Contains Information about Tracks
 	/// </summary>
-	public class CDInfoDetail
+	public class FreeDBCDTrackDetail
 	{
-    private string m_discId;
+    private int m_trackNumber;
     private string m_artist;
-    private string m_title;
-    private string m_genre;
-    private int m_year;
+    private string m_songTitle;
     private int m_duration;
-    private CDTrackDetail[] m_tracks;
-    private string m_extd;
-    private int[] m_playorder;
+    private int m_offset;
+    private string m_extt;
 
-    public CDInfoDetail()
+		public FreeDBCDTrackDetail()
 		{
 		}
 
-    public CDInfoDetail(string discID, string artist, string title,
-                        string genre, int year, int duration, CDTrackDetail[] tracks,
-                        string extd, int[] playorder)
+    public FreeDBCDTrackDetail(string songTitle, string artist, string extt, 
+                         int trackNumber, int offset, int duration)
     {
-      m_discId = discID;
+      m_songTitle = songTitle;
       m_artist = artist;
-      m_title = title;
-      m_genre = genre;
-      m_year = year;
+      m_extt = extt;
+      m_trackNumber = trackNumber;
+      m_offset = offset;
       m_duration = duration;
-      m_tracks = tracks;
-      m_extd = extd;
-      m_playorder = playorder;
     }
 
-    public string DiscID
+    public string Title
     {
       get
       {
-        return m_discId;
+        return m_songTitle;
       }
       set
       {
-        m_discId = value;
+        m_songTitle = value;
       }
     }
 
+    // can be null if the artist is the same as the main
+    // album
     public string Artist
     {
       get
@@ -82,39 +77,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data
       }
     }
 
-    public string Title
-    {
-      get
-      {
-        return m_title;
-      }
-      set
-      {
-        m_title = value;
-      }
-    }
 
-    public string Genre
+    public int TrackNumber
     {
       get
       {
-        return m_genre;
+        return m_trackNumber;
       }
       set
       {
-        m_genre = value;
-      }
-    }
-
-    public int Year
-    {
-      get
-      {
-        return m_year;
-      }
-      set
-      {
-        m_year = value;
+        m_trackNumber = value;
       }
     }
 
@@ -130,44 +102,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data
       }
     }
 
-    public CDTrackDetail getTrack(int index)
-    {
-      return m_tracks[index-1];
-    }
-
-    public CDTrackDetail[] Tracks
+    public int Offset
     {
       get
       {
-        return m_tracks;
+        return m_offset;
       }
       set
       {
-        m_tracks = value;
+        m_offset = value;
       }
     }
 
-    public string EXTD
+    public string EXTT
     {
       get
       {
-        return m_extd;
+        return m_extt;
       }
       set
       {
-        m_extd = value;
-      }
-    }
-
-    public int[] PlayOrder
-    {
-      get
-      {
-        return m_playorder;
-      }
-      set
-      {
-        m_playorder = value;
+        m_extt = value;
       }
     }
 	}

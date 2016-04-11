@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
   //  "Response": "True"
   //}
   [DataContract]
-  public class Season : BaseResponse
+  public class OmDBSeason : OmDbBaseResponse
   {
     [DataMember(Name = "Title")]
     public string Title { get; set; }
@@ -53,7 +53,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
     public int SeasonNumber { get; set; }
 
     [DataMember(Name = "Episodes")]
-    public List<SeasonEpisode> Episodes { get; set; }
+    public List<OmDBSeasonEpisode> Episodes { get; set; }
 
     [DataMember(Name = "Response")]
     public bool ResponseValid { get; set; }
@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
     {
       InitProperties();
 
-      foreach(SeasonEpisode epsiode in Episodes) epsiode.InitProperties();
+      foreach(OmDBSeasonEpisode epsiode in Episodes) epsiode.InitProperties();
     }
   }
 }

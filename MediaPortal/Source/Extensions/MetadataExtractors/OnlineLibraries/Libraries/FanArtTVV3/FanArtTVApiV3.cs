@@ -69,69 +69,69 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
 
     #region Public members
 
-    public ArtistThumbs GetArtistThumbs(string artistMbid)
+    public FanArtArtistThumbs GetArtistThumbs(string artistMbid)
     {
       string cache = CreateAndGetCacheName(artistMbid, "Artist");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<ArtistThumbs>(json);
+        return JsonConvert.DeserializeObject<FanArtArtistThumbs>(json);
       }
 
       string url = GetUrl(URL_GETMUSICARTIST, artistMbid);
-      return _downloader.Download<ArtistThumbs>(url, cache);
+      return _downloader.Download<FanArtArtistThumbs>(url, cache);
     }
 
-    public AlbumDetails GetAlbumThumbs(string albumMbid)
+    public FanArtAlbumDetails GetAlbumThumbs(string albumMbid)
     {
       string cache = CreateAndGetCacheName(albumMbid, "Album");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<AlbumDetails>(json);
+        return JsonConvert.DeserializeObject<FanArtAlbumDetails>(json);
       }
 
       string url = GetUrl(URL_GETMUSICALBUM, albumMbid);
-      return _downloader.Download<AlbumDetails>(url, cache);
+      return _downloader.Download<FanArtAlbumDetails>(url, cache);
     }
 
-    public LabelThumbs GetLabelThumbs(string labelMbid)
+    public FanArtLabelThumbs GetLabelThumbs(string labelMbid)
     {
       string cache = CreateAndGetCacheName(labelMbid, "Label");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<LabelThumbs>(json);
+        return JsonConvert.DeserializeObject<FanArtLabelThumbs>(json);
       }
 
       string url = GetUrl(URL_GETMUSICLABEL, labelMbid);
-      return _downloader.Download<LabelThumbs>(url, cache);
+      return _downloader.Download<FanArtLabelThumbs>(url, cache);
     }
 
-    public MovieThumbs GetMovieThumbs(string imDbIdOrtmDbId)
+    public FanArtMovieThumbs GetMovieThumbs(string imDbIdOrtmDbId)
     {
       string cache = CreateAndGetCacheName(imDbIdOrtmDbId, "Movie");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<MovieThumbs>(json);
+        return JsonConvert.DeserializeObject<FanArtMovieThumbs>(json);
       }
 
       string url = GetUrl(URL_GETMOVIE, imDbIdOrtmDbId);
-      return _downloader.Download<MovieThumbs>(url, cache);
+      return _downloader.Download<FanArtMovieThumbs>(url, cache);
     }
 
-    public TVThumbs GetSeriesThumbs(string ttvdbid)
+    public FanArtTVThumbs GetSeriesThumbs(string ttvdbid)
     {
       string cache = CreateAndGetCacheName(ttvdbid, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<TVThumbs>(json);
+        return JsonConvert.DeserializeObject<FanArtTVThumbs>(json);
       }
 
       string url = GetUrl(URL_GETSERIES, ttvdbid);
-      return _downloader.Download<TVThumbs>(url, cache);
+      return _downloader.Download<FanArtTVThumbs>(url, cache);
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
     /// <param name="image">Image to download</param>
     /// <param name="category">Image category (Poster, Cover, Backdrop...)</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(string id, Thumb image, string category)
+    public bool DownloadImage(string id, FanArtThumb image, string category)
     {
       string cacheFileName = CreateAndGetCacheName(id, image, category);
       if (string.IsNullOrEmpty(cacheFileName))
@@ -166,13 +166,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       string replacedUrl = string.Format(urlBase, args);
       return string.Format("{0}?api_key={1}", replacedUrl, _apiKey);
     }
+
     /// <summary>
     /// Creates a local file name for loading and saving <see cref="MovieImage"/>s.
     /// </summary>
     /// <param name="image"></param>
     /// <param name="category"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(string id, Thumb image, string category)
+    protected string CreateAndGetCacheName(string id, FanArtThumb image, string category)
     {
       try
       {

@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
   //}
 
   [DataContract]
-  public class TVThumbs
+  public class FanArtTVThumbs
   {
     [DataMember(Name = "name")]
     public string Name { get; set; }
@@ -141,39 +141,39 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
     public int? TheTVDbID { get; set; }
 
     [DataMember(Name = "hdtvlogo")]
-    public List<MovieThumb> HDSeriesLogos { get; set; }
+    public List<FanArtMovieThumb> HDSeriesLogos { get; set; }
 
     [DataMember(Name = "characterart")]
-    public List<MovieDiscThumb> SeriesCharacterArt { get; set; }
+    public List<FanArtMovieDiscThumb> SeriesCharacterArt { get; set; }
 
     [DataMember(Name = "clearlogo")]
-    public List<MovieThumb> SeriesLogos { get; set; }
+    public List<FanArtMovieThumb> SeriesLogos { get; set; }
 
     [DataMember(Name = "seasonposter")]
-    public List<SeasonThumb> SeasonPosters { get; set; }
+    public List<FanArtSeasonThumb> SeasonPosters { get; set; }
 
     [DataMember(Name = "tvposter")]
-    public List<MovieThumb> SeriesPosters { get; set; }
+    public List<FanArtMovieThumb> SeriesPosters { get; set; }
 
     [DataMember(Name = "hdclearart")]
-    public List<MovieThumb> HDSeriesClearArt { get; set; }
+    public List<FanArtMovieThumb> HDSeriesClearArt { get; set; }
 
     [DataMember(Name = "clearart")]
-    public List<MovieThumb> SeriesClearArt { get; set; }
+    public List<FanArtMovieThumb> SeriesClearArt { get; set; }
 
     [DataMember(Name = "showbackground")]
-    public List<MovieThumb> SeriesFanArt { get; set; }
+    public List<FanArtMovieThumb> SeriesFanArt { get; set; }
 
     [DataMember(Name = "tvbanner")]
-    public List<MovieThumb> SeriesBanners { get; set; }
+    public List<FanArtMovieThumb> SeriesBanners { get; set; }
 
     [DataMember(Name = "seasonbanner")]
-    public List<SeasonThumb> SeasonBanners { get; set; }
+    public List<FanArtSeasonThumb> SeasonBanners { get; set; }
 
     [DataMember(Name = "tvthumb")]
-    public List<MovieThumb> SeriesThumbnails { get; set; }
+    public List<FanArtMovieThumb> SeriesThumbnails { get; set; }
 
     [DataMember(Name = "seasonthumb")]
-    public List<SeasonThumb> SeasonThumbnails { get; set; }
+    public List<FanArtSeasonThumb> SeasonThumbnails { get; set; }
   }
 }

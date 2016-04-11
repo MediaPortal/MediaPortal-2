@@ -22,21 +22,34 @@
 
 #endregion
 
+using System;
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
 {
   //    {
-  //      "id": "19374",
-  //      "url": "http://assets.fanart.tv/fanart/tv/75682/showbackground/bones-500994f33356b.jpg",
-  //      "lang": "en",
-  //      "likes": "2",
-  //      "season": "7"
+  //      "Title": "Winter Is Coming",
+  //      "Released": "2011-04-17",
+  //      "Episode": "1",
+  //      "imdbRating": "8.9",
+  //      "imdbID": "tt1480055"
   //    }
   [DataContract]
-  public class SeasonThumb : MovieThumb
+  public class OmDBSeasonEpisode : OmDbBaseResponse
   {
-    [DataMember(Name = "season")]
-    public int? Season { get; set; }
+    [DataMember(Name = "Title")]
+    public string Title { get; set; }
+
+    [DataMember(Name = "Released")]
+    public DateTime? Released { get; set; }
+
+    [DataMember(Name = "Episode")]
+    public int EpisodeNumber { get; set; }
+
+    [DataMember(Name = "imdbRating")]
+    public string ImdbRating { get; set; }
+
+    [DataMember(Name = "imdbID")]
+    public string ImdbID { get; set; }
   }
 }

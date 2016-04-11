@@ -167,11 +167,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return GetServerMessage();
     }
 
-    public CDInfoDetail GetDiscDetails(string category, string discid)
+    public FreeDBCDInfoDetail GetDiscDetails(string category, string discid)
     {
       string[] content = GetInfo("cddb+read+" + category + "+" + discid);
       XMCDParser parser = new XMCDParser();
-      CDInfoDetail cdInfo = parser.Parse2(content);
+      FreeDBCDInfoDetail cdInfo = parser.Parse2(content);
       return cdInfo;
     }
 
@@ -180,10 +180,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return GetInfo("cddb+read+" + category + "+" + discid);
     }
 
-    public CDInfoDetail GetDiscDetailsFromXMCD(string[] xmcd)
+    public FreeDBCDInfoDetail GetDiscDetailsFromXMCD(string[] xmcd)
     {
       XMCDParser parser = new XMCDParser();
-      CDInfoDetail cdInfo = parser.Parse2(xmcd);
+      FreeDBCDInfoDetail cdInfo = parser.Parse2(xmcd);
       return cdInfo;
     }
 
@@ -201,9 +201,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return retValue;
     }
 
-    public CDInfo[] GetDiscInfoByQuery(string cddbQuery)
+    public FreeDBCDInfo[] GetDiscInfoByQuery(string cddbQuery)
     {
-      CDInfo[] retval = null;
+      FreeDBCDInfo[] retval = null;
       string command = "cddb+query+" + cddbQuery.Replace(" ", "+");
       StreamReader urlRdr = GetStreamFromSite(command);
       try
@@ -222,9 +222,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
         {
           case 200: // Exact Match...
             match = m_message.Split(sep);
-            retval = new CDInfo[1];
+            retval = new FreeDBCDInfo[1];
 
-            retval[0] = new CDInfo();
+            retval[0] = new FreeDBCDInfo();
             retval[0].Category = match[0];
             retval[0].DiscId = match[1];
             for (int i = 2; i < match.Length; i++)
@@ -236,12 +236,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
           case 211: // Found Inexact Matches. List Follows.
           case 210: // Found Exact Matches. List Follows.
             matches = ParseMultiLine(urlRdr);
-            retval = new CDInfo[matches.Length];
+            retval = new FreeDBCDInfo[matches.Length];
             foreach (string line in matches)
             {
               match = line.Split(sep);
 
-              retval[index] = new CDInfo();
+              retval[index] = new FreeDBCDInfo();
               retval[index].Category = match[0];
               retval[index].DiscId = match[1];
               for (int i = 2; i < match.Length; i++)

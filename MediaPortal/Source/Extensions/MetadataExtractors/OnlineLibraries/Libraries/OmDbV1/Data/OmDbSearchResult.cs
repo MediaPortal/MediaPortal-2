@@ -22,25 +22,35 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
 {
+  // 10 results per page
+  //  {
+  //  "Search": [
   //    {
-  //      "id": "19374",
-  //      "url": "http://assets.fanart.tv/fanart/tv/75682/showbackground/bones-500994f33356b.jpg",
-  //      "likes": "2",
+  //      "Title": "Batman Begins",
+  //      "Year": "2005",
+  //      "imdbID": "tt0372784",
+  //      "Type": "movie",
+  //      "Poster": "http://ia.media-imdb.com/images/M/MV5BNTM3OTc0MzM2OV5BMl5BanBnXkFtZTYwNzUwMTI3._V1_SX300.jpg"
   //    }
+  //  ],
+  //  "totalResults": "1",
+  //  "Response": "True"
+  //}
   [DataContract]
-  public class Thumb
+  public class OmDbSearchResult
   {
-    [DataMember(Name = "id")]
-    public int Id { get; set; }
+    [DataMember(Name = "Search")]
+    public List<OmDbSearchItem> SearchResults { get; set; }
 
-    [DataMember(Name = "url")]
-    public string Url { get; set; }
+    [DataMember(Name = "totalResults")]
+    public int TotalResults { get; set; }
 
-    [DataMember(Name = "likes")]
-    public int? Likes { get; set; }
+    [DataMember(Name = "Response")]
+    public bool ResponseValid { get; set; }
   }
 }

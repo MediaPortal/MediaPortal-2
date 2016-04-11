@@ -60,34 +60,39 @@ namespace MediaPortal.Extensions.OnlineLibraries.FanArtTV
       return true;
     }
 
-    public bool DownloadFanArt(string id, Thumb thumb, string category)
+    public bool DownloadFanArt(string id, FanArtThumb thumb, string category)
     {
       return _fanArtTvHandler.DownloadImage(id, thumb, category);
     }
 
-    public ArtistThumbs GetArtistFanArt(string musicBrainzId)
+    public bool GetArtistFanArt(string musicBrainzId, out FanArtArtistThumbs artistThumbs)
     {
-      return _fanArtTvHandler.GetArtistThumbs(musicBrainzId);
+      artistThumbs = _fanArtTvHandler.GetArtistThumbs(musicBrainzId);
+      return artistThumbs != null;
     }
 
-    public AlbumDetails GetAlbumFanArt(string musicBrainzId)
+    public bool GetAlbumFanArt(string musicBrainzId, out FanArtAlbumDetails albumThumbs)
     {
-      return _fanArtTvHandler.GetAlbumThumbs(musicBrainzId);
+      albumThumbs = _fanArtTvHandler.GetAlbumThumbs(musicBrainzId);
+      return albumThumbs != null;
     }
 
-    public LabelThumbs GetLabelFanArt(string musicBrainzId)
+    public bool GetLabelFanArt(string musicBrainzId, out FanArtLabelThumbs labelThumbs)
     {
-      return _fanArtTvHandler.GetLabelThumbs(musicBrainzId);
+      labelThumbs = _fanArtTvHandler.GetLabelThumbs(musicBrainzId);
+      return labelThumbs != null;
     }
 
-    public MovieThumbs GetMovieFanArt(string imDbIdOrtmDbId)
+    public bool GetMovieFanArt(string imDbIdOrtmDbId, out FanArtMovieThumbs movieThumbs)
     {
-      return _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
+      movieThumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
+      return movieThumbs != null;
     }
 
-    public TVThumbs GetSeriesFanArt(string ttvDbId)
+    public bool GetSeriesFanArt(string ttvDbId, out FanArtTVThumbs tvThumbs)
     {
-      return _fanArtTvHandler.GetSeriesThumbs(ttvDbId);
+      tvThumbs = _fanArtTvHandler.GetSeriesThumbs(ttvDbId);
+      return tvThumbs != null;
     }
   }
 }

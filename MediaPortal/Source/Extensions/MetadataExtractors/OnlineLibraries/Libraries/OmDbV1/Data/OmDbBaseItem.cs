@@ -32,7 +32,7 @@ using System.Runtime.Serialization;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
 {
   [DataContract]
-  public class BaseItem : BaseResponse
+  public class OmDbBaseItem : OmDbBaseResponse
   {
     [DataMember(Name = "Title")]
     public string Title { get; set; }

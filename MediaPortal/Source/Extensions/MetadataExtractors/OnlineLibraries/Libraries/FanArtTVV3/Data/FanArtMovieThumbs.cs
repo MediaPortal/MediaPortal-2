@@ -107,7 +107,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 //  ]
 //}
   [DataContract]
-  public class MovieThumbs
+  public class FanArtMovieThumbs
   {
     [DataMember(Name = "name")]
     public string Name { get; set; }
@@ -119,30 +119,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
     public string ImDbID { get; set; }
 
     [DataMember(Name = "hdmovielogo")]
-    public List<MovieThumb> HDMovieLogos { get; set; }
+    public List<FanArtMovieThumb> HDMovieLogos { get; set; }
 
     [DataMember(Name = "moviedisc")]
-    public List<MovieDiscThumb> MovieCDArt { get; set; }
+    public List<FanArtMovieDiscThumb> MovieCDArt { get; set; }
 
     [DataMember(Name = "movielogo")]
-    public List<MovieThumb> MovieLogos { get; set; }
+    public List<FanArtMovieThumb> MovieLogos { get; set; }
 
     [DataMember(Name = "movieposter")]
-    public List<MovieThumb> MoviePosters { get; set; }
+    public List<FanArtMovieThumb> MoviePosters { get; set; }
 
     [DataMember(Name = "hdmovieclearart")]
-    public List<MovieThumb> HDMovieClearArt { get; set; }
+    public List<FanArtMovieThumb> HDMovieClearArt { get; set; }
 
     [DataMember(Name = "movieart")]
-    public List<MovieThumb> MovieClearArt { get; set; }
+    public List<FanArtMovieThumb> MovieClearArt { get; set; }
 
     [DataMember(Name = "moviebackground")]
-    public List<MovieThumb> MovieFanArt { get; set; }
+    public List<FanArtMovieThumb> MovieFanArt { get; set; }
 
     [DataMember(Name = "moviebanner")]
-    public List<MovieThumb> MovieBanners { get; set; }
+    public List<FanArtMovieThumb> MovieBanners { get; set; }
 
     [DataMember(Name = "moviethumb")]
-    public List<MovieThumb> MovieThumbnails { get; set; }
+    public List<FanArtMovieThumb> MovieThumbnails { get; set; }
   }
 }

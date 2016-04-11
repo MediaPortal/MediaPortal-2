@@ -65,7 +65,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
   //  "Response": "True"
   //}
   [DataContract]
-  public class Movie : BaseItem
+  public class OmDbMovie : OmDbBaseItem
   {
   }
 }

@@ -22,35 +22,24 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
-  // 10 results per page
-  //  {
-  //  "Search": [
-  //    {
-  //      "Title": "Batman Begins",
-  //      "Year": "2005",
-  //      "imdbID": "tt0372784",
-  //      "Type": "movie",
-  //      "Poster": "http://ia.media-imdb.com/images/M/MV5BNTM3OTc0MzM2OV5BMl5BanBnXkFtZTYwNzUwMTI3._V1_SX300.jpg"
-  //    }
-  //  ],
-  //  "totalResults": "1",
-  //  "Response": "True"
-  //}
+  //        {
+  //          "id": "17739",
+  //          "url": "http://assets.fanart.tv/fanart/music/f4a31f0a-51dd-4fa7-986d-3095c40c5ed9/cdart/fallen-4f133f8a16d25.png",
+  //          "likes": "0",
+  //          "disc": "1",
+  //          "size": "1000"
+  //        }
   [DataContract]
-  public class SearchResult
+  public class FanArtCDArtThumb : FanArtThumb
   {
-    [DataMember(Name = "Search")]
-    public List<SearchItem> SearchResults { get; set; }
+    [DataMember(Name = "disc")]
+    public int? DiscId { get; set; }
 
-    [DataMember(Name = "totalResults")]
-    public int TotalResults { get; set; }
-
-    [DataMember(Name = "Response")]
-    public bool ResponseValid { get; set; }
+    [DataMember(Name = "size")]
+    public int? Size { get; set; }
   }
 }

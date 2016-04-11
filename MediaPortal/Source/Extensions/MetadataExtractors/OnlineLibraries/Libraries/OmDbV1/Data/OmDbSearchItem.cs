@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
 //      "Poster": "http://ia.media-imdb.com/images/M/MV5BNTM3OTc0MzM2OV5BMl5BanBnXkFtZTYwNzUwMTI3._V1_SX300.jpg"
 //    }
   [DataContract]
-  public class SearchItem : BaseResponse
+  public class OmDbSearchItem : OmDbBaseResponse
   {
     [DataMember(Name = "Title")]
     public string Title { get; set; }

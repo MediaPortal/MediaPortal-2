@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
   //  }
   //}
   [DataContract]
-  public class AlbumDetails
+  public class FanArtAlbumDetails
   {
     [DataMember(Name = "mbid_id")]
     public string MusicBrainzID { get; set; }
@@ -61,7 +61,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
     public string Name { get; set; }
 
     [DataMember(Name = "albums")]
-    public Dictionary<string, AlbumThumbs> Albums { get; set; }
+    public Dictionary<string, FanArtAlbumThumbs> Albums { get; set; }
   }
 }
 

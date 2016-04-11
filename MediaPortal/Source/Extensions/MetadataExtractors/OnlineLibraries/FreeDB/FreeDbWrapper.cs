@@ -81,11 +81,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     /// <param name="cdDbId">The CDDB ID</param>
     /// <param name="discs">Returns the list of matches.</param>
     /// <returns><c>true</c> if at least one CD was found.</returns>
-    public bool SearchDisc(string cdDbId, string trackName, out List<CDInfoDetail> discs)
+    public bool SearchDisc(string cdDbId, out List<FreeDBCDInfoDetail> discs)
     {
-      discs = new List<CDInfoDetail>();
-      CDInfoDetail discInfo;
-      if (GetDisc(cdDbId, trackName, out discInfo))
+      discs = new List<FreeDBCDInfoDetail>();
+      FreeDBCDInfoDetail discInfo;
+      if (GetDisc(cdDbId, out discInfo))
       {
         discs.Add(discInfo);
         return true;
@@ -105,29 +105,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
             }
 
             discInfo = _freeDbHandler.GetDiscDetailsFromXMCD(xmcd.Value);
-            if (TestTracks(trackName, discInfo))
-            {
-              discs.Add(discInfo);
-            }
+            discs.Add(discInfo);
           }
         }
         _freeDbHandler.Disconnect();
       }
-      return discs.Count > 0;
-    }
-
-    /// <summary>
-    /// Checks if track exists on found CD
-    /// </summary>
-    /// <param name="trackName">The track name to find</param>
-    /// <param name="discInfo">Found CD disc.</param>
-    /// <returns><c>true</c> if the track was found.</returns>
-    private bool TestTracks(string trackName, CDInfoDetail discInfo)
-    {
-      List<CDTrackDetail> tracks = new List<CDTrackDetail>(discInfo.Tracks);
-      if (FindTrack(trackName, ref tracks))
-        return true;
-      return false;
+      return discs.Count == 1;
     }
 
     /// <summary>
@@ -136,7 +119,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     /// <param name="trackName">Track name</param>
     /// <param name="movies">Potential track matches. The collection will be modified inside this method.</param>
     /// <returns><c>true</c> if unique match</returns>
-    public bool FindTrack(string trackName, ref List<CDTrackDetail> tracks)
+    public bool FindTrack(string trackName, ref List<FreeDBCDTrackDetail> tracks)
     {
       if (tracks.Count == 1)
       {
@@ -171,6 +154,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     }
 
     /// <summary>
+    /// Searches for unique track. 
+    /// </summary>
+    /// <param name="trackNumber">Track number</param>
+    /// <param name="movies">Potential track matches. The collection will be modified inside this method.</param>
+    /// <returns><c>true</c> if unique match</returns>
+    public bool FindTrack(int trackNumber, ref List<FreeDBCDTrackDetail> tracks)
+    {
+      if (tracks.Count == 1)
+      {
+        if (tracks[0].TrackNumber == trackNumber)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Unique match found \"{0}\"!", tracks[0].Title);
+          return true;
+        }
+        // No valid match, clear list to allow further detection ways
+        tracks.Clear();
+        return false;
+      }
+
+      // Multiple matches
+      if (tracks.Count > 1)
+      {
+        tracks = tracks.Where(s => s.TrackNumber == trackNumber).ToList();
+        if (tracks.Count > 1)
+          ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Multiple tracks found for \"{0}\" (count: {1})", trackNumber, tracks.Count);
+
+        return tracks.Count == 1;
+      }
+      return false;
+    }
+
+    /// <summary>
     /// Clears cache. 
     /// </summary>
     /// <returns><c>true</c> if successful</returns>
@@ -189,20 +204,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     /// Get cached disc info. 
     /// </summary>
     /// <param name="cdDbId">The CDDB ID</param>
-    /// <param name="trackName">Track name used to find correct disc.</param>
     /// <returns><c>true</c> if disc match</returns>
-    public bool GetDisc(string cdDbId, string trackName, out CDInfoDetail disc)
+    public bool GetDisc(string cdDbId, out FreeDBCDInfoDetail disc)
     {
       disc = null;
-      foreach (string file in GetMatchingCacheFiles(cdDbId))
-      {
-        CDInfoDetail discInfo = _freeDbHandler.GetDiscDetailsFromXMCD(File.ReadAllLines(file, Encoding.UTF8));
-        if (TestTracks(trackName, discInfo))
-        {
-          disc = discInfo;
-          return true;
-        }
-      }
+      string[] files = GetMatchingCacheFiles(cdDbId);
+      if (files == null || files.Length == 0 || files.Length > 1)
+        return false;
+
+      disc = _freeDbHandler.GetDiscDetailsFromXMCD(File.ReadAllLines(files[0], Encoding.UTF8));
       return disc != null;
     }
 

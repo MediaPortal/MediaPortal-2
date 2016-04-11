@@ -87,21 +87,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 //  ]
 //}
   [DataContract]
-  public class ArtistThumbs : AlbumDetails
+  public class FanArtArtistThumbs : FanArtAlbumDetails
   {
     [DataMember(Name = "artistthumb")]
-    public List<Thumb> ArtistThumbnails { get; set; }
+    public List<FanArtThumb> ArtistThumbnails { get; set; }
 
     [DataMember(Name = "musiclogo")]
-    public List<Thumb> ArtistLogos { get; set; }
+    public List<FanArtThumb> ArtistLogos { get; set; }
 
     [DataMember(Name = "hdmusiclogo")]
-    public List<Thumb> HDArtistLogos { get; set; }
+    public List<FanArtThumb> HDArtistLogos { get; set; }
 
     [DataMember(Name = "artistbackground")]
-    public List<Thumb> ArtistFanart { get; set; }
+    public List<FanArtThumb> ArtistFanart { get; set; }
 
     [DataMember(Name = "musicbanner")]
-    public List<Thumb> ArtistBanners { get; set; }
+    public List<FanArtThumb> ArtistBanners { get; set; }
   }
 }

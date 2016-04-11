@@ -22,24 +22,36 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
-  //        {
-  //          "id": "17739",
-  //          "url": "http://assets.fanart.tv/fanart/music/f4a31f0a-51dd-4fa7-986d-3095c40c5ed9/cdart/fallen-4f133f8a16d25.png",
-  //          "likes": "0",
-  //          "disc": "1",
-  //          "size": "1000"
-  //        }
+//    {
+//      "albumcover": [
+//        {
+//          "id": "43",
+//          "url": "http://assets.fanart.tv/fanart/music/f4a31f0a-51dd-4fa7-986d-3095c40c5ed9/albumcover/fallen-4dc8683fa58fe.jpg",
+//          "likes": "1"
+//        }
+//      ],
+//      "cdart": [
+//        {
+//          "id": "17739",
+//          "url": "http://assets.fanart.tv/fanart/music/f4a31f0a-51dd-4fa7-986d-3095c40c5ed9/cdart/fallen-4f133f8a16d25.png",
+//          "likes": "0",
+//          "disc": "1",
+//          "size": "1000"
+//        }
+//      ]
+//    }
   [DataContract]
-  public class CDArtThumb : Thumb
+  public class FanArtAlbumThumbs
   {
-    [DataMember(Name = "disc")]
-    public int? DiscId { get; set; }
+    [DataMember(Name = "cdart")]
+    public List<FanArtCDArtThumb> CDArts { get; set; }
 
-    [DataMember(Name = "size")]
-    public int? Size { get; set; }
+    [DataMember(Name = "albumcover")]
+    public List<FanArtThumb> AlbumCovers { get; set; }
   }
 }

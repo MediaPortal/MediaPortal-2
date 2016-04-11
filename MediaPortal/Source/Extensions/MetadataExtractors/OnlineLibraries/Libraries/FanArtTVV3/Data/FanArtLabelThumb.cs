@@ -24,31 +24,18 @@
 
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
   //    {
-  //      "Title": "Winter Is Coming",
-  //      "Released": "2011-04-17",
-  //      "Episode": "1",
-  //      "imdbRating": "8.9",
-  //      "imdbID": "tt1480055"
+  //      "id": "120425",
+  //      "url": "http://assets.fanart.tv/labels/e832b688-546b-45e3-83e5-9f8db5dcde1d/musiclabel/profile-records-53633ee474306.png",
+  //      "colour": "colour",
+  //      "likes": "0"
   //    }
   [DataContract]
-  public class SeasonEpisode : BaseResponse
+  public class FanArtLabelThumb : FanArtThumb
   {
-    [DataMember(Name = "Title")]
-    public string Title { get; set; }
-
-    [DataMember(Name = "Released")]
-    public string Released { get; set; }
-
-    [DataMember(Name = "Episode")]
-    public int EpisodeNumber { get; set; }
-
-    [DataMember(Name = "imdbRating")]
-    public string ImdbRating { get; set; }
-
-    [DataMember(Name = "imdbID")]
-    public string ImdbID { get; set; }
+    [DataMember(Name = "colour")]
+    public string Colour { get; set; }
   }
 }

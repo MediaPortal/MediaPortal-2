@@ -27,28 +27,25 @@ using System.Runtime.Serialization;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
 {
   //{
-  //  "Title": "Winter Is Coming",
-  //  "Year": "2011",
+  //  "Title": "Game of Thrones",
+  //  "Year": "2011–",
   //  "Rated": "TV-MA",
   //  "Released": "17 Apr 2011",
-  //  "Season": "1",
-  //  "Episode": "1",
-  //  "Runtime": "62 min",
+  //  "Runtime": "56 min",
   //  "Genre": "Adventure, Drama, Fantasy",
-  //  "Director": "Timothy Van Patten",
-  //  "Writer": "David Benioff (created by), D.B. Weiss (created by), George R.R. Martin (\"A Song of Ice and Fire\" by), David Benioff, D.B. Weiss",
-  //  "Actors": "Sean Bean, Mark Addy, Nikolaj Coster-Waldau, Michelle Fairley",
-  //  "Plot": "In the land of Winterfell, Lord Ned Stark begins to believe that something is amiss. A deserter from the Night Watch...",
+  //  "Director": "N/A",
+  //  "Writer": "David Benioff, D.B. Weiss",
+  //  "Actors": "Peter Dinklage, Lena Headey, Emilia Clarke, Kit Harington",
+  //  "Plot": "Ned Stark, Lord of Winterfell, becomes the Hand of the King after the former Hand, Jon Arryn, has passed away...",
   //  "Language": "English",
   //  "Country": "USA",
-  //  "Awards": "N/A",
-  //  "Poster": "http://ia.media-imdb.com/images/M/MV5BMTk5MDU3OTkzMF5BMl5BanBnXkFtZTcwOTc0ODg5NA@@._V1_SX300.jpg",
+  //  "Awards": "Won 1 Golden Globe. Another 172 wins & 278 nominations.",
+  //  "Poster": "http://ia.media-imdb.com/images/M/MV5BMjM5OTQ1MTY5Nl5BMl5BanBnXkFtZTgwMjM3NzMxODE@._V1_SX300.jpg",
   //  "Metascore": "N/A",
-  //  "imdbRating": "8.9",
-  //  "imdbVotes": "14119",
-  //  "imdbID": "tt1480055",
-  //  "seriesID": "tt0944947",
-  //  "Type": "episode",
+  //  "imdbRating": "9.5",
+  //  "imdbVotes": "934,499",
+  //  "imdbID": "tt0944947",
+  //  "Type": "series",
   //  "tomatoMeter": "N/A",
   //  "tomatoImage": "N/A",
   //  "tomatoRating": "N/A",
@@ -66,16 +63,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
   //  "Website": "N/A",
   //  "Response": "True"
   //}
+
   [DataContract]
-  public class Episode : BaseItem
+  public class OmDBSeries : OmDbBaseItem
   {
-    [DataMember(Name = "Season")]
-    public int SeasonNumber { get; set; }
-
-    [DataMember(Name = "Episode")]
-    public int EpisodeNumber { get; set; }
-
-    [DataMember(Name = "seriesID")]
-    public string ImdbSeriesID { get; set; }
   }
 }

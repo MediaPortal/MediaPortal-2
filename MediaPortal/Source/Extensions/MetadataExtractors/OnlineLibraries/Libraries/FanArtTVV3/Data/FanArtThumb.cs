@@ -27,15 +27,20 @@ using System.Runtime.Serialization;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
   //    {
-  //      "id": "120425",
-  //      "url": "http://assets.fanart.tv/labels/e832b688-546b-45e3-83e5-9f8db5dcde1d/musiclabel/profile-records-53633ee474306.png",
-  //      "colour": "colour",
-  //      "likes": "0"
+  //      "id": "19374",
+  //      "url": "http://assets.fanart.tv/fanart/tv/75682/showbackground/bones-500994f33356b.jpg",
+  //      "likes": "2",
   //    }
   [DataContract]
-  public class LabelThumb : Thumb
+  public class FanArtThumb
   {
-    [DataMember(Name = "colour")]
-    public string Colour { get; set; }
+    [DataMember(Name = "id")]
+    public int Id { get; set; }
+
+    [DataMember(Name = "url")]
+    public string Url { get; set; }
+
+    [DataMember(Name = "likes")]
+    public int? Likes { get; set; }
   }
 }

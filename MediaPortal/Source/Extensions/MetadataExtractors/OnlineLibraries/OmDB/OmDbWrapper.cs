@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     /// <param name="year">Optional year of movie</param>
     /// <param name="movies">Returns the list of matches.</param>
     /// <returns><c>true</c> if at least one Movie was found.</returns>
-    public bool SearchMovie(string movieName, int year, out List<SearchItem> movies)
+    public bool SearchMovie(string movieName, int year, out List<OmDbSearchItem> movies)
     {
       movies = _omDbHandler.SearchMovie(movieName, year);
       return movies.Count > 0;
@@ -79,7 +79,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     /// <param name="year">Optional year of movie</param>
     /// <param name="movies">Returns the list of matches.</param>
     /// <returns><c>true</c> if at exactly one Movie was found.</returns>
-    public bool SearchMovieUnique(string movieName, int year, out List<SearchItem> movies)
+    public bool SearchMovieUnique(string movieName, int year, out List<OmDbSearchItem> movies)
     {
       movies = _omDbHandler.SearchMovie(movieName, year);
       if (TestMovieMatch(movieName, year, ref movies))
@@ -106,7 +106,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     /// <param name="year">Optional year</param>
     /// <param name="movies">Potential online matches. The collection will be modified inside this method.</param>
     /// <returns><c>true</c> if unique match</returns>
-    private bool TestMovieMatch(string moviesName, int year, ref List<SearchItem> movies)
+    private bool TestMovieMatch(string moviesName, int year, ref List<OmDbSearchItem> movies)
     {
       // Exact match in preferred language
       ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Test Match for \"{0}\"", moviesName);
@@ -165,7 +165,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     /// <param name="seriesName">Name</param>
     /// <param name="series">Returns the list of matches.</param>
     /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeries(string seriesName, int year, out List<SearchItem> series)
+    public bool SearchSeries(string seriesName, int year, out List<OmDbSearchItem> series)
     {
       series = _omDbHandler.SearchSeries(seriesName, year);
       return series.Count > 0;
@@ -180,7 +180,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     /// <param name="seriesName">Name</param>
     /// <param name="series">Returns the list of matches.</param>
     /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeriesUnique(string seriesName, int year, out List<SearchItem> series)
+    public bool SearchSeriesUnique(string seriesName, int year, out List<OmDbSearchItem> series)
     {
       series = _omDbHandler.SearchSeries(seriesName, year);
       if (TestSeriesMatch(seriesName, year, ref series))
@@ -206,7 +206,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     /// <param name="seriesName">Series name</param>
     /// <param name="series">Potential online matches. The collection will be modified inside this method.</param>
     /// <returns><c>true</c> if unique match</returns>
-    private bool TestSeriesMatch(string seriesName, int year, ref List<SearchItem> series)
+    private bool TestSeriesMatch(string seriesName, int year, ref List<OmDbSearchItem> series)
     {
       // Exact match in preferred language
       ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Test Match for \"{0}\"", seriesName);
@@ -258,25 +258,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
       return false;
     }
 
-    public bool GetMovie(string imdbId, out Movie movieDetail)
+    public bool GetMovie(string imdbId, out OmDbMovie movieDetail)
     {
       movieDetail = _omDbHandler.GetMovie(imdbId);
       return movieDetail != null;
     }
 
-    public bool GetSeries(string imdbId, out Series seriesDetail)
+    public bool GetSeries(string imdbId, out OmDBSeries seriesDetail)
     {
       seriesDetail = _omDbHandler.GetSeries(imdbId);
       return seriesDetail != null;
     }
 
-    public bool GetSeriesSeason(string imdbId, int season, out Season seasonDetail)
+    public bool GetSeriesSeason(string imdbId, int season, out OmDBSeason seasonDetail)
     {
       seasonDetail = _omDbHandler.GetSeriesSeason(imdbId, season);
       return seasonDetail != null;
     }
 
-    public bool GetSeriesEpisode(string imdbId, int season, int episode, out Episode episodeDetail)
+    public bool GetSeriesEpisode(string imdbId, int season, int episode, out OmDbEpisode episodeDetail)
     {
       episodeDetail = _omDbHandler.GetSeriesEpisode(imdbId, season, episode);
       return episodeDetail != null;

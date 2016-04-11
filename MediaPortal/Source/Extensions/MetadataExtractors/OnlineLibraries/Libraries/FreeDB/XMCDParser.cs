@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
     private string m_genre = null;
     private string m_extd = null;
     private int[] m_playorder = null;
-    private CDTrackDetail[] m_cdTrackDetail = null;
+    private FreeDBCDTrackDetail[] m_cdTrackDetail = null;
 
     public XMCDParser()
     {
@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       parse(xmcdContent);
     }
 
-    public CDInfoDetail parse(string[] content)
+    public FreeDBCDInfoDetail parse(string[] content)
     {
       StringBuilder buff = new StringBuilder(1024);
       for (int i = 0; i < content.Length; i++)
@@ -73,7 +73,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return parse(buff.ToString());
     }
 
-    public CDInfoDetail parse(string content)
+    public FreeDBCDInfoDetail parse(string content)
     {
       m_content = (string)content.Clone();
       if (m_content.IndexOf("# xmcd") != 0)
@@ -89,11 +89,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       m_year = parseYear();
       m_genre = parseGenre();
       m_extd = parseExtension();
-      m_cdTrackDetail = new CDTrackDetail[m_offsets.Length];
+      m_cdTrackDetail = new FreeDBCDTrackDetail[m_offsets.Length];
 
       for (int i = 0; i < m_offsets.Length; i++)
       {
-        m_cdTrackDetail[i] = new CDTrackDetail();
+        m_cdTrackDetail[i] = new FreeDBCDTrackDetail();
         string trackArtist = parseTrackArtist(i);
         m_cdTrackDetail[i].Artist = trackArtist.Equals(m_artist) ? null : trackArtist;
         m_cdTrackDetail[i].Title = parseTrackTitle(i);
@@ -103,11 +103,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
         m_cdTrackDetail[i].TrackNumber = i + 1;
       }
 
-      return new CDInfoDetail(m_discid, m_artist, m_title, m_genre, m_year, m_length,
+      return new FreeDBCDInfoDetail(m_discid, m_artist, m_title, m_genre, m_year, m_length,
                               m_cdTrackDetail, m_extd, m_playorder);
     }
 
-    public CDInfoDetail Parse2(string[] content)
+    public FreeDBCDInfoDetail Parse2(string[] content)
     {
       ArrayList offsets = new ArrayList();
       Hashtable comments = new Hashtable();
@@ -200,7 +200,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
         }
       }
       InitVariables(offsets, comments, fields);
-      return new CDInfoDetail(m_discid, m_artist, m_title, m_genre, m_year, m_length,
+      return new FreeDBCDInfoDetail(m_discid, m_artist, m_title, m_genre, m_year, m_length,
                               m_cdTrackDetail, m_extd, m_playorder);
     }
 
@@ -208,7 +208,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
     {
       // all the song offsets
       m_offsets = (int[])offsets.ToArray(typeof(int));
-      m_cdTrackDetail = new CDTrackDetail[m_offsets.Length];
+      m_cdTrackDetail = new FreeDBCDTrackDetail[m_offsets.Length];
 
       foreach (DictionaryEntry dict in comments)
       {
@@ -343,7 +343,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       {
         string title = (string)fields["TTITLE" + i];
         string extt = (string)fields["EXTT" + i];
-        m_cdTrackDetail[i] = new CDTrackDetail();
+        m_cdTrackDetail[i] = new FreeDBCDTrackDetail();
         string trackArtist = extendedParseTrackArtist(title, isALegitimateCompilation);
         string trackTitle = extendedParseTrackTitle(title, isALegitimateCompilation);
         m_cdTrackDetail[i].Artist = trackArtist.Equals(m_artist) ? null : trackArtist;
@@ -654,7 +654,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
         return m_content.Substring(j + beg.Length, k).Trim();
     }
 
-    public static string createXMCD(CDInfoDetail cdinfo)
+    public static string createXMCD(FreeDBCDInfoDetail cdinfo)
     {
       string newline = "\n";
       int index = 0;
@@ -669,7 +669,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
 
       // Track frame offsets
       content.Append("# Track frame offsets:");
-      foreach (CDTrackDetail track in cdinfo.Tracks)
+      foreach (FreeDBCDTrackDetail track in cdinfo.Tracks)
       {
         content.Append(newline);
         content.Append("#\t");

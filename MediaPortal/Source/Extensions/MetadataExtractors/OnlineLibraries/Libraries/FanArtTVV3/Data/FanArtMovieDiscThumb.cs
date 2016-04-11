@@ -35,7 +35,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
   //      "disc_type": "bluray"
   //    }
   [DataContract]
-  public class MovieDiscThumb : MovieThumb
+  public class FanArtMovieDiscThumb : FanArtMovieThumb
   {
     [DataMember(Name = "disc")]
     public int? Disc { get; set; }

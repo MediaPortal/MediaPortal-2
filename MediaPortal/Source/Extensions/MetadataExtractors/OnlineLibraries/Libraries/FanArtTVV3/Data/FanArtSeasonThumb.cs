@@ -22,39 +22,21 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
 {
-  //  {
-  //  "name": "Profile Records",
-  //  "id": "e832b688-546b-45e3-83e5-9f8db5dcde1d",
-  //  "musiclabel": [
   //    {
-  //      "id": "120425",
-  //      "url": "http://assets.fanart.tv/labels/e832b688-546b-45e3-83e5-9f8db5dcde1d/musiclabel/profile-records-53633ee474306.png",
-  //      "colour": "colour",
-  //      "likes": "0"
-  //    },
-  //    {
-  //      "id": "120426",
-  //      "url": "http://assets.fanart.tv/labels/e832b688-546b-45e3-83e5-9f8db5dcde1d/musiclabel/profile-records-53633ef28bf22.png",
-  //      "colour": "white",
-  //      "likes": "0"
+  //      "id": "19374",
+  //      "url": "http://assets.fanart.tv/fanart/tv/75682/showbackground/bones-500994f33356b.jpg",
+  //      "lang": "en",
+  //      "likes": "2",
+  //      "season": "7"
   //    }
-  //  ]
-  //}
   [DataContract]
-  public class LabelThumbs
+  public class FanArtSeasonThumb : FanArtMovieThumb
   {
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
-
-    [DataMember(Name = "mbid_id")]
-    public string MusicBrainzID { get; set; }
-
-    [DataMember(Name = "musiclabel")]
-    public List<LabelThumb> LabelLogos { get; set; }
+    [DataMember(Name = "season")]
+    public int? Season { get; set; }
   }
 }
