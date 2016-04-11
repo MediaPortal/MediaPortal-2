@@ -30,9 +30,9 @@ using MediaPortal.Utilities;
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
   /// <summary>
-  /// <see cref="CollectionInfo"/> contains metadata information about a movie collection item.
+  /// <see cref="MovieCollectionInfo"/> contains metadata information about a movie collection item.
   /// </summary>
-  public class CollectionInfo
+  public class MovieCollectionInfo
   {
     /// <summary>
     /// Gets or sets the character TheMovieDb id.
@@ -54,7 +54,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (string.IsNullOrEmpty(Name)) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, CollectionAspect.ATTR_COLLECTION_NAME, Name);
+      MediaItemAspect.SetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, Name);
 
       if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, MovieDbId.ToString());
 

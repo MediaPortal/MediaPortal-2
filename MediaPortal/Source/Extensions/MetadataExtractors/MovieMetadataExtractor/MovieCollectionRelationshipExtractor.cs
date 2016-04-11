@@ -35,7 +35,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   class MovieCollectionRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
-    private static readonly Guid[] LINKED_ROLE_ASPECTS = { CollectionAspect.ASPECT_ID };
+    private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
 
     public Guid Role
     {
@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return CollectionAspect.ROLE_COLLECTION; }
+      get { return MovieCollectionAspect.ROLE_COLLECTION; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       // Build the person MI
 
-      CollectionInfo collection = new CollectionInfo()
+      MovieCollectionInfo collection = new MovieCollectionInfo()
       {
         MovieDbId = movieDbId,
         Name = collectionName
@@ -93,7 +93,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      return existingAspects.ContainsKey(CollectionAspect.ASPECT_ID);
+      return existingAspects.ContainsKey(MovieCollectionAspect.ASPECT_ID);
     }
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)

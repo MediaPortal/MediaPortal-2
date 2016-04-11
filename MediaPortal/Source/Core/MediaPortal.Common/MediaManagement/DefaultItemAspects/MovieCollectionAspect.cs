@@ -30,7 +30,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// Contains the metadata specification of the "Collection" media item aspect which is assigned to movie media items.
   /// It describes a collection of movies in fx a trilogy.
   /// </summary>
-  public static class CollectionAspect
+  public static class MovieCollectionAspect
   {
     /// <summary>
     /// Media item aspect id of the collection aspect.
@@ -45,10 +45,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
-        ASPECT_ID, "CollectionItem", new[] {
+        ASPECT_ID, "MovieCollectionItem", new[] {
             ATTR_COLLECTION_NAME
         });
 
-    public static readonly Guid ROLE_COLLECTION = new Guid("EB0F461A-E7BB-46D2-8D85-2A18122A0983");
+    public static readonly Guid ROLE_MOVIE_COLLECTION = new Guid("EB0F461A-E7BB-46D2-8D85-2A18122A0983");
   }
 }
