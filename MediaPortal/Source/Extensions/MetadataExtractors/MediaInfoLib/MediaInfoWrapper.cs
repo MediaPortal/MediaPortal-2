@@ -335,6 +335,20 @@ namespace MediaInfoLib
       return GetLongOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "BitRate"));
     }
 
+    /// <summary>
+    /// Returns the number of channels of the specified audio <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of audio stream to examine.</param>
+    /// <returns>Number of audio channels or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    public int? GetAudioChannels(int stream)
+    {
+      string channels = _mediaInfo.Get(StreamKind.Audio, stream, "Channel(s)/String");
+      if (string.IsNullOrEmpty(channels))
+        return null;
+      channels = channels.Substring(0, channels.IndexOf(" "));
+      return GetIntOrNull(channels);
+    }
+
     // TODO: (cover art, ....)
   }
 }
