@@ -22,38 +22,40 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 {
-  //{
-  //  "id": 819,
-  //  "name": "Edward Norton",
-  //  "character": "The Narrator",
-  //  "order": 0,
-  //  "profile_path": "/7cf2mCVI0qv2PnZVNbbEktS8Xae.jpg"
-  //}  
+  //  "credits": {
+  //    "cast": [
+  //      {
+  //        "character": "Walter White",
+  //        "credit_id": "52542282760ee313280017f9",
+  //        "id": 17419,
+  //        "name": "Bryan Cranston",
+  //        "profile_path": "/fnglrIFnI5cK4OAh66AZN86mkFq.jpg",
+  //        "order": 0
+  //      }
+  //    ],
+  //    "crew": [
+  //      {
+  //        "credit_id": "52542287760ee31328001af1",
+  //        "department": "Production",
+  //        "id": 66633,
+  //        "name": "Vince Gilligan",
+  //        "job": "Executive Producer",
+  //        "profile_path": "/rLSUjr725ez1cK7SKVxC9udO03Y.jpg"
+  //      }
+  //    ]
+  //  }
   [DataContract]
-  public class CastItem
+  public class Credits
   {
-    [DataMember(Name = "id")]
-    public int PersonId { get; set; }
+    [DataMember(Name = "cast")]
+    public List<CastItem> Cast { get; set; }
 
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
-
-    [DataMember(Name = "character")]
-    public string Character { get; set; }
-
-    [DataMember(Name = "order")]
-    public string Order { get; set; }
-
-    [DataMember(Name = "profile_path")]
-    public string ProfilePath { get; set; }
-
-    public override string ToString()
-    {
-      return Name;
-    }
+    [DataMember(Name = "crew")]
+    public List<CrewItem> Crew { get; set; }
   }
 }

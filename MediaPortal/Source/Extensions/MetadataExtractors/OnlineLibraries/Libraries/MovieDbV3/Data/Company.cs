@@ -22,38 +22,42 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 {
   //{
-  //  "id": 819,
-  //  "name": "Edward Norton",
-  //  "character": "The Narrator",
-  //  "order": 0,
-  //  "profile_path": "/7cf2mCVI0qv2PnZVNbbEktS8Xae.jpg"
-  //}  
+  //  "description": null,
+  //  "headquarters": "San Francisco, California",
+  //  "homepage": "http://www.lucasfilm.com",
+  //  "id": 1,
+  //  "logo_path": "/8rUnVMVZjlmQsJ45UGotD0Uznxj.png",
+  //  "name": "Lucasfilm",
+  //  "parent_company": null
+  //}
   [DataContract]
-  public class CastItem
+  public class Company
   {
     [DataMember(Name = "id")]
-    public int PersonId { get; set; }
+    public int Id { get; set; }
 
     [DataMember(Name = "name")]
     public string Name { get; set; }
 
-    [DataMember(Name = "character")]
-    public string Character { get; set; }
+    [DataMember(Name = "description")]
+    public string Description { get; set; }
 
-    [DataMember(Name = "order")]
-    public string Order { get; set; }
+    [DataMember(Name = "headquarters")]
+    public string Headquarters { get; set; }
 
-    [DataMember(Name = "profile_path")]
-    public string ProfilePath { get; set; }
+    [DataMember(Name = "homepage")]
+    public string Homepage { get; set; }
 
-    public override string ToString()
-    {
-      return Name;
-    }
+    [DataMember(Name = "parent_company")]
+    public string ParentCompany { get; set; }
+
+    [DataMember(Name = "logo_path")]
+    public string LogoPath { get; set; }
   }
 }

@@ -137,6 +137,51 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
   //  "type": "Scripted",
   //  "vote_average": 9.2,
   //  "vote_count": 152
+  //  "external_ids": {
+  //    "imdb_id": "tt0903747",
+  //    "freebase_mid": "/m/03d34x8",
+  //    "freebase_id": "/en/breaking_bad",
+  //    "tvdb_id": "81189",
+  //    "tvrage_id": "18164"
+  //  },
+  //  "content_ratings": {
+  //    "results": [
+  //      {
+  //        "iso_3166_1": "DE",
+  //        "rating": "16"
+  //      },
+  //      {
+  //        "iso_3166_1": "GB",
+  //        "rating": "18"
+  //      },
+  //      {
+  //        "iso_3166_1": "US",
+  //        "rating": "TV-MA"
+  //      }
+  //    ]
+  //  },
+  //  "credits": {
+  //    "cast": [
+  //      {
+  //        "character": "Walter White",
+  //        "credit_id": "52542282760ee313280017f9",
+  //        "id": 17419,
+  //        "name": "Bryan Cranston",
+  //        "profile_path": "/fnglrIFnI5cK4OAh66AZN86mkFq.jpg",
+  //        "order": 0
+  //      }
+  //    ],
+  //    "crew": [
+  //      {
+  //        "credit_id": "52542287760ee31328001af1",
+  //        "department": "Production",
+  //        "id": 66633,
+  //        "name": "Vince Gilligan",
+  //        "job": "Executive Producer",
+  //        "profile_path": "/rLSUjr725ez1cK7SKVxC9udO03Y.jpg"
+  //      }
+  //    ]
+  //  }
   //}
   [DataContract]
   public class Series : SeriesSearchResult
@@ -185,6 +230,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 
     [DataMember(Name = "content_ratings")]
     public SeriesRatingResult ContentRatingResults { get; set; }
+
+    [DataMember(Name = "credits")]
+    public Credits SeriesCredits { get; set; }
 
     public override string ToString()
     {

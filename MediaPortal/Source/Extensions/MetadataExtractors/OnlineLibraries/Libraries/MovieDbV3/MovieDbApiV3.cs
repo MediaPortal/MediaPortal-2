@@ -43,6 +43,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     private const string URL_GETMOVIECASTCREW = URL_API_BASE + "movie/{0}/casts";
     private const string URL_GETMOVIEIMAGES = URL_API_BASE + "movie/{0}/images";
     private const string URL_GETPERSON = URL_API_BASE + "person/{0}";
+    private const string URL_GETCOMPANY = URL_API_BASE + "company/{0}";
     private const string URL_GETPERSONIMAGES = URL_API_BASE + "person/{0}/images";
     private const string URL_SERIESUERY = URL_API_BASE + "search/tv";
     private const string URL_GETSERIES = URL_API_BASE + "tv/{0}";
@@ -194,6 +195,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       ImageCollection result = _downloader.Download<ImageCollection>(url);
       result.SetMovieIds();
       return result;
+    }
+
+    /// <summary>
+    /// Returns detailed information for a single <see cref="Company"/> with given <paramref name="id"/>. This method caches request
+    /// to same company using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="id">TMDB id of company</param>
+    /// <param name="language">Language</param>
+    /// <returns>Company information</returns>
+    public Company GetCompany(int id, string language)
+    {
+      string cache = CreateAndGetCacheName(id, language, "Company");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<Company>(json);
+      }
+      string url = GetUrl(URL_GETCOMPANY, language, id);
+      return _downloader.Download<Company>(url, cache);
     }
 
     /// <summary>

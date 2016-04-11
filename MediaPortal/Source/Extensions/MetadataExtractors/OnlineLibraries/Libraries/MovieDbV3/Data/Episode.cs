@@ -96,6 +96,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     [DataMember(Name = "external_ids")]
     public ExternalIds ExternalId { get; set; }
 
+    [DataMember(Name = "guest_stars")]
+    public List<CastItem> GuestStars { get; set; }
+
+    [DataMember(Name = "crew")]
+    public List<CrewItem> Crew { get; set; }
+
     public override string ToString()
     {
       return string.Format("S{0:00}E{1:00} {2}", SeasonNumber, EpisodeNumber, Name);
