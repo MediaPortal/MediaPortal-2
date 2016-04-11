@@ -62,8 +62,15 @@
     <Compile Include="Matchers\MatroskaMatcher.cs" />
     <Compile Include="Matchers\NfoReader.cs" />
     <Compile Include="MovieMetadataExtractorSettings.cs" />
+    <Compile Include="MovieCollectionRelationshipExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MovieMetadataExtractor.cs" />
+    <Compile Include="MovieActorRelationshipExtractor.cs" />
+    <Compile Include="MovieCharacterRelationshipExtractor.cs" />
+    <Compile Include="MovieDirectorRelationshipExtractor.cs" />
+    <Compile Include="MovieProductionRelationshipExtractor.cs" />
+    <Compile Include="MovieRelationshipExtractor.cs" />
+    <Compile Include="MovieWriterRelationshipExtractor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">

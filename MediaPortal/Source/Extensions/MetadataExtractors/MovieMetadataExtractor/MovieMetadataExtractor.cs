@@ -130,7 +130,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (NamePreprocessor.MatchTitleYear(dummy))
         {
           movieInfo.MovieName = dummy.MovieName;
-          movieInfo.Year = dummy.Year;
+          movieInfo.ReleaseDate = dummy.ReleaseDate;
           break;
         }
       }
@@ -138,18 +138,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       // When searching movie title, the year can be relevant for multiple titles with same name but different years
       DateTime recordingDate;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-        movieInfo.Year = recordingDate.Year;
+        movieInfo.ReleaseDate = recordingDate;
 
-      if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
-      {
-        if (!_onlyFanArt)
-          movieInfo.SetMetadata(extractedAspectData);
-        if (_onlyFanArt && movieInfo.MovieDbId > 0)
-          MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, movieInfo.MovieDbId.ToString());
-        if (_onlyFanArt && movieInfo.CollectionMovieDbId > 0)
-          MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, movieInfo.CollectionMovieDbId.ToString());
-        return true;
-      }
+      MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo);
+      MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo);
+      MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo);
+
+      if (!_onlyFanArt)
+        movieInfo.SetMetadata(extractedAspectData);
+
       return false;
     }
 
