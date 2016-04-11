@@ -110,13 +110,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public string Title { get; set; }
 
     [DataMember(Name = "artist-credit")]
-    public IList<TrackArtistCredit> Artists { get; set; }
+    public List<TrackArtistCredit> Artists { get; set; }
 
     [DataMember(Name = "releases")]
-    public IList<TrackRelease> Releases { get; set; }
+    public List<TrackRelease> Releases { get; set; }
 
     [DataMember(Name = "tags")]
-    public IList<TrackTag> Tags { get; set; }
+    public List<TrackTag> Tags { get; set; }
 
     public override string ToString()
     {

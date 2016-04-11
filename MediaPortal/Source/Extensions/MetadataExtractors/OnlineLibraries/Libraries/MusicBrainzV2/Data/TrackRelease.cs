@@ -147,13 +147,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public int TrackCount { get; set; }
 
     [DataMember(Name = "media")]
-    public IList<TrackMedia> Media { get; set; }
+    public List<TrackMedia> Media { get; set; }
 
     [DataMember(Name = "artist-credit")]
-    public IList<TrackArtistCredit> Artists { get; set; }
+    public List<TrackArtistCredit> Artists { get; set; }
 
     [DataMember(Name = "label-info")]
-    public IList<TrackLabel> Labels { get; set; }
+    public List<TrackLabel> Labels { get; set; }
 
     [DataMember(Name = "cover-art-archive")]
     public TrackCoverArt CoverArt { get; set; }

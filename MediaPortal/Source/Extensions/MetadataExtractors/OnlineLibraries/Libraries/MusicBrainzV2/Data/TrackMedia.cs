@@ -90,13 +90,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public int TrackCount { get; set; }
 
     [DataMember(Name = "track")]
-    public IList<TrackData> Track { get; set; }
+    public List<TrackData> Track { get; set; }
 
     [DataMember(Name = "tracks")]
-    public IList<TrackData> Tracks { get; set; }
+    public List<TrackData> Tracks { get; set; }
 
     [DataMember(Name = "discs")]
-    public IList<TrackDisc> Discs { get; set; }
+    public List<TrackDisc> Discs { get; set; }
 
     public override string ToString()
     {

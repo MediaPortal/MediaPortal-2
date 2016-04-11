@@ -74,19 +74,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// </summary>
     /// <param name="language">Language</param>
     /// <returns>List of possible matches</returns>
-    public List<TrackResult> SearchTrack(string title, string[] artists, string album, int? year, int? trackNum)
+    public List<TrackResult> SearchTrack(string title, List<string> artists, string album, int? year, int? trackNum)
     {
       string query = string.Format("\"{0}\"", title);
-      if (artists != null && artists.Length > 0)
+      if (artists != null && artists.Count > 0)
       {
-        if (artists.Length > 1) query += " and (";
+        if (artists.Count > 1) query += " and (";
         else query += " and ";
-        for (int artist = 0; artist <artists.Length; artist++)
+        for (int artist = 0; artist <artists.Count; artist++)
         {
           if(artist > 0) query += " and ";
           query += string.Format("artistname:\"{0}\"", artists[artist]);
         }
-        if (artists.Length > 1) query += ")";
+        if (artists.Count > 1) query += ")";
       }
       if (!string.IsNullOrEmpty(album))
       {

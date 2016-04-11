@@ -110,6 +110,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
   public class TrackRecordingResult
   {
     [DataMember(Name = "recordings")]
-    public IList<TrackSearchResult> Results { get; set; }
+    public List<TrackSearchResult> Results { get; set; }
   }
 }

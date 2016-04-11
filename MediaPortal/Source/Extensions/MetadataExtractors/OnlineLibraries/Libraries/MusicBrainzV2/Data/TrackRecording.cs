@@ -67,7 +67,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public string Title { get; set; }
 
     [DataMember(Name = "artist-credit")]
-    public IList<TrackArtistCredit> Artists { get; set; }
+    public List<TrackArtistCredit> Artists { get; set; }
 
     [DataMember(Name = "length")]
     public long Length { get; set; }

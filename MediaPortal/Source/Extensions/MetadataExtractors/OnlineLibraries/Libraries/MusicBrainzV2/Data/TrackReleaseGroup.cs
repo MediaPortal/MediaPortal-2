@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public string PrimaryType { get; set; }
 
     [DataMember(Name = "secondary-types")]
-    public IList<string> SecondaryTypes { get; set; }
+    public List<string> SecondaryTypes { get; set; }
 
     public override string ToString()
     {

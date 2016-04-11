@@ -142,23 +142,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public long Length { get; set; }
 
     [DataMember(Name = "artist-credit")]
-    public IList<TrackArtistCredit> Artists { get; set; }
+    public List<TrackArtistCredit> Artists { get; set; }
 
     [DataMember(Name = "rating")]
     public TrackRating Rating { get; set; }
 
     [DataMember(Name = "releases")]
-    public IList<TrackRelease> Releases { get; set; }
+    public List<TrackRelease> Releases { get; set; }
 
     [DataMember(Name = "tags")]
-    public IList<TrackTag> Tags { get; set; }
+    public List<TrackTag> Tags { get; set; }
 
     [DataMember(Name = "relations")]
-    public IList<TrackRelation> Relations { get; set; }
+    public List<TrackRelation> Relations { get; set; }
 
-    public List<string> TrackArtists { get; set; }
+    public List<TrackArtist> TrackArtists { get; set; }
 
-    public List<string> Composers { get; set; }
+    public List<TrackArtist> Composers { get; set; }
 
     public string AlbumId { get; set; }
 
@@ -172,7 +172,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     public int DiscId { get; set; }
 
-    public List<string> AlbumArtists { get; set; }
+    public List<TrackArtist> AlbumArtists { get; set; }
 
     public DateTime? ReleaseDate { get; set; }
 
@@ -204,24 +204,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
           AlbumId = release.Id;
           Album = release.Title;
 
-          TrackArtists = new List<string>();
+          TrackArtists = new List<TrackArtist>();
           foreach (TrackArtistCredit artistCredit in Artists)
           {
-            TrackArtists.Add(artistCredit.Artist.Name);
+            TrackArtists.Add(artistCredit.Artist);
           }
 
-          AlbumArtists = new List<string>();
+          AlbumArtists = new List<TrackArtist>();
           foreach (TrackArtistCredit artistCredit in release.Artists)
           {
-            AlbumArtists.Add(artistCredit.Artist.Name);
+            AlbumArtists.Add(artistCredit.Artist);
           }
           if (AlbumArtists.Count == 0) AlbumArtists = TrackArtists;
 
-          Composers = new List<string>();
+          Composers = new List<TrackArtist>();
           foreach (TrackRelation relation in Relations)
           {
             if(relation.Type.Equals("Composer", StringComparison.InvariantCultureIgnoreCase))
-              Composers.Add(relation.Artist.Name);
+              Composers.Add(relation.Artist);
           }
 
           TagValues = new List<string>();
