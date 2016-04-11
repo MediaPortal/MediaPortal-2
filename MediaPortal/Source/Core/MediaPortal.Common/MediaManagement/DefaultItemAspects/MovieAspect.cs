@@ -140,5 +140,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT
         });
+
+    public static readonly Guid ROLE_MOVIE = new Guid("B8B58098-6577-442E-BCB9-DEE3D114EAEF");
   }
 }

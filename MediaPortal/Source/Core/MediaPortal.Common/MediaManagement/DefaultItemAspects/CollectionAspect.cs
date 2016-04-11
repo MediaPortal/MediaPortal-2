@@ -40,13 +40,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Collection name.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COLLECTIONNAME =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CollectionName", 100, Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COLLECTION_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CollectionName", 200, Cardinality.Inline, true);
 
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "CollectionItem", new[] {
-            ATTR_COLLECTIONNAME
+            ATTR_COLLECTION_NAME
         });
 
     public static readonly Guid ROLE_COLLECTION = new Guid("EB0F461A-E7BB-46D2-8D85-2A18122A0983");

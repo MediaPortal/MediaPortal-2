@@ -69,6 +69,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\SeasonAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\CharacterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\Helpers\CollectionInfo.cs" />
     <Compile Include="MediaManagement\Helpers\CompanyInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SeasonInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
