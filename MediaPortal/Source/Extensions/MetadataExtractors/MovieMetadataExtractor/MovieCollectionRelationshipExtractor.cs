@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return MovieCollectionAspect.ROLE_COLLECTION; }
+      get { return MovieCollectionAspect.ROLE_MOVIE_COLLECTION; }
     }
 
     public Guid[] LinkedRoleAspects

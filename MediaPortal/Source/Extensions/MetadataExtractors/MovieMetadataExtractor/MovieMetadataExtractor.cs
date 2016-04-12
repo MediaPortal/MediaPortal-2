@@ -34,7 +34,6 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
