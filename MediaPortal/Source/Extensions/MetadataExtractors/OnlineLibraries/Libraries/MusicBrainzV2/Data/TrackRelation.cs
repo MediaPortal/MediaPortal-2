@@ -43,6 +43,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public string Type { get; set; }
 
     [DataMember(Name = "artist")]
-    public TrackArtist Artist { get; set; }
+    public TrackBaseName Artist { get; set; }
   }
 }

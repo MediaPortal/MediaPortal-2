@@ -121,14 +121,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    private List<PersonInfo> ConvertToPersons(List<TrackArtist> artist, PersonOccupation occupation)
+    private List<PersonInfo> ConvertToPersons(List<TrackBaseName> artist, PersonOccupation occupation)
     {
       if (artist == null || artist.Count == 0)
         return new List<PersonInfo>();
 
       List<PersonInfo> retValue = new List<PersonInfo>();
-      foreach (TrackArtist person in artist)
-        retValue.Add(new PersonInfo() { MusicBrainzId = person.Id, Name = person.Name, Occupation = occupation });
+      foreach (TrackBaseName person in artist)
+      {
+        TrackArtist artistDetail;
+        if (!string.IsNullOrEmpty(person.Id) && _musicBrainzDb.GetArtist(person.Id, out artistDetail))
+        {
+          retValue.Add(new PersonInfo()
+          {
+            MusicBrainzId = artistDetail.Id,
+            Name = artistDetail.Name,
+            DateOfBirth = artistDetail.LifeSpan != null ? artistDetail.LifeSpan.Begin : null,
+            DateOfDeath = artistDetail.LifeSpan != null ? artistDetail.LifeSpan.End : null,
+            IsGroup = string.IsNullOrEmpty(artistDetail.Type) ? false : artistDetail.Type.IndexOf("Group", StringComparison.InvariantCultureIgnoreCase) >= 0,
+            Occupation = occupation
+          });
+        }
+      }
       return retValue;
     }
 

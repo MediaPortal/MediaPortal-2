@@ -74,6 +74,9 @@
     <Compile Include="Libraries\MovieDbV3\Data\Credits.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\SeriesRating.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\SeriesRatingResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLifeSpan.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtist.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackArea.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabelDetail.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabel.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackCoverArt.cs" />
@@ -186,7 +189,7 @@
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtistCredit.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackReleaseGroup.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackData.cs" />
-    <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtist.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackBaseName.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackSearchResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\MusicBrainzApiV2.cs" />
     <Compile Include="Libraries\OpenStreetMap\Data\GeocoderResponse.cs" />

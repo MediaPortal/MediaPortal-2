@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -58,11 +59,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     [DataMember(Name = "id")]
     public string Id { get; set; }
 
+    [DataMember(Name = "title")]
+    public string Title { get; set; }
+
+    [DataMember(Name = "first-release-date")]
+    public DateTime? FirstRelease { get; set; }
+
+    [DataMember(Name = "artist-credit")]
+    public TrackArtistCredit ArtistCredit { get; set; }
+
     [DataMember(Name = "primary-type")]
     public string PrimaryType { get; set; }
 
     [DataMember(Name = "secondary-types")]
     public List<string> SecondaryTypes { get; set; }
+
+    [DataMember(Name = "releases")]
+    public List<TrackRelease> Releases { get; set; }
 
     public override string ToString()
     {

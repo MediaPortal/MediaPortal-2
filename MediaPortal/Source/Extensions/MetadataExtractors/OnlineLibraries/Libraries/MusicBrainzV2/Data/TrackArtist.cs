@@ -26,23 +26,66 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
-  //      {
-  //        "disambiguation": "",
-  //        "sort-name": "Depeche Mode",
-  //        "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
-  //        "name": "Depeche Mode"
-  //      }
+  // {
+  //  "life-span": {
+  //    "end": "1994-04-05",
+  //    "begin": "1988-01",
+  //    "ended": true
+  //  },
+  //  "area": {
+  //    "sort-name": "United States",
+  //    "iso-3166-1-codes": [
+  //      "US"
+  //    ],
+  //    "name": "United States",
+  //    "id": "489ce91b-6658-3307-9877-795b68554c98",
+  //    "disambiguation": ""
+  //  },
+  //  "country": "US",
+  //  "begin_area": {
+  //    "id": "a640b45c-c173-49b1-8030-973603e895b5",
+  //    "disambiguation": "",
+  //    "sort-name": "Aberdeen",
+  //    "name": "Aberdeen"
+  //  },
+  //  "sort-name": "Nirvana",
+  //  "disambiguation": "90s US grunge band",
+  //  "id": "5b11f4ce-a62d-471e-81fc-a69a8278c7da",
+  //  "ipis": [
+
+
+  //  ],
+  //  "type": "Group",
+  //  "gender": null,
+  //  "end_area": null,
+  //  "name": "Nirvana"
+  //}
   [DataContract]
-  public class TrackArtist
+  public class TrackArtist : TrackBaseName
   {
     [DataMember(Name = "id")]
     public string Id { get; set; }
 
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
+    [DataMember(Name = "life-span")]
+    public TrackLifeSpan LifeSpan { get; set; }
 
-    [DataMember(Name = "sort-name")]
-    public string SortName { get; set; }
+    [DataMember(Name = "begin_area")]
+    public TrackArea BeginArea { get; set; }
+
+    [DataMember(Name = "end_area")]
+    public TrackArea EndArea { get; set; }
+
+    [DataMember(Name = "area")]
+    public TrackArea Area { get; set; }
+
+    [DataMember(Name = "country")]
+    public string Country { get; set; }
+
+    [DataMember(Name = "type")]
+    public string Type { get; set; }
+
+    [DataMember(Name = "gender")]
+    public string Gender { get; set; }
 
     public override string ToString()
     {

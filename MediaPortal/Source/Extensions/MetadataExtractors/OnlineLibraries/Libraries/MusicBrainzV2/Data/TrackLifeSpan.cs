@@ -22,34 +22,26 @@
 
 #endregion
 
+using System;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
-  //  "artist-credit": [
-  //    {
-  //      "joinphrase": "",
-  //      "artist": {
-  //        "disambiguation": "",
-  //        "sort-name": "Depeche Mode",
-  //        "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
-  //        "name": "Depeche Mode"
-  //      },
-  //      "name": "Depeche Mode"
-  //    }
-  //  ]
+  //  {
+  //    "end": "1994-04-05",
+  //    "begin": "1988-01",
+  //    "ended": true
+  //  }
   [DataContract]
-  public class TrackArtistCredit
+  public class TrackLifeSpan
   {
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
+    [DataMember(Name = "begin")]
+    public DateTime? Begin { get; set; }
 
-    [DataMember(Name = "artist")]
-    public TrackBaseName Artist { get; set; }
+    [DataMember(Name = "end")]
+    public DateTime? End { get; set; }
 
-    public override string ToString()
-    {
-      return string.Format("Artist: {0}", Name);
-    }
+    [DataMember(Name = "ended")]
+    public bool? Ended { get; set; }
   }
 }

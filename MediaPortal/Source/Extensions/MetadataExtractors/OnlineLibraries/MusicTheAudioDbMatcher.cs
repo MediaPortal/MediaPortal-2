@@ -132,15 +132,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (artistId == 0 || string.IsNullOrEmpty(artist))
         return new List<PersonInfo>();
 
-      return new List<PersonInfo> {
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      AudioDbArtist artistDetails;
+      if (artistId > 0 && _audioDb.GetArtistFromId(artistId, out artistDetails))
+      {
+        int? year = artistDetails.BornYear == null ? artistDetails.FormedYear : artistDetails.BornYear;
+        DateTime? born = null;
+        if (year.HasValue) born = new DateTime(year.Value, 1, 1);
+        DateTime? died = null;
+        if (artistDetails.DiedYear.HasValue) died = new DateTime(artistDetails.DiedYear.Value, 1, 1);
+        retValue.Add(
         new PersonInfo()
         {
           AudioDbId = artistId,
           MusicBrainzId = mbArtistId,
-          Name = artist,
+          Name = artistDetails.Artist,
+          Biography = artistDetails.Biography,
+          DateOfBirth = born,
+          DateOfDeath = died,
+          Orign = artistDetails.Country,
+          IsGroup = artistDetails.Members.HasValue ? artistDetails.Members.Value > 1 : false,
           Occupation = occupation
-        }
-      };
+        });
+      }
+      return retValue;
     }
 
     private List<CompanyInfo> ConvertToCompanys(long companyId, string company, CompanyType type)

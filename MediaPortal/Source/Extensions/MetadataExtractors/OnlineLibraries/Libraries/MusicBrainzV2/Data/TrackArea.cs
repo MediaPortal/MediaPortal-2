@@ -22,34 +22,29 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
-  //  "artist-credit": [
-  //    {
-  //      "joinphrase": "",
-  //      "artist": {
-  //        "disambiguation": "",
-  //        "sort-name": "Depeche Mode",
-  //        "id": "8538e728-ca0b-4321-b7e5-cff6565dd4c0",
-  //        "name": "Depeche Mode"
-  //      },
-  //      "name": "Depeche Mode"
-  //    }
-  //  ]
+  //  {
+  //    "sort-name": "United States",
+  //    "iso-3166-1-codes": [
+  //      "US"
+  //    ],
+  //    "name": "United States",
+  //    "id": "489ce91b-6658-3307-9877-795b68554c98",
+  //    "disambiguation": ""
+  //  }
   [DataContract]
-  public class TrackArtistCredit
+  public class TrackArea : TrackBaseName
   {
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
-
-    [DataMember(Name = "artist")]
-    public TrackBaseName Artist { get; set; }
+    [DataMember(Name = "iso-3166-1-codes")]
+    public List<string> LanguageCodes { get; set; }
 
     public override string ToString()
     {
-      return string.Format("Artist: {0}", Name);
+      return string.Format("Id: {0}, Name: {1}, SortName: {2}", Id, Name, SortName);
     }
   }
 }

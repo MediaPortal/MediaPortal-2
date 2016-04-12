@@ -44,6 +44,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
     private const string URL_GETRELEASE = URL_API_BASE + "release/{0}?inc=artist-credits+labels+discids+recordings+tags&fmt=json";
+    private const string URL_GETARTIST = URL_API_BASE + "artist/{0}?fmt=json";
     private const string URL_QUERYRECORDING = URL_API_BASE + "recording?query={0}&limit=5&fmt=json";
     private const string URL_FANART_LIST = URL_FANART_API_BASE + "release/{0}/";
 
@@ -156,13 +157,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     }
 
     /// <summary>
+    /// Returns detailed information for an artist <see cref="TrackArtist"/> with given <paramref name="id"/>. This method caches request
+    /// to same artist using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of artist</param>
+    /// <returns>Artist information</returns>
+    public TrackArtist GetArtist(string id)
+    {
+      string cache = CreateAndGetCacheName(id, "Artist");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<TrackArtist>(json);
+      }
+
+      string url = GetUrl(URL_GETARTIST, id);
+      return _downloader.Download<TrackArtist>(url, cache);
+    }
+
+    /// <summary>
     /// Returns a <see cref="Data.TrackImageCollection"/> for the given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">MusicBrainz id of album</param>
     /// <returns>Image collection</returns>
     public TrackImageCollection GetImages(string albumId)
     {
-      string cache = CreateAndGetCacheName(albumId, "image");
+      string cache = CreateAndGetCacheName(albumId, "Image");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);

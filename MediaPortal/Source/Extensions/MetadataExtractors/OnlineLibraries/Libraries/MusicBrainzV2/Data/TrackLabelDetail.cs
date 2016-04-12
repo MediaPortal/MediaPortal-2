@@ -34,18 +34,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
   //      "sort-name": "Phonometrography"
   //    }
   [DataContract]
-  public class TrackLabelDetail
+  public class TrackLabelDetail : TrackBaseName
   {
-    [DataMember(Name = "id")]
-    public string Id { get; set; }
-
     [DataMember(Name = "label-code")]
     public string LabelCode { get; set; }
-
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
-
-    [DataMember(Name = "sort-name")]
-    public string SortName { get; set; }
   }
 }

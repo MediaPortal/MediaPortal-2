@@ -156,9 +156,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     [DataMember(Name = "relations")]
     public List<TrackRelation> Relations { get; set; }
 
-    public List<TrackArtist> TrackArtists { get; set; }
+    public List<TrackBaseName> TrackArtists { get; set; }
 
-    public List<TrackArtist> Composers { get; set; }
+    public List<TrackBaseName> Composers { get; set; }
 
     public string AlbumId { get; set; }
 
@@ -172,7 +172,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     public int DiscId { get; set; }
 
-    public List<TrackArtist> AlbumArtists { get; set; }
+    public List<TrackBaseName> AlbumArtists { get; set; }
 
     public DateTime? ReleaseDate { get; set; }
 
@@ -204,20 +204,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
           AlbumId = release.Id;
           Album = release.Title;
 
-          TrackArtists = new List<TrackArtist>();
+          TrackArtists = new List<TrackBaseName>();
           foreach (TrackArtistCredit artistCredit in Artists)
           {
             TrackArtists.Add(artistCredit.Artist);
           }
 
-          AlbumArtists = new List<TrackArtist>();
+          AlbumArtists = new List<TrackBaseName>();
           foreach (TrackArtistCredit artistCredit in release.Artists)
           {
             AlbumArtists.Add(artistCredit.Artist);
           }
           if (AlbumArtists.Count == 0) AlbumArtists = TrackArtists;
 
-          Composers = new List<TrackArtist>();
+          Composers = new List<TrackBaseName>();
           foreach (TrackRelation relation in Relations)
           {
             if(relation.Type.Equals("Composer", StringComparison.InvariantCultureIgnoreCase))
