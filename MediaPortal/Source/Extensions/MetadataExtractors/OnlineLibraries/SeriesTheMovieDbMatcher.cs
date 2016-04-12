@@ -186,6 +186,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
           MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, ConvertToCharacters(seriesInfo.MovieDbId, seriesInfo.Series, movieCasts.Cast), true);
         }
 
+        SeriesSeason season = seriesDetail.Seasons.Where(s => s.AirDate < DateTime.Now).Last();
+        if (season != null)
+        {
+          Season currentSeason;
+          if (_movieDb.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber, out currentSeason) == false)
+            return false;
+
+          SeasonEpisode nextEpisode = currentSeason.Episodes.Where(e => e.AirDate > DateTime.Now).First();
+          if(nextEpisode == null) //Try next season
+          {
+            if (_movieDb.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber, out currentSeason) == false)
+              return false;
+
+            nextEpisode = currentSeason.Episodes.Where(e => e.AirDate > DateTime.Now).First();
+          }
+          if (nextEpisode != null)
+          {
+            MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, nextEpisode.Name, false);
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeAirDate, nextEpisode.AirDate);
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeSeasonNumber, nextEpisode.SeasonNumber);
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeNumber, nextEpisode.EpisodeNumber);
+          }
+        }
+
         return true;
       }
       return false;

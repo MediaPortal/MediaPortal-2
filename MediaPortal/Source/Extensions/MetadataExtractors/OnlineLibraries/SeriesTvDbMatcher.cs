@@ -145,7 +145,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (!Init())
         return false;
 
-      if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, false, true, out seriesDetail))
+      if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, true, true, out seriesDetail))
       {
         MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesDetail.ImdbId);
 
@@ -164,6 +164,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, ConvertToCompanys(seriesDetail.NetworkID, seriesDetail.Network, CompanyType.TVNetwork), false);
         MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, ConvertToPersons(seriesDetail.TvdbActors, PersonOccupation.Actor), true);
         MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), true);
+
+        TvdbEpisode nextEpisode = seriesDetail.Episodes.Where(e => e.FirstAired > DateTime.Now).First();
+        if (nextEpisode != null)
+        {
+          MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, nextEpisode.EpisodeName, false);
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeAirDate, nextEpisode.FirstAired);
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeSeasonNumber, nextEpisode.SeasonNumber);
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeNumber, nextEpisode.EpisodeNumber);
+        }
 
         return true;
       }

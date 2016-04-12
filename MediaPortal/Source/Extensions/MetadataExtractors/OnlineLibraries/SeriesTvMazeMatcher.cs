@@ -139,7 +139,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesDetail.Externals.ImDbId);
 
         MetadataUpdater.SetOrUpdateString(ref seriesInfo.Series, seriesDetail.Name, true);
-        MetadataUpdater.SetOrUpdateString(ref seriesInfo.Description, seriesDetail.Summary, false);
+        MetadataUpdater.SetOrUpdateString(ref seriesInfo.Description, seriesDetail.Summary, true);
         MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesDetail.Premiered);
         if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
         {
@@ -153,6 +153,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, ConvertToPersons(seriesDetail.Embedded.Cast, PersonOccupation.Actor), true);
         MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, ConvertToCharacters(seriesInfo.TvMazeId, seriesInfo.Series, seriesDetail.Embedded.Cast), true);
+
+        TvMazeEpisode nextEpisode = seriesDetail.Embedded.Episodes.Where(e => e.AirDate > DateTime.Now).First();
+        if(nextEpisode != null)
+        {
+          MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, nextEpisode.Name, true);
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeAirDate, nextEpisode.AirStamp);
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeSeasonNumber, nextEpisode.SeasonNumber);
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeNumber, nextEpisode.EpisodeNumber);
+        }
 
         return true;
       }
@@ -326,7 +335,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episodes.First().SeasonNumber);
       MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodes.Select(x => x.EpisodeNumber).ToList(), true);
-      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodes.First().AirDate);
+      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodes.First().AirStamp);
 
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.Name).ToArray()), false);
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
@@ -338,7 +347,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episode.SeasonNumber);
       episodeInfo.EpisodeNumbers.Clear();
       episodeInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
-      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episode.AirDate);
+      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episode.AirStamp);
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, episode.Summary, false);
     }
 
