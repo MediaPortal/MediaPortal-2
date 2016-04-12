@@ -62,6 +62,7 @@
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\ImageCollectionAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieCollectionAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\CompanyAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\PersonAspect.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\SeasonAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\CharacterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\Helpers\ImageCollectionInfo.cs" />
     <Compile Include="MediaManagement\Helpers\MovieCollectionInfo.cs" />
     <Compile Include="MediaManagement\Helpers\CompanyInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SeasonInfo.cs" />

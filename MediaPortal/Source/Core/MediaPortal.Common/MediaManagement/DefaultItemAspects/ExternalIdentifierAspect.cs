@@ -42,6 +42,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string SOURCE_CDDB = "cddb";
     public static readonly string SOURCE_AUDIODB = "audiodb";
     public static readonly string SOURCE_TVMAZE = "tvmaze";
+    public static readonly string SOURCE_YEAR = "year";
+    public static readonly string SOURCE_DATE = "date";
+    public static readonly string SOURCE_LATITUDE_LONGITUDE = "latlong";
 
     public static readonly string TYPE_CHARACTER = "character"; // Someone in a movie / series
     public static readonly string TYPE_COLLECTION = "collection";

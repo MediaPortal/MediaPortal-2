@@ -67,7 +67,11 @@
     </Compile>
     <Compile Include="ExifMetaInfo\Constants.cs" />
     <Compile Include="ExifMetaInfo\ExifMetaInfo.cs" />
+    <Compile Include="ImageCityCollectionRelationshipExtractor.cs" />
     <Compile Include="ImageMetadataExtractor.cs" />
+    <Compile Include="ImageDateCollectionRelationshipExtractor.cs" />
+    <Compile Include="ImageYearCollectionRelationshipExtractor.cs" />
+    <Compile Include="ImageRelationshipExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\ImageMetadataExtractorSettings.cs" />
   </ItemGroup>

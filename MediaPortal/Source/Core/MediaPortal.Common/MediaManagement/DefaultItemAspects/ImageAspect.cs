@@ -163,6 +163,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         ATTR_COUNTRY
       });
 
+    public static readonly Guid ROLE_IMAGE = new Guid("EEE7B780-EDB0-434F-9624-F07446D5B63E");
+
     /// <summary>
     /// Translates the EXIF orientation info to a rotation. The value should be used to apply a rotation
     /// to show a image correctly oriented.
