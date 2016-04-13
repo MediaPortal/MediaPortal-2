@@ -24,6 +24,9 @@
 
 using System;
 using System.Windows.Forms;
+using log4net;
+using log4net.Core;
+using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.General;
 
@@ -35,6 +38,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
 
     public DiagnosticsHandler()
     {
+      ChangeLogLevel();
       SubscribeToMessages();
     }
 
@@ -79,6 +83,14 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     protected virtual void HandleWindowsMessage(ref Message m)
     {
       ActivationMonitor.HandleMessage(ref m);
+    }
+
+    private void ChangeLogLevel()
+    {
+      var loggerRepository = (log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository();
+      loggerRepository.Root.Level = Level.Debug;
+      loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
+      ServiceRegistration.Get<Common.Logging.ILogger>().Debug("DiagnosticService: Switched LogLevel to DEBUG.");
     }
   }
 }
