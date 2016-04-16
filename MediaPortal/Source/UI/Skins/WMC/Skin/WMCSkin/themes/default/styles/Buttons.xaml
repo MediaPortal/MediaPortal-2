@@ -227,23 +227,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-
-  <Style x:Key="ProgramGuideButtonControlStyle" TargetType="{x:Type Control}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="{StaticResource ButtonBaseBrush}" />
-            <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
-            <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradientAnimated}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradientAnimated}" />
-          </DockPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-  
+ 
   <Style x:Key="OSDButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>

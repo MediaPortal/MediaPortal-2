@@ -19,7 +19,7 @@
 
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient3Color" Resource="#B05BC05D"/>
 
-  <ResourceWrapper x:Key="WindowHeaderColor" Resource="#4DFFFFFF"/>
+  <ResourceWrapper x:Key="WindowHeaderColor" Resource="#FF4b76a0"/>
 
   <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#EFB0B0B0"/>
 

@@ -22,8 +22,7 @@
   <Label x:Name="MediaItemName" Wrap="True" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="0,-15,0,0"
     HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
     Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-    Color="{ThemeResource TextColor}"
-    FontFamily="DefaultBold"/>
+    Color="{ThemeResource TextColor}"/>
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="0.5"
         Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"

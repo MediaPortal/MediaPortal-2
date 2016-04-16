@@ -153,7 +153,8 @@
                       <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0"
                           IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}"/>
                       <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="0"/>
-                      <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="0"/>
+                      <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="0" 
+                              Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.VolumeUp}"/>
                     </StackPanel>
                     <!-- PlayControlsPanel -->
                   </Grid>
