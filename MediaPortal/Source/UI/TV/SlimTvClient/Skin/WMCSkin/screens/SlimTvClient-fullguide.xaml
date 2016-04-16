@@ -17,7 +17,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}" Margin="0,10,0,0">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}" Margin="30,0,30,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
           <ColumnDefinition Width="*"/>

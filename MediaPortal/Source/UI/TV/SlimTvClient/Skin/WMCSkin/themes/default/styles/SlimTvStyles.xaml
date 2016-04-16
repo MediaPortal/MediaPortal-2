@@ -343,7 +343,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <DockPanel Name="ButtonControlRectangle">
-                        <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="#E0101010" Stroke="{ThemeResource ButtonStrokeColor}"/>
+                        <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="#E0101010" StrokeThickness="0"/>
                         <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
                         <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
                     </DockPanel>
