@@ -84,6 +84,10 @@
   <string name="SlimTvClient.AutoStartTv.Help">If enabled, the last selected channel will be started when entering TV home</string>
   <string name="SlimTvClient.ShowSeriesInfo">Show series infos</string>
   <string name="SlimTvClient.ShowSeriesInfo.Help">If enabled, the program guide will show series and episode information if available.</string>
+  <string name="SlimTvClient.ZapByChannelIndex">Zap by channel index</string>
+  <string name="SlimTvClient.ZapByChannelIndex.Help">Configures if the channel zapping should use index or logical program number.</string>
+  <string name="SlimTvClient.ZapTimeout">Zap timeout</string>
+  <string name="SlimTvClient.ZapTimeout.Help">Configures the delay until tuning starts.</string>
   <string name="SlimTvClient.HideAllChannelsGroup">Hide "All Channels" group</string>
   <string name="SlimTvClient.HideAllChannelsGroup.Help">If enabled, the inbuilt "All Channels" group will be hidden.</string>
 

@@ -162,6 +162,11 @@
         HelpText="[SlimTvClient.EpgNumberOfHours.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNumberOfHoursSetting"/>
     <ConfigSetting
+        Id="ZapByChannelIndex"
+        Text="[SlimTvClient.ZapByChannelIndex]"
+        HelpText="[SlimTvClient.ZapByChannelIndex.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ZapByChannelIndexSetting"/>
+    <ConfigSetting
         Id="ZapTimeoutSetting"
         Text="[SlimTvClient.ZapTimeout]"
         HelpText="[SlimTvClient.ZapTimeout.Help]"

@@ -59,6 +59,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public bool ShowSeriesInfo { get; set; }
 
     /// <summary>
+    /// If set to <c>true</c>, zapping uses the actual index of channel inside current group.
+    /// If <c>false</c>, the logical channel number of the channel will be used.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool ZapByChannelIndex { get; set; }
+
+    /// <summary>
     /// If set to <c>true</c>, the inbuilt "All Channels" group will be hidden.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = false)]

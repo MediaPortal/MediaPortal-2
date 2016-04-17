@@ -144,13 +144,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!int.TryParse(ChannelNumberOrIndex, out number) || number < 1)
         return;
 
-      // Channel index starts by 0, user enters 1 based numbers
-      number--;
-
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
-      if (model != null)
+      if (model == null)
+        return;
+
+      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      if (settings.ZapByChannelIndex)
+      {
+        // Channel index starts by 0, user enters 1 based numbers
+        number--;
         model.TuneByIndex(number);
+      }
+      else
+      {
+        model.TuneByChannelNumber(number);
+      }
 
       ClearZapTimer();
     }

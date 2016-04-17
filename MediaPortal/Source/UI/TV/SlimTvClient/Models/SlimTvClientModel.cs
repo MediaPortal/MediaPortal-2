@@ -468,6 +468,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return true;
     }
 
+    public bool TuneByChannelNumber(int channelNumber)
+    {
+      IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelNumber == channelNumber);
+      if (channel == null)
+        return false;
+      Tune(channel);
+      return true;
+    }
+
     public void Tune(IChannel channel)
     {
       // Avoid subsequent tune requests to same channel, it will only cause delays.
