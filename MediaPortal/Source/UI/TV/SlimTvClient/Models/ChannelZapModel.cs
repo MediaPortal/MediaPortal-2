@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
@@ -105,10 +105,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void ReSetZapTimer()
     {
       ShowZapOSD();
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       if (_zapTimer == null)
       {
-        _zapTimer = new DelayedEvent(settings.SkipStepTimeout * 1000);
+        _zapTimer = new DelayedEvent(settings.ZapTimeout * 1000);
         _zapTimer.OnEventHandler += ZapTimerElapsed;
       }
       _zapTimer.EnqueueEvent(this, EventArgs.Empty);
@@ -116,9 +116,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ShowZapOSD()
     {
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
-      superLayerManager.ShowSuperLayer(CHANNEL_ZAP_SUPERLAYER_SCREEN_NAME, TimeSpan.FromSeconds(settings.SkipStepTimeout));
+      superLayerManager.ShowSuperLayer(CHANNEL_ZAP_SUPERLAYER_SCREEN_NAME, TimeSpan.FromSeconds(settings.ZapTimeout));
     }
 
     private void HideZapOSD()

@@ -41,6 +41,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public double EpgVisibleHours { get; set; }
 
     /// <summary>
+    /// Defines the zapping timeout in seconds.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = 2d)]
+    public double ZapTimeout { get; set; }
+
+    /// <summary>
     /// If set to <c>true</c>, TV gets started when entering TV home state.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = false)]

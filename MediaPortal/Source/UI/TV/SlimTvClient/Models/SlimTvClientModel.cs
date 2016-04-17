@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -103,7 +102,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private AbstractProperty _isOSDLevel2Property = null;
 
     // Channel zapping
-    protected const double ZAP_TIMEOUT_SECONDS = 2.0d;
     protected DelayedEvent _zapTimer;
     protected int _zapChannelIndex;
 
@@ -644,7 +642,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       if (_zapTimer == null)
       {
-        _zapTimer = new DelayedEvent(ZAP_TIMEOUT_SECONDS * 1000);
+        SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+        _zapTimer = new DelayedEvent(settings.ZapTimeout * 1000);
         _zapTimer.OnEventHandler += ZapTimerElapsed;
       }
       // In case of new user action, reset the timer.

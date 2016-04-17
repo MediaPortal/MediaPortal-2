@@ -161,5 +161,10 @@
         Text="[SlimTvClient.EpgNumberOfHours]"
         HelpText="[SlimTvClient.EpgNumberOfHours.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNumberOfHoursSetting"/>
+    <ConfigSetting
+        Id="ZapTimeoutSetting"
+        Text="[SlimTvClient.ZapTimeout]"
+        HelpText="[SlimTvClient.ZapTimeout.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ZapTimeoutSetting"/>
   </Register>
 </Plugin>
