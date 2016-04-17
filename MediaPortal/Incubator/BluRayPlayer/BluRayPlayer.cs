@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
@@ -63,6 +64,10 @@ namespace MediaPortal.UI.Players.Video
     protected BluRayAPI.ChangedMediaType _changedChangedMediaType;
     protected BluRayAPI.BluRayStreamFormats _currentVideoFormat;
     protected BluRayAPI.BluRayStreamFormats _currentAudioFormat;
+
+    protected BluRayEventBuffer _eventBuffer = new BluRayEventBuffer();
+    protected ManualResetEvent _shutdownEvent = new ManualResetEvent(false);
+    protected Thread _eventThread;
 
     protected List<BluRayAPI.BDTitleInfo> _titleInfos;
     protected int _currentTitle;
@@ -150,6 +155,7 @@ namespace MediaPortal.UI.Players.Video
 
       // Init BD Reader
       _bdReader = (IBDReader)_fileSource;
+      LoadSettings();
       _bdReader.SetD3DDevice(_device.NativePointer);
       _bdReader.SetBDReaderCallback(this);
 
@@ -162,6 +168,10 @@ namespace MediaPortal.UI.Players.Video
         _subtitleRenderer.RenderSubtitles = true;
         _subtitleRenderer.SetPlayer(this);
       }
+
+      // Prepare event handling
+      _eventThread = new Thread(HandleBDEvent);
+      _eventThread.Start();
 
       // Render the file
       IFileSourceFilter f = (IFileSourceFilter)_fileSource;
@@ -223,6 +233,11 @@ namespace MediaPortal.UI.Players.Video
 
     protected override void FreeCodecs()
     {
+      // Signal shutdown
+      _shutdownEvent.Set();
+      if (!_eventThread.Join(100))
+        _eventThread.Abort();
+
       // Free subtitle filter
       FilterGraphTools.TryDispose(ref _subtitleRenderer);
       FilterGraphTools.TryRelease(ref _subtitleFilter);
@@ -235,6 +250,31 @@ namespace MediaPortal.UI.Players.Video
 
       // Free base class
       base.FreeCodecs();
+    }
+
+    protected virtual void LoadSettings()
+    {
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<BluRayPlayerSettings>();
+      var bdsettings = new BluRayAPI.BDPlayerSettings
+      {
+        ParentalControl = settings.ParentalControl
+      };
+
+      switch (settings.RegionCode)
+      {
+        case "A":
+          bdsettings.RegionCode = 1;
+          break;
+        case "B":
+          bdsettings.RegionCode = 2;
+          break;
+        case "C":
+          bdsettings.RegionCode = 4;
+          break;
+      }
+
+      // TODO: check the language preferences (audio, menu, subs), should use MP2 defaults
+      _bdReader.SetBDPlayerSettings(bdsettings);
     }
 
     #endregion
@@ -414,7 +454,7 @@ namespace MediaPortal.UI.Players.Video
         bluRayEvent.Event != BluRayAPI.BDEvents.Still &&
         bluRayEvent.Event != BluRayAPI.BDEvents.StillTime)
       {
-        HandleBDEvent(bluRayEvent);
+        _eventBuffer.Set(bluRayEvent);
       }
       return 0;
     }
@@ -444,6 +484,31 @@ namespace MediaPortal.UI.Players.Video
     #endregion
 
     #region BD Event handling
+
+    protected void HandleBDEvent()
+    {
+      var waitHandles = new WaitHandle[] { _shutdownEvent, _eventBuffer.EventAvailable };
+      try
+      {
+        while (true)
+        {
+          var idx = WaitHandle.WaitAny(waitHandles);
+          // Shutdown event?
+          if (idx == 0)
+            break;
+
+          while (!_eventBuffer.IsEmpty())
+          {
+            var bdevent = _eventBuffer.Get();
+            HandleBDEvent(bdevent);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        BluRayPlayerBuilder.LogError("HandleEvent {0}", ex);
+      }
+    }
 
     protected void HandleBDEvent(BluRayAPI.BluRayEvent bdevent)
     {
@@ -492,20 +557,6 @@ namespace MediaPortal.UI.Players.Video
             if (_menuState != BluRayAPI.MenuState.PopUp)
               _menuState = BluRayAPI.MenuState.None;
           }
-          //switch ((BluRayAPI.BluRayTitle)bdevent.Param)
-          //{
-          //  case BluRayAPI.BluRayTitle.TopMenu:
-          //  case BluRayAPI.BluRayTitle.FirstPlay:
-          //    if (!_forceTitle)
-          //    {
-          //      //menuItems = MenuItems.None;
-          //      _menuState = BluRayAPI.MenuState.Root;
-          //    }
-          //    break;
-          //  default:
-          //    _menuState = BluRayAPI.MenuState.None;
-          //    break;
-          //}
           break;
 
         case BluRayAPI.BDEvents.Chapter:
@@ -513,11 +564,13 @@ namespace MediaPortal.UI.Players.Video
           if (bdevent.Param != 0xffff)
             _currentChapter = (uint)bdevent.Param - 1;
           break;
+
         case BluRayAPI.BDEvents.Popup:
           BluRayPlayerBuilder.LogDebug("Popup available {0}", bdevent.Param);
           _isPopupMenuAvailable = bdevent.Param == 1;
           UpdateMenuItems();
           break;
+
         case BluRayAPI.BDEvents.Menu:
           BluRayPlayerBuilder.LogDebug("Menu visible {0}", bdevent.Param);
           if (bdevent.Param == 1)

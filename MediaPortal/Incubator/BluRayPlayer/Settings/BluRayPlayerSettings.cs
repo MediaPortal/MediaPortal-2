@@ -39,5 +39,17 @@ namespace MediaPortal.UI.Players.Video.Settings
     /// </summary>
     [Setting(SettingScope.User)]
     public CodecInfo VC1Codec { get; set; }
+
+    /// <summary>
+    /// Gets or sets the value for parental rating.
+    /// </summary>
+    [Setting(SettingScope.User, 99)]
+    public int ParentalControl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the region code for BD discs.
+    /// </summary>
+    [Setting(SettingScope.User, "B")]
+    public string RegionCode { get; set; }
   }
 }

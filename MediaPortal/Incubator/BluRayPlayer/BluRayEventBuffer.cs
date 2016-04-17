@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 
@@ -30,9 +31,16 @@ namespace MediaPortal.UI.Players.Video
   public class BluRayEventBuffer
   {
     const int SIZE = 128;
+    readonly AutoResetEvent _eventAvailableEvent = new AutoResetEvent(false);
     readonly BluRayAPI.BluRayEvent[] _buffer = new BluRayAPI.BluRayEvent[SIZE];
     int _readPos = 0;
     int _writePos = 0;
+    public readonly object SyncObj = new object();
+
+    public AutoResetEvent EventAvailable
+    {
+      get { return _eventAvailableEvent; }
+    }
 
     public bool IsEmpty()
     {
@@ -64,6 +72,7 @@ namespace MediaPortal.UI.Players.Video
       {
         ServiceRegistration.Get<ILogger>().Warn("BluRayPlayer: Event buffer full");
       }
+      _eventAvailableEvent.Set();
     }
 
     public BluRayAPI.BluRayEvent Peek()
