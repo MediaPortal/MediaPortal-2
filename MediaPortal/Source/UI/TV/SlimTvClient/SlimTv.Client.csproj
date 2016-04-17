@@ -117,6 +117,7 @@
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />
     <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
+    <Compile Include="Models\ChannelZapModel.cs" />
     <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
     <Compile Include="Models\Navigation\RecordingItem.cs" />
     <Compile Include="Models\RecordingsAction.cs" />
@@ -165,6 +166,7 @@
     <Content Include="Skin\default\images\tvguide_recordserie_button.png" />
     <Content Include="Skin\default\screens\MediaItemFanArt.inc" />
     <Content Include="Skin\default\screens\MediaItemRecordingDetails.inc" />
+    <Content Include="Skin\default\screens\FullscreenTvKeybindings.inc" />
     <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
     <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
     <Content Include="Skin\default\screens\SlimTvClient-main.xaml" />
@@ -442,6 +444,11 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-programsearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\superlayers\ChannelZapOSD.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

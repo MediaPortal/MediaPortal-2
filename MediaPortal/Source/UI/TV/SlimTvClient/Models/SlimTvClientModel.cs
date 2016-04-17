@@ -50,7 +50,6 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
-using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -463,8 +462,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    public bool TuneByIndex(int channelIndex)
+    {
+      if (channelIndex >= ChannelContext.Instance.Channels.Count)
+        return false;
+      Tune(ChannelContext.Instance.Channels[channelIndex]);
+      return true;
+    }
+
     public void Tune(IChannel channel)
     {
+      // Avoid subsequent tune requests to same channel, it will only cause delays.
+      if (IsSameChannel(channel, _lastTunedChannel))
+        return;
+
       // Specical case of this model, which is also used as normal backing model for OSD, where no WorkflowManager action was performed.
       if (!_isInitialized) InitModel();
 
