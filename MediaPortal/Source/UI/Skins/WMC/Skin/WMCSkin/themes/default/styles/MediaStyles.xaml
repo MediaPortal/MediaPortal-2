@@ -11,12 +11,13 @@
     DependsOnStyleResources="OSD,FullScreenContentConsts,MediaButtons,MediaColors,Consts,Colors,Buttons,OtherControls"
     >
 
-    <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
-    <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
+  <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+  <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
+  <Model x:Key="GeneralPlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
 
-    <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
 
-    <!-- ***************************************** OSD ************************************************** -->
+  <!-- ***************************************** OSD ************************************************** -->
   <Storyboard x:Key="OSDCurrentPlayerControlStoryboard" FillBehavior="Stop">
     <!-- TODO: nicer background cycle effect -->
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
@@ -152,9 +153,10 @@
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
                       <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0"
                           IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}"/>
-                      <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="0"/>
+                      <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="0"
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
                       <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="0" 
-                              Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.VolumeUp}"/>
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
                     </StackPanel>
                     <!-- PlayControlsPanel -->
                   </Grid>
