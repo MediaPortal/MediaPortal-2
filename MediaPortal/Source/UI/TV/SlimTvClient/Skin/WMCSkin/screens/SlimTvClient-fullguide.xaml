@@ -29,7 +29,7 @@
           <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
+        <StackPanel x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
               Command="{Command PrevGroup}"/>
