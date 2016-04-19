@@ -17,7 +17,8 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}" Margin="30,0,30,0">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}" Margin="30,0,30,-180">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
           <ColumnDefinition Width="*"/>
@@ -31,23 +32,24 @@
 
         <StackPanel x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
-          <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-              Command="{Command PrevGroup}"/>
-          <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}"/>
-          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}"/>
+          <Button x:Name="PrevGroupButton" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
+              Command="{Command PrevGroup}" VerticalAlignment="Center"/>
+          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 Content="{Binding GroupName}" VerticalAlignment="Center" Margin="3,0,3,0"/>
+          <Button x:Name="NextGroupButton" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
+              Command="{Command NextGroup}" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel x:Name="TimeControls" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
                      HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
-          <Button x:Name="ScrollBackwardButton" Style="{StaticResource SmallButtonStyle}" Content=" - "
-              Command="{Command ScrollBackward}"/>
-          <Button x:Name="ScrollForwardButton" Style="{StaticResource SmallButtonStyle}" Content=" + "
-              Command="{Command ScrollForward}"/>
+          <Button x:Name="ScrollBackwardButton" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
+                  Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
           <Label x:Name="GuideStartTimeLabel" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="3,0,3,0"/>          
+          <Button x:Name="ScrollForwardButton" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
+                  Command="{Command ScrollForward}" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Style="{ThemeResource EpgGridStyle}" />
+        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Style="{ThemeResource EpgGridStyle}" Margin="0,0,0,20"/>
 
         <GroupBox  Grid.Column="0" Grid.Row="2"  Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
                    Style="{ThemeResource ContentGroupBoxStyle}" FontSize="{ThemeResource SmallFontSize}">
