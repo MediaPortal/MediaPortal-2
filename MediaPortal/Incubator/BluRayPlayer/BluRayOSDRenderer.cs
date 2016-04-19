@@ -36,15 +36,11 @@ namespace MediaPortal.UI.Players.Video
   public class BluRayOSDRenderer : IDisposable
   {
     /// <summary>
-    /// Texture containing the whole OSD area (1920x1080)
+    /// Array containing different texture planes.
     /// </summary>
-    private Texture _combinedOsdTexture;
-    private Surface _combinedOsdSurface;
-    private Sprite _sprite;
-    private Size _fullOsdSize = new Size(1920, 1080);
-    private const Format FORMAT = Format.A8R8G8B8;
-    private readonly ColorBGRA _transparentColor = new ColorBGRA(0, 0, 0, 0);
+    private readonly Texture[] _planes = new Texture[2];
     private readonly DeviceEx _device = SkinContext.Device;
+    private Sprite _sprite;
 
     /// <summary>
     /// Lock for syncronising the texture update and rendering
@@ -56,6 +52,7 @@ namespace MediaPortal.UI.Players.Video
     public BluRayOSDRenderer(Action onTextureInvalidated)
     {
       _onTextureInvalidated = onTextureInvalidated;
+      _sprite = new Sprite(_device);
     }
 
     /// <summary>
@@ -63,36 +60,23 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public bool IsOSDPresent
     {
-      get { return _combinedOsdTexture != null; }
-    }
-
-    private void InitTexture(BluRayAPI.OSDTexture item)
-    {
-      if (item.Width == 0 || item.Height == 0 || item.Texture == IntPtr.Zero)
+      get
       {
-        FreeResources();
-        return;
-      }
-
-      if (_combinedOsdTexture == null || _combinedOsdTexture.IsDisposed)
-      {
-        _combinedOsdTexture = new Texture(_device, _fullOsdSize.Width, _fullOsdSize.Height, 1, Usage.RenderTarget, FORMAT, Pool.Default);
-        _combinedOsdSurface = _combinedOsdTexture.GetSurfaceLevel(0);
-
-        _sprite = new Sprite(_device);
-
-        Rectangle dstRect = new Rectangle(0, 0, _fullOsdSize.Width, _fullOsdSize.Height);
-        _device.ColorFill(_combinedOsdSurface, dstRect, _transparentColor);
+        lock (_syncObj)
+        {
+          return _planes[0] != null || _planes[1] != null;
+        }
       }
     }
 
     private void FreeResources()
     {
-      // _combinedOsdSurface does not need an explicit Dispose, it's done on Texture dispose:
-      // When SlimDx.Configuration.DetectDoubleDispose is set to true, an ObjectDisposedException will be thrown!
-      _combinedOsdSurface = null;
-      FilterGraphTools.TryDispose(ref _combinedOsdTexture);
-      FilterGraphTools.TryDispose(ref _sprite);
+      lock (_syncObj)
+      {
+        FilterGraphTools.TryDispose(ref _planes[0]);
+        FilterGraphTools.TryDispose(ref _planes[1]);
+        FilterGraphTools.TryDispose(ref _sprite);
+      }
     }
 
     public void DrawItem(BluRayAPI.OSDTexture item)
@@ -101,15 +85,22 @@ namespace MediaPortal.UI.Players.Video
       {
         lock (_syncObj)
         {
-          InitTexture(item);
-          if (_combinedOsdSurface != null)
-          {
-            Rectangle sourceRect = new Rectangle(0, 0, item.Width, item.Height);
-            Rectangle dstRect = new Rectangle(item.X, item.Y, item.Width, item.Height);
+          var index = (int)item.Plane;
+          var isNewTexture = false;
 
-            using (Texture itemTexture = new Texture(item.Texture))
-              _device.StretchRectangle(itemTexture.GetSurfaceLevel(0), sourceRect, _combinedOsdSurface, dstRect, TextureFilter.None);
+          // Dispose old texture only if new texture for plane is different
+          if (_planes[index] != null)
+          {
+            isNewTexture = _planes[index].NativePointer != item.Texture;
+            if (isNewTexture)
+              FilterGraphTools.TryDispose(ref _planes[index]);
           }
+
+          if (item.Width == 0 || item.Height == 0 || item.Texture == IntPtr.Zero)
+            return;
+
+          if (_planes[index] == null || isNewTexture)
+            _planes[index] = new Texture(item.Texture);
         }
       }
       catch (Exception ex)
@@ -123,7 +114,7 @@ namespace MediaPortal.UI.Players.Video
 
     public void DrawOverlay(Texture targetTexture)
     {
-      if (targetTexture == null || _combinedOsdSurface == null)
+      if (targetTexture == null || !IsOSDPresent)
         return;
 
       try
@@ -133,9 +124,15 @@ namespace MediaPortal.UI.Players.Video
           // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
           using (new TemporaryRenderTarget(targetTexture))
           {
-            _sprite.Begin();
-            _sprite.Draw(_combinedOsdTexture, new ColorBGRA(255, 255, 255, 255) /* White */);
-            _sprite.End();
+            foreach (var texture in _planes)
+            {
+              if (texture != null)
+              {
+                _sprite.Begin();
+                _sprite.Draw(texture, new ColorBGRA(255, 255, 255, 255) /* White */);
+                _sprite.End();
+              }
+            }
           }
         }
       }
