@@ -450,6 +450,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\WMCSkin\screens\SlimTvClient-fullguide.xaml">
       <SubType>Designer</SubType>
     </Content>

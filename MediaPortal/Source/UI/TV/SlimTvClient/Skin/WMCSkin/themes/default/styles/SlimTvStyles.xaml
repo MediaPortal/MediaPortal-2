@@ -469,6 +469,7 @@
             <!-- Handling of different program states -->
             <DataTrigger Binding="{Binding IsRunning}" Value="True">
               <Setter TargetName="ProgramLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+              <Setter TargetName="SeriesLabel" Property="Color" Value="{ThemeResource TextColor}"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
