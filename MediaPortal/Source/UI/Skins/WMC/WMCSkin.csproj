@@ -133,6 +133,8 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.NOFOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\preview.png" />
+    <Content Include="Skin\WMCSkin\images\RECORD.SINGLE.PNG" />
+    <Content Include="Skin\WMCSkin\images\RECORD_SERIES.PNG" />
     <Content Include="Skin\WMCSkin\images\search.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\0.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\1.png" />

@@ -5,9 +5,11 @@
     >
 
   <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#FF9CB9D5"/>
+  <ResourceWrapper x:Key="ProgramLabelNoFocus" Resource="#FF8E9DAE"/>
 
   <!-- Program guide colors -->
-  <ResourceWrapper x:Key="ProgramLabelNoFocus" Resource="#FF8E9DAE"/>
+  <ResourceWrapper x:Key="ProgramChannelBaseFill" Resource="#8C000000"/>
+  <ResourceWrapper x:Key="ProgramBaseFill" Resource="#40000000"/>
   <ResourceWrapper x:Key="ProgramRunningFill" Resource="#A0134763"/> 
   <ResourceWrapper x:Key="ProgramScheduledFill" Resource="#A0FF0000"/>
   
