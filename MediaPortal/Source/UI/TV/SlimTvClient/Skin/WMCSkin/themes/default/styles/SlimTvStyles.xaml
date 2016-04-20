@@ -470,13 +470,16 @@
             <DataTrigger Binding="{Binding IsRunning}" Value="True">
               <Setter TargetName="ProgramLabel" Property="Color" Value="{ThemeResource TextColor}"/>
             </DataTrigger>
-            <DataTrigger Binding="{Binding Program.IsScheduled}" Value="True">
-              <!--Setter TargetName="ButtonOverlay" Property="Fill" Value="{ThemeResource ProgramScheduledFill}"/-->
-              <Setter TargetName="SeriesIndicator" Property="IsVisible" Value="True"/>
-            </DataTrigger>
             <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
             </DataTrigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="False" />
+                <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
+            </MultiTrigger>
             <Trigger Property="HasFocus" Value="True">
               <!--Setter TargetName="ButtonHover" Property="Fill" Value="{ThemeResource FocusedButtonGradient3Color}"/-->
               <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
