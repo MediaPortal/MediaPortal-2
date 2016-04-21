@@ -11,6 +11,7 @@
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+  <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
 
   <Style x:Key="PrimarySlimTvOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -467,10 +468,10 @@
           </Grid>
           <ControlTemplate.Triggers>
             <!-- Handling of different program states -->
-            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+            <!--DataTrigger Binding="{Binding IsRunning}" Value="True">
               <Setter TargetName="ProgramLabel" Property="Color" Value="{ThemeResource TextColor}"/>
               <Setter TargetName="SeriesLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-            </DataTrigger>
+            </-->
             <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
             </DataTrigger>
@@ -872,15 +873,23 @@
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <Label x:Name="ProgramLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}"/>
-              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="10,0,0,0"/>
+
+              <Label x:Name="ProgramLabel" Content="{Binding [Name]}" VerticalAlignment="Center"
+                     Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}"/>
+              <Label x:Name="ProgramLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" IsVisible="{Binding IsRunning}"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+              
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center"
+                     Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,0,0"/>
+              <Label x:Name="SeriesLabel2" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" IsVisible="{Binding IsRunning}"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,0,0"/>
+              
             </Grid>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ProgramLabel" Property="Scroll" Value="Auto"/>
+                <!--Setter TargetName="ProgramLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ProgramLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-                <Setter TargetName="SeriesLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="SeriesLabel" Property="Color" Value="{ThemeResource TextColor}"/-->
                 <Trigger.EnterActions>
                   <TriggerCommand>
                     <TriggerCommand.Command>

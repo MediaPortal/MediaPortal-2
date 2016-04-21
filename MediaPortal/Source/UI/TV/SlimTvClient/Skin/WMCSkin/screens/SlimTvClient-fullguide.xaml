@@ -51,6 +51,9 @@
 
         <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Style="{ThemeResource EpgGridStyle}" Margin="0,0,0,20"/>
 
+        <Label x:Name="Time" Grid.Column="1" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right" Margin="0,-20,0,0"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource ProgramLabelNoFocus}"/>
+
         <GroupBox  Grid.Column="0" Grid.Row="2"  Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
                    Style="{ThemeResource ContentGroupBoxStyle}" FontSize="{ThemeResource SmallFontSize}">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
