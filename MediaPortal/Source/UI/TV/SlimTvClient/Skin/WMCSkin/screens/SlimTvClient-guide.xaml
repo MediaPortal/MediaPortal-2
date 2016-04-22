@@ -16,7 +16,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
     <!--<ControlTemplate x:Key="Contents_Template">-->
-        <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,0,30,-180"
               DataContext="{Binding Source={StaticResource SlimTvSingleChannelGuide}}">
           
         <Grid.ColumnDefinitions>
@@ -27,30 +27,31 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
         </Grid.RowDefinitions>
-          
-        <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
-            HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
-          <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content="test"
-            Command="{Command PrevGroup}"/>
-          <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-            Command="{Command NextGroup}"/>
-          <Label x:Name="GroupNameLabel" Content="{Binding GroupName}"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+        <StackPanel x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+          <Button x:Name="PrevGroupButton" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
+              Command="{Command PrevGroup}" VerticalAlignment="Center"/>
+          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 Content="{Binding GroupName}" VerticalAlignment="Center" Margin="3,0,3,0"/>
+          <Button x:Name="NextGroupButton" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
+              Command="{Command NextGroup}" VerticalAlignment="Center"/>
         </StackPanel>
 
         <StackPanel x:Name="Channels" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
-          <Button x:Name="PrevChannelButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-              Command="{Command PrevChannel}"/>
-          <Button x:Name="NextChannelButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextChannel}"/>
-          <Label x:Name="CurrentChannelNameLabel" Content="{Binding ChannelName}"
+          <Button x:Name="PrevChannelButton" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
+              Command="{Command PrevChannel}" VerticalAlignment="Center"/>
+          <Label x:Name="CurrentChannelNameLabel" Content="{Binding ChannelName}" VerticalAlignment="Center" Margin="3,0,3,0"
               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          <Button x:Name="NextChannelButton" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
+              Command="{Command NextChannel}" VerticalAlignment="Center"/>
         </StackPanel>
          
-        <ListView  Grid.Column="0" Grid.Row="1"
-              Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <ListView  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
+              Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SingleProgramGuideListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"
               SelectionChanged="{CommandStencil UpdateProgram}">
@@ -59,7 +60,10 @@
           </ListView.Resources>
         </ListView>
 
-        <GroupBox  Grid.Column="1" Grid.Row="1" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+        <Label x:Name="Time" Grid.Column="1" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right" Margin="0,-20,0,0"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource ProgramLabelNoFocus}"/>
+
+        <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
                    Style="{ThemeResource ContentGroupBoxStyle}">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>

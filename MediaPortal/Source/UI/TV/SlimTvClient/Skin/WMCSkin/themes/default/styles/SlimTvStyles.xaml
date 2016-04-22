@@ -279,20 +279,30 @@
   <DataTemplate x:Key="SingleChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="110"/>
+        <ColumnDefinition Width="270"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="64" Height="64" Stretch="Uniform" Margin="2">
+      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="75" Height="52" Stretch="Uniform" Margin="0">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
-      </Image>
-      <Label x:Name="StartTime" VerticalAlignment="Center" Grid.Column="1" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="ItemLabel" VerticalAlignment="Center" Grid.Column="2" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
-      <Label x:Name="SeriesLabel" VerticalAlignment="Center" Grid.Column="3" Content="{Binding [Series]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+      </Image> 
+      <Label x:Name="StartTime" VerticalAlignment="Center" Grid.Column="1" Content="{Binding [StartTime]}"
+             Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" VerticalAlignment="Center" Grid.Column="2" Content="{Binding [Name]}" 
+             Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,0"/>
+      <Label x:Name="SeriesLabel" VerticalAlignment="Center" Grid.Column="3" Content="{Binding [Series]}" 
+             Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+
+      <Label x:Name="StartTime2" VerticalAlignment="Center" Grid.Column="1" Content="{Binding [StartTime]}" IsVisible="{Binding IsRunning}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel2" VerticalAlignment="Center" Grid.Column="2" Content="{Binding [Name]}" IsVisible="{Binding IsRunning}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,0"/>
+      <Label x:Name="SeriesLabel2" VerticalAlignment="Center" Grid.Column="3" Content="{Binding [Series]}" IsVisible="{Binding IsRunning}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
     </Grid>
   </DataTemplate>
 
@@ -363,6 +373,27 @@
                 <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                   <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="0"/>
                   <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="0.7"/>
+                  <GradientStop Color="{ThemeResource ProgramBaseFill}" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ProgramGuideSingleButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle">
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" StrokeThickness="0">
+              <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                  <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="0"/>
+                  <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="0.1"/>
+                  <GradientStop Color="{ThemeResource ProgramBaseFill}" Offset="0.35"/>
                   <GradientStop Color="{ThemeResource ProgramBaseFill}" Offset="1"/>
                 </LinearGradientBrush>
               </Rectangle.Fill>
@@ -518,12 +549,84 @@
     </Setter>
   </Style>
 
+  <Style x:Key="ProgramGuideSingleButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="2,2,2,2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideSingleButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
+            <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
+            <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="False" Margin="5,0,15,0"
+                               Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
+            <Image Grid.Column="1" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False" Margin="5,0,15,0"
+                               Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
+            <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonOverlayControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="3"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
+              <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
+            </DataTrigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="False" />
+                <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
+            </MultiTrigger>
+            <Trigger Property="HasFocus" Value="True">
+              <!--Setter TargetName="ButtonHover" Property="Fill" Value="{ThemeResource FocusedButtonGradient3Color}"/-->
+              <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
+              <Setter TargetName="ButtonUpperShine" Property="IsVisible" Value="True"/>
+              <Trigger.EnterActions>
+                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/-->
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <!--StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/-->
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <!--BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/-->
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <!--StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/-->
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- An item list container represented by a ProgramGuideButtonStyle, scrolling its "ItemLabel" label when focused -->
   <Style x:Key="ProgramGuideItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ProgramGuideButtonStyle}"
+          <Button Style="{ThemeResource ProgramGuideSingleButtonStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}"
               SetFocus="{Binding Path=Selected,Mode=OneTime}">
@@ -542,6 +645,16 @@
   <Style x:Key="SingleProgramGuideListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource SingleChannelProgramGuideDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <!-- ScheduleListViewStyle is used for schedule list, including channel, program and recording type -->

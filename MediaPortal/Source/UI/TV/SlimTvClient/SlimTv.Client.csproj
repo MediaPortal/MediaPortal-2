@@ -450,6 +450,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\ProgramInfo.inc" />
     <Content Include="Skin\WMCSkin\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\WMCSkin\screens\SlimTvClient-fullguide.xaml">
       <SubType>Designer</SubType>
@@ -467,6 +468,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\default\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SlimTvClient-guide.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
