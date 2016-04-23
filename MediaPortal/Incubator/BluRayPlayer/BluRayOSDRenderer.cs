@@ -23,13 +23,10 @@
 #endregion
 
 using System;
-using System.Drawing;
+using System.IO;
 using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
-using SharpDX;
 using SharpDX.Direct3D9;
-using Rectangle = SharpDX.Rectangle;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -53,6 +50,17 @@ namespace MediaPortal.UI.Players.Video
     {
       _onTextureInvalidated = onTextureInvalidated;
       _sprite = new Sprite(_device);
+    }
+
+    public Texture[] TexturePlanes
+    {
+      get
+      {
+        lock (_syncObj)
+        {
+          return _planes;
+        }
+      }
     }
 
     /// <summary>
@@ -86,12 +94,11 @@ namespace MediaPortal.UI.Players.Video
         lock (_syncObj)
         {
           var index = (int)item.Plane;
-          var isNewTexture = false;
 
           // Dispose old texture only if new texture for plane is different
           if (_planes[index] != null)
           {
-            isNewTexture = _planes[index].NativePointer != item.Texture;
+            var isNewTexture = _planes[index].NativePointer != item.Texture;
             if (isNewTexture)
               FilterGraphTools.TryDispose(ref _planes[index]);
           }
@@ -99,8 +106,9 @@ namespace MediaPortal.UI.Players.Video
           if (item.Width == 0 || item.Height == 0 || item.Texture == IntPtr.Zero)
             return;
 
-          if (_planes[index] == null || isNewTexture)
-            _planes[index] = new Texture(item.Texture);
+          var texture = new Texture(item.Texture);
+          //SaveTexture(texture, index);
+          _planes[index] = texture;
         }
       }
       catch (Exception ex)
@@ -112,33 +120,20 @@ namespace MediaPortal.UI.Players.Video
         _onTextureInvalidated();
     }
 
-    public void DrawOverlay(Texture targetTexture)
+    private int n = 0;
+    private void SaveTexture(Texture texture, int index)
     {
-      if (targetTexture == null || !IsOSDPresent)
-        return;
-
-      try
+      using (var stream = BaseTexture.ToStream(texture, ImageFileFormat.Png))
+      using (var sr = new BinaryReader(stream))
+      using (var fs = new FileStream(string.Format("overlay_{0}_{1}.png", index, (n++)), FileMode.Create))
+      using (var sw = new BinaryWriter(fs))
       {
-        lock (_syncObj)
+        byte[] buffer = new byte[512];
+        int bytesRead;
+        while ((bytesRead = sr.Read(buffer, 0, buffer.Length)) > 0)
         {
-          // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
-          using (new TemporaryRenderTarget(targetTexture))
-          {
-            foreach (var texture in _planes)
-            {
-              if (texture != null)
-              {
-                _sprite.Begin();
-                _sprite.Draw(texture, new ColorBGRA(255, 255, 255, 255) /* White */);
-                _sprite.End();
-              }
-            }
-          }
+          sw.Write(buffer, 0, bytesRead);
         }
-      }
-      catch (Exception ex)
-      {
-        BluRayPlayerBuilder.LogError(ex.ToString());
       }
     }
 

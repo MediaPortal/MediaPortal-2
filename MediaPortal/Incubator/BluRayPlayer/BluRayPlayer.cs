@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using DirectShow;
@@ -38,6 +39,7 @@ using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX.Direct3D9;
@@ -47,7 +49,7 @@ namespace MediaPortal.UI.Players.Video
   /// <summary>
   /// BluRayPlayer implements a BluRay player including menu support.
   /// </summary>
-  public class BluRayPlayer : VideoPlayer, IDVDPlayer, IBDReaderCallback
+  public class BluRayPlayer : VideoPlayer, IDVDPlayer, IBDReaderCallback, ISharpDXMultiTexturePlayer
   {
     public const double MINIMAL_FULL_FEATURE_LENGTH = 3000;
 
@@ -290,9 +292,8 @@ namespace MediaPortal.UI.Players.Video
           CountryCode = new CultureInfo(videoSettings.PreferredMenuLanguage).TwoLetterISOLanguageName,
           AudioLanguage = new CultureInfo(videoSettings.PreferredAudioLanguage).ThreeLetterISOLanguageName,
           SubtitleLanguage = new CultureInfo(videoSettings.PreferredSubtitleLanguage).ThreeLetterISOLanguageName,
-          MenuLanguage = new CultureInfo(videoSettings.PreferredAudioLanguage).ThreeLetterISOLanguageName,
+          MenuLanguage = new CultureInfo(videoSettings.PreferredMenuLanguage).ThreeLetterISOLanguageName,
         };
-
         switch (settings.RegionCode)
         {
           case "A":
@@ -305,7 +306,6 @@ namespace MediaPortal.UI.Players.Video
             bdsettings.RegionCode = 4;
             break;
         }
-        // TODO: check the language preferences (audio, menu, subs), should use MP2 defaults
         _bdReader.SetBDPlayerSettings(bdsettings);
       }
       catch (Exception ex)
@@ -321,15 +321,34 @@ namespace MediaPortal.UI.Players.Video
     // TODO: implement titles support
     public string[] DvdTitles
     {
-      get { return _emptyStringArray; }
+      get
+      {
+        if (_titleInfos == null)
+          return EMPTY_STRING_ARRAY;
+        return _titleInfos.Select(t => t.ToString()).ToArray();
+      }
     }
 
     public void SetDvdTitle(string title)
-    { }
+    {
+      if (_titleInfos == null)
+        return;
+      int titleIndex = _titleInfos.Select(t => t.ToString()).ToList().IndexOf(title);
+      if (titleIndex >= 0)
+      {
+        // ?
+        // _bdReader.Set
+      }
+    }
 
     public string CurrentDvdTitle
     {
-      get { return null; }
+      get
+      {
+        if (_titleInfos == null || _currentTitle >= _titleInfos.Count)
+          return null;
+        return _titleInfos[_currentTitle].ToString();
+      }
     }
 
     /// <summary>
@@ -496,12 +515,6 @@ namespace MediaPortal.UI.Players.Video
       return 0;
     }
 
-    protected override void RenderFrame()
-    {
-      _evrDone = true;
-      base.RenderFrame();
-    }
-
     public int OnOSDUpdate(BluRayAPI.OSDTexture osdInfo)
     {
       // Copy the passed textures
@@ -530,8 +543,13 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected override void PostProcessTexture(Texture targetTexture)
     {
-      _osdRenderer.DrawOverlay(targetTexture);
+      //_osdRenderer.DrawOverlay(targetTexture);
       _subtitleRenderer.DrawOverlay(targetTexture);
+    }
+
+    public Texture[] TexturePlanes
+    {
+      get { return _osdRenderer.TexturePlanes; }
     }
 
     #endregion
