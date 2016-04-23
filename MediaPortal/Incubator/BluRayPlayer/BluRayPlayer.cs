@@ -24,11 +24,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using DirectShow;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Control.InputManager;
@@ -78,6 +80,7 @@ namespace MediaPortal.UI.Players.Video
     protected double _currentPos;
     protected double _duration;
     protected bool _isPopupMenuAvailable;
+    protected bool _evrDone;
 
     #endregion
 
@@ -210,6 +213,27 @@ namespace MediaPortal.UI.Players.Video
         }
 
         _bdReader.Start();
+
+        SetVideoDecoder();
+      }
+    }
+
+    private void SetVideoDecoder()
+    {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      BluRayPlayerSettings bdSettings = ServiceRegistration.Get<ISettingsManager>().Load<BluRayPlayerSettings>();
+      Dictionary<BluRayAPI.BluRayStreamFormats, CodecInfo> codecMapping = new Dictionary<BluRayAPI.BluRayStreamFormats, CodecInfo>
+      {
+        { BluRayAPI.BluRayStreamFormats.VideoH264, settings.H264Codec },
+        { BluRayAPI.BluRayStreamFormats.VideoMPEG2, settings.Mpeg2Codec },
+        { BluRayAPI.BluRayStreamFormats.VideoVc1, bdSettings.VC1Codec },
+      };
+      foreach (var codecInfo in codecMapping)
+      {
+        if (codecInfo.Value == null)
+          continue;
+        var dsGuid = new Guid(codecInfo.Value.CLSID);
+        _bdReader.SetVideoDecoder(codecInfo.Key, ref dsGuid);
       }
     }
 
@@ -246,6 +270,7 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryDispose(ref _osdRenderer);
 
       // Free file source
+      FilterGraphTools.TryRelease(ref _bdReader);
       FilterGraphTools.TryRelease(ref _fileSource);
 
       // Free base class
@@ -255,26 +280,38 @@ namespace MediaPortal.UI.Players.Video
     protected virtual void LoadSettings()
     {
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<BluRayPlayerSettings>();
-      var bdsettings = new BluRayAPI.BDPlayerSettings
+      VideoSettings videoSettings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      ServiceRegistration.Get<ILogger>().Info("BDPlayer: SetDefaultLanguages");
+      try
       {
-        ParentalControl = settings.ParentalControl
-      };
+        var bdsettings = new BluRayAPI.BDPlayerSettings
+        {
+          ParentalControl = settings.ParentalControl,
+          CountryCode = new CultureInfo(videoSettings.PreferredMenuLanguage).TwoLetterISOLanguageName,
+          AudioLanguage = new CultureInfo(videoSettings.PreferredAudioLanguage).ThreeLetterISOLanguageName,
+          SubtitleLanguage = new CultureInfo(videoSettings.PreferredSubtitleLanguage).ThreeLetterISOLanguageName,
+          MenuLanguage = new CultureInfo(videoSettings.PreferredAudioLanguage).ThreeLetterISOLanguageName,
+        };
 
-      switch (settings.RegionCode)
-      {
-        case "A":
-          bdsettings.RegionCode = 1;
-          break;
-        case "B":
-          bdsettings.RegionCode = 2;
-          break;
-        case "C":
-          bdsettings.RegionCode = 4;
-          break;
+        switch (settings.RegionCode)
+        {
+          case "A":
+            bdsettings.RegionCode = 1;
+            break;
+          case "B":
+            bdsettings.RegionCode = 2;
+            break;
+          case "C":
+            bdsettings.RegionCode = 4;
+            break;
+        }
+        // TODO: check the language preferences (audio, menu, subs), should use MP2 defaults
+        _bdReader.SetBDPlayerSettings(bdsettings);
       }
-
-      // TODO: check the language preferences (audio, menu, subs), should use MP2 defaults
-      _bdReader.SetBDPlayerSettings(bdsettings);
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("BDPlayer: SetDefaultLanguages", ex);
+      }
     }
 
     #endregion
@@ -459,9 +496,25 @@ namespace MediaPortal.UI.Players.Video
       return 0;
     }
 
+    protected override void RenderFrame()
+    {
+      _evrDone = true;
+      base.RenderFrame();
+    }
+
     public int OnOSDUpdate(BluRayAPI.OSDTexture osdInfo)
     {
+      // Copy the passed textures
       _osdRenderer.DrawItem(osdInfo);
+
+      // Override default behavior to force rendering also for still images (EVR doesn't provide new frames)
+      _textureInvalid = true;
+
+      if (!_evrDone)
+      {
+        RenderFrame();
+        _evrDone = false;
+      }
       return 0;
     }
 
