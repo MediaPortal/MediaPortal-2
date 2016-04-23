@@ -217,7 +217,7 @@
     <DataTemplate.Resources>
       <Storyboard x:Key="MoveRight" FillBehavior="HoldEnd">
         <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Bling_horizontal" Storyboard.TargetProperty="RenderTransform.X">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.500" Value="-200"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:00.500" Value="-280"/>
           <SplineDoubleKeyFrame KeyTime="00:00:02.500" Value="20"/>
         </DoubleAnimationUsingKeyFrames>
         <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Bling_horizontal" Storyboard.TargetProperty="Opacity">
@@ -231,7 +231,7 @@
       <Storyboard x:Key="MoveDown" FillBehavior="HoldEnd">
         <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Bling_vertical" Storyboard.TargetProperty="RenderTransform.Y">
           <SplineDoubleKeyFrame KeyTime="00:00:02.200" Value="-10"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:04.000" Value="80"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:04.000" Value="120"/>
         </DoubleAnimationUsingKeyFrames>
         <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Bling_vertical" Storyboard.TargetProperty="Opacity">
           <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
