@@ -47,6 +47,10 @@
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FFD3D3D3"/>
   <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF6BB2BA"/>
 
+  <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="#59CCFFFF"/>
+  <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="#CCFFFFFF"/>
+
   <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#B0E0E0E0"/>
   <ResourceWrapper x:Key="ButtonGradientLightColor" Resource="#FF505050"/>
   <ResourceWrapper x:Key="ButtonGradientDarkColor" Resource="#FF303030"/>
@@ -164,15 +168,6 @@
 
   <!-- Dark gray, almost transparent -->
   <ResourceWrapper x:Key="ItemsControlDialogShadowBackgroundColor" Resource="#20111111"/>
-
-  <!-- White -->
-  <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="White"/>
-
-  <!-- Black -->
-  <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Black"/>
-
-  <!-- Yellow -->
-  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="Yellow"/>
 
   <ResourceWrapper x:Key="VirtualKeyboardBackgroundColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="VirtualKeyboardBorderColor" Resource="DarkGray"/>

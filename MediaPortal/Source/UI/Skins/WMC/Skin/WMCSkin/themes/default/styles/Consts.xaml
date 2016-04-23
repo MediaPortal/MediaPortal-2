@@ -21,7 +21,7 @@
   <ResourceWrapper x:Key="DialogButtonMinWidth" Resource="300"/>
 
   <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>
-  <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="2"/>
+  <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="4"/>
 
   <ResourceWrapper x:Key="VirtualKeyboardBorderThickness" Resource="10"/>
   <ResourceWrapper x:Key="VirtualKeyboardCornerRadius" Resource="10"/>
@@ -37,7 +37,7 @@
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>
-  
+    
   <!-- width and margin for small OSD buttons -->
   <ResourceWrapper x:Key="OSDControlWidth" Resource="14" />
   <ResourceWrapper x:Key="OSDControlMargin" Resource="5,2,5,2" />
