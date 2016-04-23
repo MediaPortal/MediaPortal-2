@@ -280,11 +280,11 @@
     <Grid x:Name="ItemControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="110"/>
-        <ColumnDefinition Width="270"/>
+        <ColumnDefinition Width="280"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="75" Height="52" Stretch="Uniform" Margin="0">
+      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="74" Height="50.5" Stretch="Uniform" HorizontalAlignment="Left" Margin="5,1,0,1">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
@@ -310,22 +310,22 @@
   <DataTemplate x:Key="ScheduleDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="110"/>
+        <ColumnDefinition Width="280"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="500"/>
       </Grid.ColumnDefinitions>
 
-      <Image x:Name="ChannelLogo" Grid.Column="0" Height="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
+      <Image x:Name="ChannelLogo" Grid.Column="0" Width="74" Height="50.5" Stretch="Uniform" HorizontalAlignment="Left" Margin="5,1,0,1">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
-      <StackPanel Grid.Column="2">
-        <Label x:Name="TypeLabel" Content="{Binding [ScheduleType]}" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource TinyFontSize}" HorizontalAlignment="Right"/>
-        <Label x:Name="StartTimeLabel" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" HorizontalAlignment="Right"/>
-      </StackPanel>
+      <Label x:Name="StartTimeLabel" Grid.Column="1" Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel" Grid.Column="2" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"  Margin="5,0,0,0"/>
+      <Label x:Name="TypeLabel" Grid.Column="3" Content="{Binding [ScheduleType]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      
     </Grid>
   </DataTemplate>
 
@@ -942,7 +942,7 @@
     <Setter Property="HeaderTemplate">
       <Setter.Value>
         <ControlTemplate>
-          <Button Style="{ThemeResource ProgramGuideChannelButtonStyle}" Command="{Binding Command}" Margin="0,0,4,0">
+          <Button Style="{ThemeResource ProgramGuideChannelButtonStyle}" Command="{Binding Command}" Margin="0,0,2,0">
             <Grid x:Name="ChannelHeader" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
               <Grid.ColumnDefinitions>
                 <!-- Channel Logo -->

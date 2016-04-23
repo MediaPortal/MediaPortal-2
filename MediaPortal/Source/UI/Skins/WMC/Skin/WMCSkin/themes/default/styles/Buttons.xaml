@@ -683,59 +683,41 @@
   <Style x:Key="DefaultCheckBoxStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid Margin="0,2,0,2">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid x:Name="GrowControl" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
-              <Grid.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                </TransformGroup>
-              </Grid.RenderTransform>
-              <Control Grid.Column="0" Grid.Row="0" Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
-              <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
-                  Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
-            </Grid>
-            <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,0,10,0"/>
+        <ControlTemplate TargetType="{x:Type CheckBox}" >
+          <Grid>
+            <Image Source="PlayerControl\RADIOBUTTON.UNCHECKED.NOFOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="1" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PlayerControl\RADIOBUTTON.UNCHECKED.FOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="1" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PlayerControl\RADIOBUTTON.NOFOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="1" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PlayerControl\RADIOBUTTON.FOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="1" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
           </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
-            </Trigger>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
