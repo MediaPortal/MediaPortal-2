@@ -14,9 +14,7 @@
   <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF101010"/>
 
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient1Color" Resource="#B04CE64F"/>
-
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient2Color" Resource="#B078FF7B"/>
-
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient3Color" Resource="#B05BC05D"/>
 
   <ResourceWrapper x:Key="WindowHeaderColor" Resource="#FF4b76a0"/>
@@ -35,6 +33,9 @@
     </ResourceWrapper.Resource>
   </ResourceWrapper>
 
+  <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#73CCFFFF"/>
+
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
 
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="#80FFFFFF"/>
@@ -44,9 +45,6 @@
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
   <ResourceWrapper x:Key="WatchedTextColor" Resource="Orange"/>
     
-  <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FFD3D3D3"/>
-  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF6BB2BA"/>
-
   <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="#59CCFFFF"/>
   <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Transparent"/>
   <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="#CCFFFFFF"/>

@@ -756,40 +756,37 @@
   <DataTemplate x:Key="ChannelWithCurrentProgramDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="{ThemeResource ChannelWithLogoAndProgramMargin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{ThemeResource ChannelLogoContainerMedium}"/>
-        <!-- Channel Logo -->
-        <ColumnDefinition Width="{ThemeResource MainListChannelNameLength}"/>
-        <!-- Channel Name -->
+        <ColumnDefinition Width="110"/>
+        <ColumnDefinition Width="380"/>
         <ColumnDefinition Width="*"/>
-        <!-- Program Title -->
-        <ColumnDefinition Width="{ThemeResource MainListTimeLength}"/>
-        <!-- Program Time -->
+        <ColumnDefinition Width="230"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Grid.RenderTransform>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1" ScaleY="1"/>
-        </TransformGroup>
-      </Grid.RenderTransform>
 
-      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="5,2,5,2" VerticalAlignment="Center">
+      <Image x:Name="ChannelLogo" Grid.Column="0" Width="74" Height="50.5" Stretch="Uniform" HorizontalAlignment="Left" Margin="5,1,0,1">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}"
+                                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
-
+      <Label x:Name="NameLabel" Grid.Column="1" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="CurrentProgramLabel" Grid.Column="2" Content="{Binding Programs[0].Program.Title}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"  Margin="5,0,0,0"/>
       <!-- Shows the progress of current time in relation to the current playing program -->
-      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="3" Grid.Row="0" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Programs[0].Progress}"/>
-
-      <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5"
-              Content="{Binding Programs[0].Program.Title}"
-              Color="{ThemeResource TextColor}"/>
-
-      <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource EmphasisTextColor}"
-             VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}"/>
+      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="3" Grid.Row="0" Height="16" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                    Value="{Binding Programs[0].Progress}" Margin="15,0,15,0"/>
+      <!--StackPanel Orientation="Horizontal" Grid.Column="4" Grid.Row="0" Margin="0,0,15,0">
+        <Label x:Name="ProgressLabel" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource ProgressBarFillColor}"
+             VerticalAlignment="Center">
+          <Label.Content>
+            <Binding Path="Programs[0].Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}"/>
+          </Label.Content>  
+        </Label>
+        <Label Content=" % " FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource ProgressBarFillColor}"
+             VerticalAlignment="Center" />
+      </-->
     </Grid>
   </DataTemplate>
 
@@ -797,7 +794,17 @@
   <Style x:Key="ChannelWithLogoAndProgramListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <!--<Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithLogoAndProgramDataTemplate}"/>-->
     <Setter Property="ItemTemplate" Value="{ThemeResource ChannelWithCurrentProgramDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <!-- MediaLibrary recordings section styles -->
