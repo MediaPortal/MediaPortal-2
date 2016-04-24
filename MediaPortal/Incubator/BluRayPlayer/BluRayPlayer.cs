@@ -318,8 +318,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region IDVDPlayer Member
 
-    // TODO: implement titles support
-    public string[] DvdTitles
+    public override string[] Titles
     {
       get
       {
@@ -329,19 +328,20 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    public void SetDvdTitle(string title)
+    public override void SetTitle(string title)
     {
       if (_titleInfos == null)
         return;
       int titleIndex = _titleInfos.Select(t => t.ToString()).ToList().IndexOf(title);
       if (titleIndex >= 0)
       {
-        // ?
-        // _bdReader.Set
+        _currentTitle = titleIndex;
+        _bdReader.ForceTitleBasedPlayback(true, (uint)titleIndex);
+        _bdReader.Start();
       }
     }
 
-    public string CurrentDvdTitle
+    public override string CurrentTitle
     {
       get
       {
