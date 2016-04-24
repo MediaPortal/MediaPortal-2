@@ -674,14 +674,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
         _totalWidth += desiredExtendsInOrientationDirection;
       }
-      if (arrangeBefore)
-      {
-        //_arrangedItems.Insert(0, item);
-      }
-      else
+      if (!arrangeBefore)
       {
         startOffset += desiredExtendsInOrientationDirection;
-        //_arrangedItems.Add(item);
       }
     }
 
