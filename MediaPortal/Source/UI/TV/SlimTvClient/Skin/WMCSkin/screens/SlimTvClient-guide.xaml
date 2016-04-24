@@ -30,25 +30,51 @@
           <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
-              HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
-          <Button x:Name="PrevGroupButton" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
+        <Grid x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="PrevGroupButton" Grid.Column="0" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
               Command="{Command PrevGroup}" VerticalAlignment="Center"/>
-          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                 Content="{Binding GroupName}" VerticalAlignment="Center" Margin="3,0,3,0"/>
-          <Button x:Name="NextGroupButton" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
+          <Label x:Name="GroupNameLabel" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 Content="{Binding GroupName}" VerticalAlignment="Center" Opacity="1" Margin="5,0,5,0"/>
+          <Button x:Name="NextGroupButton" Grid.Column="2" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
               Command="{Command NextGroup}" VerticalAlignment="Center"/>
-        </StackPanel>
+          <Grid.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="False"/>
+                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="GroupNameLabel" Property="Opacity" Value="0.5"/>
+            </MultiTrigger>
+          </Grid.Triggers>
+        </Grid>
 
-        <StackPanel x:Name="Channels" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
-              HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
-          <Button x:Name="PrevChannelButton" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
+        <Grid x:Name="Channels" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="PrevChannelButton" Grid.Column="0" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
               Command="{Command PrevChannel}" VerticalAlignment="Center"/>
-          <Label x:Name="CurrentChannelNameLabel" Content="{Binding ChannelName}" VerticalAlignment="Center" Margin="3,0,3,0"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-          <Button x:Name="NextChannelButton" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
+          <Label x:Name="CurrentChannelNameLabel" Grid.Column="1" Content="{Binding ChannelName}" VerticalAlignment="Center" Margin="5,0,5,0"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Opacity="1"/>
+          <Button x:Name="NextChannelButton" Grid.Column="2" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
               Command="{Command NextChannel}" VerticalAlignment="Center"/>
-        </StackPanel>
+          <Grid.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="False"/>
+                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="GuideStartTimeLabel" Property="Opacity" Value="0.5"/>
+            </MultiTrigger>
+          </Grid.Triggers>
+        </Grid>
          
         <ListView  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
               Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

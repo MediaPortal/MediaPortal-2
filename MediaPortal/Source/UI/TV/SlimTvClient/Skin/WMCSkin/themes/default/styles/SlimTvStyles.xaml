@@ -661,6 +661,16 @@
   <Style x:Key="ScheduleListViewStyle" BasedOn="{ThemeResource VirtualizingListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource ScheduleDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ProgramGuideItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" 
+              HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <!-- SlimTvClient model -->
