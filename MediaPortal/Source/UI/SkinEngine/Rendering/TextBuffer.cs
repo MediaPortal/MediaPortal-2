@@ -501,7 +501,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
             //see if substring will fit after ellipsis is added
             float cx = _font.PartialTextWidth(line, lastIndex, nextIndex - 1, _fontSize, _kerning);
-            if (lineWidth + cx + ellipsisWidth < maxWidth)
+            if (lineWidth + cx + ellipsisWidth <= maxWidth)
             {
               lastIndex = nextIndex;
               lineWidth += cx;
