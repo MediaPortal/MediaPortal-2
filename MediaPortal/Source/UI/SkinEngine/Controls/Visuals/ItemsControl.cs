@@ -26,6 +26,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -49,6 +50,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemsSourceProperty;
     protected AbstractProperty _itemTemplateProperty;
     protected AbstractProperty _itemContainerStyleProperty;
+    protected AbstractProperty _groupHeaderContainerStyleProperty;
+    protected AbstractProperty _groupHeaderTemplateProperty;
     protected AbstractProperty _itemsPanelProperty;
     protected AbstractProperty _dataStringProviderProperty;
     protected AbstractProperty _currentItemProperty;
@@ -66,6 +69,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected FrameworkElement _lastFocusedElement = null; // Needed for focus tracking/update of current item
     protected ISelectableItemContainer _lastSelectedItem = null; // Needed for updating of the selected item
 
+    protected BindingWrapper _groupingBindingWrapper;
+
     #endregion
 
     #region Ctor
@@ -82,6 +87,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsSourceProperty = new SProperty(typeof(IEnumerable), null);
       _itemTemplateProperty = new SProperty(typeof(DataTemplate), null);
       _itemContainerStyleProperty = new SProperty(typeof(Style), null);
+      _groupHeaderContainerStyleProperty = new SProperty(typeof(Style), null);
+      _groupHeaderTemplateProperty = new SProperty(typeof(DataTemplate), null);
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
       _dataStringProviderProperty = new SProperty(typeof(DataStringProvider), null);
       _currentItemProperty = new SProperty(typeof(object), null);
@@ -92,9 +99,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _itemsSourceProperty.Attach(OnItemsSourceChanged);
       _itemTemplateProperty.Attach(OnItemTemplateChanged);
+      _groupHeaderTemplateProperty.Attach(OnGroupHeaderTemplateChanged);
       _itemsPanelProperty.Attach(OnItemsPanelChanged);
       _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
+      _groupHeaderContainerStyleProperty.Attach(OnGroupHeaderContainerStyleChanged);
 
       _templateControlProperty.Attach(OnTemplateControlChanged);
       AttachToItems(_items);
@@ -105,9 +114,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _itemsSourceProperty.Detach(OnItemsSourceChanged);
       _itemTemplateProperty.Detach(OnItemTemplateChanged);
+      _groupHeaderTemplateProperty.Detach(OnGroupHeaderTemplateChanged);
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
       _dataStringProviderProperty.Detach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
+      _groupHeaderContainerStyleProperty.Detach(OnGroupHeaderContainerStyleChanged);
 
       _templateControlProperty.Detach(OnTemplateControlChanged);
       DetachFromItems(_items);
@@ -126,6 +137,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _items.Add(copyManager.GetCopy(item));
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
+      GroupHeaderContainerStyle = copyManager.GetCopy(c.GroupHeaderContainerStyle);
+      GroupHeaderTemplate = copyManager.GetCopy(c.GroupHeaderTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
       DataStringProvider = copyManager.GetCopy(c.DataStringProvider);
       _lastSelectedItem = copyManager.GetCopy(c._lastSelectedItem);
@@ -152,7 +165,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         preparedChildren.Dispose();
       base.Dispose();
       MPF.TryCleanupAndDispose(ItemTemplate);
+      MPF.TryCleanupAndDispose(GroupHeaderTemplate);
+      MPF.TryCleanupAndDispose(GroupingBindingWrapper);
       MPF.TryCleanupAndDispose(ItemContainerStyle);
+      MPF.TryCleanupAndDispose(GroupHeaderContainerStyle);
       MPF.TryCleanupAndDispose(ItemsPanel);
     }
 
@@ -205,6 +221,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PrepareItems(true);
     }
 
+    void OnGroupHeaderTemplateChanged(AbstractProperty property, object oldValue)
+    {
+      PrepareItems(true);
+    }
+
     void OnItemsPanelChanged(AbstractProperty property, object oldValue)
     {
       _panelTemplateApplied = false;
@@ -223,6 +244,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     void OnItemContainerStyleChanged(AbstractProperty property, object oldValue)
+    {
+      PrepareItems(true);
+    }
+
+    void OnGroupHeaderContainerStyleChanged(AbstractProperty property, object oldValue)
     {
       PrepareItems(true);
     }
@@ -361,6 +387,40 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (DataTemplate)_itemTemplateProperty.GetValue(); }
       set { _itemTemplateProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the Style that is applied to the container element generated for each group header.
+    /// </summary>
+    public Style GroupHeaderContainerStyle
+    {
+      get { return (Style)_groupHeaderContainerStyleProperty.GetValue(); }
+      set { _groupHeaderContainerStyleProperty.SetValue(value); }
+    }
+
+    public AbstractProperty GroupHeaderContainerStyleProperty
+    {
+      get { return _groupHeaderContainerStyleProperty; }
+    }
+
+    public AbstractProperty GroupHeaderTemplateProperty
+    {
+      get { return _groupHeaderTemplateProperty; }
+    }
+    
+    /// <summary>
+    /// Gets or sets the data template used to display each group header.
+    /// </summary>
+    public DataTemplate GroupHeaderTemplate
+    {
+      get { return (DataTemplate)_groupHeaderTemplateProperty.GetValue(); }
+      set { _groupHeaderTemplateProperty.SetValue(value); }
+    }
+
+    public BindingWrapper GroupingBindingWrapper
+    {
+      get { return _groupingBindingWrapper; }
+      set { _groupingBindingWrapper = value; }
     }
 
     public AbstractProperty DataStringProviderProperty
@@ -596,7 +656,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           // In this case, the VSP will generate its items by itself
           ListViewItemGenerator lvig = new ListViewItemGenerator();
-          lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate);
+          lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate, 
+            GroupingBindingWrapper == null ? null :  GroupingBindingWrapper.Binding, GroupHeaderContainerStyle, GroupHeaderTemplate);
           SimplePropertyDataDescriptor dd;
           if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "IsEmpty", out dd))
             SetValueInRenderThread(dd, l.Count == 0);
