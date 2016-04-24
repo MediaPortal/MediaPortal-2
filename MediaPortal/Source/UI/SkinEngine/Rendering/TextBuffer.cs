@@ -463,7 +463,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return lines;
 
       int trimmedLineCount = Math.Min(maxLines, lines.Length);
-      IList<string> result = new List<string>();
       string[] trimmedLines = new string[trimmedLineCount];
 
       float ellipsisWidth = _font.TextWidth(ELLIPSIS, _fontSize, _kerning);
