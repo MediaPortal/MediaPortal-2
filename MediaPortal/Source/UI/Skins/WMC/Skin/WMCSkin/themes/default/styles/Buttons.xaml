@@ -545,6 +545,42 @@
 
   <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonControlStyle}"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2">
+            </Control>
+            <ContentPresenter x:Name="ContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,2" Grid.ZIndex="1"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Margin="3" StrokeThickness="0" 
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}" 
+                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0">
+              <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0.012,1.4">
+                  <GradientStop Color="#00000000" Offset="0"/>
+                  <GradientStop Color="#1A000000" Offset="0.7"/>
+                  <GradientStop Color="#40000000" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <Border x:Name="Frame" BorderThickness="2" BorderBrush="White" CornerRadius="5" Opacity="0.3"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="Frame" Property="Opacity" Value="0"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="DialogButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">

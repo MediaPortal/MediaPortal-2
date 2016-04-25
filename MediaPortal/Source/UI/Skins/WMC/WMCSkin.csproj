@@ -296,11 +296,6 @@
     <Content Include="Skin\WMCSkin\screens\master_menu.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\configuration-section.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
