@@ -11,7 +11,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Grid x:Name="ParentPanel">
             <Grid.RowDefinitions>
-              <RowDefinition Height="Auto" />
+              <RowDefinition Height="65" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*" />
@@ -19,7 +19,7 @@
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" Margin="4" Context="{Binding}"
+            <Button Grid.Column="0" Margin="4,4,12,4" Context="{Binding}"
                     Command="{DynamicResource ResourceKey=Menu_Command}"/>
 
             <Button Grid.Column="1" Margin="2" Width="70" Height="70" VerticalAlignment="Center" HorizontalAlignment="Center"

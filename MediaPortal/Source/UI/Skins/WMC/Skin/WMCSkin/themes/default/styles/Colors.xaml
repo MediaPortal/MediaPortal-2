@@ -128,7 +128,7 @@
     
 
     <!-- Light blue with some green -->
-  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
+  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#40000000"/>
 
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FFA0A0A0"/>
 

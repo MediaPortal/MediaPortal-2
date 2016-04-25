@@ -684,8 +684,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}" >
-          <Grid>
-            <Image Source="PlayerControl\RADIOBUTTON.UNCHECKED.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="1" VerticalAlignment="Center">
+          <DockPanel Margin="0,2,0,2">
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.UNCHECKED.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,0,10,0" VerticalAlignment="Center">
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
@@ -693,7 +693,7 @@
                 </MultiBinding>
               </Image.IsVisible>
             </Image>
-            <Image Source="PlayerControl\RADIOBUTTON.UNCHECKED.FOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="1" VerticalAlignment="Center">
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.UNCHECKED.FOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,0,10,0" VerticalAlignment="Center">
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
@@ -701,7 +701,7 @@
                 </MultiBinding>
               </Image.IsVisible>
             </Image>
-            <Image Source="PlayerControl\RADIOBUTTON.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="1" VerticalAlignment="Center">
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,0,10,0" VerticalAlignment="Center">
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
@@ -709,7 +709,7 @@
                 </MultiBinding>
               </Image.IsVisible>
             </Image>
-            <Image Source="PlayerControl\RADIOBUTTON.FOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="1" VerticalAlignment="Center">
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.FOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,0,10,0" VerticalAlignment="Center">
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
@@ -717,7 +717,8 @@
                 </MultiBinding>
               </Image.IsVisible>
             </Image>
-          </Grid>
+            <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          </DockPanel>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

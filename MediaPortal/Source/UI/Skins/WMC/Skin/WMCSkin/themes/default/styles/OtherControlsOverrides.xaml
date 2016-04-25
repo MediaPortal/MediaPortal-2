@@ -450,7 +450,7 @@
         </DockPanel>
     </ControlTemplate>
 
-    <!-- ****************************** PlayerControl ********************************** -->
+  <!-- ****************************** PlayerControl ********************************** -->
 
     <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
         <Setter Property="Template">
