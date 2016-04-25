@@ -1,5 +1,8 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MediaPortal.Common.Services.Dokan;
+using MediaPortal.Common.Services.Dokan.Native;
 
 namespace Dokan
 {
@@ -16,91 +19,31 @@ namespace Dokan
         public string MountPoint;
   }
 
-
-    // this struct must be the same layout as DOKAN_OPERATIONS
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    struct DOKAN_OPERATIONS
-    {
-        public Proxy.CreateFileDelegate CreateFile;
-        public Proxy.OpenDirectoryDelegate OpenDirectory;
-        public Proxy.CreateDirectoryDelegate CreateDirectory;
-        public Proxy.CleanupDelegate Cleanup;
-        public Proxy.CloseFileDelegate CloseFile;
-        public Proxy.ReadFileDelegate ReadFile;
-        public Proxy.WriteFileDelegate WriteFile;
-        public Proxy.FlushFileBuffersDelegate FlushFileBuffers;
-        public Proxy.GetFileInformationDelegate GetFileInformation;
-        public Proxy.FindFilesDelegate FindFiles;
-        public IntPtr FindFilesWithPattern; // this is not used in DokanNet
-        public Proxy.SetFileAttributesDelegate SetFileAttributes;
-        public Proxy.SetFileTimeDelegate SetFileTime;
-        public Proxy.DeleteFileDelegate DeleteFile;
-        public Proxy.DeleteDirectoryDelegate DeleteDirectory;
-        public Proxy.MoveFileDelegate MoveFile;
-        public Proxy.SetEndOfFileDelegate SetEndOfFile;
-        public Proxy.SetAllocationSizeDelegate SetAllocationSize;
-        public Proxy.LockFileDelegate LockFile;
-        public Proxy.UnlockFileDelegate UnlockFile;
-        public Proxy.GetDiskFreeSpaceDelegate GetDiskFreeSpace;
-        public Proxy.GetVolumeInformationDelegate GetVolumeInformation;
-        public Proxy.UnmountDelegate Unmount;
-        public Proxy.MountedDelegate Mounted;
-        public Proxy.UnmountedDelegate Unmounted;
-        public Proxy.GetFileSecurityDelegate GetFileSecurity;
-        public Proxy.SetFileSecurityDelegate SetFileSecurity;
-  }
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto, Pack = 4)]
-    struct DOKAN_OPTIONS
-    {
-        public ushort Version;
-        public ushort ThreadCount; // number of threads to be used
-        public uint Options;
-        public ulong Dummy1;
-        [MarshalAs(UnmanagedType.LPWStr)]
-        public string MountPoint;
-    }
-
-
-    class Dokan
-    {
-        [DllImport("dokan.dll")]
-        public static extern int DokanMain(ref DOKAN_OPTIONS options, ref DOKAN_OPERATIONS operations);
-
-        [DllImport("dokan.dll")]
-        public static extern int DokanUnmount(int driveLetter);
-
-        [DllImport("dokan.dll")]
-        public static extern int DokanRemoveMountPoint(
-        [MarshalAs(UnmanagedType.LPWStr)] string mountPoint);
-
-        [DllImport("dokan.dll")]
-        public static extern uint DokanVersion();
-
-        [DllImport("dokan.dll")]
-        public static extern uint DokanDriveVersion();
-
-        [DllImport("dokan.dll")]
-        public static extern bool DokanResetTimeout(uint timeout, ref DOKAN_FILE_INFO rawFileInfo);
-    }
-
-
     public class DokanNet
     {
-        public const int ERROR_FILE_NOT_FOUND = 2;
-        public const int ERROR_PATH_NOT_FOUND = 3;
-        public const int ERROR_ACCESS_DENIED = 5;
-        public const int ERROR_SHARING_VIOLATION = 32;
-        public const int ERROR_INVALID_NAME = 123;
-        public const int ERROR_FILE_EXISTS = 80;
-        public const int ERROR_ALREADY_EXISTS = 183;
+      private readonly IDokanOperations operations;
 
-        public const int DOKAN_SUCCESS = 0;
+    public const long STATUS_OBJECTID_NOT_FOUND = 0xC00002F0;
+    public const long STATUS_OBJECT_PATH_NOT_FOUND = 0xC000003A;
+    public const long STATUS_ACCESS_DENIED = 0xC0000022;
+    public const long STATUS_SHARING_VIOLATION = 0xC0000043;
+    public const long STATUS_OBJECT_NAME_INVALID = 0xC0000033;
+    public const long STATUS_OBJECT_NAME_COLLISION = 0xC0000035;
+
+    //public const int ERROR_FILE_NOT_FOUND = 2;
+    //public const int ERROR_PATH_NOT_FOUND = 3;
+    //public const int ERROR_ACCESS_DENIED = 5;
+    //public const int ERROR_SHARING_VIOLATION = 32;
+    //public const int ERROR_INVALID_NAME = 123;
+    //public const int ERROR_FILE_EXISTS = 80;
+    //public const int ERROR_ALREADY_EXISTS = 183;
+
+    public const int DOKAN_SUCCESS = 0;
         public const int DOKAN_ERROR = -1; // General Error
         public const int DOKAN_DRIVE_LETTER_ERROR = -2; // Bad Drive letter
         public const int DOKAN_DRIVER_INSTALL_ERROR = -3; // Can't install driver
         public const int DOKAN_START_ERROR = -4; // Driver something wrong
-        public const int DOKAN_MOUNT_ERROR = -5; // Can't assign drive letter
+        public const int DOKAN_MOUNT_ERROR = -5; // Can't a5sign drive letter
 
         public const int DOKAN_VERSION = 100; // ver 1.0.0
 
@@ -109,87 +52,91 @@ namespace Dokan
         private const uint DOKAN_OPTION_ALT_STREAM = 4;
         private const uint DOKAN_OPTION_NETWORK = 16;
         private const uint DOKAN_OPTION_REMOVABLE = 32;
-
-        public static int DokanMain(DokanOptions options, DokanOperations operations)
+        
+        public static int DokanMain(DOKAN_OPTIONS options, DOKAN_OPERATIONS operations)
         {
-            if (options.VolumeLabel == null)
-            {
-                options.VolumeLabel = "DOKAN";
-            }
+            
+            //if (options.VolumeLabel == null)
+            //{
+            //    options.VolumeLabel = "DOKAN";
+            //}
 
-            Proxy proxy = new Proxy(options, operations);
+            //Proxy proxy = new Proxy(operations);
 
-            DOKAN_OPTIONS dokanOptions = new DOKAN_OPTIONS();
+            //DOKAN_OPTIONS dokanOptions = new DOKAN_OPTIONS();
 
-            dokanOptions.Version = options.Version;
-            if (dokanOptions.Version == 0)
-            {
-              dokanOptions.Version = DOKAN_VERSION;
-            }
+            //dokanOptions.Version = options.Version;
+            //if (dokanOptions.Version == 0)
+            //{
+            //  dokanOptions.Version = DOKAN_VERSION;
+            //}
 
-            dokanOptions.MountPoint = options.MountPoint;
-            dokanOptions.ThreadCount = options.ThreadCount;
-            dokanOptions.Options |= options.DebugMode ? DOKAN_OPTION_DEBUG : 0;
-            dokanOptions.Options |= options.UseStdErr ? DOKAN_OPTION_STDERR : 0;
-            dokanOptions.Options |= options.UseAltStream ? DOKAN_OPTION_ALT_STREAM : 0;
-            dokanOptions.Options |= options.NetworkDrive ? DOKAN_OPTION_NETWORK : 0;
-            dokanOptions.Options |= options.RemovableDrive ? DOKAN_OPTION_REMOVABLE : 0;
+            //dokanOptions.MountPoint = options.MountPoint;
+            //dokanOptions.ThreadCount = options.ThreadCount;
+            //dokanOptions.Options |= options.DebugMode ? DOKAN_OPTION_DEBUG : 0;
+            //dokanOptions.Options |= options.UseStdErr ? DOKAN_OPTION_STDERR : 0;
+            //dokanOptions.Options |= options.UseAltStream ? DOKAN_OPTION_ALT_STREAM : 0;
+            //dokanOptions.Options |= options.NetworkDrive ? DOKAN_OPTION_NETWORK : 0;
+            //dokanOptions.Options |= options.RemovableDrive ? DOKAN_OPTION_REMOVABLE : 0;
 
-            DOKAN_OPERATIONS dokanOperations = new DOKAN_OPERATIONS();
-            dokanOperations.CreateFile = proxy.CreateFileProxy;
-            dokanOperations.OpenDirectory = proxy.OpenDirectoryProxy;
-            dokanOperations.CreateDirectory = proxy.CreateDirectoryProxy;
-            dokanOperations.Cleanup = proxy.CleanupProxy;
-            dokanOperations.CloseFile = proxy.CloseFileProxy;
-            dokanOperations.ReadFile = proxy.ReadFileProxy;
-            dokanOperations.WriteFile = proxy.WriteFileProxy;
-            dokanOperations.FlushFileBuffers = proxy.FlushFileBuffersProxy;
-            dokanOperations.GetFileInformation = proxy.GetFileInformationProxy;
-            dokanOperations.FindFiles = proxy.FindFilesProxy;
-            dokanOperations.SetFileAttributes = proxy.SetFileAttributesProxy;
-            dokanOperations.SetFileTime = proxy.SetFileTimeProxy;
-            dokanOperations.DeleteFile = proxy.DeleteFileProxy;
-            dokanOperations.DeleteDirectory = proxy.DeleteDirectoryProxy;
-            dokanOperations.MoveFile = proxy.MoveFileProxy;
-            dokanOperations.SetEndOfFile = proxy.SetEndOfFileProxy;
-            dokanOperations.SetAllocationSize = proxy.SetAllocationSizeProxy;
-            dokanOperations.LockFile = proxy.LockFileProxy;
-            dokanOperations.UnlockFile = proxy.UnlockFileProxy;
-            dokanOperations.GetDiskFreeSpace = proxy.GetDiskFreeSpaceProxy;           
-            dokanOperations.GetVolumeInformation = proxy.GetVolumeInformationProxy;        
-            dokanOperations.Unmount = proxy.UnmountProxy;
-            dokanOperations.Mounted = proxy.MountedProxy;
-            dokanOperations.Unmounted = proxy.UnmountedProxy;
+         //   DOKAN_OPERATIONS dokanOperations = new DOKAN_OPERATIONS();
+         // dokanOperations.ZwCreateFile = proxy.ZwCreateFileProxy();
+           // dokanOperations.OpenDirectory = proxy.OpenDirectoryProxy;
+           // dokanOperations.CreateDirectory = proxy.CreateDirectoryProxy;
+           // dokanOperations.Cleanup = proxy.CleanupProxy;
+           // dokanOperations.CloseFile = proxy.CloseFileProxy;
+           // dokanOperations.ReadFile = proxy.ReadFileProxy;
+           // dokanOperations.WriteFile = proxy.WriteFileProxy;
+           // dokanOperations.FlushFileBuffers = proxy.FlushFileBuffersProxy;
+           // dokanOperations.GetFileInformation = proxy.GetFileInformationProxy;
+           // dokanOperations.FindFiles = proxy.FindFilesProxy;
+           // dokanOperations.SetFileAttributes = proxy.SetFileAttributesProxy;
+           // dokanOperations.SetFileTime = proxy.SetFileTimeProxy;
+           // dokanOperations.DeleteFile = proxy.DeleteFileProxy;
+           // dokanOperations.DeleteDirectory = proxy.DeleteDirectoryProxy;
+           // dokanOperations.MoveFile = proxy.MoveFileProxy;
+           // dokanOperations.SetEndOfFile = proxy.SetEndOfFileProxy;
+           // dokanOperations.SetAllocationSize = proxy.SetAllocationSizeProxy;
+           // dokanOperations.LockFile = proxy.LockFileProxy;
+           // dokanOperations.UnlockFile = proxy.UnlockFileProxy;
+           //// dokanOperations.GetDiskFreeSpace = proxy.GetDiskFreeSpaceProxy;           
+           // dokanOperations.GetVolumeInformation = proxy.GetVolumeInformationProxy;        
+           // dokanOperations.Unmount = proxy.UnmountProxy;
+           // dokanOperations.Mounted = proxy.MountedProxy;
+           // dokanOperations.Unmounted = proxy.UnmountedProxy;
 
-            return Dokan.DokanMain(ref dokanOptions, ref dokanOperations);
+            return NativeMethods.DokanMain(ref options, ref operations);
         }
 
 
         public static int DokanUnmount(char driveLetter)
         {
-            return Dokan.DokanUnmount(driveLetter);
+            return NativeMethods.DokanUnmount(driveLetter);
         }
 
         public static int DokanRemoveMountPoint(string mountPoint)
         {
-            return Dokan.DokanRemoveMountPoint(mountPoint);
+            return NativeMethods.DokanRemoveMountPoint(mountPoint);
         }
 
         public static uint DokanVersion()
         {
-            return Dokan.DokanVersion();
+            return NativeMethods.DokanVersion();
         }
 
         public static uint DokanDriverVersion()
         {
-            return Dokan.DokanDriveVersion();
+            return NativeMethods.DokanDriveVersion();
         }
 
         public static bool DokanResetTimeout(uint timeout, DokanFileInfo fileinfo)
         {
-            DOKAN_FILE_INFO rawFileInfo = new DOKAN_FILE_INFO();
-            rawFileInfo.DokanContext = fileinfo.DokanContext;
-            return Dokan.DokanResetTimeout(timeout, ref rawFileInfo);
+            return NativeMethods.DokanResetTimeout(timeout, fileinfo);
+        }
+
+        public static IntPtr DokanOpenRequestorToken(DokanFileInfo fileinfo)
+        {
+          return NativeMethods.DokanOpenRequestorToken(fileinfo);
         }
     }
 }
