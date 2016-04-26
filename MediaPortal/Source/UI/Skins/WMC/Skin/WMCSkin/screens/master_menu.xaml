@@ -60,7 +60,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </DockPanel.Resources>
 
         <ListView x:Name="MainMenu" DockPanel.Dock="Left" Margin="10,30,0,10" Style="{ThemeResource LeftMenuListViewStyle}"
-            Width="370" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
+            Width="400" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
             ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>

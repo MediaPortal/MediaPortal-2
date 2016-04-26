@@ -40,7 +40,7 @@
 
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="#80FFFFFF"/>
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
-  <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
+  <ResourceWrapper x:Key="HintTextColor" Resource="{ThemeResource DialogHeaderColor}"/>
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="Yellow"/>
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
   <ResourceWrapper x:Key="WatchedTextColor" Resource="Orange"/>
