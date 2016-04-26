@@ -156,12 +156,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\home_editor_master.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\default\styles\HomeEditorStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
