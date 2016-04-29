@@ -47,6 +47,19 @@ namespace HomeEditor.Models
       get { return _items; }
     }
 
+    public bool SaveGroup()
+    {
+      bool created = false;
+      if (_group == null)
+      {
+        created = true;
+        _group = new HomeMenuGroup() { Id = Guid.NewGuid() };
+      }
+      _group.DisplayName = DisplayName;
+      _group.Actions = new List<HomeMenuAction>(_items);
+      return created;
+    }
+
     public void MoveActionUp(ActionListItem item)
     {
       MoveItem(item.GroupAction, -1);

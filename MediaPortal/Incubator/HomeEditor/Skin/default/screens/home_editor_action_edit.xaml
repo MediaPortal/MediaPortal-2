@@ -18,6 +18,7 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -32,6 +33,29 @@
         <ListView Name="GroupActionsList" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,5,0,5"
                   Style="{ThemeResource SingleMarkableListViewStyle}"
                   ItemsSource="{Binding Path=ActionProxy.ActionItems,Mode=OneTime}" />
+
+        <Grid Grid.Row="2" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Back]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+          <Button x:Name="FinishButton" Grid.Row="0" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Finish]">
+            <Button.Command>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="SaveAction" />
+                <Command Source="{Service WorkflowManager}" Path="NavigatePop" Parameters="1" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+        </Grid>
       </Grid>
     </ControlTemplate>
 

@@ -69,6 +69,19 @@ namespace HomeEditor.Models
       get { return _actionItems; }
     }
 
+    public bool SaveAction()
+    {
+      bool created = false;
+      if (_action == null)
+      {
+        created = true;
+        _action = new HomeMenuAction();
+      }
+      _action.ActionId = ActionId;
+      _action.DisplayName = DisplayName;
+      return created;
+    }
+
     protected void UpdateActions()
     {
       var wf = ServiceRegistration.Get<IWorkflowManager>();

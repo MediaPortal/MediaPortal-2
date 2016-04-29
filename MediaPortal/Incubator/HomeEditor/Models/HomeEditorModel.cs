@@ -74,14 +74,8 @@ namespace HomeEditor.Models
     {
       if (_groupProxy == null)
         return;
-      HomeMenuGroup group = _groupProxy.Group;
-      if (group == null)
-      {
-        group = new HomeMenuGroup() { Id = Guid.NewGuid() };
-        _items.Add(group);
-      }
-      group.DisplayName = _groupProxy.DisplayName;
-      group.Actions = _groupProxy.GroupActions;
+      if (_groupProxy.SaveGroup())
+        _items.Add(_groupProxy.Group);
       UpdateItems();
     }
 
@@ -101,14 +95,8 @@ namespace HomeEditor.Models
     {
       if (_groupProxy == null || _actionProxy == null || _actionProxy.ActionId == Guid.Empty)
         return;
-      HomeMenuAction action = _actionProxy.GroupAction;
-      if (action == null)
-      {
-        action = new HomeMenuAction();
-        _groupProxy.GroupActions.Add(action);
-      }
-      action.ActionId = _actionProxy.ActionId;
-      action.DisplayName = _actionProxy.DisplayName;
+      if (_actionProxy.SaveAction())
+        _groupProxy.GroupActions.Add(_actionProxy.GroupAction);
       _groupProxy.UpdateItems();
     }
 
@@ -158,15 +146,6 @@ namespace HomeEditor.Models
 
     protected void Update(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      if (!push)
-      {
-        Guid oldState = oldContext.WorkflowState.StateId;
-        if (oldState == STATE_GROUP_EDIT)
-          SaveGroup();
-        else if (oldState == STATE_ACTION_EDIT)
-          SaveAction();
-      }
-
       Guid newState = newContext.WorkflowState.StateId;
       if (newState == STATE_GROUPS)
       {
