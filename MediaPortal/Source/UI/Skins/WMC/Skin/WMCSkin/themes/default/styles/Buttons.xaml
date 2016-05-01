@@ -1119,28 +1119,45 @@
     </Style.Resources>
   </Style>
 
-  <Style x:Key="NavigateBackButtonStyle" TargetType="{x:Type Button}">
-      <Setter Property="Template">
-          <Setter.Value>
-              <ControlTemplate TargetType="{x:Type Button}">
-                  <Grid>
-                      <Image x:Name="image" Source="PlayerControl\GOBACK.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
-                  </Grid>
-                  <ControlTemplate.Triggers>
-                      <Trigger Property="HasFocus" Value="True">
-                          <Setter TargetName="image" Property="Source" Value="PlayerControl\GOBACK.FOCUS.PNG"/>
-                      </Trigger>
-                  </ControlTemplate.Triggers>
-              </ControlTemplate>
-          </Setter.Value>
-      </Setter>
+  <Style x:Key="HomeButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="HOME.NOFOCUS.PNG" Stretch="Uniform" Height="55" Width="55" Margin="0,0,0,0" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="HOME.FOCUS.PNG"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Source" Value="HOME.DISABLED.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
-  <!--Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
-    </Style.Resources>
-  </-->
+  <Style x:Key="NavigateBackButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="GOBACK.NOFOCUS.PNG" Stretch="Uniform" Height="55" Width="55" Margin="0,0,0,0" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="GOBACK.FOCUS.PNG"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Source" Value="GOBACK.DISABLED.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <!-- ********************************* PlusMinus button ******************************** -->
 

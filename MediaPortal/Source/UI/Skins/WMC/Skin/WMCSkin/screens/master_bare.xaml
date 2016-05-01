@@ -46,37 +46,46 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid.Resources>
     <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                LastChildFill="True">
-        <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="90"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="200"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid x:Name="HeaderTextPanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="0,0,50,0"
+      <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="90"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="200"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+          <StackPanel Margin="10" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+            <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="5" HorizontalAlignment="Left"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+            <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=B285DC02-AA8C-47F2-8795-0B13B6E66306}"/>
+          </StackPanel>
+        </Grid>
+        <!-- WindowButtonsPanel -->
+        <Grid x:Name="HeaderTextPanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="0,0,50,0"
                        FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
                        Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
-                    </Label>
-                    <Grid.OpacityMask>
-                        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-                            <GradientStop Offset="0.0" Color="#FF000000" />
-                            <GradientStop Offset="1.0" Color="#1A000000" />
-                        </LinearGradientBrush>
-                    </Grid.OpacityMask>
-                </Grid>
-        </Grid> 
+          </Label>
+          <Grid.OpacityMask>
+            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+              <GradientStop Offset="0.0" Color="#FF000000" />
+              <GradientStop Offset="1.0" Color="#1A000000" />
+            </LinearGradientBrush>
+          </Grid.OpacityMask>
+        </Grid>
+      </Grid>
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-        <Control x:Name="ClientArea" DockPanel.Dock="Center"
-                 Template="{DynamicResource ResourceKey=Client_Template}">
-        </Control>
+      <Control x:Name="ClientArea" DockPanel.Dock="Center"
+               Template="{DynamicResource ResourceKey=Client_Template}">
+      </Control>
     </DockPanel>
       
     <!-- FooterPanel -->
