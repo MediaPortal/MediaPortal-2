@@ -59,7 +59,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="5" HorizontalAlignment="Left"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
             <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=B285DC02-AA8C-47F2-8795-0B13B6E66306}"/>
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
           </StackPanel>
         </Grid>
         <!-- WindowButtonsPanel -->
