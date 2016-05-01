@@ -3,15 +3,19 @@
 /*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
+
     This file is part of MediaPortal 2
+
     MediaPortal 2 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
+
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
+
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -75,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void AddAll<T>(IEnumerable<T> elements)
     {
       lock (_syncObj)
-          CollectionUtils.AddAll(_elements, elements);
+        CollectionUtils.AddAll(_elements, elements);
       FireCollectionChanged();
     }
 
@@ -101,7 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void SetItemIndexes()
     {
       lock (_syncObj)
-          for (int i = 0; i < _elements.Count; i++)
+        for (int i = 0; i < _elements.Count; i++)
         {
           ListViewItem lvi = _elements[i] as ListViewItem;
           if (lvi != null)
@@ -114,14 +118,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Add(object element)
     {
       lock (_syncObj)
-          _elements.Add(element);
+        _elements.Add(element);
       FireCollectionChanged();
     }
 
     public void CopyTo(object[] array, int arrayIndex)
     {
       lock (_syncObj)
-          _elements.CopyTo(array, arrayIndex);
+        _elements.CopyTo(array, arrayIndex);
     }
 
     public bool Remove(object element)
@@ -150,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public bool Contains(object item)
     {
       lock (_syncObj)
-          return _elements.Contains(item);
+        return _elements.Contains(item);
     }
 
     public int Count
@@ -158,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get
       {
         lock (_syncObj)
-            return _elements.Count;
+          return _elements.Count;
       }
     }
 
@@ -192,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void AddChild(object child)
     {
       lock (_syncObj)
-          _elements.Add(child);
+        _elements.Add(child);
     }
 
     #endregion

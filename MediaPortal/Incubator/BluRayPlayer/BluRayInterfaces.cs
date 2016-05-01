@@ -96,7 +96,7 @@ namespace MediaPortal.UI.Players.Video
     int MouseMove(int x, int y);
 
     [PreserveSig]
-    int SetVideoDecoder(int format, ref Guid decoder);
+    int SetVideoDecoder(BluRayAPI.BluRayStreamFormats format, ref Guid decoder);
 
     [PreserveSig]
     int SetVC1Override(ref Guid decoder);

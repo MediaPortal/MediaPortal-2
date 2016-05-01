@@ -373,6 +373,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
       {
+        if (_texture == null)
+          return;
         // Lock the the area we intend to update
         Rectangle charArea = new Rectangle(_currentX, _currentY, pwidth, pheight);
         DataStream dataStream;

@@ -82,7 +82,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
 
       IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
-      ITsReader tsReader = (ITsReader) _sourceFilter;
+      ITsReader tsReader = (ITsReader)_sourceFilter;
       tsReader.SetRelaxedMode(1);
       tsReader.SetTsReaderCallback(this);
       tsReader.SetRequestAudioChangeCallback(this);
@@ -131,11 +131,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         base.OnBeforeGraphRunning();
         return;
       }
-      
+
       FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
     }
 
-    protected override void FreeCodecs ()
+    protected override void FreeCodecs()
     {
       // Free file source
       FilterGraphTools.TryRelease(ref _sourceFilter);
@@ -160,11 +160,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       return 0;
     }
 
-    public int OnRequestAudioChange ()
+    public int OnRequestAudioChange()
     {
       IAMStreamSelect streamSelect = _sourceFilter as IAMStreamSelect;
       if (streamSelect != null)
         streamSelect.Enable(0, 0);
+      return 0;
+    }
+
+    public int OnBitRateChanged(int bitrate)
+    {
       return 0;
     }
   }

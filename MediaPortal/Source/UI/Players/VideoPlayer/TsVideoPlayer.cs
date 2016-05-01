@@ -221,6 +221,12 @@ namespace MediaPortal.UI.Players.Video
       _oldVideoFormat = newFormat;
       return 0;
     }
+
+    public int OnBitRateChanged(int bitrate)
+    {
+      return 0;
+    }
+
     #endregion
 
     #region ITSReaderAudioCallback members

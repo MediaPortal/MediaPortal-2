@@ -33,6 +33,8 @@ using SharpDX;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -115,6 +117,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected int _actualFirstVisibleLineIndex = 0;
     protected int _actualLastVisibleLineIndex = -1;
     protected int _originalFirstVisibleChildIndex = 0;
+
+    protected float _pendingPhysicalOffset = 0;
+    protected float _actualPhysicalOffset = 0;
+    protected bool _forcedOpacityMask = false;
 
     #endregion
 
@@ -199,14 +205,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="first">Make the line with the given <paramref name="lineIndex"/> the first or last shown line.</param>
     public virtual void SetScrollIndex(int lineIndex, bool first)
     {
+      SetPartialScrollIndex(lineIndex, first);
+    }
+
+    public virtual void SetPartialScrollIndex(double lineIndex, bool first)
+    {
+      int index = (int)lineIndex;
+      float offset = (float)(lineIndex % 1);
       lock (_renderLock)
       {
-        if (_pendingScrollIndex == lineIndex && _scrollToFirst == first ||
-            (!_pendingScrollIndex.HasValue &&
+        if (_pendingScrollIndex == lineIndex && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
+            (!_pendingScrollIndex.HasValue && _actualPhysicalOffset == offset &&
              ((_scrollToFirst && _actualFirstVisibleLineIndex == lineIndex) ||
               (!_scrollToFirst && _actualLastVisibleLineIndex == lineIndex))))
           return;
-        _pendingScrollIndex = lineIndex;
+        _pendingScrollIndex = index;
+        _pendingPhysicalOffset = offset;
         _scrollToFirst = first;
       }
       InvalidateLayout(false, true);
@@ -346,6 +360,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // Hint: We cannot skip the arrangement of lines above _actualFirstVisibleLineIndex or below _actualLastVisibleLineIndex
         // because the rendering and focus system also needs the bounds of the currently invisible children
         float startPosition = 0;
+
+        //Percentage of child size to offset child positions
+        float physicalOffset = _actualPhysicalOffset;
+
         // If set to true, we'll check available space from the last to first visible child.
         // That is necessary if we want to scroll a specific child to the last visible position.
         bool invertLayouting = false;
@@ -354,11 +372,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           {
             fireScrolled = true;
             int pendingSI = _pendingScrollIndex.Value;
+            physicalOffset = _actualPhysicalOffset = _pendingPhysicalOffset;
             if (_scrollToFirst)
               _actualFirstVisibleLineIndex = pendingSI;
             else
             {
               _actualLastVisibleLineIndex = pendingSI;
+              //If we have an offset then there will be part of an additional item visible
+              if (physicalOffset != 0)
+                _actualLastVisibleLineIndex++;
               invertLayouting = true;
             }
             _pendingScrollIndex = null;
@@ -380,6 +402,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (invertLayouting)
           {
             CalcHelper.Bound(ref _actualLastVisibleLineIndex, 0, _arrangedLines.Count - 1);
+
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+            {
+              float offsetItemSize = _arrangedLines[_actualLastVisibleLineIndex].TotalExtendsInOrientationDirection;
+              spaceLeft += offsetItemSize;
+              startPosition -= offsetItemSize * physicalOffset;
+            }
+
             _actualFirstVisibleLineIndex = _actualLastVisibleLineIndex + 1;
             while (_actualFirstVisibleLineIndex > 0)
             {
@@ -406,6 +437,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           else
           {
             CalcHelper.Bound(ref _actualFirstVisibleLineIndex, 0, _arrangedLines.Count - 1);
+
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+            {
+              float offsetItemSize = _arrangedLines[_actualFirstVisibleLineIndex].TotalExtendsInOrientationDirection;
+              spaceLeft += offsetItemSize;
+              startPosition -= offsetItemSize * physicalOffset;
+            }
+
             _actualLastVisibleLineIndex = _actualFirstVisibleLineIndex - 1;
             while (_actualLastVisibleLineIndex < _arrangedLines.Count - 1)
             {
@@ -779,6 +819,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int start = _arrangedLines[_actualFirstVisibleLineIndex].StartIndex;
       int end = _arrangedLines[_actualLastVisibleLineIndex].EndIndex;
       return visibleChildren.Skip(start).Take(end - start + 1);
+    }
+
+    /// <summary>
+    /// Required to clip any items that are partially within the panel's bounds
+    /// </summary>
+    /// <param name="parentRenderContext"></param>
+    public override void Render(RenderContext parentRenderContext)
+    {
+      if (OpacityMask == null && _actualPhysicalOffset != 0)
+      {
+        SolidColorBrush brush = new SolidColorBrush { Color = Color.Black };
+        OpacityMask = brush;
+        _forcedOpacityMask = true;
+      }
+      else if (_forcedOpacityMask && _actualPhysicalOffset == 0 && OpacityMask != null)
+      {
+        OpacityMask.Dispose();
+        OpacityMask = null;
+        _opacityMaskContext.Dispose();
+        _opacityMaskContext = null;
+        _forcedOpacityMask = false;
+      }
+      base.Render(parentRenderContext);
+    }
+
+    public override void RenderOverride(RenderContext localRenderContext)
+    {
+      base.RenderOverride(localRenderContext); // Do the actual rendering
+      // After rendering our children the following line resets the RenderContext's bounds so
+      // that rendering with an OpacityMask will clip the final output correctly to our scrolled viewport.
+      localRenderContext.SetUntransformedBounds(ActualBounds);
     }
 
     #endregion

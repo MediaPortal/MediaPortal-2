@@ -30,7 +30,7 @@
 
         <Image Stretch="Fill" Source="panel_tv_guide_large.png" Grid.Row="0" Grid.RowSpan="2"
                Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-43,-60" ></Image>
-       
+
         <StackPanel x:Name="Groups" Margin="20,8,0,8" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"
                     HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource PreviousButtonStyle}" Content=" &lt; "
@@ -39,17 +39,15 @@
                   Command="{Command NextGroup}" Margin="5,2,5,0" />
           <Label x:Name="CurrentGroupNameLabel" Content="{Binding CurrentGroupName}" VerticalAlignment="Center"
                  Color="Black" Margin="5,0,0,0"/>
-          <Button x:Name="PiPButton" Style="{ThemeResource PiPButtonStyle}" Margin="50,2,5,0"
-                 Command="{Command TogglePiP}" IsVisible="{Binding PiPAvailable}"/>
         </StackPanel>
 
-        <Button x:Name="NextChapterButton" Style="{ThemeResource PiPButtonStyle}" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
+        <Button x:Name="PiPButton" Style="{ThemeResource PiPButtonStyle}" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
                 IsVisible="{Binding PiPAvailable}" Command="{Command TogglePiP}"/>
-        
+
         <Label Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="20,0,20,0"
                Color="Black" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-        
-        <ListView  x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Margin="0,30,-34,-5"
+
+        <ListView  x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Margin="0,30,-34,-5"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
               ItemsSource="{Binding Path=CurrentGroupChannels}"
@@ -59,7 +57,7 @@
           </ListView.Resources>
         </ListView>
 
-        <Grid Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" x:Name="Description_details" 
+        <Grid Grid.Row="1" Grid.Column="0" x:Name="Description_details" 
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,25,35,5">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -112,9 +110,8 @@
           <Label x:Name="Description" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Wrap="True" Scroll="Auto" Content="{Binding Path=SelectedCurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
         </Grid>
-      </Grid>  
-    </ControlTemplate>           
-     
+      </Grid>
+    </ControlTemplate>
+
   </Include.Resources>
 </Include>
-    

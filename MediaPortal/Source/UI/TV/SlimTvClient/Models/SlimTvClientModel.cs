@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -50,7 +49,6 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
-using Timer = System.Timers.Timer;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -104,7 +102,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private AbstractProperty _isOSDLevel2Property = null;
 
     // Channel zapping
-    protected const double ZAP_TIMEOUT_SECONDS = 2.0d;
     protected DelayedEvent _zapTimer;
     protected int _zapChannelIndex;
 
@@ -463,8 +460,29 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    public bool TuneByIndex(int channelIndex)
+    {
+      if (channelIndex >= ChannelContext.Instance.Channels.Count)
+        return false;
+      Tune(ChannelContext.Instance.Channels[channelIndex]);
+      return true;
+    }
+
+    public bool TuneByChannelNumber(int channelNumber)
+    {
+      IChannel channel = ChannelContext.Instance.Channels.FirstOrDefault(c => c.ChannelNumber == channelNumber);
+      if (channel == null)
+        return false;
+      Tune(channel);
+      return true;
+    }
+
     public void Tune(IChannel channel)
     {
+      // Avoid subsequent tune requests to same channel, it will only cause delays.
+      if (IsSameChannel(channel, _lastTunedChannel))
+        return;
+
       // Specical case of this model, which is also used as normal backing model for OSD, where no WorkflowManager action was performed.
       if (!_isInitialized) InitModel();
 
@@ -633,7 +651,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       if (_zapTimer == null)
       {
-        _zapTimer = new DelayedEvent(ZAP_TIMEOUT_SECONDS * 1000);
+        SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+        _zapTimer = new DelayedEvent(settings.ZapTimeout * 1000);
         _zapTimer.OnEventHandler += ZapTimerElapsed;
       }
       // In case of new user action, reset the timer.

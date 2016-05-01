@@ -76,7 +76,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
           //new VideosFilterByGenreScreenData(),
           //new VideosFilterByYearScreenData(),
           //new VideosFilterBySystemScreenData(),
-          new VideosSimpleSearchScreenData(picd),
+          new RecordingsSimpleSearchScreenData(picd),
         };
 
       _defaultSorting = new SortByRecordingDateDesc();
