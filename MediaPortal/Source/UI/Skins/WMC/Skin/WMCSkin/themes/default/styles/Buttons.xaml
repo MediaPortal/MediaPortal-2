@@ -590,7 +590,7 @@
 
   <!-- ***************************** Radio buttons ******************************** -->
 
-  <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
+  <!--Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -647,6 +647,50 @@
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </-->
+
+  <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}" >
+          <DockPanel Margin="0,2,0,2">
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.UNCHECKED.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,1,10,0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.UNCHECKED.FOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,1,10,0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,1,10,0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.FOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,1,10,0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,0,0,2"/>
+          </DockPanel>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1544,6 +1588,8 @@
     </Setter>
   </Style>
 
+  <!--Setting Button Styles-->
+  
   <Style x:Key="UpButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -1583,6 +1629,8 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <!--Other Button Styles-->
 
   <Style x:Key="SearchButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
