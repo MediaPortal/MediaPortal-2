@@ -119,8 +119,20 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <wmc:SubItemsContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
+            <AnimatedScrollContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+              <AnimatedScrollContentPresenter.Resources>
+                <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                  <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.200" FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                </Storyboard>
+              </AnimatedScrollContentPresenter.Resources>
+              <AnimatedScrollContentPresenter.Triggers>
+                <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
+                  <EventTrigger.Actions>
+                    <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                  </EventTrigger.Actions>
+                </EventTrigger>
+              </AnimatedScrollContentPresenter.Triggers>
               <!--ScrollContentPresenter.OpacityMask>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                     <GradientStop Color="Transparent" Offset="0.01" />
@@ -129,8 +141,8 @@
                                     <GradientStop Color="Transparent" Offset="0.99" />
                                 </LinearGradientBrush>
                             </ScrollContentPresenter.OpacityMask-->
-            </wmc:SubItemsContentPresenter>
-            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+            </AnimatedScrollContentPresenter>
+            <!--Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
                 Grid.ZIndex="0" Margin="2,10,2,2"
                 RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
 
@@ -181,7 +193,7 @@
                     Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
                 </Rectangle>
               </StackPanel>
-            </Grid>
+            </Grid-->
           </Grid>
         </ControlTemplate>
       </Setter.Value>
