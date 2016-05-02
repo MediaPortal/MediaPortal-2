@@ -6,7 +6,7 @@
 
     <!-- Footer Details -->
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
-  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="60,0,290,50"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="60,0,50,50"/>
 
   <ResourceWrapper x:Key="HugeFontSize" Resource="72"/>
   <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
