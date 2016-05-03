@@ -436,13 +436,13 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="195"/>
-              <RowDefinition Height="52"/>
+              <RowDefinition Height="54"/>
             </Grid.RowDefinitions>
             <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}"
                    HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False"
+            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54"
                    HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
             <!--Image x:Name="ButtonControlGrid" Grid.Column="0" Grid.Row="0" Source="STARTMENU.QUICKLINK.BACKGROUND.PNG" Stretch="Fill" IsVisible="False"/-->
           </Grid>
           <ControlTemplate.Triggers>
