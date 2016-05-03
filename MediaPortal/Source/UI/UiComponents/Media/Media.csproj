@@ -250,6 +250,8 @@
     <Compile Include="FilterCriteria\MLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
     <Compile Include="General\Utils.cs" />
+    <Compile Include="SecondaryFilter\IItemsFilter.cs" />
+    <Compile Include="SecondaryFilter\RemoteNumpadFilter.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
     <Compile Include="Settings\Configuration\OpenPlayerStrategy.cs" />
     <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
@@ -295,6 +297,7 @@
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
+    <Content Include="Skin\default\screens\MediaItemsFilterKeyBindings.inc" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MediaItemsList.inc">

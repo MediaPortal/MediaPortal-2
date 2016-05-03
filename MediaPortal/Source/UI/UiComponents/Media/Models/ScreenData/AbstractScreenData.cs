@@ -28,6 +28,8 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.SecondaryFilter;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -41,8 +43,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     // Lazily initialized
     protected ItemsList _items = null;
+    protected ItemsList _originalList = null;
     protected AbstractProperty _numItemsStrProperty = null;
     protected AbstractProperty _numItemsProperty = null;
+    protected AbstractProperty _totalNumItemsProperty = null;
     protected AbstractProperty _isItemsValidProperty = null;
     protected AbstractProperty _isItemsEmptyProperty = null;
     protected AbstractProperty _tooManyItemsProperty = null;
@@ -50,6 +54,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _showListHintProperty = null;
     protected AbstractProperty _listHintProperty = null;
     protected NavigationData _navigationData = null;
+    protected IItemsFilter _filter;
 
     protected object _syncObj = new object();
 
@@ -59,6 +64,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       _screen = screen;
       _menuItemLabel = menuItemLabel;
+      _filter = new RemoteNumpadFilter();
     }
 
     /// <summary>
@@ -134,6 +140,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       get { return (int) _numItemsProperty.GetValue(); }
       protected set { _numItemsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TotalNumItemsProperty
+    {
+      get { return _totalNumItemsProperty; }
+    }
+
+    /// <summary>
+    /// Gets the total number of all items that are affected by current list.
+    /// </summary>
+    public int? TotalNumItems
+    {
+      get { return (int?)_totalNumItemsProperty.GetValue(); }
+      protected set { _totalNumItemsProperty.SetValue(value); }
     }
 
     public AbstractProperty IsItemsValidProperty
@@ -254,6 +274,32 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public abstract void UpdateItems();
 
     /// <summary>
+    /// Allows a secondary filter of the already loaded <see cref="Items"/> by the given <paramref name="search"/> term.
+    /// </summary>
+    /// <param name="search">Search term (or key)</param>
+    public virtual void ApplySecondaryFilter(string search)
+    {
+      IItemsFilter filter = _filter;
+      if (filter == null)
+        return;
+
+      // Init backup list
+      if (_originalList == null)
+      {
+        _originalList = new ItemsList();
+        CollectionUtils.AddAll(_originalList, _items);
+      }
+      filter.Filter(_items, _originalList, search);
+
+      if (filter.IsFiltered)
+        // Filter defined by class
+        NumItemsStr = filter.Text;
+      else
+        // Restore default text
+        NumItemsStr = Utils.BuildNumItemsStr(NumItems, TotalNumItems);
+    }
+
+    /// <summary>
     /// Updates all data which is needed by the skin. That is all properties in the region "Lazy initialized properties"
     /// and all properties from sub classes. After calling this method, the UI screen will be shown.
     /// </summary>
@@ -264,6 +310,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _navigationData = navigationData;
       _numItemsStrProperty = new WProperty(typeof(string), string.Empty);
       _numItemsProperty = new WProperty(typeof(int), 0);
+      _totalNumItemsProperty = new WProperty(typeof(int?), 0);
       _isItemsValidProperty = new WProperty(typeof(bool), true);
       _isItemsEmptyProperty = new WProperty(typeof(bool), true);
       _tooManyItemsProperty = new WProperty(typeof(bool), false);
@@ -325,6 +372,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       IsItemsValid = true;
       NumItemsStr = "?";
       NumItems = 0;
+      TotalNumItems = null;
     }
 
     protected virtual void Display_TooManyItems(int numItems)
@@ -337,6 +385,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       IsItemsValid = true;
       NumItemsStr = Utils.BuildNumItemsStr(numItems, null);
       NumItems = numItems;
+      TotalNumItems = null;
     }
 
     protected virtual void Display_Normal(int numItems, int? total)
@@ -356,8 +405,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         ShowListHint = false;
       }
       IsItemsValid = true;
+
       NumItemsStr = Utils.BuildNumItemsStr(numItems, total);
+
       NumItems = numItems;
+      TotalNumItems = total;
     }
 
     protected virtual void Display_ItemsInvalid()
@@ -370,6 +422,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       ListHint = string.Empty;
       NumItemsStr = "-";
       NumItems = 0;
+      TotalNumItems = null;
     }
   }
 }

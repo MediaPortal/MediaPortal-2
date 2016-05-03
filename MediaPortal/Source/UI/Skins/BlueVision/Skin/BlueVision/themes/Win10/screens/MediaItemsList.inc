@@ -21,6 +21,9 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
+    <!-- All KeyBindings are included from shared resource -->
+    <Include Source="screens\MediaItemsFilterKeyBindings.inc"/>
+
     <Image Source="win10_bg.png" Opacity="0.7" Margin="-35,-35,456,20" Stretch="Fill">
       <Image.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
@@ -85,5 +88,4 @@
   <Label IsVisible="{Binding !IsItemsValid}"
       HorizontalAlignment="Center" VerticalAlignment="Center"
       Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
-  <KeyBinding Key="F5" Command="{Command Reload}"/>
 </Grid>
