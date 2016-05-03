@@ -65,7 +65,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </ListView.Resources>
         </ListView>
 
-        <Image x:Name="ButtonControlGrid" Grid.Column="0" Grid.Row="2" Source="STARTMENU.QUICKLINK.BACKGROUND.PNG" 
+        <Image x:Name="FocusFrame" Grid.Column="0" Grid.Row="2" Source="Focus.frame.PNG" 
                Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="10,-97,0,97"/>
         
         <ListView  Grid.Row="2" Grid.Column="0" Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 

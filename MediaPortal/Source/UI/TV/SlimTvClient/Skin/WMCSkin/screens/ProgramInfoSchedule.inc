@@ -19,7 +19,7 @@
              Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
       <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
              Color="{ThemeResource TextColor}"/>
-      <Label x:Name="Channel" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" />
+      <Label x:Name="Channel" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" Opacity="0.5"/>
       <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
              Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
         <Image.Source>
