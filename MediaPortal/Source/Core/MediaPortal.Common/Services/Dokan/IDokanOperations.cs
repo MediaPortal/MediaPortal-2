@@ -1,129 +1,60 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Collections;
-using System.Runtime.InteropServices;
-using System.Security;
-using MediaPortal.Common.Services.Dokan;
+using System.Security.AccessControl;
 
-namespace Dokan
+namespace MediaPortal.Common.Services.Dokan
 {
     public interface IDokanOperations
     {
-        NtStatus CreateFile(
-                string filename,
-                FileAccess access,
-                FileShare share,
-                FileMode mode,
-                FileOptions options,
-                FileAttributes attributes,
-                DokanFileInfo info);
+      NtStatus CreateFile(string fileName, FileAccess access, FileShare share, FileMode mode, FileOptions options, FileAttributes attributes, DokanFileInfo info);
 
-        long OpenDirectory(
-                string filename,
-                DokanFileInfo info);
+      void Cleanup(string fileName, DokanFileInfo info);
 
-        long CreateDirectory(
-                string filename,
-                DokanFileInfo info);
+      void CloseFile(string fileName, DokanFileInfo info);
 
-        long Cleanup(
-                string filename,
-                DokanFileInfo info);
+      NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, DokanFileInfo info);
 
-        long CloseFile(
-                string filename,
-                DokanFileInfo info);
+      NtStatus WriteFile(string fileName, byte[] buffer, out int bytesWritten,long offset, DokanFileInfo info);
 
-        long ReadFile(
-                string filename,
-                byte[] buffer,
-                ref uint readBytes,
-                long offset,
-                DokanFileInfo info);
-        
-        long WriteFile(
-                string filename,
-                byte[] buffer,
-                ref uint writtenBytes,
-                long offset,
-                DokanFileInfo info);
+      NtStatus FlushFileBuffers(string fileName, DokanFileInfo info);
 
-        long FlushFileBuffers(
-                string filename,
-                DokanFileInfo info);
+      NtStatus GetFileInformation(string fileName, out FileInformation fileInfo, DokanFileInfo info);
 
-        long GetFileInformation(
-                string filename,
-                FileInformation fileinfo,
-                DokanFileInfo info);
+      NtStatus FindFiles(string fileName, out IList<FileInformation> files, DokanFileInfo info);
 
-        long FindFiles(
-                string filename,
-                ArrayList files,
-                DokanFileInfo info);
+      NtStatus FindFilesWithPattern(string fileName, string searchPattern, out IList<FileInformation> files, DokanFileInfo info);
 
-        long SetFileAttributes(
-                string filename,
-                FileAttributes attr,
-                DokanFileInfo info);
+      NtStatus SetFileAttributes(string fileName, FileAttributes attributes, DokanFileInfo info);
 
-        long SetFileTime(
-                string filename,
-                DateTime ctime,
-                DateTime atime,
-                DateTime mtime,
-                DokanFileInfo info);
+      NtStatus SetFileTime(string fileName, DateTime? creationTime, DateTime? lastAccessTime, DateTime? lastWriteTime, DokanFileInfo info);
 
-        long DeleteFile(
-                string filename,
-                DokanFileInfo info);
+      NtStatus DeleteFile(string fileName, DokanFileInfo info);
 
-        long DeleteDirectory(
-                string filename,
-                DokanFileInfo info);
+      NtStatus DeleteDirectory(string fileName, DokanFileInfo info);
 
-        long MoveFile(
-                string filename,
-                string newname,
-                bool replace,
-                DokanFileInfo info);
+      NtStatus MoveFile(string oldName, string newName, bool replace, DokanFileInfo info);
 
-        long SetEndOfFile(
-                string filename,
-                long length,
-                DokanFileInfo info);
+      NtStatus SetEndOfFile(string fileName, long length, DokanFileInfo info);
 
-        long SetAllocationSize(
-                string filename,
-                long length,
-                DokanFileInfo info);
+      NtStatus SetAllocationSize(string fileName, long length, DokanFileInfo info);
 
-        long LockFile(
-                string filename,
-                long offset,
-                long length,
-                DokanFileInfo info);
+      NtStatus LockFile(string fileName, long offset, long length, DokanFileInfo info);
 
-        long UnlockFile(
-                string filename,
-                long offset,
-                long length,
-                DokanFileInfo info);
+      NtStatus UnlockFile(string fileName, long offset, long length, DokanFileInfo info);
 
-        long GetDiskFreeSpace(
-                ref long freeBytesAvailable,
-                ref long totalBytes,
-                ref long totalFreeBytes,
-                DokanFileInfo info);
+      NtStatus GetDiskFreeSpace(out long freeBytesAvailable, out long totalNumberOfBytes, out long totalNumberOfFreeBytes, DokanFileInfo info);
 
-        long Unmount(
-                DokanFileInfo info);
+      NtStatus GetVolumeInformation(out string volumeLabel, out FileSystemFeatures features, out string fileSystemName, DokanFileInfo info);
 
-        long Mounted(
-                DokanFileInfo info);
+      NtStatus GetFileSecurity(string fileName, out FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info);
 
-        long Unmounted(
-                DokanFileInfo info);
+      NtStatus SetFileSecurity(string fileName, FileSystemSecurity security, AccessControlSections sections, DokanFileInfo info);
 
-    }
+      NtStatus Mounted(DokanFileInfo info);
+
+      NtStatus Unmounted(DokanFileInfo info);
+
+      NtStatus FindStreams(string fileName, out IList<FileInformation> streams, DokanFileInfo info);
+  }
 }

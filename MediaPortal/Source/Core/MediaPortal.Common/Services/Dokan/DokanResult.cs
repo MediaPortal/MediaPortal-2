@@ -9,7 +9,7 @@ namespace MediaPortal.Common.Services.Dokan
   /// <summary>
   /// Defines result status codes for Dokan operations.
   /// </summary>
-  public static class DokanResult
+  internal static class DokanResult
   {
     /// <summary>
     /// The operation completed successfully.
