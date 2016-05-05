@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dokan;
 using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Common.Services.Dokan.Native;
 
 #pragma warning disable 649,169
 
@@ -96,7 +97,7 @@ namespace MediaPortal.Common.Services.Dokan
     {
       try
       {
-        return new WindowsIdentity(DokanNet.DokanOpenRequestorToken(this));
+        return new WindowsIdentity(DokanNativeMethods.DokanOpenRequestorToken(this));
       }
       catch
       {
@@ -106,7 +107,7 @@ namespace MediaPortal.Common.Services.Dokan
 
     public bool TryResetTimeout(int milliseconds)
     {
-      return DokanNet.DokanResetTimeout((uint)milliseconds, this);
+      return DokanNativeMethods.DokanResetTimeout((uint)milliseconds, this);
     }
 
     private DokanFileInfo()

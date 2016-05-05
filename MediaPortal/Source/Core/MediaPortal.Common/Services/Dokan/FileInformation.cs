@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Common.Services.Dokan
 {
-  public class FileInformation
+  [StructLayout(LayoutKind.Auto)]
+  public struct FileInformation
   {
-    public FileAttributes Attributes;
-    public DateTime CreationTime;
-    public DateTime LastAccessTime;
-    public DateTime LastWriteTime;
-    public long Length;
-    public string FileName;
+    public string FileName { get; set; }
+    public FileAttributes Attributes { get; set; }
+    public DateTime CreationTime { get; set; }
+    public DateTime LastAccessTime { get; set; }
+    public DateTime LastWriteTime { get; set; }
+    public long Length { get; set; }
+
   }
 }

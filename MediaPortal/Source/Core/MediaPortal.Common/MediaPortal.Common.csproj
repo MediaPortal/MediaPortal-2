@@ -66,11 +66,13 @@
     <Compile Include="Services\Dokan\DokanFileInfo.cs" />
     <Compile Include="Services\Dokan\DokanOptions.cs" />
     <Compile Include="Services\Dokan\DokanResult.cs" />
+    <Compile Include="Services\Dokan\FileAcces.cs" />
     <Compile Include="Services\Dokan\FileInformation.cs" />
+    <Compile Include="Services\Dokan\FileSystemFeatures.cs" />
     <Compile Include="Services\Dokan\Native\BY_HANDLE_FILE_INFORMATION.cs" />
     <Compile Include="Services\Dokan\Native\DOKAN_OPERATIONS.cs" />
     <Compile Include="Services\Dokan\Native\DOKAN_OPTIONS.cs" />
-    <Compile Include="Services\Dokan\Native\NativeMethods.cs" />
+    <Compile Include="Services\Dokan\Native\DokanNativeMethods.cs" />
     <Compile Include="Services\Dokan\Native\SECURITY_INFORMATION.cs" />
     <Compile Include="Services\Dokan\Native\WIN32_FIND_DATA.cs" />
     <Compile Include="Services\Dokan\Native\WIN32_FIND_STREAM_DATA.cs" />
@@ -242,7 +244,6 @@
     <Compile Include="SystemCommunication\IContentDirectory.cs" />
     <Compile Include="SystemCommunication\IServerController.cs" />
     <Compile Include="SystemCommunication\ServerDescriptor.cs" />
-    <Compile Include="Services\Dokan\DokanNet.cs" />
     <Compile Include="Services\Dokan\IDokanOperations.cs" />
     <Compile Include="Services\Dokan\FileHandle.cs" />
     <Compile Include="Services\Dokan\Proxy.cs" />
