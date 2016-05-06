@@ -173,7 +173,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.Unsuccessful;
       }
     }
@@ -188,7 +188,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
       }
     }
 
@@ -202,7 +202,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
       }
     }
 
@@ -217,7 +217,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -233,7 +233,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -249,7 +249,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -291,7 +291,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -318,7 +318,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -384,7 +384,7 @@ namespace Dokan
 
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -413,7 +413,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -448,7 +448,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -464,7 +464,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -480,7 +480,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -506,7 +506,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -521,7 +521,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -537,7 +537,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -553,7 +553,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -569,7 +569,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -585,7 +585,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -601,7 +601,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -627,7 +627,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -643,7 +643,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -659,7 +659,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -707,7 +707,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
@@ -749,7 +749,7 @@ namespace Dokan
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex.ToString());
+        ServiceRegistration.Get<ILogger>().Warn("Dokan exception: ", ex);
         return DokanResult.InvalidParameter;
       }
     }
