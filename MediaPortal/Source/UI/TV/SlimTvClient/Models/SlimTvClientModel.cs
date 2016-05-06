@@ -796,7 +796,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void Update()
     {
       // Don't update the current channel and program information if we are in zap osd.
-      if (_tvHandler == null || _zapTimer != null)
+      if (_tvHandler == null || (_zapTimer != null && _zapTimer.IsEventPending))
         return;
 
       // Update current programs for all channels of current group (visible inside MiniGuide).
