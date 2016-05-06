@@ -97,6 +97,7 @@ namespace MediaPortal.Common.Services.Dokan
     protected Dokan(char driveLetter)
     {
       _mountPoint = driveLetter.ToString();
+      _driveLetter = driveLetter; // Compatibility for drive letter
       _mountThread = new Thread(Run) { Name = "Dokan" };
       _mountThread.Start();
     }
