@@ -481,7 +481,7 @@ namespace MediaPortal.Common.Services.Dokan
 
     public NtStatus FindFiles(string filename, out IList<FileInformation> files, DokanFileInfo info)
     {
-      files = new FileInformation[0];
+      files = new List<FileInformation>();
       lock (_syncObj)
       {
         FileHandle handle = (FileHandle)info.Context;
