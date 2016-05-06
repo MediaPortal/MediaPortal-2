@@ -13,6 +13,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ControlsRectangle">
+            <Image Source="PlayerControl\BOTTOM.RIGHT.SHADOW.PNG" Stretch="Fill" Height="90" Margin="0,-10,-20,-20" Opacity="0.8"/>
             <!--Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ProgressAndControlsBackground" Fill="{StaticResource OSDProgressAndControlsColor}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradient}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradient}" /-->
