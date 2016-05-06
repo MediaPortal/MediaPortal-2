@@ -173,7 +173,10 @@ namespace MediaPortal.UiComponents.Media.SecondaryFilter
 
     protected static string NumPadEncode(string input)
     {
-      string rtn = StringUtils.RemoveDiacritics(input.Trim());
+      var trim = input.Trim();
+      if (string.IsNullOrEmpty(trim))
+        return trim;
+      string rtn = StringUtils.RemoveDiacritics(trim);
       foreach (string key in _keyMap.Keys)
       {
         if (_keyMap[key].Length > 0)
