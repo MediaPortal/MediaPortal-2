@@ -42,12 +42,12 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-          <Control Style="{ThemeResource OSDContainer}" Width="800" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                   Margin="10">
+          <Control Style="{ThemeResource OSDContainer}" HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                   Margin="10,0,10,10">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_InfoArea_Template">
 
-                <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
+                <Grid x:Name="PlayerGrid" Margin="5,0,5,0"
                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -94,32 +94,56 @@
                 </Grid>
               </ControlTemplate>
 
-              <ControlTemplate x:Key="OSD_ProgressAndControls_Template">
-                <DockPanel LastChildFill="true" Margin="3">
+              <ControlTemplate x:Key="OSD_Progress_Template">
+                <DockPanel LastChildFill="true" Margin="100,10,100,10">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="80"/>
+                      <ColumnDefinition Width="110"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="80"/>
+                      <ColumnDefinition Width="110"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
+                    <Image Grid.Column="0" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Width="140" Height="70" Margin="-20,0,-20,0"/>
                     <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0" Content="{Binding CurrentTime}"
-                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}"/>
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
-                    <ProgressBar Grid.Row="0" Grid.Column="1" x:Name="ProgressBar" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                        Value="{Binding Path=PercentPlayed}"/>
+                    <ProgressBar Grid.Row="0" Grid.Column="1" x:Name="ProgressBar" Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                        Value="{Binding Path=PercentPlayed}" Style="{ThemeResource PlayerControlsProgressBarStyle}"/>
 
+                    <Image Grid.Column="2" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Width="140" Height="70" Margin="-20,0,-20,0"/>
                     <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 
-                        Content="{Binding Duration}" 
-                        HorizontalAlignment="Right" VerticalAlignment="Center"
-                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}"/>
+                        Content="{Binding Duration}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+                  </Grid>
+                  <!-- PlayerGrid -->
+                </DockPanel>
+              </ControlTemplate>
+
+        <ControlTemplate x:Key="OSD_Controls_Template">
+                <DockPanel Margin="0" HorizontalAlignment="Right">
+                  <Grid DockPanel.Dock="Right">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="20"/>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
                     <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0"
-                                VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}">
+                                VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ShowMouseControls}">
+                      <StackPanel.LayoutTransform>
+                        <TransformGroup>
+                          <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
+                        </TransformGroup>
+                      </StackPanel.LayoutTransform>
                       <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="0"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>

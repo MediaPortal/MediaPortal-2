@@ -8,14 +8,14 @@
     DependsOnStyleResources="Colors,Consts"
     >
   
-  <Style x:Key="ProgressAndControlsStyle" TargetType="{x:Type Control}">
+  <Style x:Key="ControlsStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <DockPanel Name="ProgressAndControlsRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ProgressAndControlsBackground" Fill="{StaticResource OSDProgressAndControlsColor}" />
+          <DockPanel Name="ControlsRectangle">
+            <!--Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ProgressAndControlsBackground" Fill="{StaticResource OSDProgressAndControlsColor}" />
             <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonUpperShine" Fill="{StaticResource UpperShineGradient}" />
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradient}" />
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonLowerShine" Fill="{StaticResource LowerShineGradient}" /-->
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -40,21 +40,26 @@
         <ControlTemplate>
           <Grid x:Name="MainOSDGrid">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
-            <!--Control Grid.Column="0" Grid.Row="0" Style="{ThemeResource OSDInfoAreaStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/-->
+            <!--Control Grid.Column="0" Grid.Row="0" Style="{ThemeResource OSDInfoAreaStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Control Grid.Column="0" Grid.Row="0" x:Name="OSDInfoAreaPresenter" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
+                Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" /-->
 
-            <Control Grid.Column="0" Grid.Row="1" Style="{ThemeResource ProgressAndControlsStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control Grid.Column="0" Grid.Row="1" x:Name="ProgressAndControlsPresenter" Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Template="{DynamicResource ResourceKey=OSD_ProgressAndControls_Template}"/>
+            <Control Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" x:Name="ProgressPresenter" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=OSD_Progress_Template}" />
+
+            <Control Grid.Column="1" Grid.Row="2" Style="{ThemeResource ControlsStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control Grid.Column="1" Grid.Row="2" x:Name="ControlsPresenter" Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
 
           </Grid>
         </ControlTemplate>
