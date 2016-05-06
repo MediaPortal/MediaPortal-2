@@ -47,6 +47,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _numItemsStrProperty = null;
     protected AbstractProperty _numItemsProperty = null;
     protected AbstractProperty _totalNumItemsProperty = null;
+    protected AbstractProperty _isFilteredProperty;
     protected AbstractProperty _isItemsValidProperty = null;
     protected AbstractProperty _isItemsEmptyProperty = null;
     protected AbstractProperty _tooManyItemsProperty = null;
@@ -156,9 +157,18 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       protected set { _totalNumItemsProperty.SetValue(value); }
     }
 
-    public AbstractProperty IsItemsValidProperty
+    public AbstractProperty IsFilteredProperty
     {
-      get { return _isItemsValidProperty; }
+      get { return _isFilteredProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information whether the current view is filtered by a secondary filter.
+    /// </summary>
+    public bool IsFiltered
+    {
+      get { return (bool)_isFilteredProperty.GetValue(); }
+      protected set { _isFilteredProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -291,7 +301,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       }
       filter.Filter(_items, _originalList, search);
 
-      if (filter.IsFiltered)
+      IsFiltered = filter.IsFiltered;
+      if (IsFiltered)
         // Filter defined by class
         NumItemsStr = filter.Text;
       else
@@ -311,6 +322,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _numItemsStrProperty = new WProperty(typeof(string), string.Empty);
       _numItemsProperty = new WProperty(typeof(int), 0);
       _totalNumItemsProperty = new WProperty(typeof(int?), 0);
+      _isFilteredProperty = new WProperty(typeof(bool), false);
       _isItemsValidProperty = new WProperty(typeof(bool), true);
       _isItemsEmptyProperty = new WProperty(typeof(bool), true);
       _tooManyItemsProperty = new WProperty(typeof(bool), false);
@@ -373,6 +385,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       NumItemsStr = "?";
       NumItems = 0;
       TotalNumItems = null;
+      IsFiltered = false;
     }
 
     protected virtual void Display_TooManyItems(int numItems)
@@ -386,6 +399,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       NumItemsStr = Utils.BuildNumItemsStr(numItems, null);
       NumItems = numItems;
       TotalNumItems = null;
+      IsFiltered = false;
     }
 
     protected virtual void Display_Normal(int numItems, int? total)
@@ -410,6 +424,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
       NumItems = numItems;
       TotalNumItems = total;
+      IsFiltered = false;
     }
 
     protected virtual void Display_ItemsInvalid()
@@ -423,6 +438,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       NumItemsStr = "-";
       NumItems = 0;
       TotalNumItems = null;
+      IsFiltered = false;
     }
   }
 }

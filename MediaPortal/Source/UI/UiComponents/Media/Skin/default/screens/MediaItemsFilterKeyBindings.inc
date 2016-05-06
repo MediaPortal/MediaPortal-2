@@ -22,4 +22,6 @@
   <KeyBinding Key="#" Command="{Command Path=ApplySecondaryFilter,Parameters=#}"/>
   <KeyBinding Key="§" Command="{Command Path=ApplySecondaryFilter,Parameters=§}"/>
 
+  <KeyBinding Key="Escape" Command="{Command Path=ApplySecondaryFilter,Parameters=*}" IsEnabled="{Binding IsFiltered}"/>
+
 </Grid>
