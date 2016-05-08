@@ -23,6 +23,8 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -45,6 +47,12 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected override void Prepare()
     {
       base.Prepare();
+
+      _filter = new BooleanCombinationFilter(BooleanOperator.And, new List<IFilter>
+      {
+        new EmptyFilter(SeriesAspect.ATTR_SERIESNAME),
+        new EmptyFilter(MovieAspect.ATTR_MOVIE_NAME),
+      });
 
       _defaultScreen = new VideosFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>

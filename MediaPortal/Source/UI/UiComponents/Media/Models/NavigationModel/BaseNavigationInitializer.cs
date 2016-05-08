@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
@@ -53,6 +54,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected AbstractItemsScreenData.PlayableItemCreatorDelegate _genericPlayableItemCreatorDelegate;
     protected ViewSpecification _customRootViewSpecification;
     protected IEnumerable<string> _restrictedMediaCategories = null;
+    protected IFilter _filter = null; // Can be set by derived classes to apply an inital filter
 
     #endregion
 
@@ -114,7 +116,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(_viewName, null, _necessaryMias, skinDependentOptionalMIATypeIDs, true)
+        new MediaLibraryQueryViewSpecification(_viewName, _filter, _necessaryMias, skinDependentOptionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
         };
