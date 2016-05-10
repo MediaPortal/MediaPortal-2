@@ -123,7 +123,7 @@
                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
               <AnimatedScrollContentPresenter.Resources>
                 <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                  <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.200" FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                  <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
                 </Storyboard>
               </AnimatedScrollContentPresenter.Resources>
               <AnimatedScrollContentPresenter.Triggers>

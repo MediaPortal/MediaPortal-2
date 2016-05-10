@@ -366,7 +366,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\superlayers\BusyCursor.xaml">
+    <Content Include="Skin\WMCSkin\themes\default\styles\BusyCursor.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -9,8 +9,8 @@
   <SolidColorBrush x:Key="ParticleStroke" Color="Transparent"/>
   <SolidColorBrush x:Key="ParticleFill" Color="{ThemeResource WindowHeaderColor}"/>
   <SolidColorBrush x:Key="ParticleBackgroundColor" Color="Transparent"/>
-  <ResourceWrapper x:Key="ParticleOpacity">0.9</ResourceWrapper>
-  <ResourceWrapper x:Key="ParticleRadius">6</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleOpacity">1</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleRadius">5</ResourceWrapper>
 
   <ResourceWrapper x:Key="StartingPointX">0</ResourceWrapper>
   <ResourceWrapper x:Key="StartingPointY">-20</ResourceWrapper>
@@ -58,7 +58,7 @@
     <Setter Property="Width" Value="{StaticResource ParticleRadius}"/>
     <Setter Property="Height" Value="{StaticResource ParticleRadius}"/>
     <Setter Property="Stroke" Value="{StaticResource ParticleStroke}"/>
-    <Setter Property="StrokeThickness" Value="0.2"/>
+    <Setter Property="StrokeThickness" Value="0"/>
     <Setter Property="Fill" Value="{StaticResource ParticleFill}"/>
     <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
     <Setter Property="Opacity" Value="{StaticResource ParticleOpacity}"/>
@@ -149,7 +149,7 @@
 
           <Grid RenderTransformOrigin="0.5,0.5">
             <Grid.LayoutTransform>
-              <ScaleTransform ScaleX="2.5" ScaleY="2.5" />
+              <ScaleTransform ScaleX="8" ScaleY="8" />
             </Grid.LayoutTransform>
 
             <Canvas x:Name="CursorBusy" Width="50" Height="50" RenderTransformOrigin="0.5,0.5">
