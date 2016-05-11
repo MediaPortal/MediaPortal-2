@@ -29,11 +29,13 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
+using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
   /// <summary>
-  /// <see cref="MatroskaMatcher"/> tries to read a valid IMDB id from tags of Matroska files.
+  /// <see cref="MatroskaMatcher"/> tries to read tags of Matroska files.
   /// </summary>
   public class MatroskaMatcher
   {
@@ -63,6 +65,49 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
 
       imdbId = null;
       return false;
+    }
+
+    public static bool ExtractFromTags(ILocalFsResourceAccessor folderOrFileLfsra, MovieInfo movieInfo)
+    {
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
+      if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
+        return false;
+
+      // Try to get extended information out of matroska files)
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
+      // Add keys to be extracted to tags dictionary, matching results will returned as value
+      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+      mkvReader.ReadTags(tagsToExtract);
+
+      // Read plot
+      IList<string> tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
+      string plot = tags != null ? tags.FirstOrDefault() : string.Empty;
+      if (!string.IsNullOrEmpty(plot))
+        MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, plot, true);
+
+      // Read genre
+      tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
+      if (tags != null)
+        MetadataUpdater.SetOrUpdateList(movieInfo.Genres, new List<string>(tags), false, true);
+
+      // Read actors
+      tags = tagsToExtract[MatroskaConsts.TAG_ACTORS];
+      if (tags != null)
+        MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false, true);
+
+      tags = tagsToExtract[MatroskaConsts.TAG_DIRECTORS];
+      if (tags != null)
+        MetadataUpdater.SetOrUpdateList(movieInfo.Directors,
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_DIRECTOR }).ToList(), false, true);
+
+      tags = tagsToExtract[MatroskaConsts.TAG_WRITTEN_BY];
+      if (tags != null)
+        MetadataUpdater.SetOrUpdateList(movieInfo.Writers,
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_WRITER }).ToList(), false, true);
+
+      return true;
     }
   }
 }

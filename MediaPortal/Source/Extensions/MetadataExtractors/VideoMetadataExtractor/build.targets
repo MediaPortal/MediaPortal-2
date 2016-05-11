@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+    <PluginFiles Include="$(TargetDir)Ude.dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 

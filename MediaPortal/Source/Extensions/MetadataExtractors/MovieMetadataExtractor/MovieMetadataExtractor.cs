@@ -34,6 +34,9 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
+using MediaPortal.Utilities;
+using System.IO;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -153,6 +156,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo);
       MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo);
+      MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
+      MP4Matcher.ExtractFromTags(lfsra, movieInfo);
       MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo);
 
       if (!_onlyFanArt)
