@@ -195,7 +195,7 @@ namespace MediaPortal.DevTools
     public int GetSeriesCount()
     {
       Guid[] types = new Guid[] { SeriesAspect.ASPECT_ID };
-      IFilter filter = new LikeFilter(SeriesAspect.ATTR_SERIESNAME, "%", null, false);
+      IFilter filter = new LikeFilter(SeriesAspect.ATTR_SERIES_NAME, "%", null, false);
 
       return GetContentDirectory().CountMediaItems(types, filter, true);
     }
@@ -204,11 +204,11 @@ namespace MediaPortal.DevTools
     {
       Guid[] types = new Guid[] { MediaAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
       IFilter titleFilter = new LikeFilter(MediaAspect.ATTR_TITLE, string.Format("%{0}%", text), null, false);
-      IFilter actorsFilter = new LikeFilter(VideoAspect.ATTR_ACTORS, string.Format("%{0}%", text), null, false);
-      IFilter directorsFilter = new LikeFilter(VideoAspect.ATTR_DIRECTORS, string.Format("%{0}%", text), null, false);
-      IFilter writersFilter = new LikeFilter(VideoAspect.ATTR_WRITERS, string.Format("%{0}%", text), null, false);
-      IFilter episodeFilter = new LikeFilter(EpisodeAspect.ATTR_EPISODENAME, string.Format("%{0}%", text), null, false);
-      IFilter seriesFilter = new LikeFilter(EpisodeAspect.ATTR_SERIESNAME, string.Format("%{0}%", text), null, false);
+      IFilter actorsFilter = new LikeFilter(EpisodeAspect.ATTR_ACTORS, string.Format("%{0}%", text), null, false);
+      IFilter directorsFilter = new LikeFilter(EpisodeAspect.ATTR_DIRECTORS, string.Format("%{0}%", text), null, false);
+      IFilter writersFilter = new LikeFilter(EpisodeAspect.ATTR_WRITERS, string.Format("%{0}%", text), null, false);
+      IFilter episodeFilter = new LikeFilter(EpisodeAspect.ATTR_EPISODE_NAME, string.Format("%{0}%", text), null, false);
+      IFilter seriesFilter = new LikeFilter(EpisodeAspect.ATTR_SERIES_NAME, string.Format("%{0}%", text), null, false);
       IFilter filter = new BooleanCombinationFilter(BooleanOperator.Or, new IFilter[] { titleFilter, actorsFilter, directorsFilter, writersFilter, episodeFilter, seriesFilter });
 
       return GetContentDirectory().Search(new MediaItemQuery(types, new Guid[] { SeriesAspect.ASPECT_ID }, filter), true);

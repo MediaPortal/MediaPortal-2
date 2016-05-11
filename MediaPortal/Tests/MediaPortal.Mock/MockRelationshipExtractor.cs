@@ -55,15 +55,15 @@ namespace MediaPortal.Mock
       return false;
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       if (Matcher == null)
         return true;
 
-      return Matcher(linkedAspects, existingAspects);
+      return Matcher(extractedAspects, existingAspects);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
       index = Index;
       return true;

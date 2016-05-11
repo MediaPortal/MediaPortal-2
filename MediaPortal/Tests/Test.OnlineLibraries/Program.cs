@@ -92,15 +92,15 @@ namespace Test.OnlineLibraries
       matcher.Init();
 
       TrackInfo track = new TrackInfo();
-      track.Title = title;
-      track.Artists.Add(artist);
+      track.TrackName = title;
+      track.Artists.Add(new PersonInfo() { Name = artist });
       track.Album = album;
-      track.Year = year;
+      track.ReleaseDate = new DateTime(year, 1, 1);
       track.TrackNum = trackNum;
       if (matcher.FindAndUpdateTrack(track))
       {
         Console.WriteLine("Found track title={0} artist={1} album={2} year={3} trackNum={4}:\nTitle={5} Artists={6} Album={7} Year={8} Track={9}",
-          title, artist, album, year, trackNum, track.Title, string.Join(", ", track.Artists), track.Album, track.Year, track.TrackNum);
+          title, artist, album, year, trackNum, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
 
         Thread.Sleep(5000); //Let fanart download
       }
@@ -125,11 +125,11 @@ namespace Test.OnlineLibraries
 
       TrackInfo track = new TrackInfo();
       track.AlbumCdDdId = cdDbId;
-      track.Title = title;
+      track.TrackName = title;
       if (matcher.FindAndUpdateTrack(track))
       {
         Console.WriteLine("Found track CDDB ID={0} title={1}:\nTitle={2} Artists={3} Album={4} Year={5} Track={6}",
-          cdDbId, title, track.Title, string.Join(", ", track.Artists), track.Album, track.Year, track.TrackNum);
+          cdDbId, title, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
 
         Thread.Sleep(5000); //Let fanart download
       }
@@ -152,15 +152,15 @@ namespace Test.OnlineLibraries
       matcher.Init();
 
       TrackInfo track = new TrackInfo();
-      track.Title = title;
-      track.Artists.Add(artist);
+      track.TrackName = title;
+      track.Artists.Add(new PersonInfo() { Name = artist });
       track.Album = album;
-      track.Year = year;
+      track.ReleaseDate = new DateTime(year, 1, 1);
       track.TrackNum = trackNum;
       if (matcher.FindAndUpdateTrack(track))
       {
         Console.WriteLine("Found track title={0} artist={1} album={2} year={3} trackNum={4}:\nTitle={5} Artists={6} Album={7} Year={8} Track={9}",
-          title, artist, album, year, trackNum, track.Title, string.Join(", ", track.Artists), track.Album, track.Year, track.TrackNum);
+          title, artist, album, year, trackNum, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
 
         Thread.Sleep(5000); //Let fanart download
       }
@@ -220,13 +220,12 @@ namespace Test.OnlineLibraries
       string value;
       if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, out value))
       {
-        TvdbSeries seriesDetail;
-        SeriesTvDbMatcher.Instance.TryGetSeries(Int32.Parse(value), out seriesDetail);
-        Console.WriteLine("{0}: {1}", seriesDetail.SeriesName, seriesDetail.Overview);
-        foreach (TvdbEpisode episode in seriesDetail.Episodes)
+        SeriesInfo seriesInfo = new SeriesInfo()
         {
-          Console.WriteLine("S{0}E{1}({2}): {3}", episode.SeasonNumber, episode.EpisodeNumber, episode.SeasonId, episode.EpisodeName);
-        }
+          TvdbId = Int32.Parse(value)
+        };
+        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo);
+        Console.WriteLine("{0}: {1}", seriesInfo.Series, seriesInfo.Description);
       }
 
       SeriesTvDbMatcher.Instance.EndDownloads();

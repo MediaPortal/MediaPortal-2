@@ -134,13 +134,14 @@ namespace Test.Backend
       MediaItemAspect.SetAttribute(episodeAspects, MediaAspect.ATTR_TITLE, episodeTitle);
       MediaItemAspect.SetCollectionAttribute(episodeAspects, EpisodeAspect.ATTR_EPISODE, new[] { episode });
       MediaItemAspect.SetAttribute(episodeAspects, EpisodeAspect.ATTR_SEASON, season);
-      MediaItemAspect.SetAttribute(episodeAspects, ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
+      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(episodeAspects, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
       MediaItemAspect.AddOrUpdateExternalIdentifier(episodeAspects, externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId);
       ServiceRegistration.Get<ILogger>().Debug("Episode:");
       MockCore.ShowMediaAspects(episodeAspects, MockCore.Library.GetManagedMediaItemAspectMetadata());
 
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SERIESNAME, seriesName);
+      MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SERIES_NAME, seriesName);
       MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SEASON, season);
       MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SERIES_SEASON, seriesSeasonName);
       MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_DESCRIPTION, seasonDescription);
@@ -151,7 +152,7 @@ namespace Test.Backend
       extractor.AddRelationship(EpisodeAspect.ROLE_EPISODE, new[] { EpisodeAspect.ASPECT_ID }, SeasonAspect.ROLE_SEASON, new[] { SeasonAspect.ASPECT_ID }, externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId, new List<IDictionary<Guid, IList<MediaItemAspect>>>() { seasonAspects }, EpisodeSeasonMatcher, episode);
 
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      MediaItemAspect.SetAttribute(seriesAspects, SeasonAspect.ATTR_SERIESNAME, seriesName);
+      MediaItemAspect.SetAttribute(seriesAspects, SeasonAspect.ATTR_SERIES_NAME, seriesName);
       MediaItemAspect.SetAttribute(seriesAspects, SeasonAspect.ATTR_DESCRIPTION, seriesDescription);
       MediaItemAspect.AddOrUpdateExternalIdentifier(seriesAspects, externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId);
       ServiceRegistration.Get<ILogger>().Debug("Series:");

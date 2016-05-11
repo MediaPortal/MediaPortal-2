@@ -129,10 +129,10 @@ namespace Test.Common
 
       IDictionary<Guid, IList<MediaItemAspect>> aspects1 = new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      SingleMediaItemAspect resourceAspect1 = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
+      MultipleMediaItemAspect resourceAspect1 = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
       resourceAspect1.Deleted = true;
       resourceAspect1.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
-      MediaItemAspect.SetAspect(aspects1, resourceAspect1);
+      MediaItemAspect.AddOrUpdateAspect(aspects1, resourceAspect1);
 
       MediaItemAspect.AddOrUpdateRelationship(aspects1, trackRelationship, albumRelationship, albumId, 1);
       MediaItemAspect.AddOrUpdateRelationship(aspects1, trackRelationship, artistRelationship, artistId, 0);
@@ -159,10 +159,10 @@ namespace Test.Common
       //Console.WriteLine("Reader state track2, {0} {1}", reader.NodeType, reader.Name);
       MediaItem track2 = MediaItem.Deserialize(reader);
 
-      SingleMediaItemAspect resourceAspect2;
-      Assert.IsTrue(MediaItemAspect.TryGetAspect(track2.Aspects, ProviderResourceAspect.Metadata, out resourceAspect2), "Resource aspects");
-      Assert.AreEqual(true, resourceAspect2.Deleted, "Track deleted status");
-      Assert.AreEqual("c:\\file.mp3", resourceAspect2.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "Track location");
+      IList<MultipleMediaItemAspect> resourceAspect2;
+      Assert.IsTrue(MediaItemAspect.TryGetAspects(track2.Aspects, ProviderResourceAspect.Metadata, out resourceAspect2), "Resource aspects");
+      Assert.AreEqual(true, resourceAspect2[0].Deleted, "Track deleted status");
+      Assert.AreEqual("c:\\file.mp3", resourceAspect2[0].GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "Track location");
       IList<MediaItemAspect> relationships2 = track2[RelationshipAspect.ASPECT_ID];
       Assert.IsTrue(track2[RelationshipAspect.ASPECT_ID] != null, "Relationship aspects");
       Assert.AreEqual(relationships2.Count, 2, "Track relationship count");
@@ -177,9 +177,9 @@ namespace Test.Common
       //Console.WriteLine("Reader state track3, {0} {1}", reader.NodeType, reader.Name);
       MediaItem track3 = MediaItem.Deserialize(reader);
 
-      SingleMediaItemAspect resourceAspect3;
-      Assert.IsTrue(MediaItemAspect.TryGetAspect(track3.Aspects, ProviderResourceAspect.Metadata, out resourceAspect3), "Resource aspects");
-      Assert.AreEqual("c:\\file.mp3", resourceAspect3.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "Track location");
+      IList<MultipleMediaItemAspect> resourceAspect3;
+      Assert.IsTrue(MediaItemAspect.TryGetAspects(track3.Aspects, ProviderResourceAspect.Metadata, out resourceAspect3), "Resource aspects");
+      Assert.AreEqual("c:\\file.mp3", resourceAspect3[0].GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), "Track location");
       IList<MediaItemAspect> relationships3 = track3[RelationshipAspect.ASPECT_ID];
       Assert.IsTrue(track3[RelationshipAspect.ASPECT_ID] != null, "Relationship aspects");
       Assert.AreEqual(2, relationships3.Count, "Track relationship count");
@@ -245,13 +245,15 @@ namespace Test.Common
     {
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_MIME_TYPE, "audio/mp3");
+      IList<MultipleMediaItemAspect> providerAspects;
+      MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerAspects);
+      providerAspects[0].SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "audio/mp3");
 
       Assert.AreEqual(aspects.Keys.Count, 1, "aspect key count");
 
-      SingleMediaItemAspect aspect;
-      Assert.IsTrue(MediaItemAspect.TryGetAspect(aspects, ProviderResourceAspect.Metadata, out aspect), "ProviderResource");
-      Assert.AreEqual("audio/mp3", aspect[ProviderResourceAspect.ATTR_MIME_TYPE], "MIME type");
+      IList<MultipleMediaItemAspect> providerAspects2;
+      Assert.IsTrue(MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerAspects2), "ProviderResource");
+      Assert.AreEqual("audio/mp3", providerAspects2[0][ProviderResourceAspect.ATTR_MIME_TYPE], "MIME type");
     }
   }
 }
