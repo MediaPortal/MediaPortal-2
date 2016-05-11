@@ -63,33 +63,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      SingleMediaItemAspect seriesAspect;
-      if (!MediaItemAspect.TryGetAspect(aspects, SeriesAspect.Metadata, out seriesAspect))
-        return false;
-
-      IEnumerable<string> actors = seriesAspect.GetCollectionAttribute<string>(SeriesAspect.ATTR_ACTORS);
-     
       // Build the person MI
 
-      List<PersonInfo> persons = new List<PersonInfo>();
-      if (actors != null)
-        foreach (string person in actors)
-          persons.Add(new PersonInfo() { Name = person, Occupation = PersonOccupation.Actor });
-
-      SeriesInfo seriesInfo;
-      if (!SeriesRelationshipExtractor.GetBaseInfo(aspects, out seriesInfo))
+      SeriesInfo seriesInfo = new SeriesInfo();
+      if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      SeriesTheMovieDbMatcher.Instance.UpdateSeriesPersons(seriesInfo, persons, PersonOccupation.Actor);
-      SeriesTvMazeMatcher.Instance.UpdateSeriesPersons(seriesInfo, persons, PersonOccupation.Actor);
-      SeriesTvDbMatcher.Instance.UpdateSeriesPersons(seriesInfo, persons, PersonOccupation.Actor);
+      SeriesTvMazeMatcher.Instance.UpdateSeriesPersons(seriesInfo, PersonAspect.OCCUPATION_ACTOR);
+      SeriesTvDbMatcher.Instance.UpdateSeriesPersons(seriesInfo, PersonAspect.OCCUPATION_ACTOR);
+      SeriesTheMovieDbMatcher.Instance.UpdateSeriesPersons(seriesInfo, PersonAspect.OCCUPATION_ACTOR);
 
-      if (persons.Count == 0)
+      if (seriesInfo.Actors.Count == 0)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
-      foreach (PersonInfo person in persons)
+      foreach (PersonInfo person in seriesInfo.Actors)
       {
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         extractedLinkedAspects.Add(personAspects);
@@ -98,25 +87,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return true;
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       if (!existingAspects.ContainsKey(PersonAspect.ASPECT_ID))
         return false;
 
-      int linkedOccupation;
-      if (!MediaItemAspect.TryGetAttribute(linkedAspects, PersonAspect.ATTR_OCCUPATION, out linkedOccupation))
+      PersonInfo linkedPerson = new PersonInfo();
+      if (!linkedPerson.FromMetadata(extractedAspects))
         return false;
 
-      int existingOccupation;
-      if (!MediaItemAspect.TryGetAttribute(existingAspects, PersonAspect.ATTR_OCCUPATION, out existingOccupation))
+      PersonInfo existingPerson = new PersonInfo();
+      if (!existingPerson.FromMetadata(extractedAspects))
         return false;
 
-      return linkedOccupation == existingOccupation;
+      return linkedPerson.Equals(existingPerson);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, SeriesAspect.ATTR_ACTORS, out index);
+      index = -1;
+
+      SingleMediaItemAspect linkedAspect;
+      if (!MediaItemAspect.TryGetAspect(linkedAspects, PersonAspect.Metadata, out linkedAspect))
+        return false;
+
+      string name = linkedAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME);
+
+      SingleMediaItemAspect aspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, SeriesAspect.Metadata, out aspect))
+        return false;
+
+      IEnumerable<object> actors = aspect.GetCollectionAttribute<object>(SeriesAspect.ATTR_ACTORS);
+      List<string> nameList = new List<string>(actors.Cast<string>());
+
+      index = nameList.IndexOf(name);
+      return index >= 0;
     }
 
     internal static ILogger Logger

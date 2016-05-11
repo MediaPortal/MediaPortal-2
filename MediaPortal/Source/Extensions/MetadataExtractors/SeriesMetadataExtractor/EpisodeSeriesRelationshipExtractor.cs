@@ -24,6 +24,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -54,14 +55,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     // TryExtractRelationships is in SeriesBaseTryExtractRelationships
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       return existingAspects.ContainsKey(SeriesAspect.ASPECT_ID);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, SeriesAspect.ATTR_SERIES_NAME, out index);
+      index = -1;
+
+      SingleMediaItemAspect aspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, EpisodeAspect.Metadata, out aspect))
+        return false;
+
+      IEnumerable<object> indexes = aspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
+      if (indexes == null)
+        return false;
+
+      IList<object> episodeNums = indexes.ToList();
+      if (episodeNums.Count == 0)
+        return false;
+
+      int episode = Int32.Parse(episodeNums.First().ToString());
+      int season = aspect.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON);
+
+      index = season * 100 + episode;
+      return true;
     }
 
     internal static ILogger Logger

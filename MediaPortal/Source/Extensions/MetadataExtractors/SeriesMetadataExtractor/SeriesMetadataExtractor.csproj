@@ -64,8 +64,6 @@
     <Compile Include="SeriesCharacterRelationshipExtractor.cs" />
     <Compile Include="SeriesProductionRelationshipExtractor.cs" />
     <Compile Include="SeriesNetworkRelationshipExtractor.cs" />
-    <Compile Include="SeriesWriterRelationshipExtractor.cs" />
-    <Compile Include="SeriesDirectorRelationshipExtractor.cs" />
     <Compile Include="SeriesActorRelationshipExtractor.cs" />
     <Compile Include="EpisodeCharacterRelationshipExtractor.cs" />
     <Compile Include="EpisodeWriterRelationshipExtractor.cs" />

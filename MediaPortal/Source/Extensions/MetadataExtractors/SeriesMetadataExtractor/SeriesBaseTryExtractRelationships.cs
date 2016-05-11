@@ -34,21 +34,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       // Build the series MI
 
-      SeriesInfo seriesInfo;
-      if (!SeriesRelationshipExtractor.GetBaseInfo(aspects, out seriesInfo))
+      SeriesInfo seriesInfo = new SeriesInfo();
+      if (!seriesInfo.FromMetadata(aspects))
         return false;
 
       SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo);
       SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo);
       SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo);
       SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo);
+      SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo);
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       extractedLinkedAspects.Add(seriesAspects);
 
-      seriesInfo.SetMetadata(seriesAspects);
-      return true;
+      return seriesInfo.SetMetadata(seriesAspects);
     }
   }
 }

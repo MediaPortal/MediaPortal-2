@@ -65,13 +65,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       // Build the season MI
 
-      SeasonInfo seasonInfo;
-      if (!SeriesRelationshipExtractor.GetBaseInfo(aspects, out seasonInfo))
+      SeasonInfo seasonInfo = new SeasonInfo();
+      if (!seasonInfo.FromMetadata(aspects))
         return false;
 
       SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo);
       SeriesTvDbMatcher.Instance.UpdateSeason(seasonInfo);
       SeriesOmDbMatcher.Instance.UpdateSeason(seasonInfo);
+      SeriesFanArtTvMatcher.Instance.UpdateSeason(seasonInfo);
 
       if (string.IsNullOrEmpty(seasonInfo.Series))
         return false;
@@ -79,45 +80,43 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       extractedLinkedAspects.Add(seasonAspects);
-
-      seasonInfo.SetMetadata(seasonAspects);
-      return true;
+      return seasonInfo.SetMetadata(seasonAspects);
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      int linkedSeasonNum;
-      if (!MediaItemAspect.TryGetAttribute(linkedAspects, EpisodeAspect.ATTR_SEASON, out linkedSeasonNum))
+      if (!existingAspects.ContainsKey(SeasonAspect.ASPECT_ID))
         return false;
 
-      int existingSeasonNum;
-      if (!MediaItemAspect.TryGetAttribute(existingAspects, SeasonAspect.ATTR_SEASON, out existingSeasonNum))
+      SeasonInfo linkedSeason = new SeasonInfo();
+      if (!linkedSeason.FromMetadata(extractedAspects))
         return false;
 
-      return linkedSeasonNum == existingSeasonNum;
+      SeasonInfo existingSeason = new SeasonInfo();
+      if (!existingSeason.FromMetadata(extractedAspects))
+        return false;
+
+      return linkedSeason.SeasonNumber == existingSeason.SeasonNumber;
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      //index = -1;
+      index = -1;
 
-      //SingleMediaItemAspect aspect;
-      //if (!MediaItemAspect.TryGetAspect(aspects, EpisodeAspect.Metadata, out aspect))
-      //  return false;
+      SingleMediaItemAspect aspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, EpisodeAspect.Metadata, out aspect))
+        return false;
 
-      //IEnumerable<object> indexes = aspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
-      //if (indexes == null)
-      //  return false;
+      IEnumerable<object> indexes = aspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
+      if (indexes == null)
+        return false;
 
-      //IList<object> episodeNums = indexes.ToList();
-      //Logger.Info("Getting first index from [{0}]", string.Join(",", episodeNums));
-      //if (episodeNums.Count == 0)
-      //  return false;
+      IList<object> episodeNums = indexes.ToList();
+      if (episodeNums.Count == 0)
+        return false;
 
-      //index = Int32.Parse(episodeNums.First().ToString());
-      //return true;
-
-      return MediaItemAspect.TryGetAttribute(aspects, EpisodeAspect.ATTR_EPISODE, out index);
+      index = Int32.Parse(episodeNums.First().ToString());
+      return index > 0;
     }
 
     internal static ILogger Logger

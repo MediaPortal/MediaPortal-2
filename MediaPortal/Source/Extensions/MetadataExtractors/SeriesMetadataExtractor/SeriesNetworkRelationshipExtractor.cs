@@ -63,33 +63,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      SingleMediaItemAspect seriesAspect;
-      if (!MediaItemAspect.TryGetAspect(aspects, SeriesAspect.Metadata, out seriesAspect))
+       // Build the company MI
+
+      SeriesInfo seriesInfo = new SeriesInfo();
+      if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      IEnumerable<string> networks = seriesAspect.GetCollectionAttribute<string>(SeriesAspect.ATTR_NETWORKS);
-     
-      // Build the person MI
+      SeriesTvMazeMatcher.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK);
+      SeriesTvDbMatcher.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK);
+      SeriesTheMovieDbMatcher.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK);
 
-      List<CompanyInfo> companys = new List<CompanyInfo>();
-      if (networks != null)
-        foreach (string company in networks)
-          companys.Add(new CompanyInfo() { Name = company, Type = CompanyType.TVNetwork });
-
-      SeriesInfo seriesInfo;
-      if (!SeriesRelationshipExtractor.GetBaseInfo(aspects, out seriesInfo))
-        return false;
-
-      SeriesTheMovieDbMatcher.Instance.UpdateSeriesCompanys(seriesInfo, companys, CompanyType.TVNetwork);
-      SeriesTvMazeMatcher.Instance.UpdateSeriesCompanys(seriesInfo, companys, CompanyType.TVNetwork);
-      SeriesTvDbMatcher.Instance.UpdateSeriesCompanys(seriesInfo, companys, CompanyType.TVNetwork);
-
-      if (companys.Count == 0)
+      if (seriesInfo.Networks.Count == 0)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
-      foreach (CompanyInfo company in companys)
+      foreach (CompanyInfo company in seriesInfo.Networks)
       {
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         extractedLinkedAspects.Add(companyAspects);
@@ -98,25 +87,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return true;
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       if (!existingAspects.ContainsKey(CompanyAspect.ASPECT_ID))
         return false;
 
-      int linkedType;
-      if (!MediaItemAspect.TryGetAttribute(linkedAspects, CompanyAspect.ATTR_COMPANY_TYPE, out linkedType))
+      CompanyInfo linkedCompany = new CompanyInfo();
+      if(!linkedCompany.FromMetadata(extractedAspects))
         return false;
 
-      int existingType;
-      if (!MediaItemAspect.TryGetAttribute(existingAspects, CompanyAspect.ATTR_COMPANY_TYPE, out existingType))
+      CompanyInfo existingCompany = new CompanyInfo();
+      if (!existingCompany.FromMetadata(extractedAspects))
         return false;
 
-      return linkedType == existingType;
+      return linkedCompany.Equals(existingCompany);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, SeriesAspect.ATTR_NETWORKS, out index);
+      index = -1;
+
+      SingleMediaItemAspect linkedAspect;
+      if (!MediaItemAspect.TryGetAspect(linkedAspects, CompanyAspect.Metadata, out linkedAspect))
+        return false;
+
+      string name = linkedAspect.GetAttributeValue<string>(CompanyAspect.ATTR_COMPANY_NAME);
+
+      SingleMediaItemAspect aspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, SeriesAspect.Metadata, out aspect))
+        return false;
+
+      IEnumerable<object> actors = aspect.GetCollectionAttribute<object>(SeriesAspect.ATTR_NETWORKS);
+      List<string> nameList = new List<string>(actors.Cast<string>());
+
+      index = nameList.IndexOf(name);
+      return index >= 0;
     }
 
     internal static ILogger Logger

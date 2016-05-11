@@ -81,10 +81,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public SeriesMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Series metadata extractor", MetadataExtractorPriority.External, true,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
                 EpisodeAspect.Metadata
               });
       _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>().OnlyFanArt;
@@ -100,9 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         return false;
 
-      EpisodeInfo episodeInfo;
-      if (!SeriesRelationshipExtractor.GetBaseInfo(extractedAspectData, out episodeInfo))
-        return false;
+      EpisodeInfo episodeInfo = new EpisodeInfo();
 
       string title = null;
       int seasonNumber;
@@ -120,18 +117,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
 
       // If there was no complete match, yet, try to get extended information out of matroska files)
-      if (episodeInfo == null || !episodeInfo.AreReqiredFieldsFilled)
+      if (!episodeInfo.AreReqiredFieldsFilled)
       {
         MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-        if (matroskaMatcher.MatchSeries(lfsra, out episodeInfo, ref extractedAspectData))
+        if (matroskaMatcher.MatchSeries(lfsra, episodeInfo))
         {
           ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
-            episodeInfo.Series, episodeInfo.ImdbId, episodeInfo.TvdbId, episodeInfo.MovieDbId, episodeInfo.AreReqiredFieldsFilled);
+            episodeInfo.Series, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.AreReqiredFieldsFilled);
         }
       }
 
       // If no information was found before, try name matching
-      if (episodeInfo == null || !episodeInfo.AreReqiredFieldsFilled)
+      if (!episodeInfo.AreReqiredFieldsFilled)
       {
         // Try to match series from folder and file namings
         SeriesMatcher seriesMatcher = new SeriesMatcher();
@@ -139,11 +136,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
 
       // Lookup online information (incl. fanart)
-      if (episodeInfo != null && episodeInfo.AreReqiredFieldsFilled)
+      if (episodeInfo.AreReqiredFieldsFilled)
       {
-        ICollection<string> seriesLanguages;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, out seriesLanguages) && seriesLanguages.Count > 0)
-          episodeInfo.Languages.AddRange(seriesLanguages);
+        IList<MultipleMediaItemAspect> audioAspects;
+        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioAspect.Metadata, out audioAspects))
+        {
+          foreach (MultipleMediaItemAspect aspect in audioAspects)
+          {
+            string language = (string)aspect.GetAttributeValue(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+            if (!string.IsNullOrEmpty(language))
+              episodeInfo.Languages.Add(language);
+          }
+        }
 
         SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID, TMDBID and TVDBID
         SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides TvMazeID, IMDBID and TVDBID

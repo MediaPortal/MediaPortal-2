@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -65,8 +66,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new SeasonSeriesRelationshipExtractor());
 
       _extractors.Add(new SeriesActorRelationshipExtractor());
-      _extractors.Add(new SeriesDirectorRelationshipExtractor());
-      _extractors.Add(new SeriesWriterRelationshipExtractor());
       _extractors.Add(new SeriesCharacterRelationshipExtractor());
       _extractors.Add(new SeriesNetworkRelationshipExtractor());
       _extractors.Add(new SeriesProductionRelationshipExtractor());
@@ -80,70 +79,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
-    }
-
-    public static bool GetBaseInfo<T>(IDictionary<Guid, IList<MediaItemAspect>> aspects, out T info)
-    {
-      info = default(T);
-
-      string tvDbIdStr = null;
-      string imDbId = null;
-      string tmDbIdStr = null;
-      string tvMazeIdStr = null;
-      int tvDbId;
-      int movieDbId;
-      int tvMazeId;
-      bool tvDbExists = MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, out tvDbIdStr);
-      bool imDbExists = MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out imDbId);
-      bool tmDbExists = MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out tmDbIdStr);
-      bool tvMazeExists = MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_SERIES, out tvMazeIdStr);
-      if (tvDbExists || imDbExists || tmDbExists || tvMazeExists)
-      {
-        Int32.TryParse(tvDbIdStr, out tvDbId);
-        Int32.TryParse(tmDbIdStr, out movieDbId);
-        Int32.TryParse(tvMazeIdStr, out tvMazeId);
-      }
-      else
-        return false;
-
-      int seasonNum;
-      bool seasonFound = MediaItemAspect.TryGetAttribute(aspects, EpisodeAspect.ATTR_SEASON, out seasonNum);
-
-      IEnumerable<int> episodes = null;
-      SingleMediaItemAspect episodeAspect;
-      if (MediaItemAspect.TryGetAspect(aspects, EpisodeAspect.Metadata, out episodeAspect))
-      {
-        episodes = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
-      }
-
-      if (typeof(T) == typeof(EpisodeInfo))
-      {
-        EpisodeInfo episodeInfo = (EpisodeInfo)(object)info;
-        episodeInfo.TvdbId = tvDbId;
-        episodeInfo.MovieDbId = movieDbId;
-        episodeInfo.ImdbId = imDbId;
-        episodeInfo.TvMazeId = tvMazeId;
-        if (seasonFound) episodeInfo.SeasonNumber = seasonNum;
-        if (episodes != null) episodeInfo.EpisodeNumbers.AddRange(episodes);
-      }
-      else if (typeof(T) == typeof(SeasonInfo))
-      {
-        SeasonInfo seasonInfo = (SeasonInfo)(object)info;
-        seasonInfo.TvdbId = tvDbId;
-        seasonInfo.MovieDbId = movieDbId;
-        seasonInfo.ImdbId = imDbId;
-        seasonInfo.TvMazeId = tvMazeId;
-        if (seasonFound) seasonInfo.SeasonNumber = seasonNum;
-      }
-      else if (typeof(T) == typeof(SeriesInfo))
-      {
-        SeriesInfo seariesInfo = (SeriesInfo)(object)info;
-        seariesInfo.TvdbId = tvDbId;
-        seariesInfo.MovieDbId = movieDbId;
-        seariesInfo.ImdbId = imDbId;
-        seariesInfo.TvMazeId = tvMazeId;
-      }
-      return true;
     }
   }
 }
