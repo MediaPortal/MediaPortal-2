@@ -91,7 +91,7 @@ namespace MediaPortal.Media.MetadataExtractors
     public BluRayMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", MetadataExtractorPriority.Core, false,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
                 VideoAspect.Metadata,
@@ -124,7 +124,7 @@ namespace MediaPortal.Media.MetadataExtractors
             if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
             {
               // This line is important to keep in, if no VideoAspect is created here, the MediaItems is not detected as Video! 
-              MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+              MediaItemAspect.CreateAspect(extractedAspectData, VideoAspect.Metadata);
               MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
 
               mediaAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc

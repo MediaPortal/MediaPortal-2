@@ -1292,7 +1292,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #region VideoAspect
 
     /// <summary>
-    /// Tries to write metadata into <see cref="VideoAspect.ATTR_GENRES"/>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_GENRES"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1300,14 +1300,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Genres != null && _stubs[0].Genres.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, _stubs[0].Genres.ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_GENRES, _stubs[0].Genres.ToList());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_ACTORS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1315,14 +1315,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Actors != null && _stubs[0].Actors.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="VideoAspect.ATTR_DIRECTORS"/>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_DIRECTORS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1330,14 +1330,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Director != null)
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="VideoAspect.ATTR_WRITERS"/>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_WRITERS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1345,14 +1345,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Credits != null && _stubs[0].Credits.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, _stubs[0].Credits.ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_WRITERS, _stubs[0].Credits.ToList());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="VideoAspect.ATTR_STORYPLOT"/>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_STORYPLOT"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1361,13 +1361,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // priority 1:
       if (_stubs[0].Plot != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Plot);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_STORYPLOT, _stubs[0].Plot);
         return true;
       }
       // priority 2:
       if (_stubs[0].Outline != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Outline);
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_STORYPLOT, _stubs[0].Outline);
         return true;
       }
       return false;

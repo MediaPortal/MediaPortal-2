@@ -98,12 +98,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public WTVRecordingMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "WTV recordings metadata extractor", MetadataExtractorPriority.Extended, false,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
                 RecordingAspect.Metadata,
-                SeriesAspect.Metadata
+                EpisodeAspect.Metadata
               });
     }
 
@@ -203,18 +202,23 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         // Force MimeType
-        MediaItemAspect.SetAttribute(extractedAspectData, ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/wtv");
+        IList<MultipleMediaItemAspect> providerAspects;
+        MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerAspects);
+        foreach (MultipleMediaItemAspect aspect in providerAspects)
+        {
+          aspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/wtv");
+        }
 
         string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
 
         if (TryGet(tags, TAG_GENRE, out value))
-          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new List<String>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)));
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, RecordingAspect.ATTR_GENRES, new List<String>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)));
 
         if (TryGet(tags, TAG_PLOT, out value))
         {
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, value);
+          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STORYPLOT, value);
         }
 
         if (TryGet(tags, TAG_ORIGINAL_TIME, out value))

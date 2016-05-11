@@ -136,11 +136,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         metadataExtractorPriority: MetadataExtractorPriority.Extended,
         processesNonFiles: true,
         shareCategories: MEDIA_CATEGORIES,
-        extractedAspectTypes: new[]
+        extractedAspectTypes: new MediaItemAspectMetadata[]
         {
           MediaAspect.Metadata,
-          VideoAspect.Metadata,
-          SeriesAspect.Metadata,
+          EpisodeAspect.Metadata,
           ThumbnailLargeAspect.Metadata
         });
 

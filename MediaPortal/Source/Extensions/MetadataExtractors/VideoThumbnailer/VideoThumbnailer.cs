@@ -138,11 +138,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       // Check for a reasonable time offset
       long defaultVideoOffset = 720;
       long videoDuration;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_DURATION, out videoDuration))
-      {
-        if (defaultVideoOffset > videoDuration * 1 / 3)
-          defaultVideoOffset = videoDuration * 1 / 3;
-      }
+      IList<MultipleMediaItemAspect> videoAspects;
+      if(MediaItemAspect.TryGetAspects(extractedAspectData, VideoAspect.Metadata, out videoAspects))
+        if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoAspect.ATTR_DURATION)) > 0)
+        {
+          if (defaultVideoOffset > videoDuration * 1 / 3)
+            defaultVideoOffset = videoDuration * 1 / 3;
+        }
 
       // ToDo: Move creation of temp file names to FileUtils class
       string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".jpg";

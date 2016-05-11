@@ -57,11 +57,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.Aspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ENDTIME =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("EndTime", typeof(DateTime), Cardinality.Inline, false);
 
+    /// <summary>
+    /// Genre string.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
+    /// String describing the story plot of the video.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STORYPLOT =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("StoryPlot", 10000, Cardinality.Inline, false);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "RecordingItem", new[] {
             ATTR_CHANNEL,
             ATTR_STARTTIME,
-            ATTR_ENDTIME
+            ATTR_ENDTIME,
+            ATTR_GENRES,
+            ATTR_STORYPLOT
         });
   }
 }

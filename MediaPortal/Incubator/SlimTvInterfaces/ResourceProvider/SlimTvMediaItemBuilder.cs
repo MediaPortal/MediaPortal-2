@@ -78,17 +78,20 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
 
       SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
-      MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
+
+      IList<MultipleMediaItemAspect> providerResourceAspects;
+      MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerResourceAspects);
+      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
       String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
-      MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
+      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
 
       string title;
       string mimeType;
       if (isTv)
       {
         // VideoAspect needs to be included to associate VideoPlayer later!
-        MediaItemAspect.SetAspect(aspects, new SingleMediaItemAspect(VideoAspect.Metadata));
+        MediaItemAspect.CreateAspect(aspects, VideoAspect.Metadata);
         title = "Live TV";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_TV;
       }
@@ -100,7 +103,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
       }
       MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_TITLE, title);
-      MediaItemAspect.SetAttribute(aspects, ProviderResourceAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
+      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
       LiveTvMediaItem.LiveTvMediaItem tvStream = new LiveTvMediaItem.LiveTvMediaItem(new Guid(), aspects);
       return tvStream;
     }
