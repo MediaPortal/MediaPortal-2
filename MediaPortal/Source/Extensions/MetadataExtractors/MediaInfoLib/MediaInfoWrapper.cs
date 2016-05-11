@@ -86,6 +86,8 @@ namespace MediaInfoLib
       if (string.IsNullOrEmpty(strValue))
         return null;
       int result;
+      if (strValue.IndexOf("(") > 1)
+        strValue = strValue.Substring(0, strValue.IndexOf("(")).Trim();
       return int.TryParse(strValue, out result) ? result : new int?();
     }
 
