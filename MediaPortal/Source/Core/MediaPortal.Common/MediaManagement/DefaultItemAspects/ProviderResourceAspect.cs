@@ -40,42 +40,53 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Contains UPnP device UUID of the system where the media item is located.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SYSTEM_ID =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("System-Id", 100, Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_SYSTEM_ID =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("System-Id", 100, Cardinality.Inline, true);
+
+    /// <summary>
+    /// Resource index for this resource.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_INDEX =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the mime type of the media item.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MIME_TYPE =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_MIME_TYPE =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains a media size. For regular files this is the file size, directories might contain the total size of all content.
     /// Online resources like streams might have <c>0</c> as size.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SIZE =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Size", typeof(long), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_SIZE =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Size", typeof(long), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the path of the item in its provider.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Path", 1000, Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Path", 1000, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains id of the parent directory item.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_PARENT_DIRECTORY_ID =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("ParentDirectory", typeof(Guid), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_PARENT_DIRECTORY_ID =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ParentDirectory", typeof(Guid), Cardinality.Inline, true);
 
-    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
+    public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
             ATTR_SYSTEM_ID,
+            ATTR_RESOURCE_INDEX,
             ATTR_MIME_TYPE,
             ATTR_SIZE,
             ATTR_RESOURCE_ACCESSOR_PATH,
             ATTR_PARENT_DIRECTORY_ID,
-        });
+        },
+        new[] {
+            ATTR_RESOURCE_INDEX
+        }
+        );
   }
 }

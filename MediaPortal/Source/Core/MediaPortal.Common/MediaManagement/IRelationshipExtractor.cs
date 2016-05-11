@@ -72,10 +72,10 @@ namespace MediaPortal.Common.MediaManagement
     /// and episodes of that series) and since MediaLibrary doesn't know how to choose
     /// between them it delegates to the extractor
     /// </summary>
-    /// <param name="linkedAspects"></param>
+    /// <param name="extractedAspects"></param>
     /// <param name="existingAspects"></param>
     /// <returns></returns>
-    bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects);
+    bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects);
 
     /// <summary>
     /// Part 3 of the relationship building - if the linked items are new
@@ -85,7 +85,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="aspects"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index);
+    bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index);
   }
 
   /// <summary>

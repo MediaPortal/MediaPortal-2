@@ -26,18 +26,16 @@ using System;
 
 namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 {
-  public enum ImageCollectionType
-  {
-    City,
-    Year,
-    Date
-  }
-
   /// <summary>
   /// Contains the metadata specification of the "Collection" media item aspect which is assigned to image media items.
   /// </summary>
   public static class ImageCollectionAspect
   {
+    // TODO: Put this somewhere else?
+    public static readonly string TYPE_CITY = "city";
+    public static readonly string TYPE_YEAR = "year";
+    public static readonly string TYPE_DATE = "date";
+
     /// <summary>
     /// Media item aspect id of the image collection aspect.
     /// </summary>
@@ -59,7 +57,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Specifies the image collection type. Use <see cref="ImageCollectionType"/> to cast it to a meaningful value.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COLLECTION_TYPE =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("CollectionType", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CollectionType", 15, Cardinality.Inline, true);
 
     /// <summary>
     /// Approximate latitude of all contained images.

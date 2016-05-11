@@ -192,16 +192,25 @@ namespace MediaPortal.Common
       miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(SubtitleAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(ImageCollectionAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
+
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(MovieCollectionAspect.Metadata);
+
+      miatr.RegisterLocallyKnownMediaItemAspectType(CompanyAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(PersonAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(CharacterAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailLargeAspect.Metadata);
 

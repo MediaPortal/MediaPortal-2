@@ -26,21 +26,19 @@ using System;
 
 namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 {
-  public enum PersonOccupation
-  {
-    Actor,
-    Artist,
-    Writer,
-    Director,
-    Composer
-  }
-
   /// <summary>
   /// Contains the metadata specification of the "Person" media item aspect which is assigned to media items.
   /// It describes a real person working on the media in some capacity. A music band will also be considered a person in this regard.
   /// </summary>
   public static class PersonAspect
   {
+    // TODO: Put this somewhere else?
+    public static readonly string OCCUPATION_ACTOR = "actor";
+    public static readonly string OCCUPATION_ARTIST = "artist";
+    public static readonly string OCCUPATION_WRITER = "writer";
+    public static readonly string OCCUPATION_DIRECTOR = "director";
+    public static readonly string OCCUPATION_COMPOSER = "composer";
+
     /// <summary>
     /// Media item aspect id of the person aspect.
     /// </summary>
@@ -53,10 +51,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("PersonName", 100, Cardinality.Inline, true);
 
     /// <summary>
-    /// Specifies the persons occupation. Use <see cref="PersonOccupation"/> to cast it to a meaningful value.
+    /// Specifies the persons occupation.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_OCCUPATION =
-      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Occupation", typeof(int), Cardinality.Inline, true);
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Occupation", 15, Cardinality.Inline, true);
 
     /// <summary>
     /// Person biography.
@@ -86,7 +84,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// If set to <c>true</c>, the person is actually a group of people like fx a music band.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GROUP =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Group", typeof(bool), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsGroup", typeof(bool), Cardinality.Inline, true);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "PersonItem", new[] {

@@ -41,6 +41,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DuoVia.FuzzyStrings, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\Packages\DuoVia.FuzzyStrings.1.0.1\lib\net40\DuoVia.FuzzyStrings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\log4net.dll</HintPath>
@@ -70,7 +74,10 @@
     <Compile Include="MediaManagement\DefaultItemAspects\SeasonAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\CharacterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioAspect.cs" />
     <Compile Include="MediaManagement\Helpers\ImageCollectionInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\MovieCollectionInfo.cs" />
     <Compile Include="MediaManagement\Helpers\CompanyInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SeasonInfo.cs" />
@@ -440,7 +447,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

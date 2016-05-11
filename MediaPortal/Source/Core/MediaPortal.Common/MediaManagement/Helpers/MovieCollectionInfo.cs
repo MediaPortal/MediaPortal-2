@@ -32,7 +32,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// <summary>
   /// <see cref="MovieCollectionInfo"/> contains metadata information about a movie collection item.
   /// </summary>
-  public class MovieCollectionInfo
+  public class MovieCollectionInfo : BaseInfo
   {
     /// <summary>
     /// Gets or sets the character TheMovieDb id.
@@ -42,7 +42,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the collection name.
     /// </summary>
     public string Name = null;
-  
+    public List<MovieInfo> Movies = new List<MovieInfo>();
+
     #region Members
 
     /// <summary>
@@ -58,7 +59,38 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, MovieDbId.ToString());
 
+      SetThumbnailMetadata(aspectData);
+
       return true;
+    }
+
+    public bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      if (aspectData.ContainsKey(MovieCollectionAspect.ASPECT_ID))
+      {
+        MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, out Name);
+
+        string id;
+        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
+          MovieDbId = Convert.ToInt32(id);
+
+        byte[] data;
+        if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
+          Thumbnail = data;
+
+        return true;
+      }
+      else if (aspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      {
+        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out Name);
+
+        string id;
+        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
+          MovieDbId = Convert.ToInt32(id);
+
+        return true;
+      }
+      return false;
     }
 
     #endregion

@@ -26,19 +26,17 @@ using System;
 
 namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 {
-  public enum CompanyType
-  {
-    ProductionStudio,
-    TVNetwork,
-    MusicLabel
-  }
-
   /// <summary>
   /// Contains the metadata specification of the "Company" media item aspect which is assigned to album, series and movie media items.
   /// It describes a company involved in making the media.
   /// </summary>
   public static class CompanyAspect
   {
+    // TODO: Put this somewhere else?
+    public static readonly string COMPANY_PRODUCTION = "production";
+    public static readonly string COMPANY_TV_NETWORK = "tvnetwork";
+    public static readonly string COMPANY_MUSIC_LABEL = "musiclabel";
+
     /// <summary>
     /// Media item aspect id of the company aspect.
     /// </summary>
@@ -60,7 +58,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Specifies the type of company. Use <see cref="CompanyType"/> to cast it to a meaningful value.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPANY_TYPE =
-      MediaItemAspectMetadata.CreateSingleAttributeSpecification("CompanyType", typeof(int), Cardinality.Inline, true);
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CompanyType", 15, Cardinality.Inline, true);
 
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(

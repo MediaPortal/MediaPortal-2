@@ -67,6 +67,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
 
     /// <summary>
+    /// Track lyrics.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LYRICS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Lyrics", 5000, Cardinality.Inline, false);
+
+    /// <summary>
     /// Set to <c>true</c> if this track item represents a CD track.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISCD =
@@ -140,6 +146,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ALBUM,
             ATTR_GENRES,
             ATTR_DURATION,
+            ATTR_LYRICS,
             ATTR_ISCD,
             ATTR_TRACK,
             ATTR_NUMTRACKS,

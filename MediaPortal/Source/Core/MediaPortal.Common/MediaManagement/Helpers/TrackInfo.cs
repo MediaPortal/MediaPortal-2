@@ -33,18 +33,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// <see cref="TrackInfo"/> contains information about a track. It's used as an interface structure for external 
   /// online data scrapers to fill in metadata.
   /// </summary>
-  public class TrackInfo
+  public class TrackInfo : BaseInfo
   {
     public string MusicBrainzId = null;
     public long AudioDbId = 0;
 
     public string Album = null;
     public string AlbumMusicBrainzId = null;
-    public string AlbumGroupMusicBrainzId = null;
+    public string AlbumMusicBrainzGroupId = null;
+    public string AlbumMusicBrainzDiscId = null;
     public string AlbumCdDdId = null;
     public long AlbumAudioDbId = 0;
 
     public string TrackName = null;
+    public string TrackLyrics = null;
     public DateTime? ReleaseDate = null;
     public int TrackNum = 0;
     public int TotalTracks = 0;
@@ -67,7 +69,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
     public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
+      if (string.IsNullOrEmpty(TrackName)) return false;
+
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, TrackName);
+      if (!string.IsNullOrEmpty(TrackLyrics)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_LYRICS, TrackLyrics);
       if (ReleaseDate.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, ReleaseDate.Value);
       if (TrackNum > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_TRACK, TrackNum);
       if (TotalTracks > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_NUMTRACKS, TotalTracks);
@@ -83,7 +88,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_RATING_COUNT, RatingCount);
 
       if (!string.IsNullOrEmpty(AlbumCdDdId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, AlbumCdDdId);
-      if (!string.IsNullOrEmpty(AlbumMusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_ALBUM, AlbumMusicBrainzId);
+      if (!string.IsNullOrEmpty(AlbumMusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_ALBUM, AlbumMusicBrainzId);
       if (AlbumAudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_ALBUM, AlbumAudioDbId.ToString());
 
       if (Artists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ARTISTS, Artists.Select(p => p.Name).ToList());
@@ -91,6 +96,60 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Composers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, Composers.Select(p => p.Name).ToList());
 
       if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_GENRES, Genres);
+
+      SetThumbnailMetadata(aspectData);
+
+      return true;
+    }
+
+    public bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      if (!aspectData.ContainsKey(AudioAspect.ASPECT_ID))
+        return false;
+
+      MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_TITLE, out TrackName);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_LYRICS, out TrackLyrics);
+      MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out ReleaseDate);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_TRACK, out TrackNum);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_NUMTRACKS, out TotalTracks);
+
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ALBUM, out Album);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_DISCID, out DiscNum);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_NUMDISCS, out TotalDiscs);
+
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_TOTAL_RATING, out TotalRating);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_RATING_COUNT, out RatingCount);
+
+      string id;
+      if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_TRACK, out id))
+        AudioDbId = Convert.ToInt32(id);
+      MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, out MusicBrainzId);
+
+      if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_ALBUM, out id))
+        AlbumAudioDbId = Convert.ToInt32(id);
+      MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumMusicBrainzId);
+      MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumCdDdId);
+
+      ICollection<object> collection;
+      Artists.Clear();
+      if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ARTISTS, out collection))
+        Artists.AddRange(collection.Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
+
+      AlbumArtists.Clear();
+      if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, out collection))
+        AlbumArtists.AddRange(collection.Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
+
+      Composers.Clear();
+      if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, out collection))
+        Composers.AddRange(collection.Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_COMPOSER }));
+
+      Genres.Clear();
+      if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_GENRES, out collection))
+        Genres.AddRange(collection.Select(s => s.ToString()));
+
+      byte[] data;
+      if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
+        Thumbnail = data;
 
       return true;
     }

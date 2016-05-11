@@ -42,9 +42,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string SOURCE_CDDB = "cddb";
     public static readonly string SOURCE_AUDIODB = "audiodb";
     public static readonly string SOURCE_TVMAZE = "tvmaze";
+    public static readonly string SOURCE_TVRAGE = "tvrage";
     public static readonly string SOURCE_YEAR = "year";
     public static readonly string SOURCE_DATE = "date";
-    public static readonly string SOURCE_LATITUDE_LONGITUDE = "latlong";
+    public static readonly string SOURCE_NAME = "name";
 
     public static readonly string TYPE_CHARACTER = "character"; // Someone in a movie / series
     public static readonly string TYPE_COLLECTION = "collection";
@@ -56,6 +57,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string TYPE_TRACK = "track";
     public static readonly string TYPE_ALBUM = "album";
     public static readonly string TYPE_COMAPANY = "company";
+    public static readonly string TYPE_NETWORK = "network";
 
     /// <summary>
     /// Media item aspect id of the relationship aspect.

@@ -865,7 +865,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           mediaItemId = AddMediaItem(database, transaction, newMediaItemId);
 
-          pra = new SingleMediaItemAspect(ProviderResourceAspect.Metadata);
+          pra = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
+          pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
           pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
           pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
           pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
@@ -893,9 +894,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
           {
             // Only allow certain attributes to be overridden
-            pra.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE));
-            pra.SetAttribute(ProviderResourceAspect.ATTR_SIZE, mia.GetAttributeValue<long>(ProviderResourceAspect.ATTR_SIZE));
-            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra);
+            mia.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID));
+            string resourcePath = mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+            if(string.IsNullOrEmpty(resourcePath))
+              mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+            mia.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, pra.GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
+
+            //pra.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE));
+            //pra.SetAttribute(ProviderResourceAspect.ATTR_SIZE, mia.GetAttributeValue<long>(ProviderResourceAspect.ATTR_SIZE));
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
             continue;
           }
           if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
@@ -1031,7 +1038,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedItems;
       if (!roleExtractor.TryExtractRelationships(aspects, out extractedItems, true))
+      {
+        Logger.Info("Extractor {0} extracted {1} media items", roleExtractor.GetType().Name, 0);
         return;
+      }
+      Logger.Info("Extractor {0} extracted {1} media items", roleExtractor.GetType().Name, extractedItems == null ? 0: extractedItems.Count);
 
       // Match the extracted aspect data to any items already in the library
       foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedItem in extractedItems)
@@ -1074,13 +1085,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           foreach (MediaItem externalItem in externalItems)
           {
             Logger.Info("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-            if (roleExtractor.TryMatch(aspects, externalItem.Aspects))
+            if (roleExtractor.TryMatch(extractedItem, externalItem.Aspects))
             {
               Logger.Info("Merging extracted item into external item {0}", externalItem.MediaItemId);
 
-              AddRelationship(roleExtractor, mediaItemId, aspects, externalItem.Aspects);
+              AddRelationship(roleExtractor, mediaItemId, aspects, extractedItem);
 
-              UpdateMediaItem(externalItem.MediaItemId, externalItem.Aspects.Values.SelectMany(x => x), false);
+              UpdateMediaItem(externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x), false);
 
               return true;
             }
@@ -1094,7 +1105,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private void AddRelationship(IRelationshipRoleExtractor roleExtractor, Guid itemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
     {
       int index;
-      if (!roleExtractor.TryGetRelationshipIndex(aspects, out index))
+      if (!roleExtractor.TryGetRelationshipIndex(aspects, linkedAspects, out index))
         index = 0;
       Logger.Info("Adding a {0} / {1} relationship linked to {2} at {3}", roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);
       MediaItemAspect.AddOrUpdateRelationship(linkedAspects, roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);

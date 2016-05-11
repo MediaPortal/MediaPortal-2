@@ -49,17 +49,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ACTOR_NAME =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("ActorName", 100, Cardinality.Inline, true);
 
-    /// <summary>
-    /// Media title.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MEDIA_TITLE =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MediaTitle", 200, Cardinality.Inline, false);
-
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "CharacterItem", new[] {
             ATTR_CHARACTER_NAME,
-            ATTR_ACTOR_NAME,
-            ATTR_MEDIA_TITLE
+            ATTR_ACTOR_NAME
         });
 
     public static readonly Guid ROLE_CHARACTER = new Guid("D326A553-5CF5-47B8-B8E3-338D739E5F2C");

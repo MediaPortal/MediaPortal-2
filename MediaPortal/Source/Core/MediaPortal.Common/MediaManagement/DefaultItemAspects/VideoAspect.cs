@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Globalization;
 
 namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 {
@@ -38,142 +37,91 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ASPECT_ID = new Guid("FEA2DA04-1FDC-4836-B669-F3CA73ADF120");
 
     /// <summary>
-    /// Genre string.
+    /// Resource index for this video.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_INDEX =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, true);
+
+    /// <summary>
+    /// The index of the stream inside the container.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_STREAM_INDEX =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("StreamIndex", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Duration in seconds.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DURATION =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_DURATION =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
 
     /// <summary>
     /// Number of audio streams for this video.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOSTREAMCOUNT =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AudioStreamCount", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Encoding. TODO: Describe format.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOENCODINGS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AudioEncodings", 50, Cardinality.ManyToMany, false);
-
-    /// <summary>
-    /// Bitrate of the first audio stream in kbits/second.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOBITRATES =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AudioBitRates", typeof(long), Cardinality.ManyToMany, false);
-
-    /// <summary>
-    /// Number of audio channels.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOCHANNELS =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AudioChannels", typeof(int), Cardinality.ManyToMany, false);
-
-    /// <summary>
-    /// List of available audio languages. Values are stored as <see cref="CultureInfo.TwoLetterISOLanguageName"/>.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AUDIOLANGUAGES =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AudioLanguages", 2, Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_AUDIOSTREAMCOUNT =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("AudioStreamCount", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Encoding of the video. TODO: Describe format.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_VIDEOENCODING =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("VideoEncoding", 50, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_VIDEOENCODING =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("VideoEncoding", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Bitrate of the video in kbits/second.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_VIDEOBITRATE =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("VideoBitRate", typeof(long), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_VIDEOBITRATE =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("VideoBitRate", typeof(long), Cardinality.Inline, false);
 
     /// <summary>
     /// Width of the video in pixels.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_WIDTH =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_WIDTH =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Height of the video in pixels.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_HEIGHT =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_HEIGHT =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Aspect ratio of the resulting video in width/height. Might differ from the quotient width/height of the properties
     /// <see cref="ATTR_WIDTH"/> and <see cref="ATTR_HEIGHT"/> if the resulting video must be stretched.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ASPECTRATIO =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AspectRatio", typeof(float), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ASPECTRATIO =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("AspectRatio", typeof(float), Cardinality.Inline, false);
 
     /// <summary>
     /// Frames/second of the video.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_FPS =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("FPS", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Enumeration of actor name strings.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ACTORS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Actors", 100, Cardinality.ManyToMany, true);
-
-    /// <summary>
-    /// Enumeration of director name strings.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DIRECTORS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Directors", 100, Cardinality.ManyToMany, true);
-
-    /// <summary>
-    /// Enumeration of writer name strings.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_WRITERS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Writers", 100, Cardinality.ManyToMany, true);
-
-    /// <summary>
-    /// Enumeration of fictional character name strings.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CHARACTERS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Characters", 100, Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_FPS =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("FPS", typeof(float), Cardinality.Inline, false);
 
     /// <summary>
     /// Set to <c>true</c> if this video item represents a DVD.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISDVD =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ISDVD =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline, false);
 
-    /// <summary>
-    /// String describing the story plot of the video.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STORYPLOT =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("StoryPlot", 10000, Cardinality.Inline, false);
-
-    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
+    public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "VideoItem", new[] {
-            ATTR_GENRES,
+            ATTR_RESOURCE_INDEX,
+            ATTR_STREAM_INDEX,
             ATTR_DURATION,
             ATTR_AUDIOSTREAMCOUNT,
-            ATTR_AUDIOENCODINGS,
-            ATTR_AUDIOBITRATES,
-            ATTR_AUDIOCHANNELS,
-            ATTR_AUDIOLANGUAGES,
             ATTR_VIDEOENCODING,
             ATTR_VIDEOBITRATE,
             ATTR_WIDTH,
             ATTR_HEIGHT,
             ATTR_ASPECTRATIO,
             ATTR_FPS,
-            ATTR_ACTORS,
-            ATTR_DIRECTORS,
-            ATTR_WRITERS,
-            ATTR_CHARACTERS,
             ATTR_ISDVD,
-            ATTR_STORYPLOT,
-        });
+        },
+        new[] {
+            ATTR_RESOURCE_INDEX,
+            ATTR_STREAM_INDEX
+        }
+        );
   }
 }

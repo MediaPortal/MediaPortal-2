@@ -470,9 +470,9 @@ namespace MediaPortal.Common.Services.MediaManagement
           foreach (MediaItem mediaItem in mediaBrowsing.Browse(directoryId,
               IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION, null, null))
           {
-            SingleMediaItemAspect providerResourceAspect;
-            if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspect))
-              path2Item[providerResourceAspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)] = mediaItem;
+            IList<MultipleMediaItemAspect> providerResourceAspects;
+            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
+              path2Item[providerResourceAspects[0].GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)] = mediaItem;
           }
         }
         CheckImportStillRunning(importJob.State);

@@ -103,11 +103,12 @@ namespace MediaPortal.Common.MediaManagement
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
     public IResourceLocator GetResourceLocator()
     {
-      SingleMediaItemAspect providerAspect;
-      if (!MediaItemAspect.TryGetAspect(_aspects, ProviderResourceAspect.Metadata, out providerAspect))
+      IList<MultipleMediaItemAspect> providerAspects;
+      if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
         return null;
-      string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
-      string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+
+      string systemId = (string)providerAspects[0][ProviderResourceAspect.ATTR_SYSTEM_ID];
+      string resourceAccessorPath = (string)providerAspects[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
@@ -118,10 +119,10 @@ namespace MediaPortal.Common.MediaManagement
       SingleMediaItemAspect mediaAspect = null;
       if(!MediaItemAspect.TryGetAspect(this.Aspects, MediaAspect.Metadata, out mediaAspect))
         return false;
-      SingleMediaItemAspect resourceAspect = null;
-      if (!MediaItemAspect.TryGetAspect(this.Aspects, ProviderResourceAspect.Metadata, out resourceAspect))
+      IList<MultipleMediaItemAspect> resourceAspects = null;
+      if (!MediaItemAspect.TryGetAspects(this.Aspects, ProviderResourceAspect.Metadata, out resourceAspects))
         return false;
-      mimeType = (string)resourceAspect[ProviderResourceAspect.ATTR_MIME_TYPE];
+      mimeType = (string)resourceAspects[0][ProviderResourceAspect.ATTR_MIME_TYPE];
       mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];
       return true;
     }

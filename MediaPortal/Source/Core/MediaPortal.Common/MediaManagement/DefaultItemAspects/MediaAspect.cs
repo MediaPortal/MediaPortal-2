@@ -74,6 +74,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LASTPLAYED =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline, false);
 
+    /// <summary>
+    /// Contains the progress (0-100%) of the last playback.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LASTPLAY_PROGRESS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("LastPlayProgress", typeof(float), Cardinality.Inline, false);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
@@ -82,6 +88,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_RATING,
             ATTR_COMMENT,
             ATTR_PLAYCOUNT,
+            ATTR_LASTPLAY_PROGRESS,
             ATTR_LASTPLAYED,
         });
   }
