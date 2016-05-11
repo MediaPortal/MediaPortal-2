@@ -56,6 +56,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       _extractors = new List<IRelationshipRoleExtractor>();
 
       _extractors.Add(new MovieCollectionRelationshipExtractor());
+      _extractors.Add(new MovieActorRelationshipExtractor());
       _extractors.Add(new MovieDirectorRelationshipExtractor());
       _extractors.Add(new MovieWriterRelationshipExtractor());
       _extractors.Add(new MovieCharacterRelationshipExtractor());
@@ -70,34 +71,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
-    }
-
-    public static bool GetBaseInfo(IDictionary<Guid, IList<MediaItemAspect>> aspects, out MovieInfo info)
-    {
-      info = null;
-
-      string imDbId = null;
-      string tmDbIdStr = null;
-      int movieDbId;
-      bool imDbExists = MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out imDbId);
-      bool tmDbExists = MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out tmDbIdStr);
-      if (imDbExists || tmDbExists)
-      {
-        Int32.TryParse(tmDbIdStr, out movieDbId);
-      }
-      else
-        return false;
-
-      string movieName;
-      if (!MediaItemAspect.TryGetAttribute(aspects, MovieAspect.ATTR_MOVIE_NAME, out movieName))
-        return false;
-
-      info = new MovieInfo();
-      info.MovieDbId = movieDbId;
-      info.ImDbId = imDbId;
-      info.MovieName = movieName;
-
-      return true;
     }
   }
 }

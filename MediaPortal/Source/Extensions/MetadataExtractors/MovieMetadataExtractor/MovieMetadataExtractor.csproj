@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="FanArtProvider\MovieFanartProvider.cs" />
     <Compile Include="Matchers\MatroskaMatcher.cs" />
+    <Compile Include="Matchers\MovieNameMatcher.cs" />
     <Compile Include="Matchers\NfoReader.cs" />
     <Compile Include="MovieMetadataExtractorSettings.cs" />
     <Compile Include="MovieCollectionRelationshipExtractor.cs" />

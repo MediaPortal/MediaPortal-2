@@ -27,13 +27,13 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
 
-namespace MediaPortal.Extensions.OnlineLibraries
+namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
   /// <summary>
-  /// <see cref="NamePreprocessor"/> tries to match movie title, year and other information from filenames, and cleans up titles for online lookup 
+  /// <see cref="MovieNameMatcher"/> tries to match movie title, year and other information from filenames, and cleans up titles for online lookup 
   /// using regular expressions.
   /// </summary>
-  public class NamePreprocessor
+  public class MovieNameMatcher
   {
     public const string GROUP_TITLE = "title";
     public const string GROUP_YEAR = "year";

@@ -63,31 +63,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      SingleMediaItemAspect movieAspect;
-      if (!MediaItemAspect.TryGetAspect(aspects, MovieAspect.Metadata, out movieAspect))
+       // Build the person MI
+
+      MovieInfo movieInfo = new MovieInfo();
+      if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      IEnumerable<string> productionCompanys = movieAspect.GetCollectionAttribute<string>(MovieAspect.ATTR_COMPANYS);
-     
-      // Build the person MI
+      MovieTheMovieDbMatcher.Instance.UpdateMovieCompanies(movieInfo, CompanyAspect.COMPANY_PRODUCTION);
 
-      List<CompanyInfo> companys = new List<CompanyInfo>();
-      if (productionCompanys != null)
-        foreach (string company in productionCompanys)
-          companys.Add(new CompanyInfo() { Name = company, Type = CompanyType.ProductionStudio });
-
-      MovieInfo movieInfo;
-      if (!MovieRelationshipExtractor.GetBaseInfo(aspects, out movieInfo))
-        return false;
-
-      MovieTheMovieDbMatcher.Instance.UpdateMovieCompanys(movieInfo, companys, CompanyType.ProductionStudio);
-
-      if (companys.Count == 0)
+      if (movieInfo.ProductionCompanies.Count == 0)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
-      foreach (CompanyInfo company in companys)
+      foreach (CompanyInfo company in movieInfo.ProductionCompanies)
       {
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         extractedLinkedAspects.Add(companyAspects);
@@ -96,25 +85,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return true;
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       if (!existingAspects.ContainsKey(CompanyAspect.ASPECT_ID))
         return false;
 
-      int linkedType;
-      if (!MediaItemAspect.TryGetAttribute(linkedAspects, CompanyAspect.ATTR_COMPANY_TYPE, out linkedType))
+      CompanyInfo linkedCompany = new CompanyInfo();
+      if (!linkedCompany.FromMetadata(extractedAspects))
         return false;
 
-      int existingType;
-      if (!MediaItemAspect.TryGetAttribute(existingAspects, CompanyAspect.ATTR_COMPANY_TYPE, out existingType))
+      CompanyInfo existingCompany = new CompanyInfo();
+      if (!existingCompany.FromMetadata(extractedAspects))
         return false;
 
-      return linkedType == existingType;
+      return linkedCompany.Equals(existingCompany);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, MovieAspect.ATTR_COMPANYS, out index);
+      index = -1;
+
+      SingleMediaItemAspect linkedAspect;
+      if (!MediaItemAspect.TryGetAspect(linkedAspects, CompanyAspect.Metadata, out linkedAspect))
+        return false;
+
+      string name = linkedAspect.GetAttributeValue<string>(CompanyAspect.ATTR_COMPANY_NAME);
+
+      SingleMediaItemAspect aspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, MovieAspect.Metadata, out aspect))
+        return false;
+
+      IEnumerable<object> companies = aspect.GetCollectionAttribute<object>(MovieAspect.ATTR_COMPANIES);
+      List<string> nameList = new List<string>(companies.Cast<string>());
+
+      index = nameList.IndexOf(name);
+      return index >= 0;
     }
 
     internal static ILogger Logger

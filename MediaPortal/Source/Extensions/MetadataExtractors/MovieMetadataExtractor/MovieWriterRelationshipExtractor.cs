@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
   class MovieWriterRelationshipExtractor : IRelationshipRoleExtractor
   {
-    private static readonly Guid[] ROLE_ASPECTS = { VideoAspect.ASPECT_ID, MovieAspect.ASPECT_ID };
+    private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
 
     public Guid Role
@@ -63,32 +63,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      SingleMediaItemAspect videoAspect;
-      if (!MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out videoAspect))
-        return false;
-
-      IEnumerable<string> writers = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_WRITERS);
-     
       // Build the person MI
 
-      List<PersonInfo> persons = new List<PersonInfo>();
-      if (writers != null)
-        foreach (string person in writers)
-          persons.Add(new PersonInfo() { Name = person, Occupation = PersonOccupation.Writer });
-
-      MovieInfo movieInfo;
-      if (!MovieRelationshipExtractor.GetBaseInfo(aspects, out movieInfo))
+      MovieInfo movieInfo = new MovieInfo();
+      if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdateMoviePersons(movieInfo, persons, PersonOccupation.Writer);
-      MovieOmDbMatcher.Instance.UpdateMoviePersons(movieInfo, persons, PersonOccupation.Writer);
+      MovieTheMovieDbMatcher.Instance.UpdateMoviePersons(movieInfo, PersonAspect.OCCUPATION_WRITER);
+      MovieOmDbMatcher.Instance.UpdateMoviePersons(movieInfo, PersonAspect.OCCUPATION_WRITER);
 
-      if (persons.Count == 0)
+      if (movieInfo.Writers.Count == 0)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
-      foreach (PersonInfo person in persons)
+      foreach (PersonInfo person in movieInfo.Writers)
       {
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         extractedLinkedAspects.Add(personAspects);
@@ -97,25 +86,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return true;
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       if (!existingAspects.ContainsKey(PersonAspect.ASPECT_ID))
         return false;
 
-      int linkedOccupation;
-      if (!MediaItemAspect.TryGetAttribute(linkedAspects, PersonAspect.ATTR_OCCUPATION, out linkedOccupation))
+      PersonInfo linkedPerson = new PersonInfo();
+      if (!linkedPerson.FromMetadata(extractedAspects))
         return false;
 
-      int existingOccupation;
-      if (!MediaItemAspect.TryGetAttribute(existingAspects, PersonAspect.ATTR_OCCUPATION, out existingOccupation))
+      PersonInfo existingPerson = new PersonInfo();
+      if (!existingPerson.FromMetadata(extractedAspects))
         return false;
 
-      return linkedOccupation == existingOccupation;
+      return linkedPerson.Equals(existingPerson);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, VideoAspect.ATTR_WRITERS, out index);
+      index = -1;
+
+      SingleMediaItemAspect linkedAspect;
+      if (!MediaItemAspect.TryGetAspect(linkedAspects, PersonAspect.Metadata, out linkedAspect))
+        return false;
+
+      string name = linkedAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME);
+
+      SingleMediaItemAspect aspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, MovieAspect.Metadata, out aspect))
+        return false;
+
+      IEnumerable<object> persons = aspect.GetCollectionAttribute<object>(MovieAspect.ATTR_WRITERS);
+      List<string> nameList = new List<string>(persons.Cast<string>());
+
+      index = nameList.IndexOf(name);
+      return index >= 0;
     }
 
     internal static ILogger Logger

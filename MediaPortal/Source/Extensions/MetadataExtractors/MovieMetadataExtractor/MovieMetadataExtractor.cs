@@ -80,10 +80,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public MovieMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Movies metadata extractor", MetadataExtractorPriority.External, true,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
                 MovieAspect.Metadata
               });
       _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>().OnlyFanArt;
@@ -111,9 +110,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         };
 
       // Allow the online lookup to choose best matching language for metadata
-      ICollection<string> movieLanguages;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, out movieLanguages) && movieLanguages.Count > 0)
-        movieInfo.Languages.AddRange(movieLanguages);
+      IList<MultipleMediaItemAspect> audioAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioAspect.Metadata, out audioAspects))
+      {
+        foreach(MultipleMediaItemAspect aspect in audioAspects)
+        {
+          string language = (string)aspect.GetAttributeValue(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+          if (!string.IsNullOrEmpty(language))
+            movieInfo.Languages.Add(language);
+        }
+      }
 
       // Try to use an existing IMDB id for exact mapping
       string imdbId;
@@ -126,7 +132,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       foreach (string path in pathsToTest)
       {
         MovieInfo dummy = new MovieInfo { MovieName = path };
-        if (NamePreprocessor.MatchTitleYear(dummy))
+        if (MovieNameMatcher.MatchTitleYear(dummy))
         {
           movieInfo.MovieName = dummy.MovieName;
           movieInfo.ReleaseDate = dummy.ReleaseDate;
@@ -134,10 +140,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      // When searching movie title, the year can be relevant for multiple titles with same name but different years
-      DateTime recordingDate;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-        movieInfo.ReleaseDate = recordingDate;
+      if (movieInfo.ReleaseDate.HasValue == false)
+      {
+        // When searching movie title, the year can be relevant for multiple titles with same name but different years
+        DateTime recordingDate;
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+          movieInfo.ReleaseDate = recordingDate;
+      }
+
+      /* Clear the names from unwanted strings */
+      MovieNameMatcher.CleanupTitle(movieInfo);
 
       MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo);
       MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo);

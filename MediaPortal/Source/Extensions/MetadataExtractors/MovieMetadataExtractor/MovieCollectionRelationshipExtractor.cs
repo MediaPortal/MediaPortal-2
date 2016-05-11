@@ -29,6 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -61,44 +62,50 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      string collectionName;
-      if (!MediaItemAspect.TryGetAttribute(aspects, MovieAspect.ATTR_COLLECTION_NAME, out collectionName))
-        return false;
-
-      string tmDbIdStr = null;
-      int movieDbId;
-      bool tmDbExists = MediaItemAspect.TryGetExternalAttribute(aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out tmDbIdStr);
-      if (tmDbExists)
-      {
-        Int32.TryParse(tmDbIdStr, out movieDbId);
-      }
-      else
-        return false;
-
       // Build the person MI
 
-      MovieCollectionInfo collection = new MovieCollectionInfo()
-      {
-        MovieDbId = movieDbId,
-        Name = collectionName
-      };
+      MovieCollectionInfo collectionInfo = new MovieCollectionInfo();
+      if (!collectionInfo.FromMetadata(aspects))
+        return false;
+
+      MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo);
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       extractedLinkedAspects.Add(collectionAspects);
-      collection.SetMetadata(collectionAspects);
 
-      return true;
+      return collectionInfo.SetMetadata(collectionAspects);
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       return existingAspects.ContainsKey(MovieCollectionAspect.ASPECT_ID);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, MovieAspect.ATTR_COLLECTION_NAME, out index);
+      index = -1;
+
+      MovieCollectionInfo collectionInfo = new MovieCollectionInfo();
+      if (!collectionInfo.FromMetadata(linkedAspects))
+        return false;
+
+      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo))
+        return false;
+
+      MovieInfo movieInfo = new MovieInfo();
+      if (!movieInfo.FromMetadata(aspects))
+        return false;
+
+      foreach(MovieInfo movie in collectionInfo.Movies)
+      {
+        if (movie.MovieDbId == movieInfo.MovieDbId)
+        {
+          index = movie.Order;
+          break;
+        }
+      }
+      return index >= 0;
     }
 
     internal static ILogger Logger
