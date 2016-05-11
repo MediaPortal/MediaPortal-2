@@ -180,7 +180,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     public int RatingVotes { get; set; }
 
-    public void InitProperties(string albumId)
+    public bool InitPropertiesFromAlbum(string albumId, string albumName, string country)
     {
       foreach (TrackRelease release in Releases)
       {
@@ -194,6 +194,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
           continue;
 
         if (albumId != null && !release.Id.Equals(albumId, StringComparison.InvariantCultureIgnoreCase))
+          continue;
+
+        if (albumName != null && !release.Title.Equals(albumName, StringComparison.InvariantCultureIgnoreCase))
+          continue;
+
+        if (country != null && !release.Country.Equals(country, StringComparison.InvariantCultureIgnoreCase))
           continue;
 
         foreach (TrackMedia media in release.Media)
@@ -220,14 +226,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
           Composers = new List<TrackBaseName>();
           foreach (TrackRelation relation in Relations)
           {
-            if(relation.Type.Equals("Composer", StringComparison.InvariantCultureIgnoreCase))
+            if (relation.Type.Equals("Composer", StringComparison.InvariantCultureIgnoreCase))
               Composers.Add(relation.Artist);
           }
 
           TagValues = new List<string>();
           foreach (TrackTag tag in Tags)
           {
-            if(tag.Count > 1) TagValues.Add(tag.Name); //Only use tags with multiple taggings
+            if (tag.Count > 1) TagValues.Add(tag.Name); //Only use tags with multiple taggings
           }
 
           RatingValue = Rating.Value.HasValue ? Rating.Value.Value : 0;
@@ -247,9 +253,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
           TotalTracks = media.TrackCount;
           DiscId = media.Position;
 
-          return;
+          return true;
         }
       }
+      return false;
     }
   }
 }

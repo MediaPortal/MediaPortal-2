@@ -22,55 +22,34 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
-  // {
-  //  "life-span": {
-  //    "end": "1994-04-05",
-  //    "begin": "1988-01",
-  //    "ended": true
-  //  },
-  //  "area": {
-  //    "sort-name": "United States",
-  //    "iso-3166-1-codes": [
-  //      "US"
-  //    ],
-  //    "name": "United States",
-  //    "id": "489ce91b-6658-3307-9877-795b68554c98",
-  //    "disambiguation": ""
-  //  },
-  //  "country": "US",
-  //  "begin_area": {
-  //    "id": "a640b45c-c173-49b1-8030-973603e895b5",
-  //    "disambiguation": "",
-  //    "sort-name": "Aberdeen",
-  //    "name": "Aberdeen"
-  //  },
-  //  "sort-name": "Nirvana",
-  //  "disambiguation": "90s US grunge band",
-  //  "id": "5b11f4ce-a62d-471e-81fc-a69a8278c7da",
-  //  "ipis": [
-
-
-  //  ],
-  //  "type": "Group",
-  //  "gender": null,
-  //  "end_area": null,
-  //  "name": "Nirvana"
-  //}
+  //    {
+  //      "id": "843e81b8-7ae9-40f5-b84c-1569d461c74d",
+  //      "type": "Original Production",
+  //      "score": "100",
+  //      "name": "Medley Records",
+  //      "sort-name": "Medley Records",
+  //      "country": "DK",
+  //      "area": {
+  //        "id": "4757b525-2a60-324a-b060-578765d2c993",
+  //        "name": "Denmark",
+  //        "sort-name": "Denmark"
+  //      },
+  //      "life-span": {
+  //        "begin": "1978",
+  //        "end": "1992",
+  //        "ended": true
+  //      }
+  //    }
   [DataContract]
-  public class TrackArtist : TrackBaseName
+  public class TrackLabelSearchResult : TrackBaseName
   {
     [DataMember(Name = "life-span")]
     public TrackLifeSpan LifeSpan { get; set; }
-
-    [DataMember(Name = "begin_area")]
-    public TrackArea BeginArea { get; set; }
-
-    [DataMember(Name = "end_area")]
-    public TrackArea EndArea { get; set; }
 
     [DataMember(Name = "area")]
     public TrackArea Area { get; set; }
@@ -80,9 +59,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     [DataMember(Name = "type")]
     public string Type { get; set; }
-
-    [DataMember(Name = "gender")]
-    public string Gender { get; set; }
 
     public override string ToString()
     {

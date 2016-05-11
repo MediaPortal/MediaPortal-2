@@ -78,102 +78,210 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool FindAndUpdateTrack(TrackInfo trackInfo)
     {
-      AudioDbTrack trackDetails;
-      if (
-        /* Best way is to get details by any unique id */
-        MatchByAnyId(trackInfo, out trackDetails) ||
-        TryMatch(trackInfo.TrackName, trackInfo.Artists.Select(a => a.Name).ToList(), trackInfo.Album, trackInfo.TrackNum, false, out trackDetails)
-        )
+      try
       {
-        string id = null;
-        if (trackDetails != null)
+        AudioDbTrack trackDetails;
+        if (TryMatch(trackInfo, out trackDetails))
         {
-          id = trackDetails.TrackId.ToString();
-
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AudioDbId, trackDetails.TrackId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackDetails.MusicBrainzID);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAudioDbId, trackDetails.AlbumId.HasValue ? trackDetails.AlbumId.Value : 0);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzId, trackDetails.MusicBrainzAlbumID);
-
-          MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackDetails.Track, true);
-          MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackDetails.Album, true);
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, trackDetails.TrackNumber);
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.DiscNum, trackDetails.CD.HasValue ? trackDetails.CD.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalRating, trackDetails.Rating.HasValue ? trackDetails.Rating.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.RatingCount, trackDetails.RatingCount.HasValue ? trackDetails.RatingCount.Value : 0);
-
-          if (trackDetails.ArtistId.HasValue)
+          string id = null;
+          if (trackDetails != null)
           {
-            MetadataUpdater.SetOrUpdateList(trackInfo.Artists, ConvertToPersons(trackDetails.ArtistId.Value, trackDetails.MusicBrainzArtistID, 
-              trackDetails.Artist, PersonOccupation.Artist), true);
-            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, ConvertToPersons(trackDetails.ArtistId.Value, trackDetails.MusicBrainzArtistID, 
-              trackDetails.Artist, PersonOccupation.Artist), true);
+            id = trackDetails.TrackId.ToString();
+
+            MetadataUpdater.SetOrUpdateId(ref trackInfo.AudioDbId, trackDetails.TrackId);
+            MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackDetails.MusicBrainzID);
+            MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAudioDbId, trackDetails.AlbumId.HasValue ? trackDetails.AlbumId.Value : 0);
+            MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzGroupId, trackDetails.MusicBrainzAlbumID);
+
+            MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackDetails.Track, true);
+            MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackDetails.Album, true);
+            MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, trackDetails.TrackNumber);
+            MetadataUpdater.SetOrUpdateValue(ref trackInfo.DiscNum, trackDetails.CD.HasValue ? trackDetails.CD.Value : 0);
+            MetadataUpdater.SetOrUpdateRatings(ref trackInfo.TotalRating, ref trackInfo.RatingCount, trackDetails.Rating, trackDetails.RatingCount);
+            MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackLyrics, trackDetails.TrackLyrics, false);
+
+            if (trackDetails.ArtistId.HasValue)
+            {
+              MetadataUpdater.SetOrUpdateList(trackInfo.Artists, ConvertToPersons(trackDetails.ArtistId.Value, trackDetails.MusicBrainzArtistID,
+                trackDetails.Artist, PersonAspect.OCCUPATION_ARTIST), true, false);
+              MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, ConvertToPersons(trackDetails.ArtistId.Value, trackDetails.MusicBrainzArtistID,
+                trackDetails.Artist, PersonAspect.OCCUPATION_ARTIST), true, false);
+            }
+
+            MetadataUpdater.SetOrUpdateList(trackInfo.Genres, new List<string>(new string[] { trackDetails.Genre }), true, true);
+
+            AudioDbAlbum album;
+            if (trackDetails.AlbumId.HasValue && _audioDb.GetAlbumFromId(trackDetails.AlbumId.Value, out album))
+            {
+              if (album.LabelId.HasValue)
+                MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, ConvertToCompanies(album.LabelId.Value, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL), true, false);
+
+              if (trackInfo.Thumbnail == null && _audioDb.DownloadImage(album.AlbumId, album.AlbumThumb, "Covers"))
+              {
+                trackInfo.Thumbnail = _audioDb.GetImage(album.AlbumId, album.AlbumThumb, "Covers");
+              }
+            }
           }
 
-          MetadataUpdater.SetOrUpdateList(trackInfo.Genres, new List<string>(new string[] { trackDetails.Genre }), true);
-
-          AudioDbAlbum album;
-          if (trackDetails.AlbumId.HasValue && _audioDb.GetAlbumFromId(trackDetails.AlbumId.Value, out album))
-          {
-            if(album.LabelId.HasValue)
-              MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, ConvertToCompanys(album.LabelId.Value, album.Label, CompanyType.MusicLabel), true);
-          }
+          if (!string.IsNullOrEmpty(id))
+            ScheduleDownload(id);
+          return true;
         }
-
-        if (!string.IsNullOrEmpty(id))
-          ScheduleDownload(id);
-        return true;
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MusicTheAudioDbMatcher: Exception while processing track {0}", ex, trackInfo.ToString());
+        return false;
+      }
     }
 
-    private List<PersonInfo> ConvertToPersons(long artistId, string mbArtistId, string artist, PersonOccupation occupation)
+    public bool UpdateAlbum(AlbumInfo albumInfo)
+    {
+      try
+      {
+        AudioDbAlbum albumDetails;
+        if (albumInfo.AudioDbId > 0 && _audioDb.GetAlbumFromId(albumInfo.AudioDbId, out albumDetails))
+        {
+          MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzGroupId, albumDetails.MusicBrainzID);
+
+          MetadataUpdater.SetOrUpdateString(ref albumInfo.Album, albumDetails.Album, false);
+          MetadataUpdater.SetOrUpdateString(ref albumInfo.Description, albumDetails.Description, false);
+
+          MetadataUpdater.SetOrUpdateList(albumInfo.Genres, new List<string>(new string[] { albumDetails.Genre }), true, true);
+          MetadataUpdater.SetOrUpdateValue(ref albumInfo.Sales, albumDetails.Sales.HasValue ? albumDetails.Sales.Value : 0);
+          MetadataUpdater.SetOrUpdateRatings(ref albumInfo.TotalRating, ref albumInfo.RatingCount, albumDetails.Rating, albumDetails.RatingCount);
+          if (albumDetails.Year.HasValue) MetadataUpdater.SetOrUpdateValue(ref albumInfo.ReleaseDate, new DateTime(albumDetails.Year.Value, 1, 1));
+
+          if (albumDetails.ArtistId.HasValue)
+            MetadataUpdater.SetOrUpdateList(albumInfo.Artists, ConvertToPersons(albumDetails.ArtistId.Value, albumDetails.MusicBrainzArtistID,
+                  albumDetails.Artist, PersonAspect.OCCUPATION_ARTIST), true, false);
+
+          if (albumDetails.LabelId.HasValue)
+            MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, ConvertToCompanies(albumInfo.AudioDbId, albumDetails.Label, CompanyAspect.COMPANY_MUSIC_LABEL), true, false);
+
+          if (albumInfo.Thumbnail == null && _audioDb.DownloadImage(albumDetails.AlbumId, albumDetails.AlbumThumb, "Covers"))
+          {
+            albumInfo.Thumbnail = _audioDb.GetImage(albumDetails.AlbumId, albumDetails.AlbumThumb, "Covers");
+          }
+
+          return true;
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MusicTheAudioDbMatcher: Exception while processing album {0}", ex, albumInfo.ToString());
+        return false;
+      }
+    }
+
+    public bool UpdateAlbumPersons(AlbumInfo albumInfoInfo, string occupation)
+    {
+      return UpdatePersons(albumInfoInfo.Artists, occupation);
+    }
+
+    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation)
+    {
+      return UpdatePersons(trackInfo.Artists, occupation);
+    }
+
+    private bool UpdatePersons(List<PersonInfo> persons, string occupation)
+    {
+      try
+      {
+        if (occupation != PersonAspect.OCCUPATION_ARTIST)
+          return false;
+
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        AudioDbArtist artistDetails;
+        int sortOrder = 0;
+        foreach (PersonInfo person in persons)
+        {
+          if(person.AudioDbId <= 0)
+          {
+            List<AudioDbArtist> artists;
+            if (_audioDb.SearchArtist(person.Name, out artists))
+              person.AudioDbId = artists[0].ArtistId;
+          }
+          if (person.AudioDbId > 0 && _audioDb.GetArtistFromId(person.AudioDbId, out artistDetails))
+          {
+            int? year = artistDetails.BornYear == null ? artistDetails.FormedYear : artistDetails.BornYear;
+            DateTime? born = null;
+            if (year.HasValue) born = new DateTime(year.Value, 1, 1);
+            DateTime? died = null;
+            if (artistDetails.DiedYear.HasValue) died = new DateTime(artistDetails.DiedYear.Value, 1, 1);
+
+            person.MusicBrainzId = artistDetails.MusicBrainzID;
+            person.Name = artistDetails.Artist;
+            person.Biography = artistDetails.Biography;
+            person.DateOfBirth = born;
+            person.DateOfDeath = died;
+            person.Orign = artistDetails.Country;
+            person.IsGroup = artistDetails.Members.HasValue ? artistDetails.Members.Value > 1 : false;
+            person.Occupation = occupation;
+            person.Order = sortOrder++;
+
+            // Get Thumbnail
+            if (person.Thumbnail == null && _audioDb.DownloadImage(person.AudioDbId, artistDetails.ArtistThumb, "Thumbnails"))
+            {
+              person.Thumbnail = _audioDb.GetImage(person.AudioDbId, artistDetails.ArtistThumb, "Thumbnails");
+            }
+          }
+        }
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MusicTheAudioDbMatcher: Exception while processing persons", ex);
+        return false;
+      }
+    }
+
+    private List<PersonInfo> ConvertToPersons(long artistId, string mbArtistId, string artist, string occupation)
     {
       if (artistId == 0 || string.IsNullOrEmpty(artist))
         return new List<PersonInfo>();
 
       List<PersonInfo> retValue = new List<PersonInfo>();
-      AudioDbArtist artistDetails;
-      if (artistId > 0 && _audioDb.GetArtistFromId(artistId, out artistDetails))
+      int sortOrder = 0;
+      if (artistId > 0)
       {
-        int? year = artistDetails.BornYear == null ? artistDetails.FormedYear : artistDetails.BornYear;
-        DateTime? born = null;
-        if (year.HasValue) born = new DateTime(year.Value, 1, 1);
-        DateTime? died = null;
-        if (artistDetails.DiedYear.HasValue) died = new DateTime(artistDetails.DiedYear.Value, 1, 1);
         retValue.Add(
         new PersonInfo()
         {
           AudioDbId = artistId,
           MusicBrainzId = mbArtistId,
-          Name = artistDetails.Artist,
-          Biography = artistDetails.Biography,
-          DateOfBirth = born,
-          DateOfDeath = died,
-          Orign = artistDetails.Country,
-          IsGroup = artistDetails.Members.HasValue ? artistDetails.Members.Value > 1 : false,
-          Occupation = occupation
+          Name = artist,
+          Occupation = occupation,
+          Order = sortOrder++
         });
+
       }
       return retValue;
     }
 
-    private List<CompanyInfo> ConvertToCompanys(long companyId, string company, CompanyType type)
+    private List<CompanyInfo> ConvertToCompanies(long companyId, string company, string type)
     {
       if (companyId == 0 || string.IsNullOrEmpty(company))
         return new List<CompanyInfo>();
 
-      return new List<CompanyInfo> {
+      return new List<CompanyInfo>
+      {
         new CompanyInfo()
         {
           AudioDbId = companyId,
           Name = company,
-          Type = type
+          Type = type,
+          Order = 0
         }
       };
     }
 
-    private bool MatchByAnyId(TrackInfo trackInfo, out AudioDbTrack trackDetails)
+    protected bool TryMatch(TrackInfo trackInfo, out AudioDbTrack trackDetails)
     {
       if ((trackInfo.AudioDbId > 0 && _audioDb.GetTrackFromId(trackInfo.AudioDbId, out trackDetails)) ||
         (!string.IsNullOrEmpty(trackInfo.MusicBrainzId) && _audioDb.GetTrackFromMBId(trackInfo.MusicBrainzId, out trackDetails)))
@@ -191,7 +299,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return true;
       }
       trackDetails = null;
-      return false;
+      return TryMatch(trackInfo.TrackName, trackInfo.Artists.Select(a => a.Name).ToList(), trackInfo.Album, trackInfo.TrackNum, false, out trackDetails);
     }
 
     protected bool TryMatch(string title, List<string> artists, string album, int trackNum, bool cacheOnly, out AudioDbTrack trackDetail)
@@ -295,6 +403,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       try
       {
+        if (string.IsNullOrEmpty(albumId))
+          return;
+
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Started for ID {0}", albumId);
 
         if (!Init())
@@ -302,6 +413,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         int taadbId = 0;
         if (!int.TryParse(albumId, out taadbId))
+          return;
+
+        if (taadbId <= 0)
           return;
 
         AudioDbTrack track;
@@ -326,8 +440,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!string.IsNullOrEmpty(artist.ArtistFanart)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart, "Backdrops");
         if (!string.IsNullOrEmpty(artist.ArtistFanart2)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart2, "Backdrops");
         if (!string.IsNullOrEmpty(artist.ArtistFanart3)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart3, "Backdrops");
-        if (!string.IsNullOrEmpty(artist.ArtistLogo)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistBanner, "Logos");
-        if (!string.IsNullOrEmpty(artist.ArtistThumb)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistBanner, "Thumbnails");
+        if (!string.IsNullOrEmpty(artist.ArtistLogo)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistLogo, "Logos");
+        if (!string.IsNullOrEmpty(artist.ArtistThumb)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistThumb, "Thumbnails");
 
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Finished ID {0}", albumId);
 

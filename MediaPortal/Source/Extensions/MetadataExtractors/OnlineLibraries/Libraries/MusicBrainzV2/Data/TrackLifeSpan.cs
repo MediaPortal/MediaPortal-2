@@ -36,9 +36,43 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
   public class TrackLifeSpan
   {
     [DataMember(Name = "begin")]
+    public string _begin
+    {
+      set
+      {
+        if (value != null)
+        {
+          DateTime date;
+          if (DateTime.TryParse(value, out date))
+            Begin = date;
+          if (DateTime.TryParse(value + "-01", out date))
+            Begin = date;
+          if (DateTime.TryParse(value + "-01-01", out date))
+            Begin = date;
+        }
+      }
+    }
+
     public DateTime? Begin { get; set; }
 
     [DataMember(Name = "end")]
+    public string _end
+    {
+      set
+      {
+        if (value != null)
+        {
+          DateTime date;
+          if (DateTime.TryParse(value, out date))
+            End = date;
+          if (DateTime.TryParse(value + "-01", out date))
+            End = date;
+          if (DateTime.TryParse(value + "-01-01", out date))
+            End = date;
+        }
+      }
+    }
+
     public DateTime? End { get; set; }
 
     [DataMember(Name = "ended")]

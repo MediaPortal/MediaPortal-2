@@ -90,13 +90,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
     public bool SearchTrackUnique(string title, List<string> artists, string album, int year, int trackNum, out List<TrackResult> tracks)
     {
       tracks = _musicBrainzHandler.SearchTrack(title, artists, album, year, trackNum);
-      if (TestMatch(title, artists, album, year, trackNum, ref tracks))
+      if (TestTrackMatch(title, artists, album, year, trackNum, ref tracks))
         return true;
 
       return false;
     }
 
-    private bool TestMatch(string title, List<string> artists, string album, int year, int trackNum, ref List<TrackResult> tracks)
+    private bool TestTrackMatch(string title, List<string> artists, string album, int year, int trackNum, ref List<TrackResult> tracks)
     {
       if (tracks.Count == 1)
       {
@@ -190,6 +190,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
       return false;
     }
 
+    public bool SearchArtist(string name, out List<TrackArtist> artists)
+    {
+      artists = _musicBrainzHandler.SearchArtist(name);
+      return artists.Count > 0;
+    }
+
+    public bool SearchArtistUnique(string name, out List<TrackArtist> artists)
+    {
+      artists = _musicBrainzHandler.SearchArtist(name);
+      artists = artists.Where(a => GetLevenshteinDistance(a.Name, name) <= MAX_LEVENSHTEIN_DIST).ToList();
+      return artists.Count == 1;
+    }
+
+    public bool SearchLabel(string name, out List<TrackLabelSearchResult> labels)
+    {
+      labels = _musicBrainzHandler.SearchLabel(name);
+      return labels.Count > 0;
+    }
+
+    public bool SearchLabelUnique(string name, out List<TrackLabelSearchResult> labels)
+    {
+      labels = _musicBrainzHandler.SearchLabel(name);
+      labels = labels.Where(a => GetLevenshteinDistance(a.Name, name) <= MAX_LEVENSHTEIN_DIST).ToList();
+      return labels.Count == 1;
+    }
+
     private bool CompareArtists(List<string> trackArtists, List<string> searchArtists, bool strict)
     {
       if(strict)
@@ -251,6 +277,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
       return albumDetail != null;
     }
 
+    public bool GetReleaseGroup(string musicBrainzId, out TrackReleaseGroup groupDetail)
+    {
+      groupDetail = _musicBrainzHandler.GetReleaseGroup(musicBrainzId);
+      return groupDetail != null;
+    }
+
     public bool GetArtist(string musicBrainzId, out TrackArtist artistDetail)
     {
       artistDetail = _musicBrainzHandler.GetArtist(musicBrainzId);
@@ -272,6 +304,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
     public bool DownloadImage(string albumId, TrackImage image, string category)
     {
       return _musicBrainzHandler.DownloadImage(albumId, image, category); // Download all image information, filter later!
+    }
+
+    public byte[] GetImage(string albumId, TrackImage image, string category)
+    {
+      return _musicBrainzHandler.GetImage(albumId, image, category);
     }
   }
 }

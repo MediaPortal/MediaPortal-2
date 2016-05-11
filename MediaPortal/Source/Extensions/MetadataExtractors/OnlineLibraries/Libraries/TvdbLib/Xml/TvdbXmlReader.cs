@@ -216,11 +216,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                         Genre = series.Element("Genre").Value,
                         IMDB_ID = series.Element("IMDB_ID").Value,
                         Language = series.Element("Language").Value,
-                        NetworkID = series.Element("NetworkID").Value,
+                        NetworkID = series.Element("NetworkID") == null ? null : series.Element("NetworkID").Value,
                         Network = series.Element("Network").Value,
                         Overview = series.Element("Overview").Value,
                         Rating = series.Element("Rating").Value,
-                        RatingCount = series.Element("RatingCount").Value,
+                        RatingCount = series.Element("RatingCount") == null ? null : series.Element("RatingCount").Value,
                         Runtime = series.Element("Runtime").Value,
                         SeriesID = series.Element("SeriesID").Value,
                         SeriesName = series.Element("SeriesName").Value,
@@ -237,6 +237,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       {
         int id = Util.Int32Parse(s.Id);
         int networkId = Util.Int32Parse(s.NetworkID);
+        int ratingCount = Util.Int32Parse(s.RatingCount);
         if (id == Util.NO_VALUE)
           continue;
         TvdbSeriesFields series = new TvdbSeriesFields
@@ -251,10 +252,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                                       ImdbId = s.IMDB_ID,
                                       Language = TvDbUtils.ParseLanguage(s.Language),
                                       Network = s.Network,
-                                      NetworkID = id == Util.NO_VALUE ? 0 : networkId,
+                                      NetworkID = networkId == Util.NO_VALUE ? 0 : networkId,
                                       Overview = s.Overview,
                                       Rating = Util.DoubleParse(s.Rating),
-                                      RatingCount = Util.Int32Parse(s.RatingCount),
+                                      RatingCount = ratingCount == Util.NO_VALUE ? 0 : ratingCount,
                                       Runtime = Util.DoubleParse(s.Runtime),
                                       TvDotComId = Util.Int32Parse(s.SeriesID),
                                       SeriesName = s.SeriesName,
@@ -337,7 +338,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                           Overview = episode.Element("Overview").Value,
                           ProductionCode = episode.Element("ProductionCode").Value,
                           Rating = episode.Element("Rating").Value,
-                          RatingCount = episode.Element("RatingCount").Value,
+                          RatingCount = episode.Element("RatingCount") == null ? null : episode.Element("RatingCount").Value,
                           SeasonNumber = episode.Element("SeasonNumber").Value,
                           Writer = episode.Element("Writer").Value,
                           absolute_number = episode.Element("absolute_number").Value,
@@ -357,6 +358,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
       foreach (var e in allEpisodes)
       {
         int id = Util.Int32Parse(e.Id);
+        int ratingCount = Util.Int32Parse(e.RatingCount);
         if (id == Util.NO_VALUE)
           continue;
         TvdbEpisode ep = new TvdbEpisode
@@ -380,7 +382,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml
                              Overview = e.Overview,
                              ProductionCode = e.ProductionCode,
                              Rating = Util.DoubleParse(e.Rating),
-                             RatingCount = Util.Int32Parse(e.RatingCount),
+                             RatingCount = ratingCount == Util.NO_VALUE ? 0 : ratingCount,
                              SeasonNumber = Util.Int32Parse(e.SeasonNumber),
                              Writer = Util.SplitTvdbString(e.Writer, true),
                              AbsoluteNumber = Util.Int32Parse(e.absolute_number),

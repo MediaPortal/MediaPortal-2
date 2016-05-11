@@ -310,6 +310,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return true;
     }
 
+    public byte[] GetImage(long id, string url, string category)
+    {
+      string cacheFileName = CreateAndGetCacheName(id, url, category);
+      if (string.IsNullOrEmpty(cacheFileName))
+        return null;
+
+      if (File.Exists(cacheFileName))
+        return File.ReadAllBytes(cacheFileName);
+
+      return null;
+    }
+
     #endregion
 
     #region Protected members

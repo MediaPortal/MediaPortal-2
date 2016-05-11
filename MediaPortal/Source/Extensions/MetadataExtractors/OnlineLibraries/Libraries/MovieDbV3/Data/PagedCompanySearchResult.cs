@@ -27,37 +27,19 @@ using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 {
-  //{
-  //  "description": null,
-  //  "headquarters": "San Francisco, California",
-  //  "homepage": "http://www.lucasfilm.com",
-  //  "id": 1,
-  //  "logo_path": "/8rUnVMVZjlmQsJ45UGotD0Uznxj.png",
-  //  "name": "Lucasfilm",
-  //  "parent_company": null
-  //}
   [DataContract]
-  public class Company
+  internal class PagedCompanySearchResult
   {
-    [DataMember(Name = "id")]
-    public int Id { get; set; }
+    [DataMember(Name = "page")]
+    public int Page { get; set; }
 
-    [DataMember(Name = "name")]
-    public string Name { get; set; }
+    [DataMember(Name = "total_pages")]
+    public int TotalPages { get; set; }
 
-    [DataMember(Name = "description")]
-    public string Description { get; set; }
+    [DataMember(Name = "total_results")]
+    public int TotalResults { get; set; }
 
-    [DataMember(Name = "headquarters")]
-    public string Headquarters { get; set; }
-
-    [DataMember(Name = "homepage")]
-    public string Homepage { get; set; }
-
-    [DataMember(Name = "parent_company")]
-    public Company ParentCompany { get; set; }
-
-    [DataMember(Name = "logo_path")]
-    public string LogoPath { get; set; }
+    [DataMember(Name = "results")]
+    public List<CompanySearchResult> Results { get; set; }
   }
 }

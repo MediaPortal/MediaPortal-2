@@ -175,6 +175,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
       if (!string.IsNullOrEmpty(StrYear) && !StrYear.Contains("-") && int.TryParse(StrYear, out i)) Year = i;
       if (!string.IsNullOrEmpty(StrYear) && StrYear.Contains("-") && int.TryParse(StrYear.Split('-')[0], out i)) Year = i;
       if (!string.IsNullOrEmpty(StrYear) && StrYear.Contains("-") && int.TryParse(StrYear.Split('-')[1], out i)) EndYear = i;
+      if (!string.IsNullOrEmpty(StrYear) && StrYear.Contains("–") && int.TryParse(StrYear.Split('–')[0], out i)) Year = i;
+      if (!string.IsNullOrEmpty(StrYear) && StrYear.Contains("–") && int.TryParse(StrYear.Split('–')[1], out i)) EndYear = i;
       if (!string.IsNullOrEmpty(StrRuntime) && StrRuntime.EndsWith("min", StringComparison.InvariantCultureIgnoreCase) &&
          int.TryParse(StrRuntime.Remove(StrRuntime.Length - 3).Trim(), out i)) Runtime = i;
       if (!string.IsNullOrEmpty(StrImdbVotes) && int.TryParse(StrImdbVotes, out i)) ImdbVotes = i;
@@ -195,10 +197,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
       string[] strings = null;
       if (!string.IsNullOrEmpty(StrGenre)) strings = StrGenre.Split(',');
       if (strings != null) Genres = new List<string>(strings).Select(s => CleanString(s)).Distinct().ToList();
+
+      strings = null;
       if (!string.IsNullOrEmpty(StrDirector)) strings = StrDirector.Split(',');
       if (strings != null) Directors = new List<string>(strings).Select(s => CleanString(s)).Distinct().ToList();
+
+      strings = null;
       if (!string.IsNullOrEmpty(StrWriter)) strings = StrWriter.Split(',');
       if (strings != null) Writers = new List<string>(strings).Select(s => CleanString(s)).Distinct().ToList();
+
+      strings = null;
       if (!string.IsNullOrEmpty(StrActors)) strings = StrActors.Split(',');
       if (strings != null) Actors = new List<string>(strings).Select(s => CleanString(s)).Distinct().ToList();
     }

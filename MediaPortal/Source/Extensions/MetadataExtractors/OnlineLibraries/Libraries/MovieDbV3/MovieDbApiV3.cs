@@ -43,9 +43,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     private const string URL_GETMOVIECASTCREW = URL_API_BASE + "movie/{0}/casts";
     private const string URL_GETMOVIEIMAGES = URL_API_BASE + "movie/{0}/images";
     private const string URL_GETPERSON = URL_API_BASE + "person/{0}";
+    private const string URL_GETCOLLECTION = URL_API_BASE + "collection/{0}";
     private const string URL_GETCOMPANY = URL_API_BASE + "company/{0}";
+    private const string URL_GETNETWORK = URL_API_BASE + "network/{0}";
     private const string URL_GETPERSONIMAGES = URL_API_BASE + "person/{0}/images";
-    private const string URL_SERIESUERY = URL_API_BASE + "search/tv";
+    private const string URL_SERIESQUERY = URL_API_BASE + "search/tv";
     private const string URL_GETSERIES = URL_API_BASE + "tv/{0}";
     private const string URL_GETSERIESIMAGES = URL_API_BASE + "tv/{0}/images";
     private const string URL_GETSERIESCASTCREW = URL_API_BASE + "tv/{0}/credits";
@@ -55,6 +57,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     private const string URL_GETEPISODE = URL_API_BASE + "tv/{0}/season/{1}/episode/{2}";
     private const string URL_GETEPISODEIMAGES = URL_API_BASE + "tv/{0}/season/{1}/episode/{2}/images";
     private const string URL_GETEPISODECASTCREW = URL_API_BASE + "tv/{0}/season/{1}/episode/{2}/credits";
+    private const string URL_IDQUERY = URL_API_BASE + "find/{0}";
+    private const string URL_COMPANYQUERY = URL_API_BASE + "search/company";
+    private const string URL_PERSONQUERY = URL_API_BASE + "search/person";
     private const string URL_GETCONFIG = URL_API_BASE + "configuration";
 
     #endregion
@@ -128,9 +133,100 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>List of possible matches</returns>
     public List<SeriesSearchResult> SearchSeries(string query, string language)
     {
-      string url = GetUrl(URL_SERIESUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
+      string url = GetUrl(URL_SERIESQUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
       PagedSeriesSearchResult results = _downloader.Download<PagedSeriesSearchResult>(url);
       return results.Results;
+    }
+
+    public List<PersonSearchResult> SearchPerson(string query, string language)
+    {
+      string url = GetUrl(URL_PERSONQUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
+      PagedPersonSearchResult results = _downloader.Download<PagedPersonSearchResult>(url);
+      return results.Results;
+    }
+
+    public List<CompanySearchResult> SearchCompany(string query, string language)
+    {
+      string url = GetUrl(URL_COMPANYQUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
+      PagedCompanySearchResult results = _downloader.Download<PagedCompanySearchResult>(url);
+      return results.Results;
+    }
+
+    public List<IdResult> FindMovieByImdbId(string imDbId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, imDbId) + "&external_source=imdb_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.MovieResults;
+    }
+
+    public List<IdResult> FindPersonByImdbId(string imDbId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, imDbId) + "&external_source=imdb_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.PersonResults;
+    }
+
+    public List<IdResult> FindPersonByTvRageId(int tvRageId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, tvRageId) + "&external_source=tvrage_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.PersonResults;
+    }
+
+    public List<IdResult> FindSeriesByImdbId(string imDbId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, imDbId) + "&external_source=imdb_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.SeriesResults;
+    }
+
+    public List<IdResult> FindSeriesByTvDbId(int tvDbId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, tvDbId) + "&external_source=tvdb_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.SeriesResults;
+    }
+
+    public List<IdResult> FindSeriesByTvRageId(int tvRageId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, tvRageId) + "&external_source=tvrage_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.SeriesResults;
+    }
+
+    public List<IdResult> FindSeriesSeasonByTvDbId(int tvDbId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, tvDbId) + "&external_source=tvdb_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.SeriesSeasonResults;
+    }
+
+    public List<IdResult> FindSeriesSeasonByTvRageId(int tvRageId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, tvRageId) + "&external_source=tvrage_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.SeriesSeasonResults;
+    }
+
+    public List<IdResult> FindSeriesEpisodeByImdbId(string imDbId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, imDbId) + "&external_source=imdb_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.SeriesEpisodeResults;
+    }
+
+    public List<IdResult> FindSeriesEpisodeByTvDbId(int tvDbId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, tvDbId) + "&external_source=tvdb_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.SeriesEpisodeResults;
+    }
+
+    public List<IdResult> FindSeriesEpisodeByTvRageId(int tvRageId, string language)
+    {
+      string url = GetUrl(URL_IDQUERY, language, tvRageId) + "&external_source=tvrage_id";
+      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
+      return results.SeriesEpisodeResults;
     }
 
     /// <summary>
@@ -176,8 +272,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// </summary>
     /// <param name="id">TMDB id of movie</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetMovieCastCrew(int id)
+    public MovieCasts GetMovieCastCrew(int id, string language)
     {
+      string cache = CreateAndGetCacheName(id, language, "Crew");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<MovieCasts>(json);
+      }
       string url = GetUrl(URL_GETMOVIECASTCREW, null, id);
       MovieCasts result = _downloader.Download<MovieCasts>(url);
       return result;
@@ -198,6 +300,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     }
 
     /// <summary>
+    /// Returns detailed information for a single <see cref="MovieCollection"/> with given <paramref name="id"/>. This method caches request
+    /// to same collection using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="id">TMDB id of collection</param>
+    /// <param name="language">Language</param>
+    /// <returns>Collection information</returns>
+    public MovieCollection GetCollection(int id, string language)
+    {
+      string cache = CreateAndGetCacheName(id, language, "Collection");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<MovieCollection>(json);
+      }
+      string url = GetUrl(URL_GETCOLLECTION, language, id);
+      return _downloader.Download<MovieCollection>(url, cache);
+    }
+
+    /// <summary>
     /// Returns detailed information for a single <see cref="Company"/> with given <paramref name="id"/>. This method caches request
     /// to same company using the cache path given in <see cref="MovieDbApiV3"/> constructor.
     /// </summary>
@@ -214,6 +335,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       }
       string url = GetUrl(URL_GETCOMPANY, language, id);
       return _downloader.Download<Company>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns detailed information for a single <see cref="Network"/> with given <paramref name="id"/>. This method caches request
+    /// to same network using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="id">TMDB id of network</param>
+    /// <param name="language">Language</param>
+    /// <returns>Network information</returns>
+    public Network GetNetwork(int id, string language)
+    {
+      string cache = CreateAndGetCacheName(id, language, "Network");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<Network>(json);
+      }
+      string url = GetUrl(URL_GETNETWORK, language, id);
+      return _downloader.Download<Network>(url, cache);
     }
 
     /// <summary>
@@ -273,8 +413,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// </summary>
     /// <param name="id">TMDB id of series</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetSeriesCastCrew(int id)
+    public MovieCasts GetSeriesCastCrew(int id, string language)
     {
+      string cache = CreateAndGetCacheName(id, language, "Series_Crew");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<MovieCasts>(json);
+      }
       string url = GetUrl(URL_GETSERIESCASTCREW, null, id);
       MovieCasts result = _downloader.Download<MovieCasts>(url);
       return result;
@@ -320,8 +466,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of series</param>
     /// <param name="season">Season number</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetSeriesSeasonCastCrew(int id, int season)
+    public MovieCasts GetSeriesSeasonCastCrew(int id, int season, string language)
     {
+      string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Crew", season));
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<MovieCasts>(json);
+      }
       string url = GetUrl(URL_GETSEASONCASTCREW, null, id, season);
       MovieCasts result = _downloader.Download<MovieCasts>(url);
       return result;
@@ -370,8 +522,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="season">Season number</param>
     /// <param name="episode">Episode number</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetSeriesEpisodeCastCrew(int id, int season, int episode)
+    public MovieCasts GetSeriesEpisodeCastCrew(int id, int season, int episode, string language)
     {
+      string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Episode{1}_Crew", season, episode));
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<MovieCasts>(json);
+      }
       string url = GetUrl(URL_GETEPISODECASTCREW, null, id, season, episode);
       MovieCasts result = _downloader.Download<MovieCasts>(url);
       return result;
@@ -410,6 +568,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return true;
     }
 
+    public byte[] GetImage(ImageItem image, string category)
+    {
+      string cacheFileName = CreateAndGetCacheName(image, category);
+      if (string.IsNullOrEmpty(cacheFileName))
+        return null;
+
+      if (File.Exists(cacheFileName))
+        return File.ReadAllBytes(cacheFileName);
+
+      return null;
+    }
+
     public bool DownloadImages(MovieCollection movieCollection)
     {
       DownloadImages(movieCollection, true);
@@ -426,6 +596,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string sourceUri = Configuration.Images.BaseUrl + "original" + (usePoster ? movieCollection.PosterPath : movieCollection.BackdropPath);
       _downloader.DownloadFile(sourceUri, cacheFileName);
       return true;
+    }
+
+    public byte[] GetCollectionImage(MovieCollection movieCollection, bool usePoster)
+    {
+      string cacheFileName = CreateAndGetCacheName(movieCollection, usePoster);
+      if (string.IsNullOrEmpty(cacheFileName))
+        return null;
+
+      if (File.Exists(cacheFileName))
+        return File.ReadAllBytes(cacheFileName);
+
+      return null;
     }
 
     #endregion
@@ -457,6 +639,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
         string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", image.Id, category));
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
+        if (string.IsNullOrEmpty(image.FilePath)) return null;
         return Path.Combine(folder, image.FilePath.TrimStart(new[] { '/' }));
       }
       catch

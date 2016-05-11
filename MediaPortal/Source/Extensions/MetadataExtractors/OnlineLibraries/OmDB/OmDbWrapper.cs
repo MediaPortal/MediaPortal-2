@@ -66,6 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     public bool SearchMovie(string movieName, int year, out List<OmDbSearchItem> movies)
     {
       movies = _omDbHandler.SearchMovie(movieName, year);
+      if (movies == null) return false;
       return movies.Count > 0;
     }
 
@@ -82,6 +83,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     public bool SearchMovieUnique(string movieName, int year, out List<OmDbSearchItem> movies)
     {
       movies = _omDbHandler.SearchMovie(movieName, year);
+      if (movies == null) return false;
+
       if (TestMovieMatch(movieName, year, ref movies))
         return true;
 
@@ -168,6 +171,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     public bool SearchSeries(string seriesName, int year, out List<OmDbSearchItem> series)
     {
       series = _omDbHandler.SearchSeries(seriesName, year);
+      if (series == null) return false;
       return series.Count > 0;
     }
 
@@ -183,6 +187,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     public bool SearchSeriesUnique(string seriesName, int year, out List<OmDbSearchItem> series)
     {
       series = _omDbHandler.SearchSeries(seriesName, year);
+      if (series == null) return false;
+
       if (TestSeriesMatch(seriesName, year, ref series))
         return true;
 

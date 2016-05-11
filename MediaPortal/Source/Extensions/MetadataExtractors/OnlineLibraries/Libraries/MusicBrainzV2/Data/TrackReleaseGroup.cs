@@ -63,6 +63,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public string Title { get; set; }
 
     [DataMember(Name = "first-release-date")]
+    public string _firstRelease
+    {
+      set
+      {
+        if (value != null)
+        {
+          DateTime date;
+          if (DateTime.TryParse(value, out date))
+            FirstRelease = date;
+          if (DateTime.TryParse(value + "-01", out date))
+            FirstRelease = date;
+          if (DateTime.TryParse(value + "-01-01", out date))
+            FirstRelease = date;
+        }
+      }
+    }
+
     public DateTime? FirstRelease { get; set; }
 
     [DataMember(Name = "artist-credit")]
@@ -76,6 +93,55 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     [DataMember(Name = "releases")]
     public List<TrackRelease> Releases { get; set; }
+
+    [DataMember(Name = "tags")]
+    public List<TrackTag> Tags { get; set; }
+
+    [DataMember(Name = "relations")]
+    public List<TrackRelation> Relations { get; set; }
+
+    [DataMember(Name = "rating")]
+    public TrackRating Rating { get; set; }
+
+    public string AlbumId { get; set; }
+
+    public string Album { get; set; }
+
+    public bool InitPropertiesFromAlbum(string albumId, string albumName, string country)
+    {
+      foreach (TrackRelease release in Releases)
+      {
+        if (!release.Status.Equals("Official", StringComparison.InvariantCultureIgnoreCase)) //Only official releases
+          continue;
+
+        if (release.ReleaseGroup != null && !release.ReleaseGroup.PrimaryType.Equals("Album", StringComparison.InvariantCultureIgnoreCase)) //Only album releases
+          continue;
+
+        if (ArtistCredit == null)
+          continue;
+
+        if (albumId != null && !release.Id.Equals(albumId, StringComparison.InvariantCultureIgnoreCase))
+          continue;
+
+        if (albumName != null && !release.Title.Equals(albumName, StringComparison.InvariantCultureIgnoreCase))
+          continue;
+
+        if (country != null && !release.Country.Equals(country, StringComparison.InvariantCultureIgnoreCase))
+          continue;
+
+        foreach (TrackMedia media in release.Media)
+        {
+          if (media.Tracks == null || media.Tracks.Count <= 0)
+            continue;
+
+          AlbumId = release.Id;
+          Album = release.Title;
+
+          return true;
+        }
+      }
+      return false;
+    }
 
     public override string ToString()
     {

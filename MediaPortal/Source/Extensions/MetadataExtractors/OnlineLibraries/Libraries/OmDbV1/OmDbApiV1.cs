@@ -84,8 +84,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     {
       string url = GetUrl(URL_QUERYMOVIE, year, false, false, HttpUtility.UrlEncode(title));
       OmDbSearchResult results = _downloader.Download<OmDbSearchResult>(url);
-      foreach (OmDbSearchItem item in results.SearchResults) item.AssignProperties();
       if (results.ResponseValid == false) return null;
+      foreach (OmDbSearchItem item in results.SearchResults) item.AssignProperties();
       return results.SearchResults;
     }
 

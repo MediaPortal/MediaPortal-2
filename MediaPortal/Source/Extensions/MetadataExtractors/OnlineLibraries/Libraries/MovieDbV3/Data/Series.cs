@@ -193,9 +193,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     public List<int> EpisodeRuntime { get; set; }
 
     [DataMember(Name = "genres")]
-    public List<Genre> Genres { get; set; }
+    public List<Genre> Genres
+    {
+      get
+      {
+        return _corectedGenres;
+      }
+      set
+      {
+        _corectedGenres = new List<Genre>();
+        foreach (Genre genre in value)
+        {
+          if (genre.Name.Contains("&"))
+          {
+            foreach (string splitGenre in genre.Name.Split('&'))
+              _corectedGenres.Add(new Genre() { Id = genre.Id, Name = splitGenre.Trim() });
+          }
+          else
+          {
+            _corectedGenres.Add(genre);
+          }
+        }
+      }
+    }
 
-    [DataMember(Name = "homepage")]
+    private List<Genre> _corectedGenres { get; set; }
+
+  [DataMember(Name = "homepage")]
     public string Homepage { get; set; }
 
     [DataMember(Name = "in_production")]

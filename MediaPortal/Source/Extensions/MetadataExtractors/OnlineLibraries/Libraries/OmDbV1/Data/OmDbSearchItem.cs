@@ -64,6 +64,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
       if (!string.IsNullOrEmpty(StrYear) && !StrYear.Contains("-") && int.TryParse(StrYear, out i)) Year = i;
       if (!string.IsNullOrEmpty(StrYear) && StrYear.Contains("-") && int.TryParse(StrYear.Split('-')[0], out i)) Year = i;
       if (!string.IsNullOrEmpty(StrYear) && StrYear.Contains("-") && int.TryParse(StrYear.Split('-')[1], out i)) EndYear = i;
+      if (!string.IsNullOrEmpty(StrYear) && StrYear.Contains("–") && int.TryParse(StrYear.Split('–')[0], out i)) Year = i;
+      if (!string.IsNullOrEmpty(StrYear) && StrYear.Contains("–") && int.TryParse(StrYear.Split('–')[1], out i)) EndYear = i;
     }
   }
 }

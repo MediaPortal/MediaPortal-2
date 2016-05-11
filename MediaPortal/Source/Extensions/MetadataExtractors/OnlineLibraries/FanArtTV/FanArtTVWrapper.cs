@@ -65,6 +65,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.FanArtTV
       return _fanArtTvHandler.DownloadImage(id, thumb, category);
     }
 
+    public byte[] GetFanArt(string id, FanArtThumb thumb, string category)
+    {
+      return _fanArtTvHandler.GetImage(id, thumb, category);
+    }
+
     public bool GetArtistFanArt(string musicBrainzId, out FanArtArtistThumbs artistThumbs)
     {
       artistThumbs = _fanArtTvHandler.GetArtistThumbs(musicBrainzId);

@@ -87,14 +87,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
     public bool SearchTrackUnique(string title, List<string> artists, string album, int trackNum, out List<AudioDbTrack> tracks)
     {
       tracks = new List<AudioDbTrack>();
-      foreach (string artist in artists) tracks.AddRange(_audioDbHandler.SearchTrack(artist, title));
+      foreach (string artist in artists)
+      {
+        List<AudioDbTrack> artistTracks = _audioDbHandler.SearchTrack(artist, title);
+        if(artistTracks != null)
+          tracks.AddRange(artistTracks);
+      }
       foreach (AudioDbTrack track in tracks) track.SetLanguage(PreferredLanguage);
-      if (TestMatch(title, artists, album, trackNum, ref tracks))
+      if (TestTrackMatch(title, artists, album, trackNum, ref tracks))
         return true;
       return false;
     }
 
-    private bool TestMatch(string title, List<string> artists, string album, int trackNum, ref List<AudioDbTrack> tracks)
+    private bool TestTrackMatch(string title, List<string> artists, string album, int trackNum, ref List<AudioDbTrack> tracks)
     {
       if (tracks.Count == 1)
       {
@@ -167,6 +172,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       return false;
     }
 
+    public bool SearchArtist(string name, out List<AudioDbArtist> artists)
+    {
+      artists = _audioDbHandler.SearchArtist(name);
+      if (artists == null) return false;
+      foreach (AudioDbArtist artist in artists) artist.SetLanguage(PreferredLanguage);
+      return artists.Count > 0;
+    }
+
+    public bool SearchArtistUnique(string name, out List<AudioDbArtist> artists)
+    {
+      artists = _audioDbHandler.SearchArtist(name);
+      if (artists == null) return false;
+      foreach (AudioDbArtist artist in artists) artist.SetLanguage(PreferredLanguage);
+      artists = artists.Where(a => GetLevenshteinDistance(a.Artist, name) <= MAX_LEVENSHTEIN_DIST).ToList();
+      return artists.Count == 1;
+    }
+
     private bool CompareArtists(string trackArtist, List<string> searchArtists, bool strict)
     {
       if (strict)
@@ -218,6 +240,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheAudioDB
       if (string.IsNullOrEmpty(url)) return false;
       if (string.IsNullOrEmpty(category)) return false;
       return _audioDbHandler.DownloadImage(id, url, category);
+    }
+
+    public byte[] GetImage(long id, string url, string category)
+    {
+      if (id <= 0) return null;
+      if (string.IsNullOrEmpty(url)) return null;
+      if (string.IsNullOrEmpty(category)) return null;
+      return _audioDbHandler.GetImage(id, url, category);
     }
 
     /// <summary>

@@ -22,42 +22,21 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
 {
   //{
-  //  "description": null,
-  //  "headquarters": "San Francisco, California",
-  //  "homepage": "http://www.lucasfilm.com",
-  //  "id": 1,
-  //  "logo_path": "/8rUnVMVZjlmQsJ45UGotD0Uznxj.png",
-  //  "name": "Lucasfilm",
-  //  "parent_company": null
+  //  "id": 49,
+  //  "name": "HBO"
   //}
   [DataContract]
-  public class Company
+  public class Network
   {
     [DataMember(Name = "id")]
     public int Id { get; set; }
 
     [DataMember(Name = "name")]
     public string Name { get; set; }
-
-    [DataMember(Name = "description")]
-    public string Description { get; set; }
-
-    [DataMember(Name = "headquarters")]
-    public string Headquarters { get; set; }
-
-    [DataMember(Name = "homepage")]
-    public string Homepage { get; set; }
-
-    [DataMember(Name = "parent_company")]
-    public Company ParentCompany { get; set; }
-
-    [DataMember(Name = "logo_path")]
-    public string LogoPath { get; set; }
   }
 }

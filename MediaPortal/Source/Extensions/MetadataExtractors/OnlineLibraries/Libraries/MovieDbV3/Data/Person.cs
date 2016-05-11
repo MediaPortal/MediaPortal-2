@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
@@ -55,9 +56,43 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     public string Biography { get; set; }
 
     [DataMember(Name = "birthday")]
+    private string _birth
+    {
+      set
+      {
+        if(value != null)
+        {
+          DateTime date;
+          if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            DateOfBirth = date;
+          else if (DateTime.TryParse("01-" + value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            DateOfBirth = date;
+          else if (DateTime.TryParse("01-01-" + value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            DateOfBirth = date;
+        }
+      }
+    }
+
     public DateTime? DateOfBirth { get; set; }
 
     [DataMember(Name = "deathday")]
+    private string _death
+    {
+      set
+      {
+        if (value != null)
+        {
+          DateTime date;
+          if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            DateOfDeath = date;
+          else if (DateTime.TryParse("01-" + value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            DateOfDeath = date;
+          else if (DateTime.TryParse("01-01-" + value, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+            DateOfDeath = date;
+        }
+      }
+    }
+
     public DateTime? DateOfDeath { get; set; }
 
     [DataMember(Name = "profile_path")]

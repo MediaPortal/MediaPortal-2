@@ -42,8 +42,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
 
     private const string URL_API_BASE = "http://api.tvmaze.com/";
     private const string URL_QUERYSERIES = URL_API_BASE + "search/shows?q={0}";
-    private const string URL_GETTVDBSERIES = URL_API_BASE + "lookup/shows?thetvdb={0}&embed[]=episodes&embed[]=cast";
-    private const string URL_GETIMDBIDSERIES = URL_API_BASE + "lookup/shows?imdb={0}&embed[]=episodes&embed[]=cast";
+    private const string URL_GETTVDBSERIES = URL_API_BASE + "lookup/shows?thetvdb={0}";
+    private const string URL_GETIMDBIDSERIES = URL_API_BASE + "lookup/shows?imdb={0}";
     private const string URL_GETSERIES = URL_API_BASE + "shows/{0}?embed[]=episodes&embed[]=cast";
     private const string URL_GETSEASONS = URL_API_BASE + "shows/{0}/seasons";
     private const string URL_GETCAST = URL_API_BASE + "shows/{0}/cast";
@@ -81,9 +81,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     public List<TvMazeSeries> SearchSeries(string title)
     {
       string url = GetUrl(URL_QUERYSERIES, HttpUtility.UrlEncode(title));
-      TvMazeSeriesSearch results = _downloader.Download<TvMazeSeriesSearch>(url);
-      if (results.Results == null) return null;
-      return results.Results.Select(e => e.Series).ToList();
+      List<TvMazeSeriesSearchResult> results = _downloader.Download<List<TvMazeSeriesSearchResult>>(url);
+      if (results == null) return null;
+      return results.Select(e => e.Series).ToList();
     }
 
     /// <summary>
@@ -242,6 +242,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       string sourceUri = imageUrl;
       _downloader.DownloadFile(sourceUri, cacheFileName);
       return true;
+    }
+
+    public byte[] GetImage(int id, TvMazeImageCollection image, string category)
+    {
+      string imageUrl = image.OriginalUrl ?? image.MediumUrl;
+      string cacheFileName = CreateAndGetCacheName(id, imageUrl, category);
+      if (string.IsNullOrEmpty(cacheFileName))
+        return null;
+
+      if (File.Exists(cacheFileName))
+        return File.ReadAllBytes(cacheFileName);
+
+      return null;
     }
 
     #endregion

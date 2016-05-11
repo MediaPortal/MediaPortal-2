@@ -39,8 +39,8 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.TheTvDB;
-using MediaPortal.Utilities;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Drawing;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -102,201 +102,292 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns><c>true</c> if successful</returns>
     public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo)
     {
-      TvdbSeries seriesDetail;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (TryMatch(episodeInfo, false, out seriesDetail))
+      try
       {
-        int tvDbId = 0;
-        if (seriesDetail != null)
+        TvdbSeries seriesDetail;
+
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (TryMatch(episodeInfo, false, out seriesDetail))
         {
-          tvDbId = seriesDetail.Id;
+          int tvDbId = 0;
+          if (seriesDetail != null)
+          {
+            tvDbId = seriesDetail.Id;
 
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvdbId, seriesDetail.Id);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, seriesDetail.ImdbId);
+            MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, seriesDetail.Id);
+            MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, seriesDetail.ImdbId);
 
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.Series, seriesDetail.SeriesName, false);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, seriesDetail.Genre, true);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Networks, ConvertToCompanys(seriesDetail.NetworkID, seriesDetail.Network, CompanyType.TVNetwork), false);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(seriesDetail.TvdbActors, PersonOccupation.Actor), true);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), true);
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.Certification, seriesDetail.ContentRating, true);
+            MetadataUpdater.SetOrUpdateString(ref episodeInfo.Series, seriesDetail.SeriesName, false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, seriesDetail.Genre, true, false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Networks, ConvertToCompanies(seriesDetail.NetworkID, seriesDetail.Network, CompanyAspect.COMPANY_TV_NETWORK), true, false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR), true, false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), true, false);
+            MetadataUpdater.SetOrUpdateString(ref episodeInfo.Certification, seriesDetail.ContentRating, true);
 
-          // Also try to fill episode title from series details (most file names don't contain episode name).
-          if (!TryMatchEpisode(episodeInfo, seriesDetail))
-            return false;
+            // Also try to fill episode title from series details (most file names don't contain episode name).
+            if (!TryMatchEpisode(episodeInfo, seriesDetail))
+              return false;
+          }
+
+          if (tvDbId > 0)
+            ScheduleDownload(tvDbId.ToString());
+          return true;
         }
-
-        if (tvDbId > 0)
-          ScheduleDownload(tvDbId.ToString());
-        return true;
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing episode {0}", ex, episodeInfo.ToString());
+        return false;
+      }
     }
 
     public bool UpdateSeries(SeriesInfo seriesInfo)
     {
-      TvdbSeries seriesDetail;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, true, true, out seriesDetail))
+      try
       {
-        MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesDetail.ImdbId);
+        TvdbSeries seriesDetail;
 
-        MetadataUpdater.SetOrUpdateString(ref seriesInfo.Series, seriesDetail.SeriesName, false);
-        MetadataUpdater.SetOrUpdateString(ref seriesInfo.Description, seriesDetail.Overview, false);
-        MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesDetail.FirstAired);
-        if(seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, true, true, out seriesDetail))
         {
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.IsEnded, true);
+          MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesDetail.ImdbId);
+
+          MetadataUpdater.SetOrUpdateString(ref seriesInfo.Series, seriesDetail.SeriesName, false);
+          MetadataUpdater.SetOrUpdateString(ref seriesInfo.Description, seriesDetail.Overview, false);
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesDetail.FirstAired);
+          if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
+          {
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.IsEnded, true);
+          }
+          MetadataUpdater.SetOrUpdateString(ref seriesInfo.Certification, seriesDetail.ContentRating, true);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesDetail.Genre, true, false);
+
+          MetadataUpdater.SetOrUpdateRatings(ref seriesInfo.TotalRating, ref seriesInfo.RatingCount, seriesDetail.Rating, seriesDetail.RatingCount > 0 ? seriesDetail.RatingCount : 0);
+
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, ConvertToCompanies(seriesDetail.NetworkID, seriesDetail.Network, CompanyAspect.COMPANY_TV_NETWORK), false, false);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR), false, false);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), false, false);
+
+          TvdbEpisode nextEpisode = seriesDetail.Episodes.Where(e => e.FirstAired > DateTime.Now).FirstOrDefault();
+          if (nextEpisode != null)
+          {
+            MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, nextEpisode.EpisodeName, false);
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeAirDate, nextEpisode.FirstAired);
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeSeasonNumber, nextEpisode.SeasonNumber);
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeNumber, nextEpisode.EpisodeNumber);
+          }
+
+          if (seriesInfo.Thumbnail == null)
+            GetImage(seriesDetail.PosterBanners, _tv.PreferredLanguage, out seriesInfo.Thumbnail);
+
+          return true;
         }
-        MetadataUpdater.SetOrUpdateString(ref seriesInfo.Certification, seriesDetail.ContentRating, true);
-        MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesDetail.Genre, true);
-        MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalRating, seriesDetail.Rating); // Average rating
-        MetadataUpdater.SetOrUpdateValue(ref seriesInfo.RatingCount, seriesDetail.RatingCount > 0 ? seriesDetail.RatingCount : 0);
-
-        MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, ConvertToCompanys(seriesDetail.NetworkID, seriesDetail.Network, CompanyType.TVNetwork), false);
-        MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, ConvertToPersons(seriesDetail.TvdbActors, PersonOccupation.Actor), true);
-        MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), true);
-
-        TvdbEpisode nextEpisode = seriesDetail.Episodes.Where(e => e.FirstAired > DateTime.Now).First();
-        if (nextEpisode != null)
-        {
-          MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, nextEpisode.EpisodeName, false);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeAirDate, nextEpisode.FirstAired);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeSeasonNumber, nextEpisode.SeasonNumber);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeNumber, nextEpisode.EpisodeNumber);
-        }
-
-        return true;
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series {0}", ex, seriesInfo.ToString());
+        return false;
+      }
     }
 
     public bool UpdateSeason(SeasonInfo seasonInfo)
     {
-      TvdbSeries seriesDetail;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (seasonInfo.TvdbId > 0 && _tv.GetSeries(seasonInfo.TvdbId, false, false, out seriesDetail))
+      try
       {
-        MetadataUpdater.SetOrUpdateId(ref seasonInfo.ImdbId, seriesDetail.ImdbId);
+        TvdbSeries seriesDetail;
 
-        MetadataUpdater.SetOrUpdateString(ref seasonInfo.Series, seriesDetail.SeriesName, false);
-        MetadataUpdater.SetOrUpdateString(ref seasonInfo.Description, seriesDetail.Overview, false);
+        // Try online lookup
+        if (!Init())
+          return false;
 
-        List<TvdbEpisode> episodes = seriesDetail.GetEpisodes(seasonInfo.SeasonNumber.Value);
-        MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, episodes.OrderBy(e => e.FirstAired).First().FirstAired);
+        if (seasonInfo.SeriesTvdbId > 0 && _tv.GetSeries(seasonInfo.SeriesTvdbId, true, false, out seriesDetail))
+        {
+          MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesImdbId, seriesDetail.ImdbId);
+          var episode = seriesDetail.Episodes.Where(e => e.SeasonNumber == seasonInfo.SeasonNumber).ToList().FirstOrDefault();
+          if (episode != null)
+          {
+            MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvdbId, episode.SeasonId);
+          }
 
-        return true;
+          MetadataUpdater.SetOrUpdateString(ref seasonInfo.Series, seriesDetail.SeriesName, false);
+          MetadataUpdater.SetOrUpdateString(ref seasonInfo.Description, seriesDetail.Overview, false);
+
+          List<TvdbEpisode> episodes = seriesDetail.GetEpisodes(seasonInfo.SeasonNumber.Value);
+          MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, episodes.OrderBy(e => e.FirstAired).First().FirstAired);
+
+          if (seasonInfo.Thumbnail == null && seasonInfo.SeasonNumber.HasValue)
+            GetImage(seriesDetail.SeasonBanners.FindAll(s => s.Season == seasonInfo.SeasonNumber), _tv.PreferredLanguage, out seasonInfo.Thumbnail);
+
+          return true;
+        }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing season {0}", ex, seasonInfo.ToString());
+        return false;
+      }
     }
 
-    public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, List<PersonInfo> persons, PersonOccupation occupation)
+    public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation)
     {
-      TvdbSeries seriesDetail;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (occupation != PersonOccupation.Actor)
-        return false;
-
-      if (episodeInfo.TvdbId > 0 && _tv.GetSeries(episodeInfo.TvdbId, false, true, out seriesDetail))
+      try
       {
-        if(occupation == PersonOccupation.Actor)
-          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(seriesDetail.TvdbActors, PersonOccupation.Actor), false);
+        TvdbSeries seriesDetail;
 
-        return true;
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (occupation != PersonAspect.OCCUPATION_ACTOR)
+          return false;
+
+        if (episodeInfo.SeriesTvdbId > 0 && _tv.GetSeries(episodeInfo.SeriesTvdbId, false, true, out seriesDetail))
+        {
+          if (occupation == PersonAspect.OCCUPATION_ACTOR)
+          {
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(seriesDetail.TvdbActors, occupation), false, false);
+
+            foreach (PersonInfo person in episodeInfo.Actors)
+            {
+              if (person.Thumbnail == null && person.TvdbId > 0)
+                GetImage(seriesDetail.TvdbActors.Where(a => a.Id == person.TvdbId).Select(a => a.ActorImage), _tv.PreferredLanguage, out person.Thumbnail);
+            }
+          }
+
+          return true;
+        }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing persons {0}", ex, episodeInfo.ToString());
+        return false;
+      }
     }
 
-    public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, List<CharacterInfo> characters)
+    public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo)
     {
-      TvdbSeries seriesDetail;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (episodeInfo.TvdbId > 0 && _tv.GetSeries(episodeInfo.TvdbId, false, true, out seriesDetail))
+      try
       {
-        MetadataUpdater.SetOrUpdateList(characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), false);
+        TvdbSeries seriesDetail;
 
-        return true;
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (episodeInfo.SeriesTvdbId > 0 && _tv.GetSeries(episodeInfo.SeriesTvdbId, false, true, out seriesDetail))
+        {
+          MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), false, false);
+
+          return true;
+        }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing characters {0}", ex, episodeInfo.ToString());
+        return false;
+      }
     }
 
-    public bool UpdateSeriesPersons(SeriesInfo seriesInfo, List<PersonInfo> persons, PersonOccupation occupation)
+    public bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation)
     {
-      TvdbSeries seriesDetail;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (occupation != PersonOccupation.Actor)
-        return false;
-
-      if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, false, true, out seriesDetail))
+      try
       {
-        if (occupation == PersonOccupation.Actor)
-          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(seriesDetail.TvdbActors, PersonOccupation.Actor), false);
+        TvdbSeries seriesDetail;
 
-        return true;
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (occupation != PersonAspect.OCCUPATION_ACTOR)
+          return false;
+
+        if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, false, true, out seriesDetail))
+        {
+          if (occupation == PersonAspect.OCCUPATION_ACTOR)
+          {
+            MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, ConvertToPersons(seriesDetail.TvdbActors, occupation), false, false);
+
+            foreach (PersonInfo person in seriesInfo.Actors)
+            {
+              if (person.Thumbnail == null && person.TvdbId > 0)
+                GetImage(seriesDetail.TvdbActors.Where(a => a.Id == person.TvdbId).Select(a => a.ActorImage), _tv.PreferredLanguage, out person.Thumbnail);
+            }
+          }
+
+          return true;
+        }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series persons {0}", ex, seriesInfo.ToString());
+        return false;
+      }
     }
 
-    public bool UpdateSeriesCharacters(SeriesInfo seriesInfo, List<CharacterInfo> characters)
+    public bool UpdateSeriesCharacters(SeriesInfo seriesInfo)
     {
-      TvdbSeries seriesDetail;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, false, true, out seriesDetail))
+      try
       {
-        MetadataUpdater.SetOrUpdateList(characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), false);
+        TvdbSeries seriesDetail;
 
-        return true;
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, false, true, out seriesDetail))
+        {
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, ConvertToCharacters(seriesDetail.Id, seriesDetail.SeriesName, seriesDetail.TvdbActors), false, false);
+
+          return true;
+        }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series characters {0}", ex, seriesInfo.ToString());
+        return false;
+      }
     }
 
-    public bool UpdateSeriesCompanys(SeriesInfo seriesInfo, List<CompanyInfo> companys, CompanyType type)
+    public bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string type)
     {
-      TvdbSeries seriesDetail;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (type != CompanyType.TVNetwork)
-        return false;
-
-      if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, false, true, out seriesDetail))
+      try
       {
-        if (type == CompanyType.TVNetwork)
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, ConvertToCompanys(seriesDetail.NetworkID, seriesDetail.Network, CompanyType.TVNetwork), false);
+        TvdbSeries seriesDetail;
 
-        return true;
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (type != CompanyAspect.COMPANY_TV_NETWORK)
+          return false;
+
+        if (seriesInfo.TvdbId > 0 && _tv.GetSeries(seriesInfo.TvdbId, false, true, out seriesDetail))
+        {
+          if (type == CompanyAspect.COMPANY_TV_NETWORK)
+            MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, ConvertToCompanies(seriesDetail.NetworkID, seriesDetail.Network, type), false, false);
+
+          return true;
+        }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series companies {0}", ex, seriesInfo.ToString());
+        return false;
+      }
     }
 
     protected bool TryMatchEpisode(EpisodeInfo episodeInfo, TvdbSeries seriesDetail)
@@ -332,82 +423,134 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // Multiple episodes
       SetMultiEpisodeDetailsl(episodeInfo, seriesDetail, episodes);
+
       return true;
+    }
+
+    private void GetImage(IEnumerable<TvdbBanner> banners, TvdbLanguage language, out byte[] thumbnail)
+    {
+      thumbnail = null;
+      foreach (TvdbBanner tvdbBanner in banners)
+      {
+        if (tvdbBanner.Language != language)
+          continue;
+
+        try
+        {
+          ImageConverter converter = new ImageConverter();
+          if (tvdbBanner.LoadBanner())
+          {
+            thumbnail = (byte[])converter.ConvertTo(tvdbBanner.BannerImage, typeof(byte[]));
+            tvdbBanner.UnloadBanner();
+            return;
+          }
+        }
+        catch { }
+      }
+
+      // Try fallback languages if no images found for preferred
+      if (language != TvdbLanguage.UniversalLanguage && language != TvdbLanguage.DefaultLanguage)
+      {
+        if (_useUniversalLanguage)
+        {
+          GetImage(banners, TvdbLanguage.UniversalLanguage, out thumbnail);
+          return;
+        }
+
+        GetImage(banners, TvdbLanguage.DefaultLanguage, out thumbnail);
+      }
     }
 
     private void SetMultiEpisodeDetailsl(EpisodeInfo episodeInfo, TvdbSeries seriesDetail, List<TvdbEpisode> episodes)
     {
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvMazeId, episodes.First().Id);
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, episodes.First().ImdbId);
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episodes.First().SeasonNumber);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodes.Select(x => x.EpisodeNumber).ToList(), true);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodes.Select(x => x.EpisodeNumber).ToList(), true, false);
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodes.First().FirstAired);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodes.Select(x => x.DvdEpisodeNumber).ToList(), true);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodes.Where(x => x.DvdEpisodeNumber >= 0).Select(x => x.DvdEpisodeNumber).ToList(), true, false);
 
-      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.TotalRating, episodes.Sum(e => e.Rating) / episodes.Count); // Average rating
-      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.RatingCount, episodes.Sum(e => e.RatingCount > 0 ? e.RatingCount : 0));
+      MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.TotalRating, ref episodeInfo.RatingCount, 
+        episodes.Sum(e => e.Rating) / episodes.Count, episodes.Sum(e => e.RatingCount > 0 ? e.RatingCount : 0)); // Average rating
 
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray()), false);
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
         Select(e => string.Format("{0,02}) {1}", e.EpisodeNumber, e.Overview)).ToArray()), false);
 
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(episodes.SelectMany(e => e.GuestStars).ToList(), PersonOccupation.Actor), true);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, ConvertToPersons(episodes.SelectMany(e => e.Directors).ToList(), PersonOccupation.Director), true);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, ConvertToPersons(episodes.SelectMany(e => e.Writer).ToList(), PersonOccupation.Writer), true);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(episodes.SelectMany(e => e.GuestStars).ToList(), PersonAspect.OCCUPATION_ACTOR), true, false);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, ConvertToPersons(episodes.SelectMany(e => e.Directors).ToList(), PersonAspect.OCCUPATION_DIRECTOR), true, false);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, ConvertToPersons(episodes.SelectMany(e => e.Writer).ToList(), PersonAspect.OCCUPATION_WRITER), true, false);
+
+      if (episodes.Count > 0)
+      {
+        GetImage(new TvdbBanner[] { episodes[0].Banner }, episodes[0].Banner.Language, out episodeInfo.Thumbnail);
+      }
     }
 
     private void SetEpisodeDetails(EpisodeInfo episodeInfo, TvdbSeries seriesDetail, TvdbEpisode episode)
     {
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvdbId, episode.Id);
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, episode.ImdbId);
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episode.SeasonNumber);
       episodeInfo.EpisodeNumbers.Clear();
       episodeInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
       episodeInfo.DvdEpisodeNumbers.Clear();
-      episodeInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
+      if(episode.DvdEpisodeNumber >= 0) episodeInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episode.FirstAired);
 
-      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.TotalRating, episode.Rating); // Average rating
-      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.RatingCount, episode.RatingCount > 0 ? episode.RatingCount : 0);
+      MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.TotalRating, ref episodeInfo.RatingCount, episode.Rating, episode.RatingCount > 0 ? episode.RatingCount : 0);
 
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.EpisodeName, false);
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, episode.Overview, false);
 
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(episode.GuestStars, PersonOccupation.Actor), true);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, ConvertToPersons(episode.Directors, PersonOccupation.Director), true);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, ConvertToPersons(episode.Writer, PersonOccupation.Writer), true);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(episode.GuestStars, PersonAspect.OCCUPATION_ACTOR), true, false);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, ConvertToPersons(episode.Directors, PersonAspect.OCCUPATION_DIRECTOR), true, false);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, ConvertToPersons(episode.Writer, PersonAspect.OCCUPATION_WRITER), true, false);
+
+      if (episode != null)
+      {
+        GetImage(new TvdbBanner[] { episode.Banner }, episode.Banner.Language, out episodeInfo.Thumbnail);
+      }
     }
 
-    private List<PersonInfo> ConvertToPersons(List<TvdbActor> actors, PersonOccupation occupation)
+    private List<PersonInfo> ConvertToPersons(List<TvdbActor> actors, string occupation)
     {
       if (actors == null || actors.Count == 0)
         return new List<PersonInfo>();
 
+      int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (TvdbActor person in actors)
-        retValue.Add(new PersonInfo() { TvdbId = person.Id, Name = person.Name, Occupation = occupation });
+        retValue.Add(new PersonInfo() { TvdbId = person.Id, Name = person.Name, Occupation = occupation, Order = sortOrder++ });
       return retValue;
     }
 
-    private List<PersonInfo> ConvertToPersons(List<string> actors, PersonOccupation occupation)
+    private List<PersonInfo> ConvertToPersons(List<string> actors, string occupation)
     {
       if (actors == null || actors.Count == 0)
         return new List<PersonInfo>();
 
+      int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (string person in actors)
-        retValue.Add(new PersonInfo() { Name = person, Occupation = occupation });
+        retValue.Add(new PersonInfo() { Name = person, Occupation = occupation, Order = sortOrder++ });
       return retValue;
     }
 
-    private List<CompanyInfo> ConvertToCompanys(int companyID, string company, CompanyType type)
+    private List<CompanyInfo> ConvertToCompanies(int companyID, string company, string type)
     {
-      if (!string.IsNullOrEmpty(company))
+      if (string.IsNullOrEmpty(company))
         return new List<CompanyInfo>();
 
+      int sortOrder = 0;
       return new List<CompanyInfo>(new CompanyInfo[]
       {
         new CompanyInfo()
         {
-          TvdbId = companyID,
+          TvdbId = companyID > 0 ? companyID : 0,
           Name = company,
-          Type = type
+          Type = type,
+          Order = sortOrder++
         }
       });
     }
@@ -417,16 +560,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (actors == null || actors.Count == 0)
         return new List<CharacterInfo>();
 
+      int sortOrder = 0;
       List<CharacterInfo> retValue = new List<CharacterInfo>();
       foreach (TvdbActor person in actors)
         retValue.Add(new CharacterInfo()
         {
-          MediaIsMovie = false,
-          MediaTvdbId = seriesId,
-          MediaTitle = seriesTitle,
           ActorTvdbId = person.Id,
           ActorName = person.Name,
-          Name = person.Role
+          Name = person.Role,
+          Order = sortOrder++
         });
       return retValue;
     }
@@ -461,11 +603,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected bool TryMatch(EpisodeInfo episodeInfo, bool cacheOnly, out TvdbSeries seriesDetail)
     {
       // If series has an TVDBID, prefer it over imdb or name lookup.
-      if (episodeInfo.TvdbId != 0 && TryMatch(episodeInfo.Series, false, cacheOnly, out seriesDetail, episodeInfo.TvdbId))
+      if (episodeInfo.SeriesTvdbId != 0 && TryMatch(episodeInfo.Series, false, cacheOnly, out seriesDetail, episodeInfo.SeriesTvdbId))
         return true;
 
       // If series has an IMDBID, prefer it over name lookup.
-      string imdbId = episodeInfo.ImdbId;
+      string imdbId = episodeInfo.SeriesImdbId;
       if (!string.IsNullOrWhiteSpace(imdbId) && TryMatch(imdbId, true, cacheOnly, out seriesDetail))
         return true;
 
@@ -508,7 +650,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return false;
 
         int tvDb = 0;
-        if (!string.IsNullOrEmpty(match.Id))
+        if (match != null && !string.IsNullOrEmpty(match.Id))
         {
           if (int.TryParse(match.Id, out tvDb))
           {
@@ -627,6 +769,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       try
       {
+        if (string.IsNullOrEmpty(tvDbId))
+          return;
+
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Started for ID {0}", tvDbId);
 
         if (!Init())
@@ -634,6 +779,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         int tvDb = 0;
         if (!int.TryParse(tvDbId, out tvDb))
+          return;
+
+        if (tvDb <= 0)
           return;
 
         TvdbSeries seriesDetail;

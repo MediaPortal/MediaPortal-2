@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -33,77 +34,104 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class MetadataUpdater
   {
-    public static void SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing)
+    public static void SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, bool isDefaultLanguage)
     {
-      if (currentList.Count == 0)
+      if (newList == null)
       {
-        currentList.AddRange(newList);
         return;
+      }
+      if (currentList == null)
+      {
+        currentList = new List<T>();
       }
       for(int iNew = 0; iNew < newList.Count; iNew++)
       {
         int iCurrent = currentList.IndexOf(newList[iNew]);
         if (iCurrent >= 0)
         {
-          if(typeof(T) == typeof(PersonInfo))
-          {
-            PersonInfo currentPerson = (PersonInfo)(object)currentList[iCurrent];
-            PersonInfo newPerson = (PersonInfo)(object)newList[iNew];
+          object currentObj = (object)currentList[iCurrent];
+          object newObj = (object)newList[iNew];
 
-            if (string.IsNullOrEmpty(currentPerson.ImdbId)) currentPerson.ImdbId = newPerson.ImdbId;
-            if (currentPerson.MovieDbId == 0) currentPerson.MovieDbId = newPerson.MovieDbId;
-            if (currentPerson.TvdbId == 0) currentPerson.TvdbId = newPerson.TvdbId;
-          }
-          else if (typeof(T) == typeof(CharacterInfo))
+          FieldInfo[] fields = currentObj.GetType().GetFields();
+          if (fields != null)
           {
-            CharacterInfo currentCharacter = (CharacterInfo)(object)currentList[iCurrent];
-            CharacterInfo newCharacter = (CharacterInfo)(object)newList[iNew];
-
-            if (currentCharacter.MovieDbId == 0) currentCharacter.MovieDbId = newCharacter.MovieDbId;
-            if (currentCharacter.TvdbId == 0) currentCharacter.TvdbId = newCharacter.TvdbId;
-          }
-          else if (typeof(T) == typeof(CompanyInfo))
-          {
-            CompanyInfo currentCompany = (CompanyInfo)(object)currentList[iCurrent];
-            CompanyInfo newCompany = (CompanyInfo)(object)newList[iNew];
-
-            if (string.IsNullOrEmpty(currentCompany.ImdbId)) currentCompany.ImdbId = newCompany.ImdbId;
-            if (currentCompany.MovieDbId == 0) currentCompany.MovieDbId = newCompany.MovieDbId;
-            if (currentCompany.TvdbId == 0) currentCompany.TvdbId = newCompany.TvdbId;
+            foreach (FieldInfo field in fields)
+            {
+              if (field.Name.EndsWith("Id", StringComparison.InvariantCultureIgnoreCase))
+              {
+                object currentVal = field.GetValue(currentObj);
+                object newVal = field.GetValue(newObj);
+                SetOrUpdateId(ref currentVal, newVal);
+                field.SetValue(currentObj, currentVal);
+              }
+              else if (field.GetValue(currentObj) is string || field.GetValue(newObj) is string)
+              {
+                string currentVal = (string)field.GetValue(currentObj);
+                string newVal = (string)field.GetValue(newObj);
+                SetOrUpdateString(ref currentVal, newVal, isDefaultLanguage);
+                field.SetValue(currentObj, currentVal);
+              }
+              else
+              {
+                object currentVal = field.GetValue(currentObj);
+                object newVal = field.GetValue(newObj);
+                SetOrUpdateValue(ref currentVal, newVal);
+                field.SetValue(currentObj, currentVal);
+              }
+            }
           }
         }
-        else
+        else if(addMissing)
         { 
           currentList.Add(newList[iNew]);
         }
       }
+      currentList.Sort();
     }
 
     public static void SetOrUpdateString(ref string currentString, string newString, bool isDefaultLanguage)
     {
+      if (string.IsNullOrEmpty(newString))
+        return;
       if (string.IsNullOrEmpty(currentString))
       {
-        currentString = newString;
+        currentString = newString.Trim();
         return;
       }
       //Avoid overwriting strings in the correct language with that of the default language
       if(isDefaultLanguage == false)
       {
-        currentString = newString;
+        currentString = newString.Trim();
       }
     }
 
     public static void SetOrUpdateId<T>(ref T currentId, T newId)
     {
-      if (currentId is string && string.IsNullOrEmpty(currentId as string))
+      if (currentId is string || newId is string)
       {
+        if(string.IsNullOrEmpty(currentId as string))
           currentId = newId;
-          return;
+        return;
       }
       if (currentId is long || currentId is int || currentId is short)
       {
-        if (Convert.ToInt64(currentId) < Convert.ToInt64(newId))
+        if (Convert.ToInt64(newId) > 0)
           currentId = newId;
+        return;
+      }
+    }
+
+    public static void SetOrUpdateRatings(ref double currentRating, ref int currentRatingCount, double? newRating, int? newRatingCount)
+    {
+      if(currentRating <= 0)
+      {
+        currentRating = newRating.HasValue ? newRating.Value : 0;
+        currentRatingCount = newRatingCount.HasValue ? newRatingCount.Value : 0;
+      }
+      else if (newRating.HasValue && newRatingCount.HasValue && currentRatingCount < newRatingCount.Value)
+      {
+        currentRating = newRating.Value;
+        currentRatingCount = newRatingCount.Value;
       }
     }
 
@@ -126,28 +154,36 @@ namespace MediaPortal.Extensions.OnlineLibraries
         else if (currentNumber.GetType() == typeof(DateTime))
         {
           //Some dates are missing the day and month component which are then both set to 1
-          if (((DateTime)(object)currentNumber).Year == ((DateTime)(object)newNumber).Year &&
+          if (newNumber != null)
+          {
+            if (((DateTime)(object)currentNumber).Year == ((DateTime)(object)newNumber).Year &&
               ((DateTime)(object)currentNumber) < ((DateTime)(object)newNumber))
-            currentNumber = newNumber;
+              currentNumber = newNumber;
+          }
         }
       }
       else if (currentNumber is long || currentNumber is int || currentNumber is short || 
         currentNumber is long? || currentNumber is int? || currentNumber is short?)
       {
-        if (Convert.ToInt64(currentNumber) == 0)
+        if (Convert.ToInt64(currentNumber) == 0 && newNumber != null)
           currentNumber = newNumber;
       }
       else if (currentNumber is ulong || currentNumber is uint || currentNumber is ushort ||
         currentNumber is ulong? || currentNumber is uint? || currentNumber is ushort?)
       {
-        if (Convert.ToUInt64(currentNumber) == 0)
+        if (Convert.ToUInt64(currentNumber) == 0 && newNumber != null)
           currentNumber = newNumber;
       }
       else if (currentNumber is float || currentNumber is double || currentNumber is float? || 
         currentNumber is double?)
       {
-        if (Convert.ToDouble(currentNumber) == 0)
+        if (Convert.ToDouble(currentNumber) == 0 && newNumber != null)
           currentNumber = newNumber;
+      }
+      else if (currentNumber is bool || currentNumber is bool?)
+      {
+        if (newNumber != null)
+        currentNumber = newNumber;
       }
     }
   }

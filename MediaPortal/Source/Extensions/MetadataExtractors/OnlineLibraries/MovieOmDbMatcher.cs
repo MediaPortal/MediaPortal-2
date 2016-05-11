@@ -80,107 +80,126 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns><c>true</c> if successful</returns>
     public bool FindAndUpdateMovie(MovieInfo movieInfo)
     {
-      /* Clear the names from unwanted strings */
-      NamePreprocessor.CleanupTitle(movieInfo);
-      OmDbMovie movieDetails;
-      if (
-        /* Best way is to get details by an unique IMDB id */
-        MatchByImdbId(movieInfo, out movieDetails) ||
-        TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.HasValue ? movieInfo.ReleaseDate.Value.Year : 0, false, out movieDetails) ||
-        /* Prefer passed year, if no year given, try to process movie title and split between title and year */
-        (movieInfo.ReleaseDate.HasValue || NamePreprocessor.MatchTitleYear(movieInfo)) && TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.Value.Year, 
-        false, out movieDetails)
-        )
+      try
       {
-        if (movieDetails != null)
+        OmDbMovie movieDetails;
+        if (
+          /* Best way is to get details by an unique IMDB id */
+          MatchByImdbId(movieInfo, out movieDetails) ||
+          TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.HasValue ? movieInfo.ReleaseDate.Value.Year : 0, false, out movieDetails) ||
+          /* Prefer passed year, if no year given, try to process movie title and split between title and year */
+          movieInfo.ReleaseDate.HasValue && TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.Value.Year,
+          false, out movieDetails)
+          )
         {
-          MetadataUpdater.SetOrUpdateId(ref movieInfo.ImDbId, movieDetails.ImdbID);
-          MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, movieDetails.Title, true);
-          MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, movieDetails.Plot, true);
-          MetadataUpdater.SetOrUpdateString(ref movieInfo.Certification, movieDetails.Rated, true);
-
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Revenue, movieDetails.Revenue.HasValue ? movieDetails.Revenue.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Runtime, movieDetails.Runtime.HasValue ? movieDetails.Runtime.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, movieDetails.Released);
-
-          List<string> awards = new List<string>();
-          if(!string.IsNullOrEmpty(movieDetails.Awards))
+          if (movieDetails != null)
           {
-            if(movieDetails.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase)  >= 0 || 
-              movieDetails.Awards.IndexOf(" Oscar", StringComparison.InvariantCultureIgnoreCase) >= 0)
+            MetadataUpdater.SetOrUpdateId(ref movieInfo.ImDbId, movieDetails.ImdbID);
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, movieDetails.Title, true);
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, movieDetails.Plot, true);
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.Certification, movieDetails.Rated, true);
+
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.Revenue, movieDetails.Revenue.HasValue ? movieDetails.Revenue.Value : 0);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.Runtime, movieDetails.Runtime.HasValue ? movieDetails.Runtime.Value : 0);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, movieDetails.Released);
+
+            List<string> awards = new List<string>();
+            if (!string.IsNullOrEmpty(movieDetails.Awards))
             {
-              awards.Add("Oscar");
+              if (movieDetails.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+                movieDetails.Awards.IndexOf(" Oscar", StringComparison.InvariantCultureIgnoreCase) >= 0)
+              {
+                awards.Add("Oscar");
+              }
+              if (movieDetails.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+                movieDetails.Awards.IndexOf(" Golden Globe", StringComparison.InvariantCultureIgnoreCase) >= 0)
+              {
+                awards.Add("Golden Globe");
+              }
+              MetadataUpdater.SetOrUpdateList(movieInfo.Awards, awards, true, true);
             }
-            if (movieDetails.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
-              movieDetails.Awards.IndexOf(" Golden Globe", StringComparison.InvariantCultureIgnoreCase) >= 0)
+
+            if (movieDetails.ImdbRating.HasValue)
             {
-              awards.Add("Golden Globe");
+              MetadataUpdater.SetOrUpdateRatings(ref movieInfo.TotalRating, ref movieInfo.RatingCount, movieDetails.ImdbVotes, movieDetails.ImdbVotes);
             }
-            MetadataUpdater.SetOrUpdateList(movieInfo.Awards, awards, true);
-          }
+            if (movieDetails.TomatoRating.HasValue)
+            {
+              MetadataUpdater.SetOrUpdateRatings(ref movieInfo.TotalRating, ref movieInfo.RatingCount, movieDetails.TomatoRating, movieDetails.TomatoTotalReviews);
+            }
+            if (movieDetails.TomatoUserRating.HasValue)
+            {
+              MetadataUpdater.SetOrUpdateRatings(ref movieInfo.TotalRating, ref movieInfo.RatingCount, movieDetails.TomatoUserRating, movieDetails.TomatoUserTotalReviews);
+            }
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.Score, movieDetails.Metascore.HasValue ? movieDetails.Metascore.Value : 0);
 
-          if (movieDetails.ImdbRating.HasValue)
-          {
-            MetadataUpdater.SetOrUpdateValue(ref movieInfo.TotalRating, movieDetails.ImdbRating.HasValue ? movieDetails.ImdbRating.Value : 0);
-            MetadataUpdater.SetOrUpdateValue(ref movieInfo.RatingCount, movieDetails.ImdbVotes.HasValue ? movieDetails.ImdbVotes.Value : 0);
-          }
-          else if (movieDetails.TomatoRating.HasValue)
-          {
-            MetadataUpdater.SetOrUpdateValue(ref movieInfo.TotalRating, movieDetails.TomatoRating.HasValue ? movieDetails.TomatoRating.Value : 0);
-            MetadataUpdater.SetOrUpdateValue(ref movieInfo.RatingCount, movieDetails.TomatoTotalReviews.HasValue ? movieDetails.TomatoTotalReviews.Value : 0);
-          }
-          else if (movieDetails.TomatoUserRating.HasValue)
-          {
-            MetadataUpdater.SetOrUpdateValue(ref movieInfo.TotalRating, movieDetails.TomatoUserRating.HasValue ? movieDetails.TomatoUserRating.Value : 0);
-            MetadataUpdater.SetOrUpdateValue(ref movieInfo.RatingCount, movieDetails.TomatoUserTotalReviews.HasValue ? movieDetails.TomatoUserTotalReviews.Value : 0);
-          }
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Score, movieDetails.Metascore.HasValue ? movieDetails.Metascore.Value : 0);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieDetails.Genres, false, true);
 
-          MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieDetails.Genres, false);
-
-          //Only use these if absolutely necessary because there is no way to ID them
-          if (movieInfo.Actors.Count == 0)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieDetails.Actors, PersonOccupation.Actor), true);
-          if (movieInfo.Writers.Count == 0)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieDetails.Writers, PersonOccupation.Writer), true);
-          if (movieInfo.Directors.Count == 0)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieDetails.Directors, PersonOccupation.Director), true);
+            //Only use these if absolutely necessary because there is no way to ID them
+            if (movieInfo.Actors.Count == 0)
+              MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieDetails.Actors, PersonAspect.OCCUPATION_ACTOR), true, true);
+            if (movieInfo.Writers.Count == 0)
+              MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieDetails.Writers, PersonAspect.OCCUPATION_WRITER), true, true);
+            if (movieInfo.Directors.Count == 0)
+              MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieDetails.Directors, PersonAspect.OCCUPATION_DIRECTOR), true, true);
+          }
+          return true;
         }
-        return true;
-      }
-      return false;
-    }
-
-    public bool UpdateMoviePersons(MovieInfo movieInfo, List<PersonInfo> persons, PersonOccupation occupation)
-    {
-      OmDbMovie movieDetails;
-
-      // Try online lookup
-      if (!Init())
         return false;
-
-      if (!string.IsNullOrEmpty(movieInfo.ImDbId) && _omDb.GetMovie(movieInfo.ImDbId, out movieDetails))
-      {
-        if (occupation == PersonOccupation.Actor)
-          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieDetails.Actors, PersonOccupation.Actor), false);
-        if (occupation == PersonOccupation.Writer)
-          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieDetails.Writers, PersonOccupation.Writer), false);
-        if (occupation == PersonOccupation.Director)
-          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieDetails.Directors, PersonOccupation.Director), false);
-
-        return true;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieOmDbMatcher: Exception while processing movie {0}", ex, movieInfo.ToString());
+        return false;
+      }
     }
 
-    private List<PersonInfo> ConvertToPersons(List<string> names, PersonOccupation occupation)
+    public bool UpdateMoviePersons(MovieInfo movieInfo, string occupation)
+    {
+      try
+      {
+        OmDbMovie movieDetails;
+
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (!string.IsNullOrEmpty(movieInfo.ImDbId) && _omDb.GetMovie(movieInfo.ImDbId, out movieDetails))
+        {
+          if (occupation == PersonAspect.OCCUPATION_ACTOR)
+          {
+            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieDetails.Actors, occupation), false, true);
+            return true;
+          }
+          else if (occupation == PersonAspect.OCCUPATION_WRITER)
+          {
+            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieDetails.Writers, occupation), false, true);
+            return true;
+          }
+          else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
+          {
+            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieDetails.Directors, occupation), false, true);
+            return true;
+          }
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieOmDbMatcher: Exception while processing persons {0}", ex, movieInfo.ToString());
+        return false;
+      }
+    }
+
+    private List<PersonInfo> ConvertToPersons(List<string> names, string occupation)
     {
       if (names == null || names.Count == 0)
         return new List<PersonInfo>();
 
+      int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (string name in names)
-        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation });
+        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation, Order = sortOrder++ });
       return retValue;
     }
 

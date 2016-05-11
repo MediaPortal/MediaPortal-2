@@ -37,7 +37,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
-  public class CDFreeDbMatcher : BaseMatcher<DiscIdMatch, string>
+  public class CDFreeDbMatcher : BaseMatcher<TrackMatch, string>
   {
     #region Static instance
 
@@ -82,15 +82,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
           MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumCdDdId, trackDetails.DiscID);
 
           MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackDetails.Title, true);
-          MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, ConvertToPersons(trackDetails.Artist, PersonOccupation.Artist), false);
-          MetadataUpdater.SetOrUpdateList(trackInfo.Genres, new List<string>(new string[] { trackDetails.Genre }), true);
+          MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, ConvertToPersons(trackDetails.Artist, PersonAspect.OCCUPATION_ARTIST), false, true);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Genres, new List<string>(new string[] { trackDetails.Genre }), false, true);
           MetadataUpdater.SetOrUpdateValue(ref trackInfo.ReleaseDate, new DateTime(trackDetails.Year, 1, 1));
 
           List<FreeDBCDTrackDetail> tracks = new List<FreeDBCDTrackDetail>(trackDetails.Tracks);
           if (_freeDb.FindTrack(trackInfo.TrackNum, ref tracks))
           {
             MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackDetails.Title, true);
-            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, ConvertToPersons(tracks[0].Artist, PersonOccupation.Artist), false);
+            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, ConvertToPersons(tracks[0].Artist, PersonAspect.OCCUPATION_ARTIST), false, true);
             MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, tracks[0].TrackNumber);
           }
           else
@@ -99,10 +99,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           }
 
           // Add this match to cache
-          DiscIdMatch onlineMatch = new DiscIdMatch
+          TrackMatch onlineMatch = new TrackMatch
           {
-            CdDbId = trackDetails.DiscID,
-            ItemName = trackInfo.TrackNum.ToString()
+            Id = trackDetails.DiscID,
+            RecordingName = trackInfo.TrackNum.ToString(),
+            ItemName = trackDetails.DiscID
           };
           // Save cache
           _storage.TryAddMatch(onlineMatch);
@@ -112,7 +113,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return false;
     }
 
-    private List<PersonInfo> ConvertToPersons(string name, PersonOccupation occupation)
+    private List<PersonInfo> ConvertToPersons(string name, string occupation)
     {
       if (string.IsNullOrEmpty(name))
         return new List<PersonInfo>();
@@ -153,17 +154,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return true;
 
         // Load cache or create new list
-        List<DiscIdMatch> matches = _storage.GetMatches();
+        List<TrackMatch> matches = _storage.GetMatches();
 
         // Init empty
         cdDetail = null;
 
-        DiscIdMatch match = null;
+        TrackMatch match = null;
 
         // Use cached values before doing online query
         match = matches.Find(m =>
-          string.Equals(m.CdDbId, cdDbId, StringComparison.OrdinalIgnoreCase) && string.Equals(m.ItemName, trackNumber.ToString(), StringComparison.OrdinalIgnoreCase));
-        ServiceRegistration.Get<ILogger>().Debug("FreeDbMatcher: Try to lookup CD \"{0}\" from cache: {1}", cdDbId, match != null && string.IsNullOrEmpty(match.CdDbId) == false);
+          string.Equals(m.Id, cdDbId, StringComparison.OrdinalIgnoreCase) && string.Equals(m.ItemName, trackNumber.ToString(), StringComparison.OrdinalIgnoreCase));
+        ServiceRegistration.Get<ILogger>().Debug("FreeDbMatcher: Try to lookup CD \"{0}\" from cache: {1}", cdDbId, match != null && string.IsNullOrEmpty(match.Id) == false);
 
         // Try online lookup
         if (!Init())
@@ -171,7 +172,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         //If this is a known CD return
         if (match != null)
-          return string.IsNullOrEmpty(match.CdDbId) == false && _freeDb.GetDisc(match.CdDbId, out cdDetail);
+          return string.IsNullOrEmpty(match.Id) == false && _freeDb.GetDisc(match.Id, out cdDetail);
 
         if (cacheOnly)
           return false;
@@ -183,7 +184,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         ServiceRegistration.Get<ILogger>().Debug("FreeDBMatcher: No unique CD found for \"{0}\"", cdDbId);
         // Also save "non matches" to avoid retrying
-        _storage.TryAddMatch(new DiscIdMatch { CdDbId = cdDbId, ItemName = trackNumber.ToString() });
+        _storage.TryAddMatch(new TrackMatch { Id = cdDbId, ItemName = cdDbId });
         return false;
       }
       catch (Exception ex)

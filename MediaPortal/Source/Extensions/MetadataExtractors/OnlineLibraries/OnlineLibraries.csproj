@@ -70,16 +70,26 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Libraries\MovieDbV3\Data\Network.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Company.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Credits.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\IdResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PagedCompanySearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PagedPersonSearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\CompanySearchResult.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\SeriesRating.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\SeriesRatingResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\IdSearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PersonSearchResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabelSearchResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabelResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackLifeSpan.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtist.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackArea.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabelDetail.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabel.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackCoverArt.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtistResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecordingResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecording.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbBaseResponse.cs" />
@@ -107,7 +117,6 @@
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSchedule.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeries.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSeasonSearch.cs" />
-    <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSearch.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSearchResult.cs" />
     <Compile Include="Libraries\TvMazeV1\TvMazeApiV1.cs" />
     <Compile Include="MovieFanArtTvMatcher.cs" />
@@ -283,14 +292,12 @@
     <Compile Include="Libraries\MovieDbV3\Data\ProductionCompany.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ProductionCountry.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Trailer.cs" />
-    <Compile Include="Matches\DiscIdMatch.cs" />
     <Compile Include="Matches\MovieCollectionMatch.cs" />
     <Compile Include="Matches\TrackMatch.cs" />
     <Compile Include="SeriesFanArtTvMatcher.cs" />
     <Compile Include="MusicTheAudioDbMatcher.cs" />
     <Compile Include="MusicBrainzMatcher.cs" />
     <Compile Include="MusicBrainz\MusicBrainzWrapper.cs" />
-    <Compile Include="NamePreprocessor.cs" />
     <Compile Include="Matches\BaseMatcher.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Configuration.cs" />

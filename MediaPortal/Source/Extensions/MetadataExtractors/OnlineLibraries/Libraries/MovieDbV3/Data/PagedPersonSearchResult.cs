@@ -22,18 +22,24 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.OnlineLibraries.Matches
-{
-  /// <summary>
-  /// MovieCollectionMatch stores name matches for <see cref="MovieCollection"/>s.
-  /// </summary>
-  public class DiscIdMatch : BaseMatch<string>
-  {
-    public string CdDbId;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
-    public override string ToString()
-    {
-      return string.Format("{0} [{1}]", ItemName, Id);
-    }
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
+{
+  [DataContract]
+  internal class PagedPersonSearchResult
+  {
+    [DataMember(Name = "page")]
+    public int Page { get; set; }
+
+    [DataMember(Name = "total_pages")]
+    public int TotalPages { get; set; }
+
+    [DataMember(Name = "total_results")]
+    public int TotalResults { get; set; }
+
+    [DataMember(Name = "results")]
+    public List<PersonSearchResult> Results { get; set; }
   }
 }

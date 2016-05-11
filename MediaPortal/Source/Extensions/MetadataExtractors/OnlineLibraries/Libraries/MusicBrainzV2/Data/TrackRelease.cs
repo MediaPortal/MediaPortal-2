@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
@@ -133,8 +134,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     [DataMember(Name = "release-group")]
     public TrackReleaseGroup ReleaseGroup { get; set; }
-    
+
     [DataMember(Name = "date")]
+    public string _date
+    {
+      set
+      {
+        if (value != null)
+        {
+          DateTime date;
+          if (DateTime.TryParse(value, out date))
+            Date = date;
+          if (DateTime.TryParse(value + "-01", out date))
+            Date = date;
+          if (DateTime.TryParse(value + "-01-01", out date))
+            Date = date;
+        }
+      }
+    }
+
     public DateTime? Date { get; set; }
 
     [DataMember(Name = "country")]

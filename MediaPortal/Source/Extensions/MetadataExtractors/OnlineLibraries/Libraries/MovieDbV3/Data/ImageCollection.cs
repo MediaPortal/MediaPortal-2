@@ -52,12 +52,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     [DataMember(Name = "profiles")]
     public List<ImageItem> Profiles { get; set; }
 
+    [DataMember(Name = "stills")]
+    public List<ImageItem> Stills { get; set; }
+
     public void SetMovieIds()
     {
       if (Covers != null) Covers.ForEach(c => c.Id = Id);
       if (Backdrops != null) Backdrops.ForEach(c => c.Id = Id);
       if (Posters != null) Posters.ForEach(c => c.Id = Id);
       if (Profiles != null) Profiles.ForEach(c => c.Id = Id);
+      if (Stills != null) Stills.ForEach(c => c.Id = Id);
     }
   }
 }

@@ -147,8 +147,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
         return false;
 
       string sourceUri = image.Url;
-      _downloader.DownloadFile(sourceUri, cacheFileName);
-      return true;
+      return _downloader.DownloadFile(sourceUri, cacheFileName);
+    }
+
+    public byte[] GetImage(string id, FanArtThumb image, string category)
+    {
+      string cacheFileName = CreateAndGetCacheName(id, image, category);
+      if (string.IsNullOrEmpty(cacheFileName))
+        return null;
+
+      if (File.Exists(cacheFileName))
+        return File.ReadAllBytes(cacheFileName);
+
+      return null;
     }
 
     #endregion

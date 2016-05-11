@@ -42,8 +42,8 @@
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesOmDbMatcher"/>
     <Service Id="SeriesTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTheMovieDbMatcher"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTheMovieDbMatcher"/>
-    <Service Id="SeriesTvDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvDbMatcher"/>
+    <Service Id="SeriesTvMazeMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvMazeMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.SeriesTvMazeMatcher"/>
     
     <!--Music Matchers-->
     <Service Id="MusicBrainzMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.MusicBrainzMatcher"

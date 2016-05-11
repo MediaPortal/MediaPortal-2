@@ -25,11 +25,37 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 {
+  //{
+  //  "created": "2016-04-27T11:33:17.78Z",
+  //  "count": 1,
+  //  "offset": 0,
+  //  "labels": [
+  //    {
+  //      "id": "843e81b8-7ae9-40f5-b84c-1569d461c74d",
+  //      "type": "Original Production",
+  //      "score": "100",
+  //      "name": "Medley Records",
+  //      "sort-name": "Medley Records",
+  //      "country": "DK",
+  //      "area": {
+  //        "id": "4757b525-2a60-324a-b060-578765d2c993",
+  //        "name": "Denmark",
+  //        "sort-name": "Denmark"
+  //      },
+  //      "life-span": {
+  //        "begin": "1978",
+  //        "end": "1992",
+  //        "ended": true
+  //      }
+  //    }
+  //  ]
+  //}
   [DataContract]
-  public class TvMazeSeriesSearch
+  public class TrackLabelResult
   {
-    public List<TvMazeSeriesSearchResult> Results { get; set; }
+    [DataMember(Name = "labels")]
+    public List<TrackLabelSearchResult> Results { get; set; }
   }
 }

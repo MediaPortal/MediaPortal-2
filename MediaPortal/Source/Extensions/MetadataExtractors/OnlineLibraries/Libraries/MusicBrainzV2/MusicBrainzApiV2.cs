@@ -44,9 +44,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
     private const string URL_GETRELEASE = URL_API_BASE + "release/{0}?inc=artist-credits+labels+discids+recordings+tags&fmt=json";
+    private const string URL_GETRELEASEGROUP = URL_API_BASE + "release-group/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
     private const string URL_GETARTIST = URL_API_BASE + "artist/{0}?fmt=json";
     private const string URL_QUERYRECORDING = URL_API_BASE + "recording?query={0}&limit=5&fmt=json";
     private const string URL_FANART_LIST = URL_FANART_API_BASE + "release/{0}/";
+    private const string URL_QUERYLABEL = URL_API_BASE + "label?query={0}&limit=5&fmt=json";
+    private const string URL_QUERYARTIST = URL_API_BASE + "artist?query={0}&limit=5&fmt=json";
 
     #endregion
 
@@ -73,7 +76,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <summary>
     /// Search for tracks by name given in <paramref name="query"/>.
     /// </summary>
-    /// <param name="language">Language</param>
     /// <returns>List of possible matches</returns>
     public List<TrackResult> SearchTrack(string title, List<string> artists, string album, int? year, int? trackNum)
     {
@@ -105,17 +107,39 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
       Logger.Debug("Loading '{0}','{1}','{2}','{3}','{4} -> {5}", title, string.Join(",", artists), album, year, trackNum, url);
 	
-      return Parse(url);
+      return ParseTracks(url);
     }
 
-    public List<TrackResult> Parse(string url)
+    public List<TrackResult> ParseTracks(string url)
     {
-      Logger.Debug("Loading {0}", url + " as " + _downloader.Headers["User-Agent"]);
-
       List<TrackResult> tracks = new List<TrackResult>();
       List<TrackSearchResult> results = new List<TrackSearchResult>(_downloader.Download<TrackRecordingResult>(url).Results);
       foreach (TrackSearchResult result in results) tracks.AddRange(result.GetTracks());
       return tracks;
+    }
+
+    /// <summary>
+    /// Search for artist by name given in <paramref name="query"/>.
+    /// </summary>
+    /// <returns>List of possible matches</returns>
+    public List<TrackArtist> SearchArtist(string artistName)
+    {
+      string query = string.Format("\"{0}\"", artistName);
+      string url = GetUrl(URL_QUERYARTIST, Uri.EscapeDataString(query));
+
+      return _downloader.Download<TrackArtistResult>(url).Results;
+    }
+
+    /// <summary>
+    /// Search for label by name given in <paramref name="query"/>.
+    /// </summary>
+    /// <returns>List of possible matches</returns>
+    public List<TrackLabelSearchResult> SearchLabel(string labelName)
+    {
+      string query = string.Format("\"{0}\"", labelName);
+      string url = GetUrl(URL_QUERYLABEL, Uri.EscapeDataString(query));
+
+      return _downloader.Download<TrackLabelResult>(url).Results;
     }
 
     /// <summary>
@@ -157,6 +181,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     }
 
     /// <summary>
+    /// Returns detailed information for an release group <see cref="TrackReleaseGroup"/> with given <paramref name="id"/>. This method caches request
+    /// to same groups using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of release group</param>
+    /// <returns>Track information</returns>
+    public TrackReleaseGroup GetReleaseGroup(string id)
+    {
+      string cache = CreateAndGetCacheName(id, "ReleaseGroup");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<TrackReleaseGroup>(json);
+      }
+
+      string url = GetUrl(URL_GETRELEASEGROUP, id);
+      return _downloader.Download<TrackReleaseGroup>(url, cache);
+    }
+
+    /// <summary>
     /// Returns detailed information for an artist <see cref="TrackArtist"/> with given <paramref name="id"/>. This method caches request
     /// to same artist using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
     /// </summary>
@@ -182,13 +225,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <returns>Image collection</returns>
     public TrackImageCollection GetImages(string albumId)
     {
+      if(string.IsNullOrEmpty(albumId)) return null;
       string cache = CreateAndGetCacheName(albumId, "Image");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TrackImageCollection>(json);
       }
-
       string url = GetUrl(URL_FANART_LIST, albumId);
       return _downloader.Download<TrackImageCollection>(url, cache);
     }
@@ -197,6 +240,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     {
       try
       {
+        if (string.IsNullOrEmpty(albumId)) return false;
         string url = GetUrl(URL_FANART_LIST, albumId);
         TrackImageCollection imageCollection = _downloader.Download<TrackImageCollection>(url);
         if (imageCollection != null)
@@ -224,12 +268,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <returns><c>true</c> if successful</returns>
     public bool DownloadImage(string albumId, TrackImage image, string category)
     {
+      if (string.IsNullOrEmpty(albumId)) return false;
       string cacheFileName = CreateAndGetCacheName(albumId, image, category);
       if (string.IsNullOrEmpty(cacheFileName))
         return false;
 
       _downloader.DownloadFile(image.ImageUrl, cacheFileName);
       return true;
+    }
+
+    public byte[] GetImage(string albumId, TrackImage image, string category)
+    {
+      if (string.IsNullOrEmpty(albumId)) return null;
+      string cacheFileName = CreateAndGetCacheName(albumId, image, category);
+      if (string.IsNullOrEmpty(cacheFileName))
+        return null;
+
+      if (File.Exists(cacheFileName))
+        return File.ReadAllBytes(cacheFileName);
+
+      return null;
     }
 
     #endregion
@@ -279,6 +337,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     {
       try
       {
+        if (trackId == null) return null;
         string folder = Path.Combine(_cachePath, trackId.ToString());
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);

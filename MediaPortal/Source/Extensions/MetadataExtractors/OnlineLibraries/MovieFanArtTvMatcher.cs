@@ -85,27 +85,48 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns><c>true</c> if successful</returns>
     public bool FindAndUpdateMovie(MovieInfo movieInfo)
     {
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (movieInfo.MovieDbId > 0)
+      try
       {
-        CheckCacheAndRefresh();
-        MovieInfo oldMovieInfo;
-        if (_memoryCache.TryGetValue(movieInfo.MovieDbId.ToString(), out oldMovieInfo))
-        {
-          //Already downloaded
-          return true;
-        }
+        // Try online lookup
+        if (!Init())
+          return false;
 
-        if (_memoryCache.TryAdd(movieInfo.MovieDbId.ToString(), movieInfo))
+        if (movieInfo.MovieDbId > 0)
         {
-          ScheduleDownload(movieInfo.MovieDbId.ToString());
-          return true;
+          CheckCacheAndRefresh();
+          MovieInfo oldMovieInfo;
+          if (_memoryCache.TryGetValue(movieInfo.MovieDbId.ToString(), out oldMovieInfo))
+          {
+            //Already downloaded
+            return true;
+          }
+
+          FanArtMovieThumbs thumbs;
+          if (movieInfo.Thumbnail == null && movieInfo.MovieDbId > 0 && _fanArt.GetMovieFanArt(movieInfo.MovieDbId.ToString(), out thumbs))
+          {
+            // Get Thumbnail
+            FanArtMovieThumb thumb = thumbs.MoviePosters.OrderByDescending(b => b.Likes).First();
+            string category = "Posters";
+            if (_fanArt.DownloadFanArt(movieInfo.MovieDbId.ToString(), thumb, category))
+            {
+              movieInfo.Thumbnail = _fanArt.GetFanArt(movieInfo.MovieDbId.ToString(), thumb, category);
+              return true;
+            }
+          }
+
+          if (_memoryCache.TryAdd(movieInfo.MovieDbId.ToString(), movieInfo))
+          {
+            ScheduleDownload(movieInfo.MovieDbId.ToString());
+            return true;
+          }
         }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher: Exception while processing movie {0}", ex, movieInfo.ToString());
+        return false;
+      }
     }
 
     /// <summary>
@@ -148,6 +169,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       try
       {
+        if (string.IsNullOrEmpty(tmDbid))
+          return;
+
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Started for ID {0}", tmDbid);
 
         MovieInfo movieInfo;
@@ -157,20 +181,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
-        string id = tmDbid.ToString();
         FanArtMovieThumbs thumbs;
-        if (!_fanArt.GetMovieFanArt(id, out thumbs))
+        if (!_fanArt.GetMovieFanArt(tmDbid, out thumbs))
           return;
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Begin saving banners for ID {0}", tmDbid);
-        SaveBanners(id, thumbs.MovieFanArt.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
-        SaveBanners(id, thumbs.MovieBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
-        SaveBanners(id, thumbs.MoviePosters.OrderByDescending(b => b.Likes).ToList(), "Posters");
-        SaveBanners(id, thumbs.MovieCDArt.OrderByDescending(b => b.Likes).ToList(), "DVDArt");
-        SaveBanners(id, thumbs.HDMovieClearArt.OrderByDescending(b => b.Likes).ToList(), "ClearArt");
-        SaveBanners(id, thumbs.HDMovieLogos.OrderByDescending(b => b.Likes).ToList(), "Logos");
-        SaveBanners(id, thumbs.MovieThumbnails.OrderByDescending(b => b.Likes).ToList(), "Thumbnails");
+        SaveBanners(tmDbid, thumbs.MovieFanArt.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
+        SaveBanners(tmDbid, thumbs.MovieBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
+        SaveBanners(tmDbid, thumbs.MoviePosters.OrderByDescending(b => b.Likes).ToList(), "Posters");
+        SaveBanners(tmDbid, thumbs.MovieCDArt.OrderByDescending(b => b.Likes).ToList(), "DVDArt");
+        SaveBanners(tmDbid, thumbs.HDMovieClearArt.OrderByDescending(b => b.Likes).ToList(), "ClearArt");
+        SaveBanners(tmDbid, thumbs.HDMovieLogos.OrderByDescending(b => b.Likes).ToList(), "Logos");
+        SaveBanners(tmDbid, thumbs.MovieThumbnails.OrderByDescending(b => b.Likes).ToList(), "Thumbnails");
 
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Finished saving banners for ID {0}", tmDbid);
 

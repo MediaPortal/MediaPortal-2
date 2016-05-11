@@ -36,6 +36,7 @@ using MediaPortal.Extensions.OnlineLibraries.FanArtTV;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -85,27 +86,163 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns><c>true</c> if successful</returns>
     public bool FindAndUpdateTrack(TrackInfo trackInfo)
     {
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (!string.IsNullOrEmpty(trackInfo.MusicBrainzId))
+      try
       {
-        TrackInfo oldTrackInfo;
-        CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(trackInfo.MusicBrainzId, out oldTrackInfo))
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (!string.IsNullOrEmpty(trackInfo.MusicBrainzId))
         {
-          //Already downloaded
-          return true;
+          TrackInfo oldTrackInfo;
+          CheckCacheAndRefresh();
+          if (_memoryCache.TryGetValue(trackInfo.MusicBrainzId, out oldTrackInfo))
+          {
+            //Already downloaded
+            return true;
+          }
+
+          FanArtAlbumDetails thumbs;
+          if (trackInfo.Thumbnail == null && !string.IsNullOrEmpty(trackInfo.AlbumMusicBrainzGroupId) && _fanArt.GetAlbumFanArt(trackInfo.AlbumMusicBrainzGroupId, out thumbs))
+          {
+            if (thumbs.Albums.ContainsKey(trackInfo.AlbumMusicBrainzGroupId))
+            {
+              // Get Thumbnail
+              FanArtThumb thumb = thumbs.Albums[trackInfo.AlbumMusicBrainzGroupId].AlbumCovers.OrderByDescending(b => b.Likes).First();
+              string category = "Covers";
+              if (_fanArt.DownloadFanArt(trackInfo.AlbumMusicBrainzGroupId, thumb, category))
+              {
+                trackInfo.Thumbnail = _fanArt.GetFanArt(trackInfo.AlbumMusicBrainzGroupId, thumb, category);
+                return true;
+              }
+            }
+          }
+
+          if (_memoryCache.TryAdd(trackInfo.MusicBrainzId, trackInfo))
+          {
+            ScheduleDownload(trackInfo.MusicBrainzId);
+            return true;
+          }
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception while processing track {0}", ex, trackInfo.ToString());
+        return false;
+      }
+    }
+
+    public bool UpdateAlbum(AlbumInfo albumInfo)
+    {
+      try
+      {
+        FanArtAlbumDetails thumbs;
+        if (albumInfo.Thumbnail != null)
+          return false;
+
+        if (albumInfo.Thumbnail == null && !string.IsNullOrEmpty(albumInfo.MusicBrainzGroupId) && _fanArt.GetAlbumFanArt(albumInfo.MusicBrainzGroupId, out thumbs))
+        {
+          if (thumbs.Albums.ContainsKey(albumInfo.MusicBrainzGroupId))
+          {
+            // Get Thumbnail
+            FanArtThumb thumb = thumbs.Albums[albumInfo.MusicBrainzGroupId].AlbumCovers.OrderByDescending(b => b.Likes).First();
+            string category = "Covers";
+            if (_fanArt.DownloadFanArt(albumInfo.MusicBrainzGroupId, thumb, category))
+            {
+              albumInfo.Thumbnail = _fanArt.GetFanArt(albumInfo.MusicBrainzGroupId, thumb, category);
+              return true;
+            }
+          }
         }
 
-        if (_memoryCache.TryAdd(trackInfo.MusicBrainzId, trackInfo))
-        {
-          ScheduleDownload(trackInfo.MusicBrainzId);
-          return true;
-        }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception while processing album {0}", ex, albumInfo.ToString());
+        return false;
+      }
+    }
+
+    public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation)
+    {
+      return UpdatePersons(albumInfo.Artists, occupation);
+    }
+
+    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation)
+    {
+      return UpdatePersons(trackInfo.Artists, occupation);
+    }
+
+    private bool UpdatePersons(List<PersonInfo> persons, string occupation)
+    {
+      try
+      {
+        if (occupation != PersonAspect.OCCUPATION_ARTIST)
+          return false;
+
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        FanArtArtistThumbs artistThumbs;
+        foreach (PersonInfo person in persons)
+        {
+          if (person.Thumbnail == null && !string.IsNullOrEmpty(person.MusicBrainzId) &&
+            _fanArt.GetArtistFanArt(person.MusicBrainzId, out artistThumbs))
+          {
+            // Get Thumbnail
+            FanArtThumb thumb = artistThumbs.ArtistThumbnails.OrderByDescending(b => b.Likes).First();
+            string category = "Thumbnails";
+            if (_fanArt.DownloadFanArt(person.MusicBrainzId, thumb, category))
+            {
+              person.Thumbnail = _fanArt.GetFanArt(person.MusicBrainzId, thumb, category);
+            }
+          }
+        }
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception while processing persons", ex);
+        return false;
+      }
+    }
+
+    public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string type)
+    {
+      try
+      {
+        if (type != CompanyAspect.COMPANY_MUSIC_LABEL)
+          return false;
+
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        FanArtLabelThumbs labelThumbs;
+        foreach (CompanyInfo company in albumInfo.MusicLabels)
+        {
+          if (company.Thumbnail == null && !string.IsNullOrEmpty(company.MusicBrainzId) &&
+            _fanArt.GetLabelFanArt(company.MusicBrainzId, out labelThumbs))
+          {
+            // Get Thumbnail
+            FanArtLabelThumb thumb = labelThumbs.LabelLogos.OrderByDescending(b => b.Likes).First();
+            string category = "Logos";
+            if (_fanArt.DownloadFanArt(company.MusicBrainzId, thumb, category))
+            {
+              company.Thumbnail = _fanArt.GetFanArt(company.MusicBrainzId, thumb, category);
+            }
+          }
+        }
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception while processing companies", ex);
+        return false;
+      }
     }
 
     /// <summary>
@@ -148,6 +285,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       try
       {
+        if (string.IsNullOrEmpty(mbId))
+          return;
+
         ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Started for ID {0}", mbId);
 
         TrackInfo trackInfo;
@@ -158,15 +298,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return;
 
         FanArtAlbumDetails thumbs;
-        if (!_fanArt.GetAlbumFanArt(trackInfo.AlbumGroupMusicBrainzId, out thumbs))
+        if (!_fanArt.GetAlbumFanArt(trackInfo.AlbumMusicBrainzGroupId, out thumbs))
           return;
 
-        if (thumbs.Albums.ContainsKey(mbId) == true)
+        if (thumbs.Albums.ContainsKey(trackInfo.AlbumMusicBrainzGroupId) == true)
         {
           // Save Album Covers and CD Art
           ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving album banners for ID {0}", mbId);
-          SaveBanners(mbId, thumbs.Albums[mbId].AlbumCovers.OrderByDescending(b => b.Likes).ToList(), "Covers");
-          SaveBanners(mbId, thumbs.Albums[mbId].CDArts.OrderByDescending(b => b.Likes).ToList(), "CDArt");
+          SaveBanners(trackInfo.AlbumMusicBrainzGroupId, thumbs.Albums[trackInfo.AlbumMusicBrainzGroupId].AlbumCovers.OrderByDescending(b => b.Likes).ToList(), "Covers");
+          SaveBanners(trackInfo.AlbumMusicBrainzGroupId, thumbs.Albums[trackInfo.AlbumMusicBrainzGroupId].CDArts.OrderByDescending(b => b.Likes).ToList(), "CDArt");
         }
 
         ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving artist banners for ID {0}", mbId);

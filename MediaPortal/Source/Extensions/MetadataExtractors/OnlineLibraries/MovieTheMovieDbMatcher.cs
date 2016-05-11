@@ -88,125 +88,312 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns><c>true</c> if successful</returns>
     public bool FindAndUpdateMovie(MovieInfo movieInfo)
     {
-      /* Clear the names from unwanted strings */
-      NamePreprocessor.CleanupTitle(movieInfo);
-      string preferredLookupLanguage = FindBestMatchingLanguage(movieInfo);
-      Movie movieDetails;
-      if (
-        /* Best way is to get details by an unique IMDB id */
-        MatchByImdbId(movieInfo, out movieDetails) ||
-        TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.HasValue ? movieInfo.ReleaseDate.Value.Year : 0, preferredLookupLanguage, false, out movieDetails) ||
-        /* Prefer passed year, if no year given, try to process movie title and split between title and year */
-        (movieInfo.ReleaseDate.HasValue || NamePreprocessor.MatchTitleYear(movieInfo)) && TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.Value.Year, 
-        preferredLookupLanguage, false, out movieDetails)
-        )
+      try
       {
-        int movieDbId = 0;
-        if (movieDetails != null)
+        string preferredLookupLanguage = FindBestMatchingLanguage(movieInfo);
+        Movie movieDetails;
+        if (
+          /* Best way is to get details by an unique IMDB id */
+          MatchByImdbId(movieInfo, out movieDetails) ||
+          TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.HasValue ? movieInfo.ReleaseDate.Value.Year : 0, preferredLookupLanguage, false, out movieDetails) ||
+          /* Prefer passed year, if no year given, try to process movie title and split between title and year */
+          movieInfo.ReleaseDate.HasValue && TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.Value.Year,
+          preferredLookupLanguage, false, out movieDetails)
+          )
         {
-          movieDbId = movieDetails.Id;
-
-          MetadataUpdater.SetOrUpdateId(ref movieInfo.ImDbId, movieDetails.ImdbId);
-          MetadataUpdater.SetOrUpdateId(ref movieInfo.MovieDbId, movieDetails.Id);
-
-          MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, movieDetails.Title, false);
-          MetadataUpdater.SetOrUpdateString(ref movieInfo.OriginalName, movieDetails.OriginalTitle, false);
-          MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, movieDetails.Overview, false);
-          MetadataUpdater.SetOrUpdateString(ref movieInfo.Tagline, movieDetails.Tagline, false);
-
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, movieDetails.ReleaseDate);
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Budget, movieDetails.Budget.HasValue ? movieDetails.Budget.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Revenue, movieDetails.Revenue.HasValue ? movieDetails.Revenue.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Runtime, movieDetails.Runtime.HasValue ? movieDetails.Runtime.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.Popularity, movieDetails.Popularity.HasValue ? movieDetails.Popularity.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.TotalRating, movieDetails.Rating.HasValue ? movieDetails.Rating.Value : 0);
-          MetadataUpdater.SetOrUpdateValue(ref movieInfo.RatingCount, movieDetails.RatingCount.HasValue ? movieDetails.RatingCount.Value : 0);
-
-          MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieDetails.Genres.Select(p => p.Name).ToList(), true);
-          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanys, ConvertToCompanys(movieDetails.ProductionCompanies, CompanyType.ProductionStudio), true);
-         
-          MovieCasts movieCasts;
-          if (_movieDb.GetMovieCast(movieDbId, out movieCasts))
+          int movieDbId = 0;
+          if (movieDetails != null)
           {
-            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieCasts.Cast, PersonOccupation.Actor), true);
-            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonOccupation.Writer), true);
-            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), PersonOccupation.Director), true);
-            MetadataUpdater.SetOrUpdateList(movieInfo.Characters, ConvertToCharacters(movieInfo.MovieDbId, movieInfo.MovieName, movieCasts.Cast), true);
+            movieDbId = movieDetails.Id;
+
+            MetadataUpdater.SetOrUpdateId(ref movieInfo.ImDbId, movieDetails.ImdbId);
+            MetadataUpdater.SetOrUpdateId(ref movieInfo.MovieDbId, movieDetails.Id);
+
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, movieDetails.Title, false);
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.OriginalName, movieDetails.OriginalTitle, false);
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, movieDetails.Overview, false);
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.Tagline, movieDetails.Tagline, false);
+
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, movieDetails.ReleaseDate);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.Budget, movieDetails.Budget.HasValue ? movieDetails.Budget.Value : 0);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.Revenue, movieDetails.Revenue.HasValue ? movieDetails.Revenue.Value : 0);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.Runtime, movieDetails.Runtime.HasValue ? movieDetails.Runtime.Value : 0);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.Popularity, movieDetails.Popularity.HasValue ? movieDetails.Popularity.Value : 0);
+            MetadataUpdater.SetOrUpdateRatings(ref movieInfo.TotalRating, ref movieInfo.RatingCount, movieDetails.Rating, movieDetails.RatingCount);
+
+            MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieDetails.Genres.Select(p => p.Name).ToList(), true, false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, ConvertToCompanies(movieDetails.ProductionCompanies, CompanyAspect.COMPANY_PRODUCTION), true, false);
+
+            MovieCasts movieCasts;
+            if (_movieDb.GetMovieCast(movieDbId, out movieCasts))
+            {
+              MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieCasts.Cast, PersonAspect.OCCUPATION_ACTOR), true, false);
+              MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonAspect.OCCUPATION_WRITER), true, false);
+              MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR), true, false);
+              MetadataUpdater.SetOrUpdateList(movieInfo.Characters, ConvertToCharacters(movieInfo.MovieDbId, movieInfo.MovieName, movieCasts.Cast), true, false);
+            }
+
+            if (movieDetails.Collection != null && movieDetails.Collection.Id > 0)
+            {
+              MetadataUpdater.SetOrUpdateId(ref movieInfo.CollectionMovieDbId, movieDetails.Collection.Id);
+              MetadataUpdater.SetOrUpdateString(ref movieInfo.CollectionName, movieDetails.Collection.Name, false);
+            }
+
+            ImageCollection imageCollection;
+            if (movieInfo.Thumbnail == null &&
+              _movieDb.GetMovieFanArt(movieInfo.MovieDbId, out imageCollection))
+            {
+              movieInfo.Thumbnail = GetImage(imageCollection.Posters, "Posters");
+            }
           }
 
-          if (movieDetails.Collection != null && movieDetails.Collection.Id > 0)
+          if (movieDbId > 0)
+            ScheduleDownload(movieDbId.ToString());
+          return true;
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception while processing movie {0}", ex, movieInfo.ToString());
+        return false;
+      }
+    }
+
+    public bool UpdateMoviePersons(MovieInfo movieInfo, string occupation)
+    {
+      try
+      {
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        MovieCasts movieCasts;
+        if (movieInfo.MovieDbId > 0 && _movieDb.GetMovieCast(movieInfo.MovieDbId, out movieCasts))
+        {
+          if (occupation == PersonAspect.OCCUPATION_ACTOR)
           {
-            MetadataUpdater.SetOrUpdateId(ref movieInfo.CollectionMovieDbId, movieDetails.Collection.Id);
-            MetadataUpdater.SetOrUpdateString(ref movieInfo.CollectionName, movieDetails.Collection.Name, false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, ConvertToPersons(movieCasts.Cast, occupation), false, false);
+            foreach(PersonInfo person in movieInfo.Actors) UpdatePerson(movieInfo, person);
+            return true;
+          }
+          else if (occupation == PersonAspect.OCCUPATION_WRITER)
+          {
+            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), occupation), false, false);
+            foreach (PersonInfo person in movieInfo.Writers) UpdatePerson(movieInfo, person);
+            return true;
+          }
+          else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
+          {
+            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), occupation), false, false);
+            foreach (PersonInfo person in movieInfo.Directors) UpdatePerson(movieInfo, person);
+            return true;
           }
         }
-
-        if (movieDbId > 0)
-          ScheduleDownload(movieDbId.ToString());
-        return true;
-      }
-      return false;
-    }
-
-    public bool UpdateMoviePersons(MovieInfo movieInfo, List<PersonInfo> persons, PersonOccupation occupation)
-    {
-      // Try online lookup
-      if (!Init())
         return false;
-
-      MovieCasts movieCasts;
-      if (movieInfo.MovieDbId > 0 && _movieDb.GetMovieCast(movieInfo.MovieDbId, out movieCasts))
+      }
+      catch (Exception ex)
       {
-        if(occupation == PersonOccupation.Actor)
-          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieCasts.Cast, PersonOccupation.Actor), false);
-        if (occupation == PersonOccupation.Writer)
-          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonOccupation.Writer), false);
-        if (occupation == PersonOccupation.Director)
-          MetadataUpdater.SetOrUpdateList(persons, ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), PersonOccupation.Director), false);
-
-        return true;
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception while processing persons {0}", ex, movieInfo.ToString());
+        return false;
       }
-      return false;
     }
 
-    public bool UpdateMovieCharacters(MovieInfo movieInfo, List<CharacterInfo> characters)
+    private void UpdatePerson(MovieInfo movie, PersonInfo person)
     {
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      MovieCasts movieCasts;
-      if (movieInfo.MovieDbId > 0 && _movieDb.GetMovieCast(movieInfo.MovieDbId, out movieCasts))
+      if (person.MovieDbId <= 0)
       {
-        MetadataUpdater.SetOrUpdateList(characters, ConvertToCharacters(movieInfo.MovieDbId, movieInfo.MovieName, movieCasts.Cast), false);
+        List<IdResult> results = null;
+        if (person.TvRageId > 0)
+          results = _movieDb.FindPersonByTvRageId(person.TvRageId);
+        else if (!string.IsNullOrEmpty(person.ImdbId))
+          results = _movieDb.FindPersonByImdbId(person.ImdbId);
 
-        return true;
+        if (results != null && results.Count == 1)
+        {
+          person.MovieDbId = results[0].Id;
+        }
+        else
+        {
+          string preferredLookupLanguage = FindBestMatchingLanguage(movie);
+          List<PersonSearchResult> personsFound;
+          if (_movieDb.SearchPersonUnique(person.Name, preferredLookupLanguage, out personsFound))
+            person.MovieDbId = personsFound[0].Id;
+        }
       }
-      return false;
+      if (person.MovieDbId > 0)
+      {
+        Person personDetail;
+        if (_movieDb.GetPerson(person.MovieDbId, out personDetail))
+        {
+          person.Name = personDetail.Name;
+          person.Biography = personDetail.Biography;
+          person.DateOfBirth = personDetail.DateOfBirth;
+          person.DateOfDeath = personDetail.DateOfDeath;
+          person.Orign = personDetail.PlaceOfBirth;
+          person.ImdbId = personDetail.ExternalId.ImDbId ?? person.ImdbId;
+          person.TvdbId = personDetail.ExternalId.TvDbId.HasValue ? personDetail.ExternalId.TvDbId.Value : 0;
+          person.TvRageId = personDetail.ExternalId.TvRageId.HasValue ? personDetail.ExternalId.TvRageId.Value : 0;
+        }
+
+        ImageCollection imageCollection;
+        if (person.Thumbnail == null && _movieDb.GetPersonFanArt(person.MovieDbId, out imageCollection))
+        {
+          person.Thumbnail = GetImage(imageCollection.Profiles, "Thumbnails");
+        }
+      }
     }
 
-    public bool UpdateMovieCompanys(MovieInfo movieInfo, List<CompanyInfo> companys, CompanyType type)
+    public bool UpdateMovieCharacters(MovieInfo movieInfo)
     {
-      Movie movieDetails;
-
-      // Try online lookup
-      if (!Init())
-        return false;
-
-      if (type != CompanyType.ProductionStudio)
-        return false;
-
-      if (movieInfo.MovieDbId > 0 && _movieDb.GetMovie(movieInfo.MovieDbId, out movieDetails))
+      try
       {
-        if (type == CompanyType.ProductionStudio)
-          MetadataUpdater.SetOrUpdateList(companys, ConvertToCompanys(movieDetails.ProductionCompanies, CompanyType.ProductionStudio), false);
+        // Try online lookup
+        if (!Init())
+          return false;
 
-        return true;
+        MovieCasts movieCasts;
+        if (movieInfo.MovieDbId > 0 && _movieDb.GetMovieCast(movieInfo.MovieDbId, out movieCasts))
+        {
+          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, ConvertToCharacters(movieInfo.MovieDbId, movieInfo.MovieName, movieCasts.Cast), false, false);
+
+          return true;
+        }
+        return false;
       }
-      return false;
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception while processing characters {0}", ex, movieInfo.ToString());
+        return false;
+      }
     }
 
-    private List<PersonInfo> ConvertToPersons(List<CrewItem> crew, PersonOccupation occupation)
+    public bool UpdateMovieCompanies(MovieInfo movieInfo, string type)
+    {
+      try
+      {
+        Movie movieDetails;
+
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (type != CompanyAspect.COMPANY_PRODUCTION)
+          return false;
+
+        if (movieInfo.MovieDbId > 0 && _movieDb.GetMovie(movieInfo.MovieDbId, out movieDetails))
+        {
+          if (type == CompanyAspect.COMPANY_PRODUCTION)
+          {
+            MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, ConvertToCompanies(movieDetails.ProductionCompanies, type), false, false);
+            foreach (CompanyInfo company in movieInfo.ProductionCompanies) UpdateCompany(movieInfo, company);
+            return true;
+          }
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception while processing companies {0}", ex, movieInfo.ToString());
+        return false;
+      }
+    }
+
+    private void UpdateCompany(MovieInfo movie, CompanyInfo company)
+    {
+      if (company.MovieDbId <= 0)
+      {
+        string preferredLookupLanguage = FindBestMatchingLanguage(movie);
+        List<CompanySearchResult> companiesFound;
+        if (_movieDb.SearchCompanyUnique(company.Name, preferredLookupLanguage, out companiesFound))
+          company.MovieDbId = companiesFound[0].Id;
+      }
+      if (company.MovieDbId > 0)
+      {
+        Company companyDetail;
+        if (_movieDb.GetCompany(company.MovieDbId, out companyDetail))
+        {
+          company.Name = companyDetail.Name;
+          company.Description = companyDetail.Description;
+        }
+        
+        if (company.Thumbnail == null)
+        {
+          ImageItem image = new ImageItem();
+          image.Id = company.MovieDbId;
+          image.FilePath = companyDetail.LogoPath;
+          company.Thumbnail = GetImage(new ImageItem[] { image }, "Logos");
+        }
+      }
+    }
+
+    public bool UpdateCollection(MovieCollectionInfo collectionInfo)
+    {
+      try
+      {
+        MovieCollection collectionDetails;
+
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        if (collectionInfo.MovieDbId > 0 && _movieDb.GetCollection(collectionInfo.MovieDbId, out collectionDetails))
+        {
+          MetadataUpdater.SetOrUpdateString(ref collectionInfo.Name, collectionDetails.Name, false);
+          MetadataUpdater.SetOrUpdateList(collectionInfo.Movies, ConvertToMovies(collectionDetails.Movies), true, false);
+
+          if (collectionInfo.Thumbnail == null)
+          {
+            collectionInfo.Thumbnail = _movieDb.GetImage(collectionDetails, true);
+          }
+
+          return true;
+        }
+        return false;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Exception while processing collection {0}", ex, collectionInfo.ToString());
+        return false;
+      }
+    }
+
+    private byte[] GetImage(IEnumerable<ImageItem> images, string category)
+    {
+      if (images == null)
+        return null;
+
+      foreach (ImageItem image in images.Where(b => b.Language == null || b.Language == _movieDb.PreferredLanguage))
+      {
+        if (_movieDb.DownloadImage(image, category))
+        {
+          return _movieDb.GetImage(image, category);
+        }
+      }
+      return null;
+    }
+
+    private List<MovieInfo> ConvertToMovies(List<MovieSearchResult> movies)
+    {
+      if (movies == null || movies.Count == 0)
+        return new List<MovieInfo>();
+
+      List<MovieInfo> retValue = new List<MovieInfo>();
+      foreach (MovieSearchResult movie in movies)
+      {
+        retValue.Add(new MovieInfo()
+        {
+          MovieDbId = movie.Id,
+          MovieName = movie.Title,
+          OriginalName = movie.OriginalTitle,
+          ReleaseDate = movie.ReleaseDate,
+          Order = retValue.Count
+        });
+      }
+      return retValue;
+    }
+
+    private List<PersonInfo> ConvertToPersons(List<CrewItem> crew, string occupation)
     {
       if (crew == null || crew.Count == 0)
         return new List<PersonInfo>();
@@ -214,27 +401,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (CrewItem person in crew)
       {
-        Person personDetail;
-        if (_movieDb.GetPerson(person.PersonId, out personDetail))
+        retValue.Add(new PersonInfo()
         {
-          retValue.Add(new PersonInfo()
-          {
-            MovieDbId = person.PersonId,
-            Name = person.Name,
-            Biography = personDetail.Biography,
-            DateOfBirth = personDetail.DateOfBirth,
-            DateOfDeath = personDetail.DateOfDeath,
-            Orign = personDetail.PlaceOfBirth,
-            ImdbId = personDetail.ExternalId.ImDbId,
-            TvdbId = personDetail.ExternalId.TvDbId.HasValue ? personDetail.ExternalId.TvDbId.Value : 0,
-            Occupation = occupation
-          });
-        }
+          MovieDbId = person.PersonId,
+          Name = person.Name,
+          Occupation = occupation
+        });
       }
       return retValue;
     }
 
-    private List<PersonInfo> ConvertToPersons(List<CastItem> cast, PersonOccupation occupation)
+    private List<PersonInfo> ConvertToPersons(List<CastItem> cast, string occupation)
     {
       if (cast == null || cast.Count == 0)
         return new List<PersonInfo>();
@@ -242,21 +419,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (CastItem person in cast)
       {
-        Person personDetail;
-        if (_movieDb.GetPerson(person.PersonId, out personDetail))
+        retValue.Add(new PersonInfo()
         {
-          retValue.Add(new PersonInfo()
-          {
-            MovieDbId = person.PersonId,
-            Name = person.Name,
-            Biography = personDetail.Biography,
-            DateOfBirth = personDetail.DateOfBirth,
-            DateOfDeath = personDetail.DateOfDeath,
-            Orign = personDetail.PlaceOfBirth,
-            ImdbId = personDetail.ExternalId.ImDbId,
-            Occupation = occupation
-          });
-        }
+          MovieDbId = person.PersonId,
+          Name = person.Name,
+          Occupation = occupation,
+          Order = person.Order
+        });
       }
       return retValue;
     }
@@ -270,35 +439,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
       foreach (CastItem person in characters)
         retValue.Add(new CharacterInfo()
         {
-          MediaIsMovie = true,
-          MediaMovieDbId = movieId,
-          MediaTitle = movieTitle,
           ActorMovieDbId = person.PersonId,
           ActorName = person.Name,
-          Name = person.Character
+          Name = person.Character,
+          Order = person.Order
         });
       return retValue;
     }
 
-    private List<CompanyInfo> ConvertToCompanys(List<ProductionCompany> companys, CompanyType type)
+    private List<CompanyInfo> ConvertToCompanies(List<ProductionCompany> companies, string type)
     {
-      if (companys == null || companys.Count == 0)
+      if (companies == null || companies.Count == 0)
         return new List<CompanyInfo>();
 
       List<CompanyInfo> retValue = new List<CompanyInfo>();
-      foreach (ProductionCompany company in companys)
+      foreach (ProductionCompany company in companies)
       {
-        Company companyDetail;
-        if (_movieDb.GetCompany(company.Id, out companyDetail))
+        retValue.Add(new CompanyInfo()
         {
-          retValue.Add(new CompanyInfo()
-          {
-            MovieDbId = company.Id,
-            Name = company.Name,
-            Description = companyDetail.Description,
-            Type = type
-          });
-        }
+          MovieDbId = company.Id,
+          Name = company.Name,
+          Type = type
+        });
       }
       return retValue;
     }
@@ -376,7 +538,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return false;
 
         int tmDb = 0;
-        if (!string.IsNullOrEmpty(match.Id))
+        if (match != null && !string.IsNullOrEmpty(match.Id))
         {
           if (int.TryParse(match.Id, out tmDb))
           {
@@ -471,6 +633,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       try
       {
+        if (string.IsNullOrEmpty(movieDbId))
+          return;
+
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher Download: Started for ID {0}", movieDbId);
 
         if (!Init())
@@ -478,6 +643,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         int tmDb = 0;
         if (!int.TryParse(movieDbId, out tmDb))
+          return;
+
+        if (tmDb <= 0)
           return;
 
         // If movie belongs to a collection, also download collection poster and fanart

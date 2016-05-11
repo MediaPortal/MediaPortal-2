@@ -158,12 +158,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.TvMaze
     public bool GetSeriesByTvDbId(int id, out TvMazeSeries seriesDetail)
     {
       seriesDetail = _tvMazeHandler.GetSeriesByTvDb(id);
+      //Get series with external Id does not include episodes, so call with native Id
+      if (seriesDetail.Id > 0)
+        seriesDetail = _tvMazeHandler.GetSeries(seriesDetail.Id);
       return seriesDetail != null;
     }
 
     public bool GetSeriesByImDbId(string id, out TvMazeSeries seriesDetail)
     {
       seriesDetail = _tvMazeHandler.GetSeriesByImDb(id);
+      //Get series with external Id does not include episodes, so call with native Id
+      if(seriesDetail.Id > 0)
+        seriesDetail = _tvMazeHandler.GetSeries(seriesDetail.Id);
       return seriesDetail != null;
     }
 
@@ -219,7 +225,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.TvMaze
 
     public bool DownloadImage(int id, TvMazeImageCollection image, string category)
     {
+      if (image == null) return false;
       return _tvMazeHandler.DownloadImage(id, image, category);
+    }
+
+    public byte[] GetImage(int id, TvMazeImageCollection image, string category)
+    {
+      if (image == null) return null;
+      return _tvMazeHandler.GetImage(id, image, category);
     }
   }
 }

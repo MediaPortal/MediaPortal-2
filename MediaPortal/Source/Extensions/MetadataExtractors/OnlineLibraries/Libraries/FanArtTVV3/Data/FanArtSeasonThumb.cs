@@ -37,6 +37,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
   public class FanArtSeasonThumb : FanArtMovieThumb
   {
     [DataMember(Name = "season")]
+    private string _season
+    {
+      set
+      {
+        if(value != null)
+        {
+          int seasonNumber;
+          if (int.TryParse(value, out seasonNumber))
+            Season = seasonNumber;
+        }
+      }
+    }
+
     public int? Season { get; set; }
   }
 }
