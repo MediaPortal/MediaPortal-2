@@ -136,7 +136,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
       MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
       MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.Metadata);
-      MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
 
       try
       {

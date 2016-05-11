@@ -23,13 +23,14 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using System.Globalization;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {
@@ -68,11 +69,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
       // Build the image collection MI
 
+      CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       ImageCollectionInfo collection = new ImageCollectionInfo()
       {
-        Name = imageDate.Date.ToString(CultureInfo.InvariantCulture),
+        Name = imageDate.Date.ToString("d", currentCulture),
         CollectionDate = imageDate,
-        CollectionType = ImageCollectionType.Date
+        CollectionType = ImageCollectionAspect.TYPE_DATE
       };
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
@@ -83,14 +85,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       return true;
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       return existingAspects.ContainsKey(ImageCollectionAspect.ASPECT_ID);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_RECORDINGTIME, out index);
+      index = -1;
+
+      DateTime imageDate;
+      if (!MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_RECORDINGTIME, out imageDate))
+        return false;
+
+      index = Convert.ToInt32((DateTime.Now - new DateTime(2000, 1, 1)).TotalSeconds);
+      return true;
     }
 
     internal static ILogger Logger

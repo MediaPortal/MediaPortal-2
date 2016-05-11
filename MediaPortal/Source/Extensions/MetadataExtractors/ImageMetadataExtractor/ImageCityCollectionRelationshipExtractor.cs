@@ -34,7 +34,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {
   class ImageCityCollectionRelationshipExtractor : IRelationshipRoleExtractor
   {
-    private static readonly Guid[] ROLE_ASPECTS = { ImageAspect.ASPECT_ID };
+    private static readonly Guid[] ROLE_ASPECTS = { MediaAspect.ASPECT_ID, ImageAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { ImageCollectionAspect.ASPECT_ID };
 
     public Guid Role
@@ -61,11 +61,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      long latitude;
+      double latitude;
       if (!MediaItemAspect.TryGetAttribute(aspects, ImageAspect.ATTR_LATITUDE, out latitude))
         return false;
 
-      long longitude;
+      double longitude;
       if (!MediaItemAspect.TryGetAttribute(aspects, ImageAspect.ATTR_LONGITUDE, out longitude))
         return false;
 
@@ -80,14 +80,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       string state = null;
       MediaItemAspect.TryGetAttribute(aspects, ImageAspect.ATTR_STATE, out state);
 
+      if (string.IsNullOrEmpty(city) || string.IsNullOrEmpty(country))
+        return false;
+
       // Build the image collection MI
 
       ImageCollectionInfo collection = new ImageCollectionInfo()
       {
-        Name = string.Format("{0},{1} {2}", city, state == null ? "" : state + ", ", country),
+        Name = string.Format("{0}, {1}", city.Trim(), state == null ? country.Trim() : state.Trim() + ", " + country.Trim()),
         Latitude = latitude,
         Longitude = longitude,
-        CollectionType = ImageCollectionType.City
+        CollectionType = ImageCollectionAspect.TYPE_CITY
       };
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
@@ -98,14 +101,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       return true;
     }
 
-    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       return existingAspects.ContainsKey(ImageCollectionAspect.ASPECT_ID);
     }
 
-    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, out int index)
+    public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
-      return MediaItemAspect.TryGetAttribute(aspects, ImageAspect.ATTR_CITY, out index);
+      index = -1;
+
+      DateTime imageDate;
+      if (!MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_RECORDINGTIME, out imageDate))
+        return false;
+
+      index = Convert.ToInt32((DateTime.Now - new DateTime(2000, 1, 1)).TotalSeconds);
+      return true;
     }
 
     internal static ILogger Logger
