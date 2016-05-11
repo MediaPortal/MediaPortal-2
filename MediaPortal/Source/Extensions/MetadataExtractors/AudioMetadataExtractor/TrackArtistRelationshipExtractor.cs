@@ -24,17 +24,20 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.Helpers;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
-  class TrackAlbumRelationshipExtractor : IRelationshipRoleExtractor
+  class TrackArtistRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
-    private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
+    private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
 
     public Guid Role
     {
@@ -48,7 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return AudioAlbumAspect.ROLE_ALBUM; }
+      get { return PersonAspect.ROLE_PERSON; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -60,41 +63,70 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      // Build the album MI
+      // Build the person MI
 
-      AlbumInfo albumInfo = new AlbumInfo();
-      if (!albumInfo.FromMetadata(aspects))
+      TrackInfo trackInfo = new TrackInfo();
+      if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo);
-      MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo);
-      MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo);
+      MusicTheAudioDbMatcher.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST);
+      MusicBrainzMatcher.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST);
+      MusicFanArtTvMatcher.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST);
+
+      if (trackInfo.Artists.Count == 0)
+        return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      extractedLinkedAspects.Add(albumAspects);
 
-      return albumInfo.SetMetadata(albumAspects);
+      foreach (PersonInfo person in trackInfo.Artists)
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        extractedLinkedAspects.Add(personAspects);
+        person.SetMetadata(personAspects);
+      }
+      return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      return existingAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID);
+      if (!existingAspects.ContainsKey(PersonAspect.ASPECT_ID))
+        return false;
+
+      PersonInfo linkedPerson = new PersonInfo();
+      if (!linkedPerson.FromMetadata(extractedAspects))
+        return false;
+
+      PersonInfo existingPerson = new PersonInfo();
+      if (!existingPerson.FromMetadata(extractedAspects))
+        return false;
+
+      return linkedPerson.Equals(existingPerson);
     }
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
       index = -1;
 
+      SingleMediaItemAspect linkedAspect;
+      if (!MediaItemAspect.TryGetAspect(linkedAspects, PersonAspect.Metadata, out linkedAspect))
+        return false;
+
+      string name = linkedAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME);
+
       SingleMediaItemAspect aspect;
       if (!MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out aspect))
         return false;
 
-      int disc = aspect.GetAttributeValue<int>(AudioAspect.ATTR_DISCID);
-      int track = aspect.GetAttributeValue<int>(AudioAspect.ATTR_TRACK);
+      IEnumerable<object> persons = aspect.GetCollectionAttribute<object>(AudioAspect.ATTR_ARTISTS);
+      List<string> nameList = new List<string>(persons.Cast<string>());
 
-      index = disc * 100 + track;
-      return true;
+      index = nameList.IndexOf(name);
+      return index >= 0;
+    }
+
+    internal static ILogger Logger
+    {
+      get { return ServiceRegistration.Get<ILogger>(); }
     }
   }
 }

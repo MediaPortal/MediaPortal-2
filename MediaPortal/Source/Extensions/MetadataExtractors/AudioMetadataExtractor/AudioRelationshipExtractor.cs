@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -54,6 +56,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       _extractors = new List<IRelationshipRoleExtractor>();
 
       _extractors.Add(new TrackAlbumRelationshipExtractor());
+      _extractors.Add(new TrackArtistRelationshipExtractor());
+      _extractors.Add(new TrackComposerRelationshipExtractor());
+      _extractors.Add(new AlbumArtistRelationshipExtractor());
+      _extractors.Add(new AlbumLabelRelationshipExtractor());
     }
 
     public RelationshipExtractorMetadata Metadata

@@ -24,21 +24,24 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.Helpers;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
-  class TrackAlbumRelationshipExtractor : IRelationshipRoleExtractor
+  class AlbumLabelRelationshipExtractor : IRelationshipRoleExtractor
   {
-    private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
-    private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
+    private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
+    private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
 
     public Guid Role
     {
-      get { return AudioAspect.ROLE_TRACK; }
+      get { return AudioAlbumAspect.ROLE_ALBUM; }
     }
 
     public Guid[] RoleAspects
@@ -48,7 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return AudioAlbumAspect.ROLE_ALBUM; }
+      get { return CompanyAspect.ROLE_COMPANY; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -60,41 +63,69 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      // Build the album MI
+      // Build the person MI
 
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo);
-      MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo);
-      MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo);
+      MusicBrainzMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL);
+      MusicFanArtTvMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL);
+
+      if (albumInfo.MusicLabels.Count == 0)
+        return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      extractedLinkedAspects.Add(albumAspects);
 
-      return albumInfo.SetMetadata(albumAspects);
+      foreach (CompanyInfo company in albumInfo.MusicLabels)
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        extractedLinkedAspects.Add(companyAspects);
+        company.SetMetadata(companyAspects);
+      }
+      return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      return existingAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID);
+      if (!existingAspects.ContainsKey(CompanyAspect.ASPECT_ID))
+        return false;
+
+      CompanyInfo linkedCompany = new CompanyInfo();
+      if (!linkedCompany.FromMetadata(extractedAspects))
+        return false;
+
+      CompanyInfo existingCompany = new CompanyInfo();
+      if (!existingCompany.FromMetadata(extractedAspects))
+        return false;
+
+      return linkedCompany.Equals(existingCompany);
     }
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
     {
       index = -1;
 
-      SingleMediaItemAspect aspect;
-      if (!MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out aspect))
+      SingleMediaItemAspect linkedAspect;
+      if (!MediaItemAspect.TryGetAspect(linkedAspects, CompanyAspect.Metadata, out linkedAspect))
         return false;
 
-      int disc = aspect.GetAttributeValue<int>(AudioAspect.ATTR_DISCID);
-      int track = aspect.GetAttributeValue<int>(AudioAspect.ATTR_TRACK);
+      string name = linkedAspect.GetAttributeValue<string>(CompanyAspect.ATTR_COMPANY_NAME);
 
-      index = disc * 100 + track;
-      return true;
+      SingleMediaItemAspect aspect;
+      if (!MediaItemAspect.TryGetAspect(aspects, AudioAlbumAspect.Metadata, out aspect))
+        return false;
+
+      IEnumerable<object> labels = aspect.GetCollectionAttribute<object>(AudioAlbumAspect.ATTR_LABELS);
+      List<string> nameList = new List<string>(labels.Cast<string>());
+
+      index = nameList.IndexOf(name);
+      return index >= 0;
+    }
+
+    internal static ILogger Logger
+    {
+      get { return ServiceRegistration.Get<ILogger>(); }
     }
   }
 }

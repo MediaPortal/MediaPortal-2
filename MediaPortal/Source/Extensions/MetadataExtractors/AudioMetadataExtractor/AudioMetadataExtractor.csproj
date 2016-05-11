@@ -60,9 +60,14 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="AudioCDHelper.cs" />
+    <Compile Include="Matchers\AudioCDMatcher.cs" />
     <Compile Include="AudioRelationshipExtractor.cs" />
     <Compile Include="AudioMetadataExtractor.cs" />
+    <Compile Include="AlbumArtistRelationshipExtractor.cs" />
+    <Compile Include="AlbumLabelRelationshipExtractor.cs" />
+    <Compile Include="Matchers\MusicNameMatcher.cs" />
+    <Compile Include="TrackComposerRelationshipExtractor.cs" />
+    <Compile Include="TrackArtistRelationshipExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\AudioMetadataExtractorSettings.cs" />
     <Compile Include="TrackAlbumRelationshipExtractor.cs" />
