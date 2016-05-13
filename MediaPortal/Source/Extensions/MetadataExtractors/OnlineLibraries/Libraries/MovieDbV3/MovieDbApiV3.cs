@@ -37,7 +37,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
 
     public const string DefaultLanguage = "en";
 
-    private const string URL_API_BASE = "http://api.themoviedb.org/3/";
+    private const string URL_API_BASE = "https://api.themoviedb.org/3/";
     private const string URL_MOVIEQUERY = URL_API_BASE + "search/movie";
     private const string URL_GETMOVIE = URL_API_BASE + "movie/{0}";
     private const string URL_GETMOVIECASTCREW = URL_API_BASE + "movie/{0}/casts";

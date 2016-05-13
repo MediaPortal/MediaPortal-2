@@ -38,7 +38,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
 
     public const string DefaultLanguage = "en";
 
-    private const string URL_API_BASE = "http://webservice.fanart.tv/v3/";
+    private const string URL_API_BASE = "https://webservice.fanart.tv/v3/";
     private const string URL_GETMOVIE =   URL_API_BASE + "movies/{0}";
     private const string URL_GETMUSICARTIST = URL_API_BASE + "music/{0}";
     private const string URL_GETMUSICALBUM =  URL_API_BASE + "music/albums/{0}";

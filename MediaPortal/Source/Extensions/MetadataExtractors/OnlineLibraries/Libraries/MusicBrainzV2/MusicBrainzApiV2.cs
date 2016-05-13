@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 {
@@ -39,7 +40,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     public const string DefaultLanguage = "US";
 
-    private const string URL_API_BASE = "http://musicbrainz.org/ws/2/";
+    private const string URL_API_BASE = "https://musicbrainz.org/ws/2/";
     private const string URL_FANART_API_BASE = "http://coverartarchive.org/";
 
     private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
@@ -55,6 +56,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     #region Fields
 
+    private static readonly FileVersionInfo FILE_VERSION_INFO;
     private readonly string _cachePath;
     private readonly Downloader _downloader;
 
@@ -62,11 +64,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     #region Constructor
 
+    static MusicBrainzApiV2()
+    {
+      FILE_VERSION_INFO = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
+    }
+
     public MusicBrainzApiV2(string cachePath)
     {
       _cachePath = cachePath;
-      _downloader = new Downloader { EnableCompression = true };
+      _downloader = new MusicBrainzDownloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
+      _downloader.Headers["User-Agent"] = "MediaPortal/" + FILE_VERSION_INFO.FileVersion + " (http://www.team-mediaportal.com/)";
     }
 
     #endregion

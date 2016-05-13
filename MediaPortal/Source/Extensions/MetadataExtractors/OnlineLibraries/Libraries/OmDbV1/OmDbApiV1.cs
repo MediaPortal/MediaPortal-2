@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
 
     public const string DefaultLanguage = "en";
 
-    private const string URL_API_BASE = "http://www.omdbapi.com/";
+    private const string URL_API_BASE = "https://www.omdbapi.com/";
     private const string URL_QUERYMOVIE = URL_API_BASE + "?s={0}&type=movie";
     private const string URL_QUERYSERIES = URL_API_BASE + "?s={0}&type=series";
     private const string URL_GETTITLEMOVIE = URL_API_BASE + "?t={0}&type=movie";

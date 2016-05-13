@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <summary>
     /// Base server where all operations start
     /// </summary>
-    internal const String BASE_SERVER = "http://thetvdb.com";
+    internal const String BASE_SERVER = "https://thetvdb.com";
 
     /// <summary>
     /// Path of file where we get the available languages

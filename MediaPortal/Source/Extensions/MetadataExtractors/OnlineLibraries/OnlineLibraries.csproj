@@ -92,6 +92,7 @@
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtistResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecordingResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecording.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\MusicBrainzDownloader.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbBaseResponse.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbSearchItem.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbSearchResult.cs" />
