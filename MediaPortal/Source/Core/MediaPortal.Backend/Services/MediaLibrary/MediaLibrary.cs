@@ -44,6 +44,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
@@ -174,6 +175,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected volatile bool _mediaReconcilerAllowed = true;
     protected Thread _mediaReconcilerThread;
     protected BlockingCollection<Guid> _mediaReconcilerQueue = new BlockingCollection<Guid>();
+    protected Thread _mediaDissolverThread;
+    protected ManualResetEventSlim _mediaDissolverTrigger = new ManualResetEventSlim(false);
 
     #endregion
 
@@ -195,6 +198,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       _mediaReconcilerThread = new Thread(Reconcile) { Name = "MediaReconciler", Priority = ThreadPriority.Lowest };
       _mediaReconcilerThread.Start();
+
+      _mediaDissolverThread = new Thread(Dissolver) { Name = "MediaDissolver", Priority = ThreadPriority.Lowest };
+      _mediaDissolverThread.Start();
     }
 
     public void Dispose()
@@ -204,11 +210,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       lock(_syncObj)
         _mediaReconcilerQueue.CompleteAdding();
       _mediaReconcilerAllowed = false;
+      _mediaDissolverTrigger.Set();
 
       if (!_mediaReconcilerThread.Join(5000))
         _mediaReconcilerThread.Abort();
 
       _mediaReconcilerThread = null;
+
+      if (!_mediaDissolverThread.Join(5000))
+        _mediaDissolverThread.Abort();
+
+      _mediaDissolverThread = null;
+
+      _mediaDissolverTrigger.Dispose();
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -365,6 +379,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
               " WHERE " + systemIdAttribute + " = @SYSTEM_ID";
 
+      int affectedRows = 0;
       ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
@@ -403,8 +418,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         commandStr = commandStr + ")";
 
         command.CommandText = commandStr;
-        return command.ExecuteNonQuery();
+        affectedRows = command.ExecuteNonQuery();
+
+        //Delete orphaned relations
+        Dissolve();
       }
+      return affectedRows;
     }
 
     protected IFilter AddOnlyOnlineFilter(IFilter innerFilter)
@@ -939,6 +958,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       _mediaReconcilerQueue.Add(mediaItemId);
     }
 
+    protected virtual void Dissolve()
+    {
+      _mediaDissolverTrigger.Set();
+    }
+
     public void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       UpdateMediaItem(mediaItemId, mediaItemAspects, true);
@@ -1055,7 +1079,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           AddRelationship(roleExtractor, mediaItemId, aspects, extractedItem);
 
           Guid newMediaItemId = NewMediaItemId();
-          AddOrUpdateMediaItem(Guid.Empty, _localSystemId, ResourcePath.BuildBaseProviderPath(Guid.Empty, newMediaItemId.ToString()), newMediaItemId, extractedItem.Values.SelectMany(x => x), true);
+          AddOrUpdateMediaItem(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(newMediaItemId), newMediaItemId, extractedItem.Values.SelectMany(x => x), true);
         }
       }
     }
@@ -1109,6 +1133,57 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         index = 0;
       Logger.Info("Adding a {0} / {1} relationship linked to {2} at {3}", roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);
       MediaItemAspect.AddOrUpdateRelationship(linkedAspects, roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);
+    }
+
+    private void Dissolver()
+    {
+      while (_mediaReconcilerAllowed)
+      {
+        _mediaDissolverTrigger.Wait();
+        _mediaDissolverTrigger.Reset();
+
+        try
+        {
+          DeleteOrphanedRelationships();
+        }
+        catch (Exception e)
+        {
+          Logger.Error("Cannot remove orphaned relationships", e);
+        }
+      }
+    }
+
+    public void DeleteOrphanedRelationships()
+    {
+      if (ServiceRegistration.IsShuttingDown)
+        return;
+
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          string commandStr = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+          "SELECT DISTINCT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+          " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+          " NOT IN (SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " +
+          MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + "))";
+
+          command.CommandText = commandStr;
+          command.ExecuteNonQuery();
+        }
+        
+        transaction.Commit();
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error deleting orphaned media items", e);
+        transaction.Rollback();
+        throw;
+      }
     }
 
     public void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive)
@@ -1207,6 +1282,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
       int playCount = (int) (mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
       mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);
+      mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAY_PROGRESS, 100);
       UpdateMediaItem(mediaItemId, new MediaItemAspect[] {mediaAspect});
     }
 
