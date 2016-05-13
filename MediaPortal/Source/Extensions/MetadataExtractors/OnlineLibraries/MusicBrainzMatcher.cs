@@ -487,6 +487,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!_musicBrainzDb.GetTrack(musicBrainzId, out track))
           return;
 
+        if(string.IsNullOrEmpty(track.AlbumId))
+        {
+          //No fanart
+          FinishDownloadFanArt(musicBrainzId);
+          return;
+        }
+
         TrackImageCollection imageCollection;
         if (!_musicBrainzDb.GetAlbumFanArt(track.AlbumId, out imageCollection))
           return;

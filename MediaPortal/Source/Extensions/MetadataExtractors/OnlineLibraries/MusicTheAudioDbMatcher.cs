@@ -422,26 +422,32 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!_audioDb.GetTrackFromId(taadbId, out track))
           return;
 
-        AudioDbArtist artist;
-        if (!track.ArtistId.HasValue || !_audioDb.GetArtistFromId(track.ArtistId.Value, out artist))
-          return;
+        if (track.AlbumId.HasValue)
+        {
+          AudioDbAlbum album;
+          if (!_audioDb.GetAlbumFromId(track.AlbumId.Value, out album))
+            return;
 
-        AudioDbAlbum album;
-        if (!track.AlbumId.HasValue || !_audioDb.GetAlbumFromId(track.AlbumId.Value, out album))
-          return;
+          // Save Cover
+          ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Begin saving fanarts for ID {0}", albumId);
+          _audioDb.DownloadImage(album.AlbumId, album.AlbumThumb, "Covers");
+          _audioDb.DownloadImage(album.AlbumId, album.AlbumCDart, "CDArt");
+        }
 
-        // Save Cover
-        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Begin saving fanarts for ID {0}", albumId);
-        _audioDb.DownloadImage(album.AlbumId, album.AlbumThumb, "Covers");
-        _audioDb.DownloadImage(album.AlbumId, album.AlbumCDart, "CDArt");
+        if (track.ArtistId.HasValue)
+        {
+          AudioDbArtist artist;
+          if (!_audioDb.GetArtistFromId(track.ArtistId.Value, out artist))
+            return;
 
-        ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Begin saving artist banners for ID {0}", albumId);
-        if(!string.IsNullOrEmpty(artist.ArtistBanner)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistBanner, "Banners");
-        if (!string.IsNullOrEmpty(artist.ArtistFanart)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart, "Backdrops");
-        if (!string.IsNullOrEmpty(artist.ArtistFanart2)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart2, "Backdrops");
-        if (!string.IsNullOrEmpty(artist.ArtistFanart3)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart3, "Backdrops");
-        if (!string.IsNullOrEmpty(artist.ArtistLogo)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistLogo, "Logos");
-        if (!string.IsNullOrEmpty(artist.ArtistThumb)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistThumb, "Thumbnails");
+          ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Begin saving artist banners for ID {0}", albumId);
+          if (!string.IsNullOrEmpty(artist.ArtistBanner)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistBanner, "Banners");
+          if (!string.IsNullOrEmpty(artist.ArtistFanart)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart, "Backdrops");
+          if (!string.IsNullOrEmpty(artist.ArtistFanart2)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart2, "Backdrops");
+          if (!string.IsNullOrEmpty(artist.ArtistFanart3)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart3, "Backdrops");
+          if (!string.IsNullOrEmpty(artist.ArtistLogo)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistLogo, "Logos");
+          if (!string.IsNullOrEmpty(artist.ArtistThumb)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistThumb, "Thumbnails");
+        }
 
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Finished ID {0}", albumId);
 
