@@ -506,7 +506,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         string accessorPath = (string)mmia.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
-        string filePath = resourcePath.FileName;
+        string filePath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
         if (!HasVideoExtension(filePath))
           continue;
 
@@ -551,7 +551,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
           if (!string.IsNullOrEmpty(subFormat))
           {
-            LocalFsResourceAccessor fsra = new LocalFsResourceAccessor((LocalFsResourceProvider)lfsra.ParentProvider, subFile);
+            LocalFsResourceAccessor fsra = new LocalFsResourceAccessor((LocalFsResourceProvider)lfsra.ParentProvider, LocalFsResourceProviderBase.ToProviderPath(subFile));
             MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
             providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, resourceIndex);
             providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, GetSubtitleMime(subFormat));
@@ -910,7 +910,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           int resourceIndex = 0;
           foreach (string videoFile in videoFiles)
           {
-            LocalFsResourceAccessor lfsra = new LocalFsResourceAccessor((LocalFsResourceProvider)fsra.ParentProvider, videoFile);
+            LocalFsResourceAccessor lfsra = new LocalFsResourceAccessor((LocalFsResourceProvider)fsra.ParentProvider, LocalFsResourceProviderBase.ToProviderPath(videoFile));
             using (MediaInfoWrapper fileInfo = ReadMediaInfo(lfsra))
             {
               // Before we start evaluating the file, check if it is a video at all
