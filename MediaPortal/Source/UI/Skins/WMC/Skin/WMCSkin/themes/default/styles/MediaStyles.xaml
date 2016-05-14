@@ -2048,7 +2048,7 @@
                     <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.200" FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
                         </Storyboard>
                       </AnimatedStackPanel.Resources>
                       <AnimatedStackPanel.Triggers>
