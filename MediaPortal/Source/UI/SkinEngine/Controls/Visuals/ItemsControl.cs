@@ -75,6 +75,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Ctor
 
+    //MP2-522 this static constructor ensures that all static fields (notably RoutedEvent registrations) are initialized before an instance of this class is created
+    static ItemsControl()
+    {
+    }
+
     protected ItemsControl()
     {
       Init();

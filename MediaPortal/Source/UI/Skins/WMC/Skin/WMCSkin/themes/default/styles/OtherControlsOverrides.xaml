@@ -119,8 +119,20 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <wmc:SubItemsContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
+            <AnimatedScrollContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+              <AnimatedScrollContentPresenter.Resources>
+                <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                  <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                </Storyboard>
+              </AnimatedScrollContentPresenter.Resources>
+              <AnimatedScrollContentPresenter.Triggers>
+                <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
+                  <EventTrigger.Actions>
+                    <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                  </EventTrigger.Actions>
+                </EventTrigger>
+              </AnimatedScrollContentPresenter.Triggers>
               <!--ScrollContentPresenter.OpacityMask>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                     <GradientStop Color="Transparent" Offset="0.01" />
@@ -129,59 +141,7 @@
                                     <GradientStop Color="Transparent" Offset="0.99" />
                                 </LinearGradientBrush>
                             </ScrollContentPresenter.OpacityMask-->
-            </wmc:SubItemsContentPresenter>
-            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
-                Grid.ZIndex="0" Margin="2,10,2,2"
-                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
-
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-
-              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
-                  Height="{ThemeResource ScrollBarWidth}"
-                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundColor}">
-              </Rectangle>
-
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
-                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarKnobWidth}"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                </Rectangle>
-              </StackPanel>
-            </Grid>
-            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
-                Grid.ZIndex="0" Margin="10,2,2,2"
-                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
-
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-
-              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
-                  Width="{ThemeResource ScrollBarWidth}"
-                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundColor}">
-              </Rectangle>
-
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
-                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
-                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                </Rectangle>
-              </StackPanel>
-            </Grid>
+            </AnimatedScrollContentPresenter>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -548,5 +508,35 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+  <Style x:Key="PlayerControlsProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Image Source="PlayerControl\seekbar.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
+              <Image Source="PlayerControl\Current.Position.Shadow.png" Width="55" Height="55" Stretch="Fill" Margin="-10"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                       RadiusX="3" RadiusY="3" Height="9" Fill="{ThemeResource ProgressBarFillColor}" Margin="17,0,25,0"/>
+            <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
+                <Image Source="PlayerControl\Current.Position.png" Width="40" Height="40" Stretch="Fill"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
 </ResourceDictionary>

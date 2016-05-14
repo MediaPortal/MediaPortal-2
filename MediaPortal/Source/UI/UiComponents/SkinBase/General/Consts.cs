@@ -109,6 +109,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string RES_CLOSE_PLAYER_CONTEXT = "[Players.ClosePlayerContext]";
     public const string RES_CHOOSE_PLAYER_GEOMETRY = "[Players.ChoosePlayerGeometry]";
     public const string RES_CHOOSE_PLAYER_EFFECT = "[Players.ChoosePlayerEffect]";
+    public const string RES_CHOOSE_PLAYER_SUBTITLE = "[Players.ChoosePlayerSubtitle]";
 
     public const string RES_PLAYER_SLOT_AUDIO_MENU = "[Players.PlayerSlotAudioMenu]";
 
@@ -187,6 +188,9 @@ namespace MediaPortal.UiComponents.SkinBase.General
 
     public const string STR_WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG = "DAD585DF-16FC-45AB-A6D7-FE5600080C7A";
     public static Guid WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG);
+
+    public const string STR_WF_STATE_ID_PLAYER_CHOOSE_SUBTITLE_MENU_DIALOG = "29907D7A-2507-41C8-B082-D4BDA0728885";
+    public static Guid WF_STATE_ID_PLAYER_CHOOSE_SUBTITLE_MENU_DIALOG = new Guid(STR_WF_STATE_ID_PLAYER_CHOOSE_SUBTITLE_MENU_DIALOG);
 
     // Keys for the ListItem's Labels in the ItemsLists
     public const string KEY_NAME = "Name";

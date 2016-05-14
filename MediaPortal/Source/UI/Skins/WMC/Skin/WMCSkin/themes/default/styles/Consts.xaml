@@ -6,7 +6,7 @@
 
     <!-- Footer Details -->
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
-  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="60,0,290,50"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="60,0,50,50"/>
 
   <ResourceWrapper x:Key="HugeFontSize" Resource="72"/>
   <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
@@ -35,6 +35,8 @@
   <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="2"/>
   <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
 
+  <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="850"/>
+ 
   <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>

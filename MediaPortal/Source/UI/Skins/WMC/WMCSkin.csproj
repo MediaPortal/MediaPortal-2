@@ -71,6 +71,12 @@
     <Content Include="Skin\WMCSkin\images\09eae702-d9ec-4325-82d9-4843502c966b.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer3.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer4.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer5.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer6.png" />
     <Content Include="Skin\WMCSkin\images\f400fbea-6e32-4735-be52-15dfdbb64fcc.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -289,9 +295,13 @@
     <Content Include="Skin\WMCSkin\themes\default\styles\AnalogClock.xaml" />
     <Content Include="Skin\WMCSkin\themes\default\styles\OSD.xaml" />
     <Content Include="Skin\WMCSkin\themes\default\styles\Graphics.xaml" />
-    <Content Include="Skin\WMCSkin\screens\master_bare.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\themes\default\styles\MediaStyles.xaml" />
-    <Content Include="Skin\WMCSkin\superlayers\ScreenSaver.xaml" />
+    <Content Include="Skin\WMCSkin\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\themes\default\styles\MediaConsts.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_menu.xaml" />
   </ItemGroup>
@@ -357,6 +367,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\BusyCursor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\superlayers\SkipStepOSD.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

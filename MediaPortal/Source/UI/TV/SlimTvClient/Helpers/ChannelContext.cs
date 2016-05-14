@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -114,6 +115,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         Channels.Clear();
         Channels.AddRange(channels);
         Channels.FireListChanged();
+        // Check user zapping setting for channel index vs. number preferance
+        SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+        if (settings.ZapByChannelIndex)
+        {
+          for (int i = 0; i < Channels.Count; i++)
+            Channels[i].ChannelNumber = i + 1;
+        }
         // Check if the current channel is part of new group and select it
         int selectedChannelId = tvHandler.ChannelAndGroupInfo.SelectedChannelId;
         if (tvHandler.ChannelAndGroupInfo != null && selectedChannelId != 0)

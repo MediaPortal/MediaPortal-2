@@ -25,6 +25,7 @@ namespace HomeEditor.Models
     
     protected GroupProxy _groupProxy;
     protected ActionProxy _actionProxy;
+    protected bool _needsUpdate;
 
     public static HomeEditorModel Instance()
     {
@@ -46,6 +47,7 @@ namespace HomeEditor.Models
       _items.Clear();
       _items.AddRange(DefaultGroups.Create());
       UpdateItems();
+      _needsUpdate = true;
     }
 
     public void AddGroup()
@@ -63,11 +65,13 @@ namespace HomeEditor.Models
     public void MoveGroupUp(GroupListItem item)
     {
       MoveItem(item.Group, -1);
+      _needsUpdate = true;
     }
 
     public void MoveGroupDown(GroupListItem item)
     {
       MoveItem(item.Group, 1);
+      _needsUpdate = true;
     }
 
     public void SaveGroup()
@@ -77,6 +81,7 @@ namespace HomeEditor.Models
       if (_groupProxy.SaveGroup())
         _items.Add(_groupProxy.Group);
       UpdateItems();
+      _needsUpdate = true;
     }
 
     public void AddAction()
@@ -125,10 +130,13 @@ namespace HomeEditor.Models
 
     protected void SaveGroups()
     {
+      if (!_needsUpdate)
+        return;
       var sm = ServiceRegistration.Get<ISettingsManager>();
       HomeEditorSettings settings = sm.Load<HomeEditorSettings>();
       settings.Groups = new List<HomeMenuGroup>(_items);
       sm.Save(settings);
+      _needsUpdate = false;
     }
 
     protected override void UpdateItemsToRemove()
@@ -142,6 +150,12 @@ namespace HomeEditor.Models
         _itemsToRemoveList.Add(listItem);
       }
       _itemsToRemoveList.FireChange();
+    }
+
+    public override void RemoveSelectedItems()
+    {
+      base.RemoveSelectedItems();
+      _needsUpdate = true;
     }
 
     protected void Update(NavigationContext oldContext, NavigationContext newContext, bool push)

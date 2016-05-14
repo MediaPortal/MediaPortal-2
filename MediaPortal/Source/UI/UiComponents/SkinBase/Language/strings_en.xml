@@ -108,6 +108,7 @@
   <string name="Players.ClosePlayerContext">Close {0}</string> <!-- for example "Close video player" -->
   <string name="Players.ChoosePlayerGeometry">Zoom mode</string>
   <string name="Players.ChoosePlayerEffect">Effect</string>
+  <string name="Players.ChoosePlayerSubtitle">Subtitle</string>
 
   <string name="Settings.Appearance">Appearance</string>
   <string name="Settings.Appearance.Skin">Skin</string>

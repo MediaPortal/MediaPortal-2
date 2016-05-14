@@ -125,6 +125,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\default\screens\test-texttrimming.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Skin\default\screens\test-listviewgrouping.xaml">
       <SubType>Designer</SubType>
     </Content>

@@ -71,7 +71,7 @@ namespace HomeEditor.Models
       UpdateItemsToRemove();
     }
 
-    public void RemoveSelectedItems()
+    public virtual void RemoveSelectedItems()
     {
       foreach (ListItem item in _itemsToRemoveList.Where(i => i.Selected))
         _items.Remove((T)item.AdditionalProperties[KEY_ITEM_TO_REMOVE]);

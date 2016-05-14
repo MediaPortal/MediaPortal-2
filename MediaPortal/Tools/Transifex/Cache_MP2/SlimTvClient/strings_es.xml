@@ -14,6 +14,8 @@
   <string name="SlimTvClient.ProgramStartLabel">Hora de inicio</string>
   <string name="SlimTvClient.ProgramEndLabel">Hora de finalización</string>
   <string name="SlimTvClient.EpisodeLabel">Episodio</string>
+  <string name="SlimTvClient.CurrentProgram">Programa Actual</string>
+  <string name="SlimTvClient.NextProgram">Próximo Programa</string>
   <string name="SlimTvClient.Progress">Progreso</string>
   <string name="SlimTvClient.Guide">Guia de TV</string>
   <string name="SlimTvClient.NoProgram">No hay datos del programa.</string>

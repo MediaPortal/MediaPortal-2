@@ -15,7 +15,7 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="360"/>
+    <ColumnDefinition Width="480"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
@@ -24,12 +24,12 @@
     Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
     Color="{ThemeResource TextColor}"/>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="0.5"
-        Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="0.5" TextTrimming="WordEllipsis"
+        HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
         Color="{ThemeResource TextColor}" Margin="10,0,5,35"/>
 
-  <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,0,30,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <StackPanel Orientation="Horizontal">
       <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
         <media:MediaAspectWrapper.Template>
@@ -41,7 +41,7 @@
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-              <Label x:Name="Year" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"
+              <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"
                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
             </Grid>
           </ControlTemplate>
@@ -52,12 +52,6 @@
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
                           Grid.Column="0" Grid.Row="4" Margin="15,4,0,3">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
@@ -84,14 +78,7 @@
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <Label x:Name="Genre"  Grid.Column="0" Grid.Row="1" Margin="0,0,0,0" FontSize="{ThemeResource SmallFontSize}"
+            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Genres}" Color="{ThemeResource TextColor}" Opacity="0.5"/>
           </Grid>
         </ControlTemplate>
@@ -103,13 +90,7 @@
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal">
+              <StackPanel Orientation="Horizontal">
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
                        Content="{Binding Path=Runtime}" Color="{ThemeResource TextColor}"/>
                 <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"/>                
@@ -123,12 +104,6 @@
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
               <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="1" Margin="0,0,20,0" >
                 <Image.Source>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">

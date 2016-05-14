@@ -436,14 +436,14 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="195"/>
-              <RowDefinition Height="52"/>
+              <RowDefinition Height="54"/>
             </Grid.RowDefinitions>
             <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}"
                    HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False"
+            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54"
                    HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <Image x:Name="ButtonControlGrid" Grid.Column="0" Grid.Row="0" Source="STARTMENU.QUICKLINK.BACKGROUND.PNG" Stretch="Fill" IsVisible="False"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <!--Image x:Name="ButtonControlGrid" Grid.Column="0" Grid.Row="0" Source="STARTMENU.QUICKLINK.BACKGROUND.PNG" Stretch="Fill" IsVisible="False"/-->
           </Grid>
           <ControlTemplate.Triggers>
             <!--Trigger Property="HasFocus" Value="True">
@@ -590,7 +590,7 @@
 
   <!-- ***************************** Radio buttons ******************************** -->
 
-  <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
+  <!--Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -647,6 +647,50 @@
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </-->
+
+  <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}" >
+          <DockPanel Margin="0,2,0,2">
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.UNCHECKED.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,1,10,0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.UNCHECKED.FOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,1,10,0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,1,10,0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image DockPanel.Dock="Left" Source="PlayerControl\RADIOBUTTON.FOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,1,10,0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsChecked"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,0,0,2"/>
+          </DockPanel>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1119,28 +1163,45 @@
     </Style.Resources>
   </Style>
 
-  <Style x:Key="NavigateBackButtonStyle" TargetType="{x:Type Button}">
-      <Setter Property="Template">
-          <Setter.Value>
-              <ControlTemplate TargetType="{x:Type Button}">
-                  <Grid>
-                      <Image x:Name="image" Source="PlayerControl\GOBACK.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
-                  </Grid>
-                  <ControlTemplate.Triggers>
-                      <Trigger Property="HasFocus" Value="True">
-                          <Setter TargetName="image" Property="Source" Value="PlayerControl\GOBACK.FOCUS.PNG"/>
-                      </Trigger>
-                  </ControlTemplate.Triggers>
-              </ControlTemplate>
-          </Setter.Value>
-      </Setter>
+  <Style x:Key="HomeButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="HOME.NOFOCUS.PNG" Stretch="Uniform" Height="55" Width="55" Margin="0,0,0,0" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="HOME.FOCUS.PNG"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Source" Value="HOME.DISABLED.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
-  <!--Style x:Key="NavigateBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource NavigateBackControlTemplate}" />
-    </Style.Resources>
-  </-->
+  <Style x:Key="NavigateBackButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="GOBACK.NOFOCUS.PNG" Stretch="Uniform" Height="55" Width="55" Margin="0,0,0,0" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="GOBACK.FOCUS.PNG"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Source" Value="GOBACK.DISABLED.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <!-- ********************************* PlusMinus button ******************************** -->
 
@@ -1527,6 +1588,8 @@
     </Setter>
   </Style>
 
+  <!--Setting Button Styles-->
+  
   <Style x:Key="UpButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -1566,6 +1629,8 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <!--Other Button Styles-->
 
   <Style x:Key="SearchButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">

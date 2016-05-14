@@ -81,6 +81,8 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     protected bool _noSettingsRefresh;
     protected bool _isPlayerActive;
     protected string _lastActiveGroup;
+    protected bool _navigated;
+    protected bool _initalNavigation = true;
 
     #endregion
 
@@ -333,7 +335,13 @@ namespace MediaPortal.UiComponents.BlueVision.Models
 
     protected void MenuItemsOnObjectChanged(IObservable observable)
     {
-      CreatePositionedItems();
+      // Skip updates that happens directly after workflow navigation.
+      // Here we need to deal only with event based updates (like server disconnection)
+      if (!_navigated || _initalNavigation)
+        CreatePositionedItems();
+
+      _initalNavigation = false;
+      _navigated = false;
     }
 
     protected void CreateMenuGroupItems()
@@ -381,6 +389,10 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     // Look for "shortcut items" that will be placed next to the regular groups
     private void ReCreateShortcutItems(object sender, EventArgs args)
     {
+      // Can happen during shutdown
+      if (ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext == null)
+        return;
+
       // Do not remove the "CP" button, because when the WF state is active, the menu item will not be part of available menu items.
       if (!IsCurrentPlaying())
       {
@@ -782,6 +794,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         {
           CheckShortCutsWorkflows();
           SetWorkflowName();
+          _navigated = true;
         }
       }
     }

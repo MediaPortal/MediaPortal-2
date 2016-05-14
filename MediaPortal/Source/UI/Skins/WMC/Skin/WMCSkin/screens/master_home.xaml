@@ -60,9 +60,102 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
+
+    <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill"/>
+    <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill"/>
+    <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill"/>
+    <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill"/>
+    <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill"/>
+
     <Grid.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+      <Storyboard
+                x:Key="AnimationL1"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L1" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:03.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard
+                x:Key="AnimationL2"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L2" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard
+                x:Key="AnimationL3"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L3" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard
+                x:Key="AnimationL4"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L4" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+      <Storyboard
+                x:Key="AnimationL5"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L5" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="0"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
     </Grid.Resources>
+
+    <Grid.Triggers>
+      <Trigger Property="IsVisible" Value="True">
+        <Trigger.EnterActions>
+          <BeginStoryboard x:Name="BeginStoryboardL1" Storyboard="{StaticResource AnimationL1}"/>
+          <BeginStoryboard x:Name="BeginStoryboardL2" Storyboard="{StaticResource AnimationL2}"/>
+          <BeginStoryboard x:Name="BeginStoryboardL3" Storyboard="{StaticResource AnimationL3}"/>
+          <BeginStoryboard x:Name="BeginStoryboardL4" Storyboard="{StaticResource AnimationL4}"/>
+          <BeginStoryboard x:Name="BeginStoryboardL5" Storyboard="{StaticResource AnimationL5}"/>
+          <!--BeginStoryboard x:Name="BeginStoryboardL6" Storyboard="{StaticResource AnimationL6}"/-->
+        </Trigger.EnterActions>
+        <Trigger.ExitActions>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL1"/>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL2"/>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL3"/>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL4"/>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL5"/>
+          <!--StopStoryboard BeginStoryboardName="BeginStoryboardL6"/-->
+        </Trigger.ExitActions>
+      </Trigger>
+    </Grid.Triggers>
+
     <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
       <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">

@@ -22,12 +22,12 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -77,6 +77,15 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       _animationCompletedProperty = new SProperty(typeof(bool), false);
     }
 
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      GridListView c = (GridListView)source;
+      BeginNavigation = c.BeginNavigation;
+      AnimationStarted = c.AnimationStarted;
+      AnimationCompleted = c.AnimationCompleted;
+    }
+
     protected override FrameworkElement PrepareItemContainer(object dataItem)
     {
       FrameworkElement container = base.PrepareItemContainer(dataItem);
@@ -115,6 +124,5 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       }
       return true;
     }
-
   }
 }

@@ -20,7 +20,7 @@
              Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
       <Label x:Name="ProgramEnd" Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
              Color="{ThemeResource TextColor}"/>
-      <Label x:Name="Channel" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" />
+      <Label x:Name="Channel" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" Opacity="0.5"/>
       <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
              Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
         <Image.Source>
@@ -39,7 +39,7 @@
     </StackPanel>
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-           Wrap="True" Scroll="Auto" Opacity="0.5"
+           Wrap="True" TextTrimming="WordEllipsis" Opacity="0.5"
            Content="{Binding Path=CurrentProgram.Description}"
            Color="{ThemeResource TextColor}" Margin="10,0,0,5" />
   </Grid>

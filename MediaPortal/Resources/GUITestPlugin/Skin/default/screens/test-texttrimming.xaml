@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="Text trimming test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows some text labels which are being trimmed."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    <ListView x:Name="Test" DockPanel.Dock="Center" Style="{ThemeResource DefaultListViewStyle}"
+      VerticalAlignment="Center" HorizontalAlignment="Center" Width="900" Height="500">
+      <Label TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Content="Simple text y g" Margin="10"/>
+      <Label Height="30" TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Margin="10" Wrap="True" Content="CharacterEllipsis: text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text"/>
+      <Label Height="30" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Margin="10" Wrap="True" Content="WordEllipsis: text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text"/>
+      <Label Height="30" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Margin="10" Wrap="False" Content="No wrapping: text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text"/>
+      <Label Height="90" TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Margin="10" Wrap="True" Content="CharacterEllipsis: Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text"/>
+      <Label Height="90" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Margin="10" Wrap="True" Content="WordEllipsis: Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text"/>
+      <Label Height="110" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Margin="10" Wrap="False">
+        <Label.Content>No wrapping: text text text text text text text text text text text text text text text text text text text text
+text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text
+text text text text text</Label.Content>
+      </Label>
+      <Label Height="50" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Background="Black" FontSize="20" Margin="10" Wrap="True">
+        <Label.Content>Last visible line fits but additional lines trimmed text text text text text text text text text text text text text text text
+          text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text</Label.Content>
+      </Label>
+    </ListView>
+  </DockPanel>
+</Screen>

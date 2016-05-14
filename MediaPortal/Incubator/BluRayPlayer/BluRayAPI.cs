@@ -41,6 +41,7 @@ namespace MediaPortal.UI.Players.Video
     {
       public int RegionCode;
       public int ParentalControl;
+      public int AudioType;
       [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 4)]
       public string AudioLanguage;
       [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 4)]
@@ -54,7 +55,7 @@ namespace MediaPortal.UI.Players.Video
     [StructLayout(LayoutKind.Sequential)]
     public struct BluRayEvent
     {
-      public int Event;
+      public BDEvents Event;
       public int Param;
     }
 
@@ -69,6 +70,19 @@ namespace MediaPortal.UI.Players.Video
       public UInt32 ChapterCount;
       public IntPtr Clips;
       public IntPtr Chapters;
+      public UInt32 MarkCount;
+      public IntPtr Marks;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BDMark
+    {
+      public UInt32 Index;
+      public Int32 Type;
+      public UInt64 Start;
+      public UInt64 Duration;
+      public UInt64 Offset;
+      public byte ClipRef;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -94,6 +108,7 @@ namespace MediaPortal.UI.Players.Video
       public UInt64 Start;
       public UInt64 Duration;
       public UInt64 Offset;
+      public UInt16 ClipRef;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -177,6 +192,7 @@ namespace MediaPortal.UI.Players.Video
     [StructLayout(LayoutKind.Sequential)]
     public struct OSDTexture
     {
+      public OverlayPlane Plane;
       public int Width;
       public int Height;
       public int X;
@@ -200,7 +216,20 @@ namespace MediaPortal.UI.Players.Video
     {
       None,
       Root,
+      RootPending,
       PopUp
+    }
+
+    [Flags]
+    public enum MenuItems
+    {
+      None = 0,
+      MainMenu = 1,
+      PopUpMenu = 2,
+      Chapter = 4,
+      Audio = 8,
+      Subtitle = 16,
+      All = 255
     }
 
     public enum StillModeType : byte
@@ -210,7 +239,7 @@ namespace MediaPortal.UI.Players.Video
       Infinite = 0x02,
     }
 
-    public static Dictionary<Key, BDKeys> KeyMapping = 
+    public static Dictionary<Key, BDKeys> KeyMapping =
       new Dictionary<Key, BDKeys>
         {
           {Key.Left, BDKeys.BD_VK_LEFT},
@@ -258,39 +287,51 @@ namespace MediaPortal.UI.Players.Video
     public enum BDEvents
     {
       None = 0,
-      Error,
-      Encrypted,
+      Error = 1,     /* Fatal error. Playback can't be continued. */
+      ReadError = 2, /* Reading of .m2ts aligned unit failed. Next call to read will try next block. */
+      Encrypted = 3, /* .m2ts file is encrypted and can't be played */
 
       /* current playback position */
-      Angle,     /* current angle, 1...N */
-      Title,     /* current title, 1...N (0 = top menu) */
-      Playlist,  /* current playlist (xxxxx.mpls) */
-      Playitem,  /* current play item */
-      Chapter,   /* current chapter, 1...N */
-      EndOfTitle,
+      Angle = 4,     /* current angle, 1...N */
+      Title = 5,     /* current title, 1...N (0 = top menu) */
+      Playlist = 6,  /* current playlist (xxxxx.mpls) */
+      Playitem = 7,  /* current play item */
+      Chapter = 8,   /* current chapter, 1...N */
+      Playmark = 30, /* playmark reached */
+      EndOfTitle = 9,
 
       /* stream selection */
-      AudioStream,          /* 1..32,  0xff  = none */
-      IgStream,             /* 1..32                */
-      PgTextStream,         /* 1..255, 0xfff = none */
-      PipPgTextStream,      /* 1..255, 0xfff = none */
-      SecondaryAudioStream, /* 1..32,  0xff  = none */
-      SecondaryVideoStream, /* 1..32,  0xff  = none */
+      AudioStream = 10,          /* 1..32,  0xff  = none */
+      IgStream = 11,             /* 1..32                */
+      PgTextStream = 12,         /* 1..255, 0xfff = none */
+      PipPgTextStream = 13,      /* 1..255, 0xfff = none */
+      SecondaryAudioStream = 14, /* 1..32,  0xff  = none */
+      SecondaryVideoStream = 15, /* 1..32,  0xff  = none */
 
-      PgText,               /* 0 - disable, 1 - enable */
-      PipPgText,            /* 0 - disable, 1 - enable */
-      SecondaryAudio,       /* 0 - disable, 1 - enable */
-      SecondaryVideo,       /* 0 - disable, 1 - enable */
-      VideoSize,            /* 0 - PIP, 0xf - fullscreen */
+      PgText = 16,               /* 0 - disable, 1 - enable */
+      PipPgText = 17,            /* 0 - disable, 1 - enable */
+      SecondaryAudio = 18,       /* 0 - disable, 1 - enable */
+      SecondaryVideo = 19,       /* 0 - disable, 1 - enable */
+      VideoSize = 20,            /* 0 - PIP, 0xf - fullscreen */
+
+      /* discontinuity in the stream (non-seamless connection). Reset demuxer PES buffers. */
+      Discontinuity = 28,  /* new timestamp (45 kHz) */
 
       /* HDMV VM or JVM seeked the stream. Next read() will return data from new position. */
-      Seek,
+      Seek = 21,
 
       /* still playback (pause) */
-      Still,                  /* 0 - off, 1 - on */
+      Still = 22,                  /* 0 - off, 1 - on */
 
       /* Still playback for n seconds (reached end of still mode play item) */
-      StillTime,             /* 0 = infinite ; 1...300 = seconds */
+      StillTime = 23,             /* 0 = infinite ; 1...300 = seconds */
+      SoundEffect = 24,           /* effect ID */
+
+      /* Nothing to do. Playlist is not playing, but title applet is running. */
+      Idle = 29,
+      Popup = 25,                 /* 0 - no, 1 - yes */
+      Menu = 26,                  /* 0 - no, 1 - yes */
+      StereoscopicStatus = 27,    /* 0 - 2D, 1 - 3D */
 
       CustomEventMenuVisibility = 1000  /* 0 - not shown, 1 shown*/
     }
@@ -313,7 +354,9 @@ namespace MediaPortal.UI.Players.Video
       VideoH264 = 0x1b,
       SubPg = 0x90,
       SubIg = 0x91,
-      SubText = 0x92
+      SubText = 0x92,
+      Ac3PlusSecondary = 0xa1,
+      DtsHdSecondary = 0xa2
     }
 
     // ReSharper disable InconsistentNaming
@@ -368,12 +411,19 @@ namespace MediaPortal.UI.Players.Video
       Audio = 2
     }
 
-    public enum BluRayTitle: uint
+    public enum BluRayTitle : uint
     {
       Current = 0xffffffff,
       FirstPlay = 0xffff,
       TopMenu = 0
     }
+
+    public enum OverlayPlane : byte
+    {
+      Presentation = 0,  /* Presentation Graphics plane */
+      Interactive = 1,  /* Interactive Graphics plane (on top of PG plane) */
+    }
+
 
     #endregion
   }
