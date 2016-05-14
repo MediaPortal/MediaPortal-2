@@ -317,6 +317,9 @@ namespace MediaPortal.UiComponents.Media.General
     // Sorting
     public const string RES_SWITCH_SORTING = "[Media.SwitchSortingMenuItem]";
 
+    // Grouping
+    public const string RES_SWITCH_GROUPING = "[Media.SwitchGroupingMenuItem]";
+
     // Filter
     public const string RES_SWITCH_FILTER = "[Media.SwitchFilterMenuItem]";
 
@@ -338,6 +341,26 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SORT_BY_DATE = "[Media.SortByDate]";
     public const string RES_SORT_BY_EPISODE = "[Media.SortByEpisode]";
     public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
+
+    public const string RES_NO_GROUPING = "[Media.NoGrouping]";
+    public const string RES_GROUP_BY_TITLE = "[Media.GroupByTitle]";
+    public const string RES_GROUP_BY_ALBUM_TRACK = "[Media.GroupByAlbumTrack]";
+    public const string RES_GROUP_BY_GENRE = "[Media.GroupByGenre]";
+    public const string RES_GROUP_BY_ALBUM = "[Media.GroupByAlbum]";
+    public const string RES_GROUP_BY_TRACK = "[Media.GroupByTrack]";
+    public const string RES_GROUP_BY_ARTIST = "[Media.GroupByArtist]";
+    public const string RES_GROUP_BY_YEAR = "[Media.GroupByYear]";
+    public const string RES_GROUP_BY_SIZE = "[Media.GroupBySize]";
+    public const string RES_GROUP_BY_SYSTEM = "[Media.GroupBySystem]";
+    public const string RES_GROUP_BY_ACTOR = "[Media.GroupByActor]";
+    public const string RES_GROUP_BY_DIRECTOR = "[Media.GroupByDirector]";
+    public const string RES_GROUP_BY_WRITER = "[Media.GroupByWriter]";
+    public const string RES_GROUP_BY_DURATION = "[Media.GroupByDuration]";
+    public const string RES_GROUP_BY_ASPECT_RATIO = "[Media.GroupByAspectRatio]";
+    public const string RES_GROUP_BY_FIRST_AIRED_DATE = "[Media.GroupByFirstAiredDate]";
+    public const string RES_GROUP_BY_DATE = "[Media.GroupByDate]";
+    public const string RES_GROUP_BY_EPISODE = "[Media.GroupByEpisode]";
+    public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";
 
     // Image and video size thresholds
     /// <summary>
@@ -409,6 +432,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string DIALOG_SWITCH_VIEW_MODE = "DialogSwitchViewMode";
 
     public const string DIALOG_SWITCH_SORTING = "DialogSwitchSorting";
+
+    public const string DIALOG_SWITCH_GROUPING = "DialogSwitchGrouping";
 
     public const string DIALOG_SWITCH_FILTER = "DialogSwitchFilter";
 
@@ -483,6 +508,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_LAYOUT_SIZE = "LayoutSize";
 
     public const string KEY_SORTING = "Sorting";
+    public const string KEY_GROUPING = "Grouping";
 
     public const string KEY_FILTER = "Filter";
 

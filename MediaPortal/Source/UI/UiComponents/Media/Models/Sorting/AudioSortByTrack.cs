@@ -29,6 +29,6 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class AudioSortByTrack : AbstractSortByComparableValueAttribute<int>
   {
-    public AudioSortByTrack() : base(Consts.RES_SORT_BY_TRACK, AudioAspect.ATTR_TRACK) {}
+    public AudioSortByTrack() : base(Consts.RES_SORT_BY_TRACK, Consts.RES_GROUP_BY_TRACK, AudioAspect.ATTR_TRACK) {}
   }
 }

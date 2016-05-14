@@ -97,6 +97,7 @@
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\SeriesAction.cs" />
     <Compile Include="Actions\SwitchFilterAction.cs" />
+    <Compile Include="Actions\SwitchGroupingAction.cs" />
     <Compile Include="Actions\SwitchSortingAction.cs" />
     <Compile Include="Actions\RemovePlaylistsAction.cs" />
     <Compile Include="Actions\SwitchViewModeAction.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
+    <Compile Include="Models\MediaGroupingModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
@@ -348,6 +350,7 @@
     <Content Include="Skin\default\themes\default\styles\MediaConsts.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\workflow\filter-actions.xml" />
+    <Content Include="Skin\default\workflow\grouping-actions.xml" />
     <Content Include="Skin\default\workflow\sorting-actions.xml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
@@ -405,6 +408,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\AudioFilterByAlbumArtist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSwitchGrouping.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

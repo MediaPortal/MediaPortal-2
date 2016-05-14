@@ -56,5 +56,18 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       }
       return base.Compare(x, y);
     }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      MediaItemAspect aspect;
+      Guid aspectId = _attr.ParentMIAM.AspectId;
+      if (item.Aspects.TryGetValue(aspectId, out aspect))
+      {
+        List<string> values = new List<string>(aspect.GetCollectionAttribute<string>(_attr));
+        values.Sort();
+        return values.FirstOrDefault();
+      }
+      return base.GetGroupByValue(item);
+    }
   }
 }

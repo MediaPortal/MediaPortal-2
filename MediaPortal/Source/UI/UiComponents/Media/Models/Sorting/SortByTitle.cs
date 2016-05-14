@@ -29,6 +29,6 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortByTitle : AbstractSortByComparableObjectAttribute<string>
   {
-    public SortByTitle() : base(Consts.RES_SORT_BY_TITLE, MediaAspect.ATTR_TITLE) {}
+    public SortByTitle() : base(Consts.RES_SORT_BY_TITLE, Consts.RES_GROUP_BY_TITLE, MediaAspect.ATTR_TITLE) {}
   }
 }

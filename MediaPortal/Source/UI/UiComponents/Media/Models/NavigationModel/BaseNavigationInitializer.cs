@@ -50,6 +50,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected ICollection<AbstractScreenData> _availableScreens;
     protected Sorting.Sorting _defaultSorting;
     protected ICollection<Sorting.Sorting> _availableSortings;
+    protected Sorting.Sorting _defaultGrouping;
+    protected ICollection<Sorting.Sorting> _availableGroupings;
     protected AbstractItemsScreenData.PlayableItemCreatorDelegate _genericPlayableItemCreatorDelegate;
     protected ViewSpecification _customRootViewSpecification;
     protected IEnumerable<string> _restrictedMediaCategories = null;
@@ -126,11 +128,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       NavigationData.LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
 
       Sorting.Sorting nextSortingMode = _availableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting) ?? _defaultSorting;
+      Sorting.Sorting nextGroupingMode = _availableGroupings == null || String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : _availableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping) ?? _defaultGrouping;
 
       navigationData = new NavigationData(null, _viewName, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode)
+        MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode, nextGroupingMode)
       {
         AvailableSortings = _availableSortings,
+        AvailableGroupings = _availableGroupings,
         LayoutType = nextScreenConfig.LayoutType,
         LayoutSize = nextScreenConfig.LayoutSize
       };

@@ -41,6 +41,7 @@
     <Model Id="039151B6-800B-4279-A1BE-7F421EEA8C9A" Name="ManagePlaylistsModel" ClassName="MediaPortal.UiComponents.Media.Models.ManagePlaylistsModel"/>
     <Model Id="6997CD35-63F0-4F96-8997-E18C9382E2DC" Name="ViewModeModel" ClassName="MediaPortal.UiComponents.Media.Models.ViewModeModel"/>
     <Model Id="3871146E-AFF4-4B7F-90E5-091764E4F45A" Name="MediaSortingModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaSortingModel"/>
+    <Model Id="68A966B6-6EAC-415E-89A4-7C486F9B5A3B" Name="MediaGroupingModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaGroupingModel"/>
     <Model Id="52DFDB33-5D94-41AC-BBB7-2B070473FB48" Name="MediaFilterModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaFilterModel"/>
 
     <Model Id="6455D863-CCF2-403d-8C36-754299B61319" Name="BrowseLocalMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.BrowseLocalMediaAction"/>
@@ -57,6 +58,7 @@
     <Model Id="3CE266A6-95C9-412E-B93F-FA15DFD63442" Name="RemovePlaylistsContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.RemovePlaylistsAction"/>
     <Model Id="4BDAE589-15AF-4B84-B930-9F24E66841BB" Name="SwitchViewModeContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchViewModeAction"/>
     <Model Id="D447F742-5592-48FF-B189-C1868FB6740F" Name="SwitchSortingContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchSortingAction"/>
+    <Model Id="4C132A3B-81ED-4080-895A-08E9EB56BA62" Name="SwitchGroupingContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchGroupingAction"/>
     <Model Id="C1FCD6E1-41E8-45F9-BFCB-D59F2FFB0F15" Name="SwitchFilterContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchFilterAction"/>
     <Model Id="F1DBEDCB-CB95-4CF5-8787-07390869DE44" Name="SwitchBrowseLocalMLContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchBrowseLocalMLAction"/>
     <Model Id="56B6B935-8972-48C2-811A-BF150A1F8F09" Name="SwitchBrowseModeContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.SwitchBrowseModeAction"/>

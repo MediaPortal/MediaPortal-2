@@ -45,6 +45,7 @@ namespace MediaPortal.UiComponents.Media.Settings
   public struct ScreenConfig
   {
     public string Sorting { get; set; }
+    public string Grouping { get; set; }
     public LayoutType LayoutType { get; set; }
     public LayoutSize LayoutSize { get; set; }
   }
