@@ -60,6 +60,14 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
         };
 
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new SortByTitle(),
+          new SortByDate(),
+        };
+
       var optionalMias = new[]
       {
         AudioAspect.ASPECT_ID,

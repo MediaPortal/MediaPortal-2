@@ -333,6 +333,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item.SetElementState(ElementState.Preparing);
           if (_elementState == ElementState.Running)
             item.SetElementState(ElementState.Running);
+          if (Orientation == Orientation.Vertical)
+          {
+            SetVerticalScrollDistance(item, 0d);
+          }
+          else
+          {
+            SetHorizontalScrollDistance(item, 0d);
+          }
         }
         if (newlyCreated || forceMeasure)
         {
@@ -361,6 +369,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           headerItem.SetElementState(ElementState.Preparing);
           if (_elementState == ElementState.Running)
             headerItem.SetElementState(ElementState.Running);
+          if (Orientation == Orientation.Vertical)
+          {
+            SetVerticalScrollDistance(headerItem, 0d);
+          }
+          else
+          {
+            SetHorizontalScrollDistance(headerItem, 0d);
+          }
         }
         if (newlyCreated || forceMeasure)
         {
@@ -588,8 +604,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             _totalWidth = actualExtendsInNonOrientationDirection;
           else
             _totalHeight = actualExtendsInNonOrientationDirection;
+          var previousArrangedItems = new List<FrameworkElement>(_arrangedItems);
           _arrangedItems.Clear();
+          var previousVisibleGroupItems = new List<FrameworkElement>(_visibleGroupItems);
           _visibleGroupItems.Clear();
+
+          foreach (var item in previousArrangedItems)
+          {
+            if (Orientation == Orientation.Vertical)
+            {
+              SetVerticalScrollDistance(item, 0d);
+            }
+            else
+            {
+              SetHorizontalScrollDistance(item, 0d);
+            }
+          }
+          foreach (var headerItem in previousVisibleGroupItems)
+          {
+            if (Orientation == Orientation.Vertical)
+            {
+              SetVerticalScrollDistance(headerItem, 0d);
+            }
+            else
+            {
+              SetHorizontalScrollDistance(headerItem, 0d);
+            }
+          }
 
           // get the 1st group header 1st, so we do not add it twice
           var firstGroupHeaderItem = GetGroupHeader(_actualFirstVisibleChildIndex, true, groupingItemProvider, true);
@@ -608,13 +649,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             if (item == null || !item.IsVisible)
               continue;
 
-            ArrangeChild(item, actualPosition, ref startOffset, true, actualExtendsInNonOrientationDirection);
+            ArrangeChild(item, actualPosition, ref startOffset, true, actualExtendsInNonOrientationDirection, previousArrangedItems);
             _arrangedItems.Insert(0, item);
 
             var groupHeaderItem = GetGroupHeader(i, false, groupingItemProvider, true);
             if (groupHeaderItem != null && !ReferenceEquals(groupHeaderItem, firstGroupHeaderItem))
             {
-              ArrangeChild(groupHeaderItem, actualPosition, ref startOffset, true, actualExtendsInNonOrientationDirection);
+              ArrangeChild(groupHeaderItem, actualPosition, ref startOffset, true, actualExtendsInNonOrientationDirection, previousVisibleGroupItems);
             }
 
             _arrangedItemsStartIndex = i;
@@ -633,14 +674,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             var groupHeaderItem = (i == _actualFirstVisibleChildIndex) ? firstGroupHeaderItem : GetGroupHeader(i, false, groupingItemProvider, true);
             if (groupHeaderItem != null)
             {
-              ArrangeChild(groupHeaderItem, actualPosition, ref startOffset, false, actualExtendsInNonOrientationDirection);
+              ArrangeChild(groupHeaderItem, actualPosition, ref startOffset, false, actualExtendsInNonOrientationDirection, previousVisibleGroupItems);
               if (i <= _actualLastVisibleChildIndex || (_addOneMoreGroupHeader && i == _actualLastVisibleChildIndex + 1))
               {
                 _visibleGroupItems.Add(groupHeaderItem);
               }
             }
 
-            ArrangeChild(item, actualPosition, ref startOffset, false, actualExtendsInNonOrientationDirection);
+            ArrangeChild(item, actualPosition, ref startOffset, false, actualExtendsInNonOrientationDirection, previousArrangedItems);
             _arrangedItems.Add(item);
           }
           int numInvisible = numItems - _arrangedItems.Count; // Items which have not been arranged above, i.e. item extends have not been added to _totalHeight / _totalWidth
@@ -666,7 +707,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         InvokeScrolled();
     }
 
-    private void ArrangeChild(FrameworkElement item, Vector2 actualPosition, ref float startOffset, bool arrangeBefore, float actualExtendsInNonOrientationDirection)
+    private void ArrangeChild(FrameworkElement item, Vector2 actualPosition, ref float startOffset, 
+      bool arrangeBefore, float actualExtendsInNonOrientationDirection,
+      IList<FrameworkElement> previousArrangedChilds)
     {
       SizeF childSize = item.DesiredSize;
       // For Orientation == vertical, this is childSize.Height, for horizontal it is childSize.Width
@@ -682,7 +725,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         childSize.Width = actualExtendsInNonOrientationDirection;
 
         ArrangeChildHorizontal(item, item.HorizontalAlignment, ref position, ref childSize);
+        var scrollDistance = item.ActualPosition.Y - position.Y;
         item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
+        SetVerticalScrollDistance(item, previousArrangedChilds.Contains(item) ? scrollDistance : 0d);
         _totalHeight += desiredExtendsInOrientationDirection;
       }
       else
@@ -692,7 +737,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         childSize.Height = actualExtendsInNonOrientationDirection;
 
         ArrangeChildVertical(item, item.VerticalAlignment, ref position, ref childSize);
+        var scrollDistance = item.ActualPosition.X - position.X;
         item.Arrange(SharpDXExtensions.CreateRectangleF(position, childSize));
+        SetHorizontalScrollDistance(item, previousArrangedChilds.Contains(item) ? scrollDistance : 0d);
         _totalWidth += desiredExtendsInOrientationDirection;
       }
       if (!arrangeBefore)

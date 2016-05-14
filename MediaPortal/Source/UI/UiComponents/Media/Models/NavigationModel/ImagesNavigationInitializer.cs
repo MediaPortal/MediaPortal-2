@@ -67,6 +67,16 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new ImageSortBySize(),
           new SortBySystem(),
         };
+
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new SortByYear(),
+          new SortByTitle(),
+          new ImageSortBySize(),
+          new SortBySystem(),
+        };
     }
   }
 }

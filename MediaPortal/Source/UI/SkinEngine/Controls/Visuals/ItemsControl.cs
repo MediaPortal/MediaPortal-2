@@ -56,6 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _dataStringProviderProperty;
     protected AbstractProperty _currentItemProperty;
     protected AbstractProperty _isEmptyProperty;
+    protected AbstractProperty _groupingValueProviderProperty;
 
     protected ItemCollection _items;
     protected bool _preventItemsPreparation = false; // Prevent preparation before we are fully initialized - optimization
@@ -94,6 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemContainerStyleProperty = new SProperty(typeof(Style), null);
       _groupHeaderContainerStyleProperty = new SProperty(typeof(Style), null);
       _groupHeaderTemplateProperty = new SProperty(typeof(DataTemplate), null);
+      _groupingValueProviderProperty = new SProperty(typeof(IGroupingValueProvider), null);
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
       _dataStringProviderProperty = new SProperty(typeof(DataStringProvider), null);
       _currentItemProperty = new SProperty(typeof(object), null);
@@ -105,6 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsSourceProperty.Attach(OnItemsSourceChanged);
       _itemTemplateProperty.Attach(OnItemTemplateChanged);
       _groupHeaderTemplateProperty.Attach(OnGroupHeaderTemplateChanged);
+      _groupingValueProviderProperty.Attach(OnGroupingValueProviderChanged);
       _itemsPanelProperty.Attach(OnItemsPanelChanged);
       _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
@@ -120,6 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsSourceProperty.Detach(OnItemsSourceChanged);
       _itemTemplateProperty.Detach(OnItemTemplateChanged);
       _groupHeaderTemplateProperty.Detach(OnGroupHeaderTemplateChanged);
+      _groupingValueProviderProperty.Detach(OnGroupingValueProviderChanged);
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
       _dataStringProviderProperty.Detach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
@@ -227,6 +231,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     void OnGroupHeaderTemplateChanged(AbstractProperty property, object oldValue)
+    {
+      PrepareItems(true);
+    }
+
+    void OnGroupingValueProviderChanged(AbstractProperty property, object oldValue)
     {
       PrepareItems(true);
     }
@@ -412,7 +421,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return _groupHeaderTemplateProperty; }
     }
-    
+
+
+    public AbstractProperty GroupingValueProviderProperty
+    {
+      get { return _groupingValueProviderProperty; }
+    }
+
     /// <summary>
     /// Gets or sets the data template used to display each group header.
     /// </summary>
@@ -422,6 +437,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _groupHeaderTemplateProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Gets or sets the grouping value provider
+    /// </summary>
+    /// <remarks>
+    /// This can alternatively be used instead of <see cref="GroupingBindingWrapper"/>
+    /// </remarks>
+    public IGroupingValueProvider GroupingValueProvider
+    {
+      get { return (IGroupingValueProvider)_groupingValueProviderProperty.GetValue(); }
+      set { _groupingValueProviderProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the bidning to get the grouping value for an item
+    /// </summary>
+    /// <remarks>
+    /// This can alternatively be used instead of <see cref="GroupingValueProvider"/>
+    /// </remarks>
     public BindingWrapper GroupingBindingWrapper
     {
       get { return _groupingBindingWrapper; }
@@ -661,8 +694,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           // In this case, the VSP will generate its items by itself
           ListViewItemGenerator lvig = new ListViewItemGenerator();
-          lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate, 
-            GroupingBindingWrapper == null ? null :  GroupingBindingWrapper.Binding, GroupHeaderContainerStyle, GroupHeaderTemplate);
+          lvig.Initialize(this, l, ItemContainerStyle, ItemTemplate,
+            GroupingValueProvider, GroupingBindingWrapper == null ? null :  GroupingBindingWrapper.Binding, GroupHeaderContainerStyle, GroupHeaderTemplate);
           SimplePropertyDataDescriptor dd;
           if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "IsEmpty", out dd))
             SetValueInRenderThread(dd, l.Count == 0);

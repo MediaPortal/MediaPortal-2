@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 
@@ -29,6 +30,6 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortBySystem : AbstractSortByComparableObjectAttribute<string>
   {
-    public SortBySystem() : base(Consts.RES_SORT_BY_SYSTEM, ProviderResourceAspect.ATTR_SYSTEM_ID) {}
+    public SortBySystem() : base(Consts.RES_SORT_BY_SYSTEM, String.Empty, ProviderResourceAspect.ATTR_SYSTEM_ID) {}
   }
 }

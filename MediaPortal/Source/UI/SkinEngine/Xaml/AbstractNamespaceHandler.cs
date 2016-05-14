@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     internal MethodInfo GetAttachedPropertyGetter(string propertyProvider, string propertyName)
     {
-      Type type = GetElementType(propertyProvider);
+      Type type = GetElementType(propertyProvider, true);
       MethodInfo mi = null;
       while (mi == null && type != null)
       {

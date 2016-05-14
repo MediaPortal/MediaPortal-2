@@ -237,7 +237,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         lock (_syncObj)
         {
           NavigationData nd = _navigationData;
-          result = nd == null ? null : nd.CurrentSorting;
+          result = nd == null ? null : nd.GetCombinedSorting();
         }
         return result;
       }

@@ -6,7 +6,82 @@
   <Screen.Resources>
     <Model x:Key="Model" Id="F4FC1599-F412-40d0-82BF-46FC352E93BE"/>
 
+    <Storyboard x:Key="VerticalScrollAnimation" FillBehavior="HoldEnd">
+      <DoubleAnimation BeginTime="00:00:00"
+                       To="0" 
+                       Duration="00:00:01.200" FillBehavior="HoldEnd" 
+                       Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="RenderTransform.Children[0].Y">
+
+        <DoubleAnimation.From>
+          <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Panel.VerticalScrollDistance"/>
+        </DoubleAnimation.From>
+      </DoubleAnimation>
+    </Storyboard>
+
+    <Style x:Key="MyGroupHeaderContainerStyle" BasedOn="{ThemeResource DefaultGroupHeaderContainerStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListViewGroupHeader}" x:Name="ListViewItem">
+            <ControlTemplate.Triggers>
+              <Trigger Property="Panel.VerticalScrollDistance" Value="0">
+                <Trigger.EnterActions>
+                  <StopStoryboard BeginStoryboardName="GroupHeader_BeginStoryboard"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard x:Name="GroupHeader_BeginStoryboard" Storyboard="{StaticResource VerticalScrollAnimation}"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+            <ContentPresenter x:Name="ContentPresenter">
+              <ContentPresenter.RenderTransform>
+                <TransformGroup>
+                  <TranslateTransform X="0" Y="0"/>
+                </TransformGroup>
+              </ContentPresenter.RenderTransform>
+            </ContentPresenter>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="MyItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListViewItem}" x:Name="ListViewItem">
+            <ControlTemplate.Triggers>
+              <Trigger Property="Panel.VerticalScrollDistance" Value="0">
+                <Trigger.EnterActions>
+                  <StopStoryboard BeginStoryboardName="GroupHeader_BeginStoryboard"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard x:Name="GroupHeader_BeginStoryboard" Storyboard="{StaticResource VerticalScrollAnimation}"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+            <Button Style="{ThemeResource ButtonWideStyle}" x:Name="ContentPresenter"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.RenderTransform>
+                <TransformGroup>
+                  <TranslateTransform X="0" Y="0"/>
+                </TransformGroup>
+              </Button.RenderTransform>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    
     <Style x:Key="ListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+
+      <Setter Property="GroupHeaderContainerStyle" Value="{ThemeResource MyGroupHeaderContainerStyle}"/>
+      <Setter Property="ItemContainerStyle" Value="{ThemeResource MyItemContainerStyle}"/>
 
       <BindingSetter Property="GroupHeaderTemplate">
         <BindingSetter.BindingWrapper>
@@ -105,8 +180,6 @@
         </BindingSetter.BindingWrapper>
       </BindingSetter>
 
-      <Setter Property="GroupHeaderContainerStyle" Value="{ThemeResource DefaultGroupHeaderContainerStyle}"/>
-      <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
       <BindingSetter Property="ItemsPanel">
         <BindingSetter.BindingWrapper>
           <BindingWrapper>

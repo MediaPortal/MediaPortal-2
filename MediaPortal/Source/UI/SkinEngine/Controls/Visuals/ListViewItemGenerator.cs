@@ -41,6 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected DataTemplate _itemTemplate = null;
     protected Style _itemContainerStyle = null;
 
+    protected IGroupingValueProvider _groupingValueProvider;
     protected IBinding _groupPropertyBinding;
     protected DataTemplate _groupHeaderTemplate;
     protected Style _groupHeaderContainerStyle;
@@ -85,6 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MPF.TryCleanupAndDispose(_itemContainerStyle);
       _itemContainerStyle = null;
 
+      _groupingValueProvider = null;
       MPF.TryCleanupAndDispose(_groupPropertyBinding);
       _groupPropertyBinding = null;
       MPF.TryCleanupAndDispose(_groupHeaderTemplate);
@@ -102,6 +104,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemTemplate = copyManager.GetCopy(icg._itemTemplate);
       _itemContainerStyle = copyManager.GetCopy(icg._itemContainerStyle);
 
+      _groupingValueProvider = icg._groupingValueProvider;
       _groupPropertyBinding = copyManager.GetCopy(icg._groupPropertyBinding);
       _groupHeaderTemplate = copyManager.GetCopy(icg._groupHeaderTemplate);
       _groupHeaderContainerStyle = copyManager.GetCopy(icg._groupHeaderContainerStyle);
@@ -134,18 +137,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _materializedGroupHeaders = new HeaderItemWrapper[icg._materializedGroupHeaders.Length];
         for (int n = 0; n < icg._materializedGroupHeaders.Length; ++n)
         {
-          _materializedGroupHeaders[n++] = icg._materializedGroupHeaders[n].GetCopy(copyManager);
+          _materializedGroupHeaders[n] = copyManager.GetCopy(icg._materializedGroupHeaders[n]);
         }
       }
     }
     
     public void Initialize(FrameworkElement parent, IEnumerable<object> itemsSource, Style itemContainerStyle, DataTemplate itemTemplate)
     {
-      Initialize(parent, itemsSource, itemContainerStyle, itemTemplate, null, null, null);
+      Initialize(parent, itemsSource, itemContainerStyle, itemTemplate, null, null, null, null);
     }
 
     public void Initialize(FrameworkElement parent, IEnumerable<object> itemsSource, Style itemContainerStyle, DataTemplate itemTemplate,
-      IBinding groupPropertyBinding, Style groupHeaderContainerStyle, DataTemplate groupHeaderTemplate)
+      IGroupingValueProvider groupingValueProvider, IBinding groupPropertyBinding, Style groupHeaderContainerStyle, DataTemplate groupHeaderTemplate)
     {
       _parent = parent;
 
@@ -155,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       for (int i = 0; i < _items.Count; i++)
         _materializedItems.Add(null);
 
-      if (groupPropertyBinding != null)
+      if (groupingValueProvider != null || groupPropertyBinding != null)
       {
         _materializedGroupHeaders = new HeaderItemWrapper[_items.Count];
       }
@@ -169,6 +172,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       MPF.TryCleanupAndDispose(_groupHeaderContainerStyle);
       MPF.TryCleanupAndDispose(_groupHeaderTemplate);
       MPF.TryCleanupAndDispose(_groupPropertyBinding);
+      _groupingValueProvider = groupingValueProvider;
       _groupPropertyBinding = MpfCopyManager.DeepCopyCutLVPs(groupPropertyBinding);
       _groupHeaderContainerStyle = MpfCopyManager.DeepCopyCutLVPs(groupHeaderContainerStyle);
       _groupHeaderTemplate = MpfCopyManager.DeepCopyCutLVPs(groupHeaderTemplate);
@@ -411,27 +415,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return headerWrapper;
       }
 
-      // to get the grouping value of the item we use a dummy header item and apply the DataContext and group value binding to it
-      if (_getValueGroupHeader == null)
+      if (_groupingValueProvider != null)
       {
-        _getValueGroupHeader = new GroupHeaderItem();
-        var dd = new SimplePropertyDataDescriptor(_getValueGroupHeader, typeof(GroupHeaderItem).GetProperty("GroupingValue"));
-        var binding = MpfCopyManager.DeepCopyCutLVPs(_groupPropertyBinding);
-        binding.SetTargetDataDescriptor(dd);
-        binding.Activate();
+        headerWrapper = new HeaderItemWrapper(_groupingValueProvider.GetGroupingValue(_items[itemIndex]));
       }
-
-      _getValueGroupHeader.DataContext = new BindingExtension()
+      else
       {
-        Source = _items[itemIndex],
-        Path = "."
-      };
-      // then we create the actual header item and apply the value to it
-      headerWrapper = new HeaderItemWrapper(_getValueGroupHeader.GroupingValue);
+        // to get the grouping value of the item we use a dummy header item and apply the DataContext and group value binding to it
+        if (_getValueGroupHeader == null)
+        {
+          _getValueGroupHeader = new GroupHeaderItem();
+          var dd = new SimplePropertyDataDescriptor(_getValueGroupHeader, typeof(GroupHeaderItem).GetProperty("GroupingValue"));
+          var binding = MpfCopyManager.DeepCopyCutLVPs(_groupPropertyBinding);
+          binding.SetTargetDataDescriptor(dd);
+          binding.Activate();
+        }
 
-      // finally cleanup the datacontext binding
-      MPF.TryCleanupAndDispose(_getValueGroupHeader.DataContext);
-      _getValueGroupHeader.DataContext = null;
+        _getValueGroupHeader.DataContext = new BindingExtension()
+        {
+          Source = _items[itemIndex],
+          Path = "."
+        };
+        // then we create the actual header item and apply the value to it
+        headerWrapper = new HeaderItemWrapper(_getValueGroupHeader.GroupingValue);
+
+        // finally cleanup the datacontext binding
+        MPF.TryCleanupAndDispose(_getValueGroupHeader.DataContext);
+        _getValueGroupHeader.DataContext = null;
+      }
       _materializedGroupHeaders[itemIndex] = headerWrapper;
       return headerWrapper;
     }

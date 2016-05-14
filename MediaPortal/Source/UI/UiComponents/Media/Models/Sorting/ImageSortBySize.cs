@@ -51,5 +51,22 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       }
       return base.Compare(item1, item2);
     }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_SIZE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      MediaItemAspect imageAspect;
+      if (item.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
+      {
+        int? x = (int?)imageAspect.GetAttributeValue(ImageAspect.ATTR_WIDTH);
+        int? y = (int?)imageAspect.GetAttributeValue(ImageAspect.ATTR_HEIGHT);
+        return x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
+      }
+      return base.GetGroupByValue(item);
+    }
   }
 }

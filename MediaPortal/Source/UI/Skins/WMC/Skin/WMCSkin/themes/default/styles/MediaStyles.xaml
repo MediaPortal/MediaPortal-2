@@ -2010,6 +2010,7 @@
     <Setter Property="ItemTemplate"/>
     <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
+    <Setter Property="GroupHeaderContainerStyle" Value="{ThemeResource DefaultGroupHeaderContainerStyle}"/>
     <BindingSetter Property="ItemContainerStyle">
       <BindingSetter.BindingWrapper>
         <BindingWrapper>
@@ -2034,6 +2035,47 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+
+    <BindingSetter Property="GroupHeaderTemplate">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <!-- List layout = vertical -->
+              <Binding>
+                <Binding.Source>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                      <Label FontSize="{ThemeResource SmallFontSize}" 
+                               Content="{Binding Path=GroupingValue}" />
+                    </StackPanel>
+                  </DataTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Grid or Cover layout = horizontal -->
+              <Binding>
+                <Binding.Source>
+                  <DataTemplate>
+                    <Grid>
+                      <Grid.LayoutTransform>
+                        <RotateTransform Angle="-90"/>
+                      </Grid.LayoutTransform>
+
+                      <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Label FontSize="{ThemeResource SmallFontSize}" 
+                                 Content="{Binding Path=GroupingValue}" />
+                      </StackPanel>
+                    </Grid>
+                  </DataTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+
     <BindingSetter Property="ItemsPanel">
       <BindingSetter.BindingWrapper>
         <BindingWrapper>
