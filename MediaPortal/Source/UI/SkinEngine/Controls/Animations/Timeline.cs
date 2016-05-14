@@ -520,6 +520,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
     {
       // We don't bind bindings - simply ignore them
+      foreach (IBinding binding in bindings)
+        AddDeferredBinding(binding);
+      //if (PreparingOrRunning)
+        ActivateBindings();
     }
 
     #endregion
