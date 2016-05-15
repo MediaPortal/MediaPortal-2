@@ -265,7 +265,9 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieDetails.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieDetailsCover.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeriesDetails.inc" />
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemsList.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemsList.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemsListHeader.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemVideoDetails.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetails.inc" />
