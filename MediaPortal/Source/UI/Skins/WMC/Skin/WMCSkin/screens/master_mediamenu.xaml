@@ -64,6 +64,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
+          <!--ListView.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
+          </-->
         </ListView>
 
         <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->

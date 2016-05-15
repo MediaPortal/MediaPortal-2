@@ -344,21 +344,21 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="HasFocus" Value="True">
                             <Trigger.EnterActions>
-                                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Poster}"/>
+                                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Poster}"/-->
                                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
                             </Trigger.EnterActions>
                             <Trigger.ExitActions>
-                                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                                <!--StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/-->
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Trigger.EnterActions>
-                                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_Poster}"
-                                                 HandoffBehavior="TemporaryReplace"/>
+                                <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_Poster}"
+                                                 HandoffBehavior="TemporaryReplace"/-->
                                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
                             </Trigger.EnterActions>
                             <Trigger.ExitActions>
-                                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+                                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">

@@ -1971,7 +1971,11 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MenuTextForeground}"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+              <Trigger Property="HasFocus" Value="False">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
@@ -2047,7 +2051,7 @@
                 <Binding.Source>
                   <DataTemplate>
                     <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                      <Label FontSize="{ThemeResource SmallFontSize}" 
+                      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
                                Content="{Binding Path=GroupingValue}" />
                     </StackPanel>
                   </DataTemplate>
@@ -2063,7 +2067,7 @@
                       </Grid.LayoutTransform>
 
                       <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <Label FontSize="{ThemeResource SmallFontSize}" 
+                        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
                                  Content="{Binding Path=GroupingValue}" />
                       </StackPanel>
                     </Grid>
