@@ -246,7 +246,9 @@
     <Content Include="Skin\WMCSkin\images\Weather\64x64\WEATHERALERT.png" />
     <Content Include="Skin\WMCSkin\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemImageDetails.inc" />
-    <Content Include="Skin\WMCSkin\screens\MediaItemListMovieDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemMovieDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemOthersDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc" />

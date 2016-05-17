@@ -198,12 +198,32 @@
    <Style x:Key="EmptyButtonControlStyle" TargetType="{x:Type Control}">
    </Style>
 
-    <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
+  <Style x:Key="ButtonBaseControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-            <Rectangle Name="ButtonBase" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="3">
+            <Rectangle Name="ButtonBottomShadow" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="0">
+              <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                  <GradientStop Color="#00000000" Offset="0"/>
+                  <GradientStop Color="#00000000" Offset="0.5"/>
+                  <GradientStop Color="#59000000" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+            <Rectangle Name="ButtonFrame" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="3">
               <Rectangle.Stroke>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
                   <GradientStop Color="#CCFFFFFF" Offset="0"/>
@@ -212,17 +232,10 @@
                 </LinearGradientBrush>
               </Rectangle.Stroke>
             </Rectangle>            
-            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3" RadiusY="3" StrokeThickness="0" Margin="3">
+            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3.5" RadiusY="3.5" StrokeThickness="0" Margin="3">
               <Rectangle.Fill>
                 <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
               </Rectangle.Fill>
-              <!--Rectangle.OpacityMask>
-                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                  <GradientStop Color="Black" Offset="0"/>
-                  <GradientStop Color="Black" Offset="0.7"/>
-                  <GradientStop Color="#4D000000" Offset="1"/>
-                </LinearGradientBrush>
-              </Rectangle.OpacityMask-->
             </Rectangle>
           </DockPanel>
         </ControlTemplate>
@@ -322,60 +335,61 @@
     </Setter>
   </Style>
 
-    <Style x:Key="ButtonWideStyle_Media" TargetType="{x:Type Button}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform ScaleX="1" ScaleY="1"/>
-                            </TransformGroup>
-                        </Grid.RenderTransform>
-                        <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="100"/>
-                        <ContentPresenter x:Name="ButtonContentPresenter" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="0"/>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="HasFocus" Value="True">
-                            <Trigger.EnterActions>
-                                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Poster}"/-->
-                                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <!--StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/-->
-                            </Trigger.ExitActions>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Trigger.EnterActions>
-                                <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_Poster}"
+  <Style x:Key="ButtonWideStyle_Media" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="100"/>
+            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Poster}"/-->
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <!--StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/-->
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_Poster}"
                                                  HandoffBehavior="TemporaryReplace"/-->
-                                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
-                            </Trigger.ExitActions>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-                            </Trigger.ExitActions>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
-    <Style x:Key="ButtonWideStyle_Cover" TargetType="{x:Type Button}">
+  <Style x:Key="ButtonWideStyle_Cover" TargetType="{x:Type Button}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
@@ -499,7 +513,8 @@
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
-            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Margin="3" StrokeThickness="0" 
+            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+            <!--Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Margin="3" StrokeThickness="0" 
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}" 
                        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0">
               <Rectangle.Fill>
@@ -509,7 +524,7 @@
                   <GradientStop Color="#40000000" Offset="1"/>
                 </LinearGradientBrush>
               </Rectangle.Fill>
-            </Rectangle>
+            </-->
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

@@ -1971,11 +1971,11 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MenuTextForeground}"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
               <Trigger Property="HasFocus" Value="False">
-                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MediaItemUnfocussedColor}"/>
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
@@ -2050,10 +2050,16 @@
               <Binding>
                 <Binding.Source>
                   <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
-                               Content="{Binding Path=GroupingValue}" />
-                    </StackPanel>
+                      <Border Margin="3,10,3,3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Border.Background>
+                          <LinearGradientBrush StartPoint="0,0" EndPoint="1,0.3">
+                            <GradientStop Color="#33000000" Offset="0"/>
+                            <GradientStop Color="#0D000000" Offset="1"/>
+                          </LinearGradientBrush>
+                        </Border.Background>
+                      <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MediaItemUnfocussedColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                               Content="{Binding Path=GroupingValue}" Margin="6,1,1,2" />
+                      </Border>
                   </DataTemplate>
                 </Binding.Source>
               </Binding>
@@ -2067,7 +2073,7 @@
                       </Grid.LayoutTransform>
 
                       <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
+                        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnfocussedColor}"
                                  Content="{Binding Path=GroupingValue}" />
                       </StackPanel>
                     </Grid>
