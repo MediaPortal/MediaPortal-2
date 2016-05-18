@@ -48,12 +48,12 @@
         </media:MediaAspectWrapper.Template>
       </media:MediaAspectWrapper>
 
-      <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center" >
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                          Grid.Column="0" Grid.Row="4" Margin="15,4,0,3">
+                          Grid.Column="0" Grid.Row="4" Margin="15,0,0,0">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                              Maximum="5" VerticalAlignment="Center">
                   <StarRatingPanel.Value>
@@ -67,6 +67,12 @@
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
+                <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}"  Margin="15,0,5,0" VerticalAlignment="Center"
+                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5">
+                  <Label.Content>
+                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
+                  </Label.Content>
+                </Label>
               </StackPanel>
             </Grid>
           </ControlTemplate>

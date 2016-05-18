@@ -1965,7 +1965,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle_Media}"
+          <Button Style="{ThemeResource ButtonWideStyle_List}"
                             Command="{DynamicResource ResourceKey=Menu_Command}"
                             IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -1978,6 +1978,22 @@
                 <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MediaItemUnfocussedColor}"/>
               </Trigger>
             </Button.Triggers>
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+            </Button.ContextMenuCommand>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MediaItemGridViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_Grid}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.ContextMenuCommand>
               <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
             </Button.ContextMenuCommand>
@@ -2019,10 +2035,12 @@
       <BindingSetter.BindingWrapper>
         <BindingWrapper>
           <BindingWrapper.Binding>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} ? {1} : {2}">
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-              <Binding Source="{ThemeResource CoverMediaItemContainerStyle}"/>
               <Binding Source="{ThemeResource MediaItemWithContextMenuContainerStyle}"/>
+              <Binding Source="{ThemeResource MediaItemGridViewContainerStyle}"/>
+              <Binding Source="{ThemeResource CoverMediaItemContainerStyle}"/>
+              
             </MultiBinding>
           </BindingWrapper.Binding>
         </BindingWrapper>
