@@ -34,7 +34,7 @@
         </Control>
         
         <!---Media Items in Listview-->
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="30,-50,0,-210">
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="40,-50,0,-210">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsList.inc"/>
           </Control.TemplateControl>
