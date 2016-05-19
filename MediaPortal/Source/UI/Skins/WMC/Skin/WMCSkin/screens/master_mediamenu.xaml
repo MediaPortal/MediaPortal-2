@@ -165,7 +165,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </LinearGradientBrush>
               </Border.Background>
             </Border>
-            <ListView x:Name="MainMenu" Grid.Column="0" Style="{ThemeResource ContentsMenuListViewStyle}" Margin="20,30,80,30"
+            <ListView x:Name="MainMenu" Grid.Column="0" Style="{ThemeResource SlideMenuListViewStyle}" Margin="20,30,90,30"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">

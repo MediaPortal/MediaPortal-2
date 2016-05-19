@@ -389,7 +389,57 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource TopMenuItemContainerStyle}"/>
   </Style>
 
-    <ControlTemplate x:Key="StarReadOnlyTemplate">
+  <DataTemplate x:Key="SlideMenuItemDataTemplate">
+    <DockPanel LastChildFill="False">
+      <Image DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="search.png"
+                   Width="28" Height="28" Stretch="Fill" Margin="0" Opacity="1" x:Name="ItemControl">
+        <Image.Source>
+          <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}.png"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Center"
+                   HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Opacity="0.6"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="SlideMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <DockPanel x:Name="ItemGroup">
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="20,2,5,2" DockPanel.Dock="Center"
+                    Command="{DynamicResource ResourceKey=Menu_Command}"
+                    IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                  <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
+                  <!--Setter TargetName="ItemGroup" Property="Margin" Value="10,0,10,0"/-->
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SlideMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel Orientation="Vertical" x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SlideMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SlideMenuItemContainerStyle}"/>
+  </Style>
+
+  <ControlTemplate x:Key="StarReadOnlyTemplate">
         <DockPanel LastChildFill="True" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid RenderTransformOrigin="0.5,0.5">
                 <!-- Star shape for background -->
