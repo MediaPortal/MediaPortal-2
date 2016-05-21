@@ -1166,14 +1166,15 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,0">
-        <Label.Color>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" 
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
+        <!--Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
             <Binding Path="PlayCount"/>
             <Binding Source="{ThemeResource TextColor}"/>
             <Binding Source="{ThemeResource WatchedTextColor}"/>
           </MultiBinding>
-        </Label.Color>
+        </-->
       </Label>
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
             Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
@@ -1326,13 +1327,21 @@
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
             <Binding Path="PlayCount"/>
-            <Binding Source="{ThemeResource MediaItemUnfocussedColor}"/>
-            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
+            <Binding Source="{ThemeResource MediaItemWatchedColor}"/>
           </MultiBinding>
         </Label.Color>
       </Label>
       <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Margin="0,0,10,0"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+             FontSize="{ThemeResource SmallFontSize}">
+        <Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
+            <Binding Source="{ThemeResource MediaItemWatchedColor}"/>
+          </MultiBinding>
+        </Label.Color>
+      </Label>  
       <Grid x:Name="Details" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
         <Grid.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutSize}.{Small}"/>
@@ -1972,10 +1981,8 @@
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
+                <Setter TargetName="Duration" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
-              <Trigger Property="HasFocus" Value="False">
-                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MediaItemUnfocussedColor}"/>
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
@@ -2075,7 +2082,7 @@
                             <GradientStop Color="#0D000000" Offset="1"/>
                           </LinearGradientBrush>
                         </Border.Background>
-                      <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MediaItemUnfocussedColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                      <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
                                Content="{Binding Path=GroupingValue}" Margin="6,1,1,2" />
                       </Border>
                   </DataTemplate>
@@ -2091,7 +2098,7 @@
                       </Grid.LayoutTransform>
 
                       <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnfocussedColor}"
+                        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}"
                                  Content="{Binding Path=GroupingValue}" />
                       </StackPanel>
                     </Grid>

@@ -256,7 +256,9 @@
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemListOthersDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemOthersDetails.inc" />
-    <Content Include="Skin\WMCSkin\screens\MediaItemListSeriesDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListSeriesDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc" />
     <Content Include="Skin\WMCSkin\screens\MultiListDetails.inc">
