@@ -69,7 +69,7 @@
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                          Grid.Column="0" Grid.Row="4" Margin="15,0,0,0">
+                          Margin="15,0,0,0">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                              Maximum="5" VerticalAlignment="Center">
                   <StarRatingPanel.Value>

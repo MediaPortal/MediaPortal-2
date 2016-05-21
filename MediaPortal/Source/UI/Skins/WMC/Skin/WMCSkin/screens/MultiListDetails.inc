@@ -30,7 +30,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <Include Source="screens\MediaItemAudioDetails.inc"/>
+      <Include Source="screens\MediaItemListAudioDetails.inc"/>
     </Control.TemplateControl>
   </Control>
   <Control x:Name="ImageDetails">
@@ -41,7 +41,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <Include Source="screens\MediaItemImageDetails.inc"/>
+      <Include Source="screens\MediaItemListImageDetails.inc"/>
     </Control.TemplateControl>
   </Control>
   <Control x:Name="MovieDetails">
@@ -63,7 +63,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <Include Source="screens\MediaItemSeriesDetails.inc"/>
+      <Include Source="screens\MediaItemListSeriesDetails.inc"/>
     </Control.TemplateControl>
   </Control>
   <Control x:Name="AllOtherDetails">

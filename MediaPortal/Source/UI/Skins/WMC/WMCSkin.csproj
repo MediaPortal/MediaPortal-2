@@ -244,6 +244,8 @@
     <Content Include="Skin\WMCSkin\images\Weather\64x64\na.png" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListImageDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListAudioDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemImageDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListMovieDetails.inc">
@@ -252,7 +254,9 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemMovieDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListOthersDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemOthersDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListSeriesDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc" />
     <Content Include="Skin\WMCSkin\screens\MultiListDetails.inc">
