@@ -383,12 +383,29 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return Query(false);
     }
 
+    public IList<MediaItem> QueryList(ISQLDatabase database, ITransaction transaction)
+    {
+      return Query(database, transaction, false);
+    }
+
     public IList<MediaItem> Query(bool singleMode)
     {
-      ILogger logger = ServiceRegistration.Get<ILogger>();
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        return Query(database, transaction, singleMode);
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
 
+    public IList<MediaItem> Query(ISQLDatabase database, ITransaction transaction, bool singleMode)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>();
+      
       try
       {
           IList<MediaItemAspectMetadata> selectedMIAs = new List<MediaItemAspectMetadata>(_necessaryRequestedMIAs.Union(_optionalRequestedMIAs));
@@ -456,10 +473,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         logger.Error("Unable to query", e);
         throw e;
-      }
-      finally
-      {
-        transaction.Dispose();
       }
     }
 

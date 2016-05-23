@@ -191,9 +191,18 @@ namespace MediaPortal.Common
 
       miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
 
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SubtitleAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata, 
+        new MediaItemAspectMetadata.AttributeSpecification[] { VideoAspect.Metadata.AttributeSpecifications[VideoAspect.ATTR_RESOURCE_INDEX.AttributeName] },
+        ProviderResourceAspect.Metadata,
+        new MediaItemAspectMetadata.AttributeSpecification[] { ProviderResourceAspect.Metadata.AttributeSpecifications[ProviderResourceAspect.ATTR_RESOURCE_INDEX.AttributeName] });
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioAspect.Metadata,
+        new MediaItemAspectMetadata.AttributeSpecification[] { VideoAudioAspect.Metadata.AttributeSpecifications[VideoAudioAspect.ATTR_RESOURCE_INDEX.AttributeName] },
+        ProviderResourceAspect.Metadata,
+        new MediaItemAspectMetadata.AttributeSpecification[] { ProviderResourceAspect.Metadata.AttributeSpecifications[ProviderResourceAspect.ATTR_RESOURCE_INDEX.AttributeName] });
+      miatr.RegisterLocallyKnownMediaItemAspectType(SubtitleAspect.Metadata,
+        new MediaItemAspectMetadata.AttributeSpecification[] { SubtitleAspect.Metadata.AttributeSpecifications[SubtitleAspect.ATTR_RESOURCE_INDEX.AttributeName] },
+        ProviderResourceAspect.Metadata,
+        new MediaItemAspectMetadata.AttributeSpecification[] { ProviderResourceAspect.Metadata.AttributeSpecifications[ProviderResourceAspect.ATTR_RESOURCE_INDEX.AttributeName] });
 
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);

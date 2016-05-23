@@ -28,6 +28,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using static MediaPortal.Common.MediaManagement.MediaItemAspectMetadata;
 
 namespace MediaPortal.Backend.MediaLibrary
 {
@@ -294,6 +295,8 @@ namespace MediaPortal.Backend.MediaLibrary
     MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid aspectId);
 
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
+
+    void AddMediaItemAspectStorage(MediaItemAspectMetadata miam, AttributeSpecification[] specs, MediaItemAspectMetadata dependMiam, AttributeSpecification[] dependSpecs);
 
     void RemoveMediaItemAspectStorage(Guid aspectId);
 

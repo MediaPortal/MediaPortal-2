@@ -49,5 +49,24 @@ namespace MediaPortal.Common.MediaManagement
     /// </remarks>
     /// <param name="miaType">Media item aspect type to register.</param>
     void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType);
+
+    /// <summary>
+    /// Registration method for all media item aspect types which are known by the local system.
+    /// Each module, which brings in new media item aspect types, must register them at each system start
+    /// (or at least before working with them). The dependency on an existing aspect will allow items of this aspect
+    /// to be automatically deleted when the referenced aspect item is deleted.
+    /// </summary>
+    /// <remarks>
+    /// This method will store media item aspect types which are not registered yet; others, which were already
+    /// registered before, are ignored. It will also register the aspect types at the media portal server.
+    /// It is needed to register a media item aspect type 1) before the local importer can send media item
+    /// data of that type (extracted by a metadata extractor) to the MediaPortal server and 2) for the deserialization
+    /// system.
+    /// </remarks>
+    /// <param name="miaType">Media item aspect type to register.</param>
+    /// <param name="fkSpecs">Media item aspect type attributes that reference foreign attributes.</param>
+    /// <param name="refType">Media item aspect type referenced by this media item aspect type.</param>
+    /// <param name="refSpecs">Media item aspect type attributes referenced by this media item aspect types attributes.</param>
+    void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs);
   }
 }

@@ -109,11 +109,26 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           SingleMediaItemAspect directoryAspect;
           // ReSharper disable once PossibleInvalidOperationException
-		  // TODO: Rework this
-          path2LastImportDate = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
-            .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect))
-            .ToDictionary(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID][0].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)), mi => mi[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
-          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
+          // TODO: Rework this
+          IEnumerable<MediaItem> mediaItems = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
+            .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect));
+          if (mediaItems != null)
+          {
+            path2LastImportDate = new Dictionary<ResourcePath, DateTime>();
+            foreach (MediaItem mi in mediaItems)
+            {
+              IList<MultipleMediaItemAspect> providerAspects = null;
+              if(MediaItemAspect.TryGetAspects(mi.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
+              {
+                foreach (var pra in providerAspects)
+                {
+                  path2LastImportDate.Add(ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
+                      mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+                }
+              }
+            }
+            await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
+          }
         }
 
         result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));

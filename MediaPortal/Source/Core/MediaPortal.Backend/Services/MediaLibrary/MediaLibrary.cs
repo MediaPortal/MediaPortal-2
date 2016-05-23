@@ -367,6 +367,75 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    protected int DeleteMediaItemResourcePath(ITransaction transaction, string systemId, ResourcePath basePath)
+    {
+      MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
+      string providerAspectTable = _miaManagement.GetMIATableName(providerAspectMetadata);
+      string systemIdAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID);
+      string pathAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      string primaryAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_PRIMARY);
+      string commandStr = "SELECT " + primaryAttribute + ", " + pathAttribute +
+              " FROM " + providerAspectTable + " WHERE " + systemIdAttribute + " = @SYSTEM_ID" +
+              " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+              // TODO: Replace this inner select statement by a select statement generated from an appropriate item query
+              "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
+              " WHERE " + systemIdAttribute + " = @SYSTEM_ID" +
+              " AND " + pathAttribute + " = @EXACT_PATH)";
+
+      int affectedRows = 0;
+      bool hasMorePrimaryResources = false;
+      ISQLDatabase database = transaction.Database;
+      using (IDbCommand command = transaction.CreateCommand())
+      {
+        database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
+
+        string path = StringUtils.RemoveSuffixIfPresent(basePath.Serialize(), "/");
+        database.AddParameter(command, "EXACT_PATH", path, typeof(string));
+
+        command.CommandText = commandStr;
+        using (IDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            bool? isPrimary = database.ReadDBValue<bool?>(reader, 0);
+            if (!isPrimary.HasValue) isPrimary = true;
+
+            string resPath = database.ReadDBValue<string>(reader, 1);
+            ResourcePath resourcePath = ResourcePath.Deserialize(resPath);
+            if (resourcePath != basePath && isPrimary.Value)
+            {
+              hasMorePrimaryResources = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (hasMorePrimaryResources)
+      {
+        //Only delete the resource
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
+
+          string path = StringUtils.RemoveSuffixIfPresent(basePath.Serialize(), "/");
+          database.AddParameter(command, "EXACT_PATH", path, typeof(string));
+
+          commandStr = "DELETE FROM " + providerAspectTable +
+            " WHERE " + systemIdAttribute + " = @SYSTEM_ID" +
+            " AND " + pathAttribute + " = @EXACT_PATH";
+          command.CommandText = commandStr;
+          affectedRows = command.ExecuteNonQuery();
+        }
+      }
+      else
+      {
+        //Delete whole media item
+        affectedRows = DeleteAllMediaItemsUnderPath(transaction, systemId, basePath, true);
+      }
+      return affectedRows;
+    }
+
     protected int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath, bool inclusive)
     {
       MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
@@ -417,6 +486,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         commandStr = commandStr + ")";
 
+        command.CommandText = commandStr;
+        affectedRows = command.ExecuteNonQuery();
+
+        //Delete orphaned relations
+        Dissolve();
+      }
+      return affectedRows;
+    }
+
+    protected int DeleteMediaItem(ITransaction transaction, Guid mediaItemId)
+    {
+      MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
+      string providerAspectTable = _miaManagement.GetMIATableName(providerAspectMetadata);
+      string systemIdAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID);
+      string pathAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      string commandStr = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + "=" + mediaItemId.ToString();
+
+      int affectedRows = 0;
+      ISQLDatabase database = transaction.Database;
+      using (IDbCommand command = transaction.CreateCommand())
+      {
         command.CommandText = commandStr;
         affectedRows = command.ExecuteNonQuery();
 
@@ -604,6 +695,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline)
     {
+      return Search(null, null , query, filterOnlyOnline);
+    }
+
+    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline)
+    {
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
       MediaItemQuery executeQuery = query;
       if (filterOnlyOnline)
@@ -611,9 +707,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         executeQuery = new MediaItemQuery(query); // Use constructor by other query to make sure all properties are copied (including sorting and limits)
         executeQuery.NecessaryRequestedMIATypeIDs.Add(ProviderResourceAspect.ASPECT_ID);
         executeQuery.Filter = AddOnlyOnlineFilter(query.Filter);
-      } 
+      }
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
-      IList<MediaItem> items = cmiq.QueryList();
+      IList<MediaItem> items = null;
+      if(database == null || transaction == null)
+        items = cmiq.QueryList();
+      else
+        items = cmiq.QueryList(database, transaction);
       Logger.Debug("Found media items [{0}]", string.Join(",", items.Select(x => x.MediaItemId)));
       IList<MediaItem> result = new List<MediaItem>(items.Count);
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
@@ -882,14 +982,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         bool wasCreated = !mediaItemId.HasValue;
         if (wasCreated)
         {
-          mediaItemId = AddMediaItem(database, transaction, newMediaItemId);
-
           pra = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
           pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+          pra.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
           pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
+          pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_TYPE, ProviderResourceAspect.TYPE_DIR);
           pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
           pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
 
           importerAspect = new SingleMediaItemAspect(ImporterAspect.Metadata);
           importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
@@ -898,6 +997,37 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ImporterAspect.ASPECT_ID);
           pra = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ProviderResourceAspect.ASPECT_ID);
+        }
+
+        Guid? mergedMediaItem = MergeWithExisting(database, transaction, mediaItemAspects, pra);
+        if (mergedMediaItem != null)
+        {
+          if (mergedMediaItem == Guid.Empty)
+          {
+            transaction.Rollback();
+
+            Logger.Info("Media item cannot be saved. Needs to be merged");
+
+            return Guid.Empty;
+          }
+
+          Logger.Info("Merged into media item {0}", mergedMediaItem.Value);
+
+          if(mediaItemId.HasValue && mergedMediaItem.Value != mediaItemId.Value)
+          {
+            DeleteMediaItem(transaction, mediaItemId.Value);
+          }
+
+          //Aspects were merged into an existing media item. Discard the remaining aspects
+          transaction.Commit();
+
+          return mergedMediaItem.Value;
+        }
+
+        if (wasCreated)
+        {
+          mediaItemId = AddMediaItem(database, transaction, newMediaItemId);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
         }
         importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
         importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
@@ -915,20 +1045,36 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             // Only allow certain attributes to be overridden
             mia.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID));
             string resourcePath = mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-            if(string.IsNullOrEmpty(resourcePath))
+            if (string.IsNullOrEmpty(resourcePath))
               mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+            string resourceType = mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_TYPE);
+            if (string.IsNullOrEmpty(resourceType))
+              mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_TYPE, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_TYPE));
+            object resourcePrimary = mia.GetAttributeValue<object>(ProviderResourceAspect.ATTR_PRIMARY);
+            if (resourcePrimary == null)
+              mia.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, pra.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY));
             mia.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, pra.GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
 
             //pra.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE));
             //pra.SetAttribute(ProviderResourceAspect.ATTR_SIZE, mia.GetAttributeValue<long>(ProviderResourceAspect.ATTR_SIZE));
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
-            continue;
           }
-          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+          else if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
           { // Those aspects are managed by the MediaLibrary
             Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update ImporterAspect");
-            continue;
           }
+        }
+        foreach (MediaItemAspect mia in mediaItemAspects)
+        {
+          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+            // Simply skip unknown MIA types. All types should have been added before import.
+            continue;
+          if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+            //Already stored
+            continue;
+          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+            //Already stored
+            continue;
           if (mia.Deleted)
             _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia.Metadata.AspectId);
           else if (wasCreated)
@@ -1001,6 +1147,126 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Logger.Error("MediaLibrary: Error updating media item with id '{0}'", e, mediaItemId);
         transaction.Rollback();
+        throw;
+      }
+    }
+
+    protected virtual Guid? MergeWithExisting(ISQLDatabase database, ITransaction transaction, IEnumerable<MediaItemAspect> extractedAspectList, MediaItemAspect extractedProviderResourceAspects)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      foreach(MediaItemAspect aspect in extractedAspectList)
+      {
+        if (!extractedAspects.ContainsKey(aspect.Metadata.AspectId))
+          extractedAspects.Add(aspect.Metadata.AspectId, new List<MediaItemAspect>());
+
+        extractedAspects[aspect.Metadata.AspectId].Add(aspect);
+      }
+
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      foreach (IMediaMergeHandler mergeHandler in mediaAccessor.LocalMergeHandlers.Values)
+      {
+        // Extracted aspects must contain all of mergeHandler.MergeableAspects
+        if (mergeHandler.MergeableAspects.All(g => extractedAspects.Keys.Contains(g)))
+        {
+          Guid existingMediaItemId = Guid.Empty;
+          IDictionary<Guid, IList<MediaItemAspect>> existingAspects = null;
+          bool found = MatchExistingItem(database, transaction, mergeHandler, extractedAspects, out existingMediaItemId, out existingAspects);
+          if (found)
+          {
+            Logger.Info("Found mergeable media item {0}", existingMediaItemId);
+
+            IList<MultipleMediaItemAspect> providerResourceAspects;
+            if (MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
+            {
+              foreach (MultipleMediaItemAspect aspect in providerResourceAspects)
+              {
+                aspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, extractedProviderResourceAspects.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID));
+                string resourcePath = aspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+                if (string.IsNullOrEmpty(resourcePath))
+                  aspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, extractedProviderResourceAspects.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+                object resourcePrimary = aspect.GetAttributeValue<object>(ProviderResourceAspect.ATTR_PRIMARY);
+                if (resourcePrimary == null)
+                  aspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, extractedProviderResourceAspects.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY));
+                aspect.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, extractedProviderResourceAspects.GetAttributeValue(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
+              }
+            }
+
+            if (mergeHandler.TryMerge(extractedAspects, existingAspects))
+            {
+              SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(existingAspects, ImporterAspect.Metadata);
+              importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
+              importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, DateTime.Now);
+
+              UpdateMergedMediaItem(database, transaction, existingMediaItemId, existingAspects.Values.SelectMany(x => x));
+              return existingMediaItemId;
+            }
+          }
+          if(mergeHandler.RequiresMerge(extractedAspects))
+          {
+            return Guid.Empty;
+          }
+        }
+      }
+      return null;
+    }
+
+    private bool MatchExistingItem(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, out Guid existingMediaItemId, out IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    {
+      IList<MultipleMediaItemAspect> externalAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
+      {
+        foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+        {
+          string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+          string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+          string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+
+          // Search using external identifiers
+          BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new[]
+                {
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
+                });
+          Logger.Info("Searching for existing items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", mergeHandler.MergeableAspects.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+
+          IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects), filter), false);
+          foreach (MediaItem existingItem in existingItems)
+          {
+            Logger.Info("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+            if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
+            {
+              existingMediaItemId = existingItem.MediaItemId;
+              existingAspects = existingItem.Aspects;
+              return true;
+            }
+          }
+        }
+      }
+      existingMediaItemId = Guid.Empty;
+      existingAspects = null;
+      return false;
+    }
+
+    private void UpdateMergedMediaItem(ISQLDatabase database, ITransaction transaction, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      try
+      {
+        foreach (MediaItemAspect mia in mediaItemAspects)
+        {
+          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+            // Simply skip unknown MIA types. All types should have been added before update.
+            continue;
+          // For multiple MIAs let MIA management decide if it's and add or update
+          if (mia is MultipleMediaItemAspect)
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
+          else
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, false);
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error updating merged media item with id '{0}'", e, mediaItemId);
         throw;
       }
     }
@@ -1192,7 +1458,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        DeleteAllMediaItemsUnderPath(transaction, systemId, path, inclusive);
+        if (inclusive && path != null)
+          DeleteMediaItemResourcePath(transaction, systemId, path);
+        else
+          DeleteAllMediaItemsUnderPath(transaction, systemId, path, inclusive);
         transaction.Commit();
       }
       catch (Exception e)
@@ -1306,6 +1575,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Logger.Info(
             "MediaLibrary: Media item aspect storage for MIA type '{0}' (name '{1}') was added", miam.AspectId, miam.Name);
+        ContentDirectoryMessaging.SendMIATypesChangedMessage();
+      }
+    }
+
+    public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refMiam, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
+    {
+      if (_miaManagement.AddMediaItemAspectStorage(miam, fkSpecs, refMiam, refSpecs))
+      {
+        Logger.Info(
+            "MediaLibrary: Media item aspect storage for MIA type '{0}' (name '{1}') with dependency on MIA type '{2}' (name '{3}') was added", miam.AspectId, miam.Name, refMiam.AspectId, refMiam.Name);
         ContentDirectoryMessaging.SendMIATypesChangedMessage();
       }
     }

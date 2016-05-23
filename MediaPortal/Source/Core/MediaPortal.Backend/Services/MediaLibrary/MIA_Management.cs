@@ -144,6 +144,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// </summary>
     protected internal const string COLL_ATTR_VALUE_COL_NAME = "VALUE";
 
+    /// <summary>
+    /// Value order column name for MIA collection attribute tables.
+    /// </summary>
+    protected internal const string COLL_ATTR_VALUE_ORDER_COL_NAME = "VALUE_ORDER";
+
     protected readonly IDictionary<string, string> _nameAliases = new Dictionary<string, string>();
 
     /// <summary>
@@ -471,8 +476,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
-            MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
-
+            MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
+            " ORDER BY " + COLL_ATTR_VALUE_ORDER_COL_NAME;
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
         Type valueType = spec.AttributeType;
@@ -496,7 +501,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + miaTableName + " MAIN ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = MAIN." + mainTableAttrName +
-            " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
+            " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
+            " ORDER BY " + "V." + COLL_ATTR_VALUE_ORDER_COL_NAME;
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -520,7 +526,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + nmTableName + " NM ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME +
-            " WHERE NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
+            " WHERE NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
+            " ORDER BY " + "V." + COLL_ATTR_VALUE_ORDER_COL_NAME;
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -608,13 +615,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ISQLDatabase database = transaction.Database;
       IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
       // Add new entries - commands for insert and update are the same here
+      int order = 0;
       foreach (object value in values)
       {
         using (IDbCommand command = transaction.CreateCommand())
         {
           command.CommandText = "INSERT INTO " + collectionAttributeTableName + "(" +
-              MIA_MEDIA_ITEM_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") SELECT @MEDIA_ITEM_ID, @COLL_ATTR_VALUE FROM " +
-              databaseManager.DummyTableName +
+              MIA_MEDIA_ITEM_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ", " + COLL_ATTR_VALUE_ORDER_COL_NAME + 
+              ") SELECT @MEDIA_ITEM_ID, @COLL_ATTR_VALUE, " + order++ + " FROM " + databaseManager.DummyTableName +
               " WHERE NOT EXISTS(SELECT " + MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + collectionAttributeTableName + " WHERE " +
               MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID AND " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
@@ -692,7 +700,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           // ... if not, insert it
           valuePk = Guid.NewGuid();
           command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
-              FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") VALUES (@FOREIGN_COLL_ATTR_ID, @COLL_ATTR_VALUE)";
+              FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ", " + COLL_ATTR_VALUE_ORDER_COL_NAME +
+              ") VALUES (@FOREIGN_COLL_ATTR_ID, @COLL_ATTR_VALUE, 0)";
 
           database.AddParameter(command, "FOREIGN_COLL_ATTR_ID", valuePk, typeof(Guid));
 
@@ -754,7 +763,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     protected void InsertOrUpdateManyToManyMIAAttributeValue(ITransaction transaction,
-        MediaItemAspectMetadata.AttributeSpecification spec, Guid mediaItemId, object value)
+        MediaItemAspectMetadata.AttributeSpecification spec, Guid mediaItemId, object value, int order)
     {
       string collectionAttributeTableName = GetMIACollectionAttributeTableName(spec);
       IDatabaseManager databaseManager = ServiceRegistration.Get<IDatabaseManager>();
@@ -763,7 +772,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       using (IDbCommand command = transaction.CreateCommand())
       {
         command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
-            FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") SELECT @FOREIGN_COLL_ATTR, @COLL_ATTR_VALUE FROM " +
+            FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ", " + COLL_ATTR_VALUE_ORDER_COL_NAME +
+            ") SELECT @FOREIGN_COLL_ATTR, @COLL_ATTR_VALUE, " + order + " FROM " +
             databaseManager.DummyTableName + " WHERE NOT EXISTS(SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME +
             " FROM " + collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
@@ -802,8 +812,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (!insert)
           DeleteManyToManyAttributeAssociationsNotInEnumeration(transaction, spec, mediaItemId, values);
         if (values != null)
+        {
+          int order = 0;
           foreach (object value in values)
-            InsertOrUpdateManyToManyMIAAttributeValue(transaction, spec, mediaItemId, value);
+            InsertOrUpdateManyToManyMIAAttributeValue(transaction, spec, mediaItemId, value, order++);
+        }
         if (!insert)
           CleanupManyToManyOrphanedAttributeValues(transaction, spec);
       }
@@ -875,6 +888,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
+      return AddMediaItemAspectStorage(miam, null, null, null);
+    }
+
+    public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] fkSpecifications, MediaItemAspectMetadata refMiam, MediaItemAspectMetadata.AttributeSpecification[] refSpecifications)
+    {
       lock (_syncObj)
       {
         if (_managedMIATypes.ContainsKey(miam.AspectId))
@@ -930,6 +948,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
+                    COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                     ")";
                 ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating MTO table '{0}' for attribute '{1}' in media item aspect '{2}'",
@@ -952,6 +971,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
                   spec.Cardinality, miam.AspectId, spec.AttributeName));
           }
+        }
+
+        //Add dependency if any
+        if (fkSpecifications != null && refMiam != null && refSpecifications != null)
+        {
+          string refMiaTableName = GetMIATableName(refMiam);
+          string fkDependencyMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_" + refMiaTableName + "_FK", "FK");
+          List<string> fkColumns = new List<string>(new string[]
+            { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME }
+          );
+          fkColumns.AddRange(fkSpecifications.Select(s => GetMIAAttributeColumnName(s)));
+
+          List<string> refColumns = new List<string>(new string[]
+            { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME }
+          );
+          refColumns.AddRange(refSpecifications.Select(s => GetMIAAttributeColumnName(s)));
+
+          additionalAttributesConstraints.Add("CONSTRAINT " + fkDependencyMediaItemConstraintName +
+                  " FOREIGN KEY (" + string.Join(", ", fkColumns) + ")" +
+                  " REFERENCES " + refMiaTableName + " (" + string.Join(", ", refColumns) + ") ON DELETE CASCADE");
         }
 
         // Main table
@@ -1024,6 +1063,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
+                    COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "), " +
                     "CONSTRAINT " + fkMediaItemConstraintName +
                     " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
@@ -1105,6 +1145,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
+                    COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" + ")";
                 ServiceRegistration.Get<ILogger>().Debug(
                     "MIA_Management: Creating MTM value table '{0}' for attribute '{1}' in media item aspect '{2}'",
