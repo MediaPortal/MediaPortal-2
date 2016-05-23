@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -50,6 +51,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Short format string that holds season number. Used for browsing seasons by series name.
     /// </summary>
     public static string SHORT_FORMAT_STR = "S{1:00}";
+
+    protected static Regex _fromName = new Regex(@"(?<series>[^\s]*) S(?<season>\d{1,2})", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Gets or sets the series IMDB id.
@@ -101,7 +104,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, Series);
+       MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, Series);
       if (!string.IsNullOrEmpty(Description)) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, CleanString(Description));
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
@@ -188,13 +191,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return string.Format(SHORT_FORMAT_STR, Series, SeasonNumber ?? 0);
     }
 
+    public bool FromString(string name)
+    {
+      Match match = _fromName.Match(name);
+      if (match.Success)
+      {
+        Series = match.Groups["series"].Value;
+        SeasonNumber = Convert.ToInt32(match.Groups["season"].Value);
+        return true;
+      }
+      return false;
+    }
+
     #endregion
 
     #region Overrides
 
     public override string ToString()
     {
-      return string.Format(SEASON_FORMAT_STR, Series, SeasonNumber ?? 0);
+      return string.Format(SEASON_FORMAT_STR,
+        Series, 
+        SeasonNumber ?? 0);
     }
 
     #endregion

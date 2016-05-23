@@ -61,6 +61,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
+    public PersonInfo(string name = null)
+    {
+      if (!string.IsNullOrEmpty(name))
+        FromString(name);
+    }
+
     /// <summary>
     /// Copies the contained person information into MediaItemAspect.
     /// </summary>
@@ -125,6 +131,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
         Thumbnail = data;
 
+      return true;
+    }
+
+    public bool FromString(string name)
+    {
+      Name = name;
       return true;
     }
 

@@ -56,6 +56,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
+    public CompanyInfo(string name = null)
+    {
+      if (!string.IsNullOrEmpty(name))
+        FromString(name);
+    }
+
     /// <summary>
     /// Copies the contained company information into MediaItemAspect.
     /// </summary>
@@ -136,6 +142,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
         Thumbnail = data;
 
+      return true;
+    }
+
+    public bool FromString(string name)
+    {
+      Name = name;
       return true;
     }
 

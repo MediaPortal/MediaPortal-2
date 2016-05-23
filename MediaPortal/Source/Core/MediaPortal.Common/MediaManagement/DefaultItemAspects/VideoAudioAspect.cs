@@ -39,8 +39,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Resource index for this video.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_VIDEO_RESOURCE_INDEX =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("VideoResourceIndex", typeof(int), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_INDEX =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// The index of the stream inside the container.
@@ -75,7 +75,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "VideoAudioItem", new[] {
-            ATTR_VIDEO_RESOURCE_INDEX,
+            ATTR_RESOURCE_INDEX,
             ATTR_STREAM_INDEX,
             ATTR_AUDIOENCODING,
             ATTR_AUDIOBITRATE,
@@ -83,7 +83,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_AUDIOLANGUAGE,
         },
         new[] {
-            ATTR_VIDEO_RESOURCE_INDEX,
+            ATTR_RESOURCE_INDEX,
             ATTR_STREAM_INDEX
         }
         );

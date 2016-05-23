@@ -140,12 +140,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_EPISODE_NAME,
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT,
+            ATTR_STORYPLOT,
             ATTR_ACTORS,
             ATTR_DIRECTORS,
             ATTR_WRITERS,
             ATTR_CHARACTERS,
-            ATTR_GENRES,
-            ATTR_STORYPLOT
+            ATTR_GENRES
         });
 
       public static readonly Guid ROLE_EPISODE = new Guid("83C2CDF9-717E-4881-8411-3A31C2027B77");

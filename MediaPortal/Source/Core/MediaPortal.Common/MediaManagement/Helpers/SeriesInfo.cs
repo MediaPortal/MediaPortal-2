@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -36,9 +37,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   public class SeriesInfo : BaseInfo
   {
     /// <summary>
-    /// Format string that holds series name, season and episode numbers and episode name.
+    /// Returns the index for "Series" used in <see cref="FormatString"/>.
+    /// </summary>
+    public static int SERIES_INDEX = 0;
+    /// <summary>
+    /// Returns the index for "Year" used in <see cref="FormatString"/>.
+    /// </summary>
+    public static int SERIES_YEAR_INDEX = 1;
+    /// <summary>
+    /// Format string that holds series name including premiere year.
+    /// </summary>
+    public static string SERIES_FORMAT_STR = "{0} ({1})";
+    /// <summary>
+    /// Short format string that holds series name.
+    /// </summary>
+    public static string SHORT_FORMAT_STR = "{0}";
+    /// <summary>
+    /// Format string that holds series name, season and episode numbers of next episode.
     /// </summary>
     public static string NEXT_EPISODE_FORMAT_STR = "{0} S{1:00}E{2:00}";
+
+    protected static Regex _fromName = new Regex(@"(?<series>.*) \((?<year>\d+)\)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Gets or sets the series TheTvDB id.
@@ -83,6 +102,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
+    public SeriesInfo(string name = null)
+    {
+      if (!string.IsNullOrEmpty(name))
+        FromString(name);
+    }
+
     /// <summary>
     /// Copies the contained series information into MediaItemAspect.
     /// </summary>
@@ -91,7 +116,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (string.IsNullOrEmpty(Series)) return false;
 
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, Series);
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, Series);
       if (!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ORIG_SERIES_NAME, OriginalName);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
@@ -120,14 +145,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_RATING_COUNT, RatingCount);
       if (Score > 0d) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SCORE, Score);
 
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList<object>());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_GENRES, Genres);
-      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_AWARDS, Awards);
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_GENRES, Genres.ToList<object>());
+      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_AWARDS, Awards.ToList<object>());
 
-      if (Networks.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, Networks.Select(p => p.Name).ToList());
-      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, ProductionCompanies.Select(p => p.Name).ToList());
+      if (Networks.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, Networks.Select(p => p.Name).ToList<object>());
+      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, ProductionCompanies.Select(p => p.Name).ToList<object>());
 
       SetThumbnailMetadata(aspectData);
 
@@ -257,13 +282,61 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public string ToShortString()
+    {
+      return string.Format(SHORT_FORMAT_STR, Series);
+    }
+
+    public bool FromString(string name)
+    {
+      if (name.Contains("("))
+      {
+        Match match = _fromName.Match(name);
+        if (match.Success)
+        {
+          Series = match.Groups["series"].Value;
+          int year = Convert.ToInt32(match.Groups["year"].Value);
+          if (year > 0)
+            FirstAired = new DateTime(year, 1, 1);
+          return true;
+        }
+        return false;
+      }
+      Series = name;
+      return true;
+    }
+
     #endregion
 
     #region Overrides
 
     public override string ToString()
     {
+      //if(FirstAired.HasValue)
+      //  return string.Format(SERIES_FORMAT_STR, Series, FirstAired.Value.Year);
       return Series;
+    }
+
+    public override bool Equals(object obj)
+    {
+      SeriesInfo other = obj as SeriesInfo;
+      if (obj == null) return false;
+      if (TvdbId > 0 && TvdbId == other.TvdbId) return true;
+      if (MovieDbId > 0 && MovieDbId == other.MovieDbId) return true;
+      if (TvMazeId > 0 && TvMazeId == other.TvMazeId) return true;
+      if (TvRageId > 0 && TvRageId == other.TvRageId) return true;
+      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId) &&
+        string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+      if (!string.IsNullOrEmpty(Series) && !string.IsNullOrEmpty(other.Series) &&
+        MatchNames(Series, other.Series) && FirstAired.HasValue && other.FirstAired.HasValue &&
+        FirstAired.Value == other.FirstAired.Value)
+        return true;
+      if (!string.IsNullOrEmpty(Series) && !string.IsNullOrEmpty(other.Series) &&
+        MatchNames(Series, other.Series))
+        return true;
+
+      return false;
     }
 
     #endregion

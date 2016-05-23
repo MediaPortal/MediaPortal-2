@@ -35,29 +35,30 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   public static class ExternalIdentifierAspect
   {
     // TODO: Put this somewhere else?
-    public static readonly string SOURCE_IMDB = "imdb";
-    public static readonly string SOURCE_MUSICBRAINZ = "musicbrainz";
-    public static readonly string SOURCE_TMDB = "tmdb";
-    public static readonly string SOURCE_TVDB = "tvdb";
-    public static readonly string SOURCE_CDDB = "cddb";
-    public static readonly string SOURCE_AUDIODB = "audiodb";
-    public static readonly string SOURCE_TVMAZE = "tvmaze";
-    public static readonly string SOURCE_TVRAGE = "tvrage";
-    public static readonly string SOURCE_YEAR = "year";
-    public static readonly string SOURCE_DATE = "date";
-    public static readonly string SOURCE_NAME = "name";
+    public static readonly string SOURCE_IMDB = "IMDB";
+    public static readonly string SOURCE_MUSICBRAINZ = "MUSICBRAINZ";
+    public static readonly string SOURCE_MUSICBRAINZ_GROUP = "MUSICBRAINZ_GROUP";
+    public static readonly string SOURCE_TMDB = "TMDB";
+    public static readonly string SOURCE_TVDB = "TVDB";
+    public static readonly string SOURCE_CDDB = "CDDB";
+    public static readonly string SOURCE_AUDIODB = "AUDIODB";
+    public static readonly string SOURCE_TVMAZE = "TVMAZE";
+    public static readonly string SOURCE_TVRAGE = "TVRAGE";
+    public static readonly string SOURCE_YEAR = "YEAR";
+    public static readonly string SOURCE_DATE = "DATE";
+    public static readonly string SOURCE_NAME = "NAME";
 
-    public static readonly string TYPE_CHARACTER = "character"; // Someone in a movie / series
-    public static readonly string TYPE_COLLECTION = "collection";
-    public static readonly string TYPE_EPISODE = "episode";
-    public static readonly string TYPE_SEASON = "season";
-    public static readonly string TYPE_MOVIE = "movie";
-    public static readonly string TYPE_PERSON = "person"; // Someone in real life
-    public static readonly string TYPE_SERIES = "series";
-    public static readonly string TYPE_TRACK = "track";
-    public static readonly string TYPE_ALBUM = "album";
-    public static readonly string TYPE_COMAPANY = "company";
-    public static readonly string TYPE_NETWORK = "network";
+    public static readonly string TYPE_CHARACTER = "CHARACTER"; // Someone in a movie / series
+    public static readonly string TYPE_COLLECTION = "COLLECTION";
+    public static readonly string TYPE_EPISODE = "EPISODE";
+    public static readonly string TYPE_SEASON = "SEASON";
+    public static readonly string TYPE_MOVIE = "MOVIE";
+    public static readonly string TYPE_PERSON = "PERSON"; // Someone in real life
+    public static readonly string TYPE_SERIES = "SERIES";
+    public static readonly string TYPE_TRACK = "TRACK";
+    public static readonly string TYPE_ALBUM = "ALBUM";
+    public static readonly string TYPE_COMAPANY = "COMPANY";
+    public static readonly string TYPE_NETWORK = "NETWORK";
 
     /// <summary>
     /// Media item aspect id of the relationship aspect.

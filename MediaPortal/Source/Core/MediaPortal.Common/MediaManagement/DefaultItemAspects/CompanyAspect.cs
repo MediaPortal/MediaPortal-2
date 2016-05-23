@@ -33,9 +33,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   public static class CompanyAspect
   {
     // TODO: Put this somewhere else?
-    public static readonly string COMPANY_PRODUCTION = "production";
-    public static readonly string COMPANY_TV_NETWORK = "tvnetwork";
-    public static readonly string COMPANY_MUSIC_LABEL = "musiclabel";
+    public static readonly string COMPANY_PRODUCTION = "PRODUCTION";
+    public static readonly string COMPANY_TV_NETWORK = "TVNETWORK";
+    public static readonly string COMPANY_MUSIC_LABEL = "MUSICLABEL";
 
     /// <summary>
     /// Media item aspect id of the company aspect.

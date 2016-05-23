@@ -68,6 +68,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Format string for constructing a "Series Season" name pattern.
     /// </summary>
     public static string SERIES_SEASON_FORMAT_STR = "{0} S{1}";
+    /// <summary>
+    /// Format string that holds series name including premiere year.
+    /// </summary>
+    public static string SERIES_FORMAT_STR = "{0} ({1})";
 
     /// <summary>
     /// Used to replace all "." and "_" that are not followed by a word character.
@@ -75,6 +79,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <c>"Dr. House"</c>.</example>
     /// </summary>
     protected static Regex _cleanUpWhiteSpaces = new Regex(@"[\.|_](\S|$)");
+    protected static Regex _fromName = new Regex(@"(?<series>[^\s]*) S(?<season>\d{1,2})E(?<episode>\d{1,2}).* - (?<title>.*)", RegexOptions.IgnoreCase);
+    protected static Regex _fromSeriesName = new Regex(@"(?<series>.*) \((?<year>\d+)\)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Indicates that all required fields are filled.
@@ -112,6 +118,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the series title.
     /// </summary>
     public string Series = null;
+    public DateTime? SeriesFirstAired = null;
     /// <summary>
     /// Gets or sets the episode title.
     /// </summary>
@@ -181,12 +188,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, Series);
+      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, Series);     
       MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, Episode);
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
-      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers);
-      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
+      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers.Select(e => (object)e).ToList());
+      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers.Select(e => (object)e).ToList());
       if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_CERTIFICATION, Certification);
 
       if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_EPISODE, ImdbId);
@@ -210,12 +217,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_SEASON, seriesSeason);
 
       if (!string.IsNullOrEmpty(Summary)) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_STORYPLOT, CleanString(Summary));
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList());
-      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DIRECTORS, Directors.Select(p => p.Name).ToList());
-      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_WRITERS, Writers.Select(p => p.Name).ToList());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList<object>());
+      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DIRECTORS, Directors.Select(p => p.Name).ToList<object>());
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_WRITERS, Writers.Select(p => p.Name).ToList<object>());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_GENRES, Genres);
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_GENRES, Genres.ToList<object>());
 
       SetThumbnailMetadata(aspectData);
 
@@ -309,10 +316,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (AreReqiredFieldsFilled)
       {
+        Match seriesMatch = _fromSeriesName.Match(Series);
         return string.Format(format,
-          Series,
+          SeriesFirstAired.HasValue && !seriesMatch.Success ? string.Format(SERIES_FORMAT_STR, Series, SeriesFirstAired.Value.Year) : Series,
           SeasonNumber.ToString().PadLeft(2, '0'),
-          StringUtils.Join(", ", EpisodeNumbers.OrderBy(e => e).Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
+          StringUtils.Join(",", EpisodeNumbers.OrderBy(e => e).Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
           Episode);
       }
       return "EpisodeInfo: No complete match";
@@ -321,6 +329,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string ToShortString()
     {
       return FormatString(SHORT_FORMAT_STR);
+    }
+
+    public bool FromString(string name)
+    {
+      Match match = _fromName.Match(name);
+      if(match.Success)
+      {
+        Series = match.Groups["series"].Value;
+        Match seriesMatch = _fromSeriesName.Match(Series);
+        if (seriesMatch.Success)
+        {
+          Series = seriesMatch.Groups["series"].Value;
+          SeriesFirstAired = new DateTime(Convert.ToInt32(seriesMatch.Groups["year"].Value), 1, 1);
+        }
+        SeasonNumber = Convert.ToInt32(match.Groups["season"].Value);
+        EpisodeNumbers.Clear();
+        EpisodeNumbers.Add(Convert.ToInt32(match.Groups["episode"].Value));
+        Episode = match.Groups["title"].Value;
+        return true;
+      }
+      return false;
     }
 
     #endregion

@@ -33,11 +33,11 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   public static class PersonAspect
   {
     // TODO: Put this somewhere else?
-    public static readonly string OCCUPATION_ACTOR = "actor";
-    public static readonly string OCCUPATION_ARTIST = "artist";
-    public static readonly string OCCUPATION_WRITER = "writer";
-    public static readonly string OCCUPATION_DIRECTOR = "director";
-    public static readonly string OCCUPATION_COMPOSER = "composer";
+    public static readonly string OCCUPATION_ACTOR = "ACTOR";
+    public static readonly string OCCUPATION_ARTIST = "ARTIST";
+    public static readonly string OCCUPATION_WRITER = "WRITER";
+    public static readonly string OCCUPATION_DIRECTOR = "DIRECTOR";
+    public static readonly string OCCUPATION_COMPOSER = "COMPOSER";
 
     /// <summary>
     /// Media item aspect id of the person aspect.

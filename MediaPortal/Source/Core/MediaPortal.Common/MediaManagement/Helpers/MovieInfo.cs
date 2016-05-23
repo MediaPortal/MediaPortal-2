@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -35,6 +36,25 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// </summary>
   public class MovieInfo : BaseInfo, IComparable<MovieInfo>
   {
+    /// <summary>
+    /// Returns the index for "Movie" used in <see cref="FormatString"/>.
+    /// </summary>
+    public static int MOVIE_INDEX = 0;
+    /// <summary>
+    /// Returns the index for "Year" used in <see cref="FormatString"/>.
+    /// </summary>
+    public static int MOVIE_YEAR_INDEX = 1;
+    /// <summary>
+    /// Format string that holds movie name including premiere year.
+    /// </summary>
+    public static string MOVIE_FORMAT_STR = "{0} ({1})";
+    /// <summary>
+    /// Short format string that holds movie name.
+    /// </summary>
+    public static string SHORT_FORMAT_STR = "{0}";
+
+    protected static Regex _fromName = new Regex(@"(?<movie>.*) \((?<year>\d+)\)", RegexOptions.IgnoreCase);
+
     public int MovieDbId = 0;
     public string ImDbId = null;
 
@@ -72,6 +92,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
+    public MovieInfo(string name = null)
+    {
+      if (!string.IsNullOrEmpty(name))
+        FromString(name);
+    }
+
     /// <summary>
     /// Copies the contained movie information into MediaItemAspect.
     /// </summary>
@@ -101,15 +127,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TOTAL_RATING, TotalRating);
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, RatingCount);
       
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList());
-      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_DIRECTORS, Directors.Select(p => p.Name).ToList());
-      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_WRITERS, Writers.Select(p => p.Name).ToList());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList<object>());
+      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_DIRECTORS, Directors.Select(p => p.Name).ToList<object>());
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_WRITERS, Writers.Select(p => p.Name).ToList<object>());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_GENRES, Genres);
-      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_AWARDS, Awards);
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_GENRES, Genres.ToList<object>());
+      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_AWARDS, Awards.ToList<object>());
 
-      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_COMPANIES, ProductionCompanies.Select(c => c.Name).ToList());
+      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_COMPANIES, ProductionCompanies.Select(c => c.Name).ToList<object>());
 
       SetThumbnailMetadata(aspectData);
 
@@ -225,12 +251,38 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public string ToShortString()
+    {
+      return string.Format(SHORT_FORMAT_STR, MovieName);
+    }
+
+    public bool FromString(string name)
+    {
+      if (name.Contains("("))
+      {
+        Match match = _fromName.Match(name);
+        if (match.Success)
+        {
+          MovieName = match.Groups["movie"].Value;
+          int year = Convert.ToInt32(match.Groups["year"].Value);
+          if (year > 0)
+            ReleaseDate = new DateTime(year, 1, 1);
+          return true;
+        }
+        return false;
+      }
+      MovieName = name;
+      return true;
+    }
+
     #endregion
 
     #region Overrides
 
     public override string ToString()
     {
+      //if (ReleaseDate.HasValue)
+      //  return string.Format(MOVIE_FORMAT_STR, MovieName, ReleaseDate.Value.Year);
       return MovieName;
     }
 

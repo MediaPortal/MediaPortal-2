@@ -32,9 +32,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   public static class ImageCollectionAspect
   {
     // TODO: Put this somewhere else?
-    public static readonly string TYPE_CITY = "city";
-    public static readonly string TYPE_YEAR = "year";
-    public static readonly string TYPE_DATE = "date";
+    public static readonly string TYPE_CITY = "CITY";
+    public static readonly string TYPE_YEAR = "YEAR";
+    public static readonly string TYPE_DATE = "DATE";
 
     /// <summary>
     /// Media item aspect id of the image collection aspect.

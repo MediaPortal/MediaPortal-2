@@ -52,7 +52,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ASPECT_ID = new Guid("9C8178AF-7E2B-42B6-A4C5-1863C0706A26");
 
     /// <summary>
-    /// Resource index for this subtitle. Use -1 for internal subtitles.
+    /// Resource index for this subtitle.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_INDEX =
         MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, true);
@@ -82,6 +82,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("SubtitleFormat", 15, Cardinality.Inline, false);
 
     /// <summary>
+    /// Set to <c>true</c> if this subtitle item is inside the container.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_INTERNAL =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsInternal", typeof(bool), Cardinality.Inline, false);
+
+    /// <summary>
     /// Set to <c>true</c> if this subtitle item is the default.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_DEFAULT =
@@ -107,13 +113,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_STREAM_INDEX,
             ATTR_SUBTITLE_ENCODING,
             ATTR_SUBTITLE_FORMAT,
+            ATTR_INTERNAL,
             ATTR_DEFAULT,
             ATTR_FORCED,
             ATTR_SUBTITLE_LANGUAGE,
         },
         new[] {
             ATTR_RESOURCE_INDEX,
-            ATTR_VIDEO_RESOURCE_INDEX,
             ATTR_STREAM_INDEX
         }
         );
