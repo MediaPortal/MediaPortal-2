@@ -55,5 +55,10 @@ namespace MediaPortal.DevTools
       if (cd != null)
         cd.AddMediaItemAspectStorage(miaType);
     }
+
+    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

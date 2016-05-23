@@ -44,5 +44,10 @@ namespace MediaPortal.Mock
         return;
       _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
     }
+
+    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

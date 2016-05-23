@@ -46,6 +46,11 @@ namespace Test.OnlineLibraries
       get { throw new NotImplementedException(); }
     }
 
+    public IDictionary<Guid, IMediaMergeHandler> LocalMergeHandlers
+    {
+      get { throw new NotImplementedException(); }
+    }
+
     public void Initialize()
     {
       throw new NotImplementedException();
