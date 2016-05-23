@@ -78,6 +78,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    #region Metadata updaters
+
     /// <summary>
     /// Tries to lookup the series from FanArt.tv and downloads images.
     /// </summary>
@@ -120,26 +122,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       try
       {
-        FanArtTVThumbs thumbs;
-        if (seriesInfo.Thumbnail != null)
-          return false;
-
-        // Try online lookup
-        if (!Init())
-          return false;
-
-        if (seriesInfo.Thumbnail == null && seriesInfo.TvdbId > 0 && _fanArt.GetSeriesFanArt(seriesInfo.TvdbId.ToString(), out thumbs))
+        if (seriesInfo.Thumbnail == null)
         {
-          // Get Thumbnail
-          FanArtMovieThumb thumb = thumbs.SeriesThumbnails.OrderByDescending(b => b.Likes).First();
-          string category = "Thumbnails";
-          if (_fanArt.DownloadFanArt(seriesInfo.TvdbId.ToString(), thumb, category))
-          {
-            seriesInfo.Thumbnail = _fanArt.GetFanArt(seriesInfo.TvdbId.ToString(), thumb, category);
-            return true;
-          }
+          List<string> thumbs = GetFanArtFiles(seriesInfo, FanArtScope.Series, FanArtType.Posters);
+          if (thumbs.Count > 0)
+            seriesInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
         }
-        return false;
+        return true;
       }
       catch (Exception ex)
       {
@@ -152,26 +141,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       try
       {
-        FanArtTVThumbs thumbs;
-        if (seasonInfo.Thumbnail != null || seasonInfo.SeasonNumber.HasValue == false)
-          return false;
-
-        // Try online lookup
-        if (!Init())
-          return false;
-
-        if (seasonInfo.Thumbnail == null && seasonInfo.SeriesTvdbId > 0 && _fanArt.GetSeriesFanArt(seasonInfo.SeriesTvdbId.ToString(), out thumbs))
+        if (seasonInfo.Thumbnail == null && seasonInfo.SeasonNumber.HasValue)
         {
-          // Get Thumbnail
-          FanArtSeasonThumb thumb = thumbs.SeasonThumbnails.FindAll(b => b.Season == seasonInfo.SeasonNumber).OrderByDescending(b => b.Likes).First();
-          string category = string.Format(@"Thumbnails\Season {0}", seasonInfo.SeasonNumber);
-          if (_fanArt.DownloadFanArt(seasonInfo.SeriesTvdbId.ToString(), thumb, category))
-          {
-            seasonInfo.Thumbnail = _fanArt.GetFanArt(seasonInfo.SeriesTvdbId.ToString(), thumb, category);
-            return true;
-          }
+          List<string> thumbs = GetFanArtFiles(seasonInfo, FanArtScope.Season, FanArtType.Posters);
+          if (thumbs.Count > 0)
+            seasonInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
         }
-        return false;
+        return true;
       }
       catch (Exception ex)
       {
@@ -179,6 +155,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return false;
       }
     }
+
+    #endregion
+
+    #region Metadata update helpers
+
+    private void StoreSeriesMatch(EpisodeInfo episode)
+    {
+      SeriesInfo seriesMatch = new SeriesInfo()
+      {
+        Series = episode.Series,
+        FirstAired = episode.SeriesFirstAired.HasValue ? episode.SeriesFirstAired.Value : default(DateTime?)
+      };
+      var onlineMatch = new SeriesMatch
+      {
+        Id = episode.TvdbId.ToString(),
+        ItemName = seriesMatch.ToString(),
+        OnlineName = seriesMatch.ToString()
+      };
+      _storage.TryAddMatch(onlineMatch);
+    }
+
+    #endregion
+
+    #region Caching
 
     /// <summary>
     /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
@@ -192,6 +192,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // TODO: when updating track information is implemented, start here a job to do it
     }
+
+    #endregion
 
     public override bool Init()
     {
@@ -214,6 +216,33 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         return false;
       }
+    }
+
+    #region FanArt
+
+    public List<string> GetFanArtFiles<T>(T infoObject, string scope, string type)
+    {
+      List<string> fanartFiles = new List<string>();
+      string path = null;
+      if (scope == FanArtScope.Series)
+      {
+        SeriesInfo series = infoObject as SeriesInfo;
+        if (series != null && series.TvdbId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, series.TvdbId.ToString(), string.Format(@"{0}\{1}\", scope, type));
+        }
+      }
+      else if (scope == FanArtScope.Season)
+      {
+        SeasonInfo season = infoObject as SeasonInfo;
+        if (season != null && season.SeriesTvdbId > 0 && season.SeasonNumber.HasValue)
+        {
+          path = Path.Combine(CACHE_PATH, season.SeriesTvdbId.ToString(), string.Format(@"{0} {1}\{2}\", scope, season.SeasonNumber, type));
+        }
+      }
+      if (Directory.Exists(path))
+        fanartFiles.AddRange(Directory.GetFiles(path, "*.jpg"));
+      return fanartFiles;
     }
 
     protected override void DownloadFanArt(string tvDbId)
@@ -241,38 +270,31 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("SeriesFanArtTvMatcher Download: Begin saving banners for ID {0}", tvDbId);
-        SaveBanners(tvDbId, thumbs.SeriesBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
+        SaveBanners(tvDbId, thumbs.SeriesBanners.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Series, FanArtType.Banners));
         foreach (int season in thumbs.SeasonBanners.Select(b => b.Season).Distinct().ToList())
-          SaveBanners(tvDbId, thumbs.SeasonBanners.FindAll(b => b.Season == season).OrderByDescending(b => b.Likes).ToList<FanArtMovieThumb>(), 
-            string.Format(@"Banners\Season {0}", season));
+          SaveBanners(tvDbId, thumbs.SeasonBanners.FindAll(b => b.Season == season).OrderByDescending(b => b.Likes).ToList<FanArtMovieThumb>(),
+            string.Format(@"{0} {1}\{2}", FanArtScope.Season, season, FanArtType.Banners));
 
         // Save Posters
-        SaveBanners(tvDbId, thumbs.SeriesPosters.OrderByDescending(b => b.Likes).ToList(), "Posters");
+        SaveBanners(tvDbId, thumbs.SeriesPosters.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Series, FanArtType.Posters));
         foreach (int season in thumbs.SeasonBanners.Select(b => b.Season).Distinct().ToList())
           SaveBanners(tvDbId, thumbs.SeasonPosters.FindAll(b => b.Season == season).OrderByDescending(b => b.Likes).ToList<FanArtMovieThumb>(),
-            string.Format(@"Posters\Season {0}", season));
+            string.Format(@"{0} {1}\{2}", FanArtScope.Season, season, FanArtType.Posters));
 
         // Save Thumbnails
-        SaveBanners(tvDbId, thumbs.SeriesThumbnails.OrderByDescending(b => b.Likes).ToList(), "Thumbnails");
+        SaveBanners(tvDbId, thumbs.SeriesThumbnails.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Series, FanArtType.Thumbnails));
         foreach (int season in thumbs.SeasonThumbnails.Where(b => b.Season != null).Select(b => b.Season).Distinct().ToList())
           SaveBanners(tvDbId, thumbs.SeasonThumbnails.FindAll(b => b.Season == season).OrderByDescending(b => b.Likes).ToList<FanArtMovieThumb>(),
-            string.Format(@"Thumbnails\Season {0}", season));
+            string.Format(@"{0} {1}\{2}", FanArtScope.Season, season, FanArtType.Thumbnails));
 
         // Save FanArt
-        SaveBanners(tvDbId, thumbs.SeriesFanArt.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
-        SaveBanners(tvDbId, thumbs.HDSeriesClearArt.OrderByDescending(b => b.Likes).ToList(), "ClearArt");
-        SaveBanners(tvDbId, thumbs.HDSeriesLogos.OrderByDescending(b => b.Likes).ToList(), "Logos");
+        SaveBanners(tvDbId, thumbs.SeriesFanArt.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Series, FanArtType.Backdrops));
+        SaveBanners(tvDbId, thumbs.HDSeriesClearArt.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Series, FanArtType.ClearArt));
+        SaveBanners(tvDbId, thumbs.HDSeriesLogos.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Series, FanArtType.Logos));
 
         ServiceRegistration.Get<ILogger>().Debug("SeriesFanArtTvMatcher Download: Finished ID {0}", tvDbId);
 
-        SeriesMatch onlineMatch = new SeriesMatch
-        {
-          ItemName = tvDbId,
-          Id = tvDbId
-        };
-
-        // Save cache
-        _storage.TryAddMatch(onlineMatch);
+        StoreSeriesMatch(episodeInfo);
 
         // Remember we are finished
         FinishDownloadFanArt(tvDbId);
@@ -299,5 +321,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       ServiceRegistration.Get<ILogger>().Debug("SeriesFanArtTvMatcher Download: Saved {0} {1}", idx, category);
       return idx;
     }
+
+    #endregion
   }
 }

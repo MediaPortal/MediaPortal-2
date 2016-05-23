@@ -78,6 +78,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    #region Metadata updaters
+
     /// <summary>
     /// Tries to lookup the Movie from FanArt.tv and downloads imges.
     /// </summary>
@@ -101,17 +103,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
             return true;
           }
 
-          FanArtMovieThumbs thumbs;
-          if (movieInfo.Thumbnail == null && movieInfo.MovieDbId > 0 && _fanArt.GetMovieFanArt(movieInfo.MovieDbId.ToString(), out thumbs))
+          if (movieInfo.Thumbnail == null)
           {
-            // Get Thumbnail
-            FanArtMovieThumb thumb = thumbs.MoviePosters.OrderByDescending(b => b.Likes).First();
-            string category = "Posters";
-            if (_fanArt.DownloadFanArt(movieInfo.MovieDbId.ToString(), thumb, category))
-            {
-              movieInfo.Thumbnail = _fanArt.GetFanArt(movieInfo.MovieDbId.ToString(), thumb, category);
-              return true;
-            }
+            List<string> thumbs = GetFanArtFiles(movieInfo, FanArtScope.Movie, FanArtType.Posters);
+            if (thumbs.Count > 0)
+              movieInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
           }
 
           if (_memoryCache.TryAdd(movieInfo.MovieDbId.ToString(), movieInfo))
@@ -129,6 +125,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    #endregion
+
+    #region Metadata update helpers
+
+    private void StoreMovieMatch(MovieInfo movie)
+    {
+      MovieInfo movieMatch = new MovieInfo()
+      {
+        MovieName = movie.MovieName,
+        ReleaseDate = movie.ReleaseDate.HasValue ? movie.ReleaseDate.Value : default(DateTime?)
+      };
+      var onlineMatch = new MovieMatch
+      {
+        Id = movie.MovieDbId.ToString(),
+        ItemName = movieMatch.ToString(),
+        OnlineName = movieMatch.ToString()
+      };
+      _storage.TryAddMatch(onlineMatch);
+    }
+
+    #endregion
+
+    #region Caching
+
     /// <summary>
     /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
     /// </summary>
@@ -141,6 +161,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // TODO: when updating track information is implemented, start here a job to do it
     }
+
+    #endregion
 
     public override bool Init()
     {
@@ -165,6 +187,25 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    #region FanArt
+
+    public List<string> GetFanArtFiles<T>(T infoObject, string scope, string type)
+    {
+      List<string> fanartFiles = new List<string>();
+      string path = null;
+      if (scope == FanArtScope.Movie)
+      {
+        MovieInfo movie = infoObject as MovieInfo;
+        if (movie != null && movie.MovieDbId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, movie.MovieDbId.ToString(), string.Format(@"{0}\{1}\", scope, type));
+        }
+      }
+      if (Directory.Exists(path))
+        fanartFiles.AddRange(Directory.GetFiles(path, "*.jpg"));
+      return fanartFiles;
+    }
+
     protected override void DownloadFanArt(string tmDbid)
     {
       try
@@ -187,24 +228,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Begin saving banners for ID {0}", tmDbid);
-        SaveBanners(tmDbid, thumbs.MovieFanArt.OrderByDescending(b => b.Likes).ToList(), "Backdrops");
-        SaveBanners(tmDbid, thumbs.MovieBanners.OrderByDescending(b => b.Likes).ToList(), "Banners");
-        SaveBanners(tmDbid, thumbs.MoviePosters.OrderByDescending(b => b.Likes).ToList(), "Posters");
-        SaveBanners(tmDbid, thumbs.MovieCDArt.OrderByDescending(b => b.Likes).ToList(), "DVDArt");
-        SaveBanners(tmDbid, thumbs.HDMovieClearArt.OrderByDescending(b => b.Likes).ToList(), "ClearArt");
-        SaveBanners(tmDbid, thumbs.HDMovieLogos.OrderByDescending(b => b.Likes).ToList(), "Logos");
-        SaveBanners(tmDbid, thumbs.MovieThumbnails.OrderByDescending(b => b.Likes).ToList(), "Thumbnails");
+        SaveBanners(tmDbid, thumbs.MovieFanArt.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Movie, FanArtType.Backdrops));
+        SaveBanners(tmDbid, thumbs.MovieBanners.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Movie, FanArtType.Banners));
+        SaveBanners(tmDbid, thumbs.MoviePosters.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Movie, FanArtType.Posters));
+        SaveBanners(tmDbid, thumbs.MovieCDArt.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Movie, FanArtType.DiscArt));
+        SaveBanners(tmDbid, thumbs.HDMovieClearArt.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Movie, FanArtType.ClearArt));
+        SaveBanners(tmDbid, thumbs.HDMovieLogos.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Movie, FanArtType.Logos));
+        SaveBanners(tmDbid, thumbs.MovieThumbnails.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Movie, FanArtType.Thumbnails));
 
         ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Finished saving banners for ID {0}", tmDbid);
 
-        MovieMatch onlineMatch = new MovieMatch
-        {
-          ItemName = tmDbid,
-          Id = tmDbid
-        };
-
-        // Save cache
-        _storage.TryAddMatch(onlineMatch);
+        StoreMovieMatch(movieInfo);
 
         // Remember we are finished
         FinishDownloadFanArt(tmDbid);
@@ -231,5 +265,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       ServiceRegistration.Get<ILogger>().Debug("MovieFanArtTvMatcher Download: Saved {0} {1}", idx, category);
       return idx;
     }
+
+    #endregion
   }
 }

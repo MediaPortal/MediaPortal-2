@@ -32,11 +32,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// <summary>
     /// Contains the name found in online library.
     /// </summary>
-    public string MovieDBName;
+    public string OnlineName;
 
     public override string ToString()
     {
-      return string.Format("{0}: {1} [{2}]", ItemName, MovieDBName, Id);
+      return string.Format("{0}: {1} [{2}]", ItemName, OnlineName, Id);
     }
   }
 }

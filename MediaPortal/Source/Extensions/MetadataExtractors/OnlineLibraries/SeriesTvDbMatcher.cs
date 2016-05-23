@@ -84,16 +84,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
-    /// <summary>
-    /// Tries to lookup the series from TheTvDB and return the found ID.
-    /// </summary>
-    /// <param name="seriesName">Series name to check</param>
-    /// <param name="tvDbId">Return the TvDB ID of series</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool TryGetTvDbId(string seriesName, out int tvDbId)
-    {
-      return TryGetId(seriesName, out tvDbId);
-    }
+    #region Metadata updaters
 
     /// <summary>
     /// Tries to lookup the series from TheTvDB and updates the given <paramref name="episodeInfo"/> with the online information (Series and Episode names).
@@ -112,15 +103,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         if (TryMatch(episodeInfo, false, out seriesDetail))
         {
-          int tvDbId = 0;
+          string tvDbId = "";
           if (seriesDetail != null)
           {
-            tvDbId = seriesDetail.Id;
+            tvDbId = seriesDetail.Id.ToString();
 
             MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, seriesDetail.Id);
             MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, seriesDetail.ImdbId);
 
             MetadataUpdater.SetOrUpdateString(ref episodeInfo.Series, seriesDetail.SeriesName, false);
+            MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, seriesDetail.FirstAired);
             MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, seriesDetail.Genre, true, false);
             MetadataUpdater.SetOrUpdateList(episodeInfo.Networks, ConvertToCompanies(seriesDetail.NetworkID, seriesDetail.Network, CompanyAspect.COMPANY_TV_NETWORK), true, false);
             MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR), true, false);
@@ -130,10 +122,20 @@ namespace MediaPortal.Extensions.OnlineLibraries
             // Also try to fill episode title from series details (most file names don't contain episode name).
             if (!TryMatchEpisode(episodeInfo, seriesDetail))
               return false;
+
+            if(episodeInfo.TvdbId > 0)
+              tvDbId += "|" + episodeInfo.TvdbId;
+
+            if (episodeInfo.Thumbnail == null)
+            {
+              List<string> thumbs = GetFanArtFiles(episodeInfo, FanArtScope.Episode, FanArtType.Thumbnails);
+              if (thumbs.Count > 0)
+                episodeInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
+            }
           }
 
-          if (tvDbId > 0)
-            ScheduleDownload(tvDbId.ToString());
+          if (tvDbId.Length > 0)
+            ScheduleDownload(tvDbId);
           return true;
         }
         return false;
@@ -185,7 +187,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           }
 
           if (seriesInfo.Thumbnail == null)
-            GetImage(seriesDetail.PosterBanners, _tv.PreferredLanguage, out seriesInfo.Thumbnail);
+          {
+            List<string> thumbs = GetFanArtFiles(seriesInfo, FanArtScope.Series, FanArtType.Posters);
+            if(thumbs.Count > 0)
+              seriesInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
+          }
 
           return true;
         }
@@ -224,7 +230,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, episodes.OrderBy(e => e.FirstAired).First().FirstAired);
 
           if (seasonInfo.Thumbnail == null && seasonInfo.SeasonNumber.HasValue)
-            GetImage(seriesDetail.SeasonBanners.FindAll(s => s.Season == seasonInfo.SeasonNumber), _tv.PreferredLanguage, out seasonInfo.Thumbnail);
+          {
+            List<string> thumbs = GetFanArtFiles(seasonInfo, FanArtScope.Season, FanArtType.Posters);
+            if (thumbs.Count > 0)
+              seasonInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
+          }
 
           return true;
         }
@@ -259,7 +269,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
             foreach (PersonInfo person in episodeInfo.Actors)
             {
               if (person.Thumbnail == null && person.TvdbId > 0)
-                GetImage(seriesDetail.TvdbActors.Where(a => a.Id == person.TvdbId).Select(a => a.ActorImage), _tv.PreferredLanguage, out person.Thumbnail);
+              {
+                List<string> thumbs = GetFanArtFiles(person, FanArtScope.Actor, FanArtType.Thumbnails);
+                if (thumbs.Count > 0)
+                  person.Thumbnail = File.ReadAllBytes(thumbs[0]);
+              }
             }
           }
 
@@ -321,7 +335,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
             foreach (PersonInfo person in seriesInfo.Actors)
             {
               if (person.Thumbnail == null && person.TvdbId > 0)
-                GetImage(seriesDetail.TvdbActors.Where(a => a.Id == person.TvdbId).Select(a => a.ActorImage), _tv.PreferredLanguage, out person.Thumbnail);
+              {
+                List<string> thumbs = GetFanArtFiles(person, FanArtScope.Actor, FanArtType.Thumbnails);
+                if (thumbs.Count > 0)
+                  person.Thumbnail = File.ReadAllBytes(thumbs[0]);
+              }
             }
           }
 
@@ -390,76 +408,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    protected bool TryMatchEpisode(EpisodeInfo episodeInfo, TvdbSeries seriesDetail)
-    {
-      // We deal with two scenarios here:
-      //  - Having a real episode title, but the Season/Episode numbers might be wrong (seldom case)
-      //  - Having only Season/Episode numbers and we need to fill Episode title (more common)
-      TvdbEpisode episode;
-      List<TvdbEpisode> episodes = seriesDetail.Episodes.FindAll(e => e.EpisodeName == episodeInfo.Episode);
-      // In few cases there can be multiple episodes with same name. In this case we cannot know which one is right
-      // and keep the current episode details.
-      // Use this way only for single episodes.
-      if (episodeInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
-      {
-        episode = episodes[0];
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.EpisodeName, false);
-        SetEpisodeDetails(episodeInfo, seriesDetail, episode);
-        return true;
-      }
+    #endregion
 
-      episodes = seriesDetail.Episodes.Where(e => episodeInfo.EpisodeNumbers.Contains(e.EpisodeNumber) && e.SeasonNumber == episodeInfo.SeasonNumber).ToList();
-      if (episodes.Count == 0)
-        return false;
-
-      // Single episode entry
-      if (episodes.Count == 1)
-      {
-        episode = episodes[0];
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.EpisodeName, false);
-        SetEpisodeDetails(episodeInfo, seriesDetail, episode);
-        return true;
-      }
-
-      // Multiple episodes
-      SetMultiEpisodeDetailsl(episodeInfo, seriesDetail, episodes);
-
-      return true;
-    }
-
-    private void GetImage(IEnumerable<TvdbBanner> banners, TvdbLanguage language, out byte[] thumbnail)
-    {
-      thumbnail = null;
-      foreach (TvdbBanner tvdbBanner in banners)
-      {
-        if (tvdbBanner.Language != language)
-          continue;
-
-        try
-        {
-          ImageConverter converter = new ImageConverter();
-          if (tvdbBanner.LoadBanner())
-          {
-            thumbnail = (byte[])converter.ConvertTo(tvdbBanner.BannerImage, typeof(byte[]));
-            tvdbBanner.UnloadBanner();
-            return;
-          }
-        }
-        catch { }
-      }
-
-      // Try fallback languages if no images found for preferred
-      if (language != TvdbLanguage.UniversalLanguage && language != TvdbLanguage.DefaultLanguage)
-      {
-        if (_useUniversalLanguage)
-        {
-          GetImage(banners, TvdbLanguage.UniversalLanguage, out thumbnail);
-          return;
-        }
-
-        GetImage(banners, TvdbLanguage.DefaultLanguage, out thumbnail);
-      }
-    }
+    #region Metadata update helpers
 
     private void SetMultiEpisodeDetailsl(EpisodeInfo episodeInfo, TvdbSeries seriesDetail, List<TvdbEpisode> episodes)
     {
@@ -470,7 +421,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodes.First().FirstAired);
       MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodes.Where(x => x.DvdEpisodeNumber >= 0).Select(x => x.DvdEpisodeNumber).ToList(), true, false);
 
-      MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.TotalRating, ref episodeInfo.RatingCount, 
+      MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.TotalRating, ref episodeInfo.RatingCount,
         episodes.Sum(e => e.Rating) / episodes.Count, episodes.Sum(e => e.RatingCount > 0 ? e.RatingCount : 0)); // Average rating
 
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray()), false);
@@ -480,11 +431,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(episodes.SelectMany(e => e.GuestStars).ToList(), PersonAspect.OCCUPATION_ACTOR), true, false);
       MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, ConvertToPersons(episodes.SelectMany(e => e.Directors).ToList(), PersonAspect.OCCUPATION_DIRECTOR), true, false);
       MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, ConvertToPersons(episodes.SelectMany(e => e.Writer).ToList(), PersonAspect.OCCUPATION_WRITER), true, false);
-
-      if (episodes.Count > 0)
-      {
-        GetImage(new TvdbBanner[] { episodes[0].Banner }, episodes[0].Banner.Language, out episodeInfo.Thumbnail);
-      }
     }
 
     private void SetEpisodeDetails(EpisodeInfo episodeInfo, TvdbSeries seriesDetail, TvdbEpisode episode)
@@ -495,7 +441,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       episodeInfo.EpisodeNumbers.Clear();
       episodeInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
       episodeInfo.DvdEpisodeNumbers.Clear();
-      if(episode.DvdEpisodeNumber >= 0) episodeInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
+      if (episode.DvdEpisodeNumber >= 0) episodeInfo.DvdEpisodeNumbers.Add(episode.DvdEpisodeNumber);
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episode.FirstAired);
 
       MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.TotalRating, ref episodeInfo.RatingCount, episode.Rating, episode.RatingCount > 0 ? episode.RatingCount : 0);
@@ -506,11 +452,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, ConvertToPersons(episode.GuestStars, PersonAspect.OCCUPATION_ACTOR), true, false);
       MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, ConvertToPersons(episode.Directors, PersonAspect.OCCUPATION_DIRECTOR), true, false);
       MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, ConvertToPersons(episode.Writer, PersonAspect.OCCUPATION_WRITER), true, false);
-
-      if (episode != null)
-      {
-        GetImage(new TvdbBanner[] { episode.Banner }, episode.Banner.Language, out episodeInfo.Thumbnail);
-      }
     }
 
     private List<PersonInfo> ConvertToPersons(List<TvdbActor> actors, string occupation)
@@ -573,77 +514,69 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return retValue;
     }
 
-    protected bool TryGetId(string seriesName, out int tvDbId)
-    {
-      tvDbId = 0;
-      // Prefer memory cache
-      TvdbSeries seriesDetail;
-      CheckCacheAndRefresh();
-      if (_memoryCache.TryGetValue(seriesName, out seriesDetail))
-      {
-        tvDbId = seriesDetail.Id;
-        return true;
-      }
+    #endregion
 
-      // Load cache or create new list
-      List<SeriesMatch> matches;
-      lock (_syncObj)
-        matches = Settings.Load<List<SeriesMatch>>(MatchesSettingsFile) ?? new List<SeriesMatch>();
-
-      // Use cached values before doing online query
-      SeriesMatch match = matches.Find(m => m.ItemName == seriesName || m.TvDBName == seriesName);
-      if (match != null && !string.IsNullOrEmpty(match.Id))
-      {
-        tvDbId = Convert.ToInt32(match.Id);
-        return true;
-      }
-      return false;
-    }
+    #region Online matching
 
     protected bool TryMatch(EpisodeInfo episodeInfo, bool cacheOnly, out TvdbSeries seriesDetail)
     {
       // If series has an TVDBID, prefer it over imdb or name lookup.
-      if (episodeInfo.SeriesTvdbId != 0 && TryMatch(episodeInfo.Series, false, cacheOnly, out seriesDetail, episodeInfo.SeriesTvdbId))
-        return true;
+      if (episodeInfo.SeriesTvdbId != 0)
+      {
+        if(_tv.GetSeries(episodeInfo.SeriesTvdbId, true, true, out seriesDetail))
+        {
+          StoreSeriesMatch(seriesDetail, episodeInfo.ToString());
+          return true;
+        }
+      }
 
       // If series has an IMDBID, prefer it over name lookup.
       string imdbId = episodeInfo.SeriesImdbId;
-      if (!string.IsNullOrWhiteSpace(imdbId) && TryMatch(imdbId, true, cacheOnly, out seriesDetail))
-        return true;
+      if (!string.IsNullOrWhiteSpace(episodeInfo.SeriesImdbId))
+      {
+        TvdbSearchResult matchedSeries = null;
+        if (_tv.GetSeries(episodeInfo.SeriesImdbId, out matchedSeries))
+        {
+          if (_tv.GetSeries(matchedSeries.Id, true, true, out seriesDetail))
+          {
+            StoreSeriesMatch(seriesDetail, episodeInfo.ToString());
+            return true;
+          }
+        }
+      }
 
       // Perform name lookup.
-      return TryMatch(episodeInfo.Series, false, cacheOnly, out seriesDetail);
+      return TryMatch(episodeInfo.Series, episodeInfo.SeriesFirstAired.HasValue ? episodeInfo.SeriesFirstAired.Value.Year : 0, cacheOnly, out seriesDetail);
     }
 
-    protected bool TryMatch(string seriesNameOrImdbId, bool isImdbId, bool cacheOnly, out TvdbSeries seriesDetail, int tvdbid = 0)
+    protected bool TryMatch(string seriesName, int year, bool cacheOnly, out TvdbSeries seriesDetail)
     {
+      SeriesInfo searchSeries = new SeriesInfo()
+      {
+        Series = seriesName,
+        FirstAired = year > 0 ? new DateTime(year, 1, 1) : default(DateTime?)
+      };
       seriesDetail = null;
       try
       {
         // Prefer memory cache
         CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(seriesNameOrImdbId, out seriesDetail))
-        {
-          if (tvdbid == 0 || seriesDetail.Id == tvdbid)
-            return true;
-        }
+        if (_memoryCache.TryGetValue(searchSeries.ToString(), out seriesDetail))
+         return true;
 
         // Load cache or create new list
         List<SeriesMatch> matches;
         lock (_syncObj)
-          matches = Settings.Load<List<SeriesMatch>>(MatchesSettingsFile) ?? new List<SeriesMatch>();
+          matches = _storage.GetMatches();
 
         // Init empty
         seriesDetail = null;
 
         // Use cached values before doing online query
         SeriesMatch match = matches.Find(m =>
-          (
-          string.Equals(m.ItemName, seriesNameOrImdbId, StringComparison.OrdinalIgnoreCase) ||
-          string.Equals(m.TvDBName, seriesNameOrImdbId, StringComparison.OrdinalIgnoreCase)
-          ) && (tvdbid == 0 || m.Id == tvdbid.ToString()));
-
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesNameOrImdbId, match != null && !string.IsNullOrEmpty(match.Id));
+          (string.Equals(m.ItemName, searchSeries.ToString(), StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(m.OnlineName, searchSeries.ToString(), StringComparison.OrdinalIgnoreCase)));
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null && !string.IsNullOrEmpty(match.Id));
 
         // Try online lookup
         if (!Init())
@@ -664,62 +597,105 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return false;
 
         TvdbSearchResult matchedSeries = null;
-        bool foundResult = false;
-        if (tvdbid != 0)
-        {
-          foundResult = _tv.GetSeries(tvdbid, true, true, out seriesDetail);
-        }
-        else
-          if (isImdbId)
-          {
-            // If we got an IMDBID, use it to lookup by key directly
-            _tv.GetSeries(seriesNameOrImdbId, out matchedSeries);
-          }
-          else
-          {
-            // Otherwise we try to find unique series by name
-            List<TvdbSearchResult> series;
-            if (_tv.SearchSeriesUnique(seriesNameOrImdbId, out series))
-              matchedSeries = series[0];
-          }
+        List<TvdbSearchResult> series;
+        if (_tv.SearchSeriesUnique(seriesName, out series))
+          matchedSeries = series[0];
 
         if (matchedSeries != null)
         {
-          ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Found unique online match for \"{0}\": \"{1}\" [Lang: {2}]", seriesNameOrImdbId, matchedSeries.SeriesName, matchedSeries.Language);
-          foundResult = _tv.GetSeries(matchedSeries.Id, true, true, out seriesDetail);
-        }
-        if (foundResult)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Loaded details for \"{0}\"", seriesDetail.SeriesName);
-          // Add this match to cache
-          SeriesMatch onlineMatch = new SeriesMatch
-              {
-                ItemName = seriesNameOrImdbId,
-                Id = seriesDetail.Id.ToString(),
-                TvDBName = seriesDetail.SeriesName
-              };
-
-          // Save cache
-          _storage.TryAddMatch(onlineMatch);
-          return true;
+          ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Found unique online match for \"{0}\": \"{1}\" [Lang: {2}]", seriesName, matchedSeries.SeriesName, matchedSeries.Language);
+          if( _tv.GetSeries(matchedSeries.Id, true, true, out seriesDetail))
+          {
+            // Add this match to cache
+            StoreSeriesMatch(seriesDetail, seriesName);
+            return true;
+          }
         }
 
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: No unique match found for \"{0}\"", seriesNameOrImdbId);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: No unique match found for \"{0}\"", seriesName);
         // Also save "non matches" to avoid retrying
-        _storage.TryAddMatch(new SeriesMatch { ItemName = seriesNameOrImdbId });
+        StoreSeriesMatch(null, seriesName);
         return false;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series {0}", ex, seriesNameOrImdbId);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Exception while processing series {0}", ex, seriesName);
         return false;
       }
       finally
       {
         if (seriesDetail != null)
-          _memoryCache.TryAdd(seriesNameOrImdbId, seriesDetail);
+          _memoryCache.TryAdd(searchSeries.ToString(), seriesDetail);
       }
     }
+
+    protected bool TryMatchEpisode(EpisodeInfo episodeInfo, TvdbSeries seriesDetail)
+    {
+      // We deal with two scenarios here:
+      //  - Having a real episode title, but the Season/Episode numbers might be wrong (seldom case)
+      //  - Having only Season/Episode numbers and we need to fill Episode title (more common)
+      TvdbEpisode episode;
+      List<TvdbEpisode> episodes = seriesDetail.Episodes.FindAll(e => e.EpisodeName == episodeInfo.Episode);
+      // In few cases there can be multiple episodes with same name. In this case we cannot know which one is right
+      // and keep the current episode details.
+      // Use this way only for single episodes.
+      if (episodeInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
+      {
+        episode = episodes[0];
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.EpisodeName, false);
+        SetEpisodeDetails(episodeInfo, seriesDetail, episode);
+        return true;
+      }
+
+      episodes = seriesDetail.Episodes.Where(e => episodeInfo.EpisodeNumbers.Contains(e.EpisodeNumber) && e.SeasonNumber == episodeInfo.SeasonNumber).ToList();
+      if (episodes.Count == 0)
+        return false;
+
+      // Single episode entry
+      if (episodes.Count == 1)
+      {
+        episode = episodes[0];
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.EpisodeName, false);
+        SetEpisodeDetails(episodeInfo, seriesDetail, episode);
+        return true;
+      }
+
+      // Multiple episodes
+      SetMultiEpisodeDetailsl(episodeInfo, seriesDetail, episodes);
+
+      return true;
+    }
+
+    private void StoreSeriesMatch(TvdbSeries series, string seriesName)
+    {
+      if (series == null)
+      {
+        _storage.TryAddMatch(new SeriesMatch()
+        {
+          ItemName = seriesName
+        });
+        return;
+      }
+      SeriesInfo seriesMatch = new SeriesInfo()
+      {
+        Series = series.SeriesName,
+        FirstAired = series.FirstAired
+      };
+      // Add this match to cache
+      SeriesMatch onlineMatch = new SeriesMatch
+      {
+        Id = series.Id.ToString(),
+        ItemName = seriesName,
+        OnlineName = seriesMatch.ToString()
+      };
+
+      // Save cache
+      _storage.TryAddMatch(onlineMatch);
+    }
+
+    #endregion
+
+    #region Caching
 
     /// <summary>
     /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
@@ -741,6 +717,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         });
       }
     }
+
+    #endregion
 
     public override bool Init()
     {
@@ -765,6 +743,90 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    #region FanArt
+
+    public List<string> GetFanArtFiles<T>(T infoObject, string scope, string type)
+    {
+      List<string> fanartFiles = new List<string>();
+      if (scope == FanArtScope.Series)
+      {
+        SeriesInfo series = infoObject as SeriesInfo;
+        if (series != null && series.TvdbId > 0)
+        {
+          string path = Path.Combine(CACHE_PATH, series.TvdbId.ToString());
+          if (Directory.Exists(path))
+          {
+            if (type == FanArtType.Banners)
+            {
+              fanartFiles.AddRange(Directory.GetFiles(path, "img_graphical_ *.jpg"));
+              fanartFiles.AddRange(Directory.GetFiles(path, "img_text_*.jpg"));
+            }
+            else if (type == FanArtType.Posters)
+            {
+              fanartFiles.AddRange(Directory.GetFiles(path, "img_posters_*.jpg"));
+            }
+            else if (type == FanArtType.Backdrops)
+            {
+              fanartFiles.AddRange(Directory.GetFiles(path, "img_fan-*.jpg"));
+            }
+          }
+        }
+      }
+      else if (scope == FanArtScope.Season)
+      {
+        SeasonInfo season = infoObject as SeasonInfo;
+        if (season != null && season.SeriesTvdbId > 0 && season.SeasonNumber.HasValue)
+        {
+          string path = Path.Combine(CACHE_PATH, season.SeriesTvdbId.ToString());
+          if (Directory.Exists(path))
+          {
+            if (type == FanArtType.Banners)
+            {
+              fanartFiles.AddRange(Directory.GetFiles(path, string.Format("img_seasonswide_{0}-{1}*.jpg", season.SeriesTvdbId, season.SeasonNumber.Value)));
+            }
+            else if (type == FanArtType.Posters)
+            {
+              fanartFiles.AddRange(Directory.GetFiles(path, string.Format("img_seasons_{0}-{1}*.jpg", season.SeriesTvdbId, season.SeasonNumber.Value)));
+            }
+          }
+        }
+      }
+      else if (scope == FanArtScope.Episode)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        if (episode != null && episode.TvdbId > 0 && episode.SeriesTvdbId > 0)
+        {
+          string path = Path.Combine(CACHE_PATH, episode.SeriesTvdbId.ToString());
+          if (Directory.Exists(path))
+          {
+            if (type == FanArtType.Thumbnails)
+            {
+              string file = Path.Combine(path, string.Format("img_episodes_{0}-{1}.jpg", episode.SeriesTvdbId, episode.TvdbId));
+              if (File.Exists(file))
+                fanartFiles.Add(file);
+            }
+          }
+        }
+      }
+      else if (scope == FanArtScope.Actor)
+      {
+        PersonInfo person = infoObject as PersonInfo;
+        if (person != null && person.TvdbId > 0)
+        {
+          string path = Path.Combine(CACHE_PATH, person.TvdbId.ToString());
+          if (Directory.Exists(path))
+          {
+            if (type == FanArtType.Thumbnails)
+            {
+              if (Directory.Exists(path))
+                fanartFiles.AddRange(Directory.GetFiles(path, string.Format(@"img_actors_{0}.jpg", person.TvdbId), SearchOption.AllDirectories));
+            }
+          }
+        }
+      }
+      return fanartFiles;
+    }
+
     protected override void DownloadFanArt(string tvDbId)
     {
       try
@@ -777,42 +839,65 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
-        int tvDb = 0;
-        if (!int.TryParse(tvDbId, out tvDb))
+        string[] ids;
+        if (tvDbId.Contains("|"))
+          ids = tvDbId.Split('|');
+        else
+          ids = new string[] { tvDbId };
+
+        int tvDbSeriesId = 0;
+        if (!int.TryParse(ids[0], out tvDbSeriesId))
           return;
 
-        if (tvDb <= 0)
+        if (tvDbSeriesId <= 0)
           return;
 
         TvdbSeries seriesDetail;
-        if (!_tv.GetSeriesFanArt(tvDb, out seriesDetail))
+        if (!_tv.GetSeriesFanArt(tvDbSeriesId, out seriesDetail))
           return;
 
+        int tvDbEpisodeId = 0;
+        TvdbEpisode episodeDetail = null;
+        if (ids.Length > 1)
+        {
+          if (int.TryParse(ids[1], out tvDbEpisodeId))
+          {
+            episodeDetail = seriesDetail.GetEpisodesAbsoluteOrder().Find(e => e.Id == tvDbEpisodeId);
+          }
+        }
+
         // Save Banners
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving banners for ID {0}", tvDbId);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving banners for ID {0}", tvDbSeriesId);
         TvdbLanguage language = _tv.PreferredLanguage;
         SaveBanners(seriesDetail.SeriesBanners, language);
 
         // Save Season Banners
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving season banners for ID {0}", tvDbId);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving season banners for ID {0}", tvDbSeriesId);
         // Build a key from Season number and banner type (season or seasonwide), so each combination is handled separately.
         var seasonLookup = seriesDetail.SeasonBanners.ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
         foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
           SaveBanners(seasonLookup[tvdbSeasonBanners.Key], language);
 
         // Save Posters
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving posters for ID {0}", tvDbId);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving posters for ID {0}", tvDbSeriesId);
         SaveBanners(seriesDetail.PosterBanners, language);
 
         // Save FanArt
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving fanarts for ID {0}", tvDbId);
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving fanarts for ID {0}", tvDbSeriesId);
         SaveBanners(seriesDetail.FanartBanners, language);
 
-        // Save Actors
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving actors for ID {0}", tvDbId);
-        SaveBanners(seriesDetail.TvdbActors.Select(a => a.ActorImage).ToList(), language);
+        if (episodeDetail != null)
+        {
+          // Save Episode Banners
+          ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving episode banners for ID {0}", tvDbEpisodeId);
+          SaveBanners(new TvdbBanner[] { episodeDetail.Banner }, null);
+        }
 
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Finished ID {0}", tvDbId);
+        // Save Actors
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Begin saving actors for ID {0}", tvDbSeriesId);
+        SaveBanners(seriesDetail.TvdbActors.Select(a => a.ActorImage).ToList(), null);
+
+        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher Download: Finished ID {0}", tvDbSeriesId);
 
         // Remember we are finished
         FinishDownloadFanArt(tvDbId);
@@ -828,7 +913,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       int idx = 0;
       foreach (TE tvdbBanner in banners)
       {
-        if (tvdbBanner.Language != language)
+        if (tvdbBanner.Language != language && language != null)
           continue;
 
         if (idx++ >= MAX_FANART_IMAGES)
@@ -865,5 +950,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       return idx;
     }
+
+    #endregion
   }
 }

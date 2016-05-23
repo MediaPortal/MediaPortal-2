@@ -51,6 +51,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     private const string URL_FANART_LIST = URL_FANART_API_BASE + "release/{0}/";
     private const string URL_QUERYLABEL = URL_API_BASE + "label?query={0}&limit=5&fmt=json";
     private const string URL_QUERYARTIST = URL_API_BASE + "artist?query={0}&limit=5&fmt=json";
+    private const string URL_QUERYRELEASE = URL_API_BASE + "release?query={0}&limit=5&fmt=json";
 
     #endregion
 
@@ -124,6 +125,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       List<TrackSearchResult> results = new List<TrackSearchResult>(_downloader.Download<TrackRecordingResult>(url).Results);
       foreach (TrackSearchResult result in results) tracks.AddRange(result.GetTracks());
       return tracks;
+    }
+
+    /// <summary>
+    /// Search for releases by name given in <paramref name="query"/>.
+    /// </summary>
+    /// <returns>List of possible matches</returns>
+    public List<TrackRelease> SearchRelease(string title, List<string> artists, int? year, int? trackCount)
+    {
+      string query = string.Format("release:\"{0}\"", title);
+      if (artists != null && artists.Count > 0)
+      {
+        if (artists.Count > 1) query += " and (";
+        else query += " and ";
+        for (int artist = 0; artist < artists.Count; artist++)
+        {
+          if (artist > 0) query += " and ";
+          query += string.Format("artistname:\"{0}\"", artists[artist]);
+        }
+        if (artists.Count > 1) query += ")";
+      }
+      if (year.HasValue)
+        query += string.Format(" and date:{0}", year.Value);
+      if (trackCount.HasValue)
+        query += string.Format(" and tracksmedium:{0}", trackCount.Value);
+      query += " and primarytype:album";
+      query += " and status:official";
+
+      string url = GetUrl(URL_QUERYRELEASE, Uri.EscapeDataString(query));
+
+      return _downloader.Download<TrackReleaseSearchResult>(url).Releases;
     }
 
     /// <summary>

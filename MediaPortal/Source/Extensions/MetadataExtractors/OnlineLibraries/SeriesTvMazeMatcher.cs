@@ -74,6 +74,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    #region Metadata updaters
+
     /// <summary>
     /// Tries to lookup the series from TvMaze and updates the given <paramref name="episodeInfo"/> with the online information.
     /// </summary>
@@ -91,10 +93,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         if (TryMatch(episodeInfo, out seriesDetail))
         {
-          int tvMazeId = 0;
+          string tvMazeId = "";
+
           if (seriesDetail != null)
           {
-            tvMazeId = seriesDetail.Id;
+            tvMazeId = seriesDetail.Id.ToString();
 
             MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvMazeId, seriesDetail.Id);
             if (seriesDetail.Externals.TvDbId.HasValue)
@@ -103,6 +106,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
               MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, seriesDetail.Externals.ImDbId);
 
             MetadataUpdater.SetOrUpdateString(ref episodeInfo.Series, seriesDetail.Name, true);
+            MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, seriesDetail.Premiered);
             MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, seriesDetail.Genres, true, true);
 
             MetadataUpdater.SetOrUpdateList(episodeInfo.Networks, ConvertToCompanies(seriesDetail.Network ?? seriesDetail.WebNetwork, CompanyAspect.COMPANY_TV_NETWORK), true, true);
@@ -113,10 +117,20 @@ namespace MediaPortal.Extensions.OnlineLibraries
             // Also try to fill episode title from series details (most file names don't contain episode name).
             if (!TryMatchEpisode(episodeInfo, seriesDetail))
               return false;
+
+            if (episodeInfo.TvdbId > 0)
+              tvMazeId += "|" + episodeInfo.TvMazeId;
+
+            if (episodeInfo.Thumbnail == null)
+            {
+              List<string> thumbs = GetFanArtFiles(episodeInfo, FanArtScope.Episode, FanArtType.Thumbnails);
+              if (thumbs.Count > 0)
+                episodeInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
+            }
           }
 
-          if (tvMazeId > 0)
-            ScheduleDownload(tvMazeId.ToString());
+          if (tvMazeId.Length > 0)
+            ScheduleDownload(tvMazeId);
           return true;
         }
         return false;
@@ -171,7 +185,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           }
 
           if (seriesInfo.Thumbnail == null)
-            seriesInfo.Thumbnail = GetImage(seriesInfo.TvMazeId, seriesDetail.Images, "Posters");
+          {
+            List<string> thumbs = GetFanArtFiles(seriesInfo, FanArtScope.Series, FanArtType.Posters);
+            if (thumbs.Count > 0)
+              seriesInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
+          }
 
           return true;
         }
@@ -244,8 +262,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
             foreach (PersonInfo person in episodeInfo.Actors)
             {
               TvMazeCast cast = seriesDetail.Embedded.Cast.Find(c => c.Person.Id == person.TvMazeId);
-              if (cast != null && person.Thumbnail == null)
-                person.Thumbnail = GetImage(cast.Person.Id, cast.Person.Images, "Thumbnails");
+              if (person.Thumbnail == null && person.TvMazeId > 0)
+              {
+                List<string> thumbs = GetFanArtFiles(person, FanArtScope.Actor, FanArtType.Thumbnails);
+                if (thumbs.Count > 0)
+                  person.Thumbnail = File.ReadAllBytes(thumbs[0]);
+              }
             }
           }
 
@@ -277,8 +299,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
           foreach (CharacterInfo character in episodeInfo.Characters)
           {
             TvMazeCast cast = seriesDetail.Embedded.Cast.Find(c => c.Character.Id == character.TvMazeId);
-            if (cast != null && character.Thumbnail == null)
-              character.Thumbnail = GetImage(cast.Character.Id, cast.Character.Images, "Thumbnails");
+            if (character.Thumbnail == null && character.TvMazeId > 0)
+            {
+              List<string> thumbs = GetFanArtFiles(character, FanArtScope.Character, FanArtType.Thumbnails);
+              if (thumbs.Count > 0)
+                character.Thumbnail = File.ReadAllBytes(thumbs[0]);
+            }
           }
 
           return true;
@@ -314,8 +340,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
             foreach (PersonInfo person in seriesInfo.Actors)
             {
               TvMazeCast cast = seriesDetail.Embedded.Cast.Find(c => c.Person.Id == person.TvMazeId);
-              if (cast != null && person.Thumbnail == null)
-                person.Thumbnail = GetImage(cast.Person.Id, cast.Person.Images, "Thumbnails");
+              if (person.Thumbnail == null && person.TvMazeId > 0)
+              {
+                List<string> thumbs = GetFanArtFiles(person, FanArtScope.Actor, FanArtType.Thumbnails);
+                if (thumbs.Count > 0)
+                  person.Thumbnail = File.ReadAllBytes(thumbs[0]);
+              }
             }
 
             return true;
@@ -347,8 +377,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
           foreach (CharacterInfo character in seriesInfo.Characters)
           {
             TvMazeCast cast = seriesDetail.Embedded.Cast.Find(c => c.Character.Id == character.TvMazeId);
-            if (cast != null && character.Thumbnail == null)
-              character.Thumbnail = GetImage(cast.Character.Id, cast.Character.Images, "Thumbnails");
+            if (character.Thumbnail == null && character.TvMazeId > 0)
+            {
+              List<string> thumbs = GetFanArtFiles(character, FanArtScope.Character, FanArtType.Thumbnails);
+              if (thumbs.Count > 0)
+                character.Thumbnail = File.ReadAllBytes(thumbs[0]);
+            }
           }
 
           return true;
@@ -391,57 +425,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    protected bool TryMatchEpisode(EpisodeInfo episodeInfo, TvMazeSeries seriesDetail)
-    {
-      TvMazeEpisode episode = null;
-      List<TvMazeEpisode> episodes = null;
-      if (seriesDetail.Embedded != null && seriesDetail.Embedded.Episodes != null)
-      {
-        episodes = seriesDetail.Embedded.Episodes.FindAll(e => e.Name == episodeInfo.Episode);
-        // In few cases there can be multiple episodes with same name. In this case we cannot know which one is right
-        // and keep the current episode details.
-        // Use this way only for single episodes.
-        if (episodeInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
-        {
-          episode = episodes[0];
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.Name, false);
-          SetEpisodeDetails(episodeInfo, seriesDetail, episode);
-          return true;
-        }
+    #endregion
 
-        episodes = seriesDetail.Embedded.Episodes.Where(e => episodeInfo.EpisodeNumbers.Contains(e.EpisodeNumber) && e.SeasonNumber == episodeInfo.SeasonNumber).ToList();
-        if (episodes.Count == 0)
-          return false;
-
-        // Single episode entry
-        if (episodes.Count == 1)
-        {
-          episode = episodes[0];
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.Name, false);
-          SetEpisodeDetails(episodeInfo, seriesDetail, episode);
-          return true;
-        }
-
-        // Multiple episodes
-        SetMultiEpisodeDetailsl(episodeInfo, seriesDetail, episodes);
-
-        return true;
-      }
-      return false;
-    }
-
-    private byte[] GetImage(int id, TvMazeImageCollection images, string category)
-    {
-      if (_tvMaze.DownloadImage(id, images, category))
-      {
-        return _tvMaze.GetImage(id, images, category);
-      }
-      return null;
-    }
+    #region Metadata update helpers
 
     private void SetMultiEpisodeDetailsl(EpisodeInfo episodeInfo, TvMazeSeries seriesDetail, List<TvMazeEpisode> episodes)
     {
       MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvMazeId, episodes.First().Id);
+
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episodes.First().SeasonNumber);
       MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodes.Select(x => x.EpisodeNumber).ToList(), true, true);
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodes.First().AirStamp);
@@ -449,22 +440,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.Name).ToArray()), false);
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
         Select(e => string.Format("{0,02}) {1}", e.EpisodeNumber, e.Summary)).ToArray()), false);
-
-      if(episodeInfo.Thumbnail == null && episodes.Count > 0)
-        episodeInfo.Thumbnail = GetImage(episodeInfo.SeriesTvMazeId, episodes[0].Images, "Thumbnails");
     }
 
     private void SetEpisodeDetails(EpisodeInfo episodeInfo, TvMazeSeries seriesDetail, TvMazeEpisode episode)
     {
       MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvMazeId, episode.Id);
+
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episode.SeasonNumber);
       episodeInfo.EpisodeNumbers.Clear();
       episodeInfo.EpisodeNumbers.Add(episode.EpisodeNumber);
       MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episode.AirStamp);
       MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, episode.Summary, false);
-
-      if (episodeInfo.Thumbnail == null)
-        episodeInfo.Thumbnail = GetImage(episodeInfo.SeriesTvMazeId, episode.Images, "Thumbnails");
     }
 
     private List<PersonInfo> ConvertToPersons(List<TvMazeCast> cast, string occupation)
@@ -512,35 +498,83 @@ namespace MediaPortal.Extensions.OnlineLibraries
       });
     }
 
+    #endregion
+
+    #region Online matching
+
+    protected bool TryMatchEpisode(EpisodeInfo episodeInfo, TvMazeSeries seriesDetail)
+    {
+      TvMazeEpisode episode = null;
+      List<TvMazeEpisode> episodes = null;
+      if (seriesDetail.Embedded != null && seriesDetail.Embedded.Episodes != null)
+      {
+        episodes = seriesDetail.Embedded.Episodes.FindAll(e => e.Name == episodeInfo.Episode);
+        // In few cases there can be multiple episodes with same name. In this case we cannot know which one is right
+        // and keep the current episode details.
+        // Use this way only for single episodes.
+        if (episodeInfo.EpisodeNumbers.Count == 1 && episodes.Count == 1)
+        {
+          episode = episodes[0];
+          MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.Name, false);
+          SetEpisodeDetails(episodeInfo, seriesDetail, episode);
+          return true;
+        }
+
+        episodes = seriesDetail.Embedded.Episodes.Where(e => episodeInfo.EpisodeNumbers.Contains(e.EpisodeNumber) && e.SeasonNumber == episodeInfo.SeasonNumber).ToList();
+        if (episodes.Count == 0)
+          return false;
+
+        // Single episode entry
+        if (episodes.Count == 1)
+        {
+          episode = episodes[0];
+          MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, episode.Name, false);
+          SetEpisodeDetails(episodeInfo, seriesDetail, episode);
+          return true;
+        }
+
+        // Multiple episodes
+        SetMultiEpisodeDetailsl(episodeInfo, seriesDetail, episodes);
+
+        return true;
+      }
+      return false;
+    }
+
     private bool TryMatch(EpisodeInfo episodeInfo, out TvMazeSeries seriesDetails)
     {
       seriesDetails = null;
       if (episodeInfo.SeriesTvMazeId > 0 && _tvMaze.GetSeries(episodeInfo.SeriesTvMazeId, out seriesDetails))
       {
-        SaveMatchToPersistentCache(seriesDetails, seriesDetails.Name);
+        StoreSeriesMatch(seriesDetails, episodeInfo.Series);
         return true;
       }
       if (episodeInfo.SeriesTvdbId > 0 && _tvMaze.GetSeriesByTvDbId(episodeInfo.SeriesTvdbId, out seriesDetails))
       {
-        SaveMatchToPersistentCache(seriesDetails, seriesDetails.Name);
+        StoreSeriesMatch(seriesDetails, episodeInfo.Series);
         return true;
       }
       if (!string.IsNullOrEmpty(episodeInfo.SeriesImdbId) && _tvMaze.GetSeriesByImDbId(episodeInfo.SeriesImdbId, out seriesDetails))
       {
-        SaveMatchToPersistentCache(seriesDetails, seriesDetails.Name);
+        StoreSeriesMatch(seriesDetails, episodeInfo.Series);
         return true;
       }
-      return TryMatch(episodeInfo.Series, episodeInfo.FirstAired.HasValue ? episodeInfo.FirstAired.Value.Year : 0, false, out seriesDetails);
+      return TryMatch(episodeInfo.Series, episodeInfo.SeriesFirstAired.HasValue ? episodeInfo.SeriesFirstAired.Value.Year : 0, false, out seriesDetails);
     }
 
     protected bool TryMatch(string seriesName, int year, bool cacheOnly, out TvMazeSeries seriesDetail)
     {
       seriesDetail = null;
+      SeriesInfo searchSeries = new SeriesInfo()
+      {
+        Series = seriesName,
+        FirstAired = year > 0 ? new DateTime(year, 1, 1) : default(DateTime?),
+      };
       try
       {
         // Prefer memory cache
         CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(seriesName, out seriesDetail))
+        if (_memoryCache.TryGetValue(searchSeries.ToString(), out seriesDetail))
           return true;
 
         // Load cache or create new list
@@ -550,9 +584,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         seriesDetail = null;
 
         // Use cached values before doing online query
-        SeriesMatch match = matches.Find(m => 
-          string.Equals(m.ItemName, seriesName, StringComparison.OrdinalIgnoreCase) || 
-          string.Equals(m.TvDBName, seriesName, StringComparison.OrdinalIgnoreCase));
+        SeriesMatch match = matches.Find(m =>
+          string.Equals(m.ItemName, searchSeries.ToString(), StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(m.OnlineName, searchSeries.ToString(), StringComparison.OrdinalIgnoreCase));
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvMazeMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null && !string.IsNullOrEmpty(match.Id));
 
         // Try online lookup
@@ -576,13 +610,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ServiceRegistration.Get<ILogger>().Debug("SeriesTvMazeMatcher: Found unique online match for \"{0}\": \"{1}\"", seriesName, seriesResult.Name);
           if (_tvMaze.GetSeries(series[0].Id, out seriesDetail))
           {
-            SaveMatchToPersistentCache(seriesDetail, seriesName);
+            StoreSeriesMatch(seriesDetail, searchSeries.ToString());
             return true;
           }
         }
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvMazeMatcher: No unique match found for \"{0}\"", seriesName);
         // Also save "non matches" to avoid retrying
-        _storage.TryAddMatch(new SeriesMatch { ItemName = seriesName, TvDBName = seriesName });
+        StoreSeriesMatch(null, searchSeries.ToString());
         return false;
       }
       catch (Exception ex)
@@ -593,20 +627,37 @@ namespace MediaPortal.Extensions.OnlineLibraries
       finally
       {
         if (seriesDetail != null)
-          _memoryCache.TryAdd(seriesName, seriesDetail);
+          _memoryCache.TryAdd(searchSeries.ToString(), seriesDetail);
       }
     }
 
-    private void SaveMatchToPersistentCache(TvMazeSeries seriesDetails, string seriesName)
+    private void StoreSeriesMatch(TvMazeSeries series, string seriesName)
     {
+      if (series == null)
+      {
+        _storage.TryAddMatch(new SeriesMatch()
+        {
+          ItemName = seriesName
+        });
+        return;
+      }
+      SeriesInfo seriesMatch = new SeriesInfo()
+      {
+        Series = series.Name,
+        FirstAired = series.Premiered.HasValue ? series.Premiered.Value : default(DateTime?)
+      };
       var onlineMatch = new SeriesMatch
       {
-        Id = seriesDetails.Id.ToString(),
+        Id = series.Id.ToString(),
         ItemName = seriesName,
-        TvDBName = seriesDetails.Name
+        OnlineName = seriesMatch.ToString()
       };
       _storage.TryAddMatch(onlineMatch);
     }
+
+    #endregion
+
+    #region Caching
 
     /// <summary>
     /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
@@ -621,6 +672,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // TODO: when updating movie information is implemented, start here a job to do it
     }
 
+    #endregion
+
     public override bool Init()
     {
       if (!base.Init())
@@ -631,6 +684,49 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       _tvMaze = new TvMazeWrapper();
       return _tvMaze.Init(CACHE_PATH);
+    }
+
+    #region FanaArt
+
+    public List<string> GetFanArtFiles<T>(T infoObject, string scope, string type)
+    {
+      List<string> fanartFiles = new List<string>();
+      string path = null;
+      if (scope == FanArtScope.Series)
+      {
+        SeriesInfo series = infoObject as SeriesInfo;
+        if (series != null && series.TvMazeId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, series.TvMazeId.ToString(), string.Format(@"{0}\{1}\", scope, type));
+        }
+      }
+      else if (scope == FanArtScope.Episode)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        if (episode != null && episode.TvMazeId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, episode.TvMazeId.ToString(), string.Format(@"{0}\{1}\", scope, type));
+        }
+      }
+      else if (scope == FanArtScope.Actor)
+      {
+        PersonInfo person = infoObject as PersonInfo;
+        if (person != null && person.TvMazeId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, person.TvMazeId.ToString(), string.Format(@"{0}\{1}\", scope, type));
+        }
+      }
+      else if (scope == FanArtScope.Character)
+      {
+        CharacterInfo character = infoObject as CharacterInfo;
+        if (character != null && character.TvMazeId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, character.TvMazeId.ToString(), string.Format(@"{0}\{1}\*.*", scope, type));
+        }
+      }
+      if (Directory.Exists(path))
+        fanartFiles.AddRange(Directory.GetFiles(path, "*.jpg"));
+      return fanartFiles;
     }
 
     protected override void DownloadFanArt(string tvMazeId)
@@ -645,28 +741,54 @@ namespace MediaPortal.Extensions.OnlineLibraries
         if (!Init())
           return;
 
-        int id = 0;
-        if (!int.TryParse(tvMazeId, out id))
+        string[] ids;
+        if (tvMazeId.Contains("|"))
+          ids = tvMazeId.Split('|');
+        else
+          ids = new string[] { tvMazeId };
+
+        int tvMazeSeriesId = 0;
+        if (!int.TryParse(ids[0], out tvMazeSeriesId))
           return;
 
-        if (id <= 0)
+        if (tvMazeSeriesId <= 0)
           return;
 
-        TvMazeSeries series;
-        if (!_tvMaze.GetSeries(id, out series))
+        TvMazeSeries seriesDetail;
+        if (!_tvMaze.GetSeries(tvMazeSeriesId, out seriesDetail))
           return;
+
+        int tvMazeEpisodeId = 0;
+        TvMazeEpisode episodeDetail = null;
+        if (ids.Length > 1)
+        {
+          if (int.TryParse(ids[1], out tvMazeEpisodeId))
+          {
+            if (seriesDetail.Embedded != null && seriesDetail.Embedded.Episodes != null)
+            {
+              episodeDetail = seriesDetail.Embedded.Episodes.Find(e => e.Id == tvMazeEpisodeId);
+            }
+          }
+        }
 
         // Save Banners
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvMazeMatcher Download: Begin saving banners for ID {0}", tvMazeId);
-        _tvMaze.DownloadImage(series.Id, series.Images, "Posters");
+        _tvMaze.DownloadImage(seriesDetail.Id, seriesDetail.Images, string.Format(@"{0}\{1}", FanArtScope.Series, FanArtType.Posters));
 
         //Save person banners
-        foreach (TvMazeCast cast in series.Embedded.Cast)
+        foreach (TvMazeCast cast in seriesDetail.Embedded.Cast)
         {
-          _tvMaze.DownloadImage(cast.Person.Id, cast.Person.Images, "Thumbnails");
-          _tvMaze.DownloadImage(cast.Character.Id, cast.Character.Images, "Character");
+          _tvMaze.DownloadImage(cast.Person.Id, cast.Person.Images, string.Format(@"{0}\{1}", FanArtScope.Actor, FanArtType.Thumbnails));
+          _tvMaze.DownloadImage(cast.Character.Id, cast.Character.Images, string.Format(@"{0}\{1}", FanArtScope.Character, FanArtType.Thumbnails));
         }
-        
+
+        if (episodeDetail != null)
+        {
+          // Save Episode Banners
+          ServiceRegistration.Get<ILogger>().Debug("SeriesTvMazeMatcher Download: Begin saving episode banners for ID {0}", tvMazeEpisodeId);
+          _tvMaze.DownloadImage(episodeDetail.Id, episodeDetail.Images, string.Format(@"{0}\{1}", FanArtScope.Episode, FanArtType.Thumbnails));
+        }
+
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvMazeMatcher Download: Finished saving banners for ID {0}", tvMazeId);
 
         // Remember we are finished
@@ -677,5 +799,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvMazeMatcher: Exception downloading FanArt for ID {0}", ex, tvMazeId);
       }
     }
+
+    #endregion
   }
 }

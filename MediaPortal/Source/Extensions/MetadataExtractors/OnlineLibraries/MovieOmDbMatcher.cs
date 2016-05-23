@@ -73,6 +73,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    #region Metadata updaters
+
     /// <summary>
     /// Tries to lookup the Movie from OmDB and updates the given <paramref name="movieInfo"/> with the online information.
     /// </summary>
@@ -83,14 +85,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       try
       {
         OmDbMovie movieDetails;
-        if (
-          /* Best way is to get details by an unique IMDB id */
-          MatchByImdbId(movieInfo, out movieDetails) ||
-          TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.HasValue ? movieInfo.ReleaseDate.Value.Year : 0, false, out movieDetails) ||
-          /* Prefer passed year, if no year given, try to process movie title and split between title and year */
-          movieInfo.ReleaseDate.HasValue && TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.Value.Year,
-          false, out movieDetails)
-          )
+        if (TryMatch(movieInfo, out movieDetails))
         {
           if (movieDetails != null)
           {
@@ -191,6 +186,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    #endregion
+
+    #region Metadata update helpers
+
     private List<PersonInfo> ConvertToPersons(List<string> names, string occupation)
     {
       if (names == null || names.Count == 0)
@@ -203,25 +202,40 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return retValue;
     }
 
-    private bool MatchByImdbId(MovieInfo movieInfo, out OmDbMovie movieDetails)
+    #endregion
+
+    #region Online matching
+
+    private bool TryMatch(MovieInfo movieInfo, out OmDbMovie movieDetails)
     {
       if (!string.IsNullOrEmpty(movieInfo.ImDbId) && _omDb.GetMovie(movieInfo.ImDbId, out movieDetails))
       {
-        SaveMatchToPersistentCache(movieDetails, movieDetails.Title);
+        MovieInfo searchMovie = new MovieInfo()
+        {
+          MovieName = movieDetails.Title,
+          ReleaseDate = movieDetails.Released.HasValue ? movieDetails.Released : default(DateTime?)
+        };
+        StoreMovieMatch(movieDetails, searchMovie.ToString());
         return true;
       }
       movieDetails = null;
-      return false;
+      return TryMatch(movieInfo.MovieName, movieInfo.ReleaseDate.HasValue ? movieInfo.ReleaseDate.Value.Year : 0,
+        false, out movieDetails);
     }
 
     protected bool TryMatch(string movieName, int year, bool cacheOnly, out OmDbMovie movieDetail)
     {
+      MovieInfo searchMovie = new MovieInfo()
+      {
+        MovieName = movieName,
+        ReleaseDate = year > 0 ? new DateTime(year, 1, 1) : default(DateTime?)
+      };
       movieDetail = null;
       try
       {
         // Prefer memory cache
         CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(movieName, out movieDetail))
+        if (_memoryCache.TryGetValue(searchMovie.ToString(), out movieDetail))
           return true;
 
         // Load cache or create new list
@@ -232,8 +246,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Use cached values before doing online query
         MovieMatch match = matches.Find(m => 
-          string.Equals(m.ItemName, movieName, StringComparison.OrdinalIgnoreCase) || 
-          string.Equals(m.MovieDBName, movieName, StringComparison.OrdinalIgnoreCase));
+          string.Equals(m.ItemName, searchMovie.ToString(), StringComparison.OrdinalIgnoreCase) || 
+          string.Equals(m.OnlineName, searchMovie.ToString(), StringComparison.OrdinalIgnoreCase));
         ServiceRegistration.Get<ILogger>().Debug("MovieOmDbMatcher: Try to lookup movie \"{0}\" from cache: {1}", movieName, match != null && !string.IsNullOrEmpty(match.Id));
 
         // Try online lookup
@@ -254,13 +268,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: Found unique online match for \"{0}\": \"{1}\"", movieName, movieResult.Title);
           if (_omDb.GetMovie(movies[0].ImdbID, out movieDetail))
           {
-            SaveMatchToPersistentCache(movieDetail, movieName);
+            StoreMovieMatch(movieDetail, searchMovie.ToString());
             return true;
           }
         }
         ServiceRegistration.Get<ILogger>().Debug("MovieTheMovieDbMatcher: No unique match found for \"{0}\"", movieName);
         // Also save "non matches" to avoid retrying
-        _storage.TryAddMatch(new MovieMatch { ItemName = movieName });
+        StoreMovieMatch(null, searchMovie.ToString());
         return false;
       }
       catch (Exception ex)
@@ -271,20 +285,38 @@ namespace MediaPortal.Extensions.OnlineLibraries
       finally
       {
         if (movieDetail != null)
-          _memoryCache.TryAdd(movieName, movieDetail);
+          _memoryCache.TryAdd(searchMovie.ToString(), movieDetail);
       }
     }
 
-    private void SaveMatchToPersistentCache(OmDbMovie movieDetails, string movieName)
+    private void StoreMovieMatch(OmDbMovie movie, string movieName)
     {
+      if (movie == null)
+      {
+        _storage.TryAddMatch(new MovieMatch()
+        {
+          ItemName = movieName
+        });
+        return;
+      }
+      MovieInfo movieMatch = new MovieInfo()
+      {
+        MovieName = movie.Title,
+        ReleaseDate = movie.Released.HasValue ? movie.Released.Value : default(DateTime?)
+      };
       var onlineMatch = new MovieMatch
       {
-        Id = movieDetails.ImdbID,
+        Id = movie.ImdbID,
         ItemName = movieName,
-        MovieDBName = movieDetails.Title
+        OnlineName = movieMatch.ToString()
       };
       _storage.TryAddMatch(onlineMatch);
     }
+
+    #endregion
+
+
+    #region Caching
 
     /// <summary>
     /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
@@ -298,6 +330,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // TODO: when updating movie information is implemented, start here a job to do it
     }
+
+    #endregion
 
     public override bool Init()
     {

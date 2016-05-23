@@ -580,36 +580,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return null;
     }
 
-    public bool DownloadImages(MovieCollection movieCollection)
-    {
-      DownloadImages(movieCollection, true);
-      DownloadImages(movieCollection, false);
-      return true;
-    }
-
-    private bool DownloadImages(MovieCollection movieCollection, bool usePoster)
-    {
-      string cacheFileName = CreateAndGetCacheName(movieCollection, usePoster);
-      if (string.IsNullOrEmpty(cacheFileName))
-        return false;
-
-      string sourceUri = Configuration.Images.BaseUrl + "original" + (usePoster ? movieCollection.PosterPath : movieCollection.BackdropPath);
-      _downloader.DownloadFile(sourceUri, cacheFileName);
-      return true;
-    }
-
-    public byte[] GetCollectionImage(MovieCollection movieCollection, bool usePoster)
-    {
-      string cacheFileName = CreateAndGetCacheName(movieCollection, usePoster);
-      if (string.IsNullOrEmpty(cacheFileName))
-        return null;
-
-      if (File.Exists(cacheFileName))
-        return File.ReadAllBytes(cacheFileName);
-
-      return null;
-    }
-
     #endregion
 
     #region Protected members

@@ -72,6 +72,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    #region Metadata updaters
+
     public bool FindAndUpdateTrack(TrackInfo trackInfo)
     {
       try
@@ -117,7 +119,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 }
                 if (!string.IsNullOrEmpty(trackReleaseGroup.AlbumId))
                 {
-                  trackInfo.AlbumMusicBrainzId = trackReleaseGroup.AlbumId;
+                  MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzId, trackReleaseGroup.AlbumId);
                 }
               }
             }
@@ -129,10 +131,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
               MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, ConvertToCompanies(trackRelease.Labels, CompanyAspect.COMPANY_MUSIC_LABEL), true, true);
 
-              TrackImageCollection imageCollection;
-              if (trackInfo.Thumbnail == null && _musicBrainzDb.GetAlbumFanArt(trackInfo.AlbumMusicBrainzId, out imageCollection))
+              if (trackInfo.Thumbnail == null)
               {
-                trackInfo.Thumbnail = GetImage(trackInfo.AlbumMusicBrainzId, imageCollection, "Front", "Covers");
+                List<string> thumbs = GetFanArtFiles(trackInfo, FanArtScope.Album, FanArtType.Covers);
+                if (thumbs.Count > 0)
+                  trackInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
               }
             }
           }
@@ -168,10 +171,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
           if (trackRelease.Labels != null)
             MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, ConvertToCompanies(trackRelease.Labels, CompanyAspect.COMPANY_MUSIC_LABEL), true, false);
 
-          TrackImageCollection imageCollection;
-          if (albumInfo.Thumbnail == null && _musicBrainzDb.GetAlbumFanArt(albumInfo.MusicBrainzId, out imageCollection))
+          if (albumInfo.Thumbnail == null)
           {
-            albumInfo.Thumbnail = GetImage(albumInfo.MusicBrainzId, imageCollection, "Front", "Covers");
+            List<string> thumbs = GetFanArtFiles(albumInfo, FanArtScope.Album, FanArtType.Covers);
+            if (thumbs.Count > 0)
+              albumInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
           }
 
           return true;
@@ -264,25 +268,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private byte[] GetImage(string albumId, TrackImageCollection imageCollection, string type, string category)
-    {
-      if (imageCollection == null) return null;
+    #endregion
 
-      foreach (TrackImage image in imageCollection.Images)
-      {
-        foreach (string imageType in image.Types)
-        {
-          if (imageType.Equals(type, StringComparison.InvariantCultureIgnoreCase))
-          {
-            if (_musicBrainzDb.DownloadImage(albumId, image, category))
-            {
-              return _musicBrainzDb.GetImage(albumId, image, category);
-            }
-          }
-        }
-      }
-      return null;
-    }
+    #region Metadata update helpers
 
     private List<PersonInfo> ConvertToPersons(List<TrackArtistCredit> artist, string occupation)
     {
@@ -321,6 +309,38 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return retValue;
     }
 
+    private void StoreTrackMatch(Track track, TrackInfo searchTrack)
+    {
+      if (track == null)
+      {
+        _storage.TryAddMatch(new TrackMatch()
+        {
+          ItemName = searchTrack.ToString()
+        });
+        return;
+      }
+      TrackInfo trackMatch = new TrackInfo()
+      {
+        Album = track.Album,
+        TrackNum = track.TrackNum,
+        TrackName = track.Title
+      };
+      var onlineMatch = new TrackMatch
+      {
+        Id = track.Id,
+        ItemName = searchTrack.ToString(),
+        TrackName = trackMatch.ToString(),
+        TrackNum = track.TrackNum,
+        ArtistName = track.Artists != null && track.Artists.Count > 0 ? track.Artists[0].Name : null,
+        AlbumName = track.Album
+      };
+      _storage.TryAddMatch(onlineMatch);
+    }
+
+    #endregion
+
+    #region Online matching
+
     protected bool TryMatch(TrackInfo trackInfo, out Track trackDetails)
     {
       //Try to find release from track
@@ -341,15 +361,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           }
         }
 
-        // Add this match to cache
-        TrackMatch onlineMatch = new TrackMatch
-        {
-          Id = trackDetails.Id,
-          ItemName = trackInfo.TrackName,
-          TrackName = trackDetails.Title
-        };
-        // Save cache
-        _storage.TryAddMatch(onlineMatch);
+        StoreTrackMatch(trackDetails, trackInfo);
         return true;
       }
       trackDetails = null;
@@ -359,11 +371,20 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     protected bool TryMatch(string title, List<string> artists, string album, int year, int trackNum, bool cacheOnly, out Track trackDetail)
     {
+      TrackInfo searchTrack = new TrackInfo()
+      {
+        Album = album,
+        TrackNum = trackNum,
+        ReleaseDate = year > 0 ? new DateTime(year, 1, 1) : default(DateTime?),
+        TrackName = title
+      };
       trackDetail = null;
       try
       {
         // Prefer memory cache
         CheckCacheAndRefresh();
+        if (_memoryCache.TryGetValue(searchTrack.ToString(), out trackDetail))
+          return true;
 
         // Load cache or create new list
         List<TrackMatch> matches = _storage.GetMatches();
@@ -371,11 +392,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         // Init empty
         trackDetail = null;
 
-        TrackMatch match = null;
-
-        match = matches.Find(m =>
-          string.Equals(m.TrackName, title, StringComparison.OrdinalIgnoreCase) ||
-          string.Equals(m.ItemName, title, StringComparison.OrdinalIgnoreCase));
+        TrackMatch match = matches.Find(m =>
+          (string.Equals(m.ItemName, searchTrack.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, searchTrack.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+          !string.IsNullOrEmpty(m.AlbumName) && album.Length > 0 ? album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true &&
+          ((trackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackNum) || trackNum <= 0 || m.TrackNum <= 0)));
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: Try to lookup track \"{0}\" from cache: {1}", title, match != null && string.IsNullOrEmpty(match.Id) == false);
 
         // Try online lookup
@@ -410,23 +430,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 }
               }
             }
-
-            // Add this match to cache
-            TrackMatch onlineMatch = new TrackMatch
-              {
-                Id = trackDetail.Id,
-                ItemName = title,
-                TrackName = trackDetail.Title
-              };
-
-            // Save cache
-            _storage.TryAddMatch(onlineMatch);
           }
+          StoreTrackMatch(trackDetail, searchTrack);
           return true;
         }
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher: No unique match found for \"{0}\"", title);
         // Also save "non matches" to avoid retrying
-        _storage.TryAddMatch(new TrackMatch { ItemName = title, TrackName = title });
+        StoreTrackMatch(null, searchTrack);
         return false;
       }
       catch (Exception ex)
@@ -437,9 +447,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       finally
       {
         if (trackDetail != null)
-          _memoryCache.TryAdd(title, trackDetail);
+          _memoryCache.TryAdd(searchTrack.ToString(), trackDetail);
       }
     }
+
+    #endregion
+
+    #region Caching
 
     /// <summary>
     /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
@@ -453,6 +467,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // TODO: when updating track information is implemented, start here a job to do it
     }
+
+    #endregion
 
     public override bool Init()
     {
@@ -469,6 +485,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (lang.Contains("-")) lang = lang.Split('-')[1];
       _musicBrainzDb.SetPreferredLanguage(lang);
       return _musicBrainzDb.Init(CACHE_PATH);
+    }
+
+    #region FanArt
+
+    public List<string> GetFanArtFiles<T>(T infoObject, string scope, string type)
+    {
+      List<string> fanartFiles = new List<string>();
+      string path = null;
+      if (scope == FanArtScope.Album)
+      {
+        AlbumInfo album = infoObject as AlbumInfo;
+        TrackInfo track = infoObject as TrackInfo;
+        if (album != null && !string.IsNullOrEmpty(album.MusicBrainzId))
+        {
+          path = Path.Combine(CACHE_PATH, album.MusicBrainzId, string.Format(@"{0}\{1}\", scope, type));
+        }
+        else if (track != null && !string.IsNullOrEmpty(track.AlbumMusicBrainzId))
+        {
+          path = Path.Combine(CACHE_PATH, track.AlbumMusicBrainzId, string.Format(@"{0}\{1}\", scope, type));
+        }
+      }
+      if (Directory.Exists(path))
+        fanartFiles.AddRange(Directory.GetFiles(path, "*.jpg"));
+      return fanartFiles;
     }
 
     protected override void DownloadFanArt(string musicBrainzId)
@@ -500,8 +540,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Save Cover and CDArt
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download: Begin saving fanarts for ID {0}", musicBrainzId);
-        DownloadImages(musicBrainzId, imageCollection, "Front", "Covers");
-        DownloadImages(musicBrainzId, imageCollection, "Medium", "CDArt");
+        DownloadImages(track.AlbumId, imageCollection, "Front", string.Format(@"{0}\{1}", FanArtScope.Album, FanArtType.Covers));
+        DownloadImages(track.AlbumId, imageCollection, "Medium", string.Format(@"{0}\{1}", FanArtScope.Album, FanArtType.DiscArt));
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzMatcher Download: Finished ID {0}", musicBrainzId);
 
         // Remember we are finished
@@ -535,5 +575,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       return idx;
     }
+
+    #endregion
   }
 }

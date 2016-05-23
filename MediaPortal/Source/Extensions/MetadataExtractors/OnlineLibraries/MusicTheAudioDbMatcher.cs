@@ -76,6 +76,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    #region Metadata updaters
+
     public bool FindAndUpdateTrack(TrackInfo trackInfo)
     {
       try
@@ -116,9 +118,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
               if (album.LabelId.HasValue)
                 MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, ConvertToCompanies(album.LabelId.Value, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL), true, false);
 
-              if (trackInfo.Thumbnail == null && _audioDb.DownloadImage(album.AlbumId, album.AlbumThumb, "Covers"))
+              if (trackInfo.Thumbnail == null)
               {
-                trackInfo.Thumbnail = _audioDb.GetImage(album.AlbumId, album.AlbumThumb, "Covers");
+                List<string> thumbs = GetFanArtFiles(trackInfo, FanArtScope.Album, FanArtType.Covers);
+                if (thumbs.Count > 0)
+                  trackInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
               }
             }
           }
@@ -154,15 +158,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
           if (albumDetails.Year.HasValue) MetadataUpdater.SetOrUpdateValue(ref albumInfo.ReleaseDate, new DateTime(albumDetails.Year.Value, 1, 1));
 
           if (albumDetails.ArtistId.HasValue)
+          {
             MetadataUpdater.SetOrUpdateList(albumInfo.Artists, ConvertToPersons(albumDetails.ArtistId.Value, albumDetails.MusicBrainzArtistID,
                   albumDetails.Artist, PersonAspect.OCCUPATION_ARTIST), true, false);
+          }
 
           if (albumDetails.LabelId.HasValue)
             MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, ConvertToCompanies(albumInfo.AudioDbId, albumDetails.Label, CompanyAspect.COMPANY_MUSIC_LABEL), true, false);
 
-          if (albumInfo.Thumbnail == null && _audioDb.DownloadImage(albumDetails.AlbumId, albumDetails.AlbumThumb, "Covers"))
+          if (albumInfo.Thumbnail == null)
           {
-            albumInfo.Thumbnail = _audioDb.GetImage(albumDetails.AlbumId, albumDetails.AlbumThumb, "Covers");
+            List<string> thumbs = GetFanArtFiles(albumInfo, FanArtScope.Album, FanArtType.Covers);
+            if (thumbs.Count > 0)
+              albumInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
           }
 
           return true;
@@ -226,9 +234,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
             person.Order = sortOrder++;
 
             // Get Thumbnail
-            if (person.Thumbnail == null && _audioDb.DownloadImage(person.AudioDbId, artistDetails.ArtistThumb, "Thumbnails"))
+            if (person.Thumbnail == null)
             {
-              person.Thumbnail = _audioDb.GetImage(person.AudioDbId, artistDetails.ArtistThumb, "Thumbnails");
+              List<string> thumbs = GetFanArtFiles(person, FanArtScope.Artist, FanArtType.Thumbnails);
+              if (thumbs.Count > 0)
+                person.Thumbnail = File.ReadAllBytes(thumbs[0]);
             }
           }
         }
@@ -240,6 +250,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return false;
       }
     }
+
+    #endregion
+
+    #region Metadata update helpers
 
     private List<PersonInfo> ConvertToPersons(long artistId, string mbArtistId, string artist, string occupation)
     {
@@ -281,21 +295,44 @@ namespace MediaPortal.Extensions.OnlineLibraries
       };
     }
 
+    private void StoreTrackMatch(AudioDbTrack track, TrackInfo searchTrack)
+    {
+      if (track == null)
+      {
+        _storage.TryAddMatch(new TrackMatch()
+        {
+          ItemName = searchTrack.ToString()
+        });
+        return;
+      }
+      TrackInfo trackMatch = new TrackInfo()
+      {
+        Album = track.Album,
+        TrackNum = track.TrackNumber,
+        TrackName = track.Track
+      };
+      var onlineMatch = new TrackMatch
+      {
+        Id = track.TrackId.ToString(),
+        ItemName = searchTrack.ToString(),
+        TrackName = trackMatch.ToString(),
+        TrackNum = track.TrackNumber,
+        ArtistName = track.Artist,
+        AlbumName = track.Album
+      };
+      _storage.TryAddMatch(onlineMatch);
+    }
+
+    #endregion
+
+    #region Online matchers
+
     protected bool TryMatch(TrackInfo trackInfo, out AudioDbTrack trackDetails)
     {
       if ((trackInfo.AudioDbId > 0 && _audioDb.GetTrackFromId(trackInfo.AudioDbId, out trackDetails)) ||
         (!string.IsNullOrEmpty(trackInfo.MusicBrainzId) && _audioDb.GetTrackFromMBId(trackInfo.MusicBrainzId, out trackDetails)))
       {
-        var onlineMatch = new TrackMatch
-        {
-          Id = trackDetails.TrackId.ToString(),
-          ItemName = trackInfo.TrackName,
-          TrackName = trackDetails.Track,
-          RecordingName = trackDetails.Track,
-          ReleaseName = trackDetails.Album
-        };
-        _storage.TryAddMatch(onlineMatch);
-
+        StoreTrackMatch(trackDetails, trackInfo);
         return true;
       }
       trackDetails = null;
@@ -304,12 +341,18 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     protected bool TryMatch(string title, List<string> artists, string album, int trackNum, bool cacheOnly, out AudioDbTrack trackDetail)
     {
+      TrackInfo searchTrack = new TrackInfo()
+      {
+        Album = album,
+        TrackNum = trackNum,
+        TrackName = title
+      };
       trackDetail = null;
       try
       {
         // Prefer memory cache
         CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(title, out trackDetail))
+        if (_memoryCache.TryGetValue(searchTrack.ToString(), out trackDetail))
           return true;
 
         // Load cache or create new list
@@ -320,8 +363,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Use cached values before doing online query
         TrackMatch match = matches.Find(m =>
-          string.Equals(m.TrackName, title, StringComparison.OrdinalIgnoreCase) ||
-          string.Equals(m.TrackName, title, StringComparison.OrdinalIgnoreCase));
+          (string.Equals(m.ItemName, searchTrack.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, searchTrack.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+          !string.IsNullOrEmpty(m.AlbumName) && album.Length > 0 ? album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true &&
+          ((trackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackNum) || trackNum <= 0 || m.TrackNum <= 0)));
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher: Try to lookup track \"{0}\" from cache: {1}", title, match != null && string.IsNullOrEmpty(match.Id) == false);
 
         // Try online lookup
@@ -342,21 +386,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher: Found unique online match for \"{0}\": \"{1}\"", title, trackResult.Track);
           if (_audioDb.GetTrackFromId(trackResult.TrackId, out trackDetail))
           {
-            var onlineMatch = new TrackMatch
-            {
-              Id = trackDetail.TrackId.ToString(),
-              ItemName = trackDetail.Track,
-              TrackName = trackDetail.Track,
-              RecordingName = trackDetail.Track,
-              ReleaseName = trackDetail.Album
-            };
-            _storage.TryAddMatch(onlineMatch);
+            StoreTrackMatch(trackDetail, searchTrack);
             return true;
           }
         }
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher: No unique match found for \"{0}\"", title);
         // Also save "non matches" to avoid retrying
-        _storage.TryAddMatch(new TrackMatch { ItemName = title, TrackName = title });
+        StoreTrackMatch(null, searchTrack);
         return false;
       }
       catch (Exception ex)
@@ -367,9 +403,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       finally
       {
         if (trackDetail != null)
-          _memoryCache.TryAdd(title, trackDetail);
+          _memoryCache.TryAdd(searchTrack.ToString(), trackDetail);
       }
     }
+
+    #endregion
+
+    #region Caching
 
     /// <summary>
     /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
@@ -384,6 +424,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // TODO: when updating movie information is implemented, start here a job to do it
     }
 
+    #endregion
+
     public override bool Init()
     {
       if (!base.Init())
@@ -397,6 +439,38 @@ namespace MediaPortal.Extensions.OnlineLibraries
       CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       _audioDb.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
       return _audioDb.Init(CACHE_PATH);
+    }
+
+    #region FanArt
+
+    public List<string> GetFanArtFiles<T>(T infoObject, string scope, string type)
+    {
+      List<string> fanartFiles = new List<string>();
+      string path = null;
+      if (scope == FanArtScope.Album)
+      {
+        AlbumInfo album = infoObject as AlbumInfo;
+        TrackInfo track = infoObject as TrackInfo;
+        if (album != null && album.AudioDbId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, album.AudioDbId.ToString(), string.Format(@"{0}\{1}\", scope, type));
+        }
+        else if (track != null && track.AlbumAudioDbId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, track.AlbumAudioDbId.ToString(), string.Format(@"{0}\{1}\", scope, type));
+        }
+      }
+      else if (scope == FanArtScope.Artist)
+      {
+        PersonInfo person = infoObject as PersonInfo;
+        if (person != null && person.AudioDbId > 0)
+        {
+          path = Path.Combine(CACHE_PATH, person.AudioDbId.ToString(), string.Format(@"{0}\{1}\", scope, type));
+        }
+      }
+      if (Directory.Exists(path))
+        fanartFiles.AddRange(Directory.GetFiles(path, "*.jpg"));
+      return fanartFiles;
     }
 
     protected override void DownloadFanArt(string albumId)
@@ -430,8 +504,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
           // Save Cover
           ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Begin saving fanarts for ID {0}", albumId);
-          _audioDb.DownloadImage(album.AlbumId, album.AlbumThumb, "Covers");
-          _audioDb.DownloadImage(album.AlbumId, album.AlbumCDart, "CDArt");
+          _audioDb.DownloadImage(album.AlbumId, album.AlbumThumb, string.Format(@"{0}\{1}", FanArtScope.Album, FanArtType.Covers));
+          _audioDb.DownloadImage(album.AlbumId, album.AlbumCDart, string.Format(@"{0}\{1}", FanArtScope.Album, FanArtType.DiscArt));
         }
 
         if (track.ArtistId.HasValue)
@@ -441,12 +515,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
             return;
 
           ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Begin saving artist banners for ID {0}", albumId);
-          if (!string.IsNullOrEmpty(artist.ArtistBanner)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistBanner, "Banners");
-          if (!string.IsNullOrEmpty(artist.ArtistFanart)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart, "Backdrops");
-          if (!string.IsNullOrEmpty(artist.ArtistFanart2)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart2, "Backdrops");
-          if (!string.IsNullOrEmpty(artist.ArtistFanart3)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart3, "Backdrops");
-          if (!string.IsNullOrEmpty(artist.ArtistLogo)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistLogo, "Logos");
-          if (!string.IsNullOrEmpty(artist.ArtistThumb)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistThumb, "Thumbnails");
+          if (!string.IsNullOrEmpty(artist.ArtistBanner)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistBanner, string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Banners));
+          if (!string.IsNullOrEmpty(artist.ArtistFanart)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart, string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Backdrops));
+          if (!string.IsNullOrEmpty(artist.ArtistFanart2)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart2, string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Backdrops));
+          if (!string.IsNullOrEmpty(artist.ArtistFanart3)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistFanart3, string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Backdrops));
+          if (!string.IsNullOrEmpty(artist.ArtistLogo)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistLogo, string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Logos));
+          if (!string.IsNullOrEmpty(artist.ArtistThumb)) _audioDb.DownloadImage(artist.ArtistId, artist.ArtistThumb, string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Thumbnails));
         }
 
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher Download: Finished ID {0}", albumId);
@@ -459,5 +533,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbMatcher: Exception downloading FanArt for ID {0}", ex, albumId);
       }
     }
+
+    #endregion
   }
 }

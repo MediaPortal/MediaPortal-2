@@ -195,7 +195,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     /// <returns><c>true</c> if successful</returns>
     public bool GetSeriesFanArt(int seriesId, out TvdbSeries series)
     {
-      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, false, true, true);
+      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, true, true, true);
       return series != null;
     }
 

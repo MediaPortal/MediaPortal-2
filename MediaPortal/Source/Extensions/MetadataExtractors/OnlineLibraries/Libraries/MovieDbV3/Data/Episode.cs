@@ -64,7 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
   public class Episode
   {
     [DataMember(Name = "id")]
-    public int SeasonId { get; set; }
+    public int Id { get; set; }
 
     [DataMember(Name = "name")]
     public string Name { get; set; }

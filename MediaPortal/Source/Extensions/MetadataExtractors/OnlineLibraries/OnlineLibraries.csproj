@@ -92,6 +92,7 @@
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtistResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecordingResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecording.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackReleaseSearchResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\MusicBrainzDownloader.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbBaseResponse.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbSearchItem.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSeasonSearch.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSearchResult.cs" />
     <Compile Include="Libraries\TvMazeV1\TvMazeApiV1.cs" />
+    <Compile Include="FanArt.cs" />
     <Compile Include="MovieFanArtTvMatcher.cs" />
     <Compile Include="MovieOmDbMatcher.cs" />
     <Compile Include="MetadataUpdater.cs" />

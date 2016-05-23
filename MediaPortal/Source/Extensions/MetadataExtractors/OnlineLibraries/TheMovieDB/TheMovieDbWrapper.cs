@@ -660,7 +660,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     /// <param name="episode">Episode number</param>
     /// <param name="imageCollection">Returns the ImageCollection</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool GetSeriesEpsiodeFanArt(int id, int season, int episode, out ImageCollection imageCollection)
+    public bool GetSeriesEpisodeFanArt(int id, int season, int episode, out ImageCollection imageCollection)
     {
       imageCollection = _movieDbHandler.GetSeriesEpisodeImages(id, season, episode, null); // Download all image information, filter later!
       return imageCollection != null;
@@ -686,16 +686,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     public bool DownloadImage(ImageItem image, string category)
     {
       return _movieDbHandler.DownloadImage(image, category);
-    }
-
-    public byte[] GetImage(MovieCollection movieCollection, bool usePoster)
-    {
-      return _movieDbHandler.GetCollectionImage(movieCollection, usePoster);
-    }
-
-    public bool DownloadImages(MovieCollection movieCollection)
-    {
-      return _movieDbHandler.DownloadImages(movieCollection);
     }
   }
 }

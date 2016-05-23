@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           List<FreeDBCDTrackDetail> tracks = new List<FreeDBCDTrackDetail>(trackDetails.Tracks);
           if (_freeDb.FindTrack(trackInfo.TrackNum, ref tracks))
           {
-            MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackDetails.Title, true);
+            MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, tracks[0].Title, true);
             MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, ConvertToPersons(tracks[0].Artist, PersonAspect.OCCUPATION_ARTIST), false, true);
             MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, tracks[0].TrackNumber);
           }
@@ -102,7 +102,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
           TrackMatch onlineMatch = new TrackMatch
           {
             Id = trackDetails.DiscID,
-            RecordingName = trackInfo.TrackNum.ToString(),
+            TrackNum = trackInfo.TrackNum,
+            TrackName = trackInfo.TrackName,
+            AlbumName = trackInfo.Album,
             ItemName = trackDetails.DiscID
           };
           // Save cache
@@ -163,7 +165,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Use cached values before doing online query
         match = matches.Find(m =>
-          string.Equals(m.Id, cdDbId, StringComparison.OrdinalIgnoreCase) && string.Equals(m.ItemName, trackNumber.ToString(), StringComparison.OrdinalIgnoreCase));
+          string.Equals(m.Id, cdDbId, StringComparison.OrdinalIgnoreCase) && int.Equals(m.TrackNum, trackNumber));
         ServiceRegistration.Get<ILogger>().Debug("FreeDbMatcher: Try to lookup CD \"{0}\" from cache: {1}", cdDbId, match != null && string.IsNullOrEmpty(match.Id) == false);
 
         // Try online lookup

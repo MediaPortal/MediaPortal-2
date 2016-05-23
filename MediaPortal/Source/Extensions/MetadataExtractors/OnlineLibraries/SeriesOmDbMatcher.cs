@@ -74,6 +74,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #endregion
 
+    #region Metadata updaters
+
     /// <summary>
     /// Tries to lookup the series from TheMovieDB and updates the given <paramref name="episodeInfo"/> with the online information.
     /// </summary>
@@ -96,6 +98,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
             MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, seriesDetail.ImdbID);
 
             MetadataUpdater.SetOrUpdateString(ref episodeInfo.Series, seriesDetail.Title, true);
+            MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, seriesDetail.Released);
             MetadataUpdater.SetOrUpdateString(ref episodeInfo.Certification, seriesDetail.Rated, true);
 
             // Also try to fill episode title from series details (most file names don't contain episode name).
@@ -212,6 +215,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return false;
       }
     }
+
+    #endregion
+
+    #region Metadata update helpers
 
     protected bool TryMatchEpisode(EpisodeInfo episodeInfo, OmDBSeries seriesDetail)
     {
@@ -356,25 +363,35 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return retValue;
     }
 
+    #endregion
+
+    #region Online matching
+
     private bool TryMatch(EpisodeInfo episodeInfo, out OmDBSeries seriesDetails)
     {
       if (!string.IsNullOrEmpty(episodeInfo.SeriesImdbId) && _omDb.GetSeries(episodeInfo.SeriesImdbId, out seriesDetails))
       {
-        SaveMatchToPersistentCache(seriesDetails, seriesDetails.Title);
+        StoreSeriesMatch(seriesDetails, seriesDetails.Title);
         return true;
       }
       seriesDetails = null;
-      return TryMatch(episodeInfo.Series, false, out seriesDetails);
+      return TryMatch(episodeInfo.Series, episodeInfo.SeriesFirstAired.HasValue ? episodeInfo.SeriesFirstAired.Value.Year : 0, 
+        false, out seriesDetails);
     }
 
-    protected bool TryMatch(string seriesName, bool cacheOnly, out OmDBSeries seriesDetail)
+    protected bool TryMatch(string seriesName, int year, bool cacheOnly, out OmDBSeries seriesDetail)
     {
+      SeriesInfo searchSeries = new SeriesInfo()
+      {
+        Series = seriesName,
+        FirstAired = year > 0 ? new DateTime(year, 1, 1) : default(DateTime?)
+      };
       seriesDetail = null;
       try
       {
         // Prefer memory cache
         CheckCacheAndRefresh();
-        if (_memoryCache.TryGetValue(seriesName, out seriesDetail))
+        if (_memoryCache.TryGetValue(searchSeries.ToString(), out seriesDetail))
           return true;
 
         // Load cache or create new list
@@ -385,8 +402,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
         // Use cached values before doing online query
         SeriesMatch match = matches.Find(m => 
-          string.Equals(m.ItemName, seriesName, StringComparison.OrdinalIgnoreCase) || 
-          string.Equals(m.TvDBName, seriesName, StringComparison.OrdinalIgnoreCase));
+          string.Equals(m.ItemName, searchSeries.ToString(), StringComparison.OrdinalIgnoreCase) || 
+          string.Equals(m.OnlineName, searchSeries.ToString(), StringComparison.OrdinalIgnoreCase));
         ServiceRegistration.Get<ILogger>().Debug("SeriesOmDbMatcher: Try to lookup series \"{0}\" from cache: {1}", seriesName, match != null && !string.IsNullOrEmpty(match.Id));
 
         // Try online lookup
@@ -401,19 +418,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
           return false;
 
         List<OmDbSearchItem> series;
-        if (_omDb.SearchSeriesUnique(seriesName, 0, out series))
+        if (_omDb.SearchSeriesUnique(seriesName, year, out series))
         {
           OmDbSearchItem seriesResult = series[0];
           ServiceRegistration.Get<ILogger>().Debug("SeriesOmDbMatcher: Found unique online match for \"{0}\": \"{1}\"", seriesName, seriesResult.Title);
           if (_omDb.GetSeries(series[0].ImdbID, out seriesDetail))
           {
-            SaveMatchToPersistentCache(seriesDetail, seriesName);
+            StoreSeriesMatch(seriesDetail, searchSeries.ToString());
             return true;
           }
         }
         ServiceRegistration.Get<ILogger>().Debug("SeriesOmDbMatcher: No unique match found for \"{0}\"", seriesName);
         // Also save "non matches" to avoid retrying
-        _storage.TryAddMatch(new SeriesMatch { ItemName = seriesName });
+        StoreSeriesMatch(null, searchSeries.ToString());
         return false;
       }
       catch (Exception ex)
@@ -424,20 +441,37 @@ namespace MediaPortal.Extensions.OnlineLibraries
       finally
       {
         if (seriesDetail != null)
-          _memoryCache.TryAdd(seriesName, seriesDetail);
+          _memoryCache.TryAdd(searchSeries.ToString(), seriesDetail);
       }
     }
 
-    private void SaveMatchToPersistentCache(OmDBSeries seriesDetails, string seriesName)
+    private void StoreSeriesMatch(OmDBSeries series, string seriesName)
     {
+      if (series == null)
+      {
+        _storage.TryAddMatch(new SeriesMatch()
+        {
+          ItemName = seriesName
+        });
+        return;
+      }
+      SeriesInfo seriesMatch = new SeriesInfo()
+      {
+        Series = series.Title,
+        FirstAired = series.Released.HasValue ? series.Released.Value : default(DateTime?)
+      };
       var onlineMatch = new SeriesMatch
       {
-        Id = seriesDetails.ImdbID,
+        Id = series.ImdbID,
         ItemName = seriesName,
-        TvDBName = seriesDetails.Title
+        OnlineName = seriesMatch.ToString()
       };
       _storage.TryAddMatch(onlineMatch);
     }
+
+    #endregion
+
+    #region Caching
 
     /// <summary>
     /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
@@ -451,6 +485,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       // TODO: when updating movie information is implemented, start here a job to do it
     }
+
+    #endregion
 
     public override bool Init()
     {

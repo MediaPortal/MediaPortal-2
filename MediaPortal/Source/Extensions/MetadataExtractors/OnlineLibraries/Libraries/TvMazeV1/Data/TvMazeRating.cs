@@ -33,6 +33,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data
   public class TvMazeRating
   {
     [DataMember(Name = "average")]
-    public double Rating { get; set; }
+    public double? Rating { get; set; }
   }
 }
