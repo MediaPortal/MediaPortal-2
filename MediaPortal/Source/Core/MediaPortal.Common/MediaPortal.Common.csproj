@@ -86,7 +86,9 @@
     <Compile Include="MediaManagement\Helpers\PersonInfo.cs" />
     <Compile Include="MediaManagement\Helpers\AlbumInfo.cs" />
     <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
+    <Compile Include="MediaManagement\IMediaMergeHandler.cs" />
     <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
+    <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />

@@ -74,6 +74,12 @@ namespace MediaPortal.Common.ResourceAccess
     IDictionary<Guid, IRelationshipExtractor> LocalRelationshipExtractors { get; }
 
     /// <summary>
+    /// Collection of all registered local merge handlers, organized as a dictionary of
+    /// (GUID; merge handler) mappings.
+    /// </summary>
+    IDictionary<Guid, IMediaMergeHandler> LocalMergeHandlers { get; }
+
+    /// <summary>
     /// Initializes resource providers, metadata extractors and internal structures.
     /// </summary>
     void Initialize();

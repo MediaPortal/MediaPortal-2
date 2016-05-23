@@ -51,6 +51,10 @@ namespace MediaPortal.Common.Services.MediaManagement
       // Relationship extractor related messages. The param will contain the id of the metadata extractor.
       RelationshipExtractorAdded,
       RelationshipExtractorRemoved,
+
+      // Merge handler related messages. The param will contain the id of the merge handler.
+      MergeHandlerAdded,
+      MergeHandlerRemoved,
     }
 
     // Message data
@@ -89,6 +93,18 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
         SystemMessage msg = new SystemMessage(messageType);
         msg.MessageData[PARAM] = relationshipExtractorId;
+        ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message concerning a merge handler.
+    /// </summary>
+    /// <param name="messageType">Type of the message to send.</param>
+    /// <param name="relationshipExtractorId">Merge handler which is affected.</param>
+    public static void SendMergeHandlerMessage(MessageType messageType, Guid mergeHandlerId)
+    {
+        SystemMessage msg = new SystemMessage(messageType);
+        msg.MessageData[PARAM] = mergeHandlerId;
         ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
