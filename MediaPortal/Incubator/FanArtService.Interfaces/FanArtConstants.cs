@@ -36,7 +36,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       SeriesSeason,
       Episode,
       Actor,
+      Character,
+      Director,
+      Writer,
       Artist,
+      Composer,
+      Company,
+      Network,
+      MusicLabel,
       ChannelTv,
       ChannelRadio,
       Album,
@@ -53,6 +60,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       Thumbnail,
       ClearArt,
       DiscArt,
+      Logo
     }
   }
 }
