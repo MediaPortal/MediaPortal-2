@@ -49,6 +49,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
           ".dvr-ms",
       };
 
+    // Don't add any others unless support has been added for them
+    protected readonly static List<string> DEFAULT_SUBTITLE_FILE_EXTENSIONS = new List<string>
+      {
+        ".srt",
+        ".smi",
+        ".ass",
+        ".ssa",
+        ".sub",
+        ".vtt",
+      };
+
+    protected List<string> _subtitleFileExtensions = new List<string>(DEFAULT_SUBTITLE_FILE_EXTENSIONS);
     protected List<string> _videoFileExtensions = new List<string>(DEFAULT_VIDEO_FILE_EXTENSIONS);
 
     /// <summary>
@@ -59,6 +71,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
     {
       get { return _videoFileExtensions; }
       set { _videoFileExtensions = value; }
+    }
+
+    /// <summary>
+    /// Subtitle extensions for which the <see cref="VideoMetadataExtractor"/> should be used.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public List<string> SubtitleFileExtensions
+    {
+      get { return _subtitleFileExtensions; }
+      set { _subtitleFileExtensions = value; }
     }
   }
 }

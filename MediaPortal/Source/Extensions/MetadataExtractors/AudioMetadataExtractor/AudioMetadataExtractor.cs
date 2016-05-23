@@ -383,7 +383,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_TYPE, ProviderResourceAspect.TYPE_AUDIO);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_PART, -1);
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
         if (!string.IsNullOrWhiteSpace(tag.MimeType))
@@ -502,7 +505,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         string cdDbId;
         string musicBrainzId;
-        if (AudioCDMatcher.GetDiscMatch(fileName, out musicBrainzId, out cdDbId))
+        if (AudioCDMatcher.GetDiscMatch(mediaItemAccessor.ResourcePathName, out musicBrainzId, out cdDbId))
         {
           if (!string.IsNullOrEmpty(cdDbId)) trackInfo.AlbumCdDdId = cdDbId;
           if (!string.IsNullOrEmpty(musicBrainzId)) trackInfo.AlbumMusicBrainzDiscId = musicBrainzId;

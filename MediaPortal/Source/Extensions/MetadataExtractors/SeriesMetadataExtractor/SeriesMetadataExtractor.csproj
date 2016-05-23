@@ -61,6 +61,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="EpisodeMergeHandler.cs" />
     <Compile Include="SeriesCharacterRelationshipExtractor.cs" />
     <Compile Include="SeriesProductionRelationshipExtractor.cs" />
     <Compile Include="SeriesNetworkRelationshipExtractor.cs" />
@@ -73,7 +74,6 @@
     <Compile Include="SeasonSeriesRelationshipExtractor.cs" />
     <Compile Include="SeriesBaseTryExtractRelationships.cs" />
     <Compile Include="SeriesRelationshipExtractor.cs" />
-    <Compile Include="FanartProvider\SeriesFanartProvider.cs" />
     <Compile Include="SeriesMetadataExtractorSettings.cs" />
     <Compile Include="NameMatchers\MatroskaMatcher.cs" />
     <Compile Include="NameMatchers\SeriesMatcher.cs" />
@@ -87,10 +87,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Incubator\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
-      <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
-      <Name>FanArtService.Interfaces</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>

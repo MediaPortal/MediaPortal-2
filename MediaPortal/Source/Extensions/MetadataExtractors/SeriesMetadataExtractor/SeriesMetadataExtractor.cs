@@ -96,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
@@ -133,6 +133,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         // Try to match series from folder and file namings
         SeriesMatcher seriesMatcher = new SeriesMatcher();
         seriesMatcher.MatchSeries(lfsra, out episodeInfo);
+      }
+      else if(episodeInfo.SeriesFirstAired == null)
+      {
+        EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
+        SeriesMatcher seriesMatcher = new SeriesMatcher();
+        seriesMatcher.MatchSeries(lfsra, out tempEpisodeInfo);
+        if (tempEpisodeInfo.SeriesFirstAired.HasValue)
+          episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
       }
 
       // Lookup online information (incl. fanart)

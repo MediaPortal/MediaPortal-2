@@ -12,16 +12,10 @@
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
     <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
-    <PluginFiles Include="$(TargetDir)FanArtService.Interfaces.pdb" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
 
 </Project>

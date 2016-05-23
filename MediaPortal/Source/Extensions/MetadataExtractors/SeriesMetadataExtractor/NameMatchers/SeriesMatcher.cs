@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using System;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -39,6 +40,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     private const string GROUP_SEASONNUM = "seasonnum";
     private const string GROUP_EPISODENUM = "episodenum";
     private const string GROUP_EPISODE = "episode";
+    private const string GROUP_YEAR = "year";
 
     protected static List<Regex> _matchers = new List<Regex>
         {
@@ -61,6 +63,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
           // "Series.Name.101.Episode.Or.Release.Info", attention: this expression can lead to false matches for every filename with nnn included
           new Regex(@"(?<series>[^\\]+).\W(?<seasonnum>\d{1})(?<episodenum>\d{2})\W(?<episode>.*)\.", RegexOptions.IgnoreCase),
         };
+
+    protected static Regex _yearMatcher = new Regex(@"(?<series>.*)[ .-]+\((?<year>\d+)\)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
@@ -101,6 +105,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
         info.Series = EpisodeInfo.CleanupWhiteSpaces(group.Value);
+
+      if (!string.IsNullOrEmpty(info.Series))
+      {
+        Match yearMa = _yearMatcher.Match(info.Series);
+        if (yearMa.Success)
+        {
+          info.Series = EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value);
+          info.SeriesFirstAired = new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1);
+        }
+      }
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)

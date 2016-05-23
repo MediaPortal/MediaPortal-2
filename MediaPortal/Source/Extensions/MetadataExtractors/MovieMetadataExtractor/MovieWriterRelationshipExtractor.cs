@@ -96,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       PersonInfo existingPerson = new PersonInfo();
-      if (!existingPerson.FromMetadata(extractedAspects))
+      if (!existingPerson.FromMetadata(existingAspects))
         return false;
 
       return linkedPerson.Equals(existingPerson);

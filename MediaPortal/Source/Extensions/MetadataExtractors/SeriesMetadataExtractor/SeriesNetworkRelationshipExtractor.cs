@@ -97,7 +97,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       CompanyInfo existingCompany = new CompanyInfo();
-      if (!existingCompany.FromMetadata(extractedAspects))
+      if (!existingCompany.FromMetadata(existingAspects))
         return false;
 
       return linkedCompany.Equals(existingCompany);

@@ -93,7 +93,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       SeasonInfo existingSeason = new SeasonInfo();
-      if (!existingSeason.FromMetadata(extractedAspects))
+      if (!existingSeason.FromMetadata(existingAspects))
         return false;
 
       return linkedSeason.SeasonNumber == existingSeason.SeasonNumber;

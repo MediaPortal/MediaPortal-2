@@ -44,6 +44,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
       musicBrainzId = null;
       cdDbId = null;
       string root = Path.GetPathRoot(fileName);
+      if (string.IsNullOrEmpty(root))
+        return false;
       char rootLetter = root[0];
       if (PHYSICAL_DISK_ROOTS.Contains(rootLetter) == false)
       {

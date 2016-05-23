@@ -97,7 +97,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       CharacterInfo existingCharacter = new CharacterInfo();
-      if (!existingCharacter.FromMetadata(extractedAspects))
+      if (!existingCharacter.FromMetadata(existingAspects))
         return false;
 
       return linkedCharacter.Equals(existingCharacter);
