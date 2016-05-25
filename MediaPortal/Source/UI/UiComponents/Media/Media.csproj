@@ -111,6 +111,7 @@
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
+    <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />

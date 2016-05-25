@@ -105,6 +105,13 @@
   -->
   </Register>
 
+  <!-- MediaNavigationFilter -->
+  <Register Location="/Media/Filters">
+    <MediaNavigationFilterBuilder Id="{DD6FC152-0A98-4E4B-B3F4-643A68364470}" ClassName="VideosNavigationInitializer"
+                                  Filter="{FilterWrapper}{Empty}{AttributeType}c389f655-ed60-4271-91ea-ec589bd815c6:Channel{/AttributeType}{/Empty}{/FilterWrapper}"
+                                  />
+  </Register>
+
   <Register Location="/Models">
     <Model Id="8BEC1372-1C76-484c-8A69-C7F3103708EC" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvClientModel"/>
     <Model Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvSingleChannelGuideModel"/>
