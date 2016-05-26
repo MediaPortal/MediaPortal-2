@@ -65,8 +65,8 @@
                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
-                  <Binding Source="{Binding ElementName=SearchResult}" Path="SelectedItem"/>
-                  <Binding Source="{Binding ElementName=SearchResult}" Path="ItemsSource"/>
+                  <Binding ElementName="SearchResult" Path="CurrentItem"/>
+                  <Binding ElementName="SearchResult" Path="ItemsSource"/>
                 </MultiBinding>
               </Label.Content>
             </Label>
@@ -75,7 +75,7 @@
             <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                  FontFamily="DefaultBold" Opacity="0.4">
               <Label.Content>
-                <Binding Source="{Binding ElementName=SearchResult}" Path="ItemsSource.Count"/>
+                <Binding ElementName="SearchResult" Path="ItemsSource.Count" />
               </Label.Content>
             </Label>
           </StackPanel>
