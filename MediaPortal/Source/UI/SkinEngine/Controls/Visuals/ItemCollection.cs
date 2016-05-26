@@ -37,9 +37,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   public class ItemCollection : ICollection<object>, IDisposable, IAddChild<object>, ISynchronizable
   {
     protected IList<object> _elements = new List<object>();
+    protected AbstractProperty _countProperty;
     protected object _syncObj = new object();
 
     public ItemCollectionChangedDlgt CollectionChanged;
+
+    public ItemCollection()
+    {
+      _countProperty = new SProperty(typeof(int), 0);
+    }
 
     public void Dispose()
     {
@@ -71,9 +77,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void FireCollectionChanged()
     {
+      UpdateCount();
       ItemCollectionChangedDlgt dlgt = CollectionChanged;
       if (dlgt != null)
         dlgt(this);
+    }
+
+    protected void UpdateCount()
+    {
+      Count = _elements.Count;
     }
 
     public void AddAll<T>(IEnumerable<T> elements)
@@ -157,13 +169,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return _elements.Contains(item);
     }
 
+    public AbstractProperty CountProperty
+    {
+      get { return _countProperty; }
+    }
+
     public int Count
     {
       get
       {
         lock (_syncObj)
-          return _elements.Count;
+          return (int)_countProperty.GetValue();
       }
+      private set { _countProperty.SetValue(value); }
     }
 
     public bool IsReadOnly

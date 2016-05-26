@@ -36,6 +36,12 @@ namespace MediaPortal.UI.Presentation.DataObjects
   {
     protected SynchronizedCollection<ListItem> _backingList = new SynchronizedCollection<ListItem>();
     protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
+    protected AbstractProperty _countProperty;
+
+    public ItemsList()
+    {
+      _countProperty = new SProperty(typeof(int), 0);
+    }
 
     /// <summary>
     /// Event which gets fired when the collection changes.
@@ -48,7 +54,13 @@ namespace MediaPortal.UI.Presentation.DataObjects
 
     public void FireChange()
     {
-      _objectChanged.Fire(new object[] {this});
+      UpdateCount();
+      _objectChanged.Fire(new object[] { this });
+    }
+
+    protected void UpdateCount()
+    {
+      Count = _backingList.Count;
     }
 
     public object SyncRoot
@@ -97,9 +109,15 @@ namespace MediaPortal.UI.Presentation.DataObjects
       return _backingList.Remove(item);
     }
 
+    public AbstractProperty CountProperty
+    {
+      get { return _countProperty; }
+    }
+
     public int Count
     {
-      get { return _backingList.Count; }
+      get { return (int)_countProperty.GetValue(); }
+      private set { _countProperty.SetValue(value); }
     }
 
     public bool IsReadOnly
