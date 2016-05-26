@@ -154,16 +154,13 @@
       <Custom Action="PrepareXmlPathVariables" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
 
-      <!-- Uninstall Dokan during installation, if dokan is out of date -->
+      <!-- Uninstall old Dokan version -->
       <Custom Action="CA_UninstallDokan" After="InstallFiles">
-        NOT Installed AND DOKANINSTALLED AND
-        NOT (
-        (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64)
-        )
+        NOT Installed AND DOKANINSTALLED
       </Custom>
-      <!-- Install Dokan, if correct version is not installed yet -->
-      <Custom Action="CA_InstallDokan" After="CA_UninstallDokan">
-        NOT (Installed OR (DOKANVERCHECK64 AND VersionNT64) OR (DOKANVERCHECK32 AND NOT VersionNT64))
+      <!-- Install Dokany, if old dokan has been removed -->
+      <Custom Action="CA_InstallDokany" After="CA_UninstallDokan">
+        NOT Installed AND NOT DOKANYINSTALLED
       </Custom>
 
       <Custom Action="InstallLAVFilters" After="InstallFiles">

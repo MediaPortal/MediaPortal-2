@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <DokanInstallerExePath Condition=" '$(DokanInstallerExePath)' == '' ">$(MSBuildThisFileDirectory)dokaninstall_053.exe</DokanInstallerExePath>
+        <DokanInstallerExePath Condition=" '$(DokanInstallerExePath)' == '' ">$(MSBuildThisFileDirectory)DokanSetup.exe</DokanInstallerExePath>
     </PropertyGroup>
 
     <Target Name="CheckPrerequisites">
@@ -34,9 +34,9 @@
                 try {
                     OutputFilename = Path.GetFullPath(OutputFilename);
 
-                    Log.LogMessage("Downloading dokaninstall_053.exe...");
+                    Log.LogMessage("Downloading DokanSetup.exe...");
                     WebClient webClient = new WebClient();
-                    webClient.DownloadFile("http://install.team-mediaportal.com/dokaninstall_053.exe", OutputFilename);
+                    webClient.DownloadFile("https://github.com/dokan-dev/dokany/releases/download/v1.0.0-RC3/DokanSetup.exe", OutputFilename);
 
                     return true;
                 }
