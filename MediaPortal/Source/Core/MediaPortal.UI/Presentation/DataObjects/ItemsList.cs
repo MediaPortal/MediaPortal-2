@@ -116,7 +116,12 @@ namespace MediaPortal.UI.Presentation.DataObjects
 
     public int Count
     {
-      get { return (int)_countProperty.GetValue(); }
+      get
+      {
+        // Synchronize with backing list
+        UpdateCount();
+        return (int)_countProperty.GetValue();
+      }
       private set { _countProperty.SetValue(value); }
     }
 

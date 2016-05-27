@@ -179,7 +179,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get
       {
         lock (_syncObj)
+        {
+          // Synchronize with backing list
+          UpdateCount();
           return (int)_countProperty.GetValue();
+        }
       }
       private set { _countProperty.SetValue(value); }
     }
