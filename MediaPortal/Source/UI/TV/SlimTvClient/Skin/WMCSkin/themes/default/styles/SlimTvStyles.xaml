@@ -493,7 +493,7 @@
             <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
             <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="False"
                                Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
-            <Image Grid.Column="1" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False"
+            <Image Grid.Column="1" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False" 
                                Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
             <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonOverlayControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="3"/>
           </Grid>

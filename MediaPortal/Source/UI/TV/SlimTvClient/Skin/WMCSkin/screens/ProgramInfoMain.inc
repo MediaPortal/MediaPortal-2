@@ -34,17 +34,24 @@
       </Image>
     </StackPanel>
 
-    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
-      <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-             Content="{Binding SelectedCurrentProgram.Title}" Margin="10,0,0,0"
+    <Grid Grid.Row="0" Grid.Column="1" >
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="Program" Scroll="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+             Content="{Binding SelectedCurrentProgram.Title}" Margin="10,0,0,0" Grid.Column="0"
              Color="{ThemeResource TextColor}"/>
-      <Label x:Name="SeriesLabel" Content="{Binding SelectedCurrentProgram.Series}" Opacity="0.5"
-             Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
-    </StackPanel>
+      <Label x:Name="SeriesLabel" Content="{Binding SelectedCurrentProgram.Series}" Opacity="0.5" Grid.Column="1"
+             Color="{ThemeResource TextColor}" Margin="10,0,10,0" TextTrimming="WordEllipsis"/>
+    </Grid>
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
            Wrap="True" TextTrimming="WordEllipsis" Opacity="0.5"
            Content="{Binding Path=SelectedCurrentProgram.Description}"
-           Color="{ThemeResource TextColor}" Margin="10,0,0,5" />
+           Color="{ThemeResource TextColor}" Margin="10,0,10,5" />
   </Grid>
 </DockPanel>

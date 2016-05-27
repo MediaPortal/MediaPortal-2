@@ -53,6 +53,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Image Stretch="Fill" Opacity="1">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} ? {1} : ({0} == {LayoutType}.{ListLayout} ? {2} : {3})">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+            <Binding Source="Background_GridView.png"/>   <!--Grid-->
+            <Binding Source="Background_ListView.png"/>   <!--List-->
+            <Binding Source="Background_GridView.png"/>   <!--Cover-->
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+    </ControlTemplate>
+
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True" Margin="10">
         <DockPanel.Resources>

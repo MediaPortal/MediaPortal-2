@@ -260,7 +260,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc" />
-    <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MultiListDetails.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -396,6 +398,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\default-background.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

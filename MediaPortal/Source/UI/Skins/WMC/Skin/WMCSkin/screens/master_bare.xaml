@@ -46,7 +46,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
     </Grid.Resources>
 
-      <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+    <Control x:Name="FanArtBackground" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+               Template="{DynamicResource ResourceKey=FanArtBackground_Template}"/>
+
+    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                LastChildFill="True">
       <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
         <Grid.RowDefinitions>
@@ -89,7 +92,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                Template="{DynamicResource ResourceKey=Client_Template}">
       </Control>
     </DockPanel>
-      
+
     <!-- FooterPanel -->
     <Grid Grid.Row="1" x:Name="FooterPanel" DockPanel.Dock="Bottom" Margin="1000,0,0,0">
         <Grid.RowDefinitions>
