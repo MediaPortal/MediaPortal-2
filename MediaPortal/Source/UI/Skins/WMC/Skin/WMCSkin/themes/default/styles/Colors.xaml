@@ -41,7 +41,7 @@
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#00000000"/>
-    <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FFFFFFFF"/>
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4b76a0"/>
 
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
 
