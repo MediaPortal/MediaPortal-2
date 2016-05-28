@@ -232,7 +232,7 @@
                 </LinearGradientBrush>
               </Rectangle.Stroke>
             </Rectangle>            
-            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3.5" RadiusY="3.5" StrokeThickness="0" Margin="3">
+            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3.5" RadiusY="3.5" StrokeThickness="0" Margin="2">
               <Rectangle.Fill>
                 <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
               </Rectangle.Fill>

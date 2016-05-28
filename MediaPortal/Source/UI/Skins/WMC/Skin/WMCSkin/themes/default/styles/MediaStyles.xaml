@@ -954,20 +954,48 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Image Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" 
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
+        <!--Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource WatchedTextColor}"/>
+          </MultiBinding>
+        </-->
+      </Label>
+      <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding SimpleTitle}"
-                                    fanart:MaxWidth="{StaticResource FANART_BANNER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_BANNER_HEIGHT}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
         </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+        </Image.IsVisible>
       </Image>
-
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-20,2,-20,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+        </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+        </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+        </Image.IsVisible>
+      </Image>
+      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
+          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/> <!--Name needs to be duration, so the TextColor can be changed-->
     </Grid>
   </ControlTemplate>
-
+  
   <ControlTemplate x:Key="GridViewSeriesFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -976,8 +1004,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}" Stretch="Fill"
-                   FallbackSource="VideoLarge.png">
+      <Image Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding SimpleTitle}"
                     fanart:MaxWidth="{StaticResource BANNER_GRID_WIDTH}" fanart:MaxHeight="{StaticResource BANNER_GRID_HEIGHT}"/>
