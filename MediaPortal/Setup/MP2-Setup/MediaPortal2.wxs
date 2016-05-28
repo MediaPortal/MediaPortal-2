@@ -29,7 +29,6 @@
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
     <PropertyRef Id="LaunchConditionsFile" />
-    <PropertyRef Id="DokanFile" />
     <PropertyRef Id="VCRedistFile" />
 
     <!--
@@ -52,9 +51,6 @@
           <Component Id="EmptyComponent_WindowsInstallerBugWorkaround" KeyPath="yes" Guid="4D1E4904-0FB1-44B3-82E1-CFE5F01E6AC3"/>
         </Directory>
 
-        <Directory Id="DokanFolder" Name="Dokan">
-          <Directory Id="DokanLibraryFolder" Name="DokanLibrary"/>
-        </Directory>
       </Directory>
 
       <Directory Id="CommonAppDataFolder">
@@ -153,15 +149,6 @@
 
       <Custom Action="PrepareXmlPathVariables" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
-
-      <!-- Uninstall old Dokan version -->
-      <Custom Action="CA_UninstallDokan" After="InstallFiles">
-        NOT Installed AND DOKANINSTALLED
-      </Custom>
-      <!-- Install Dokany, if old dokan has been removed -->
-      <Custom Action="CA_InstallDokany" After="CA_UninstallDokan">
-        NOT Installed AND NOT DOKANYINSTALLED
-      </Custom>
 
       <Custom Action="InstallLAVFilters" After="InstallFiles">
         <![CDATA[(REINSTALL OR NOT Installed) AND &LAVFilters>=3]]>
