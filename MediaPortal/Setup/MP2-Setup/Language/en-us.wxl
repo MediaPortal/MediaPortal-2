@@ -54,6 +54,7 @@
   <String Id="LC_OS">[ProductName] requires minimum Windows 7 / 2008 R2 as operating system.</String>
   <String Id="LC_NET">[ProductName] requires .NET Framework 4.5.1 to be installed.</String>
   <String Id="LC_DX9">[ProductName] requires DirectX 9.0c Runtime to be installed.</String>
+  <String Id="LC_DOKAN">[ProductName] requires Dokan to be installed.</String>
   <String Id="LC_ADMIN">You need to be an administrator to install [ProductName].</String>
 
   <!-- User Interfaces -->

@@ -20,6 +20,13 @@
       </DirectorySearch>
     </Property>
 
+    <Property Id="DOKAN">
+      <DirectorySearch Id="SystemFolderDokan" Path="[SystemFolder]">
+        <!-- Note: Version number needs to be 1 less then the actual file version !-->
+        <FileSearch Name="DOKAN1.DLL"/>
+      </DirectorySearch>
+    </Property>
+
     <Condition Message="!(loc.LC_OS)">
       <![CDATA[Installed OR VersionNT >= 601]]>
     </Condition>
@@ -31,9 +38,13 @@
     <Condition Message="!(loc.LC_ADMIN)">
       Privileged
     </Condition>
-
+    
     <Condition Message="!(loc.LC_DX9)">
       <![CDATA[Installed OR DX9RUNTIME1 AND DX9RUNTIME2]]>
+    </Condition>
+
+    <Condition Message="!(loc.LC_DOKAN)">
+      <![CDATA[Installed OR DOKAN]]>
     </Condition>
 
     <!--
