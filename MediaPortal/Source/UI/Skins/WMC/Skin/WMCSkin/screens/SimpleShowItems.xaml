@@ -45,7 +45,7 @@
         </Control>
         
         <!---Space for Listview Details-->
-        <Grid Grid.Column="1" Width="1000">
+        <Grid Grid.Column="1" Width="1000" Height="900">
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>

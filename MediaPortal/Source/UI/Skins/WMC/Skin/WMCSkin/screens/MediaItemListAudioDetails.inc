@@ -6,14 +6,33 @@
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  
+  <Grid.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+  </Grid.Resources>
   <Grid.RowDefinitions>
-    <RowDefinition Height="190"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="1650"/>
-    <ColumnDefinition Width="100"/>
+    <ColumnDefinition Width="540"/>
+    <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
+  <Image Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" 
+         Stretch="Fill" Margin="0,10,10,0" Width="210" Height="210">
+    <Image.Source>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
+    </Image.Source>
+    <Image.OpacityMask>
+      <VisualBrush>
+        <VisualBrush.Visual>
+          <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+        </VisualBrush.Visual>
+      </VisualBrush>
+    </Image.OpacityMask>
+  </Image>
   
   <WrapPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0">
 
@@ -91,8 +110,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="140"/>
-              <ColumnDefinition Width="300"/>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="TrackLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioTrackLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
@@ -108,8 +127,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="140"/>
-              <ColumnDefinition Width="300"/>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="DurationLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
@@ -125,8 +144,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="140"/>
-              <ColumnDefinition Width="300"/>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>            
             <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioGenresLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
@@ -142,8 +161,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="140"/>
-              <ColumnDefinition Width="300"/>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioYearLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
@@ -159,8 +178,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="170"/>
-              <ColumnDefinition Width="300"/>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>           
             <Label x:Name="BitrateLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioBitRateLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
@@ -179,8 +198,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="170"/>
-              <ColumnDefinition Width="300"/>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ComposersLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioComposersLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
@@ -196,8 +215,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="170"/>
-              <ColumnDefinition Width="300"/>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="TypeLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioMimeTypeLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
