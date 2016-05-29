@@ -158,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       for (int i = 0; i < _items.Count; i++)
         _materializedItems.Add(null);
 
-      if (groupingValueProvider != null || groupPropertyBinding != null)
+      if ((groupingValueProvider != null && groupingValueProvider.IsGroupingActive) || groupPropertyBinding != null)
       {
         _materializedGroupHeaders = new HeaderItemWrapper[_items.Count];
       }

@@ -212,6 +212,10 @@ namespace MediaPortal.UiComponents.Media.Models
       return null;
     }
 
+    public bool IsGroupingActive
+    {
+      get { return CurrentGrouping != null; }
+    }
 
     public ICollection<Sorting.Sorting> AvailableGroupings
     {

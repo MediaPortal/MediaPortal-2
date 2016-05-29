@@ -31,5 +31,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="item">Item to get the grouping value from</param>
     /// <returns>Returns the grouping value</returns>
     object GetGroupingValue(object item);
+
+    /// <summary>
+    /// Gets if grouping is currently active
+    /// </summary>
+    bool IsGroupingActive { get; }
   }
 }
