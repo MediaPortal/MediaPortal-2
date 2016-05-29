@@ -856,7 +856,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         return false;
       }
 
-      // Focus was on program, try to find "nearest" program in new row.
+      // Focus was on program, first check if the program is the currently running, in this case we will also prefer currently running of next row
+      if (program.IsRunning)
+      {
+        return FocusNextRunningProgram(row);
+      }
+
+      // Then try to find "nearest" program in new row.
       FrameworkElement control;
       var startTime = program.Program.StartTime;
       // If program is running already, compare with viewport start
@@ -869,6 +875,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       }
       return false;
     }
+
     /// <summary>
     /// Gets the currently focused program or header control and its Grid.Row.
     /// </summary>
@@ -906,6 +913,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         }
         currentElement = currentElement.LogicalParent as Control;
       }
+      return false;
+    }
+
+    /// <summary>
+    /// Perfers the running item of the next row.
+    /// </summary>
+    /// <param name="row">Row</param>
+    /// <returns><c>true</c> if matching program could be found</returns>
+    private bool FocusNextRunningProgram(int row)
+    {
+      var nextRowRunningItem = Children.FirstOrDefault(c => GetRow(c) == row && c.DataContext != null && c.DataContext.Source is ProgramListItem && ((ProgramListItem)c.DataContext.Source).IsRunning);
+      if (nextRowRunningItem != null)
+        return nextRowRunningItem.TrySetFocus(true);
       return false;
     }
 
