@@ -44,9 +44,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
+            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Title}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -62,9 +62,9 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
 
-            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -79,9 +79,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>            
-            <Label x:Name="AlbumLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="AlbumLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioAlbumLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Album" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="Album" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Album}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -96,9 +96,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="AlbumArtistsLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="AlbumArtistsLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioAlbumArtistsLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="AlbumArtists" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="AlbumArtists" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Path=AlbumArtists}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -113,9 +113,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="TrackLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="TrackLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioTrackLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Track" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="Track" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Path=Track}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -130,9 +130,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="DurationLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="DurationLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Duration" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="Duration" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm\:ss}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -147,9 +147,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>            
-            <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioGenresLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -164,9 +164,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioYearLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Year" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -181,9 +181,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>           
-            <Label x:Name="BitrateLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="BitrateLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioBitRateLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Bitrate" Grid.Row="0" Grid.Column="1" Color="{ThemeResource TextColor}">
+            <Label x:Name="Bitrate" Grid.Row="0" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
               <Label.Content>
                   <Binding Path="BitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kBit"/>
               </Label.Content>
@@ -201,9 +201,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="ComposersLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="ComposersLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioComposersLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Composers" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="Composers" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Path=Composers}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -218,9 +218,9 @@
               <ColumnDefinition Width="200"/>
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="TypeLabel" Grid.Row="0" Grid.Column="0"
+            <Label x:Name="TypeLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioMimeTypeLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="MimeType" Grid.Row="0" Grid.Column="1"
+            <Label x:Name="MimeType" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                 Content="{Binding Path=MimeType}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
