@@ -48,6 +48,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Controls
@@ -365,7 +366,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         RowDefinitions.Add(cd);
       }
 
-      RecreateAndArrangeChildren();
+      SetInitialViewOffset();
+      RecreateAndArrangeChildren(true);
     }
 
     private void RecreateAndArrangeChildren(bool keepViewOffset = false)
@@ -374,6 +376,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         _channelViewOffset = 0;
       _childrenCreated = false;
       CreateVisibleChildren(false);
+    }
+
+    /// <summary>
+    /// Tries to find the current channel in the current group and makes sure it will be inside the visible area.
+    /// </summary>
+    private void SetInitialViewOffset()
+    {
+      int currentChannelIndex = 0;
+      foreach (var channelsProgram in ChannelsPrograms.OfType<ChannelProgramListItem>())
+      {
+        if (ChannelContext.IsSameChannel(channelsProgram.Channel, ChannelContext.Instance.Channels.Current))
+        {
+          if (currentChannelIndex >= _numberOfRows)
+            _channelViewOffset = currentChannelIndex - _numberOfRows + 1;
+          break;
+        }
+        currentChannelIndex++;
+      }
     }
 
     private void CreateVisibleChildren(bool updateOnly)
@@ -473,6 +493,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
         Control btnEpg = GetOrCreateControl(program, rowIndex);
         SetGrid(btnEpg, colIndex, rowIndex, colSpan);
+
+        if (ChannelContext.IsSameChannel(channel.Channel, ChannelContext.Instance.Channels.Current) && program.IsRunning)
+        {
+          btnEpg.SetFocusPrio = SetFocusPriority.Highest;
+        }
 
         programIndex++;
         colIndex += colSpan; // Skip spanned columns.
