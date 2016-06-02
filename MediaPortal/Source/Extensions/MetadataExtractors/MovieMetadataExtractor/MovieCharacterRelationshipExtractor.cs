@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdateMovieCharacters(movieInfo);
+      MovieTheMovieDbMatcher.Instance.UpdateCharacters(movieInfo, forceQuickMode);
 
       if (movieInfo.Characters.Count == 0)
         return false;

@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+
 namespace MediaPortal.Extensions.OnlineLibraries
 {
   /// <summary>
@@ -58,5 +60,18 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public static readonly string Artist = "Artist";
     public static readonly string Movie = "Movie";
     public static readonly string Collection = "Collection";
+  }
+
+  public class FanArtImageCollection<T>
+  {
+    public string Id = null;
+    public List<T> Backdrops = new List<T>();
+    public List<T> Banners = new List<T>();
+    public List<T> Posters = new List<T>();
+    public List<T> DiscArt = new List<T>();
+    public List<T> ClearArt = new List<T>();
+    public List<T> Logos = new List<T>();
+    public List<T> Thumbnails = new List<T>();
+    public List<T> Covers = new List<T>();
   }
 }

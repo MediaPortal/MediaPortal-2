@@ -36,6 +36,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   {
     // TODO: Put this somewhere else?
     public static readonly string SOURCE_IMDB = "IMDB";
+    public static readonly string SOURCE_ISRC = "ISRC";
+    public static readonly string SOURCE_UPCEAN = "UPCEAN";
     public static readonly string SOURCE_MUSICBRAINZ = "MUSICBRAINZ";
     public static readonly string SOURCE_MUSICBRAINZ_GROUP = "MUSICBRAINZ_GROUP";
     public static readonly string SOURCE_TMDB = "TMDB";

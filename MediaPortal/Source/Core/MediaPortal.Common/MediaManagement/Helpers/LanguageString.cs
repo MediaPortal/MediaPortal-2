@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2016 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2016 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,22 +22,41 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.OnlineLibraries.Matches
+namespace MediaPortal.Common.MediaManagement.Helpers
 {
-  /// <summary>
-  /// MovieMatch stores name matches for Movies.
-  /// </summary>
-  public class MovieMatch : BaseMatch<string>
+  public struct LanguageText
   {
-    /// <summary>
-    /// Contains the name found in online library.
-    /// </summary>
-    public string OnlineName;
-    public int Year;
+    public bool DefaultLanguage;
+    public string Text;
+
+    public LanguageText(string value)
+    {
+      Text = value;
+      DefaultLanguage = true;
+    }
+
+    public LanguageText(string value, bool defaultLanguage)
+    {
+      Text = value;
+      DefaultLanguage = defaultLanguage;
+    }
+
+    public static implicit operator LanguageText(string value)
+    {
+      return new LanguageText(value, true);
+    }
+
+    public bool IsEmpty
+    {
+      get
+      {
+        return string.IsNullOrEmpty(Text);
+      }
+    }
 
     public override string ToString()
     {
-      return string.Format("{0}: {1} ({2}) [{3}]", ItemName, OnlineName, Year, Id);
+      return Text;
     }
   }
 }

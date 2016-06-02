@@ -91,10 +91,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     /// <summary>
     /// Returns String that describes the language in the format "Name (Abbreviation)"
     /// </summary>
-    /// <returns>String representing this object (e.g. "English (en)")</returns>
+    /// <returns>String representing this object (e.g. "en")</returns>
     public override string ToString()
     {
-      return Name + "(" + Abbriviation + ")";
+      return Abbriviation;
       //return base.ToString();
     }
 

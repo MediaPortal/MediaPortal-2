@@ -38,11 +38,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo);
-      SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo);
-      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo);
-      SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo);
-      SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo);
+      SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();

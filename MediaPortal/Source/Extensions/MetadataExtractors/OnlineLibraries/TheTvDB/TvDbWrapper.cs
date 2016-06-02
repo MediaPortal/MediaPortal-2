@@ -31,13 +31,15 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
 {
-  class TvDbWrapper
+  class TvDbWrapper : ApiWrapper<TvdbBanner, TvdbLanguage>
   {
     protected TvdbHandler _tvdbHandler;
-    protected string _langShort;
 
     /// <summary>
     /// Sets the preferred language in short format like: en, de, ...
@@ -45,159 +47,469 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     /// <param name="langShort">Short language</param>
     public void SetPreferredLanguage(string langShort)
     {
-      _langShort = langShort;
-    }
-    /// <summary>
-    /// Returns the language that matches the value set by <see cref="SetPreferredLanguage"/> or the default language (en).
-    /// </summary>
-    public TvdbLanguage PreferredLanguage
-    {
-      get { return _tvdbHandler.Languages.Find(l => l.Abbriviation == _langShort) ?? TvdbLanguage.DefaultLanguage; }
+      TvdbLanguage language = _tvdbHandler.Languages.Find(l => l.Abbriviation == langShort);
+      if(language != null)
+        SetPreferredLanguage(language);
     }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init()
+    public bool Init(string cachePath)
     {
-      ICacheProvider cacheProvider = new XmlCacheProvider(SeriesTvDbMatcher.CACHE_PATH);
-      _tvdbHandler = new TvdbHandler(cacheProvider, "9628A4332A8F3487");
+      ICacheProvider cacheProvider = new XmlCacheProvider(cachePath);
+      _tvdbHandler = new TvdbHandler(cacheProvider);
       _tvdbHandler.InitCache();
       if (!_tvdbHandler.IsLanguagesCached)
         _tvdbHandler.ReloadLanguages();
       _tvdbHandler.UpdateFinished += TvdbHandlerOnUpdateFinished;
       _tvdbHandler.UpdateProgressed += TvdbHandlerOnUpdateProgressed;
+      SetDefaultLanguage(TvdbLanguage.DefaultLanguage);
+      SetCachePath(cachePath);
       return true;
     }
 
-    /// <summary>
-    /// Search for Series by name.
-    /// </summary>
-    /// <param name="seriesName">Name</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeries(string seriesName, out List<TvdbSearchResult> series)
+    private void TvdbHandlerOnUpdateFinished(TvdbHandler.UpdateFinishedEventArgs args)
     {
-      series = _tvdbHandler.SearchSeries(seriesName, PreferredLanguage);
+      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Finished updating cache from {0} to {1}", args.UpdateStarted, args.UpdateFinished);
+      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Updated {0} Series, {1} Episodes, {2} Banners.", args.UpdatedSeries.Count, args.UpdatedEpisodes.Count, args.UpdatedBanners.Count);
+    }
+
+    private void TvdbHandlerOnUpdateProgressed(TvdbHandler.UpdateProgressEventArgs args)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: ... {0} {2}. Total: {3}", args.CurrentUpdateStage, args.CurrentStageProgress, args.CurrentUpdateDescription, args.OverallProgress);
+    }
+
+    #region Search
+
+    public override bool SearchSeriesEpisode(EpisodeInfo episodeSearch, TvdbLanguage language, out List<EpisodeInfo> episodes)
+    {
+      language = language ?? PreferredLanguage;
+
+      episodes = null;
+      SeriesInfo seriesSearch = null;
+      if (episodeSearch.SeriesTvdbId <= 0)
+      {
+        seriesSearch = episodeSearch.CloneBasicSeries();
+        if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
+          return false;
+      }
+
+      if (episodeSearch.SeriesTvdbId > 0 && episodeSearch.SeasonNumber.HasValue)
+      {
+        TvdbSeries seriesDetail = _tvdbHandler.GetSeries(episodeSearch.SeriesTvdbId, language, true, false, false);
+
+        foreach (TvdbEpisode episode in seriesDetail.Episodes)
+        {
+          if (episodeSearch.EpisodeNumbers.Contains(episode.EpisodeNumber) || episodeSearch.EpisodeNumbers.Count == 0)
+          {
+            if (episodes == null)
+              episodes = new List<EpisodeInfo>();
+
+            EpisodeInfo info = new EpisodeInfo()
+            {
+              TvdbId = episode.Id,
+              SeriesName = new LanguageText(seriesDetail.SeriesName, false),
+              SeasonNumber = episode.SeasonNumber,
+              EpisodeName = new LanguageText(episode.EpisodeName, false),
+            };
+            info.EpisodeNumbers.Add(episode.EpisodeNumber);
+            info.CopyIdsFrom(seriesSearch);
+            info.Languages.Add(episode.Language.Abbriviation);
+            episodes.Add(info);
+          }
+        }
+      }
+
+      if (episodes == null)
+      {
+        episodes = new List<EpisodeInfo>();
+        EpisodeInfo info = new EpisodeInfo()
+        {
+          SeriesName = seriesSearch.SeriesName,
+          SeasonNumber = episodeSearch.SeasonNumber,
+          EpisodeName = episodeSearch.EpisodeName,
+        };
+        info.CopyIdsFrom(seriesSearch);
+        info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
+        info.Languages = seriesSearch.Languages;
+        episodes.Add(info);
+        return true;
+      }
+
+      return episodes != null;
+    }
+
+    public override bool SearchSeries(SeriesInfo seriesSearch, TvdbLanguage language, out List<SeriesInfo> series)
+    {
+      language = language ?? PreferredLanguage;
+
+      series = null;
+      List<TvdbSearchResult> foundSeries = _tvdbHandler.SearchSeries(seriesSearch.SeriesName.Text, language);
+      if (foundSeries == null) return false;
+      series = foundSeries.Select(s => new SeriesInfo()
+      {
+        TvdbId = s.Id,
+        ImdbId = s.ImdbId,
+        SeriesName = new LanguageText(s.SeriesName, false),
+        FirstAired = s.FirstAired,
+        Languages = new List<string>(new string[] { s.Language.Abbriviation })
+      }).ToList();
+
       return series.Count > 0;
     }
 
-    /// <summary>
-    /// Search for unique matches of Series names. This method tries to find the best matching Series in following order:
-    /// - Exact match using PreferredLanguage
-    /// - Exact match using DefaultLanguage
-    /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
-    /// </summary>
-    /// <param name="seriesName">Name</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeriesUnique(string seriesName, out List<TvdbSearchResult> series)
-    {
-      series = _tvdbHandler.SearchSeries(seriesName, PreferredLanguage);
-      if (TestMatch(seriesName, ref series))
-        return true;
+    #endregion
 
-      if (series.Count == 0 && PreferredLanguage != TvdbLanguage.DefaultLanguage)
+    #region Update
+
+    public override bool UpdateFromOnlineSeries(SeriesInfo series, TvdbLanguage language, bool cacheOnly)
+    {
+      language = language ?? PreferredLanguage;
+
+      TvdbSeries seriesDetail = null;
+      if (series.TvdbId > 0)
+        seriesDetail = _tvdbHandler.GetSeries(series.TvdbId, language, true, true, false);
+      if (seriesDetail == null && !cacheOnly && !string.IsNullOrEmpty(series.ImdbId))
       {
-        series = _tvdbHandler.SearchSeries(seriesName, TvdbLanguage.DefaultLanguage);
-        // If also no match in default language is found, we will look for combined series names:
-        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
-        if (!TestMatch(seriesName, ref series) && seriesName.Contains("-"))
+        TvdbSearchResult foundSeries = _tvdbHandler.GetSeriesByRemoteId(ExternalId.ImdbId, series.ImdbId);
+        if (foundSeries != null)
         {
-          string namePart = seriesName.Split(new[] { '-' })[0].Trim();
-          return SearchSeriesUnique(namePart, out series);
+          seriesDetail = _tvdbHandler.GetSeries(foundSeries.Id, language, true, true, false);
         }
-        return series.Count == 1;
+      }
+      if (seriesDetail == null) return false;
+
+      series.TvdbId = seriesDetail.Id;
+      series.ImdbId = seriesDetail.ImdbId;
+
+      series.SeriesName = new LanguageText(seriesDetail.SeriesName, false);
+      series.FirstAired = seriesDetail.FirstAired;
+      series.Description = new LanguageText(seriesDetail.Overview, false);
+      series.Certification = seriesDetail.ContentRating;
+      series.TotalRating = seriesDetail.Rating;
+      series.RatingCount = seriesDetail.RatingCount;
+      series.Genres = seriesDetail.Genre;
+      series.Networks = ConvertToCompanies(seriesDetail.NetworkID, seriesDetail.Network, CompanyAspect.COMPANY_TV_NETWORK);
+      if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
+      {
+        series.IsEnded = true;
+      }
+
+      series.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
+      series.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
+
+      TvdbEpisode nextEpisode = seriesDetail.Episodes.Where(e => e.FirstAired > DateTime.Now).FirstOrDefault();
+      if (nextEpisode != null)
+      {
+        series.NextEpisodeName = nextEpisode.EpisodeName;
+        series.NextEpisodeAirDate = nextEpisode.FirstAired;
+        series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
+        series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
+      }
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, TvdbLanguage language, bool cacheOnly)
+    {
+      language = language ?? PreferredLanguage;
+
+      TvdbSeries seriesDetail = null;
+      if (season.SeriesTvdbId > 0)
+        seriesDetail = _tvdbHandler.GetSeries(season.SeriesMovieDbId, language, true, false, false);
+      if (seriesDetail == null && !cacheOnly && !string.IsNullOrEmpty(season.SeriesImdbId))
+      {
+        TvdbSearchResult foundSeries = _tvdbHandler.GetSeriesByRemoteId(ExternalId.ImdbId, season.SeriesImdbId);
+        if (foundSeries != null)
+        {
+          seriesDetail = _tvdbHandler.GetSeries(foundSeries.Id, language, true, false, false);
+        }
+      }
+      if (seriesDetail == null) return false;
+      if (!season.SeasonNumber.HasValue)
+        return false;
+      var episode = seriesDetail.Episodes.Where(e => e.SeasonNumber == season.SeasonNumber).ToList().FirstOrDefault();
+      if (episode == null)
+        return false;
+
+      season.TvdbId = episode.SeasonId;
+      season.SeriesTvdbId = seriesDetail.Id;
+      season.SeriesImdbId = seriesDetail.ImdbId;
+      season.FirstAired = episode.FirstAired;
+
+      season.SeriesName = new LanguageText(seriesDetail.SeriesName, false);
+      season.FirstAired = seriesDetail.FirstAired;
+      season.SeasonNumber = season.SeasonNumber.Value;
+      season.Description = new LanguageText(seriesDetail.Overview, false);
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, TvdbLanguage language, bool cacheOnly)
+    {
+      language = language ?? PreferredLanguage;
+
+      List<EpisodeInfo> episodeDetails = new List<EpisodeInfo>();
+      TvdbSeries seriesDetail = null;
+      TvdbEpisode episodeDetail = null;
+
+      if (episode.SeriesTvdbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+      {
+        seriesDetail = _tvdbHandler.GetSeries(episode.SeriesTvdbId, language, true, true, false);
+        if (seriesDetail == null && !cacheOnly && !string.IsNullOrEmpty(episode.SeriesImdbId))
+        {
+          TvdbSearchResult foundSeries = _tvdbHandler.GetSeriesByRemoteId(ExternalId.ImdbId, episode.SeriesImdbId);
+          if (foundSeries != null)
+          {
+            seriesDetail = _tvdbHandler.GetSeries(foundSeries.Id, language, true, true, false);
+          }
+        }
+        if (seriesDetail == null) return false;
+
+        foreach (int episodeNumber in episode.EpisodeNumbers)
+        {
+          episodeDetail = seriesDetail.Episodes.Where(e => e.EpisodeNumber == episodeNumber && e.SeasonNumber == episode.SeasonNumber.Value).FirstOrDefault();
+          if (episodeDetail == null) return false;
+
+          EpisodeInfo info = new EpisodeInfo()
+          {
+            TvMazeId = episodeDetail.Id,
+
+            SeriesTvdbId = seriesDetail.Id,
+            SeriesImdbId = seriesDetail.ImdbId,
+            SeriesName = new LanguageText(seriesDetail.SeriesName, false),
+            SeriesFirstAired = seriesDetail.FirstAired,
+
+            TvdbId = episodeDetail.Id,
+            ImdbId = episodeDetail.ImdbId,
+            SeasonNumber = episodeDetail.SeasonNumber,
+            EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+            DvdEpisodeNumbers = new List<double>(new double[] { episodeDetail.DvdEpisodeNumber }),
+            FirstAired = episodeDetail.FirstAired,
+            EpisodeName = new LanguageText(episodeDetail.EpisodeName, false),
+            Summary = new LanguageText(episodeDetail.Overview, false),
+            Genres = seriesDetail.Genre,
+            TotalRating = episodeDetail.Rating,
+            RatingCount = episodeDetail.RatingCount,
+          };
+
+          info.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
+          info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR, info.Actors.Count));
+          info.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
+          info.Directors = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, 0);
+          info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0);
+          info.Languages.Add(episodeDetail.Language.Abbriviation);
+
+          episodeDetails.Add(info);
+        }
+      }
+
+      if (episodeDetails.Count > 1)
+      {
+        SetMultiEpisodeDetails(episode, episodeDetails);
+        return true;
+      }
+      else if (episodeDetails.Count > 0)
+      {
+        SetEpisodeDetails(episode, episodeDetails[0]);
+        return true;
       }
       return false;
     }
 
-    /// <summary>
-    /// Tests for matches. 
-    /// </summary>
-    /// <param name="seriesName">Series name</param>
-    /// <param name="series">Potential online matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    private bool TestMatch(string seriesName, ref List<TvdbSearchResult> series)
-    {
-      // Exact match in preferred language
-      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper      : Test Match for \"{0}\"", seriesName);
+    #endregion
 
-      if (series.Count == 1)
+    #region Convert
+
+    private List<PersonInfo> ConvertToPersons(List<TvdbActor> actors, string occupation)
+    {
+      if (actors == null || actors.Count == 0)
+        return new List<PersonInfo>();
+
+      int sortOrder = 0;
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (TvdbActor person in actors)
+        retValue.Add(new PersonInfo() { TvdbId = person.Id, Name = person.Name, Occupation = occupation, Order = sortOrder++ });
+      return retValue;
+    }
+
+    private List<PersonInfo> ConvertToPersons(List<string> actors, string occupation, int offset)
+    {
+      if (actors == null || actors.Count == 0)
+        return new List<PersonInfo>();
+
+      int sortOrder = offset;
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (string person in actors)
+        retValue.Add(new PersonInfo() { Name = person, Occupation = occupation, Order = sortOrder++ });
+      return retValue;
+    }
+
+    private List<CompanyInfo> ConvertToCompanies(int companyID, string company, string type)
+    {
+      if (string.IsNullOrEmpty(company))
+        return new List<CompanyInfo>();
+
+      int sortOrder = 0;
+      return new List<CompanyInfo>(new CompanyInfo[]
       {
-        ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper      : Unique match found \"{0}\"!", seriesName);
+        new CompanyInfo()
+        {
+          TvdbId = companyID > 0 ? companyID : 0,
+          Name = company,
+          Type = type,
+          Order = sortOrder++
+        }
+      });
+    }
+
+    private List<CharacterInfo> ConvertToCharacters(List<TvdbActor> actors)
+    {
+      if (actors == null || actors.Count == 0)
+        return new List<CharacterInfo>();
+
+      int sortOrder = 0;
+      List<CharacterInfo> retValue = new List<CharacterInfo>();
+      foreach (TvdbActor person in actors)
+        retValue.Add(new CharacterInfo()
+        {
+          ActorTvdbId = person.Id,
+          ActorName = person.Name,
+          Name = person.Role,
+          Order = sortOrder++
+        });
+      return retValue;
+    }
+
+    #endregion
+
+    #region FanArt
+
+    public override bool GetFanArt<T>(T infoObject, TvdbLanguage language, string scope, out FanArtImageCollection<TvdbBanner> images)
+    {
+      images = new FanArtImageCollection<TvdbBanner>();
+      TvdbSeries seriesDetail = null;
+      language = language ?? TvdbLanguage.UniversalLanguage; // Download all image information, filter later!
+
+      if (scope == FanArtScope.Series)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        SeasonInfo season = infoObject as SeasonInfo;
+        SeriesInfo series = infoObject as SeriesInfo;
+        if (series == null && season != null)
+        {
+          series = season.CloneBasicSeries();
+        }
+        if (series == null && episode != null)
+        {
+          series = episode.CloneBasicSeries();
+        }
+        if (series != null && series.TvdbId > 0)
+        {
+          seriesDetail = _tvdbHandler.GetSeries(series.TvdbId, language, false, true, true);
+
+          if (seriesDetail != null)
+          {
+            try
+            {
+              //Save all actors here because they are saved under the series
+              foreach (TvdbActorBanner banner in seriesDetail.TvdbActors.Select(a => a.ActorImage).ToList())
+              {
+                banner.LoadBanner();
+                banner.UnloadBanner();
+              }
+            }
+            catch(Exception ex)
+            {
+              ServiceRegistration.Get<ILogger>().Error("TvDbWrapper: Error downloading acter banners", ex);
+            }
+
+            images.Id = series.TvdbId.ToString();
+            images.Posters.AddRange(seriesDetail.PosterBanners);
+            images.Banners.AddRange(seriesDetail.SeriesBanners);
+            images.Backdrops.AddRange(seriesDetail.FanartBanners);
+            return true;
+          }
+        }
+      }
+      else if (scope == FanArtScope.Season)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        SeasonInfo season = infoObject as SeasonInfo;
+        if (season == null && episode != null)
+        {
+          season = episode.CloneBasicSeason();
+        }
+        if (season != null && season.SeriesTvdbId > 0 && season.SeasonNumber.HasValue)
+        {
+          seriesDetail = _tvdbHandler.GetSeries(episode.SeriesTvdbId, language, false, false, true);
+
+          if (seriesDetail != null)
+          {
+            images.Id = episode.TvdbId.ToString();
+
+            var seasonLookup = seriesDetail.SeasonBanners.Where(s => s.Season == season.SeasonNumber).ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
+            foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)
+            {
+              images.Banners.AddRange(seasonLookup[tvdbSeasonBanners.Key]);
+            }
+            return true;
+          }
+        }
+      }
+      else if (scope == FanArtScope.Episode)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        if (episode != null && episode.SeriesTvdbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+        {
+          seriesDetail = _tvdbHandler.GetSeries(episode.SeriesTvdbId, language, true, false, true);
+
+          if (seriesDetail != null)
+          {
+            images.Id = episode.TvdbId.ToString();
+
+            TvdbEpisode episodeDetail = seriesDetail.Episodes.Find(e => e.SeasonNumber == episode.SeasonNumber.Value && e.EpisodeNumber == episode.EpisodeNumbers[0]);
+            if(episodeDetail != null)
+              images.Banners.AddRange(new TvdbBanner[] { episodeDetail.Banner });
+            return true;
+          }
+        }
+      }
+      else if(scope == FanArtScope.Actor)
+      {
+        // Probably already downloaded for the series
         return true;
       }
-
-      // Multiple matches
-      if (series.Count > 1)
+      else
       {
-        ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper      : Multiple matches for \"{0}\" ({1}). Try to find exact name match.", seriesName, series.Count);
-        series = series.FindAll(s => s.SeriesName == seriesName || IsSimilarOrEqual(s.SeriesName, seriesName));
-        if (series.Count > 1)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper      : Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", seriesName, series.Count, PreferredLanguage);
-          series = series.FindAll(s => s.Language == PreferredLanguage);
-        }
-        return series.Count == 1;
+        return true;
       }
       return false;
     }
 
-    /// <summary>
-    /// Removes special characters and compares the remaining strings.
-    /// </summary>
-    /// <param name="name1"></param>
-    /// <param name="name2"></param>
-    /// <returns></returns>
-    protected bool IsSimilarOrEqual(string name1, string name2)
+    public override bool DownloadFanArt(string id, TvdbBanner image, string scope, string type)
     {
-      return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2));
+      image.LoadBanner();
+      return image.UnloadBanner();
     }
 
-    protected string RemoveCharacters(string name)
+    public override bool DownloadSeriesSeasonFanArt(string id, int seasonNo, TvdbBanner image, string scope, string type)
     {
-      string result = new[] { "-", ",", "/", ":", " ", " ", "." }.Aggregate(name, (current, s) => current.Replace(s, ""));
-      return result.ToLowerInvariant();
+      image.LoadBanner();
+      return image.UnloadBanner();
     }
 
-    /// <summary>
-    /// Gets Series information from TvDB. Results will be added automatically to cache.
-    /// </summary>
-    /// <param name="seriesId">TvDB ID of series</param>
-    /// <param name="loadEpisodes"><c>true</c> to load episodes</param>
-    /// <param name="series">Returns the Series information</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetSeries(int seriesId, bool loadEpisodes, bool loadActors, out TvdbSeries series)
+    public override bool DownloadSeriesEpisodeFanArt(string id, int seasonNo, int episodeNo, TvdbBanner image, string scope, string type)
     {
-      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, loadEpisodes, loadActors, false);
-      return series != null;
+      image.LoadBanner();
+      return image.UnloadBanner();
     }
 
-    /// <summary>
-    /// Gets Series information from TvDB.
-    /// </summary>
-    /// <param name="imdbId">The IMDB id for the Series.</param>
-    /// <param name="series">Returns the Series information</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetSeries(string imdbId, out TvdbSearchResult series)
-    {
-      series = _tvdbHandler.GetSeriesByRemoteId(ExternalId.ImdbId, imdbId);
-      return (series != null);
-    }
+    #endregion
 
-    /// <summary>
-    /// Gets Series information from TvDB. Results will be added automatically to cache.
-    /// </summary>
-    /// <param name="seriesId">TvDB ID of series</param>
-    /// <param name="series">Returns the Series information</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetSeriesFanArt(int seriesId, out TvdbSeries series)
-    {
-      series = _tvdbHandler.GetSeries(seriesId, PreferredLanguage, true, true, true);
-      return series != null;
-    }
+    #region Cache
 
     /// <summary>
     /// Updates the local available information with updated ones from online source.
@@ -216,15 +528,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
       }
     }
 
-    private void TvdbHandlerOnUpdateFinished(TvdbHandler.UpdateFinishedEventArgs args)
-    {
-      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Finished updating cache from {0} to {1}", args.UpdateStarted, args.UpdateFinished);
-      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Updated {0} Series, {1} Episodes, {2} Banners.", args.UpdatedSeries.Count, args.UpdatedEpisodes.Count, args.UpdatedBanners.Count);
-    }
-
-    private void TvdbHandlerOnUpdateProgressed(TvdbHandler.UpdateProgressEventArgs args)
-    {
-      ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: ... {0} {2}. Total: {3}", args.CurrentUpdateStage, args.CurrentStageProgress, args.CurrentUpdateDescription, args.OverallProgress);
-    }
+    #endregion
   }
 }

@@ -50,7 +50,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the company name.
     /// </summary>
     public string Name = null;
-    public string Description = null;
+    public LanguageText Description = null;
     public string Type = null;
     public int? Order = null;
 
@@ -73,7 +73,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_NAME, Name);
-      if (!string.IsNullOrEmpty(Description)) MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, CleanString(Description));
+      if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
       MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_TYPE, Type);
 
       if (Type == CompanyAspect.COMPANY_TV_NETWORK)
@@ -106,8 +106,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_NAME, out Name);
-      MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, out Description);
       MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_TYPE, out Type);
+
+      string tempString;
+      MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, out tempString);
+      Description = new LanguageText(tempString, false);
 
       if (Type == CompanyAspect.COMPANY_TV_NETWORK)
       {
@@ -148,6 +151,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool FromString(string name)
     {
       Name = name;
+      return true;
+    }
+
+    public bool CopyIdsFrom(CompanyInfo otherCompany)
+    {
+      AudioDbId = otherCompany.AudioDbId;
+      ImdbId = otherCompany.ImdbId;
+      MovieDbId = otherCompany.MovieDbId;
+      MusicBrainzId = otherCompany.MusicBrainzId;
+      TvdbId = otherCompany.TvdbId;
+      TvMazeId = otherCompany.TvMazeId;
       return true;
     }
 

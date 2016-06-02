@@ -393,27 +393,54 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-        MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_BITRATE, tag.Properties.AudioBitrate);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
-        MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_DURATION, (long)tag.Properties.Duration.TotalSeconds);
 
         TrackInfo trackInfo = new TrackInfo();
         trackInfo.TrackName = title;
+        if (tag.Properties.AudioBitrate != 0)
+          trackInfo.BitRate = (int)tag.Properties.AudioBitrate;
+        if (tag.Properties.Duration.TotalSeconds != 0)
+          trackInfo.Duration = (long)tag.Properties.Duration.TotalSeconds;
+
         trackInfo.Album = StringUtils.TrimToNull(tag.Tag.Album);
         if (trackNo.HasValue)
           trackInfo.TrackNum = (int)trackNo.Value;
         if (tag.Tag.TrackCount != 0)
           trackInfo.TotalTracks = (int)tag.Tag.TrackCount;
+        if (tag.Tag.Disc != 0)
+          trackInfo.DiscNum = (int)tag.Tag.Disc;
+        if (tag.Tag.DiscCount != 0)
+          trackInfo.TotalDiscs = (int)tag.Tag.DiscCount;
+        if (!string.IsNullOrEmpty(tag.Tag.Lyrics))
+          trackInfo.TrackLyrics = tag.Tag.Lyrics;
+
+        if (tag.Tag.TrackCount != 0)
+          trackInfo.TotalTracks = (int)tag.Tag.TrackCount;
+
+        if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzTrackId))
+          trackInfo.MusicBrainzId = tag.Tag.MusicBrainzTrackId;
+        if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseId))
+          trackInfo.AlbumMusicBrainzId = tag.Tag.MusicBrainzReleaseId;
+        if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzDiscId))
+          trackInfo.AlbumMusicBrainzDiscId = tag.Tag.MusicBrainzDiscId;
+
+        string artistId = null;
+        if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzArtistId))
+          artistId = tag.Tag.MusicBrainzArtistId;
 
         trackInfo.Artists = new List<PersonInfo>();
         foreach (string artistName in ApplyAdditionalSeparator(artists))
         {
           trackInfo.Artists.Add(new PersonInfo()
           {
+            MusicBrainzId = artists.Count() == 1 ? artistId : null,
             Name = artistName,
             Occupation = PersonAspect.OCCUPATION_ARTIST
           });
         }
+
+        if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseArtistId))
+          artistId = tag.Tag.MusicBrainzReleaseArtistId;
 
         IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
         if ((tag.TagTypes & TagTypes.Id3v2) != 0)
@@ -423,6 +450,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           trackInfo.AlbumArtists.Add(new PersonInfo()
           {
+            MusicBrainzId = artists.Count() == 1 ? artistId : null,
             Name = artistName,
             Occupation = PersonAspect.OCCUPATION_ARTIST
           });
@@ -503,19 +531,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           }
         }
 
-        string cdDbId;
-        string musicBrainzId;
-        if (AudioCDMatcher.GetDiscMatch(mediaItemAccessor.ResourcePathName, out musicBrainzId, out cdDbId))
+        if (AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo))
         {
-          if (!string.IsNullOrEmpty(cdDbId)) trackInfo.AlbumCdDdId = cdDbId;
-          if (!string.IsNullOrEmpty(musicBrainzId)) trackInfo.AlbumMusicBrainzDiscId = musicBrainzId;
-
-          CDFreeDbMatcher.Instance.FindAndUpdateTrack(trackInfo);
+          CDFreeDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
         }
 
-        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo);
-        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo);
-        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo);
+        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
 
         return trackInfo.SetMetadata(extractedAspectData);
       }

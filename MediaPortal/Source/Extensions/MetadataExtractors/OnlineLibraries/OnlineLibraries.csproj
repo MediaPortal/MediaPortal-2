@@ -99,9 +99,9 @@
     <Compile Include="Libraries\OmDbV1\Data\OmDbSearchResult.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbBaseItem.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbEpisode.cs" />
-    <Compile Include="Libraries\OmDbV1\Data\OmDBSeasonEpisode.cs" />
-    <Compile Include="Libraries\OmDbV1\Data\OmDBSeason.cs" />
-    <Compile Include="Libraries\OmDbV1\Data\OmDBSeries.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbSeasonEpisode.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbSeason.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbSeries.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbMovie.cs" />
     <Compile Include="Libraries\OmDbV1\OmDbApiV1.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeCountry.cs" />
@@ -118,10 +118,14 @@
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeRating.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSchedule.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeries.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazePersonSearchResult.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSeasonSearch.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSearchResult.cs" />
     <Compile Include="Libraries\TvMazeV1\TvMazeApiV1.cs" />
     <Compile Include="FanArt.cs" />
+    <Compile Include="MusicMatcher.cs" />
+    <Compile Include="SeriesMatcher.cs" />
+    <Compile Include="MovieMatcher.cs" />
     <Compile Include="MovieFanArtTvMatcher.cs" />
     <Compile Include="MovieOmDbMatcher.cs" />
     <Compile Include="MetadataUpdater.cs" />
@@ -355,6 +359,7 @@
     <Compile Include="Matches\SeriesMatch.cs" />
     <Compile Include="Libraries\Common\Settings.cs" />
     <Compile Include="TheMovieDB\TheMovieDbWrapper.cs" />
+    <Compile Include="ApiWrapper.cs" />
     <Compile Include="TheTvDB\TvDbWrapper.cs" />
     <Compile Include="TvMaze\TvMazeWrapper.cs" />
     <Compile Include="UniqueEventedQueue.cs" />

@@ -68,14 +68,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int TvMazeId = 0;
     public int TvRageId = 0;
 
-    public string Series = null;
+    public LanguageText SeriesName = null;
     public string OriginalName = null;
     /// <summary>
     /// Gets or sets the first aired date of series.
     /// </summary>
     public DateTime? FirstAired = null;
     public string Certification = null;
-    public string Description = null;
+    public LanguageText Description = null;
     public bool IsEnded = false;
 
     public float Popularity = 0;
@@ -83,7 +83,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public double TotalRating = 0;
     public int RatingCount = 0;
 
-    public string NextEpisodeName = null;
+    public LanguageText NextEpisodeName = null;
     public int? NextEpisodeSeasonNumber = null;
     public int? NextEpisodeNumber = null;
     public DateTime? NextEpisodeAirDate = null;
@@ -114,21 +114,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
     public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
-      if (string.IsNullOrEmpty(Series)) return false;
+      if (SeriesName.IsEmpty) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, Series);
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, SeriesName);
       if (!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ORIG_SERIES_NAME, OriginalName);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
-      if (!string.IsNullOrEmpty(Description)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, CleanString(Description));
+      if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
       if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_CERTIFICATION, Certification);
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ENDED, IsEnded);
 
       if(NextEpisodeAirDate.HasValue)
       {
-        if(!string.IsNullOrEmpty(NextEpisodeName)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, NextEpisodeName);
+        if(!NextEpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, NextEpisodeName.Text);
         else if(NextEpisodeNumber.HasValue && NextEpisodeSeasonNumber.HasValue)
-          MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, string.Format(NEXT_EPISODE_FORMAT_STR, Series, NextEpisodeSeasonNumber.Value, NextEpisodeNumber.Value));
+          MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, string.Format(NEXT_EPISODE_FORMAT_STR, SeriesName, NextEpisodeSeasonNumber.Value, NextEpisodeNumber.Value));
         if (NextEpisodeSeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_SEASON, NextEpisodeSeasonNumber.Value);
         if (NextEpisodeNumber.HasValue) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, new List<int>() { NextEpisodeNumber.Value });
         MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, NextEpisodeAirDate.Value);
@@ -163,10 +163,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (aspectData.ContainsKey(SeriesAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, out Series);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ORIG_SERIES_NAME, out OriginalName);
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out FirstAired);
-        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, out Description);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_CERTIFICATION, out Certification);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ENDED, out IsEnded);
 
@@ -175,9 +173,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_RATING_COUNT, out RatingCount);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_SCORE, out Score);
 
-        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, out NextEpisodeName);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_SEASON, out NextEpisodeSeasonNumber);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, out NextEpisodeAirDate);
+
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, out tempString);
+        SeriesName = new LanguageText(tempString, false);
+        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, out tempString);
+        Description = new LanguageText(tempString, false);
+        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, out tempString);
+        NextEpisodeName = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id))
@@ -226,7 +231,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else if (aspectData.ContainsKey(SeasonAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, out Series);
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, out tempString);
+        SeriesName = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id))
@@ -243,7 +250,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else if (aspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, out Series);
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, out tempString);
+        SeriesName = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id))
@@ -260,7 +269,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else if (aspectData.ContainsKey(MediaAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_TITLE, out Series);
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_TITLE, out tempString);
+        SeriesName = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id))
@@ -284,7 +295,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public string ToShortString()
     {
-      return string.Format(SHORT_FORMAT_STR, Series);
+      return string.Format(SHORT_FORMAT_STR, SeriesName);
     }
 
     public bool FromString(string name)
@@ -294,7 +305,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         Match match = _fromName.Match(name);
         if (match.Success)
         {
-          Series = match.Groups["series"].Value;
+          SeriesName = match.Groups["series"].Value;
           int year = Convert.ToInt32(match.Groups["year"].Value);
           if (year > 0)
             FirstAired = new DateTime(year, 1, 1);
@@ -302,7 +313,37 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         }
         return false;
       }
-      Series = name;
+      SeriesName = name;
+      return true;
+    }
+
+    public bool CopyIdsFrom(SeriesInfo otherSeries)
+    {
+      MovieDbId = otherSeries.MovieDbId;
+      ImdbId = otherSeries.ImdbId;
+      TvdbId = otherSeries.TvdbId;
+      TvMazeId = otherSeries.TvMazeId;
+      TvRageId = otherSeries.TvRageId;
+      return true;
+    }
+
+    public bool CopyIdsFrom(SeasonInfo seriesSeason)
+    {
+      MovieDbId = seriesSeason.SeriesMovieDbId;
+      ImdbId = seriesSeason.SeriesImdbId;
+      TvdbId = seriesSeason.SeriesTvdbId;
+      TvMazeId = seriesSeason.SeriesTvMazeId;
+      TvRageId = seriesSeason.SeriesTvRageId;
+      return true;
+    }
+
+    public bool CopyIdsFrom(EpisodeInfo seriesEpisode)
+    {
+      MovieDbId = seriesEpisode.SeriesMovieDbId;
+      ImdbId = seriesEpisode.SeriesImdbId;
+      TvdbId = seriesEpisode.SeriesTvdbId;
+      TvMazeId = seriesEpisode.SeriesTvMazeId;
+      TvRageId = seriesEpisode.SeriesTvRageId;
       return true;
     }
 
@@ -314,7 +355,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       //if(FirstAired.HasValue)
       //  return string.Format(SERIES_FORMAT_STR, Series, FirstAired.Value.Year);
-      return Series;
+      return SeriesName.Text;
     }
 
     public override bool Equals(object obj)
@@ -328,12 +369,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId) &&
         string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase))
         return true;
-      if (!string.IsNullOrEmpty(Series) && !string.IsNullOrEmpty(other.Series) &&
-        MatchNames(Series, other.Series) && FirstAired.HasValue && other.FirstAired.HasValue &&
+      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
+        MatchNames(SeriesName.Text, other.SeriesName.Text) && FirstAired.HasValue && other.FirstAired.HasValue &&
         FirstAired.Value == other.FirstAired.Value)
         return true;
-      if (!string.IsNullOrEmpty(Series) && !string.IsNullOrEmpty(other.Series) &&
-        MatchNames(Series, other.Series))
+      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
+        MatchNames(SeriesName.Text, other.SeriesName.Text))
         return true;
 
       return false;

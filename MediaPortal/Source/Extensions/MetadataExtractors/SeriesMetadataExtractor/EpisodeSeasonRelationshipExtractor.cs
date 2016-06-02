@@ -69,12 +69,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seasonInfo.FromMetadata(aspects))
         return false;
 
-      SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo);
-      SeriesTvDbMatcher.Instance.UpdateSeason(seasonInfo);
-      SeriesOmDbMatcher.Instance.UpdateSeason(seasonInfo);
-      SeriesFanArtTvMatcher.Instance.UpdateSeason(seasonInfo);
+      SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+      SeriesTvDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+      SeriesOmDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+      SeriesFanArtTvMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
 
-      if (string.IsNullOrEmpty(seasonInfo.Series))
+      if (seasonInfo.SeriesName.IsEmpty)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();

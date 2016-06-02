@@ -97,7 +97,7 @@ namespace Test.OnlineLibraries
       track.Album = album;
       track.ReleaseDate = new DateTime(year, 1, 1);
       track.TrackNum = trackNum;
-      if (matcher.FindAndUpdateTrack(track))
+      if (matcher.FindAndUpdateTrack(track, false))
       {
         Console.WriteLine("Found track title={0} artist={1} album={2} year={3} trackNum={4}:\nTitle={5} Artists={6} Album={7} Year={8} Track={9}",
           title, artist, album, year, trackNum, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
@@ -126,7 +126,7 @@ namespace Test.OnlineLibraries
       TrackInfo track = new TrackInfo();
       track.AlbumCdDdId = cdDbId;
       track.TrackName = title;
-      if (matcher.FindAndUpdateTrack(track))
+      if (matcher.FindAndUpdateTrack(track, false))
       {
         Console.WriteLine("Found track CDDB ID={0} title={1}:\nTitle={2} Artists={3} Album={4} Year={5} Track={6}",
           cdDbId, title, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
@@ -157,7 +157,7 @@ namespace Test.OnlineLibraries
       track.Album = album;
       track.ReleaseDate = new DateTime(year, 1, 1);
       track.TrackNum = trackNum;
-      if (matcher.FindAndUpdateTrack(track))
+      if (matcher.FindAndUpdateTrack(track, false))
       {
         Console.WriteLine("Found track title={0} artist={1} album={2} year={3} trackNum={4}:\nTitle={5} Artists={6} Album={7} Year={8} Track={9}",
           title, artist, album, year, trackNum, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
@@ -224,8 +224,8 @@ namespace Test.OnlineLibraries
         {
           TvdbId = Int32.Parse(value)
         };
-        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo);
-        Console.WriteLine("{0}: {1}", seriesInfo.Series, seriesInfo.Description);
+        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false);
+        Console.WriteLine("{0}: {1}", seriesInfo.SeriesName, seriesInfo.Description);
       }
 
       SeriesTvDbMatcher.Instance.EndDownloads();

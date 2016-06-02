@@ -22,82 +22,229 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.FanArtTV
 {
-  class FanArtTVWrapper
+  class FanArtTVWrapper : ApiWrapper<FanArtMovieThumb, string>
   {
     protected FanArtTVApiV3 _fanArtTvHandler;
-    protected string _preferredLanguage;
-    public const int MAX_LEVENSHTEIN_DIST = 4;
 
-    /// <summary>
-    /// Sets the preferred language in short format like: en, de, ...
-    /// </summary>
-    /// <param name="langShort">Short language</param>
-    public void SetPreferredLanguage(string langShort)
-    {
-      _preferredLanguage = langShort;
-    }
-
-    /// <summary>
-    /// Returns the language that matches the value set by <see cref="SetPreferredLanguage"/> or the default language (en).
-    /// </summary>
-    public string PreferredLanguage
-    {
-      get { return _preferredLanguage ?? FanArtTVApiV3.DefaultLanguage; }
-    }
-
-    /// <summary>
+     /// <summary>
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
     public bool Init(string cachePath)
     {
       _fanArtTvHandler = new FanArtTVApiV3("53b9498b23f38abf1e1cbe11de2f8102", cachePath);
+      SetDefaultLanguage(FanArtTVApiV3.DefaultLanguage);
+      SetCachePath(cachePath);
       return true;
     }
 
-    public bool DownloadFanArt(string id, FanArtThumb thumb, string category)
+    #region Update
+
+    public override bool UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
     {
-      return _fanArtTvHandler.DownloadImage(id, thumb, category);
+      if (movie.MovieDbId > 0 || !string.IsNullOrEmpty(movie.ImdbId))
+        return true;
+      return false;
     }
 
-    public byte[] GetFanArt(string id, FanArtThumb thumb, string category)
+    public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
     {
-      return _fanArtTvHandler.GetImage(id, thumb, category);
+      if (series.TvdbId > 0)
+        return true;
+      return false;
     }
 
-    public bool GetArtistFanArt(string musicBrainzId, out FanArtArtistThumbs artistThumbs)
+    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
     {
-      artistThumbs = _fanArtTvHandler.GetArtistThumbs(musicBrainzId);
-      return artistThumbs != null;
+      if (season.SeriesTvdbId > 0)
+        return true;
+      return false;
     }
 
-    public bool GetAlbumFanArt(string musicBrainzId, out FanArtAlbumDetails albumThumbs)
+    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
     {
-      albumThumbs = _fanArtTvHandler.GetAlbumThumbs(musicBrainzId);
-      return albumThumbs != null;
+      if (episode.SeriesTvdbId > 0)
+        return true;
+      return false;
     }
 
-    public bool GetLabelFanArt(string musicBrainzId, out FanArtLabelThumbs labelThumbs)
+    #endregion
+
+    #region FanArt
+
+    public override bool GetFanArt<T>(T infoObject, string language, string scope, out FanArtImageCollection<FanArtMovieThumb> images)
     {
-      labelThumbs = _fanArtTvHandler.GetLabelThumbs(musicBrainzId);
-      return labelThumbs != null;
+      images = new FanArtImageCollection<FanArtMovieThumb>();
+
+      if (scope == FanArtScope.Movie)
+      {
+        FanArtMovieThumbs imgs = null;
+        MovieInfo movie = infoObject as MovieInfo;
+        if (movie != null && movie.MovieDbId > 0)
+        {
+          // Download all image information, filter later!
+          imgs = _fanArtTvHandler.GetMovieThumbs(movie.MovieDbId.ToString());
+        }
+
+        if (imgs != null)
+        {
+          images.Id = movie.MovieDbId.ToString();
+          if (imgs.MovieFanArt != null) images.Backdrops.AddRange(imgs.MovieFanArt.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.MovieBanners != null) images.Banners.AddRange(imgs.MovieBanners.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.MoviePosters != null) images.Posters.AddRange(imgs.MoviePosters.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.MovieCDArt != null) images.DiscArt.AddRange(imgs.MovieCDArt.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.HDMovieClearArt != null) images.ClearArt.AddRange(imgs.HDMovieClearArt.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.HDMovieLogos != null) images.Logos.AddRange(imgs.HDMovieLogos.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.MovieThumbnails != null) images.Thumbnails.AddRange(imgs.MovieThumbnails.OrderByDescending(b => b.Likes).ToList());
+          return true;
+        }
+      }
+      else if (scope == FanArtScope.Series)
+      {
+        FanArtTVThumbs imgs = null;
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        SeasonInfo season = infoObject as SeasonInfo;
+        SeriesInfo series = infoObject as SeriesInfo;
+        if (series == null && season != null)
+        {
+          series = season.CloneBasicSeries();
+        }
+        if (series == null && episode != null)
+        {
+          series = episode.CloneBasicSeries();
+        }
+        if (series != null && series.TvdbId > 0)
+        {
+          // Download all image information, filter later!
+          imgs = _fanArtTvHandler.GetSeriesThumbs(series.TvdbId.ToString());
+        }
+
+        if (imgs != null)
+        {
+          images.Id = series.TvdbId.ToString();
+          if (imgs.SeriesFanArt != null) images.Backdrops.AddRange(imgs.SeriesFanArt.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.SeriesBanners != null) images.Banners.AddRange(imgs.SeriesBanners.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.SeriesPosters != null) images.Posters.AddRange(imgs.SeriesPosters.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.HDSeriesClearArt != null) images.ClearArt.AddRange(imgs.HDSeriesClearArt.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.HDSeriesLogos != null) images.Logos.AddRange(imgs.HDSeriesLogos.OrderByDescending(b => b.Likes).ToList());
+          if (imgs.SeriesThumbnails != null) images.Thumbnails.AddRange(imgs.SeriesThumbnails.OrderByDescending(b => b.Likes).ToList());
+          return true;
+        }
+      }
+      else if (scope == FanArtScope.Season)
+      {
+        FanArtTVThumbs imgs = null;
+        int seasonNo = 0;
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        SeasonInfo season = infoObject as SeasonInfo;
+        if (season == null && episode != null)
+        {
+          season = episode.CloneBasicSeason();
+        }
+        if (season != null && season.SeriesTvdbId > 0 && season.SeasonNumber.HasValue)
+        {
+          // Download all image information, filter later!
+          imgs = _fanArtTvHandler.GetSeriesThumbs(season.SeriesTvdbId.ToString());
+          seasonNo = season.SeasonNumber.Value;
+        }
+
+        if (imgs != null)
+        {
+          images.Id = season.SeriesTvdbId.ToString();
+          if (imgs.SeasonBanners != null) images.Banners.AddRange(imgs.SeasonBanners.FindAll(b => !b.Season.HasValue || b.Season == seasonNo).
+            OrderByDescending(b => b.Likes).ToList());
+          if (imgs.SeasonPosters != null) images.Posters.AddRange(imgs.SeasonPosters.FindAll(b => !b.Season.HasValue || b.Season == seasonNo).
+            OrderByDescending(b => b.Likes).ToList());
+          if (imgs.SeasonThumbnails != null) images.Thumbnails.AddRange(imgs.SeasonThumbnails.FindAll(b => !b.Season.HasValue || b.Season == seasonNo).
+            OrderByDescending(b => b.Likes).ToList());
+          return true;
+        }
+      }
+      else if (scope == FanArtScope.Artist)
+      {
+        FanArtArtistThumbs imgs = null;
+        PersonInfo person = infoObject as PersonInfo;
+        if (person != null && !string.IsNullOrEmpty(person.MusicBrainzId))
+        {
+          // Download all image information, filter later!
+          imgs = _fanArtTvHandler.GetArtistThumbs(person.MusicBrainzId);
+        }
+
+        if (imgs != null)
+        {
+          images.Id = person.MusicBrainzId;
+          if (imgs.ArtistFanart != null) images.Backdrops.AddRange(imgs.ArtistFanart.OrderByDescending(b => b.Likes).Select(b => new FanArtMovieThumb(b)).ToList());
+          if (imgs.ArtistBanners != null) images.Banners.AddRange(imgs.ArtistBanners.OrderByDescending(b => b.Likes).Select(b => new FanArtMovieThumb(b)).ToList());
+          if (imgs.HDArtistLogos != null) images.Logos.AddRange(imgs.HDArtistLogos.OrderByDescending(b => b.Likes).Select(b => new FanArtMovieThumb(b)).ToList());
+          if (imgs.ArtistThumbnails != null) images.Thumbnails.AddRange(imgs.ArtistThumbnails.OrderByDescending(b => b.Likes).Select(b => new FanArtMovieThumb(b)).ToList());
+          return true;
+        }
+      }
+      else if (scope == FanArtScope.Label)
+      {
+        FanArtLabelThumbs imgs = null;
+        CompanyInfo company = infoObject as CompanyInfo;
+        if (company != null && !string.IsNullOrEmpty(company.MusicBrainzId))
+        {
+          // Download all image information, filter later!
+          imgs = _fanArtTvHandler.GetLabelThumbs(company.MusicBrainzId);
+        }
+
+        if (imgs != null)
+        {
+          images.Id = company.MusicBrainzId;
+          if (imgs.LabelLogos != null) images.Logos.AddRange(imgs.LabelLogos.OrderByDescending(b => b.Likes).Select(b => new FanArtMovieThumb(b)).ToList());
+          return true;
+        }
+      }
+      else if (scope == FanArtScope.Album)
+      {
+        FanArtAlbumDetails imgs = null;
+        string albumId = null;
+        TrackInfo track = infoObject as TrackInfo;
+        AlbumInfo album = infoObject as AlbumInfo;
+        if (album == null && track != null)
+        {
+          album = track.CloneBasicAlbum();
+        }
+        if (album != null && !string.IsNullOrEmpty(album.MusicBrainzGroupId))
+        {
+          // Download all image information, filter later!
+          imgs = _fanArtTvHandler.GetAlbumThumbs(album.MusicBrainzGroupId);
+          albumId = album.MusicBrainzGroupId;
+        }
+
+        if (imgs != null)
+        {
+          images.Id = albumId;
+          if (imgs.Albums != null && imgs.Albums.ContainsKey(albumId) && imgs.Albums[albumId].AlbumCovers != null)
+            images.Covers.AddRange(imgs.Albums[albumId].AlbumCovers.OrderByDescending(b => b.Likes).Select(b => new FanArtMovieThumb(b)).ToList());
+          if (imgs.Albums != null && imgs.Albums.ContainsKey(albumId) && imgs.Albums[albumId].CDArts != null)
+            images.DiscArt.AddRange(imgs.Albums[albumId].CDArts.OrderByDescending(b => b.Likes).Select(b => new FanArtMovieThumb(b)).ToList());
+          return true;
+        }
+      }
+      else
+      {
+        return true;
+      }
+      return false;
     }
 
-    public bool GetMovieFanArt(string imDbIdOrtmDbId, out FanArtMovieThumbs movieThumbs)
+    public override bool DownloadFanArt(string id, FanArtMovieThumb image, string scope, string type)
     {
-      movieThumbs = _fanArtTvHandler.GetMovieThumbs(imDbIdOrtmDbId);
-      return movieThumbs != null;
+      string category = string.Format(@"{0}\{1}", scope, type);
+      return _fanArtTvHandler.DownloadImage(id, image, category);
     }
 
-    public bool GetSeriesFanArt(string ttvDbId, out FanArtTVThumbs tvThumbs)
-    {
-      tvThumbs = _fanArtTvHandler.GetSeriesThumbs(ttvDbId);
-      return tvThumbs != null;
-    }
+    #endregion
   }
 }

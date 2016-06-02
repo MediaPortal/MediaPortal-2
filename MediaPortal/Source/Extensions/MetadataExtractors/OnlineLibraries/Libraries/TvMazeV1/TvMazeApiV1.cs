@@ -42,6 +42,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
 
     private const string URL_API_BASE = "http://api.tvmaze.com/";
     private const string URL_QUERYSERIES = URL_API_BASE + "search/shows?q={0}";
+    private const string URL_QUERYPEOPLE = URL_API_BASE + "search/people?q={0}";
     private const string URL_GETTVDBSERIES = URL_API_BASE + "lookup/shows?thetvdb={0}";
     private const string URL_GETIMDBIDSERIES = URL_API_BASE + "lookup/shows?imdb={0}";
     private const string URL_GETSERIES = URL_API_BASE + "shows/{0}?embed[]=episodes&embed[]=cast";
@@ -87,12 +88,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     }
 
     /// <summary>
+    /// Search for people by name given in <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">Full or partly name of person</param>
+    /// <returns>List of possible matches</returns>
+    public List<TvMazePerson> SearchPerson(string name)
+    {
+      string url = GetUrl(URL_QUERYPEOPLE, HttpUtility.UrlEncode(name));
+      List<TvMazePersonSearchResult> results = _downloader.Download<List<TvMazePersonSearchResult>>(url);
+      if (results == null) return null;
+      return results.Select(e => e.Person).ToList();
+    }
+
+    /// <summary>
     /// Returns detailed information for a single <see cref="TvMazeSeries"/> with given <paramref name="id"/>. This method caches request
     /// to same series using the cache path given in <see cref="TvMazeApiV1"/> constructor.
     /// </summary>
     /// <param name="id">TvMaze id of Series</param>
     /// <returns>Series information</returns>
-    public TvMazeSeries GetSeries(int id)
+    public TvMazeSeries GetSeries(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -100,6 +114,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TvMazeSeries>(json);
       }
+      if (cacheOnly) return null;
       string url = GetUrl(URL_GETSERIES, id);
       return _downloader.Download<TvMazeSeries>(url, cache);
     }
@@ -110,7 +125,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">IMDB id of Series</param>
     /// <returns>Series information</returns>
-    public TvMazeSeries GetSeriesByImDb(string id)
+    public TvMazeSeries GetSeriesByImDb(string id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -118,6 +133,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TvMazeSeries>(json);
       }
+      if (cacheOnly) return null;
       string url = GetUrl(URL_GETIMDBIDSERIES, id);
       return _downloader.Download<TvMazeSeries>(url, cache);
     }
@@ -128,7 +144,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvDB id of Series</param>
     /// <returns>Series information</returns>
-    public TvMazeSeries GetSeriesByTvDb(int id)
+    public TvMazeSeries GetSeriesByTvDb(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -136,6 +152,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TvMazeSeries>(json);
       }
+      if (cacheOnly) return null;
       string url = GetUrl(URL_GETTVDBSERIES, id);
       return _downloader.Download<TvMazeSeries>(url, cache);
     }
@@ -146,7 +163,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvMaze id of series</param>
     /// <returns>Season information</returns>
-    public List<TvMazeSeason> GetSeriesSeasons(int id)
+    public List<TvMazeSeason> GetSeriesSeasons(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Seasons");
       TvMazeSeriesSeasonSearch returnValue = null;
@@ -157,6 +174,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_GETSEASONS, id);
         returnValue = _downloader.Download<TvMazeSeriesSeasonSearch>(url, cache);
       }
@@ -172,7 +190,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// <param name="season">Season number</param>
     /// <param name="episode">Episode number</param>
     /// <returns>Episode information</returns>
-    public TvMazeEpisode GetSeriesEpisode(int id, int season, int episode)
+    public TvMazeEpisode GetSeriesEpisode(int id, int season, int episode, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
       TvMazeEpisode returnValue = null;
@@ -183,6 +201,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_GETEPISODE, id, season, episode);
         returnValue = _downloader.Download<TvMazeEpisode>(url, cache);
       }
@@ -195,7 +214,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvMaze id of person</param>
     /// <returns>Person information</returns>
-    public TvMazePerson GetPerson(int id)
+    public TvMazePerson GetPerson(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Person");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -203,6 +222,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TvMazePerson>(json);
       }
+      if (cacheOnly) return null;
       string url = GetUrl(URL_GETPERSON, id);
       return _downloader.Download<TvMazePerson>(url, cache);
     }
@@ -213,7 +233,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvMaze id of character</param>
     /// <returns>Character information</returns>
-    public TvMazePerson GetCharacter(int id)
+    public TvMazePerson GetCharacter(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Character");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -221,6 +241,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TvMazePerson>(json);
       }
+      if (cacheOnly) return null;
       string url = GetUrl(URL_GETCHARACTER, id);
       return _downloader.Download<TvMazePerson>(url, cache);
     }
@@ -278,7 +299,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// <param name="movieId"></param>
     /// <param name="prefix"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName<TE>(TE movieId, string prefix)
+    protected string CreateAndGetCacheName<T>(T movieId, string prefix)
     {
       try
       {

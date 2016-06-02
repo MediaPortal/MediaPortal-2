@@ -61,7 +61,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
     {
       foreach (Regex regex in REGEXP_TITLE_YEAR)
       {
-        Match match = regex.Match(movieInfo.MovieName);
+        Match match = regex.Match(movieInfo.MovieName.Text);
         if (match.Groups[GROUP_TITLE].Length > 0 || match.Groups[GROUP_YEAR].Length > 0)
         {
           movieInfo.MovieName = match.Groups[GROUP_TITLE].Value.Trim(new[] { ' ', '-' });
@@ -74,11 +74,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
 
     public static bool CleanupTitle(MovieInfo movieInfo)
     {
-      string originalTitle = movieInfo.MovieName;
+      string originalTitle = movieInfo.MovieName.Text;
       foreach (Regex regex in REGEXP_CLEANUPS)
-        movieInfo.MovieName = regex.Replace(movieInfo.MovieName, "");
-      movieInfo.MovieName = CleanupWhiteSpaces(movieInfo.MovieName);
-      return originalTitle != movieInfo.MovieName;
+        movieInfo.MovieName.Text = regex.Replace(movieInfo.MovieName.Text, "");
+      movieInfo.MovieName.Text = CleanupWhiteSpaces(movieInfo.MovieName.Text);
+      return originalTitle != movieInfo.MovieName.Text;
     }
 
     /// <summary>

@@ -73,6 +73,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Awards", 20, Cardinality.ManyToMany, true);
 
     /// <summary>
+    /// If set to <c>true</c>, the album is a compilation of music from various artists.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPILATION =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsCompilation", typeof(bool), Cardinality.Inline, true);
+
+    /// <summary>
     /// Number of tracks on the CD.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUMTRACKS =
@@ -117,6 +123,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_LABELS,
             ATTR_GENRES,
             ATTR_AWARDS,
+            ATTR_COMPILATION,
             ATTR_NUMTRACKS,
             ATTR_DISCID,
             ATTR_NUMDISCS,

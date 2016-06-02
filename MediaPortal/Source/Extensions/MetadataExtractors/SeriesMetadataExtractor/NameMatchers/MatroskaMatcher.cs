@@ -73,10 +73,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
 
       // Series and episode handling. Prefer information from tags.
       if (tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE] != null)
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.Episode, tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault(), true);
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault(), true);
 
       if (tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE] != null)
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.Series, tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault(), true);
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault(), true);
 
       if (tagsToExtract[MatroskaConsts.TAG_SERIES_IMDB_ID] != null)
       {
@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       if (tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS] != null)
       {
         MetadataUpdater.SetOrUpdateList(episodeInfo.Actors,
-          tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS].Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false, true);
+          tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS].Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
       }
 
       // On Series, the counting tag is "TVDB"

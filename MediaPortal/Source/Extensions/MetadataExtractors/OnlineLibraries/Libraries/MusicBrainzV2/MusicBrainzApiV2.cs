@@ -43,10 +43,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     private const string URL_API_BASE = "https://musicbrainz.org/ws/2/";
     private const string URL_FANART_API_BASE = "http://coverartarchive.org/";
 
-    private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
+    private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings+isrcs&fmt=json";
     private const string URL_GETRELEASE = URL_API_BASE + "release/{0}?inc=artist-credits+labels+discids+recordings+tags&fmt=json";
     private const string URL_GETRELEASEGROUP = URL_API_BASE + "release-group/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
     private const string URL_GETARTIST = URL_API_BASE + "artist/{0}?fmt=json";
+    private const string URL_GETLABEL = URL_API_BASE + "label/{0}?fmt=json";
+    private const string URL_QUERYISRCRECORDING = URL_API_BASE + "isrc/{0}?limit=5&fmt=json";
     private const string URL_QUERYRECORDING = URL_API_BASE + "recording?query={0}&limit=5&fmt=json";
     private const string URL_FANART_LIST = URL_FANART_API_BASE + "release/{0}/";
     private const string URL_QUERYLABEL = URL_API_BASE + "label?query={0}&limit=5&fmt=json";
@@ -119,6 +121,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       return ParseTracks(url);
     }
 
+    public List<TrackResult> SearchTrackFromIsrc(string isrc)
+    {
+      string url = GetUrl(URL_QUERYISRCRECORDING, Uri.EscapeDataString(isrc));
+      return ParseTracks(url);
+    }
+
     public List<TrackResult> ParseTracks(string url)
     {
       List<TrackResult> tracks = new List<TrackResult>();
@@ -187,7 +195,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// </summary>
     /// <param name="id">MusicBrainz id of track</param>
     /// <returns>Track information</returns>
-    public Track GetTrack(string id)
+    public Track GetTrack(string id, bool cahceOnly)
     {
       string cache = CreateAndGetCacheName(id, "Track");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -195,7 +203,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<Track>(json);
       }
-
+      if (cahceOnly) return null;
       string url = GetUrl(URL_GETRECORDING, id);
       return _downloader.Download<Track>(url, cache);
     }
@@ -206,7 +214,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// </summary>
     /// <param name="id">MusicBrainz id of album</param>
     /// <returns>Track information</returns>
-    public TrackRelease GetAlbum(string id)
+    public TrackRelease GetAlbum(string id, bool cahceOnly)
     {
       string cache = CreateAndGetCacheName(id, "Album");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -214,7 +222,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TrackRelease>(json);
       }
-
+      if (cahceOnly) return null;
       string url = GetUrl(URL_GETRELEASE, id);
       return _downloader.Download<TrackRelease>(url, cache);
     }
@@ -225,7 +233,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// </summary>
     /// <param name="id">MusicBrainz id of release group</param>
     /// <returns>Track information</returns>
-    public TrackReleaseGroup GetReleaseGroup(string id)
+    public TrackReleaseGroup GetReleaseGroup(string id, bool cahceOnly)
     {
       string cache = CreateAndGetCacheName(id, "ReleaseGroup");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -233,7 +241,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TrackReleaseGroup>(json);
       }
-
+      if (cahceOnly) return null;
       string url = GetUrl(URL_GETRELEASEGROUP, id);
       return _downloader.Download<TrackReleaseGroup>(url, cache);
     }
@@ -244,7 +252,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// </summary>
     /// <param name="id">MusicBrainz id of artist</param>
     /// <returns>Artist information</returns>
-    public TrackArtist GetArtist(string id)
+    public TrackArtist GetArtist(string id, bool cahceOnly)
     {
       string cache = CreateAndGetCacheName(id, "Artist");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -252,9 +260,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<TrackArtist>(json);
       }
-
+      if (cahceOnly) return null;
       string url = GetUrl(URL_GETARTIST, id);
       return _downloader.Download<TrackArtist>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns detailed information for a music label <see cref="TrackLabel"/> with given <paramref name="id"/>. This method caches request
+    /// to same label using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of nusic label</param>
+    /// <returns>Music label information</returns>
+    public TrackLabel GetLabel(string id, bool cahceOnly)
+    {
+      string cache = CreateAndGetCacheName(id, "Label");
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      {
+        string json = File.ReadAllText(cache);
+        return JsonConvert.DeserializeObject<TrackLabel>(json);
+      }
+      if (cahceOnly) return null;
+      string url = GetUrl(URL_GETLABEL, id);
+      return _downloader.Download<TrackLabel>(url, cache);
     }
 
     /// <summary>

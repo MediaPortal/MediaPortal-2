@@ -33,10 +33,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// Contains the name found in online library.
     /// </summary>
     public string OnlineName;
+    public int Year;
 
     public override string ToString()
     {
-      return string.Format("{0}: {1} [{2}]", ItemName, OnlineName, Id);
+      return string.Format("{0}: {1} ({2}) [{3}]", ItemName, OnlineName, Year, Id);
     }
   }
 }

@@ -43,7 +43,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// <summary>
   /// <see cref="MusicFanArtTvMatcher"/> is used to download music images from FanArt.tv.
   /// </summary>
-  public class MusicFanArtTvMatcher : BaseMatcher<TrackMatch, string>
+  public class MusicFanArtTvMatcher : MusicMatcher<FanArtMovieThumb, string>
   {
     #region Static instance
 
@@ -57,351 +57,93 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArtTV\");
-    protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "TrackMatches.xml");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
 
-    protected override string MatchesSettingsFile
+    #endregion
+
+    #region Init
+
+    public MusicFanArtTvMatcher() : 
+      base(CACHE_PATH, MAX_MEMCACHE_DURATION)
     {
-      get { return _matchesSettingsFile; }
     }
 
-    #endregion
-
-    #region Fields
-
-    protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
-    protected ConcurrentDictionary<string, TrackInfo> _memoryCache = new ConcurrentDictionary<string, TrackInfo>(StringComparer.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// Contains the initialized FanArtTvWrapper.
-    /// </summary>
-    private FanArtTVWrapper _fanArt;
-
-    #endregion
-
-    #region Metadata updaters
-
-    /// <summary>
-    /// Tries to lookup the music from FanArt.tv and downloads images.
-    /// </summary>
-    /// <param name="trackInfo">Track to check</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool FindAndUpdateTrack(TrackInfo trackInfo)
+    public override bool InitWrapper()
     {
       try
       {
-        // Try online lookup
-        if (!Init())
-          return false;
-
-        if (!string.IsNullOrEmpty(trackInfo.MusicBrainzId))
-        {
-          TrackInfo oldTrackInfo;
-          CheckCacheAndRefresh();
-          if (_memoryCache.TryGetValue(trackInfo.MusicBrainzId, out oldTrackInfo))
-          {
-            //Already downloaded
-            return true;
-          }
-
-          if (trackInfo.Thumbnail == null)
-          {
-            List<string> thumbs = GetFanArtFiles(trackInfo, FanArtScope.Album, FanArtType.Covers);
-            if (thumbs.Count > 0)
-              trackInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
-          }
-
-          if (_memoryCache.TryAdd(trackInfo.MusicBrainzId, trackInfo))
-          {
-            ScheduleDownload(trackInfo.MusicBrainzId);
-            return true;
-          }
-        }
-        return false;
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception while processing track {0}", ex, trackInfo.ToString());
-        return false;
-      }
-    }
-
-    public bool UpdateAlbum(AlbumInfo albumInfo)
-    {
-      try
-      {
-        if (albumInfo.Thumbnail == null)
-        {
-          List<string> thumbs = GetFanArtFiles(albumInfo, FanArtScope.Album, FanArtType.Covers);
-          if (thumbs.Count > 0)
-            albumInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
-        }
-        return true;
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception while processing album {0}", ex, albumInfo.ToString());
-        return false;
-      }
-    }
-
-    public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation)
-    {
-      return UpdatePersons(albumInfo.Artists, occupation);
-    }
-
-    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation)
-    {
-      return UpdatePersons(trackInfo.Artists, occupation);
-    }
-
-    private bool UpdatePersons(List<PersonInfo> persons, string occupation)
-    {
-      try
-      {
-        if (occupation != PersonAspect.OCCUPATION_ARTIST)
-          return false;
-
-        // Try online lookup
-        if (!Init())
-          return false;
-
-        foreach (PersonInfo person in persons)
-        {
-          if (person.Thumbnail == null)
-          {
-            List<string> thumbs = GetFanArtFiles(person, FanArtScope.Artist, FanArtType.Thumbnails);
-            if (thumbs.Count > 0)
-              person.Thumbnail = File.ReadAllBytes(thumbs[0]);
-          }
-        }
-        return true;
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception while processing persons", ex);
-        return false;
-      }
-    }
-
-    public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string type)
-    {
-      try
-      {
-        if (type != CompanyAspect.COMPANY_MUSIC_LABEL)
-          return false;
-
-        // Try online lookup
-        if (!Init())
-          return false;
-
-        foreach (CompanyInfo company in albumInfo.MusicLabels)
-        {
-          if (company.Thumbnail == null)
-          {
-            List<string> thumbs = GetFanArtFiles(company, FanArtScope.Label, FanArtType.Logos);
-            if (thumbs.Count > 0)
-              company.Thumbnail = File.ReadAllBytes(thumbs[0]);
-          }
-        }
-        return true;
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception while processing companies", ex);
-        return false;
-      }
-    }
-
-    #endregion
-
-    #region Metadata update helpers
-
-    private void StoreTrackMatch(TrackInfo searchTrack)
-    {
-      var onlineMatch = new TrackMatch
-      {
-        Id = searchTrack.MusicBrainzId,
-        ItemName = searchTrack.ToString(),
-        TrackName = searchTrack.ToString(),
-        TrackNum = searchTrack.TrackNum,
-        ArtistName = searchTrack.Artists != null && searchTrack.Artists.Count > 0 ? searchTrack.Artists[0].Name : null,
-        AlbumName = searchTrack.Album
-      };
-      _storage.TryAddMatch(onlineMatch);
-    }
-
-    #endregion
-
-    #region Caching
-
-    /// <summary>
-    /// Check if the memory cache should be cleared and starts an online update of (file-) cached series information.
-    /// </summary>
-    private void CheckCacheAndRefresh()
-    {
-      if (DateTime.Now - _memoryCacheInvalidated <= MAX_MEMCACHE_DURATION)
-        return;
-      _memoryCache.Clear();
-      _memoryCacheInvalidated = DateTime.Now;
-
-      // TODO: when updating track information is implemented, start here a job to do it
-    }
-
-    #endregion
-
-    public override bool Init()
-    {
-      if (!base.Init())
-        return false;
-
-      if (_fanArt != null)
-        return true;
-
-      try
-      {
-        _fanArt = new FanArtTVWrapper();
-        bool res = _fanArt.Init(CACHE_PATH);
+        FanArtTVWrapper wrapper = new FanArtTVWrapper();
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-        _fanArt.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
-        return res;
+        wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
+        if (wrapper.Init(CACHE_PATH))
+        {
+          _wrapper = wrapper;
+          return true;
+        }
       }
-      catch (Exception)
+      catch (Exception ex)
       {
-        return false;
+        ServiceRegistration.Get<ILogger>().Error("MusicFanArtTvMatcher: Error initializing wrapper", ex);
       }
+      return false;
     }
+
+    #endregion
+
+    #region Translators
+
+    protected override bool GetTrackAlbumId(AlbumInfo album, out string id)
+    {
+      id = null;
+      if (!string.IsNullOrEmpty(album.MusicBrainzGroupId))
+        id = album.MusicBrainzGroupId;
+      return id != null;
+    }
+
+    protected override bool GetTrackId(TrackInfo track, out string id)
+    {
+      id = null;
+      if (!string.IsNullOrEmpty(track.MusicBrainzId))
+        id = track.MusicBrainzId;
+      return id != null;
+    }
+
+    protected override bool SetTrackId(TrackInfo track, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        track.MusicBrainzId = id;
+        return true;
+      }
+      return false;
+    }
+
+    protected override bool GetCompanyId(CompanyInfo company, out string id)
+    {
+      id = null;
+      if (!string.IsNullOrEmpty(company.MusicBrainzId))
+        id = company.MusicBrainzId;
+      return id != null;
+    }
+
+    protected override bool GetPersonId(PersonInfo person, out string id)
+    {
+      id = null;
+      if (!string.IsNullOrEmpty(person.MusicBrainzId))
+        id = person.MusicBrainzId;
+      return id != null;
+    }
+
+    #endregion
 
     #region FanArt
 
-    public List<string> GetFanArtFiles<T>(T infoObject, string scope, string type)
+    protected override bool VerifyFanArtImage(FanArtMovieThumb image)
     {
-      List<string> fanartFiles = new List<string>();
-      string path = null;
-      if (scope == FanArtScope.Album)
-      {
-        AlbumInfo album = infoObject as AlbumInfo;
-        TrackInfo track = infoObject as TrackInfo;
-        if (album != null && !string.IsNullOrEmpty(album.MusicBrainzGroupId))
-        {
-          path = Path.Combine(CACHE_PATH, album.MusicBrainzGroupId, string.Format(@"{0}\{1}\", scope, type));
-        }
-        else if (track != null && !string.IsNullOrEmpty(track.AlbumMusicBrainzGroupId))
-        {
-          path = Path.Combine(CACHE_PATH, track.AlbumMusicBrainzGroupId, string.Format(@"{0}\{1}\", scope, type));
-        }
-      }
-      else if (scope == FanArtScope.Artist)
-      {
-        PersonInfo person = infoObject as PersonInfo;
-        if (person != null && !string.IsNullOrEmpty(person.MusicBrainzId))
-        {
-          path = Path.Combine(CACHE_PATH, person.MusicBrainzId, string.Format(@"{0}\{1}\", scope, type));
-        }
-      }
-      else if (scope == FanArtScope.Label)
-      {
-        CompanyInfo company = infoObject as CompanyInfo;
-        if (company != null && !string.IsNullOrEmpty(company.MusicBrainzId))
-        {
-          path = Path.Combine(CACHE_PATH, company.MusicBrainzId, string.Format(@"{0}\{1}\", scope, type));
-        }
-      }
-      if (Directory.Exists(path))
-        fanartFiles.AddRange(Directory.GetFiles(path, "*.jpg"));
-      return fanartFiles;
-    }
-
-    protected override void DownloadFanArt(string mbId)
-    {
-      try
-      {
-        if (string.IsNullOrEmpty(mbId))
-          return;
-
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Started for ID {0}", mbId);
-
-        TrackInfo trackInfo;
-        if (!_memoryCache.TryGetValue(mbId, out trackInfo))
-          return;
-
-        if (!Init())
-          return;
-
-        FanArtAlbumDetails thumbs;
-        if (!_fanArt.GetAlbumFanArt(trackInfo.AlbumMusicBrainzGroupId, out thumbs))
-          return;
-
-        if (thumbs.Albums.ContainsKey(trackInfo.AlbumMusicBrainzGroupId) == true)
-        {
-          // Save Album Covers and CD Art
-          ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving album banners for ID {0}", mbId);
-          SaveBanners(trackInfo.AlbumMusicBrainzGroupId, thumbs.Albums[trackInfo.AlbumMusicBrainzGroupId].AlbumCovers.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Album, FanArtType.Covers));
-          SaveBanners(trackInfo.AlbumMusicBrainzGroupId, thumbs.Albums[trackInfo.AlbumMusicBrainzGroupId].CDArts.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Album, FanArtType.DiscArt));
-        }
-
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving artist banners for ID {0}", mbId);
-        FanArtArtistThumbs artistThumbs;
-        foreach (PersonInfo person in trackInfo.Artists.Where(p => !string.IsNullOrEmpty(p.MusicBrainzId)))
-        {
-          if (_fanArt.GetArtistFanArt(person.MusicBrainzId, out artistThumbs))
-          {
-            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistBanners.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Banners));
-            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistFanart.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Backdrops));
-            SaveBanners(person.MusicBrainzId, artistThumbs.HDArtistLogos.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Logos));
-            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistThumbnails.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Thumbnails));
-          }
-        }
-        foreach (PersonInfo person in trackInfo.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.MusicBrainzId)))
-        {
-          if (_fanArt.GetArtistFanArt(person.MusicBrainzId, out artistThumbs))
-          {
-            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistBanners.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Banners));
-            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistFanart.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Backdrops));
-            SaveBanners(person.MusicBrainzId, artistThumbs.HDArtistLogos.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Logos));
-            SaveBanners(person.MusicBrainzId, artistThumbs.ArtistThumbnails.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Artist, FanArtType.Thumbnails));
-          }
-        }
-
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Begin saving label banners for ID {0}", mbId);
-        FanArtLabelThumbs labelThumbs;
-        foreach (CompanyInfo company in trackInfo.MusicLabels.Where(l => !string.IsNullOrEmpty(l.MusicBrainzId)))
-        {
-          if (_fanArt.GetLabelFanArt(company.MusicBrainzId, out labelThumbs))
-          {
-            SaveBanners(company.MusicBrainzId, labelThumbs.LabelLogos.OrderByDescending(b => b.Likes).ToList(), string.Format(@"{0}\{1}", FanArtScope.Label, FanArtType.Logos));
-          }
-        }
-
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Finished ID {0}", mbId);
-
-        StoreTrackMatch(trackInfo);
-
-        // Remember we are finished
-        FinishDownloadFanArt(mbId);
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher: Exception downloading FanArt for ID {0}", ex, mbId);
-      }
-    }
-
-    private int SaveBanners(string id, IEnumerable<FanArtThumb> banners, string category)
-    {
-      if (banners == null)
-        return 0;
-
-      int idx = 0;
-      foreach (FanArtThumb banner in banners)
-      {
-        if (idx >= MAX_FANART_IMAGES)
-          break;
-        if (_fanArt.DownloadFanArt(id, banner, category))
-          idx++;
-      }
-      ServiceRegistration.Get<ILogger>().Debug("MusicFanArtTvMatcher Download: Saved {0} {1}", idx, category);
-      return idx;
+      if (image.Language == null || image.Language == _wrapper.PreferredLanguage)
+        return true;
+      return false;
     }
 
     #endregion

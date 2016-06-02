@@ -25,36 +25,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
-using MediaPortal.Utilities;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
 {
-  class TheMovieDbWrapper
+  class TheMovieDbWrapper : ApiWrapper<ImageItem, string>
   {
     protected MovieDbApiV3 _movieDbHandler;
-    protected string _preferredLanguage;
-    public const int MAX_LEVENSHTEIN_DIST = 4;
-
-    /// <summary>
-    /// Sets the preferred language in short format like: en, de, ...
-    /// </summary>
-    /// <param name="langShort">Short language</param>
-    public void SetPreferredLanguage(string langShort)
-    {
-      _preferredLanguage = langShort;
-    }
-
-    /// <summary>
-    /// Returns the language that matches the value set by <see cref="SetPreferredLanguage"/> or the default language (en).
-    /// </summary>
-    public string PreferredLanguage
-    {
-      get { return _preferredLanguage ?? MovieDbApiV3.DefaultLanguage; }
-    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -63,629 +43,707 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheMovieDB
     public bool Init(string cachePath)
     {
       _movieDbHandler = new MovieDbApiV3("1e3f311b50e6ca53bbc3fcade2214b5e", cachePath);
+      SetDefaultLanguage(MovieDbApiV3.DefaultLanguage);
+      SetCachePath(cachePath);
       return true;
     }
 
-    /// <summary>
-    /// Search for Movie by name.
-    /// </summary>
-    /// <param name="movieName">Name</param>
-    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="movies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Movie was found.</returns>
-    public bool SearchMovie(string movieName, string language, out List<MovieSearchResult> movies)
+    #region Search
+
+    public override bool SearchMovie(MovieInfo movieSearch, string language, out List<MovieInfo> movies)
     {
-      movies = _movieDbHandler.SearchMovie(movieName, language);
+      movies = null;
+      List<MovieSearchResult> foundMovies = _movieDbHandler.SearchMovie(movieSearch.MovieName.Text, language);
+      if (foundMovies == null) return false;
+      movies = foundMovies.Select(m => new MovieInfo()
+      {
+        MovieDbId = m.Id,
+        MovieName = m.Title,
+        OriginalName = m.OriginalTitle,
+        ReleaseDate = m.ReleaseDate,
+      }).ToList();
+
+      if(movies.Count == 0 && !string.IsNullOrEmpty(movieSearch.OriginalName))
+      {
+        foundMovies = _movieDbHandler.SearchMovie(movieSearch.OriginalName, language);
+        if (foundMovies == null) return false;
+        movies = foundMovies.Select(m => new MovieInfo()
+        {
+          MovieDbId = m.Id,
+          MovieName = m.Title,
+          OriginalName = m.OriginalTitle,
+          ReleaseDate = m.ReleaseDate,
+        }).ToList();
+      }
       return movies.Count > 0;
     }
 
-    /// <summary>
-    /// Search for unique matches of Movie names. This method tries to find the best matching Movie in following order:
-    /// - Exact match using PreferredLanguage
-    /// - Exact match using DefaultLanguage
-    /// - If movies name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
-    /// </summary>
-    /// <param name="movieName">Name</param>
-    /// <param name="year">Optional year of movie</param>
-    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="movies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at exactly one Movie was found.</returns>
-    public bool SearchMovieUnique(string movieName, int year, string language, out List<MovieSearchResult> movies)
+    public override bool SearchSeriesEpisode(EpisodeInfo episodeSearch, string language, out List<EpisodeInfo> episodes)
     {
       language = language ?? PreferredLanguage;
-      movies = _movieDbHandler.SearchMovie(movieName, language);
-      if (TestMovieMatch(movieName, year, ref movies))
-        return true;
 
-      if (movies.Count == 0 && language != MovieDbApiV3.DefaultLanguage)
+      episodes = null;
+      SeriesInfo seriesSearch = null;
+      if (episodeSearch.SeriesMovieDbId <= 0)
       {
-        movies = _movieDbHandler.SearchMovie(movieName, MovieDbApiV3.DefaultLanguage);
-        // If also no match in default language is found, we will look for combined movies names:
-        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
-        if (!TestMovieMatch(movieName, year, ref movies) && movieName.Contains("-"))
-        {
-          string namePart = movieName.Split(new [] { '-' })[0].Trim();
-          return SearchMovieUnique(namePart, year, language, out movies);
-        }
-        return movies.Count == 1;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tests for movie matches. 
-    /// </summary>
-    /// <param name="moviesName">Movie name</param>
-    /// <param name="year">Optional year</param>
-    /// <param name="movies">Potential online matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    private bool TestMovieMatch(string moviesName, int year, ref List<MovieSearchResult> movies)
-    {
-      // Exact match in preferred language
-      ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Test Match for \"{0}\"", moviesName);
-
-      if (movies.Count == 1)
-      {
-        if (GetLevenshteinDistance(movies[0], moviesName) <= MAX_LEVENSHTEIN_DIST)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", moviesName);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        movies.Clear();
-        return false;
+        seriesSearch = episodeSearch.CloneBasicSeries();
+        if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
+          return false;
       }
 
-      // Multiple matches
-      if (movies.Count > 1)
+      if (episodeSearch.SeriesMovieDbId > 0 && episodeSearch.SeasonNumber.HasValue)
       {
-        ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", moviesName, movies.Count);
-        var exactMatches = movies.FindAll(s => s.Title == moviesName || s.OriginalTitle == moviesName || GetLevenshteinDistance(s, moviesName) == 0);
-        if (exactMatches.Count == 1)
+        Season season = _movieDbHandler.GetSeriesSeason(episodeSearch.SeriesMovieDbId, episodeSearch.SeasonNumber.Value, language, false);
+        if (season != null && season.Episodes != null)
         {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", moviesName);
-          movies = exactMatches;
-          return true;
-        }
-
-        if (exactMatches.Count > 1)
-        {
-          // Try to match the year, if available
-          if (year > 0)
+          foreach (SeasonEpisode episode in season.Episodes)
           {
-            var yearFiltered = exactMatches.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == year);
-            if (yearFiltered.Count == 1)
+            if (episodeSearch.EpisodeNumbers.Contains(episode.EpisodeNumber) || episodeSearch.EpisodeNumbers.Count == 0)
             {
-              ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\" [{1}]!", moviesName, year);
-              movies = yearFiltered;
-              return true;
+              if (episodes == null)
+                episodes = new List<EpisodeInfo>();
+
+              EpisodeInfo info = new EpisodeInfo()
+              {
+                SeriesName = seriesSearch.SeriesName,
+                SeasonNumber = episode.SeasonNumber,
+                EpisodeName = new LanguageText(episode.Name, false),
+              };
+              info.EpisodeNumbers.Add(episode.EpisodeNumber);
+              info.CopyIdsFrom(seriesSearch);
+              episodes.Add(info);
             }
           }
         }
-
-        movies = movies.Where(s => GetLevenshteinDistance(s, moviesName) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (movies.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Multiple matches found for \"{0}\" (count: {1})", moviesName, movies.Count);
-
-        return movies.Count == 1;
       }
-      return false;
+
+      if (episodes == null)
+      {
+        episodes = new List<EpisodeInfo>();
+        EpisodeInfo info = new EpisodeInfo()
+        {
+          SeriesName = seriesSearch.SeriesName,
+          SeasonNumber = episodeSearch.SeasonNumber,
+          EpisodeName = episodeSearch.EpisodeName,
+        };
+        info.CopyIdsFrom(seriesSearch);
+        info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
+        episodes.Add(info);
+        return true;
+      }
+
+      return episodes != null;
     }
 
-    /// <summary>
-    /// Search for Series by name.
-    /// </summary>
-    /// <param name="seriesName">Name</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeries(string seriesName, string language, out List<SeriesSearchResult> series)
+    public override bool SearchSeries(SeriesInfo seriesSearch, string language, out List<SeriesInfo> series)
     {
-      series = _movieDbHandler.SearchSeries(seriesName, language);
+      language = language ?? PreferredLanguage;
+
+      series = null;
+      List<SeriesSearchResult> foundSeries = _movieDbHandler.SearchSeries(seriesSearch.SeriesName.Text, language);
+      if (foundSeries == null) return false;
+      series = foundSeries.Select(s => new SeriesInfo()
+      {
+        MovieDbId = s.Id,
+        SeriesName = s.Name,
+        OriginalName = s.OriginalName,
+        FirstAired = s.FirstAirDate,
+      }).ToList();
+
+      if (series.Count == 0)
+      {
+        foundSeries = _movieDbHandler.SearchSeries(seriesSearch.OriginalName, language);
+        if (foundSeries == null) return false;
+        series = foundSeries.Select(s => new SeriesInfo()
+        {
+          MovieDbId = s.Id,
+          SeriesName = s.Name,
+          OriginalName = s.OriginalName,
+          FirstAired = s.FirstAirDate,
+        }).ToList();
+      }
       return series.Count > 0;
     }
 
-    /// <summary>
-    /// Search for unique matches of Series names. This method tries to find the best matching Series in following order:
-    /// - Exact match using PreferredLanguage
-    /// - Exact match using DefaultLanguage
-    /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
-    /// </summary>
-    /// <param name="seriesName">Name</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeriesUnique(string seriesName, int year, string language, out List<SeriesSearchResult> series)
+    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
     {
-      series = _movieDbHandler.SearchSeries(seriesName, language);
-      if (TestSeriesMatch(seriesName, year, ref series))
-        return true;
+      language = language ?? PreferredLanguage;
 
-      if (series.Count == 0 && PreferredLanguage != MovieDbApiV3.DefaultLanguage)
+      persons = null;
+      List<PersonSearchResult> foundPersons = _movieDbHandler.SearchPerson(personSearch.Name, language);
+      if (foundPersons == null) return false;
+      persons = foundPersons.Select(p => new PersonInfo()
       {
-        series = _movieDbHandler.SearchSeries(seriesName, MovieDbApiV3.DefaultLanguage);
-        // If also no match in default language is found, we will look for combined series names:
-        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
-        if (!TestSeriesMatch(seriesName, year, ref series) && seriesName.Contains("-"))
-        {
-          string namePart = seriesName.Split(new[] { '-' })[0].Trim();
-          return SearchSeriesUnique(namePart, year, language, out series);
-        }
-        return series.Count == 1;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tests for series matches. 
-    /// </summary>
-    /// <param name="seriesName">Series name</param>
-    /// <param name="series">Potential online matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    private bool TestSeriesMatch(string seriesName, int year, ref List<SeriesSearchResult> series)
-    {
-      // Exact match in preferred language
-      ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Test Match for \"{0}\"", seriesName);
-
-      if (series.Count == 1)
-      {
-        if (GetLevenshteinDistance(series[0], seriesName) <= MAX_LEVENSHTEIN_DIST)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", seriesName);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        series.Clear();
-        return false;
-      }
-
-      // Multiple matches
-      if (series.Count > 1)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", seriesName, series.Count);
-        var exactMatches = series.FindAll(s => s.Name == seriesName || s.OriginalName == seriesName || GetLevenshteinDistance(s, seriesName) == 0);
-        if (exactMatches.Count == 1)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", seriesName);
-          series = exactMatches;
-          return true;
-        }
-
-        if (exactMatches.Count > 1)
-        {
-          // Try to match the year, if available
-          if (year > 0)
-          {
-            var yearFiltered = exactMatches.FindAll(s => s.FirstAirDate.HasValue && s.FirstAirDate.Value.Year == year);
-            if (yearFiltered.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\" [{1}]!", seriesName, year);
-              series = yearFiltered;
-              return true;
-            }
-          }
-        }
-
-        series = series.Where(s => GetLevenshteinDistance(s, seriesName) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (series.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Multiple matches found for \"{0}\" (count: {1})", seriesName, series.Count);
-
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Search for Person by name.
-    /// </summary>
-    /// <param name="personName">Name</param>
-    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="persons">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Person was found.</returns>
-    public bool SearchPerson(string personName, string language, out List<PersonSearchResult> persons)
-    {
-      persons = _movieDbHandler.SearchPerson(personName, language);
+        MovieDbId = p.Id,
+        Name = p.Name,
+      }).ToList();
       return persons.Count > 0;
     }
 
-    /// <summary>
-    /// Search for unique matches of Person names. This method tries to find the best matching Movie in following order:
-    /// - Exact match using PreferredLanguage
-    /// - Exact match using DefaultLanguage
-    /// </summary>
-    /// <param name="personName">Name</param>
-    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="persons">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at exactly one Person was found.</returns>
-    public bool SearchPersonUnique(string personName, string language, out List<PersonSearchResult> persons)
+    public override bool SearchCompany(CompanyInfo companySearch, string language, out List<CompanyInfo> companies)
     {
       language = language ?? PreferredLanguage;
-      persons = _movieDbHandler.SearchPerson(personName, language);
-      if (TestPersonMatch(personName, ref persons))
-        return true;
 
-      if (persons.Count == 0 && language != MovieDbApiV3.DefaultLanguage)
+      companies = null;
+      List<CompanySearchResult> foundCompanies = _movieDbHandler.SearchCompany(companySearch.Name, language);
+      if (foundCompanies == null) return false;
+      companies = foundCompanies.Select(p => new CompanyInfo()
       {
-        persons = _movieDbHandler.SearchPerson(personName, MovieDbApiV3.DefaultLanguage);
-        return persons.Count == 1;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tests for person matches. 
-    /// </summary>
-    /// <param name="personName">Person name</param>
-    /// <param name="persons">Potential online matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    private bool TestPersonMatch(string personName, ref List<PersonSearchResult> persons)
-    {
-      // Exact match in preferred language
-      ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Test Match for \"{0}\"", personName);
-
-      if (persons.Count == 1)
-      {
-        if (StringUtils.GetLevenshteinDistance(persons[0].Name, personName) <= MAX_LEVENSHTEIN_DIST)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", personName);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        persons.Clear();
-        return false;
-      }
-
-      // Multiple matches
-      if (persons.Count > 1)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", personName, persons.Count);
-        var exactMatches = persons.FindAll(p => p.Name == personName || StringUtils.GetLevenshteinDistance(p.Name, personName) == 0);
-        if (exactMatches.Count == 1)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", personName);
-          persons = exactMatches;
-          return true;
-        }
-
-        persons = persons.Where(p => StringUtils.GetLevenshteinDistance(p.Name, personName) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (persons.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Multiple matches found for \"{0}\" (count: {1})", personName, persons.Count);
-
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Search for Company by name.
-    /// </summary>
-    /// <param name="companyName">Name</param>
-    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="companies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Company was found.</returns>
-    public bool SearchCompany(string companyName, string language, out List<CompanySearchResult> companies)
-    {
-      companies = _movieDbHandler.SearchCompany(companyName, language);
+        MovieDbId = p.Id,
+        Name = p.Name,
+      }).ToList();
       return companies.Count > 0;
     }
 
-    /// <summary>
-    /// Search for unique matches of Company names. This method tries to find the best matching Movie in following order:
-    /// - Exact match using PreferredLanguage
-    /// - Exact match using DefaultLanguage
-    /// </summary>
-    /// <param name="companyName">Name</param>
-    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="companies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at exactly one Company was found.</returns>
-    public bool SearchCompanyUnique(string companyName, string language, out List<CompanySearchResult> companies)
+    #endregion
+
+    #region Update
+
+    public override bool UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
     {
       language = language ?? PreferredLanguage;
-      companies = _movieDbHandler.SearchCompany(companyName, language);
-      if (TestPersonMatch(companyName, ref companies))
-        return true;
 
-      if (companies.Count == 0 && language != MovieDbApiV3.DefaultLanguage)
+      Movie movieDetail = null;
+      if(movie.MovieDbId > 0)
+        movieDetail = _movieDbHandler.GetMovie(movie.MovieDbId, language, cacheOnly);
+      if(movieDetail == null && !string.IsNullOrEmpty(movie.ImdbId))
+        movieDetail = _movieDbHandler.GetMovie(movie.ImdbId, language, cacheOnly);
+      if(movieDetail == null && cacheOnly == false)
       {
-        companies = _movieDbHandler.SearchCompany(companyName, MovieDbApiV3.DefaultLanguage);
-        return companies.Count == 1;
+        if (!string.IsNullOrEmpty(movie.ImdbId))
+        {
+          List<IdResult> ids = _movieDbHandler.FindMovieByImdbId(movie.ImdbId, language);
+          if(ids != null && ids.Count > 0)
+            movieDetail = _movieDbHandler.GetMovie(ids[0].Id, language, false);
+        }
       }
-      return false;
+      if (movieDetail == null) return false;
+
+      movie.MovieDbId = movieDetail.Id;
+      movie.ImdbId = movieDetail.ImdbId;
+      movie.Budget = movieDetail.Budget ?? 0;
+      movie.CollectionMovieDbId = movieDetail.Collection != null ? movieDetail.Collection.Id : 0;
+      movie.CollectionName = movieDetail.Collection != null ? movieDetail.Collection.Name : null;
+      movie.Genres = movieDetail.Genres.Select(g => g.Name).ToList();
+      movie.MovieName = movieDetail.Title;
+      movie.OriginalName = movieDetail.OriginalTitle;
+      movie.Summary = movieDetail.Overview;
+      movie.Popularity = movieDetail.Popularity ?? 0;
+      movie.ProductionCompanies = ConvertToCompanies(movieDetail.ProductionCompanies, CompanyAspect.COMPANY_PRODUCTION);
+      movie.TotalRating = movieDetail.Rating ?? 0;
+      movie.RatingCount = movieDetail.RatingCount ?? 0;
+      movie.ReleaseDate = movieDetail.ReleaseDate;
+      movie.Revenue = movieDetail.Revenue ?? 0;
+      movie.Tagline = movieDetail.Tagline;
+
+      MovieCasts movieCasts = _movieDbHandler.GetMovieCastCrew(movieDetail.Id, language, cacheOnly);
+      if(movieCasts != null)
+      {
+        movie.Actors = ConvertToPersons(movieCasts.Cast, PersonAspect.OCCUPATION_ACTOR);
+        movie.Writers = ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonAspect.OCCUPATION_WRITER);
+        movie.Directors = ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
+        movie.Characters = ConvertToCharacters(movieCasts.Cast);
+      }
+
+      return true;
     }
 
-    /// <summary>
-    /// Tests for person matches. 
-    /// </summary>
-    /// <param name="companyName">Person name</param>
-    /// <param name="companies">Potential online matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    private bool TestPersonMatch(string companyName, ref List<CompanySearchResult> companies)
+    public override bool UpdateFromOnlineMovieCollection(MovieCollectionInfo collection, string language, bool cacheOnly)
     {
-      // Exact match in preferred language
-      ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Test Match for \"{0}\"", companyName);
+      language = language ?? PreferredLanguage;
 
-      if (companies.Count == 1)
+      MovieCollection collectionDetail = null;
+      if (collection.MovieDbId > 0)
+        collectionDetail = _movieDbHandler.GetCollection(collection.MovieDbId, language, cacheOnly);
+      if (collectionDetail == null) return false;
+
+      collection.MovieDbId = collectionDetail.Id;
+      collection.CollectionName = collectionDetail.Name;
+      collection.Movies = ConvertToMovies(collectionDetail.Movies);
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineMoviePerson(PersonInfo person, string language, bool cacheOnly)
+    {
+      language = language ?? PreferredLanguage;
+
+      Person personDetail = null;
+      if (person.MovieDbId > 0)
+        personDetail = _movieDbHandler.GetPerson(person.MovieDbId, language, cacheOnly);
+      if (personDetail == null && cacheOnly == false)
       {
-        if (StringUtils.GetLevenshteinDistance(companies[0].Name, companyName) <= MAX_LEVENSHTEIN_DIST)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", companyName);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        companies.Clear();
+        List<IdResult> ids = null;
+
+        if (!string.IsNullOrEmpty(person.ImdbId))
+          ids = _movieDbHandler.FindPersonByImdbId(person.ImdbId, language);
+        if (personDetail == null && person.TvRageId > 0)
+          ids = _movieDbHandler.FindPersonByTvRageId(person.TvRageId, language);
+
+        if (ids != null && ids.Count > 0)
+          personDetail = _movieDbHandler.GetPerson(ids[0].Id, language, false);
+      }
+      if (personDetail == null) return false;
+
+      person.MovieDbId = personDetail.PersonId;
+      person.Name = personDetail.Name;
+      person.TvRageId = personDetail.ExternalId.TvRageId ?? 0;
+      person.ImdbId = personDetail.ExternalId.ImDbId;
+      person.Biography = personDetail.Biography;
+      person.DateOfBirth = personDetail.DateOfBirth;
+      person.DateOfDeath = personDetail.DateOfDeath;
+      person.Orign = personDetail.PlaceOfBirth;
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineMovieCompany(CompanyInfo company, string language, bool cacheOnly)
+    {
+      language = language ?? PreferredLanguage;
+
+      if (company.Type != CompanyAspect.COMPANY_PRODUCTION)
         return false;
+      Company companyDetail = null;
+      if (company.MovieDbId > 0)
+        companyDetail = _movieDbHandler.GetCompany(company.MovieDbId, language, cacheOnly);
+      if (companyDetail == null) return false;
+
+      company.MovieDbId = companyDetail.Id;
+      company.Name = companyDetail.Name;
+      company.Description = companyDetail.Description;
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
+    {
+      language = language ?? PreferredLanguage;
+
+      Series seriesDetail = null;
+      if (series.MovieDbId > 0)
+        seriesDetail = _movieDbHandler.GetSeries(series.MovieDbId, language, cacheOnly);
+      if (seriesDetail == null && cacheOnly == false)
+      {
+        List<IdResult> ids = null;
+
+        if (!string.IsNullOrEmpty(series.ImdbId))
+          ids = _movieDbHandler.FindSeriesByImdbId(series.ImdbId, language);
+        if (ids == null && series.TvdbId > 0)
+          ids = _movieDbHandler.FindSeriesByTvDbId(series.TvdbId, language);
+        if (ids == null && series.TvRageId > 0)
+          ids = _movieDbHandler.FindSeriesByTvRageId(series.TvRageId, language);
+
+        if (ids != null && ids.Count > 0)
+          seriesDetail = _movieDbHandler.GetSeries(ids[0].Id, language, false);
+      }
+      if (seriesDetail == null) return false;
+
+      series.MovieDbId = seriesDetail.Id;
+      series.TvdbId = seriesDetail.ExternalId.TvDbId ?? 0;
+      series.TvRageId = seriesDetail.ExternalId.TvRageId ?? 0;
+      series.ImdbId = seriesDetail.ExternalId.ImDbId;
+
+      series.SeriesName = new LanguageText(seriesDetail.Name, false);
+      series.OriginalName = seriesDetail.OriginalName;
+      series.FirstAired = seriesDetail.FirstAirDate;
+      series.Description = new LanguageText(seriesDetail.Overview, false);
+      series.Popularity = seriesDetail.Popularity ?? 0;
+      series.TotalRating = seriesDetail.Rating ?? 0;
+      series.RatingCount = seriesDetail.RatingCount ?? 0;
+      series.Genres = seriesDetail.Genres.Select(g => g.Name).ToList();
+      series.Networks = ConvertToCompanies(seriesDetail.Networks, CompanyAspect.COMPANY_TV_NETWORK);
+      series.ProductionCompanies = ConvertToCompanies(seriesDetail.ProductionCompanies, CompanyAspect.COMPANY_PRODUCTION);
+      if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
+      {
+        series.IsEnded = true;
+      }
+      if (seriesDetail.ContentRatingResults.Results.Count > 0)
+      {
+        var cert = seriesDetail.ContentRatingResults.Results.Where(c => c.CountryId == "US").First();
+        if (cert != null)
+          series.Certification = cert.ContentRating;
       }
 
-      // Multiple matches
-      if (companies.Count > 1)
+      MovieCasts movieCasts = _movieDbHandler.GetSeriesCastCrew(seriesDetail.Id, language, cacheOnly);
+      if (movieCasts != null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", companyName, companies.Count);
-        var exactMatches = companies.FindAll(c => c.Name == companyName || StringUtils.GetLevenshteinDistance(c.Name, companyName) == 0);
-        if (exactMatches.Count == 1)
+        series.Actors = ConvertToPersons(movieCasts.Cast, PersonAspect.OCCUPATION_ACTOR);
+        series.Characters = ConvertToCharacters(movieCasts.Cast);
+      }
+
+      SeriesSeason season = seriesDetail.Seasons.Where(s => s.AirDate < DateTime.Now).LastOrDefault();
+      if (season != null)
+      {
+        Season currentSeason = _movieDbHandler.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber, language, cacheOnly);
+        if(currentSeason != null)
         {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", companyName);
-          companies = exactMatches;
-          return true;
+          SeasonEpisode nextEpisode = currentSeason.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
+          if (nextEpisode == null) //Try next season
+          {
+            currentSeason = _movieDbHandler.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber + 1, language, cacheOnly);
+            if (currentSeason != null)
+            {
+              nextEpisode = currentSeason.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
+            }
+          }
+          series.NextEpisodeName = new LanguageText(nextEpisode.Name, false);
+          series.NextEpisodeAirDate = nextEpisode.AirDate;
+          series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
+          series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
         }
+      }
 
-        companies = companies.Where(c => StringUtils.GetLevenshteinDistance(c.Name, companyName) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (companies.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Multiple matches found for \"{0}\" (count: {1})", companyName, companies.Count);
+      return true;
+    }
 
+    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
+    {
+      language = language ?? PreferredLanguage;
+
+      Series seriesDetail = null;
+      Season seasonDetail = null;
+      if (season.SeriesMovieDbId > 0)
+        seriesDetail = _movieDbHandler.GetSeries(season.SeriesMovieDbId, language, cacheOnly);
+      if (seriesDetail == null) return false;
+      if (season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
+        seasonDetail = _movieDbHandler.GetSeriesSeason(season.SeriesMovieDbId, season.SeasonNumber.Value, language, cacheOnly);
+      if (seasonDetail == null) return false;
+
+      season.MovieDbId = seasonDetail.SeasonId;
+      season.TvdbId = seasonDetail.ExternalId.TvDbId ?? 0;
+      season.TvRageId = seasonDetail.ExternalId.TvRageId ?? 0;
+      season.ImdbId = seasonDetail.ExternalId.ImDbId;
+
+      season.SeriesMovieDbId = seriesDetail.Id;
+      season.SeriesImdbId = seriesDetail.ExternalId.ImDbId;
+      season.SeriesTvdbId = seriesDetail.ExternalId.TvDbId ?? 0;
+      season.SeriesTvRageId = seriesDetail.ExternalId.TvRageId ?? 0;
+
+      season.SeriesName = new LanguageText(seriesDetail.Name, false);
+      season.FirstAired = seasonDetail.AirDate;
+      season.Description = new LanguageText(seasonDetail.Overview, false);
+      season.SeasonNumber = seasonDetail.SeasonNumber;
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
+    {
+      language = language ?? PreferredLanguage;
+
+      List<EpisodeInfo> episodeDetails = new List<EpisodeInfo>();
+      Episode episodeDetail = null;
+      Series seriesDetail = null;
+      MovieCasts seriesCast = null;
+
+      if (episode.SeriesMovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+      {
+        seriesDetail = _movieDbHandler.GetSeries(episode.SeriesMovieDbId, language, cacheOnly);
+        if (seriesDetail == null) return false;
+        seriesCast = _movieDbHandler.GetSeriesCastCrew(episode.SeriesMovieDbId, language, cacheOnly);
+
+        foreach (int episodeNumber in episode.EpisodeNumbers)
+        {
+          episodeDetail = _movieDbHandler.GetSeriesEpisode(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episodeNumber, language, cacheOnly);
+          if (episodeDetail == null) return false;
+
+          EpisodeInfo info = new EpisodeInfo()
+          {
+            MovieDbId = episodeDetail.Id,
+            ImdbId = episodeDetail.ExternalId.ImDbId,
+            TvdbId = episodeDetail.ExternalId.TvDbId ?? 0,
+            TvRageId = episodeDetail.ExternalId.TvRageId ?? 0,
+
+            SeriesMovieDbId = seriesDetail.Id,
+            SeriesImdbId = seriesDetail.ExternalId.ImDbId,
+            SeriesTvdbId = seriesDetail.ExternalId.TvDbId ?? 0,
+            SeriesTvRageId = seriesDetail.ExternalId.TvRageId ?? 0,
+            SeriesName = new LanguageText(seriesDetail.Name, false),
+            SeriesFirstAired = seriesDetail.FirstAirDate,
+
+            SeasonNumber = episodeDetail.SeasonNumber,
+            EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+            FirstAired = episodeDetail.AirDate,
+            TotalRating = episodeDetail.Rating ?? 0,
+            RatingCount = episodeDetail.RatingCount ?? 0,
+            EpisodeName = new LanguageText(episodeDetail.Name, false),
+            Summary = new LanguageText(episodeDetail.Overview, false),
+            Genres = seriesDetail.Genres.Select(g => g.Name).ToList(),
+          };
+
+          info.Actors = new List<PersonInfo>();
+          info.Characters = new List<CharacterInfo>();
+          if (seriesCast != null)
+          {
+            info.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR));
+            info.Characters.AddRange(ConvertToCharacters(seriesCast.Cast));
+          }
+          info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
+          info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
+          info.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
+          info.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER);
+
+          episodeDetails.Add(info);
+        }
+      }
+      if(episodeDetails.Count > 1)
+      {
+        SetMultiEpisodeDetails(episode, episodeDetails);
+        return true;
+      }
+      else if (episodeDetails.Count > 0)
+      {
+        SetEpisodeDetails(episode, episodeDetails[0]);
+        return true;
       }
       return false;
     }
 
-    public List<IdResult> FindMovieByImdbId(string imDbId)
+    public override bool UpdateFromOnlineSeriesPerson(PersonInfo person, string language, bool cacheOnly)
     {
-      return _movieDbHandler.FindMovieByImdbId(imDbId, PreferredLanguage);
+      return UpdateFromOnlineMoviePerson(person, language, cacheOnly);
     }
 
-    public bool GetMovie(int id, out Movie movieDetail)
+    public override bool UpdateFromOnlineSeriesCompany(CompanyInfo company, string language, bool cacheOnly)
     {
-      movieDetail = _movieDbHandler.GetMovie(id, PreferredLanguage);
-      return movieDetail != null;
+      language = language ?? PreferredLanguage;
+
+      if (company.Type == CompanyAspect.COMPANY_PRODUCTION)
+      {
+        return UpdateFromOnlineMovieCompany(company, language, cacheOnly);
+      }
+      else if (company.Type == CompanyAspect.COMPANY_TV_NETWORK)
+      {
+        Network companyDetail = null;
+        if (company.MovieDbId > 0)
+          companyDetail = _movieDbHandler.GetNetwork(company.MovieDbId, language, cacheOnly);
+        if (companyDetail == null) return false;
+
+        company.MovieDbId = companyDetail.Id;
+        company.Name = companyDetail.Name;
+
+        return true;
+      }
+      return false;
     }
 
-    public bool GetMovie(string imdbId, out Movie movieDetail)
+    #endregion
+
+    #region Convert
+
+    private List<MovieInfo> ConvertToMovies(List<MovieSearchResult> movies)
     {
-      movieDetail = _movieDbHandler.GetMovie(imdbId, PreferredLanguage);
-      return movieDetail != null;
+      if (movies == null || movies.Count == 0)
+        return new List<MovieInfo>();
+
+      List<MovieInfo> retValue = new List<MovieInfo>();
+      foreach (MovieSearchResult movie in movies)
+      {
+        retValue.Add(new MovieInfo()
+        {
+          MovieDbId = movie.Id,
+          MovieName = movie.Title,
+          OriginalName = movie.OriginalTitle,
+          ReleaseDate = movie.ReleaseDate,
+          Order = retValue.Count
+        });
+      }
+      return retValue;
     }
 
-    public bool GetMovieCast(int id, out MovieCasts movieCast)
+    private List<PersonInfo> ConvertToPersons(List<CrewItem> crew, string occupation)
     {
-      movieCast = _movieDbHandler.GetMovieCastCrew(id, PreferredLanguage);
-      return movieCast != null;
+      if (crew == null || crew.Count == 0)
+        return new List<PersonInfo>();
+
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (CrewItem person in crew)
+      {
+        retValue.Add(new PersonInfo()
+        {
+          MovieDbId = person.PersonId,
+          Name = person.Name,
+          Occupation = occupation
+        });
+      }
+      return retValue;
     }
 
-    public bool GetCollection(int id, out MovieCollection collectionDetail)
+    private List<PersonInfo> ConvertToPersons(List<CastItem> cast, string occupation)
     {
-      collectionDetail = _movieDbHandler.GetCollection(id, PreferredLanguage);
-      return collectionDetail != null;
+      if (cast == null || cast.Count == 0)
+        return new List<PersonInfo>();
+
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (CastItem person in cast)
+      {
+        retValue.Add(new PersonInfo()
+        {
+          MovieDbId = person.PersonId,
+          Name = person.Name,
+          Occupation = occupation,
+          Order = person.Order
+        });
+      }
+      return retValue;
     }
 
-    public List<IdResult> FindPersonByImdbId(string imDbId)
+    private List<CharacterInfo> ConvertToCharacters(List<CastItem> characters)
     {
-      return _movieDbHandler.FindPersonByImdbId(imDbId, PreferredLanguage);
+      if (characters == null || characters.Count == 0)
+        return new List<CharacterInfo>();
+
+      List<CharacterInfo> retValue = new List<CharacterInfo>();
+      foreach (CastItem person in characters)
+        retValue.Add(new CharacterInfo()
+        {
+          ActorMovieDbId = person.PersonId,
+          ActorName = person.Name,
+          Name = person.Character,
+          Order = person.Order
+        });
+      return retValue;
     }
 
-    public List<IdResult> FindPersonByTvRageId(int tvRageId)
+    private List<CompanyInfo> ConvertToCompanies(List<ProductionCompany> companies, string type)
     {
-      return _movieDbHandler.FindPersonByTvRageId(tvRageId, PreferredLanguage);
+      if (companies == null || companies.Count == 0)
+        return new List<CompanyInfo>();
+
+      List<CompanyInfo> retValue = new List<CompanyInfo>();
+      foreach (ProductionCompany company in companies)
+      {
+        retValue.Add(new CompanyInfo()
+        {
+          MovieDbId = company.Id,
+          Name = company.Name,
+          Type = type
+        });
+      }
+      return retValue;
     }
 
-    public bool GetPerson(int id, out Person personDetail)
+    #endregion
+
+    #region FanArt
+
+    public override bool GetFanArt<T>(T infoObject, string language, string scope, out FanArtImageCollection<ImageItem> images)
     {
-      personDetail = _movieDbHandler.GetPerson(id, PreferredLanguage);
-      return personDetail != null;
+      language = language ?? PreferredLanguage;
+
+      ImageCollection imgs = null;
+      images = new FanArtImageCollection<ImageItem>();
+
+      if (scope == FanArtScope.Collection)
+      {
+        MovieInfo movie = infoObject as MovieInfo;
+        MovieCollectionInfo collection = infoObject as MovieCollectionInfo;
+        if(collection == null && movie != null)
+        {
+          collection = movie.CloneBasicMovieCollection();
+        }
+        if (collection != null && collection.MovieDbId > 0)
+        {
+          // Download all image information, filter later!
+          imgs = _movieDbHandler.GetMovieCollectionImages(collection.MovieDbId, null);
+        }
+      }
+      else if (scope == FanArtScope.Movie)
+      {
+        MovieInfo movie = infoObject as MovieInfo;
+        if (movie != null && movie.MovieDbId > 0)
+        {
+          // Download all image information, filter later!
+          imgs = _movieDbHandler.GetMovieImages(movie.MovieDbId, null);
+        }
+      }
+      else if (scope == FanArtScope.Series)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        SeasonInfo season = infoObject as SeasonInfo;
+        SeriesInfo series = infoObject as SeriesInfo;
+        if (series == null && season != null)
+        {
+          series = season.CloneBasicSeries();
+        }
+        if (series == null && episode != null)
+        {
+          series = episode.CloneBasicSeries();
+        }
+        if (series != null && series.MovieDbId > 0)
+        {
+          // Download all image information, filter later!
+          imgs = _movieDbHandler.GetSeriesImages(series.MovieDbId, null);
+        }
+      }
+      else if (scope == FanArtScope.Season)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        SeasonInfo season = infoObject as SeasonInfo;
+        if (season == null && episode != null)
+        {
+          season = episode.CloneBasicSeason();
+        }
+        if (season != null && season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
+        {
+          // Download all image information, filter later!
+          imgs = _movieDbHandler.GetSeriesSeasonImages(season.SeriesMovieDbId, season.SeasonNumber.Value, null);
+        }
+      }
+      else if (scope == FanArtScope.Episode)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        if (episode != null && episode.SeriesMovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+        {
+          // Download all image information, filter later!
+          imgs = _movieDbHandler.GetSeriesEpisodeImages(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0], null);
+        }
+      }
+      else if (scope == FanArtScope.Actor || scope == FanArtScope.Director || scope == FanArtScope.Writer)
+      {
+        PersonInfo person = infoObject as PersonInfo;
+        if (person != null && person.MovieDbId > 0)
+        {
+          // Download all image information, filter later!
+          imgs = _movieDbHandler.GetPersonImages(person.MovieDbId, null);
+        }
+      }
+      else
+      {
+        return true;
+      }
+
+      if (imgs != null)
+      {
+        if (imgs.Id > 0) images.Id = imgs.Id.ToString();
+        if (imgs.Backdrops != null) images.Backdrops.AddRange(imgs.Backdrops);
+        if (imgs.Covers != null) images.Covers.AddRange(imgs.Covers);
+        if (imgs.Posters != null) images.Posters.AddRange(imgs.Posters);
+        if (imgs.Profiles != null) images.Thumbnails.AddRange(imgs.Profiles);
+        if (imgs.Stills != null) images.Thumbnails.AddRange(imgs.Stills);
+        return true;
+      }
+      return false;
     }
 
-    public bool GetCompany(int id, out Company companyDetail)
+    public override bool DownloadFanArt(string id, ImageItem image, string scope, string type)
     {
-      companyDetail = _movieDbHandler.GetCompany(id, PreferredLanguage);
-      return companyDetail != null;
+      string category = string.Format(@"{0}\{1}", scope, type);
+      return _movieDbHandler.DownloadImage(id, image, category);
     }
 
-    public bool GetNetwork(int id, out Network networkDetail)
+    public override bool DownloadSeriesSeasonFanArt(string id, int seasonNo, ImageItem image, string scope, string type)
     {
-      networkDetail = _movieDbHandler.GetNetwork(id, PreferredLanguage);
-      return networkDetail != null;
+      string category = string.Format(@"S{0:00} {1}\{2}", seasonNo, scope, type);
+      return _movieDbHandler.DownloadImage(id, image, category);
     }
 
-    public List<IdResult> FindSeriesByImdbId(string imDbId)
+    public override bool DownloadSeriesEpisodeFanArt(string id, int seasonNo, int episodeNo, ImageItem image, string scope, string type)
     {
-      return _movieDbHandler.FindSeriesByImdbId(imDbId, PreferredLanguage);
+      string category = string.Format(@"S{0:00}E{1:00} {2}\{3}", seasonNo, episodeNo, scope, type);
+      return _movieDbHandler.DownloadImage(id, image, category);
     }
 
-    public List<IdResult> FindSeriesByTvDbId(int tvDbId)
-    {
-      return _movieDbHandler.FindSeriesByTvDbId(tvDbId, PreferredLanguage);
-    }
-
-    public List<IdResult> FindSeriesByTvRageId(int tvRageId)
-    {
-      return _movieDbHandler.FindSeriesByTvRageId(tvRageId, PreferredLanguage);
-    }
-
-    public bool GetSeries(int id, out Series seriesDetail)
-    {
-      seriesDetail = _movieDbHandler.GetSeries(id, PreferredLanguage);
-      return seriesDetail != null;
-    }
-
-    public List<IdResult> FindSeriesSeasonByTvDbId(int tvDbId)
-    {
-      return _movieDbHandler.FindSeriesSeasonByTvDbId(tvDbId, PreferredLanguage);
-    }
-
-    public List<IdResult> FindSeriesSeasonByTvRageId(int tvRageId)
-    {
-      return _movieDbHandler.FindSeriesSeasonByTvRageId(tvRageId, PreferredLanguage);
-    }
-
-    public bool GetSeriesSeason(int id, int season, out Season seasonDetail)
-    {
-      seasonDetail = _movieDbHandler.GetSeriesSeason(id, season, PreferredLanguage);
-      return seasonDetail != null;
-    }
-
-    public List<IdResult> FindSeriesEpisodeByImdbId(string imDbId)
-    {
-      return _movieDbHandler.FindSeriesEpisodeByImdbId(imDbId, PreferredLanguage);
-    }
-
-    public List<IdResult> FindSeriesEpisodeByTvDbId(int tvDbId)
-    {
-      return _movieDbHandler.FindSeriesEpisodeByTvDbId(tvDbId, PreferredLanguage);
-    }
-
-    public List<IdResult> FindSeriesEpisodeByTvRageId(int tvRageId)
-    {
-      return _movieDbHandler.FindSeriesEpisodeByTvRageId(tvRageId, PreferredLanguage);
-    }
-
-    public bool GetSeriesEpisode(int id, int season, int episode, out Episode episodeDetail)
-    {
-      episodeDetail = _movieDbHandler.GetSeriesEpisode(id, season, episode, PreferredLanguage);
-      return episodeDetail != null;
-    }
-
-    public bool GetSeriesCast(int id, out MovieCasts seriesCast)
-    {
-      seriesCast = _movieDbHandler.GetSeriesCastCrew(id, PreferredLanguage);
-      return seriesCast != null;
-    }
-
-    public bool GetSeriesSeasonCast(int id, int season, out MovieCasts seasonCast)
-    {
-      seasonCast = _movieDbHandler.GetSeriesSeasonCastCrew(id, season, PreferredLanguage);
-      return seasonCast != null;
-    }
-
-    public bool GetSeriesEpisodeCast(int id, int season, int episode, out MovieCasts episodeCast)
-    {
-      episodeCast = _movieDbHandler.GetMovieCastCrew(id, PreferredLanguage);
-      return episodeCast != null;
-    }
-
-    /// <summary>
-    /// Removes special characters and compares the remaining strings. Strings are processed by <see cref="RemoveCharacters"/> before comparing.
-    /// The result is <c>true</c>, if the cleaned strings are equal or have a Levenshtein distance less or equal to <see cref="MAX_LEVENSHTEIN_DIST"/>.
-    /// </summary>
-    /// <param name="name1">Name 1</param>
-    /// <param name="name2">Name 2</param>
-    /// <returns><c>true</c> if similar or equal</returns>
-    protected bool IsSimilarOrEqual(string name1, string name2)
-    {
-      return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2)) || StringUtils.GetLevenshteinDistance(name1, name2) <= MAX_LEVENSHTEIN_DIST;
-    }
-
-    /// <summary>
-    /// Returns the Levenshtein distance for a <see cref="MovieSearchResult"/> and a given <paramref name="movieName"/>.
-    /// It considers both <see cref="MovieSearchResult.Title"/> and <see cref="MovieSearchResult.OriginalTitle"/>
-    /// </summary>
-    /// <param name="movie">MovieSearchResult</param>
-    /// <param name="movieName">Movie name</param>
-    /// <returns>Levenshtein distance</returns>
-    protected int GetLevenshteinDistance(MovieSearchResult movie, string movieName)
-    {
-      string cleanedName = RemoveCharacters(movieName);
-      return Math.Min(
-        StringUtils.GetLevenshteinDistance(RemoveCharacters(movie.Title), cleanedName),
-        StringUtils.GetLevenshteinDistance(RemoveCharacters(movie.OriginalTitle), cleanedName)
-        );
-    }
-
-    protected int GetLevenshteinDistance(SeriesSearchResult series, string movieName)
-    {
-      string cleanedName = RemoveCharacters(movieName);
-      return Math.Min(
-        StringUtils.GetLevenshteinDistance(RemoveCharacters(series.Name), cleanedName),
-        StringUtils.GetLevenshteinDistance(RemoveCharacters(series.OriginalName), cleanedName)
-        );
-    }
-
-    /// <summary>
-    /// Replaces characters that are not necessary for comparing (like whitespaces) and diacritics. The result is returned as <see cref="string.ToLowerInvariant"/>.
-    /// </summary>
-    /// <param name="name">Name to clean up</param>
-    /// <returns>Cleaned string</returns>
-    protected string RemoveCharacters(string name)
-    {
-      name = name.ToLowerInvariant();
-      string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'", "(", ")", "[", "]", "teil", "part" }.Aggregate(name, (current, s) => current.Replace(s, ""));
-      result = result.Replace("&", "and");
-      return StringUtils.RemoveDiacritics(result);
-    }
-
-    /// <summary>
-    /// Gets images for the requested movie.
-    /// </summary>
-    /// <param name="id">TMDB ID of movie</param>
-    /// <param name="imageCollection">Returns the ImageCollection</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetMovieFanArt(int id, out ImageCollection imageCollection)
-    {
-      imageCollection = _movieDbHandler.GetMovieImages(id, null); // Download all image information, filter later!
-      return imageCollection != null;
-    }
-
-    /// <summary>
-    /// Gets images for the requested series.
-    /// </summary>
-    /// <param name="id">TMDB ID of series</param>
-    /// <param name="imageCollection">Returns the ImageCollection</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetSeriesFanArt(int id, out ImageCollection imageCollection)
-    {
-      imageCollection = _movieDbHandler.GetSeriesImages(id, null); // Download all image information, filter later!
-      return imageCollection != null;
-    }
-
-    /// <summary>
-    /// Gets images for the requested series season.
-    /// </summary>
-    /// <param name="id">TMDB ID of series</param>
-    /// <param name="season">Season number</param>
-    /// <param name="imageCollection">Returns the ImageCollection</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetSeriesSeasonFanArt(int id, int season, out ImageCollection imageCollection)
-    {
-      imageCollection = _movieDbHandler.GetSeriesSeasonImages(id, season, null); // Download all image information, filter later!
-      return imageCollection != null;
-    }
-
-    /// <summary>
-    /// Gets images for the requested series episode.
-    /// </summary>
-    /// <param name="id">TMDB ID of series</param>
-    /// <param name="season">Season number</param>
-    /// <param name="episode">Episode number</param>
-    /// <param name="imageCollection">Returns the ImageCollection</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetSeriesEpisodeFanArt(int id, int season, int episode, out ImageCollection imageCollection)
-    {
-      imageCollection = _movieDbHandler.GetSeriesEpisodeImages(id, season, episode, null); // Download all image information, filter later!
-      return imageCollection != null;
-    }
-
-    /// <summary>
-    /// Gets images for the requested person.
-    /// </summary>
-    /// <param name="id">TMDB ID of person</param>
-    /// <param name="imageCollection">Returns the ImageCollection</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetPersonFanArt(int id, out ImageCollection imageCollection)
-    {
-      imageCollection = _movieDbHandler.GetPersonImages(id, null); // Download all image information, filter later!
-      return imageCollection != null;
-    }
-
-    public byte[] GetImage(ImageItem image, string category)
-    {
-      return _movieDbHandler.GetImage(image, category);
-    }
-
-    public bool DownloadImage(ImageItem image, string category)
-    {
-      return _movieDbHandler.DownloadImage(image, category);
-    }
+    #endregion
   }
 }

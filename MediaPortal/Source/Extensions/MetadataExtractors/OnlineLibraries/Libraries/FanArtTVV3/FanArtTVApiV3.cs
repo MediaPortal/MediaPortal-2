@@ -121,16 +121,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       return _downloader.Download<FanArtMovieThumbs>(url, cache);
     }
 
-    public FanArtTVThumbs GetSeriesThumbs(string ttvdbid)
+    public FanArtTVThumbs GetSeriesThumbs(string tvdbid)
     {
-      string cache = CreateAndGetCacheName(ttvdbid, "Series");
+      string cache = CreateAndGetCacheName(tvdbid, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
         return JsonConvert.DeserializeObject<FanArtTVThumbs>(json);
       }
 
-      string url = GetUrl(URL_GETSERIES, ttvdbid);
+      string url = GetUrl(URL_GETSERIES, tvdbid);
       return _downloader.Download<FanArtTVThumbs>(url, cache);
     }
 

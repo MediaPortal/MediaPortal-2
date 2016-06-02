@@ -35,6 +35,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data
   [DataContract]
   public class FanArtMovieThumb : FanArtThumb
   {
+    public FanArtMovieThumb()
+    { }
+
+    public FanArtMovieThumb(FanArtThumb thumb)
+    {
+      Id = thumb.Id;
+      Url = thumb.Url;
+      Likes = thumb.Likes;
+      Language = null;
+    }
+
     [DataMember(Name = "lang")]
     public string Language { get; set; }
   }

@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data
   //    "medium": "http://tvmazecdn.com/uploads/images/medium_landscape/23/59145.jpg",
   //    "original": "http://tvmazecdn.com/uploads/images/original_untouched/23/59145.jpg"
   //  },
-  //  "summary": "<p>A high-school chemistry teacher (Bryan Cranston) is diagnosed with a deadly cancer, so he puts his expertise to use and teams with an ex-student (Aaron Paul) to manufacture top-grade crystal meth in hopes of providing for his family after he's gone.</p>",
+  //  "summary": "<p>A high-school chemistry teacher (Bryan Cranston) is diagnosed with...</p>",
   //  "_links": {
   //    "self": {
   //      "href": "http://api.tvmaze.com/episodes/12192"

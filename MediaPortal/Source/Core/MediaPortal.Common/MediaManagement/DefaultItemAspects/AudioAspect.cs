@@ -55,6 +55,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Album", 100, Cardinality.Inline, true);
 
     /// <summary>
+    /// If set to <c>true</c>, the track is part of a compilation of music from various artists.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPILATION =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsCompilation", typeof(bool), Cardinality.Inline, true);
+
+    /// <summary>
     /// Enumeration of genre names.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
@@ -144,6 +150,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_TRACKNAME,
             ATTR_ARTISTS,
             ATTR_ALBUM,
+            ATTR_COMPILATION,
             ATTR_GENRES,
             ATTR_DURATION,
             ATTR_LYRICS,

@@ -95,7 +95,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     #region Private methods
 
-    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
@@ -129,7 +129,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
           pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
           MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
-        movieInfo.ImDbId = imdbId;
+        movieInfo.ImdbId = imdbId;
 
       // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
       foreach (string path in pathsToTest)
@@ -154,11 +154,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       /* Clear the names from unwanted strings */
       MovieNameMatcher.CleanupTitle(movieInfo);
 
-      MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo);
-      MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo);
+      MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+      MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
       MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
       MP4Matcher.ExtractFromTags(lfsra, movieInfo);
-      MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo);
+      MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
 
       if (!_onlyFanArt)
         movieInfo.SetMetadata(extractedAspectData);
@@ -185,7 +185,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData);
+          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode);
       }
       catch (Exception e)
       {

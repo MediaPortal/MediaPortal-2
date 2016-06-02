@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.FromMetadata(aspects))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo);
+      MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, forceQuickMode);
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
@@ -90,7 +90,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.FromMetadata(linkedAspects))
         return false;
 
-      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo))
+      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true))
         return false;
 
       MovieInfo movieInfo = new MovieInfo();

@@ -55,7 +55,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     protected static Regex _fromName = new Regex(@"(?<series>[^\s]*) S(?<season>\d{1,2})", RegexOptions.IgnoreCase);
 
     /// <summary>
-    /// Gets or sets the series IMDB id.
+    /// Gets or sets the season IMDB id.
     /// </summary>
     public string ImdbId = null;
     /// <summary>
@@ -81,7 +81,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Gets or sets the series title.
     /// </summary>
-    public string Series = null;
+    public LanguageText SeriesName = null;
     /// <summary>
     /// Gets or sets the season number. A "0" value will be treated as valid season number.
     /// </summary>
@@ -93,7 +93,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Gets or sets the season description.
     /// </summary>
-    public string Description = null;
+    public LanguageText Description = null;
 
     #region Members
 
@@ -103,9 +103,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
     public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
+      if (SeriesName.IsEmpty || !SeasonNumber.HasValue) return false;
+
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-       MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, Series);
-      if (!string.IsNullOrEmpty(Description)) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, CleanString(Description));
+      MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, SeriesName.Text);
+      if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
 
@@ -133,10 +135,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (aspectData.ContainsKey(SeasonAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, out Series);
-        MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, out Description);
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SEASON, out SeasonNumber);
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out FirstAired);
+
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, out tempString);
+        SeriesName = new LanguageText(tempString, false);
+        MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, out tempString);
+        Description = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SEASON, out id))
@@ -167,8 +173,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else if (aspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, out Series);
         MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, out SeasonNumber);
+
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, out tempString);
+        SeriesName = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id))
@@ -188,7 +197,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public string ToShortString()
     {
-      return string.Format(SHORT_FORMAT_STR, Series, SeasonNumber ?? 0);
+      return string.Format(SHORT_FORMAT_STR, SeriesName, SeasonNumber ?? 0);
     }
 
     public bool FromString(string name)
@@ -196,11 +205,60 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       Match match = _fromName.Match(name);
       if (match.Success)
       {
-        Series = match.Groups["series"].Value;
+        SeriesName = match.Groups["series"].Value;
         SeasonNumber = Convert.ToInt32(match.Groups["season"].Value);
         return true;
       }
       return false;
+    }
+
+    public bool CopyIdsFrom(SeriesInfo seasonSeries)
+    {
+      SeriesImdbId = seasonSeries.ImdbId;
+      SeriesMovieDbId = seasonSeries.MovieDbId;
+      SeriesTvdbId = seasonSeries.TvdbId;
+      SeriesTvMazeId = seasonSeries.TvMazeId;
+      SeriesTvRageId = seasonSeries.TvRageId;
+      return true;
+    }
+
+    public bool CopyIdsFrom(SeasonInfo otherSeason)
+    {
+      MovieDbId = otherSeason.MovieDbId;
+      ImdbId = otherSeason.ImdbId;
+      TvdbId = otherSeason.TvdbId;
+      TvMazeId = otherSeason.TvMazeId;
+      TvRageId = otherSeason.TvRageId;
+
+      SeriesImdbId = otherSeason.SeriesImdbId;
+      SeriesMovieDbId = otherSeason.SeriesMovieDbId;
+      SeriesTvdbId = otherSeason.SeriesTvdbId;
+      SeriesTvMazeId = otherSeason.SeriesTvMazeId;
+      SeriesTvRageId = otherSeason.SeriesTvRageId;
+      return true;
+    }
+
+    public bool CopyIdsFrom(EpisodeInfo seasonEpisode)
+    {
+      SeriesImdbId = seasonEpisode.SeriesImdbId;
+      SeriesMovieDbId = seasonEpisode.SeriesMovieDbId;
+      SeriesTvdbId = seasonEpisode.SeriesTvdbId;
+      SeriesTvMazeId = seasonEpisode.SeriesTvMazeId;
+      SeriesTvRageId = seasonEpisode.SeriesTvRageId;
+      return true;
+    }
+
+    public SeriesInfo CloneBasicSeries()
+    {
+      SeriesInfo info = new SeriesInfo();
+      info.ImdbId = SeriesImdbId;
+      info.MovieDbId = SeriesMovieDbId;
+      info.TvdbId = SeriesTvdbId;
+      info.TvMazeId = SeriesTvMazeId;
+      info.TvRageId = SeriesTvRageId;
+
+      SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage);
+      return info;
     }
 
     #endregion
@@ -210,7 +268,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override string ToString()
     {
       return string.Format(SEASON_FORMAT_STR,
-        Series, 
+        SeriesName, 
         SeasonNumber ?? 0);
     }
 

@@ -32,16 +32,16 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data;
 using System.IO;
 using System.Text;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Freedb
 {
-  class FreeDbWrapper
+  class FreeDbWrapper : ApiWrapper<string, string>
   {
-    private string _cache = "";
     private string _fileFormat = "CD_{0}.xmcd";
 
     protected FreeDBQuery _freeDbHandler;
-    public const int MAX_LEVENSHTEIN_DIST = 4;
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -49,12 +49,217 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     /// <returns><c>true</c> if successful</returns>
     public bool Init(string cachePath)
     {
-      _cache = cachePath;
       _freeDbHandler = new FreeDBQuery();
-      if (Directory.Exists(_cache) == false)
-        Directory.CreateDirectory(_cache);
+      SetDefaultLanguage("en");
+      SetCachePath(cachePath);
       return true;
     }
+
+    #region Search
+
+    public override bool SearchTrack(TrackInfo trackSearch, string language, out List<TrackInfo> tracks)
+    {
+      tracks = null;
+
+      if (string.IsNullOrEmpty(trackSearch.AlbumCdDdId) || trackSearch.TrackNum == 0)
+        return false;
+
+      //TODO: Split CDDB ID into disc id and genre?
+      string genre = null;
+      string discId = null;
+
+      try
+      {
+        if (_freeDbHandler.Connect())
+        {
+          string[] xmcds = _freeDbHandler.GetDiscDetailsXMCD(genre, discId);
+          if (xmcds != null)
+          {
+            string fileName = GetCacheFilePath(discId, genre);
+            if (File.Exists(fileName) == false)
+            {
+              File.WriteAllLines(fileName, xmcds, Encoding.UTF8);
+            }
+
+            FreeDBCDInfoDetail discInfo = _freeDbHandler.GetDiscDetailsFromXMCD(xmcds);
+            if (discInfo != null)
+            {
+              FreeDBCDTrackDetail foundTrack = null;
+              foreach (FreeDBCDTrackDetail trackDetail in discInfo.Tracks)
+              {
+                if (trackDetail.TrackNumber == trackSearch.TrackNum)
+                {
+                  foundTrack = trackDetail;
+                  break;
+                }
+              }
+              if (foundTrack == null) return false;
+
+              if (tracks == null)
+                tracks = new List<TrackInfo>();
+
+              TrackInfo info = new TrackInfo()
+              {
+                AlbumCdDdId = trackSearch.AlbumCdDdId,
+                Album = discInfo.Title,
+                AlbumArtists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST),
+                TotalTracks = discInfo.Tracks.Count(),
+                ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?),
+
+                TrackNum = foundTrack.TrackNumber,
+                TrackName = foundTrack.Title,
+                Artists = ConvertToPersons(foundTrack.Artist, PersonAspect.OCCUPATION_ARTIST),
+                Duration = foundTrack.Duration
+              };
+              tracks.Add(info);
+            }
+          }
+        }
+      }
+      finally
+      { 
+        _freeDbHandler.Disconnect();
+      }
+
+      return tracks != null;
+    }
+
+    public override bool SearchTrackAlbum(AlbumInfo albumSearch, string language, out List<AlbumInfo> albums)
+    {
+      albums = null;
+
+      if (string.IsNullOrEmpty(albumSearch.CdDdId))
+        return false;
+
+      //TODO: Split CDDB ID into disc id and genre?
+      string genre = null;
+      string discId = null;
+
+      try
+      {
+        if (_freeDbHandler.Connect())
+        {
+          string[] xmcds = _freeDbHandler.GetDiscDetailsXMCD(genre, discId);
+          if (xmcds != null)
+          {
+            string fileName = GetCacheFilePath(discId, genre);
+            if (File.Exists(fileName) == false)
+            {
+              File.WriteAllLines(fileName, xmcds, Encoding.UTF8);
+            }
+
+            FreeDBCDInfoDetail discInfo = _freeDbHandler.GetDiscDetailsFromXMCD(xmcds);
+            if (discInfo != null)
+            {
+              if (albums == null)
+                albums = new List<AlbumInfo>();
+
+              AlbumInfo info = new AlbumInfo()
+              {
+                CdDdId = albumSearch.CdDdId,
+                Album = discInfo.Title,
+                Artists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST),
+                TotalTracks = discInfo.Tracks.Count(),
+                ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?),
+              };
+              albums.Add(info);
+            }
+          }
+        }
+      }
+      finally
+      {
+        _freeDbHandler.Disconnect();
+      }
+
+      return albums != null;
+    }
+
+    #endregion
+
+    #region Convert
+
+    private List<PersonInfo> ConvertToPersons(string name, string occupation)
+    {
+      if (string.IsNullOrEmpty(name))
+        return new List<PersonInfo>();
+
+      return new List<PersonInfo> {
+        new PersonInfo()
+        {
+          Name = name,
+          Occupation = occupation
+        }
+      };
+    }
+
+    #endregion
+
+    #region Update
+
+    public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
+    {
+      if (string.IsNullOrEmpty(track.AlbumCdDdId) || track.TrackNum == 0)
+        return false;
+
+      //TODO: Split CDDB ID into disc id and genre?
+      string genre = null;
+      string discId = null;
+
+      FreeDBCDInfoDetail discInfo;
+      if (GetCachedDisc(discId, out discInfo))
+      {
+        FreeDBCDTrackDetail foundTrack = null;
+        foreach (FreeDBCDTrackDetail trackDetail in discInfo.Tracks)
+        {
+          if (trackDetail.TrackNumber == track.TrackNum)
+          {
+            foundTrack = trackDetail;
+            break;
+          }
+        }
+        if (foundTrack == null) return false;
+
+        track.Album = discInfo.Title;
+        track.AlbumArtists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST);
+        track.TotalTracks = discInfo.Tracks.Count();
+        track.ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?);
+
+        track.TrackNum = foundTrack.TrackNumber;
+        track.TrackName = foundTrack.Title;
+        track.Artists = ConvertToPersons(foundTrack.Artist, PersonAspect.OCCUPATION_ARTIST);
+        track.Duration = foundTrack.Duration;
+
+        return true;
+      }
+      return false;
+    }
+
+    public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
+    {
+      if (string.IsNullOrEmpty(album.CdDdId))
+        return false;
+
+      //TODO: Split CDDB ID into disc id and genre?
+      string genre = null;
+      string discId = null;
+
+      FreeDBCDInfoDetail discInfo;
+      if (GetCachedDisc(discId, out discInfo))
+      {
+        album.Album = discInfo.Title;
+        album.Artists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST);
+        album.TotalTracks = discInfo.Tracks.Count();
+        album.ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?);
+
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region Cache
 
     /// <summary>
     /// Return a cache file name for a CDDB ID
@@ -62,7 +267,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     /// <returns>Cache file name</returns>
     private string GetCacheFilePath(string cdDbId, string genre)
     {
-      return Path.Combine(_cache, string.Format(_fileFormat, cdDbId.ToUpperInvariant() + "."  + String.Concat(genre.Split(Path.GetInvalidFileNameChars()))));
+      return Path.Combine(CachePath, string.Format(_fileFormat, cdDbId.ToUpperInvariant() + "." + String.Concat(genre.Split(Path.GetInvalidFileNameChars()))));
     }
 
     /// <summary>
@@ -72,117 +277,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     /// <returns>List of file matching files.</returns>
     private string[] GetMatchingCacheFiles(string cdDbId)
     {
-      return Directory.GetFiles(_cache, string.Format(_fileFormat, cdDbId.ToUpperInvariant() + ".*"));
-    }
-
-    /// <summary>
-    /// Search for CD by CDDB ID.
-    /// </summary>
-    /// <param name="cdDbId">The CDDB ID</param>
-    /// <param name="discs">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one CD was found.</returns>
-    public bool SearchDisc(string cdDbId, out List<FreeDBCDInfoDetail> discs)
-    {
-      discs = new List<FreeDBCDInfoDetail>();
-      FreeDBCDInfoDetail discInfo;
-      if (GetDisc(cdDbId, out discInfo))
-      {
-        discs.Add(discInfo);
-        return true;
-      }
-
-      if (_freeDbHandler.Connect())
-      {
-        Dictionary<string, string[]> xmcds = _freeDbHandler.GetDiscDetailsXMCDFromId(cdDbId);
-        if (xmcds != null)
-        {
-          foreach (KeyValuePair<string, string[]> xmcd in xmcds)
-          {
-            string fileName = GetCacheFilePath(discInfo.DiscID, xmcd.Key);
-            if (File.Exists(fileName) == false)
-            {
-              File.WriteAllLines(fileName, xmcd.Value, Encoding.UTF8);
-            }
-
-            discInfo = _freeDbHandler.GetDiscDetailsFromXMCD(xmcd.Value);
-            discs.Add(discInfo);
-          }
-        }
-        _freeDbHandler.Disconnect();
-      }
-      return discs.Count == 1;
-    }
-
-    /// <summary>
-    /// Searches for unique track. 
-    /// </summary>
-    /// <param name="trackName">Track name</param>
-    /// <param name="movies">Potential track matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    public bool FindTrack(string trackName, ref List<FreeDBCDTrackDetail> tracks)
-    {
-      if (tracks.Count == 1)
-      {
-        if (GetLevenshteinDistance(tracks[0].Title, trackName) <= MAX_LEVENSHTEIN_DIST)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Unique match found \"{0}\"!", tracks[0].Title);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        tracks.Clear();
-        return false;
-      }
-
-      // Multiple matches
-      if (tracks.Count > 1)
-      {
-        var exactMatches = tracks.FindAll(s => s.Title == trackName || GetLevenshteinDistance(s.Title, trackName) == 0);
-        if (exactMatches.Count == 1)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Unique match found \"{0}\"!", exactMatches[0].Title);
-          tracks = exactMatches;
-          return true;
-        }
-
-        tracks = tracks.Where(s => GetLevenshteinDistance(s.Title, trackName) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (tracks.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Multiple tracks found for \"{0}\" (count: {1})", trackName, tracks.Count);
-
-        return tracks.Count == 1;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Searches for unique track. 
-    /// </summary>
-    /// <param name="trackNumber">Track number</param>
-    /// <param name="movies">Potential track matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    public bool FindTrack(int trackNumber, ref List<FreeDBCDTrackDetail> tracks)
-    {
-      if (tracks.Count == 1)
-      {
-        if (tracks[0].TrackNumber == trackNumber)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Unique match found \"{0}\"!", tracks[0].Title);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        tracks.Clear();
-        return false;
-      }
-
-      // Multiple matches
-      if (tracks.Count > 1)
-      {
-        tracks = tracks.Where(s => s.TrackNumber == trackNumber).ToList();
-        if (tracks.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Multiple tracks found for \"{0}\" (count: {1})", trackNumber, tracks.Count);
-
-        return tracks.Count == 1;
-      }
-      return false;
+      return Directory.GetFiles(CachePath, string.Format(_fileFormat, cdDbId.ToUpperInvariant() + ".*"));
     }
 
     /// <summary>
@@ -192,7 +287,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     public bool ClearCache()
     {
       bool retValue = true;
-      foreach(string file in Directory.GetFiles(_cache))
+      foreach (string file in Directory.GetFiles(CachePath))
       {
         try { File.Delete(file); }
         catch { retValue = false; }
@@ -205,7 +300,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
     /// </summary>
     /// <param name="cdDbId">The CDDB ID</param>
     /// <returns><c>true</c> if disc match</returns>
-    public bool GetDisc(string cdDbId, out FreeDBCDInfoDetail disc)
+    public bool GetCachedDisc(string cdDbId, out FreeDBCDInfoDetail disc)
     {
       disc = null;
       string[] files = GetMatchingCacheFiles(cdDbId);
@@ -216,29 +311,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Freedb
       return disc != null;
     }
 
-    /// <summary>
-    /// Returns the Levenshtein distance for a <paramref name="trackName"/> and a given <paramref name="searchName"/>.
-    /// </summary>
-    /// <param name="trackName">Track name to check</param>
-    /// <param name="searchName">Track name to find</param>
-    /// <returns>Levenshtein distance</returns>
-    protected int GetLevenshteinDistance(string trackName, string searchName)
-    {
-      string cleanedName = RemoveCharacters(searchName);
-      return StringUtils.GetLevenshteinDistance(RemoveCharacters(trackName), cleanedName);
-    }
-
-    /// <summary>
-    /// Replaces characters that are not necessary for comparing (like whitespaces) and diacritics. The result is returned as <see cref="string.ToLowerInvariant"/>.
-    /// </summary>
-    /// <param name="name">Name to clean up</param>
-    /// <returns>Cleaned string</returns>
-    protected string RemoveCharacters(string name)
-    {
-      name = name.ToLowerInvariant();
-      string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'", "(", ")", "[", "]" }.Aggregate(name, (current, s) => current.Replace(s, ""));
-      result = result.Replace("&", "and");
-      return StringUtils.RemoveDiacritics(result);
-    }
+    #endregion
   }
 }

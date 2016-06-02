@@ -65,7 +65,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
   //}
 
   [DataContract]
-  public class OmDBSeries : OmDbBaseItem
+  public class OmDbSeries : OmDbBaseItem
   {
   }
 }

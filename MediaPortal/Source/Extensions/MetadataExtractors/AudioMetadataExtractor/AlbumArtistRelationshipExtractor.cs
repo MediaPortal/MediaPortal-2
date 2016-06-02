@@ -69,9 +69,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      MusicTheAudioDbMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST);
-      MusicBrainzMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST);
-      MusicFanArtTvMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST);
+      MusicTheAudioDbMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);
+      MusicBrainzMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);
+      MusicFanArtTvMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);
 
       if (albumInfo.Artists.Count == 0)
         return false;

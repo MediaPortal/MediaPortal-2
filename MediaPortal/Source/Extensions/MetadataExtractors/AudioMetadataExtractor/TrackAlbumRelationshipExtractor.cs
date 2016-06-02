@@ -66,9 +66,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo);
-      MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo);
-      MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo);
+      MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+      MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+      MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();

@@ -109,7 +109,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// </summary>
     /// <param name="id">IMDB id of movie</param>
     /// <returns>Movie information</returns>
-    public OmDbMovie GetMovie(string id)
+    public OmDbMovie GetMovie(string id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Movie");
       OmDbMovie returnValue = null;
@@ -120,6 +120,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_GETIMDBIDMOVIE, 0, true, true, id);
         returnValue = _downloader.Download<OmDbMovie>(url, cache);
       }
@@ -129,24 +130,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     }
 
     /// <summary>
-    /// Returns detailed information for a single <see cref="OmDBSeries"/> with given <paramref name="id"/>. This method caches request
+    /// Returns detailed information for a single <see cref="OmDbSeries"/> with given <paramref name="id"/>. This method caches request
     /// to same series using the cache path given in <see cref="OmDbApiV1"/> constructor.
     /// </summary>
     /// <param name="id">IMDB id of Series</param>
     /// <returns>Series information</returns>
-    public OmDBSeries GetSeries(string id)
+    public OmDbSeries GetSeries(string id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Series");
-      OmDBSeries returnValue = null;
+      OmDbSeries returnValue = null;
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
-        returnValue = JsonConvert.DeserializeObject<OmDBSeries>(json);
+        returnValue = JsonConvert.DeserializeObject<OmDbSeries>(json);
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_GETIMDBIDSERIES, 0, true, true, id);
-        returnValue = _downloader.Download<OmDBSeries>(url, cache);
+        returnValue = _downloader.Download<OmDbSeries>(url, cache);
       }
       if (returnValue.ResponseValid == false) return null;
       if (returnValue != null) returnValue.AssignProperties();
@@ -154,25 +156,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     }
 
     /// <summary>
-    /// Returns detailed information for a single <see cref="OmDBSeason"/> with given <paramref name="id"/>. This method caches request
+    /// Returns detailed information for a single <see cref="OmDbSeason"/> with given <paramref name="id"/>. This method caches request
     /// to same seasons using the cache path given in <see cref="OmDbApiV1"/> constructor.
     /// </summary>
     /// <param name="id">IMDB id of series</param>
     /// <param name="season">Season number</param>
     /// <returns>Season information</returns>
-    public OmDBSeason GetSeriesSeason(string id, int season)
+    public OmDbSeason GetSeriesSeason(string id, int season, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, string.Format("Season{0}", season));
-      OmDBSeason returnValue = null;
+      OmDbSeason returnValue = null;
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
-        returnValue = JsonConvert.DeserializeObject<OmDBSeason>(json);
+        returnValue = JsonConvert.DeserializeObject<OmDbSeason>(json);
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_GETIMDBIDSEASON, 0, true, true, id, season);
-        returnValue = _downloader.Download<OmDBSeason>(url, cache);
+        returnValue = _downloader.Download<OmDbSeason>(url, cache);
       }
       if (returnValue.ResponseValid == false) return null;
       if (returnValue != null) returnValue.InitEpisodes();
@@ -187,7 +190,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// <param name="season">Season number</param>
     /// <param name="episode">Episode number</param>
     /// <returns>Episode information</returns>
-    public OmDbEpisode GetSeriesEpisode(string id, int season, int episode)
+    public OmDbEpisode GetSeriesEpisode(string id, int season, int episode, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
       OmDbEpisode returnValue = null;
@@ -198,6 +201,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_GETIMDBIDEPISODE, 0, true, true, id, season, episode);
         returnValue = _downloader.Download<OmDbEpisode>(url, cache);
       }

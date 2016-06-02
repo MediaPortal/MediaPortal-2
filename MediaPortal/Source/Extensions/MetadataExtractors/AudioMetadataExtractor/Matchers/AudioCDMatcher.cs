@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.BassLibraries;
 using System.Collections.Generic;
 using System.IO;
@@ -39,10 +40,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
       return PHYSICAL_DISK_ROOTS.Contains(root[0]) == false;
     }
 
-    public static bool GetDiscMatch(string fileName, out string musicBrainzId, out string cdDbId)
+    public static bool GetDiscMatchAndUpdate(string fileName, TrackInfo trackInfo)
     {
-      musicBrainzId = null;
-      cdDbId = null;
+      int trackNo = 1; //TODO: Detect track from filename?
+      if (trackInfo.TrackNum > 0)
+      {
+        trackNo = trackInfo.TrackNum;
+      }
+
       string root = Path.GetPathRoot(fileName);
       if (string.IsNullOrEmpty(root))
         return false;
@@ -52,10 +57,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
         int drive = BassUtils.Drive2BassID(rootLetter);
         if (drive > -1)
         {
-          string id = BassCd.BASS_CD_GetID(drive, BASSCDId.BASS_CDID_CDDB);
-          cdDbId = id.Substring(0, 8);
-          musicBrainzId = BassCd.BASS_CD_GetID(drive, BASSCDId.BASS_CDID_MUSICBRAINZ);
+          string cdDbId = BassCd.BASS_CD_GetID(drive, BASSCDId.BASS_CDID_CDDB);
+          string musicBrainzId = BassCd.BASS_CD_GetID(drive, BASSCDId.BASS_CDID_MUSICBRAINZ);
+          string upc = BassCd.BASS_CD_GetID(drive, BASSCDId.BASS_CDID_UPC);
+          string irsc = BassCd.BASS_CD_GetID(drive, BASSCDId.BASS_CDID_ISRC + (trackNo - 1));
           BassCd.BASS_CD_Release(drive);
+
+          if (!string.IsNullOrEmpty(cdDbId)) trackInfo.AlbumCdDdId = cdDbId;
+          if (!string.IsNullOrEmpty(musicBrainzId)) trackInfo.AlbumMusicBrainzDiscId = musicBrainzId;
+          if (!string.IsNullOrEmpty(upc)) trackInfo.AlbumUpcEanId = upc;
+          if (!string.IsNullOrEmpty(irsc)) trackInfo.IsrcId = irsc;
 
           return true;
         }

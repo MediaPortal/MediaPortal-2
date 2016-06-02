@@ -69,9 +69,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      SeriesTheMovieDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo);
-      SeriesTvDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo);
-      SeriesTvMazeMatcher.Instance.UpdateEpisodeCharacters(episodeInfo);
+      SeriesTheMovieDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
+      SeriesTvDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
+      SeriesTvMazeMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
 
       if (episodeInfo.Characters.Count == 0)
         return false;

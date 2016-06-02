@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbArtist> GetArtistByMbid(string mbid)
+    public List<AudioDbArtist> GetArtistByMbid(string mbid, bool cacheOnly)
     {
       AudioDbArtists audioDbArtists = null;
       string cache = CreateAndGetCacheName(mbid, "Artist_mbId");
@@ -96,6 +96,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_ARTIST_BY_MBID, mbid);
         audioDbArtists = _downloader.Download<AudioDbArtists>(url, cache);
       }
@@ -104,10 +105,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public AudioDbArtist GetArtistByTadb(long tadbArtistID)
+    public AudioDbArtist GetArtist(long tadbArtistID, bool cacheOnly)
     {
       AudioDbArtists audioDbArtists = null;
-      string cache = CreateAndGetCacheName(tadbArtistID, "Artist_tadbId");
+      string cache = CreateAndGetCacheName(tadbArtistID, "Artist");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -115,6 +116,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_ARTIST_BY_TADB, tadbArtistID);
         audioDbArtists = _downloader.Download<AudioDbArtists>(url, cache);
       }
@@ -132,7 +134,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbAlbum> GetAlbumByMbid(string mbid)
+    public List<AudioDbAlbum> GetAlbumByMbid(string mbid, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(mbid, "Album_mbId");
@@ -143,6 +145,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_ALBUM_BY_MBID, mbid);
         audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
       }
@@ -151,10 +154,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbAlbum> GetAlbumByArtistTadb(long tadbArtistId)
+    public List<AudioDbAlbum> GetAlbumsByArtistId(long tadbArtistId, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
-      string cache = CreateAndGetCacheName(tadbArtistId, "AlbumArtist_tadbId");
+      string cache = CreateAndGetCacheName(tadbArtistId, "ArtistAlbums");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -162,6 +165,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_ALBUM_BY_ARTIST_TADB, tadbArtistId);
         audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
       }
@@ -170,10 +174,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public AudioDbAlbum GetAlbumByTadb(long tadbAlbumId)
+    public AudioDbAlbum GetAlbum(long tadbAlbumId, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
-      string cache = CreateAndGetCacheName(tadbAlbumId, "Album_tadbId");
+      string cache = CreateAndGetCacheName(tadbAlbumId, "Album");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -181,6 +185,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_ALBUM_BY_TADB, tadbAlbumId);
         audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
       }
@@ -189,10 +194,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbTrack> GetTracksByAlbumId(string albumId)
+    public List<AudioDbTrack> GetTracksByAlbumId(long tadbAlbumId, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
-      string cache = CreateAndGetCacheName(albumId, "AlbumTracks_tadbId");
+      string cache = CreateAndGetCacheName(tadbAlbumId, "AlbumTracks");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -200,7 +205,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
-        string url = GetUrl(URL_TRACK_BY_ALBUM_TADB, albumId);
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_TRACK_BY_ALBUM_TADB, tadbAlbumId);
         audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
@@ -218,10 +224,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public AudioDbTrack GetTrackByTadb(long tadbTrackId)
+    public AudioDbTrack GetTrack(long tadbTrackId, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
-      string cache = CreateAndGetCacheName(tadbTrackId, "Track_tadbId");
+      string cache = CreateAndGetCacheName(tadbTrackId, "Track");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -229,6 +235,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_TRACK_BY_TADB, tadbTrackId);
         audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
       }
@@ -237,7 +244,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public AudioDbTrack GetTrackByMbid(string mbid)
+    public AudioDbTrack GetTrackByMbid(string mbid, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
       string cache = CreateAndGetCacheName(mbid, "Track_mbId");
@@ -248,6 +255,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_TRACK_BY_MBDB, mbid);
         audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
       }
@@ -256,10 +264,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbMvid> GetMusicVideosByArtistTadb(string tadbArtistId)
+    public List<AudioDbMvid> GetMusicVideosByArtistId(string tadbArtistId, bool cacheOnly)
     {
       AudioDbMvids audioDbMvids = null;
-      string cache = CreateAndGetCacheName(tadbArtistId, "ArtistVideos_tadbId");
+      string cache = CreateAndGetCacheName(tadbArtistId, "ArtistVideos");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         string json = File.ReadAllText(cache);
@@ -267,6 +275,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_MVID_BY_ARTIST_TADB, tadbArtistId);
         audioDbMvids = _downloader.Download<AudioDbMvids>(url, cache);
       }
@@ -275,7 +284,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbMvid> GetMusicVideosByMbid(string mbid)
+    public List<AudioDbMvid> GetMusicVideosByArtistMbid(string mbid, bool cacheOnly)
     {
       AudioDbMvids audioDbMvids = null;
       string cache = CreateAndGetCacheName(mbid, "ArtistVideos_mbId");
@@ -286,6 +295,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       }
       else
       {
+        if (cacheOnly) return null;
         string url = GetUrl(URL_MVID_BY_ARTIST_MBID, mbid);
         audioDbMvids = _downloader.Download<AudioDbMvids>(url, cache);
       }

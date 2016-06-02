@@ -43,12 +43,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, true);
 
     /// <summary>
-    /// Contains the certification.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CERTIFICATION =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, false);
-
-    /// <summary>
     /// Contains the number of the season, usually starting at 1. A value of 0 is also valid for specials.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SEASON =
@@ -132,7 +126,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "EpisodeItem", new[] {
             ATTR_SERIES_NAME,
-            ATTR_CERTIFICATION,
             ATTR_SEASON,
             ATTR_SERIES_SEASON,
             ATTR_EPISODE,

@@ -55,6 +55,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int ActorTvdbId = 0;
     public int ActorMovieDbId = 0;
     public int ActorTvMazeId = 0;
+    public int ActorTvRageId = 0;
     public string ActorName = null;
 
     #region Members
@@ -84,6 +85,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (ActorTvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_PERSON, ActorTvdbId.ToString());
       if (ActorMovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_PERSON, ActorMovieDbId.ToString());
       if (ActorTvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_PERSON, ActorTvMazeId.ToString());
+      if (ActorTvRageId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_PERSON, ActorTvRageId.ToString());
       if (!string.IsNullOrEmpty(ActorImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_PERSON, ActorImdbId);
 
       SetThumbnailMetadata(aspectData);
@@ -113,6 +115,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         ActorMovieDbId = Convert.ToInt32(id);
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_PERSON, out id))
         ActorTvMazeId = Convert.ToInt32(id);
+      if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_PERSON, out id))
+        ActorTvRageId = Convert.ToInt32(id);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_PERSON, out ActorImdbId);
 
       byte[] data;
@@ -126,6 +130,33 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       Name = name;
       return true;
+    }
+
+    public bool CopyIdsFrom(CharacterInfo otherCharacter)
+    {
+      ActorImdbId = otherCharacter.ActorImdbId;
+      ActorMovieDbId = otherCharacter.ActorMovieDbId;
+      ActorTvdbId = otherCharacter.ActorTvdbId;
+      ActorTvMazeId = otherCharacter.ActorTvMazeId;
+
+      MovieDbId = otherCharacter.MovieDbId;
+      TvdbId = otherCharacter.TvdbId;
+      TvMazeId = otherCharacter.TvMazeId;
+      return true;
+    }
+
+    public PersonInfo CloneBasicActor()
+    {
+      PersonInfo info = new PersonInfo();
+      info.ImdbId = ActorImdbId;
+      info.MovieDbId = ActorMovieDbId;
+      info.TvdbId = ActorTvdbId;
+      info.TvMazeId = ActorTvMazeId;
+      info.TvRageId = ActorTvRageId;
+
+      info.Name = ActorName;
+      info.Occupation = PersonAspect.OCCUPATION_ACTOR;
+      return info;
     }
 
     #endregion
@@ -147,6 +178,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (ActorMovieDbId > 0 && other.ActorMovieDbId > 0 && ActorMovieDbId != other.ActorMovieDbId)
         return false;
       if (ActorTvMazeId > 0 && other.ActorTvMazeId > 0 && ActorTvMazeId != other.ActorTvMazeId)
+        return false;
+      if (ActorTvRageId > 0 && other.ActorTvRageId > 0 && ActorTvRageId != other.ActorTvRageId)
         return false;
       if (!string.IsNullOrEmpty(ActorImdbId) && !string.IsNullOrEmpty(other.ActorImdbId) &&
         !string.Equals(ActorImdbId, other.ActorImdbId, StringComparison.InvariantCultureIgnoreCase))

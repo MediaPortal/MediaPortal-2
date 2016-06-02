@@ -31,6 +31,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
   //{
   //  "tags": [
   //  ],
+  //  "isrcs": [
+  //    "JPB600760301"
+  //  ],
   //  "artist-credit": [
   //    {
   //      "joinphrase": "",
@@ -152,6 +155,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     [DataMember(Name = "tags")]
     public List<TrackTag> Tags { get; set; }
+
+    [DataMember(Name = "isrcs")]
+    public List<string> Isrcs { get; set; }
 
     [DataMember(Name = "relations")]
     public List<TrackRelation> Relations { get; set; }

@@ -151,17 +151,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
 
     public string Description { get; set; }
 
-    public void SetLanguage(string language)
+    public bool SetLanguage(string language)
     {
       PropertyInfo description = GetType().GetProperty("Description" + language.ToUpperInvariant());
       if (description != null)
       {
         Description = (string)description.GetValue(this);
+        return true;
       }
       if (description == null || string.IsNullOrEmpty(Description))
       {
         Description = DescriptionEN;
       }
+      return false;
     }
   }
 }

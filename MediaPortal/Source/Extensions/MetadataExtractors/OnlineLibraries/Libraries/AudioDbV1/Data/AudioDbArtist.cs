@@ -200,17 +200,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
 
     public string Biography { get; set; }
 
-    public void SetLanguage(string language)
+    public bool SetLanguage(string language)
     {
       PropertyInfo biography = GetType().GetProperty("Biography" + language.ToUpperInvariant());
       if (biography != null)
       {
         Biography = (string)biography.GetValue(this);
+        return true;
       }
       if (biography == null || string.IsNullOrEmpty(Biography))
       {
         Biography = BiographyEN;
       }
+      return false;
     }
   }
 }

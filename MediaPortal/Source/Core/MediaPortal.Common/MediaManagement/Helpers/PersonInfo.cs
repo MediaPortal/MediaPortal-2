@@ -51,7 +51,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the person name.
     /// </summary>
     public string Name = null;
-    public string Biography = null;
+    public LanguageText Biography = null;
     public string Orign = null;
     public DateTime? DateOfBirth = null;
     public DateTime? DateOfDeath = null;
@@ -78,7 +78,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_PERSON_NAME, Name);
-      if (!string.IsNullOrEmpty(Biography)) MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_BIOGRAPHY, CleanString(Biography));
+      if (!Biography.IsEmpty) MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_BIOGRAPHY, CleanString(Biography.Text));
       if (!string.IsNullOrEmpty(Orign)) MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_ORIGIN, Orign);
       MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_OCCUPATION, Occupation);
 
@@ -105,13 +105,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_PERSON_NAME, out Name);
-      MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_BIOGRAPHY, out Biography);
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_ORIGIN, out Orign);
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_OCCUPATION, out Occupation);
 
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_DATEOFBIRTH, out DateOfBirth);
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_DATEOFDEATH, out DateOfDeath);
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_GROUP, out IsGroup);
+
+      string tempString;
+      MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_BIOGRAPHY, out tempString);
+      Biography = new LanguageText(tempString, false);
 
       string id;
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_PERSON, out id))
@@ -137,6 +140,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool FromString(string name)
     {
       Name = name;
+      return true;
+    }
+
+    public bool CopyIdsFrom(PersonInfo otherPerson)
+    {
+      MovieDbId = otherPerson.MovieDbId;
+      ImdbId = otherPerson.ImdbId;
+      AudioDbId = otherPerson.AudioDbId;
+      MusicBrainzId = otherPerson.MusicBrainzId;
+      TvdbId = otherPerson.TvdbId;
+      TvMazeId = otherPerson.TvMazeId;
+      TvRageId = otherPerson.TvRageId;
       return true;
     }
 

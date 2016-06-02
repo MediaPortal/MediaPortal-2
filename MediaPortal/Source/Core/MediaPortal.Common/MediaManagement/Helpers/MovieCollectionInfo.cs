@@ -41,7 +41,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Gets or sets the collection name.
     /// </summary>
-    public string Name = null;
+    public LanguageText CollectionName = null;
     public List<MovieInfo> Movies = new List<MovieInfo>();
 
     #region Members
@@ -52,10 +52,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
     public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
-      if (string.IsNullOrEmpty(Name)) return false;
+      if (CollectionName.IsEmpty) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, Name);
+      MediaItemAspect.SetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, CollectionName.Text);
 
       if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, MovieDbId.ToString());
 
@@ -68,7 +68,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (aspectData.ContainsKey(MovieCollectionAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, out Name);
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, out tempString);
+        CollectionName = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
@@ -82,7 +84,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else if (aspectData.ContainsKey(MovieAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out Name);
+        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out CollectionName);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
@@ -99,7 +101,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return Name;
+      return CollectionName.Text;
     }
 
     #endregion

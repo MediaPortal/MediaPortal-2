@@ -239,9 +239,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
             trackInfo.Thumbnail = thumbData;
         }
 
-        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo);
-        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo);
-        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo);
+        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
 
         trackInfo.SetMetadata(extractedAspectData);
 

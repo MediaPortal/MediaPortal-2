@@ -114,10 +114,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
       string tmpString;
 
       if (TryGet(metadata, TAG_TITLE, out tmpString))
-        seriesInfo.Series = tmpString;
+        seriesInfo.SeriesName = tmpString;
 
       if (TryGet(metadata, TAG_EPISODENAME, out tmpString))
-        seriesInfo.Episode = tmpString;
+        seriesInfo.EpisodeName = tmpString;
 
       return seriesInfo;
     }
@@ -191,11 +191,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         {
           if (!forceQuickMode)
           {
-            SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID, TMDBID and TVDBID
-            SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides TvMazeID, IMDBID and TVDBID
-            SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID and TVDBID
-            SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo); //Provides IMDBID
-            SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo);
+            SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
+            SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
+            SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID and TVDBID
+            SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
+            SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
           }
 
           episodeInfo.SetMetadata(extractedAspectData);

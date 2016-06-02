@@ -34,7 +34,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class MetadataUpdater
   {
-    public static void SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, bool isDefaultLanguage)
+    public static void SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing)
     {
       if (newList == null)
       {
@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
               {
                 string currentVal = (string)field.GetValue(currentObj);
                 string newVal = (string)field.GetValue(newObj);
-                SetOrUpdateString(ref currentVal, newVal, isDefaultLanguage);
+                SetOrUpdateString(ref currentVal, newVal);
                 field.SetValue(currentObj, currentVal);
               }
               else
@@ -89,7 +89,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
       currentList.Sort();
     }
 
-    public static void SetOrUpdateString(ref string currentString, string newString, bool isDefaultLanguage)
+    public static void SetOrUpdateString(ref LanguageText currentString, string newString, bool isDefaultLanguage)
+    {
+      if (string.IsNullOrEmpty(newString))
+        return;
+      if (currentString.Text == null || currentString.IsEmpty)
+      {
+        currentString = new LanguageText(newString.Trim(), isDefaultLanguage);
+        return;
+      }
+      //Avoid overwriting strings in the correct language with that of the default language
+      if(currentString.DefaultLanguage && isDefaultLanguage == false)
+      {
+        currentString = new LanguageText(newString.Trim(), isDefaultLanguage);
+      }
+      else if (currentString.DefaultLanguage == isDefaultLanguage)
+      {
+        if(currentString.Text.Length < newString.Trim().Length)
+        {
+          currentString = new LanguageText(newString.Trim(), isDefaultLanguage);
+        }
+      }
+    }
+
+    public static void SetOrUpdateString(ref string currentString, string newString)
     {
       if (string.IsNullOrEmpty(newString))
         return;
@@ -98,11 +121,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
         currentString = newString.Trim();
         return;
       }
-      //Avoid overwriting strings in the correct language with that of the default language
-      if(isDefaultLanguage == false)
+      if (currentString.Length < newString.Trim().Length)
       {
         currentString = newString.Trim();
       }
+    }
+
+    public static void SetOrUpdateString(ref LanguageText currentString, LanguageText newString)
+    {
+      if (newString.IsEmpty)
+        return;
+      SetOrUpdateString(ref currentString, newString.Text, newString.DefaultLanguage);
     }
 
     public static void SetOrUpdateId<T>(ref T currentId, T newId)
@@ -165,25 +194,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
       else if (currentNumber is long || currentNumber is int || currentNumber is short || 
         currentNumber is long? || currentNumber is int? || currentNumber is short?)
       {
-        if (Convert.ToInt64(currentNumber) == 0 && newNumber != null)
+        if ((currentNumber == null || Convert.ToInt64(currentNumber) == 0) && newNumber != null)
           currentNumber = newNumber;
       }
       else if (currentNumber is ulong || currentNumber is uint || currentNumber is ushort ||
         currentNumber is ulong? || currentNumber is uint? || currentNumber is ushort?)
       {
-        if (Convert.ToUInt64(currentNumber) == 0 && newNumber != null)
+        if ((currentNumber == null || Convert.ToUInt64(currentNumber) == 0) && newNumber != null)
           currentNumber = newNumber;
       }
       else if (currentNumber is float || currentNumber is double || currentNumber is float? || 
         currentNumber is double?)
       {
-        if (Convert.ToDouble(currentNumber) == 0 && newNumber != null)
+        if ((currentNumber == null || Convert.ToDouble(currentNumber) == 0) && newNumber != null)
           currentNumber = newNumber;
       }
       else if (currentNumber is bool || currentNumber is bool?)
       {
         if (newNumber != null)
-        currentNumber = newNumber;
+          currentNumber = newNumber;
+      }
+      else if (currentNumber is byte[])
+      {
+        if (currentNumber == null && newNumber != null)
+          currentNumber = newNumber;
       }
     }
   }

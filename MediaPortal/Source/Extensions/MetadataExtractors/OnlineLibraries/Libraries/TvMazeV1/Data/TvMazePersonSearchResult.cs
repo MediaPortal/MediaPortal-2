@@ -22,34 +22,31 @@
 
 #endregion
 
-using System;
 using System.Runtime.Serialization;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data
 {
-  //    {
-  //      "Title": "Winter Is Coming",
-  //      "Released": "2011-04-17",
-  //      "Episode": "1",
-  //      "imdbRating": "8.9",
-  //      "imdbID": "tt1480055"
+  //{
+  //  "score": 3.6594987,
+  //  "person": {
+  //    "id": 16360,
+  //    "url": "http://www.tvmaze.com/people/16360/lauren-melendez",
+  //    "name": "Lauren Melendez",
+  //    "image": null,
+  //    "_links": {
+  //      "self": {
+  //        "href": "http://api.tvmaze.com/people/16360"
+  //      }
   //    }
+  //  }
+  //}
   [DataContract]
-  public class OmDbSeasonEpisode : OmDbBaseResponse
+  public class TvMazePersonSearchResult
   {
-    [DataMember(Name = "Title")]
-    public string Title { get; set; }
+    [DataMember(Name = "score")]
+    public double Score { get; set; }
 
-    [DataMember(Name = "Released")]
-    public DateTime? Released { get; set; }
-
-    [DataMember(Name = "Episode")]
-    public int EpisodeNumber { get; set; }
-
-    [DataMember(Name = "imdbRating")]
-    public string ImdbRating { get; set; }
-
-    [DataMember(Name = "imdbID")]
-    public string ImdbID { get; set; }
+    [DataMember(Name = "person")]
+    public TvMazePerson Person { get; set; }
   }
 }

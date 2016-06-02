@@ -30,21 +30,14 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries.OmDB
 {
-  class OmDbWrapper
+  class OmDbWrapper : ApiWrapper<object, string>
   {
     protected OmDbApiV1 _omDbHandler;
-    public const int MAX_LEVENSHTEIN_DIST = 4;
-
-    /// <summary>
-    /// Returns the language that matches the value set by <see cref="SetPreferredLanguage"/> or the default language (en).
-    /// </summary>
-    public string PreferredLanguage
-    {
-      get { return OmDbApiV1.DefaultLanguage; }
-    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -56,273 +49,343 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
       return true;
     }
 
-    /// <summary>
-    /// Search for Movie by name.
-    /// </summary>
-    /// <param name="movieName">Name</param>
-    /// <param name="year">Optional year of movie</param>
-    /// <param name="movies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Movie was found.</returns>
-    public bool SearchMovie(string movieName, int year, out List<OmDbSearchItem> movies)
+    #region Search
+
+    public override bool SearchMovie(MovieInfo movieSearch, string language, out List<MovieInfo> movies)
     {
-      movies = _omDbHandler.SearchMovie(movieName, year);
-      if (movies == null) return false;
+      movies = null;
+      List<OmDbSearchItem> foundMovies = _omDbHandler.SearchMovie(movieSearch.MovieName.Text, 
+        movieSearch.ReleaseDate.HasValue ? movieSearch.ReleaseDate.Value.Year : 0);
+      if (foundMovies == null) return false;
+      movies = foundMovies.Select(m => new MovieInfo()
+      {
+        ImdbId = m.ImdbID,
+        MovieName = m.Title,
+        ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
+      }).ToList();
+
       return movies.Count > 0;
     }
 
-    /// <summary>
-    /// Search for unique matches of Movie names. This method tries to find the best matching Movie in following order:
-    /// - Exact match using PreferredLanguage
-    /// - Exact match using DefaultLanguage
-    /// - If movies name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
-    /// </summary>
-    /// <param name="movieName">Name</param>
-    /// <param name="year">Optional year of movie</param>
-    /// <param name="movies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at exactly one Movie was found.</returns>
-    public bool SearchMovieUnique(string movieName, int year, out List<OmDbSearchItem> movies)
+    public override bool SearchSeriesEpisode(EpisodeInfo episodeSearch, string language, out List<EpisodeInfo> episodes)
     {
-      movies = _omDbHandler.SearchMovie(movieName, year);
-      if (movies == null) return false;
-
-      if (TestMovieMatch(movieName, year, ref movies))
-        return true;
-
-      if (movies.Count == 0)
+      episodes = null;
+      SeriesInfo seriesSearch = null;
+      if (episodeSearch.SeriesMovieDbId <= 0)
       {
-        // If also no match in default language is found, we will look for combined movies names:
-        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
-        if (!TestMovieMatch(movieName, year, ref movies) && movieName.Contains("-"))
-        {
-          string namePart = movieName.Split(new [] { '-' })[0].Trim();
-          return SearchMovieUnique(namePart, year, out movies);
-        }
-        return movies.Count == 1;
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Tests for movie matches. 
-    /// </summary>
-    /// <param name="moviesName">Movie name</param>
-    /// <param name="year">Optional year</param>
-    /// <param name="movies">Potential online matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    private bool TestMovieMatch(string moviesName, int year, ref List<OmDbSearchItem> movies)
-    {
-      // Exact match in preferred language
-      ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Test Match for \"{0}\"", moviesName);
-
-      if (movies.Count == 1)
-      {
-        if (GetLevenshteinDistance(movies[0].Title, moviesName) <= MAX_LEVENSHTEIN_DIST)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Unique match found \"{0}\"!", moviesName);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        movies.Clear();
-        return false;
+        seriesSearch = episodeSearch.CloneBasicSeries();
+        if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
+          return false;
       }
 
-      // Multiple matches
-      if (movies.Count > 1)
+      if (!string.IsNullOrEmpty(episodeSearch.SeriesImdbId) && episodeSearch.SeasonNumber.HasValue)
       {
-        ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", moviesName, movies.Count);
-        var exactMatches = movies.FindAll(s => s.Title == moviesName || GetLevenshteinDistance(s.Title, moviesName) == 0);
-        if (exactMatches.Count == 1)
+        OmDbSeason season = _omDbHandler.GetSeriesSeason(episodeSearch.SeriesImdbId, episodeSearch.SeasonNumber.Value, false);
+        if (season != null && season.Episodes != null)
         {
-          ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Unique match found \"{0}\"!", moviesName);
-          movies = exactMatches;
-          return true;
-        }
-
-        if (exactMatches.Count > 1)
-        {
-          // Try to match the year, if available
-          if (year > 0)
+          foreach (OmDbSeasonEpisode episode in season.Episodes)
           {
-            var yearFiltered = exactMatches.FindAll(s => s.Year > 0 && s.Year == year);
-            if (yearFiltered.Count == 1)
+            if (episodeSearch.EpisodeNumbers.Contains(episode.EpisodeNumber) || episodeSearch.EpisodeNumbers.Count == 0)
             {
-              ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Unique match found \"{0}\" [{1}]!", moviesName, year);
-              movies = yearFiltered;
-              return true;
+              if (episodes == null)
+                episodes = new List<EpisodeInfo>();
+
+              EpisodeInfo info = new EpisodeInfo()
+              {
+                ImdbId = episode.ImdbID,
+                SeriesName = seriesSearch.SeriesName,
+                SeasonNumber = episodeSearch.SeasonNumber.Value,
+                EpisodeName = new LanguageText(episode.Title, false),
+              };
+              info.EpisodeNumbers.Add(episode.EpisodeNumber);
+              info.CopyIdsFrom(seriesSearch);
+              episodes.Add(info);
             }
           }
         }
-
-        movies = movies.Where(s => GetLevenshteinDistance(s.Title, moviesName) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (movies.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Multiple matches found for \"{0}\" (count: {1})", moviesName, movies.Count);
-
-        return movies.Count == 1;
       }
-      return false;
+
+      if (episodes == null)
+      {
+        episodes = new List<EpisodeInfo>();
+        EpisodeInfo info = new EpisodeInfo()
+        {
+          SeriesName = seriesSearch.SeriesName,
+          SeasonNumber = episodeSearch.SeasonNumber,
+          EpisodeName = episodeSearch.EpisodeName,
+        };
+        info.CopyIdsFrom(seriesSearch);
+        info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
+        episodes.Add(info);
+        return true;
+      }
+
+      return episodes != null;
     }
 
-    /// <summary>
-    /// Search for Series by name.
-    /// </summary>
-    /// <param name="seriesName">Name</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeries(string seriesName, int year, out List<OmDbSearchItem> series)
+    public override bool SearchSeries(SeriesInfo seriesSearch, string language, out List<SeriesInfo> series)
     {
-      series = _omDbHandler.SearchSeries(seriesName, year);
-      if (series == null) return false;
+      series = null;
+      List<OmDbSearchItem> foundSeries = _omDbHandler.SearchSeries(seriesSearch.SeriesName.Text,
+        seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year : 0);
+      if (foundSeries == null) return false;
+      series = foundSeries.Select(s => new SeriesInfo()
+      {
+        ImdbId = s.ImdbID,
+        SeriesName = s.Title,
+        FirstAired = s.Year.HasValue ? new DateTime(s.Year.Value, 1, 1) : default(DateTime?),
+      }).ToList();
       return series.Count > 0;
     }
 
-    /// <summary>
-    /// Search for unique matches of Series names. This method tries to find the best matching Series in following order:
-    /// - Exact match using PreferredLanguage
-    /// - Exact match using DefaultLanguage
-    /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
-    /// </summary>
-    /// <param name="seriesName">Name</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeriesUnique(string seriesName, int year, out List<OmDbSearchItem> series)
+    #endregion
+
+    #region Update
+
+    public override bool UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
     {
-      series = _omDbHandler.SearchSeries(seriesName, year);
-      if (series == null) return false;
+      OmDbMovie movieDetail = null;
+      if (!string.IsNullOrEmpty(movie.ImdbId))
+        movieDetail = _omDbHandler.GetMovie(movie.ImdbId, cacheOnly);
+      if (movieDetail == null) return false;
 
-      if (TestSeriesMatch(seriesName, year, ref series))
-        return true;
+      movie.ImdbId = movieDetail.ImdbID;
+      movie.MovieName = new LanguageText(movieDetail.Title, true);
+      movie.Summary = new LanguageText(movieDetail.Plot, true);
+      movie.Certification = movieDetail.Rated;
 
-      if (series.Count == 0)
+      movie.Revenue = movieDetail.Revenue.HasValue ? movieDetail.Revenue.Value : 0;
+      movie.Runtime = movieDetail.Runtime.HasValue ? movieDetail.Runtime.Value : 0;
+      movie.ReleaseDate = movieDetail.Released;
+
+      List<string> awards = new List<string>();
+      if (!string.IsNullOrEmpty(movieDetail.Awards))
       {
-        // If also no match in default language is found, we will look for combined series names:
-        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
-        if (!TestSeriesMatch(seriesName, year, ref series) && seriesName.Contains("-"))
+        if (movieDetail.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+          movieDetail.Awards.IndexOf(" Oscar", StringComparison.InvariantCultureIgnoreCase) >= 0)
         {
-          string namePart = seriesName.Split(new[] { '-' })[0].Trim();
-          return SearchSeriesUnique(namePart, year, out series);
+          awards.Add("Oscar");
         }
-        return series.Count == 1;
+        if (movieDetail.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+          movieDetail.Awards.IndexOf(" Golden Globe", StringComparison.InvariantCultureIgnoreCase) >= 0)
+        {
+          awards.Add("Golden Globe");
+        }
+        movie.Awards = awards;
       }
-      return false;
+
+      if (movieDetail.ImdbRating.HasValue)
+      {
+        movie.TotalRating = movieDetail.ImdbVotes ?? 0;
+        movie.RatingCount = movieDetail.ImdbVotes ?? 0;
+      }
+      if (movieDetail.TomatoRating.HasValue)
+      {
+        movie.TotalRating = movieDetail.TomatoRating ?? 0;
+        movie.RatingCount = movieDetail.TomatoTotalReviews ?? 0;
+      }
+      if (movieDetail.TomatoUserRating.HasValue)
+      {
+        movie.TotalRating = movieDetail.TomatoUserRating ?? 0;
+        movie.RatingCount = movieDetail.TomatoUserTotalReviews ?? 0;
+      }
+      movie.Score = movieDetail.Metascore.HasValue ? movieDetail.Metascore.Value : 0;
+
+      movie.Genres = movieDetail.Genres;
+
+      //Only use these if absolutely necessary because there is no way to ID them
+      if (movie.Actors.Count == 0)
+        movie.Actors = ConvertToPersons(movieDetail.Actors, PersonAspect.OCCUPATION_ACTOR);
+      if (movie.Writers.Count == 0)
+        movie.Writers = ConvertToPersons(movieDetail.Writers, PersonAspect.OCCUPATION_WRITER);
+      if (movie.Directors.Count == 0)
+        movie.Directors = ConvertToPersons(movieDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR);
+
+      return true;
     }
 
-    /// <summary>
-    /// Tests for series matches. 
-    /// </summary>
-    /// <param name="seriesName">Series name</param>
-    /// <param name="series">Potential online matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    private bool TestSeriesMatch(string seriesName, int year, ref List<OmDbSearchItem> series)
+    public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
     {
-      // Exact match in preferred language
-      ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Test Match for \"{0}\"", seriesName);
+      OmDbSeries seriesDetail = null;
+      if (!string.IsNullOrEmpty(series.ImdbId))
+        seriesDetail = _omDbHandler.GetSeries(series.ImdbId, cacheOnly);
+      if (seriesDetail == null) return false;
 
-      if (series.Count == 1)
+      series.ImdbId = seriesDetail.ImdbID;
+
+      series.SeriesName = new LanguageText(seriesDetail.Title, true);
+      series.FirstAired = seriesDetail.Released;
+      series.Description = new LanguageText(seriesDetail.Plot, true);
+      if (seriesDetail.EndYear.HasValue)
       {
-        if (GetLevenshteinDistance(series[0].Title, seriesName) <= MAX_LEVENSHTEIN_DIST)
+        series.IsEnded = true;
+      }
+      series.Certification = seriesDetail.Rated;
+
+      List<string> awards = new List<string>();
+      if (!string.IsNullOrEmpty(seriesDetail.Awards))
+      {
+        if (seriesDetail.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+          seriesDetail.Awards.IndexOf(" Oscar", StringComparison.InvariantCultureIgnoreCase) >= 0)
         {
-          ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Unique match found \"{0}\"!", seriesName);
-          return true;
+          awards.Add("Oscar");
         }
-        // No valid match, clear list to allow further detection ways
-        series.Clear();
-        return false;
+        if (seriesDetail.Awards.IndexOf("Won ", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+          seriesDetail.Awards.IndexOf(" Golden Globe", StringComparison.InvariantCultureIgnoreCase) >= 0)
+        {
+          awards.Add("Golden Globe");
+        }
+        series.Awards = awards;
       }
 
-      // Multiple matches
-      if (series.Count > 1)
+      if (seriesDetail.ImdbRating.HasValue)
       {
-        ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", seriesName, series.Count);
-        var exactMatches = series.FindAll(s => s.Title == seriesName || GetLevenshteinDistance(s.Title, seriesName) == 0);
-        if (exactMatches.Count == 1)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Unique match found \"{0}\"!", seriesName);
-          series = exactMatches;
-          return true;
-        }
+        series.TotalRating = seriesDetail.ImdbRating ?? 0;
+        series.RatingCount = seriesDetail.ImdbVotes ?? 0;
+      }
+      else if (seriesDetail.TomatoRating.HasValue)
+      {
+        series.TotalRating = seriesDetail.TomatoRating ?? 0;
+        series.RatingCount = seriesDetail.TomatoTotalReviews ?? 0;
+      }
+      else if (seriesDetail.TomatoUserRating.HasValue)
+      {
+        series.TotalRating = seriesDetail.TomatoUserRating ?? 0;
+        series.RatingCount = seriesDetail.TomatoUserTotalReviews ?? 0;
+      }
+      series.Score = seriesDetail.Metascore.HasValue ? seriesDetail.Metascore.Value : 0;
+      series.Genres = seriesDetail.Genres;
 
-        if (exactMatches.Count > 1)
+      //Only use these if absolutely necessary because there is no way to ID them
+      if (seriesDetail.Actors == null || seriesDetail.Actors.Count == 0)
+        series.Actors = ConvertToPersons(seriesDetail.Actors, PersonAspect.OCCUPATION_ACTOR);
+
+      OmDbSeason seasonDetails = null;
+      int seasonNumber = 1;
+      while(true)
+      {
+        seasonDetails = _omDbHandler.GetSeriesSeason(series.ImdbId, seasonNumber, cacheOnly);
+        if (seasonDetails != null)
         {
-          // Try to match the year, if available
-          if (year > 0)
+          OmDbSeasonEpisode episodeDetails = seasonDetails.Episodes.Where(e => e.Released > DateTime.Now).FirstOrDefault();
+          if (episodeDetails == null)
           {
-            var yearFiltered = exactMatches.FindAll(s => s.Year > 0 && s.Year == year);
-            if (yearFiltered.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Unique match found \"{0}\" [{1}]!", seriesName, year);
-              series = yearFiltered;
-              return true;
-            }
+            seasonNumber++;
+            continue;
           }
+
+          series.NextEpisodeName = new LanguageText(episodeDetails.Title, true);
+          series.NextEpisodeAirDate = episodeDetails.Released;
+          series.NextEpisodeSeasonNumber = seasonDetails.SeasonNumber;
+          series.NextEpisodeNumber = episodeDetails.EpisodeNumber;
+        }
+        break;
+      }
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
+    {
+      OmDbSeason seasonDetail = null;
+      if (!string.IsNullOrEmpty(season.SeriesImdbId) && season.SeasonNumber.HasValue)
+        seasonDetail = _omDbHandler.GetSeriesSeason(season.SeriesImdbId, season.SeasonNumber.Value, cacheOnly);
+      if (seasonDetail == null) return false;
+
+      season.SeriesName = new LanguageText(seasonDetail.Title, true);
+      season.FirstAired = seasonDetail.Episodes != null && seasonDetail.Episodes.Count > 0 ? seasonDetail.Episodes[0].Released : default(DateTime?);
+      season.SeasonNumber = seasonDetail.SeasonNumber;
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
+    {
+      List<EpisodeInfo> episodeDetails = new List<EpisodeInfo>();
+      OmDbEpisode episodeDetail = null;
+      
+      if (!string.IsNullOrEmpty(episode.SeriesImdbId) && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+      {
+        OmDbSeason seasonDetail = _omDbHandler.GetSeriesSeason(episode.SeriesImdbId, 1, cacheOnly);
+
+        foreach (int episodeNumber in episode.EpisodeNumbers)
+        {
+          episodeDetail = _omDbHandler.GetSeriesEpisode(episode.SeriesImdbId, episode.SeasonNumber.Value, episodeNumber, cacheOnly);
+          if (episodeDetail == null) return false;
+
+          EpisodeInfo info = new EpisodeInfo()
+          {
+            ImdbId = episodeDetail.ImdbID,
+
+            SeriesImdbId = episodeDetail.ImdbSeriesID,
+            SeriesName = new LanguageText(seasonDetail.Title, true),
+            SeriesFirstAired = seasonDetail != null && seasonDetail.Episodes != null && seasonDetail.Episodes.Count > 0 ? 
+              seasonDetail.Episodes[0].Released : default(DateTime?),
+
+            SeasonNumber = episodeDetail.SeasonNumber,
+            EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+            FirstAired = episodeDetail.Released,
+            EpisodeName = new LanguageText(episodeDetail.Title, true),
+            Summary = new LanguageText(episodeDetail.Plot, true),
+            Genres = episodeDetail.Genres,
+        };
+
+        if (episodeDetail.ImdbRating.HasValue)
+        {
+            info.TotalRating = episodeDetail.ImdbVotes ?? 0;
+            info.RatingCount = episodeDetail.ImdbVotes ?? 0;
+        }
+        if (episodeDetail.TomatoRating.HasValue)
+        {
+            info.TotalRating = episodeDetail.TomatoRating ?? 0;
+            info.RatingCount = episodeDetail.TomatoTotalReviews ?? 0;
+        }
+        if (episodeDetail.TomatoUserRating.HasValue)
+        {
+            info.TotalRating = episodeDetail.TomatoUserRating ?? 0;
+            info.RatingCount = episodeDetail.TomatoUserTotalReviews ?? 0;
         }
 
-        series = series.Where(s => GetLevenshteinDistance(s.Title, seriesName) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (series.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Multiple matches found for \"{0}\" (count: {1})", seriesName, series.Count);
+          //Only use these if absolutely necessary because there is no way to ID them
+          if (episode.Actors == null || episode.Actors.Count == 0)
+            info.Actors = ConvertToPersons(episodeDetail.Actors, PersonAspect.OCCUPATION_ARTIST);
+          if (episode.Directors == null || episode.Directors.Count == 0)
+            info.Directors = ConvertToPersons(episodeDetail.Writers, PersonAspect.OCCUPATION_DIRECTOR);
+          if (episode.Writers == null || episode.Writers.Count == 0)
+            info.Writers = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_WRITER);
 
+          episodeDetails.Add(info);
+        }
+      }
+      if (episodeDetails.Count > 1)
+      {
+        SetMultiEpisodeDetails(episode, episodeDetails);
+        return true;
+      }
+      else if (episodeDetails.Count > 0)
+      {
+        SetEpisodeDetails(episode, episodeDetails[0]);
+        return true;
       }
       return false;
     }
 
-    public bool GetMovie(string imdbId, out OmDbMovie movieDetail)
+    #endregion
+
+    #region Convert
+
+    private List<PersonInfo> ConvertToPersons(List<string> names, string occupation)
     {
-      movieDetail = _omDbHandler.GetMovie(imdbId);
-      return movieDetail != null;
+      if (names == null || names.Count == 0)
+        return new List<PersonInfo>();
+
+      int sortOrder = 0;
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (string name in names)
+        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation, Order = sortOrder++ });
+      return retValue;
     }
 
-    public bool GetSeries(string imdbId, out OmDBSeries seriesDetail)
-    {
-      seriesDetail = _omDbHandler.GetSeries(imdbId);
-      return seriesDetail != null;
-    }
-
-    public bool GetSeriesSeason(string imdbId, int season, out OmDBSeason seasonDetail)
-    {
-      seasonDetail = _omDbHandler.GetSeriesSeason(imdbId, season);
-      return seasonDetail != null;
-    }
-
-    public bool GetSeriesEpisode(string imdbId, int season, int episode, out OmDbEpisode episodeDetail)
-    {
-      episodeDetail = _omDbHandler.GetSeriesEpisode(imdbId, season, episode);
-      return episodeDetail != null;
-    }
-
-    /// <summary>
-    /// Removes special characters and compares the remaining strings. Strings are processed by <see cref="RemoveCharacters"/> before comparing.
-    /// The result is <c>true</c>, if the cleaned strings are equal or have a Levenshtein distance less or equal to <see cref="MAX_LEVENSHTEIN_DIST"/>.
-    /// </summary>
-    /// <param name="name1">Name 1</param>
-    /// <param name="name2">Name 2</param>
-    /// <returns><c>true</c> if similar or equal</returns>
-    protected bool IsSimilarOrEqual(string name1, string name2)
-    {
-      return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2)) || StringUtils.GetLevenshteinDistance(name1, name2) <= MAX_LEVENSHTEIN_DIST;
-    }
-
-    /// <summary>
-    /// Returns the Levenshtein distance for a movie name and a given <paramref name="movieName"/>.
-    /// </summary>
-    /// <param name="movieSearch">Movie search result</param>
-    /// <param name="movieName">Movie name</param>
-    /// <returns>Levenshtein distance</returns>
-    protected int GetLevenshteinDistance(string movieSearch, string movieName)
-    {
-      string cleanedName = RemoveCharacters(movieName);
-      return StringUtils.GetLevenshteinDistance(RemoveCharacters(movieSearch), cleanedName);
-    }
-
-    /// <summary>
-    /// Replaces characters that are not necessary for comparing (like whitespaces) and diacritics. The result is returned as <see cref="string.ToLowerInvariant"/>.
-    /// </summary>
-    /// <param name="name">Name to clean up</param>
-    /// <returns>Cleaned string</returns>
-    protected string RemoveCharacters(string name)
-    {
-      name = name.ToLowerInvariant();
-      string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'", "(", ")", "[", "]", "teil", "part" }.Aggregate(name, (current, s) => current.Replace(s, ""));
-      result = result.Replace("&", "and");
-      return StringUtils.RemoveDiacritics(result);
-    }
+    #endregion
   }
 }

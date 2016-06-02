@@ -23,53 +23,18 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
-using MediaPortal.Utilities;
-using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
 {
-  class MusicBrainzWrapper
+  class MusicBrainzWrapper : ApiWrapper<TrackImage, string>
   {
     protected MusicBrainzApiV2 _musicBrainzHandler;
-    protected string _preferredLanguage;
-    public const int MAX_LEVENSHTEIN_DIST = 4;
-
-    private enum ValueToCheck
-    {
-      ArtistLax,
-      AlbumLax,
-      Year,
-      TrackNum,
-      ArtistStrict,
-      AlbumStrict,
-      Compilation,
-      Image,
-      Barcode,
-      Discs,
-      Country,
-    }
-
-    /// <summary>
-    /// Sets the preferred language in short format like: en, de, ...
-    /// </summary>
-    /// <param name="langShort">Short language</param>
-    public void SetPreferredLanguage(string langShort)
-    {
-      _preferredLanguage = langShort;
-    }
-
-    /// <summary>
-    /// Returns the language that matches the value set by <see cref="SetPreferredLanguage"/> or the default language (en).
-    /// </summary>
-    public string PreferredLanguage
-    {
-      get { return _preferredLanguage ?? MusicBrainzApiV2.DefaultLanguage; }
-    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -78,331 +43,426 @@ namespace MediaPortal.Extensions.OnlineLibraries.MusicBrainz
     public bool Init(string cachePath)
     {
       _musicBrainzHandler = new MusicBrainzApiV2(cachePath);
+      SetDefaultLanguage(MusicBrainzApiV2.DefaultLanguage);
+      SetCachePath(cachePath);
       return true;
     }
 
-    public bool SearchTrack(string title, List<string> artists, string album, int year, int trackNum, out List<TrackResult> tracks)
-    {
-      tracks = _musicBrainzHandler.SearchTrack(title, artists, album, year, trackNum);
-      return tracks.Count > 0;
-    }
+    #region Search
 
-    public bool SearchTrackUnique(string title, List<string> artists, string album, int year, int trackNum, out List<TrackResult> tracks)
+    public override bool SearchTrack(TrackInfo trackSearch, string language, out List<TrackInfo> tracks)
     {
-      tracks = _musicBrainzHandler.SearchTrack(title, artists, album, year > 0 ? year : default(int?), trackNum > 0 ? trackNum : default(int?));
-      if (TestTrackMatch(title, artists, album, year, trackNum, ref tracks))
-        return true;
+      tracks = null;
+      language = language ?? PreferredLanguage;
 
-      return false;
-    }
+      List<TrackResult> foundTracks = _musicBrainzHandler.SearchTrack(trackSearch.TrackName, trackSearch.Artists.Select(a => a.Name).ToList(), 
+        trackSearch.Album, trackSearch.ReleaseDate.HasValue ? trackSearch.ReleaseDate.Value.Year : default(int?),
+        trackSearch.TrackNum > 0 ? trackSearch.TrackNum : default(int?));
+      if (foundTracks == null) return false;
 
-    private bool TestTrackMatch(string title, List<string> artists, string album, int year, int trackNum, ref List<TrackResult> tracks)
-    {
-      if (tracks.Count == 1)
+      //Prefer the once with a language
+      var exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals(language, StringComparison.InvariantCultureIgnoreCase));
+      if (exactMatches.Count == 0) //Try worldwide releases
+        exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals("XW", StringComparison.InvariantCultureIgnoreCase));
+      if (exactMatches.Count == 0) //Try European releases
+        exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals("XE", StringComparison.InvariantCultureIgnoreCase));
+      if (exactMatches.Count == 0 && DefaultLanguage != language) //Try US releases
+        exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals(DefaultLanguage, StringComparison.InvariantCultureIgnoreCase));
+      if (exactMatches.Count > 0)
+        foundTracks = exactMatches;
+
+      //Prefer the once with barcodes because of being more official recordings
+      exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.AlbumBarcode));
+      if (exactMatches.Count > 0)
+        foundTracks = exactMatches;
+
+      foreach(TrackResult track in foundTracks)
       {
-        if (GetLevenshteinDistance(tracks[0].Title, title) <= MAX_LEVENSHTEIN_DIST)
+        if (tracks == null)
+          tracks = new List<TrackInfo>();
+
+        TrackInfo info = new TrackInfo()
         {
-          ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Unique match found \"{0}\"!", title);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        tracks.Clear();
-        return false;
+          MusicBrainzId = track.Id,
+          AlbumMusicBrainzId = track.AlbumId,
+          TrackName = track.Title,
+          ReleaseDate = track.ReleaseDate,
+          TrackNum = track.TrackNum,
+          Artists = ConvertToPersons(track.Artists, PersonAspect.OCCUPATION_ARTIST),
+          Album = track.Album,
+          Compilation = track.FromCompilation
+        };
+        info.Languages.Add(track.Country);
+        tracks.Add(info);
       }
 
-      // Multiple matches
-      if (tracks.Count > 1)
+      return tracks != null;
+    }
+
+    public override bool SearchTrackAlbum(AlbumInfo albumSearch, string language, out List<AlbumInfo> albums)
+    {
+      albums = null;
+      language = language ?? PreferredLanguage;
+
+      List<TrackRelease> foundReleases = _musicBrainzHandler.SearchRelease(albumSearch.Album, albumSearch.Artists.Select(a => a.Name).ToList(),
+        albumSearch.ReleaseDate.HasValue ? albumSearch.ReleaseDate.Value.Year : default(int?), albumSearch.TotalTracks > 0 ? albumSearch.TotalTracks : default(int?));
+      if (foundReleases == null) return false;
+
+      //Prefer the once with a release group because of being more official recordings
+      var exactMatches = foundReleases.FindAll(a => a.ReleaseGroup != null);
+      if (exactMatches.Count > 0)
+        foundReleases = exactMatches;
+
+      //Prefer the once with a language
+      exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Country) && a.Country.Equals(language, StringComparison.InvariantCultureIgnoreCase));
+      if (exactMatches.Count == 0) //Try worldwide releases
+        exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Country) && a.Country.Equals("XW", StringComparison.InvariantCultureIgnoreCase));
+      if (exactMatches.Count == 0) //Try European releases
+        exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Country) && a.Country.Equals("XE", StringComparison.InvariantCultureIgnoreCase));
+      if (exactMatches.Count == 0 && DefaultLanguage != language) //Try US releases
+        exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Country) && a.Country.Equals(DefaultLanguage, StringComparison.InvariantCultureIgnoreCase));
+      if (exactMatches.Count > 0)
+        foundReleases = exactMatches;
+
+      //Prefer the once with barcodes because of being more official recordings
+      exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Barcode));
+      if (exactMatches.Count > 0)
+        foundReleases = exactMatches;
+
+      //Prefer the once with artwork
+      exactMatches = foundReleases.FindAll(a => a.CoverArt.Front);
+      if (exactMatches.Count > 0)
+        foundReleases = exactMatches;
+
+      foreach (TrackRelease album in foundReleases)
       {
-        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", title, tracks.Count);
-        var exactMatches = tracks.FindAll(s => s.Title == title || GetLevenshteinDistance(s.Title, title) == 0);
-        if (exactMatches.Count == 1)
+        if (albums == null)
+          albums = new List<AlbumInfo>();
+
+        AlbumInfo info = new AlbumInfo()
         {
-          ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Unique match found \"{0}\"!", title);
-          tracks = exactMatches;
-          return true;
+          MusicBrainzId = album.Id,
+          MusicBrainzGroupId = album.ReleaseGroup != null ? album.ReleaseGroup.Id : null,
+          Album = album.Title,
+          ReleaseDate = album.Date,
+          TotalTracks = album.TrackCount,
+          Artists = ConvertToPersons(album.Artists, PersonAspect.OCCUPATION_ARTIST),
+          MusicLabels = ConvertToCompanies(album.Labels, CompanyAspect.COMPANY_MUSIC_LABEL),
+        };
+        info.Languages.Add(album.Country);
+        albums.Add(info);
+      }
+
+      return albums != null;
+    }
+
+    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
+    {
+      persons = null;
+      language = language ?? PreferredLanguage;
+
+      if (personSearch.Occupation != PersonAspect.OCCUPATION_ARTIST)
+        return false;
+
+      List<TrackArtist> foundArtists = _musicBrainzHandler.SearchArtist(personSearch.Name);
+      if (foundArtists == null) return false;
+
+      foreach (TrackArtist artist in foundArtists)
+      {
+        if (persons == null)
+          persons = new List<PersonInfo>();
+
+        PersonInfo info = new PersonInfo()
+        {
+          MusicBrainzId = artist.Id,
+          Name = artist.Name,
+          Occupation = PersonAspect.OCCUPATION_ARTIST,
+          IsGroup = string.IsNullOrEmpty(artist.Type) ? false : artist.Type.IndexOf("Group", StringComparison.InvariantCultureIgnoreCase) >= 0,
+      };
+        persons.Add(info);
+      }
+
+      return persons != null;
+    }
+
+    public override bool SearchCompany(CompanyInfo companySearch, string language, out List<CompanyInfo> companies)
+    {
+      companies = null;
+      language = language ?? PreferredLanguage;
+
+      if (companySearch.Type != CompanyAspect.COMPANY_MUSIC_LABEL)
+        return false;
+
+      List<TrackLabelSearchResult> foundLabels = _musicBrainzHandler.SearchLabel(companySearch.Name);
+      if (foundLabels == null) return false;
+
+      foreach (TrackLabelSearchResult company in foundLabels)
+      {
+        if (companies == null)
+          companies = new List<CompanyInfo>();
+
+        CompanyInfo info = new CompanyInfo()
+        {
+          MusicBrainzId = company.Id,
+          Name = company.Name,
+          Type = CompanyAspect.COMPANY_MUSIC_LABEL,
+        };
+        companies.Add(info);
+      }
+
+      return companies != null;
+    }
+
+    #endregion
+
+    #region Convert
+
+    private List<PersonInfo> ConvertToPersons(List<TrackArtistCredit> artists, string occupation)
+    {
+      return ConvertToPersons(artists.Select(a => a.Artist).ToList(), occupation);
+    }
+
+    private List<PersonInfo> ConvertToPersons(List<TrackBaseName> artists, string occupation)
+    {
+      if (artists == null || artists.Count == 0)
+        return new List<PersonInfo>();
+
+      int sortOrder = 0;
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (TrackBaseName person in artists)
+      {
+        retValue.Add(new PersonInfo
+        {
+          MusicBrainzId = person.Id,
+          Name = person.Name,
+          Occupation = occupation,
+          Order = sortOrder++
+        });
+      }
+      return retValue;
+    }
+
+    private List<PersonInfo> ConvertToPersons(List<string> artists, string occupation)
+    {
+      if (artists == null || artists.Count == 0)
+        return new List<PersonInfo>();
+
+      int sortOrder = 0;
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (string person in artists)
+      {
+        retValue.Add(new PersonInfo
+        {
+          Name = person,
+          Occupation = occupation,
+          Order = sortOrder++
+        });
+      }
+      return retValue;
+    }
+
+    private List<CompanyInfo> ConvertToCompanies(List<TrackLabel> companies, string type)
+    {
+      if (companies == null || companies.Count == 0)
+        return new List<CompanyInfo>();
+
+      int sortOrder = 0;
+      List<CompanyInfo> retValue = new List<CompanyInfo>();
+      foreach (TrackLabel label in companies)
+        retValue.Add(new CompanyInfo() { MusicBrainzId = label.Label.Id, Name = label.Label.Name, Type = type, Order = sortOrder++ });
+      return retValue;
+    }
+
+    #endregion
+
+    #region Update
+
+    public override bool UpdateFromOnlineMusicCompany(CompanyInfo company, string language, bool cacheOnly)
+    {
+      TrackLabel labelDetail = null;
+      if (!string.IsNullOrEmpty(company.MusicBrainzId))
+        labelDetail = _musicBrainzHandler.GetLabel(company.MusicBrainzId, cacheOnly);
+      if (labelDetail == null) return false;
+      if (labelDetail.Label == null) return false;
+
+      company.MusicBrainzId = labelDetail.Label.Id;
+      company.Name = labelDetail.Label.Name;
+      company.Type = CompanyAspect.COMPANY_MUSIC_LABEL;
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineMusicPerson(PersonInfo person, string language, bool cacheOnly)
+    {
+      TrackArtist artistDetail = null;
+      if (!string.IsNullOrEmpty(person.MusicBrainzId))
+        artistDetail = _musicBrainzHandler.GetArtist(person.MusicBrainzId, cacheOnly);
+      if (artistDetail == null) return false;
+
+      person.Name = artistDetail.Name;
+      person.DateOfBirth = artistDetail.LifeSpan != null ? artistDetail.LifeSpan.Begin : null;
+      person.DateOfDeath = artistDetail.LifeSpan != null ? artistDetail.LifeSpan.End : null;
+      person.IsGroup = string.IsNullOrEmpty(artistDetail.Type) ? false : artistDetail.Type.IndexOf("Group", StringComparison.InvariantCultureIgnoreCase) >= 0;
+      person.Occupation = PersonAspect.OCCUPATION_ARTIST;
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
+    {
+      Track trackDetail = null;
+      if (!string.IsNullOrEmpty(track.MusicBrainzId))
+        trackDetail = _musicBrainzHandler.GetTrack(track.MusicBrainzId, cacheOnly);
+
+      if (trackDetail == null && !cacheOnly && !string.IsNullOrEmpty(track.IsrcId))
+      {
+        List<TrackResult> foundTracks = _musicBrainzHandler.SearchTrackFromIsrc(track.IsrcId);
+        if(foundTracks != null && foundTracks.Count == 1)
+        {
+          trackDetail = _musicBrainzHandler.GetTrack(foundTracks[0].Id, cacheOnly);
         }
+      }
+      if (trackDetail == null) return false;
 
-        if (exactMatches.Count > 1)
+      if (!string.IsNullOrEmpty(trackDetail.AlbumId))
+      {
+        trackDetail.InitPropertiesFromAlbum(trackDetail.AlbumId, null, null);
+      }
+      else if (!string.IsNullOrEmpty(trackDetail.Album))
+      {
+        if (!trackDetail.InitPropertiesFromAlbum(null, trackDetail.Album, PreferredLanguage))
         {
-          var lastGood = exactMatches;
-          foreach (ValueToCheck checkValue in Enum.GetValues(typeof(ValueToCheck)))
+          if (!trackDetail.InitPropertiesFromAlbum(null, trackDetail.Album, "XW")) //World releases
           {
-            if (checkValue == ValueToCheck.ArtistLax && artists != null && artists.Count > 0)
-              exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artists, artists, false));
-
-            if (checkValue == ValueToCheck.AlbumLax && !string.IsNullOrEmpty(album))
-              exactMatches = exactMatches.FindAll(s => GetLevenshteinDistance(s.Album, album) <= MAX_LEVENSHTEIN_DIST);
-
-            if (checkValue == ValueToCheck.ArtistStrict && artists != null && artists.Count > 0)
-              exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artists, artists, true));
-
-            if (checkValue == ValueToCheck.AlbumStrict && !string.IsNullOrEmpty(album))
-              exactMatches = exactMatches.FindAll(s => s.Album == album || GetLevenshteinDistance(s.Album, album) == 0);
-
-            if (checkValue == ValueToCheck.Year && year > 0)
-              exactMatches = exactMatches.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == year);
-
-            if (checkValue == ValueToCheck.TrackNum && trackNum > 0)
-              exactMatches = exactMatches.FindAll(s => s.TrackNum > 0 && s.TrackNum == trackNum);
-
-            if (checkValue == ValueToCheck.Barcode)
-              exactMatches = exactMatches.FindAll(s => !string.IsNullOrEmpty(s.AlbumBarcode));
-
-            if (checkValue == ValueToCheck.Discs)
-              exactMatches = exactMatches.FindAll(s => s.DiscCount > 0);
-
-            if (checkValue == ValueToCheck.Country)
+            if(!trackDetail.InitPropertiesFromAlbum(null, trackDetail.Album, "XE")) //European releases
             {
-              exactMatches = exactMatches.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals(PreferredLanguage, StringComparison.InvariantCultureIgnoreCase));
-              if (exactMatches.Count == 0 && MusicBrainzApiV2.DefaultLanguage != PreferredLanguage)
-                exactMatches = lastGood.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals(MusicBrainzApiV2.DefaultLanguage, StringComparison.InvariantCultureIgnoreCase));
-              if (exactMatches.Count == 0) //Try european releases
-                exactMatches = lastGood.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals("XE", StringComparison.InvariantCultureIgnoreCase));
-            }
-
-            if (checkValue == ValueToCheck.Compilation)
-              exactMatches = exactMatches.FindAll(s => s.FromCompilation == false);
-
-            if (checkValue == ValueToCheck.Image)
-              exactMatches = exactMatches.FindAll(s => _musicBrainzHandler.HasImages(s.AlbumId));
-
-            if (exactMatches.Count == 0) //Too many were removed restore last good
-              exactMatches = lastGood;
-            else
-              lastGood = exactMatches;
-
-            if (exactMatches.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Unique match found \"{0}\" [{1}]!", title, checkValue.ToString());
-              tracks = exactMatches;
-              return true;
+              if (DefaultLanguage != PreferredLanguage) //Try US releases
+                trackDetail.InitPropertiesFromAlbum(null, trackDetail.Album, DefaultLanguage);
             }
           }
-
-          tracks = lastGood;
         }
-
-        if (tracks.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Multiple matches found for \"{0}\" (count: {1})", string.Join(",", artists), tracks.Count);
-
-        return tracks.Count == 1;
-      }
-      return false;
-    }
-
-    public bool SearchArtist(string name, out List<TrackArtist> artists)
-    {
-      artists = _musicBrainzHandler.SearchArtist(name);
-      return artists.Count > 0;
-    }
-
-    public bool SearchArtistUnique(string name, out List<TrackArtist> artists)
-    {
-      artists = _musicBrainzHandler.SearchArtist(name);
-      artists = artists.Where(a => GetLevenshteinDistance(a.Name, name) <= MAX_LEVENSHTEIN_DIST).ToList();
-      return artists.Count == 1;
-    }
-
-    public bool SearchLabel(string name, out List<TrackLabelSearchResult> labels)
-    {
-      labels = _musicBrainzHandler.SearchLabel(name);
-      return labels.Count > 0;
-    }
-
-    public bool SearchLabelUnique(string name, out List<TrackLabelSearchResult> labels)
-    {
-      labels = _musicBrainzHandler.SearchLabel(name);
-      labels = labels.Where(a => GetLevenshteinDistance(a.Name, name) <= MAX_LEVENSHTEIN_DIST).ToList();
-      return labels.Count == 1;
-    }
-
-    public bool SearchRelease(string name, List<string> artists, int year, int trackCount, out List<TrackRelease> releases)
-    {
-      releases = _musicBrainzHandler.SearchRelease(name, artists, year > 0 ? year : default(int?), trackCount > 0 ? trackCount : default(int?));
-      return releases.Count > 0;
-    }
-
-    public bool SearchReleaseUnique(string name, List<string> artists, int year, int trackCount, out List<TrackRelease> releases)
-    {
-      releases = _musicBrainzHandler.SearchRelease(name, artists, year > 0 ? year : default(int?), trackCount > 0 ? trackCount : default(int?));
-      if (TestReleaseMatch(name, artists, year, trackCount, ref releases))
-        return true;
-
-      return false;
-    }
-
-    private bool TestReleaseMatch(string title, List<string> artists, int year, int trackCount, ref List<TrackRelease> releases)
-    {
-      if (releases.Count == 1)
-      {
-        if (GetLevenshteinDistance(releases[0].Title, title) <= MAX_LEVENSHTEIN_DIST)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Unique match found \"{0}\"!", title);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        releases.Clear();
-        return false;
       }
 
-      // Multiple matches
-      if (releases.Count > 1)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", title, releases.Count);
-        var exactMatches = releases.FindAll(s => s.Title == title || GetLevenshteinDistance(s.Title, title) == 0);
-        if (exactMatches.Count == 1)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Unique match found \"{0}\"!", title);
-          releases = exactMatches;
-          return true;
-        }
+      track.MusicBrainzId = trackDetail.Id;
+      track.AlbumMusicBrainzId = trackDetail.AlbumId;
 
-        if (exactMatches.Count > 1)
+      track.TrackName = trackDetail.Title;
+      track.Album = trackDetail.Album;
+      track.ReleaseDate = trackDetail.ReleaseDate;
+      track.TrackNum = trackDetail.TrackNum;
+      track.TotalTracks = trackDetail.TotalTracks;
+      track.DiscNum = trackDetail.DiscId;
+      track.TotalRating = trackDetail.RatingValue;
+      track.RatingCount = trackDetail.RatingVotes;
+
+      track.Artists = ConvertToPersons(trackDetail.TrackArtists, PersonAspect.OCCUPATION_ARTIST);
+      track.Composers = ConvertToPersons(trackDetail.Composers, PersonAspect.OCCUPATION_COMPOSER);
+      track.AlbumArtists = ConvertToPersons(trackDetail.AlbumArtists, PersonAspect.OCCUPATION_ARTIST);
+      //Tags are not really good as genre
+      //track.Genres = trackDetail.TagValues;
+      track.IsrcId = trackDetail.Isrcs != null && trackDetail.Isrcs.Count == 1 ? trackDetail.Isrcs[0] : null;
+
+      //Try to find album from group
+      if (string.IsNullOrEmpty(track.AlbumMusicBrainzId) && !string.IsNullOrEmpty(track.AlbumMusicBrainzGroupId))
+      {
+        TrackReleaseGroup trackReleaseGroup = _musicBrainzHandler.GetReleaseGroup(track.AlbumMusicBrainzGroupId, cacheOnly);
+        if (!string.IsNullOrEmpty(track.Album))
         {
-          var lastGood = exactMatches;
-          foreach (ValueToCheck checkValue in Enum.GetValues(typeof(ValueToCheck)))
+          if (!trackReleaseGroup.InitPropertiesFromAlbum(null, track.Album, PreferredLanguage))
           {
-            if (checkValue == ValueToCheck.ArtistLax && artists != null && artists.Count > 0)
-              exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artists.Select(a => a.Name).ToList(), artists, false));
-
-            if (checkValue == ValueToCheck.ArtistStrict && artists != null && artists.Count > 0)
-              exactMatches = exactMatches.FindAll(s => CompareArtists(s.Artists.Select(a => a.Name).ToList(), artists, true));
-
-            if (checkValue == ValueToCheck.Year && year > 0)
-              exactMatches = exactMatches.FindAll(s => s.Date.HasValue && s.Date.Value.Year == year);
-
-            if (checkValue == ValueToCheck.TrackNum && trackCount > 0)
-              exactMatches = exactMatches.FindAll(s => (s.Media != null && s.Media.Find(m => m.TrackCount == trackCount) != null) || s.TrackCount == trackCount);
-
-            if (checkValue == ValueToCheck.Barcode)
-              exactMatches = exactMatches.FindAll(s => !string.IsNullOrEmpty(s.Barcode));
-
-            if (checkValue == ValueToCheck.Country)
+            if (!trackReleaseGroup.InitPropertiesFromAlbum(null, track.Album, "XW")) //World releases
             {
-              exactMatches = exactMatches.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals(PreferredLanguage, StringComparison.InvariantCultureIgnoreCase));
-              if (exactMatches.Count == 0 && MusicBrainzApiV2.DefaultLanguage != PreferredLanguage)
-                exactMatches = lastGood.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals(MusicBrainzApiV2.DefaultLanguage, StringComparison.InvariantCultureIgnoreCase));
-              if (exactMatches.Count == 0) //Try european releases
-                exactMatches = lastGood.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals("XE", StringComparison.InvariantCultureIgnoreCase));
-            }
-
-            if (exactMatches.Count == 0) //Too many were removed restore last good
-              exactMatches = lastGood;
-            else
-              lastGood = exactMatches;
-
-            if (exactMatches.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Unique match found \"{0}\" [{1}]!", title, checkValue.ToString());
-              releases = exactMatches;
-              return true;
+              if(trackReleaseGroup.InitPropertiesFromAlbum(null, track.Album, "XE")) //European releases
+              {
+                if (DefaultLanguage != PreferredLanguage) //Try US releases
+                  trackReleaseGroup.InitPropertiesFromAlbum(null, trackDetail.Album, DefaultLanguage);
+              }
             }
           }
-
-          releases = lastGood;
+          if (!string.IsNullOrEmpty(trackReleaseGroup.AlbumId))
+          {
+            track.AlbumMusicBrainzId = trackReleaseGroup.AlbumId;
+          }
         }
-
-        if (releases.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Multiple matches found for \"{0}\" (count: {1})", string.Join(",", artists), releases.Count);
-
-        return releases.Count == 1;
       }
-      return false;
+
+      if (!string.IsNullOrEmpty(track.AlbumMusicBrainzId))
+      {
+        TrackRelease trackRelease = _musicBrainzHandler.GetAlbum(track.AlbumMusicBrainzId, cacheOnly);
+        track.AlbumMusicBrainzGroupId = trackRelease.ReleaseGroup != null ? trackRelease.ReleaseGroup.Id : null;
+        track.MusicLabels = ConvertToCompanies(trackRelease.Labels, CompanyAspect.COMPANY_MUSIC_LABEL);
+      }
+
+      return true;
     }
 
-    private bool CompareArtists(List<string> trackArtists, List<string> searchArtists, bool strict)
+    public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
     {
-      if(strict)
+      TrackRelease albumDetail = null;
+      if (!string.IsNullOrEmpty(album.MusicBrainzId))
+        albumDetail = _musicBrainzHandler.GetAlbum(album.MusicBrainzId, cacheOnly);
+      if (albumDetail == null) return false;
+
+      album.MusicBrainzId = albumDetail.Id;
+      album.MusicBrainzGroupId = albumDetail.ReleaseGroup != null ? albumDetail.ReleaseGroup.Id : null;
+
+      album.Album = albumDetail.Title;
+      album.TotalTracks = albumDetail.TrackCount;
+      album.ReleaseDate = albumDetail.Date;
+
+      album.Artists = ConvertToPersons(albumDetail.Artists, PersonAspect.OCCUPATION_ARTIST);
+
+      if (albumDetail.Labels != null)
+        album.MusicLabels = ConvertToCompanies(albumDetail.Labels, CompanyAspect.COMPANY_MUSIC_LABEL);
+
+      return true;
+    }
+
+    #endregion
+
+    #region FanArt
+
+    public override bool GetFanArt<T>(T infoObject, string language, string scope, out FanArtImageCollection<TrackImage> images)
+    {
+      images = new FanArtImageCollection<TrackImage>();
+
+      if (scope == FanArtScope.Album)
       {
-        int matchCount = 0;
-        foreach (string artist in searchArtists)
-          foreach (string trackArtist in trackArtists)
-            if (trackArtist == artist || GetLevenshteinDistance(trackArtist, artist) == 0)
-            {
-              matchCount++;
-              break;
-            }
-        return matchCount >= searchArtists.Count;
+        TrackInfo track = infoObject as TrackInfo;
+        AlbumInfo album = infoObject as AlbumInfo;
+        if (album == null && track != null)
+        {
+          album = track.CloneBasicAlbum();
+        }
+        if (album != null && !string.IsNullOrEmpty(album.MusicBrainzId))
+        {
+          // Download all image information, filter later!
+          TrackImageCollection albumImages = _musicBrainzHandler.GetImages(album.MusicBrainzId);
+          if (albumImages != null)
+          {
+            images.Id = album.MusicBrainzId;
+            images.Covers.AddRange(albumImages.Images);
+            return true;
+          }
+        }
       }
       else
       {
-        foreach (string artist in searchArtists)
-          foreach (string trackArtist in trackArtists)
-            if (GetLevenshteinDistance(trackArtist, artist) <= MAX_LEVENSHTEIN_DIST)
-              return true;
+        return true;
       }
       return false;
     }
 
-    /// <summary>
-    /// Returns the Levenshtein distance for a <paramref name="trackName"/> and a given <paramref name="searchName"/>.
-    /// </summary>
-    /// <param name="trackName">Track name to check</param>
-    /// <param name="searchName">Track name to find</param>
-    /// <returns>Levenshtein distance</returns>
-    protected int GetLevenshteinDistance(string trackName, string searchName)
+    public override bool DownloadFanArt(string id, TrackImage image, string scope, string type)
     {
-      string cleanedName = RemoveCharacters(searchName);
-      return StringUtils.GetLevenshteinDistance(RemoveCharacters(trackName), cleanedName);
+      if (!string.IsNullOrEmpty(id))
+      {
+        string category = string.Format(@"{0}\{1}", scope, type);
+        return _musicBrainzHandler.DownloadImage(id, image, category);
+      }
+      return false;
     }
 
-    /// <summary>
-    /// Replaces characters that are not necessary for comparing (like whitespaces) and diacritics. The result is returned as <see cref="string.ToLowerInvariant"/>.
-    /// </summary>
-    /// <param name="name">Name to clean up</param>
-    /// <returns>Cleaned string</returns>
-    protected string RemoveCharacters(string name)
-    {
-      name = name.ToLowerInvariant();
-      string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'", "(", ")", "[", "]" }.Aggregate(name, (current, s) => current.Replace(s, ""));
-      result = result.Replace("&", "and");
-      return StringUtils.RemoveDiacritics(result);
-    }
-
-    public bool GetTrack(string musicBrainzId, out Track trackDetail)
-    {
-      trackDetail = _musicBrainzHandler.GetTrack(musicBrainzId);
-      return trackDetail != null;
-    }
-
-    public bool GetAlbum(string musicBrainzId, out TrackRelease albumDetail)
-    {
-      albumDetail = _musicBrainzHandler.GetAlbum(musicBrainzId);
-      return albumDetail != null;
-    }
-
-    public bool GetReleaseGroup(string musicBrainzId, out TrackReleaseGroup groupDetail)
-    {
-      groupDetail = _musicBrainzHandler.GetReleaseGroup(musicBrainzId);
-      return groupDetail != null;
-    }
-
-    public bool GetArtist(string musicBrainzId, out TrackArtist artistDetail)
-    {
-      artistDetail = _musicBrainzHandler.GetArtist(musicBrainzId);
-      return artistDetail != null;
-    }
-
-    /// <summary>
-    /// Gets images for the requested movie.
-    /// </summary>
-    /// <param name="albumId">MusicBrainz ID of album</param>
-    /// <param name="imageCollection">Returns the ImageCollection</param>
-    /// <returns><c>true</c> if successful</returns>
-    public bool GetAlbumFanArt(string albumId, out TrackImageCollection imageCollection)
-    {
-      imageCollection = _musicBrainzHandler.GetImages(albumId); // Download all image information, filter later!
-      return imageCollection != null;
-    }
-
-    public bool DownloadImage(string albumId, TrackImage image, string category)
-    {
-      return _musicBrainzHandler.DownloadImage(albumId, image, category); // Download all image information, filter later!
-    }
-
-    public byte[] GetImage(string albumId, TrackImage image, string category)
-    {
-      return _musicBrainzHandler.GetImage(albumId, image, category);
-    }
+    #endregion
   }
 }

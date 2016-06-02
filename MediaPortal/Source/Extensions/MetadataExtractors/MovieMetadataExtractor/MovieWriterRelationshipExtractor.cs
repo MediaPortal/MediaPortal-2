@@ -69,8 +69,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdateMoviePersons(movieInfo, PersonAspect.OCCUPATION_WRITER);
-      MovieOmDbMatcher.Instance.UpdateMoviePersons(movieInfo, PersonAspect.OCCUPATION_WRITER);
+      MovieTheMovieDbMatcher.Instance.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_WRITER, forceQuickMode);
+      MovieOmDbMatcher.Instance.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_WRITER, forceQuickMode);
 
       if (movieInfo.Writers.Count == 0)
         return false;

@@ -81,7 +81,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("DeathDate", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
-    /// If set to <c>true</c>, the person is actually a group of people like fx a music band.
+    /// If set to <c>true</c>, the person is actually a group of people i.e. a music band.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GROUP =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsGroup", typeof(bool), Cardinality.Inline, true);

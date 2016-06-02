@@ -104,21 +104,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       EpisodeInfo info = new EpisodeInfo();
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
-        info.Series = EpisodeInfo.CleanupWhiteSpaces(group.Value);
+        info.SeriesName = EpisodeInfo.CleanupWhiteSpaces(group.Value);
 
-      if (!string.IsNullOrEmpty(info.Series))
+      if (!info.SeriesName.IsEmpty)
       {
-        Match yearMa = _yearMatcher.Match(info.Series);
+        Match yearMa = _yearMatcher.Match(info.SeriesName.Text);
         if (yearMa.Success)
         {
-          info.Series = EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value);
+          info.SeriesName = EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value);
           info.SeriesFirstAired = new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1);
         }
       }
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)
-        info.Episode = EpisodeInfo.CleanupWhiteSpaces(group.Value);
+        info.EpisodeName = EpisodeInfo.CleanupWhiteSpaces(group.Value);
 
       group = ma.Groups[GROUP_SEASONNUM];
       int tmpInt;

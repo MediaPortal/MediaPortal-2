@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdateMovieCompanies(movieInfo, CompanyAspect.COMPANY_PRODUCTION);
+      MovieTheMovieDbMatcher.Instance.UpdateCompanies(movieInfo, CompanyAspect.COMPANY_PRODUCTION, forceQuickMode);
 
       if (movieInfo.ProductionCompanies.Count == 0)
         return false;

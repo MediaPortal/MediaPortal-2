@@ -25,26 +25,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
-using MediaPortal.Utilities;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.OnlineLibraries.TvMaze
 {
-  class TvMazeWrapper
+  class TvMazeWrapper : ApiWrapper<TvMazeImageCollection, string>
   {
     protected TvMazeApiV1 _tvMazeHandler;
-    public const int MAX_LEVENSHTEIN_DIST = 4;
-
-    /// <summary>
-    /// Returns the language that matches the value set by <see cref="SetPreferredLanguage"/> or the default language (en).
-    /// </summary>
-    public string PreferredLanguage
-    {
-      get { return TvMazeApiV1.DefaultLanguage; }
-    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -53,186 +43,452 @@ namespace MediaPortal.Extensions.OnlineLibraries.TvMaze
     public bool Init(string cachePath)
     {
       _tvMazeHandler = new TvMazeApiV1(cachePath);
+      SetDefaultLanguage(TvMazeApiV1.DefaultLanguage);
+      SetCachePath(cachePath);
       return true;
     }
 
-    /// <summary>
-    /// Search for Series by name.
-    /// </summary>
-    /// <param name="seriesName">Name</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeries(string seriesName, out List<TvMazeSeries> series)
+    #region Search
+
+    public override bool SearchSeriesEpisode(EpisodeInfo episodeSearch, string language, out List<EpisodeInfo> episodes)
     {
-      series = _tvMazeHandler.SearchSeries(seriesName);
+      episodes = null;
+      SeriesInfo seriesSearch = null;
+      if (episodeSearch.SeriesTvMazeId <= 0)
+      {
+        seriesSearch = episodeSearch.CloneBasicSeries();
+        if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
+          return false;
+      }
+
+      if (episodeSearch.SeriesTvMazeId > 0 && episodeSearch.SeasonNumber.HasValue)
+      {
+        TvMazeSeries seriesDetail = _tvMazeHandler.GetSeries(episodeSearch.SeriesTvMazeId, false);
+        List<TvMazeEpisode> seasonEpisodes = null;
+        if(seriesDetail.Embedded != null && seriesDetail.Embedded.Episodes != null)
+          seasonEpisodes = seriesDetail.Embedded.Episodes.Where(s => s.SeasonNumber == episodeSearch.SeasonNumber.Value).ToList();
+
+        foreach (TvMazeEpisode episode in seasonEpisodes)
+        {
+          if (episodeSearch.EpisodeNumbers.Contains(episode.EpisodeNumber) || episodeSearch.EpisodeNumbers.Count == 0)
+          {
+            if (episodes == null)
+              episodes = new List<EpisodeInfo>();
+
+            EpisodeInfo info = new EpisodeInfo()
+            {
+              TvMazeId = episode.Id,
+              SeriesName = seriesSearch.SeriesName,
+              SeasonNumber = episode.SeasonNumber,
+              EpisodeName = new LanguageText(episode.Name, true),
+            };
+            info.EpisodeNumbers.Add(episode.EpisodeNumber);
+            info.CopyIdsFrom(seriesSearch);
+            episodes.Add(info);
+          }
+        }
+      }
+
+      if (episodes == null)
+      {
+        episodes = new List<EpisodeInfo>();
+        EpisodeInfo info = new EpisodeInfo()
+        {
+          SeriesName = seriesSearch.SeriesName,
+          SeasonNumber = episodeSearch.SeasonNumber,
+          EpisodeName = episodeSearch.EpisodeName,
+        };
+        info.CopyIdsFrom(seriesSearch);
+        info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
+        episodes.Add(info);
+        return true;
+      }
+
+      return episodes != null;
+    }
+
+    public override bool SearchSeries(SeriesInfo seriesSearch, string language, out List<SeriesInfo> series)
+    {
+      series = null;
+      List<TvMazeSeries> foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.SeriesName.Text);
+      if (foundSeries == null) return false;
+      series = foundSeries.Select(s => new SeriesInfo()
+      {
+        TvMazeId = s.Id,
+        ImdbId = s.Externals.ImDbId,
+        TvdbId = s.Externals.TvDbId ?? 0,
+        TvRageId = s.Externals.TvRageId ?? 0,
+        SeriesName = new LanguageText(s.Name, true),
+        FirstAired = s.Premiered,
+      }).ToList();
+
+      if (series.Count == 0)
+      {
+        foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.OriginalName);
+        if (foundSeries == null) return false;
+        series = foundSeries.Select(s => new SeriesInfo()
+        {
+          TvMazeId = s.Id,
+          ImdbId = s.Externals.ImDbId,
+          TvdbId = s.Externals.TvDbId ?? 0,
+          TvRageId = s.Externals.TvRageId ?? 0,
+          SeriesName = new LanguageText(s.Name, true),
+          FirstAired = s.Premiered,
+        }).ToList();
+      }
       return series.Count > 0;
     }
 
-    /// <summary>
-    /// Search for unique matches of Series names. This method tries to find the best matching Series.
-    /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
-    /// </summary>
-    /// <param name="seriesName">Name</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public bool SearchSeriesUnique(string seriesName, int year, out List<TvMazeSeries> series)
+    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
     {
-      series = _tvMazeHandler.SearchSeries(seriesName);
-      if (TestSeriesMatch(seriesName, year, ref series))
-        return true;
-
-      // If no match is found, we will look for combined series names:
-      // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
-      if (!TestSeriesMatch(seriesName, year, ref series) && seriesName.Contains("-"))
+      persons = null;
+      List<TvMazePerson> foundPersons = _tvMazeHandler.SearchPerson(personSearch.Name);
+      if (foundPersons == null) return false;
+      persons = foundPersons.Select(p => new PersonInfo()
       {
-        string namePart = seriesName.Split(new[] { '-' })[0].Trim();
-        return SearchSeriesUnique(namePart, year, out series);
-      }
-      return series.Count == 1;
+        TvMazeId = p.Id,
+        Name = p.Name,
+      }).ToList();
+      return persons.Count > 0;
     }
 
-    /// <summary>
-    /// Tests for series matches. 
-    /// </summary>
-    /// <param name="seriesName">Series name</param>
-    /// <param name="series">Potential online matches. The collection will be modified inside this method.</param>
-    /// <returns><c>true</c> if unique match</returns>
-    private bool TestSeriesMatch(string seriesName, int year, ref List<TvMazeSeries> series)
+    #endregion
+
+    #region Update
+
+    public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
     {
-      // Exact match in preferred language
-      ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Test Match for \"{0}\"", seriesName);
+      TvMazeSeries seriesDetail = null;
+      if (series.TvMazeId > 0)
+        seriesDetail = _tvMazeHandler.GetSeries(series.TvMazeId, cacheOnly);
+      if (seriesDetail == null && !string.IsNullOrEmpty(series.ImdbId))
+        seriesDetail = _tvMazeHandler.GetSeriesByImDb(series.ImdbId, cacheOnly);
+      if (seriesDetail == null && series.TvdbId > 0)
+        seriesDetail = _tvMazeHandler.GetSeriesByTvDb(series.TvdbId, cacheOnly);
+      if (seriesDetail == null) return false;
 
-      if (series.Count == 1)
+      series.TvMazeId = seriesDetail.Id;
+      series.TvdbId = seriesDetail.Externals.TvDbId ?? 0;
+      series.TvRageId = seriesDetail.Externals.TvRageId ?? 0;
+      series.ImdbId = seriesDetail.Externals.ImDbId;
+
+      series.SeriesName = new LanguageText(seriesDetail.Name, true);
+      series.FirstAired = seriesDetail.Premiered;
+      series.Description = new LanguageText(seriesDetail.Summary, true);
+      series.TotalRating = seriesDetail.Rating != null && seriesDetail.Rating.Rating.HasValue ? seriesDetail.Rating.Rating.Value : 0;
+      series.RatingCount = 1;
+      series.Genres = seriesDetail.Genres;
+      series.Networks = ConvertToCompanies(seriesDetail.Network ?? seriesDetail.WebNetwork, CompanyAspect.COMPANY_TV_NETWORK);
+      if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
       {
-        if (GetLevenshteinDistance(series[0].Name, seriesName) <= MAX_LEVENSHTEIN_DIST)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Unique match found \"{0}\"!", seriesName);
-          return true;
-        }
-        // No valid match, clear list to allow further detection ways
-        series.Clear();
-        return false;
+        series.IsEnded = true;
       }
-
-      // Multiple matches
-      if (series.Count > 1)
+      if(seriesDetail.Embedded != null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Multiple matches for \"{0}\" ({1}). Try to find exact name match.", seriesName, series.Count);
-        var exactMatches = series.FindAll(s => s.Name == seriesName || GetLevenshteinDistance(s.Name, seriesName) == 0);
-        if (exactMatches.Count == 1)
+        if (seriesDetail.Embedded.Cast != null)
         {
-          ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Unique match found \"{0}\"!", seriesName);
-          series = exactMatches;
-          return true;
+          series.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR);
+          series.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast);
         }
-
-        if (exactMatches.Count > 1)
+        if(seriesDetail.Embedded.Episodes != null)
         {
-          // Try to match the year, if available
-          if (year > 0)
+          TvMazeEpisode nextEpisode = seriesDetail.Embedded.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
+          if (nextEpisode != null)
           {
-            var yearFiltered = exactMatches.FindAll(s => s.Premiered.HasValue && s.Premiered.Value.Year == year);
-            if (yearFiltered.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Unique match found \"{0}\" [{1}]!", seriesName, year);
-              series = yearFiltered;
-              return true;
-            }
+            series.NextEpisodeName = nextEpisode.Name;
+            series.NextEpisodeAirDate = nextEpisode.AirStamp;
+            series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
+            series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
           }
         }
+      }
 
-        series = series.Where(s => GetLevenshteinDistance(s.Name, seriesName) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (series.Count > 1)
-          ServiceRegistration.Get<ILogger>().Debug("TvMazeWrapper: Multiple matches found for \"{0}\" (count: {1})", seriesName, series.Count);
+      return true;
+    }
 
+    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
+    {
+      TvMazeSeries seriesDetail = null;
+      TvMazeSeason seasonDetail = null;
+      if (season.SeriesMovieDbId > 0)
+        seriesDetail = _tvMazeHandler.GetSeries(season.SeriesMovieDbId, cacheOnly);
+      if (seriesDetail == null) return false;
+      if (season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
+      {
+        List<TvMazeSeason> seasons = _tvMazeHandler.GetSeriesSeasons(season.SeriesMovieDbId, cacheOnly);
+        if (seasons != null)
+          seasonDetail = seasons.Where(s => s.SeasonNumber == season.SeasonNumber).FirstOrDefault();
+      }
+      if (seasonDetail == null) return false;
+
+      season.TvMazeId = seasonDetail.Id;
+
+      season.SeriesMovieDbId = seriesDetail.Id;
+      season.SeriesImdbId = seriesDetail.Externals.ImDbId;
+      season.SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0;
+      season.SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0;
+
+      season.SeriesName = new LanguageText(seriesDetail.Name, true);
+      season.FirstAired = seasonDetail.PremiereDate;
+      season.SeasonNumber = seasonDetail.SeasonNumber;
+
+      return true;
+    }
+
+    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
+    {
+      List<EpisodeInfo> episodeDetails = new List<EpisodeInfo>();
+      TvMazeEpisode episodeDetail = null;
+      TvMazeSeries seriesDetail = null;
+      
+      if (episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+      {
+        seriesDetail = _tvMazeHandler.GetSeries(episode.SeriesTvMazeId, cacheOnly);
+        if (seriesDetail == null && !string.IsNullOrEmpty(episode.SeriesImdbId))
+          seriesDetail = _tvMazeHandler.GetSeriesByImDb(episode.SeriesImdbId, cacheOnly);
+        if (seriesDetail == null && episode.SeriesTvdbId > 0)
+          seriesDetail = _tvMazeHandler.GetSeriesByTvDb(episode.SeriesTvdbId, cacheOnly);
+        if (seriesDetail == null) return false;
+
+        foreach (int episodeNumber in episode.EpisodeNumbers)
+        {
+          episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episodeNumber, cacheOnly);
+          if (episodeDetail == null) return false;
+
+          EpisodeInfo info = new EpisodeInfo()
+          {
+            TvMazeId = episodeDetail.Id,
+
+            SeriesMovieDbId = seriesDetail.Id,
+            SeriesImdbId = seriesDetail.Externals.ImDbId,
+            SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
+            SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
+            SeriesName = new LanguageText(seriesDetail.Name, true),
+            SeriesFirstAired = seriesDetail.Premiered,
+
+            SeasonNumber = episodeDetail.SeasonNumber,
+            EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+            FirstAired = episodeDetail.AirDate,
+            EpisodeName = new LanguageText(episodeDetail.Name, true),
+            Summary = new LanguageText(episodeDetail.Summary, true),
+            Genres = seriesDetail.Genres,
+          };
+
+          if (seriesDetail.Embedded != null && seriesDetail.Embedded.Cast != null)
+          {
+            info.Actors = ConvertToPersons(seriesDetail.Embedded.Cast, PersonAspect.OCCUPATION_ACTOR);
+            info.Characters = ConvertToCharacters(seriesDetail.Embedded.Cast);
+          }
+
+          episodeDetails.Add(info);
+        }
+      }
+      if (episodeDetails.Count > 1)
+      {
+        SetMultiEpisodeDetails(episode, episodeDetails);
+        return true;
+      }
+      else if (episodeDetails.Count > 0)
+      {
+        SetEpisodeDetails(episode, episodeDetails[0]);
+        return true;
       }
       return false;
     }
 
-    public bool GetSeries(int id, out TvMazeSeries seriesDetail)
+    public override bool UpdateFromOnlineSeriesPerson(PersonInfo person, string language, bool cacheOnly)
     {
-      seriesDetail = _tvMazeHandler.GetSeries(id);
-      return seriesDetail != null;
+      TvMazePerson personDetail = null;
+      if (person.TvMazeId > 0)
+        personDetail = _tvMazeHandler.GetPerson(person.TvMazeId, cacheOnly);
+      if (personDetail == null) return false;
+
+      person.TvMazeId = personDetail.Id;
+      person.Name = personDetail.Name;
+
+      return true;
     }
 
-    public bool GetSeriesByTvDbId(int id, out TvMazeSeries seriesDetail)
+    public override bool UpdateFromOnlineSeriesCharacter(CharacterInfo character, string language, bool cacheOnly)
     {
-      seriesDetail = _tvMazeHandler.GetSeriesByTvDb(id);
-      //Get series with external Id does not include episodes, so call with native Id
-      if (seriesDetail.Id > 0)
-        seriesDetail = _tvMazeHandler.GetSeries(seriesDetail.Id);
-      return seriesDetail != null;
+      TvMazePerson personDetail = null;
+      if (character.TvMazeId > 0)
+        personDetail = _tvMazeHandler.GetCharacter(character.TvMazeId, cacheOnly);
+      if (personDetail == null) return false;
+
+      character.TvMazeId = personDetail.Id;
+      character.Name = personDetail.Name;
+
+      return true;
     }
 
-    public bool GetSeriesByImDbId(string id, out TvMazeSeries seriesDetail)
+    #endregion
+
+    #region Convert
+
+    private List<PersonInfo> ConvertToPersons(List<TvMazeCast> cast, string occupation)
     {
-      seriesDetail = _tvMazeHandler.GetSeriesByImDb(id);
-      //Get series with external Id does not include episodes, so call with native Id
-      if(seriesDetail.Id > 0)
-        seriesDetail = _tvMazeHandler.GetSeries(seriesDetail.Id);
-      return seriesDetail != null;
+      if (cast == null || cast.Count == 0)
+        return new List<PersonInfo>();
+
+      List<PersonInfo> retValue = new List<PersonInfo>();
+      foreach (TvMazeCast person in cast)
+        retValue.Add(new PersonInfo() { TvMazeId = person.Person.Id, Name = person.Person.Name, Occupation = occupation });
+      return retValue;
     }
 
-    public bool GetSeriesSeason(int id, int season, out TvMazeSeason seasonDetail)
+    private List<CharacterInfo> ConvertToCharacters(List<TvMazeCast> characters)
     {
-      List<TvMazeSeason> seasons = _tvMazeHandler.GetSeriesSeasons(id);
-      seasonDetail = seasons.Where(s => s.SeasonNumber == season).First();
-      return seasonDetail != null;
+      if (characters == null || characters.Count == 0)
+        return new List<CharacterInfo>();
+
+      List<CharacterInfo> retValue = new List<CharacterInfo>();
+      foreach (TvMazeCast person in characters)
+        retValue.Add(new CharacterInfo()
+        {
+          ActorTvMazeId = person.Person.Id,
+          ActorName = person.Person.Name,
+          TvMazeId = person.Character.Id,
+          Name = person.Character.Name
+        });
+      return retValue;
     }
 
-    public bool GetSeriesEpisode(int id, int season, int episode, out TvMazeEpisode episodeDetail)
+    private List<CompanyInfo> ConvertToCompanies(TvMazeNetwork company, string type)
     {
-      episodeDetail = _tvMazeHandler.GetSeriesEpisode(id, season, episode);
-      return episodeDetail != null;
+      if (company == null)
+        return new List<CompanyInfo>();
+
+      return new List<CompanyInfo>(
+        new CompanyInfo[]
+        {
+          new CompanyInfo()
+          {
+             TvMazeId = company.Id,
+             Name = company.Name,
+             Type = type
+          }
+      });
     }
 
-    public bool GetPerson(int id, out TvMazePerson personDetail)
+    #endregion
+
+    #region FanArt
+
+    public override bool GetFanArt<T>(T infoObject, string language, string scope, out FanArtImageCollection<TvMazeImageCollection> images)
     {
-      personDetail = _tvMazeHandler.GetPerson(id);
-      return personDetail != null;
+      images = new FanArtImageCollection<TvMazeImageCollection>();
+
+      if (scope == FanArtScope.Series)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        SeasonInfo season = infoObject as SeasonInfo;
+        SeriesInfo series = infoObject as SeriesInfo;
+        if (series == null && season != null)
+        {
+          series = season.CloneBasicSeries();
+        }
+        if (series == null && episode != null)
+        {
+          series = episode.CloneBasicSeries();
+        }
+        if (series != null && series.TvMazeId > 0)
+        {
+          // Download all image information, filter later!
+          TvMazeSeries seriesDetail = _tvMazeHandler.GetSeries(series.TvMazeId, false);
+          if(seriesDetail != null)
+          {
+            images.Id = series.TvMazeId.ToString();
+            images.Posters.Add(seriesDetail.Images);
+            return true;
+          }
+        }
+      }
+      else if (scope == FanArtScope.Episode)
+      {
+        EpisodeInfo episode = infoObject as EpisodeInfo;
+        if (episode != null && episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+        {
+          // Download all image information, filter later!
+          TvMazeEpisode episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0], false);
+          if (episodeDetail != null)
+          {
+            images.Id = episode.SeriesTvMazeId.ToString();
+            images.Thumbnails.Add(episodeDetail.Images);
+            return true;
+          }
+        }
+      }
+      else if (scope == FanArtScope.Actor)
+      {
+        PersonInfo person = infoObject as PersonInfo;
+        if (person != null && person.TvMazeId > 0)
+        {
+          // Download all image information, filter later!
+          TvMazePerson personDetail = _tvMazeHandler.GetPerson(person.TvMazeId, false);
+          if (personDetail != null)
+          {
+            images.Id = person.TvMazeId.ToString();
+            images.Thumbnails.Add(personDetail.Images);
+            return true;
+          }
+        }
+      }
+      else if (scope == FanArtScope.Character)
+      {
+        CharacterInfo character = infoObject as CharacterInfo;
+        if (character != null && character.TvMazeId > 0)
+        {
+          // Download all image information, filter later!
+          TvMazePerson personDetail = _tvMazeHandler.GetCharacter(character.TvMazeId, false);
+          if (personDetail != null)
+          {
+            images.Id = character.TvMazeId.ToString();
+            images.Thumbnails.Add(personDetail.Images);
+            return true;
+          }
+        }
+      }
+      else
+      {
+        return true;
+      }
+      return false;
     }
 
-    public bool GetCharacter(int id, out TvMazePerson characterDetail)
+    public override bool DownloadFanArt(string id, TvMazeImageCollection image, string scope, string type)
     {
-      characterDetail = _tvMazeHandler.GetCharacter(id);
-      return characterDetail != null;
+      int ID;
+      if (int.TryParse(id, out ID))
+      {
+        string category = string.Format(@"{0}\{1}", scope, type);
+        return _tvMazeHandler.DownloadImage(ID, image, category);
+      }
+      return false;
     }
 
-    /// <summary>
-    /// Returns the Levenshtein distance for a <paramref name="movieName"/> and a given <paramref name="searchName"/>.
-    /// </summary>
-    /// <param name="movieName">MovieSearchResult</param>
-    /// <param name="searchName">Movie name</param>
-    /// <returns>Levenshtein distance</returns>
-    protected int GetLevenshteinDistance(string movieName, string searchName)
+    public override bool DownloadSeriesSeasonFanArt(string id, int seasonNo, TvMazeImageCollection image, string scope, string type)
     {
-      string cleanedName = RemoveCharacters(searchName);
-      return StringUtils.GetLevenshteinDistance(RemoveCharacters(movieName), cleanedName);
+      int ID;
+      if (int.TryParse(id, out ID))
+      {
+        string category = string.Format(@"S{0:00} {1}\{2}", seasonNo, scope, type);
+        return _tvMazeHandler.DownloadImage(ID, image, category);
+      }
+      return false;
     }
 
-    /// <summary>
-    /// Replaces characters that are not necessary for comparing (like whitespaces) and diacritics. The result is returned as <see cref="string.ToLowerInvariant"/>.
-    /// </summary>
-    /// <param name="name">Name to clean up</param>
-    /// <returns>Cleaned string</returns>
-    protected string RemoveCharacters(string name)
+    public override bool DownloadSeriesEpisodeFanArt(string id, int seasonNo, int episodeNo, TvMazeImageCollection image, string scope, string type)
     {
-      name = name.ToLowerInvariant();
-      string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'", "(", ")", "[", "]", "teil", "part" }.Aggregate(name, (current, s) => current.Replace(s, ""));
-      result = result.Replace("&", "and");
-      return StringUtils.RemoveDiacritics(result);
+      int ID;
+      if (int.TryParse(id, out ID))
+      {
+        string category = string.Format(@"S{0:00}E{1:00} {2}\{3}", seasonNo, episodeNo, scope, type);
+        return _tvMazeHandler.DownloadImage(ID, image, category);
+      }
+      return false;
     }
 
-    public bool DownloadImage(int id, TvMazeImageCollection image, string category)
-    {
-      if (image == null) return false;
-      return _tvMazeHandler.DownloadImage(id, image, category);
-    }
-
-    public byte[] GetImage(int id, TvMazeImageCollection image, string category)
-    {
-      if (image == null) return null;
-      return _tvMazeHandler.GetImage(id, image, category);
-    }
+    #endregion
   }
 }
