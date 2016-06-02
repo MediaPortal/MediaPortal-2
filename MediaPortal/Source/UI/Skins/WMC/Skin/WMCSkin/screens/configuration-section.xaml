@@ -27,7 +27,7 @@
         <ListView x:Name="ConfigItemsList"
             DockPanel.Dock="Center"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            Style="{ThemeResource ContentsMenuListViewStyle}"
+            Style="{ThemeResource LeftMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding ConfigSettings}">
           <ListView.Resources>

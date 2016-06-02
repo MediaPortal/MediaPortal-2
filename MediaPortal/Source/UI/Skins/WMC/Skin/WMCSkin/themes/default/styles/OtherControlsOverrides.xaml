@@ -493,7 +493,7 @@
   <DataTemplate x:Key="LeftMenuItemDataTemplate">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
+          HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,-2,0,0" Height="48"
           Color="{ThemeResource WindowHeaderColor}"/>
     </DockPanel>
   </DataTemplate>

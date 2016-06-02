@@ -24,7 +24,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Label Content="[HomeEditor.Configuration.ActionRemove.Label]" Color="{ThemeResource MenuTextBackground}" Margin="0,5,10,5"/>
+        <Label Content="[HomeEditor.Configuration.ActionRemove.Label]" Color="{ThemeResource TextColor}" Margin="0,5,10,5"/>
         <ListView Name="GroupActionsList" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,5,10,5"
                   Style="{ThemeResource MultiMarkableListViewStyle}"
                   ItemsSource="{Binding Path=GroupProxy.ItemsToRemoveList,Mode=OneTime}" />

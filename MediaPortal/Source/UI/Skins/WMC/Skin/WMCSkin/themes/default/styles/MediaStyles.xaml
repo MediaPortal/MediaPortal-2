@@ -992,7 +992,7 @@
         </Image.IsVisible>
       </Image>
       <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="0,0,10,0"
-          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/> <!--Name needs to be duration, so the TextColor can be changed-->
+          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/> <!--x:Name needs to be duration, so the TextColor can be changed in ControlStyle-->
     </Grid>
   </ControlTemplate>
   
