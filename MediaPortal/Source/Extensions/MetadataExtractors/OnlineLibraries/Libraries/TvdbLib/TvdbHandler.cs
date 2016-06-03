@@ -429,7 +429,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
               List<TvdbEpisode> epList = _downloader.DownloadEpisodes(seriesId, language);
               if (epList != null)
               {
-                newFields.Episodes = epList;
+                newFields.Episodes.Clear();
+                newFields.Episodes.AddRange(epList);
                 newFields.EpisodesLoaded = true;
               }
             }

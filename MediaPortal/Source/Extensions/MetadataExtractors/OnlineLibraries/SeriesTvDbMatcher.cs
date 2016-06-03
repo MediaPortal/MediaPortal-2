@@ -169,11 +169,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
 
       // Multiple episodes
-      SetMultiEpisodeDetailsl(seriesInfo, episodes);
+      SetMultiEpisodeDetails(seriesInfo, episodes);
       return true;
     }
 
-    private static void SetMultiEpisodeDetailsl(SeriesInfo seriesInfo, List<TvdbEpisode> episodes)
+    private static void SetMultiEpisodeDetails(SeriesInfo seriesInfo, List<TvdbEpisode> episodes)
     {
       seriesInfo.TotalRating = episodes.Sum(e => e.Rating) / episodes.Count; // Average rating
       seriesInfo.Episode = string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray());
