@@ -122,7 +122,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannels(ChannelGroups.Current, out channels))
       {
-        Channels.Clear();
+        Channels.ClearAndReset();
         Channels.AddRange(channels);
         Channels.FireListChanged();
         // Check user zapping setting for channel index vs. number preferance
@@ -151,6 +151,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public EventHandler OnListChanged;
 
     private int _current;
+
+    public void ClearAndReset()
+    {
+      Clear();
+      _current = 0;
+    }
 
     public T Current
     {
