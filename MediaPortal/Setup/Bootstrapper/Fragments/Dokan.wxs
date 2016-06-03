@@ -11,10 +11,17 @@
     <PackageGroup Id="dokan">
       <ExePackage Id="dokan" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
                   Name="DokanSetup.exe"
-                  DownloadUrl="https://github.com/dokan-dev/dokany/releases/download/v1.0.0-RC3/DokanSetup.exe"
+                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/DokanSetup.exe"
                   InstallCommand="/q"
-                  InstallCondition="(NOT Dokan_1000_Version >= v1.0.0.0) OR NOT Dokan_1000_Version">                                                                                                                     
-        <RemotePayload Description="Dokan Library Bundle" ProductName="Dokan Library Bundle" Size="5273368" Version="1.0.0.103" Hash="b405b0ae2297d99d9d93d8b93dbc930b81c27660"/>
+                  InstallCondition="(NOT Dokan_1000_Version >= v1.0.0.0) OR NOT Dokan_1000_Version">
+        <RemotePayload
+                  CertificatePublicKey="70E450EF45A7F579112248987E26294ACCDC3D2F"
+                  CertificateThumbprint="F8A563CC68F5C1501337A38404F81CC9E1567A14"
+                  Description="Dokan Library 1.0.0.103 Bundle"
+                  Hash="B405B0AE2297D99D9D93D8B93DBC930B81C27660"
+                  ProductName="Dokan Library 1.0.0.103 Bundle"
+                  Size="5273368"
+                  Version="1.0.0.103" />
       </ExePackage>
     </PackageGroup>
 
