@@ -244,6 +244,10 @@
     <Content Include="Skin\WMCSkin\images\Weather\64x64\na.png" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\WMCSkin\screens\LatestMedia.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemListImageDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioDetails.inc">
       <SubType>Designer</SubType>
@@ -271,6 +275,10 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MultiDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\weather.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Skin\WMCSkin\skin.xml" />
     <Content Include="Skin\WMCSkin\themes\default\images\FilterLarge.png" />
     <Content Include="Skin\WMCSkin\themes\default\images\FilterSmall.png" />

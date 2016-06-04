@@ -345,7 +345,7 @@
       <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="search.png"
                    Width="28" Height="28" Stretch="Fill" Margin="0" Opacity="1" x:Name="ItemControl">
         <Image.Source>
-          <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}.png"/>
+          <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}TopMenu\{0}.png"/>
         </Image.Source>
       </Image>
     </DockPanel>
