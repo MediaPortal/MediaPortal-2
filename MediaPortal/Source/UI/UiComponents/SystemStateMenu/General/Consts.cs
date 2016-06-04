@@ -52,6 +52,7 @@ namespace MediaPortal.Plugins.SystemStateMenu
 
     // Accessor keys for GUI communication
     public const string KEY_NAME = "Name";
+    public const string KEY_ACTION = "Action";
     public const string KEY_INDEX = "Sort-Index";
 
     // SleepTimer
