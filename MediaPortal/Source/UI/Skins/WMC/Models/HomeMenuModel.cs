@@ -72,6 +72,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       _navigationList = new NavigationList<ListItem>();
       _groupedActions = new Dictionary<Guid, HomeMenuAction>();
+      _availableActions = new Dictionary<Guid, WorkflowAction>();
       NestedMenuItems = new ItemsList();
       SubItems = new ItemsList();
       _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
@@ -161,6 +162,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     private void OnSettingsChanged(object sender, EventArgs e)
     {
       _refreshNeeded = true;
+      UpdateMenu();
     }
 
     private void OnMenuItemsChanged(IObservable observable)
@@ -253,7 +255,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     protected void UpdateAvailableActions()
     {
-      _availableActions = new Dictionary<Guid, WorkflowAction>();
+      UninitializeActions();
+      _availableActions.Clear();
       foreach (ListItem item in MenuItems)
       {
         WorkflowAction action;
@@ -265,6 +268,19 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         .Where(a => a.SourceStateIds != null && a.SourceStateIds.Contains(CUSTOM_HOME_STATE_ID));
       foreach (WorkflowAction action in customActions)
         _availableActions[action.ActionId] = action;
+      InitializeActions();
+    }
+
+    protected void InitializeActions()
+    {
+      foreach (WorkflowAction action in _availableActions.Values)
+        action.AddRef();
+    }
+
+    protected void UninitializeActions()
+    {
+      foreach (WorkflowAction action in _availableActions.Values)
+        action.RemoveRef();
     }
 
     protected void UpdateNavigationList()
