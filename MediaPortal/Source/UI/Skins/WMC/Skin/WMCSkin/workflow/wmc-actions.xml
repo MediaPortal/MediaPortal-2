@@ -54,5 +54,14 @@
       TargetState="BF7E11F6-87DE-4CB6-9A94-1A738CC52710"
       DisplayTitle="[HomeEditor.Configuration]"/>
 
+    <WorkflowContributorAction Id="0983AB07-5EC6-4F38-B657-F07FF0819A4E"
+        Name="Home->SkinSettings"
+        DisplayCategory="B-SkinSettings"
+        SortOrder="a"
+        SourceStates="B285DC02-AA8C-47F2-8795-0B13B6E66306"
+        ContributorModelId="762EC648-AA64-42A4-9401-59FDB2FBF18C"
+        DisplayTitle="[WMC.Configuration.SkinSettings]"/>    <!-- SkinSettings action -->
+    
+
   </MenuActions>
 </Workflow>

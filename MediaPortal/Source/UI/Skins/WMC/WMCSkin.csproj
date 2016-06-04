@@ -58,13 +58,19 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Actions\SkinSettingsAction.cs" />
     <Compile Include="Controls\SubItemsContentPresenter.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\NavigationList.cs" />
     <Compile Include="Models\NestedItem.cs" />
+    <Compile Include="Models\SkinSettingsModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
+    <Compile Include="Settings\Configuration\SkinChangeMonitor.cs" />
+    <Compile Include="Settings\WMCSkinSettings.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
     <Content Include="Skin\WMCSkin\fonts\default-font.xml" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
