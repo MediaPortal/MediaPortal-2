@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="www.team-mediaportal.com/2008/mpf/directx"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System"
+                    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+                    DependsOnStyleResources="Colors,Buttons">
+
+  <Style x:Key="SystemStateConfigurationItemContainerStyle"
+           BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid x:Name="ParentPanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <CheckBox x:Name="SystemStateActionMarker"
+                      Grid.Column="0"
+                      Grid.Row="0"
+                      Margin="2,1,0,1"
+                      Command="{DynamicResource ResourceKey=CheckedChange_Command}"
+                      IsChecked="{Binding Path=AdditionalProperties[IsChecked],Mode=TwoWay}" />
+
+            <Button x:Name="MoveUpButton"
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    Margin="3"
+                    Width="30"
+                    Height="30"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Style="{ThemeResource ArrowButtonUpStyle}"
+                    Context="{Binding}"
+                    Command="{DynamicResource ResourceKey=MoveUp_Command}"
+                    SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}" />
+
+            <Button x:Name="MoveDownButton"
+                    Grid.Column="2"
+                    Grid.Row="0"
+                    Margin="3"
+                    Width="30"
+                    Height="30"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Style="{ThemeResource ArrowButtonDownStyle}"
+                    Context="{Binding}"
+                    Command="{DynamicResource ResourceKey=MoveDown_Command}"
+                    SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
+  <Style x:Key="SystemStateConfigurationListViewStyle"
+           BasedOn="{ThemeResource DefaultListViewStyle}">
+    <!--
+    <Setter Property="ItemTemplate"
+            Value="{ThemeResource DefaultItemDataTemplate}" />
+    <Setter Property="DataStringProvider"
+            Value="{ThemeResource DefaultItemDataStringProvider}" />
+    -->
+    <Setter Property="ItemContainerStyle"
+            Value="{ThemeResource SystemStateConfigurationItemContainerStyle}" />
+  </Style>
+
+  <DataTemplate x:Key="PowerMenuItemDataTemplate">
+    <DockPanel LastChildFill="False">
+      <Image DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="search.png"
+                   Width="28" Height="28" Stretch="Fill" Margin="0" Opacity="1" x:Name="ItemControl">
+        <Image.Source>
+          <Binding Path="AdditionalProperties[Action]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}PowerMenu\{0}.png"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Center"
+                   HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Opacity="0.6"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="SystemStateMenuItemContainerStyle"
+           BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <DockPanel x:Name="ItemGroup">
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="10,2,10,2" DockPanel.Dock="Center"
+                    Command="{DynamicResource ResourceKey=Menu_Command}"
+                    SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <!-- Consider the item's enabled state -->
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsEnabled"/>
+                  <!-- In combination with the parent ListView's enabled state -->
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type ListView}}" Path="IsEnabled"/>
+                </MultiBinding>
+              </Button.IsEnabled>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                  <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
+                  <!--Setter TargetName="ItemGroup" Property="Margin" Value="10,0,10,0"/-->
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for items in SystemStateMenu -->
+  <Style x:Key="SystemStateMenuListViewStyle"
+           BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate"
+            Value="{ThemeResource PowerMenuItemDataTemplate}" />
+      <Setter Property="DataStringProvider"
+            Value="{ThemeResource DefaultItemDataStringProvider}" />
+      <Setter Property="ItemContainerStyle"
+            Value="{ThemeResource SystemStateMenuItemContainerStyle}" />
+  </Style>
+
+</ResourceDictionary>

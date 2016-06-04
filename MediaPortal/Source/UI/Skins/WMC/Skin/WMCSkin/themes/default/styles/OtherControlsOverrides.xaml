@@ -13,6 +13,7 @@
   <!-- BackgroundManager model -->
   <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
   <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
+  
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
