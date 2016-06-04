@@ -13,7 +13,6 @@
   <!-- BackgroundManager model -->
   <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
   <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
-  
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
@@ -342,7 +341,7 @@
 
   <DataTemplate x:Key="TopMenuItemDataTemplate">
     <DockPanel LastChildFill="False">
-      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="search.png"
+      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="TopMenu\search.png"
                    Width="28" Height="28" Stretch="Fill" Margin="0" Opacity="1" x:Name="ItemControl">
         <Image.Source>
           <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}TopMenu\{0}.png"/>
@@ -392,10 +391,10 @@
 
   <DataTemplate x:Key="SlideMenuItemDataTemplate">
     <DockPanel LastChildFill="False">
-      <Image DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="search.png"
+      <Image DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="TopMenu\search.png"
                    Width="28" Height="28" Stretch="Fill" Margin="0" Opacity="1" x:Name="ItemControl">
         <Image.Source>
-          <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}.png"/>
+          <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}TopMenu\{0}.png"/>
         </Image.Source>
       </Image>
       <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Center"

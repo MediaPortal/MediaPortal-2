@@ -66,26 +66,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\fonts\default-font.xml" />
-    <Content Include="Skin\WMCSkin\images\03189090-a3c1-4346-9a84-4acd6725dde0.png" />
-    <Content Include="Skin\WMCSkin\images\09243059-ee44-460d-8412-2e994ccb5a98.png" />
-    <Content Include="Skin\WMCSkin\images\09eae702-d9ec-4325-82d9-4843502c966b.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer3.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer4.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer5.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer6.png" />
-    <Content Include="Skin\WMCSkin\images\f400fbea-6e32-4735-be52-15dfdbb64fcc.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Skin\WMCSkin\images\b15ea757-905e-46fa-a71d-c132885c221e.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Skin\WMCSkin\images\d205e9bc-a970-429d-88f8-bbb92cf3f19a.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.NOFOCUS.PNG" />
@@ -141,7 +127,6 @@
     <Content Include="Skin\WMCSkin\images\preview.png" />
     <Content Include="Skin\WMCSkin\images\RECORD.SERIES.PNG" />
     <Content Include="Skin\WMCSkin\images\RECORD.SINGLE.PNG" />
-    <Content Include="Skin\WMCSkin\images\search.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\0.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\1.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\10.png" />
