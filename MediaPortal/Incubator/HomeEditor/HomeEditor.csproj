@@ -31,6 +31,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\AbstractConfigurationAction.cs" />
     <Compile Include="Actions\RestoreDefaultsAction.cs" />
     <Compile Include="Actions\AddActionAction.cs" />
     <Compile Include="Actions\AddGroupAction.cs" />
