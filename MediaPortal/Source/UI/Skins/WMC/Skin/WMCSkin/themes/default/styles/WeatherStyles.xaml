@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    DependsOnStyleResources="Colors,Buttons"
+    >
+
+  <!-- A simple data template to show the Name of the ListItem in a Label -->
+  <DataTemplate x:Key="WeatherLocationItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="300"/>
+        <ColumnDefinition Width="20"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Label Grid.Row="0" Grid.Column="0" x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label Grid.Row="0" Grid.Column="2" x:Name="DetailLabel" Content="{Binding [Detail]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <DataStringProvider x:Key="WeatherLocationItemDataStringProvider" Path="[Name]"/>
+
+  <!-- ListView style to be used for the weather setup location list -->
+  <Style x:Key="WeatherDisplayLocationsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource WeatherLocationItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultHighlightableItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
+  </Style>
+
+  <Style x:Key="WeatherLocationSearchListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
+  </Style>
+
+
+  <!-- Styles for a single day forecast -->
+  <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="10" HorizontalAlignment="Stretch" Background="#0D000000" Height="250">
+      <Border BorderThickness="0" CornerRadius="8" Background="#0D000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>  
+        <StackPanel VerticalAlignment="Center" Margin="10,10,10,10" HorizontalAlignment="Center">
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
+            <Image Width="120" Height="120" Stretch="Fill" Source="{Binding BigIconProperty}" Margin="0,0,10,0"/>
+            <StackPanel Orientation="Vertical" Margin="5">
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+      <Image Source="focus.frame.png" Stretch="Fill" Margin="0,0,0,0"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ListView style for all forecasts of the current location -->
+  <Style x:Key="ForecastListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ForecastItemDataTemplate}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <UniformGrid x:Name="ListItemsHost" IsItemsHost="True" Columns="5" Rows="1" HorizontalAlignment="Stretch"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>
+
