@@ -119,20 +119,20 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <AnimatedScrollContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
-                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-              <AnimatedScrollContentPresenter.Resources>
+            <wmc:SubItemsContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
+                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableAnimations}">
+              <wmc:SubItemsContentPresenter.Resources>
                 <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                   <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
                 </Storyboard>
-              </AnimatedScrollContentPresenter.Resources>
-              <AnimatedScrollContentPresenter.Triggers>
+              </wmc:SubItemsContentPresenter.Resources>
+              <wmc:SubItemsContentPresenter.Triggers>
                 <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
                   <EventTrigger.Actions>
                     <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
                   </EventTrigger.Actions>
                 </EventTrigger>
-              </AnimatedScrollContentPresenter.Triggers>
+              </wmc:SubItemsContentPresenter.Triggers>
               <!--ScrollContentPresenter.OpacityMask>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                     <GradientStop Color="Transparent" Offset="0.01" />
@@ -141,7 +141,7 @@
                                     <GradientStop Color="Transparent" Offset="0.99" />
                                 </LinearGradientBrush>
                             </ScrollContentPresenter.OpacityMask-->
-            </AnimatedScrollContentPresenter>
+            </wmc:SubItemsContentPresenter>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

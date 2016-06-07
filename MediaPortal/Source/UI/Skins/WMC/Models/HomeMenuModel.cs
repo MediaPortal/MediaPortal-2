@@ -56,8 +56,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected const string KEY_ITEM_GROUP = "HomeMenuModel: Group";
     protected const string KEY_ITEM_SELECTED_ACTION_ID = "HomeMenuModel: SelectedActionId";
 
+    protected AbstractProperty _enableAnimationsProperty;
+
     private readonly DelayedEvent _delayedMenuUpdateEvent;
-    private NavigationList<ListItem> _navigationList;    
+    private NavigationList<ListItem> _navigationList;
     protected List<HomeMenuGroup> _groups;
     protected Dictionary<Guid, HomeMenuAction> _groupedActions;
     protected Dictionary<Guid, WorkflowAction> _availableActions;
@@ -70,6 +72,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     public HomeMenuModel()
     {
+      _enableAnimationsProperty = new WProperty(typeof(bool), false);
       _navigationList = new NavigationList<ListItem>();
       _groupedActions = new Dictionary<Guid, HomeMenuAction>();
       _availableActions = new Dictionary<Guid, WorkflowAction>();
@@ -118,6 +121,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public ItemsList NestedMenuItems { get; private set; }
     public ItemsList SubItems { get; private set; }
 
+    public AbstractProperty EnableAnimationsProperty
+    {
+      get { return _enableAnimationsProperty; }
+    }
+
+    public bool EnableAnimations
+    {
+      get { return (bool)_enableAnimationsProperty.GetValue(); }
+      set { _enableAnimationsProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public Methods
@@ -137,6 +151,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       var item = e.FirstAddedItem as ListItem;
       if (item != null)
         SetCurrentSubItem(item);
+      EnableAnimations = true;
     }
 
     public void OnKeyPress(object sender, KeyPressEventArgs e)
@@ -225,11 +240,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       if (item == null)
         return;
 
-      HomeMenuGroup group = null;
-      object oGroup;
-      if (item.AdditionalProperties.TryGetValue(KEY_ITEM_GROUP, out oGroup))
-        group = oGroup as HomeMenuGroup;
-
+      EnableAnimations = false;
+      HomeMenuGroup group = item.AdditionalProperties[KEY_ITEM_GROUP] as HomeMenuGroup;
       bool fireChange = false;
       List<WorkflowAction> actions = GetGroupActions(group);
       if (forceUpdate || SubItemsNeedUpdate(SubItems, actions))
@@ -374,9 +386,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected void FocusCurrentSubItem(ListItem parentItem)
     {
       Guid? currentActionId = null;
-      object oActionId;
-      if (parentItem != null && parentItem.AdditionalProperties.TryGetValue(KEY_ITEM_SELECTED_ACTION_ID, out oActionId))
-        currentActionId = oActionId as Guid?;
+      if (parentItem != null)
+        currentActionId = parentItem.AdditionalProperties[KEY_ITEM_SELECTED_ACTION_ID] as Guid?;
 
       WorkflowAction action;
       for (int i = 0; i < SubItems.Count; i++)
@@ -395,12 +406,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       if (item != null)
       {
-        object oAction;
-        if (item.AdditionalProperties.TryGetValue(Consts.KEY_ITEM_ACTION, out oAction))
-        {
-          action = oAction as WorkflowAction;
-          return action != null;
-        }
+        action = item.AdditionalProperties[Consts.KEY_ITEM_ACTION] as WorkflowAction;
+        return action != null;
       }
       action = null;
       return false;

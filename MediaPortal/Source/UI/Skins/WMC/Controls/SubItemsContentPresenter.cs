@@ -3,18 +3,20 @@ using SharpDX;
 
 namespace MediaPortal.UiComponents.WMCSkin.Controls
 {
-  public class SubItemsContentPresenter : ScrollContentPresenter
+  public class SubItemsContentPresenter : AnimatedScrollContentPresenter
   {
     public override void BringIntoView(UIElement element, RectangleF elementBounds)
     {
-      if (AutoCentering != ScrollAutoCenteringEnum.None)
-      {
-        //disable auto centering if using mouse, prevents items from scrolling
-        FrameworkElement frameworkElement = element as FrameworkElement;
-        if (frameworkElement != null && frameworkElement.IsMouseOver)
-          return;
-      }
+      //disable auto centering if using mouse, prevents items from scrolling
+      if (AutoCentering != ScrollAutoCenteringEnum.None && IsMouseOverElement(element))
+        return;
       base.BringIntoView(element, elementBounds);
+    }
+
+    protected bool IsMouseOverElement(UIElement element)
+    {
+      FrameworkElement frameworkElement = element as FrameworkElement;
+      return frameworkElement != null && frameworkElement.IsMouseOver;
     }
   }
 }
