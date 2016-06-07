@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
+namespace MediaPortal.UiComponents.WMCSkin.Settings
 {
   public class SkinChangeMonitor
   {
