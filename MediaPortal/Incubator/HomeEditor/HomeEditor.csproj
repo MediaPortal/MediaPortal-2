@@ -75,7 +75,6 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\WMCSkin\workflow\home_menu_editor-actions.xml" />
     <Content Include="Skin\default\workflow\home_menu_editor-actions.xml" />
   </ItemGroup>
   <ItemGroup>
