@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    DependsOnStyleResources="Colors,Buttons,NewsConsts"
+    >
+
+  <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource HintTextColor}"/>
+
+  <!-- Default no transformation for scrollbars -->
+  <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+  </ResourceWrapper>
+
+  <!-- Style for a single feed item -->
+  <DataTemplate x:Key="NewsFeedDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="5,2,5,2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemWatchedColor}" Content="{Binding Title}" Margin="5,0,5,0"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Style for a single news item -->
+  <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="5,2,5,2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+        <!--Label FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}"
+               Wrap="true" HorizontalAlignment="Right" Margin="0,0,5,0"
+               MaxWidth="{ResolutionResource NewsItemDateWidth}"/-->
+      <Label x:Name="ItemLabel" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemWatchedColor}" Content="{Binding Title}" VerticalAlignment="Center"/>
+
+      <!--Label Grid.Row="2" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Summary}" Wrap="true"/>
+      <Image Grid.Column="1" Grid.RowSpan="3" Stretch="UniformToFill" Source="{Binding Thumb}" Margin="8,0,0,0"
+             MaxWidth="{ResolutionResource NewsItemLogoWidth}"/-->
+    </Grid>
+  </DataTemplate>
+
+  <!-- Style for a single news feed bookmark item in the config list -->
+  <DataTemplate x:Key="NewsFeedBookmarkItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="30"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Label Content="{Binding Name}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+             Width="{ResolutionResource NewsFeedTitleWidth}"/>
+      <Label Grid.Column="1" Content="{Binding Url}" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
+      <Label Grid.Column="2" Content="X" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" IsVisible="{Binding Selected}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ListView style for all news feeds -->
+  <Style x:Key="NewsFeedsContainerStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedDataTemplate}"/>
+  </Style>
+
+  <!-- ListView style for all news items -->
+  <Style x:Key="NewsItemsContainerStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsItemDataTemplate}"/>
+  </Style>
+
+  <!-- ListView style to be used for the list in the news feeds configuration dialog -->
+  <Style x:Key="NewsFeedsBookmarksListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedBookmarkItemDataTemplate}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
+  </Style>
+
+</ResourceDictionary>
