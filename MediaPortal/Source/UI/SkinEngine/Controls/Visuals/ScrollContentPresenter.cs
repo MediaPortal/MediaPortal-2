@@ -75,21 +75,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Attach();
     }
 
-    protected void Init()
+    void Init()
     {
       _autoCenteringProperty = new SProperty(typeof(ScrollAutoCenteringEnum), ScrollAutoCenteringEnum.None);
       _horizontalFitToSpaceProperty = new SProperty(typeof(bool), false);
       _verticalFitToSpaceProperty = new SProperty(typeof(bool), false);
     }
 
-    protected void Attach()
+    void Attach()
     {
       _autoCenteringProperty.Attach(OnArrangeGetsInvalid);
       _horizontalFitToSpaceProperty.Attach(OnScrollDisabledChanged);
       _verticalFitToSpaceProperty.Attach(OnScrollDisabledChanged);
     }
 
-    protected void Detach()
+    void Detach()
     {
       _autoCenteringProperty.Detach(OnArrangeGetsInvalid);
       _horizontalFitToSpaceProperty.Detach(OnScrollDisabledChanged);

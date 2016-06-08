@@ -24,18 +24,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Attach();
     }
 
-    protected new void Init()
+    void Init()
     {
       _scrollOffsetMultiplierProperty = new SProperty(typeof(double), 0d);
       _enableAnimationsProperty = new SProperty(typeof(bool), true);
     }
 
-    protected new void Attach()
+    void Attach()
     {
       _scrollOffsetMultiplierProperty.Attach(OnMultiplierChanged);
     }
 
-    protected new void Detach()
+    void Detach()
     {
       _scrollOffsetMultiplierProperty.Detach(OnMultiplierChanged);
     }
