@@ -46,6 +46,7 @@ Default background image - no media present
             <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{ThemeResource BackgroundBrush}">
               <Grid.Resources>
                 <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+                <Model x:Key="SkinSettingsModel" Id="B074D623-D161-4F15-BE18-D73DD580B1BB"/>
               </Grid.Resources>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -54,7 +55,8 @@ Default background image - no media present
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <!-- If active, semitransparent FanArts will appear-->
-              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0">
+              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0"
+                     IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=EnableFanart}">
                 <Image.Source>
                   <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                    Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
