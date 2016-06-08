@@ -72,6 +72,8 @@
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="Skin\WMCSkin\fonts\default-font.xml" />
+    <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4EFocus.png" />
+    <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4ENofocus.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer3.png" />
