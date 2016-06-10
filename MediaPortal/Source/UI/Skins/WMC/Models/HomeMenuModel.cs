@@ -56,9 +56,11 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected const string KEY_ITEM_GROUP = "HomeMenuModel: Group";
     protected const string KEY_ITEM_SELECTED_ACTION_ID = "HomeMenuModel: SelectedActionId";
 
-    protected AbstractProperty _enableAnimationsProperty;
+    protected AbstractProperty _enableSubMenuAnimationsProperty;
+    protected AbstractProperty _enableMainMenuAnimationsProperty;
 
     private readonly DelayedEvent _delayedMenuUpdateEvent;
+    private readonly DelayedEvent _delayedAnimationEnableEvent;
     private NavigationList<ListItem> _navigationList;
     protected List<HomeMenuGroup> _groups;
     protected Dictionary<Guid, HomeMenuAction> _groupedActions;
@@ -72,7 +74,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     public HomeMenuModel()
     {
-      _enableAnimationsProperty = new WProperty(typeof(bool), false);
+      _enableSubMenuAnimationsProperty = new WProperty(typeof(bool), false);
+      _enableMainMenuAnimationsProperty = new WProperty(typeof(bool), false);
       _navigationList = new NavigationList<ListItem>();
       _groupedActions = new Dictionary<Guid, HomeMenuAction>();
       _availableActions = new Dictionary<Guid, WorkflowAction>();
@@ -80,6 +83,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       SubItems = new ItemsList();
       _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
       _delayedMenuUpdateEvent.OnEventHandler += ReCreateMenuItems;
+      _delayedAnimationEnableEvent = new DelayedEvent(500);
+      _delayedAnimationEnableEvent.OnEventHandler += EnableAnimations;
       _navigationList.OnCurrentChanged += SetSelection;
       SubscribeToMessages();
     }
@@ -121,20 +126,42 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public ItemsList NestedMenuItems { get; private set; }
     public ItemsList SubItems { get; private set; }
 
-    public AbstractProperty EnableAnimationsProperty
+    public AbstractProperty EnableSubMenuAnimationsProperty
     {
-      get { return _enableAnimationsProperty; }
+      get { return _enableSubMenuAnimationsProperty; }
     }
 
-    public bool EnableAnimations
+    public bool EnableSubMenuAnimations
     {
-      get { return (bool)_enableAnimationsProperty.GetValue(); }
-      set { _enableAnimationsProperty.SetValue(value); }
+      get { return (bool)_enableSubMenuAnimationsProperty.GetValue(); }
+      set { _enableSubMenuAnimationsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty EnableMainMenuAnimationsProperty
+    {
+      get { return _enableMainMenuAnimationsProperty; }
+    }
+
+    public bool EnableMainMenuAnimations
+    {
+      get { return (bool)_enableMainMenuAnimationsProperty.GetValue(); }
+      set { _enableMainMenuAnimationsProperty.SetValue(value); }
     }
 
     #endregion
 
     #region Public Methods
+
+    public void EnableAnimations()
+    {
+      _delayedAnimationEnableEvent.EnqueueEvent(this, EventArgs.Empty);
+    }
+
+    public void DisableAnimations()
+    {
+      EnableSubMenuAnimations = false;
+      EnableMainMenuAnimations = false;
+    }
 
     public void MoveNext()
     {
@@ -150,8 +177,11 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       var item = e.FirstAddedItem as ListItem;
       if (item != null)
+      {
         SetCurrentSubItem(item);
-      EnableAnimations = true;
+        if (EnableMainMenuAnimations)
+          EnableSubMenuAnimations = true;
+      }
     }
 
     public void OnKeyPress(object sender, KeyPressEventArgs e)
@@ -173,6 +203,18 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     }
 
     #endregion
+
+    protected void EnableAnimations(object sender, EventArgs e)
+    {
+      EnableSubMenuAnimations = true;
+      EnableMainMenuAnimations = true;
+    }
+
+    private void SetSelection(int oldindex, int newindex)
+    {
+      EnableSubMenuAnimations = false;
+      UpdateList(false);
+    }
 
     private void OnSettingsChanged(object sender, EventArgs e)
     {
@@ -200,7 +242,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         _settings.SettingsChanged += OnSettingsChanged;
         MenuItems.ObjectChanged += OnMenuItemsChanged;
       }
+      DisableAnimations();
       UpdateList(true);
+      _delayedAnimationEnableEvent.EnqueueEvent(this, EventArgs.Empty);
     }
 
     private void UpdateList(bool recreateList)
@@ -216,22 +260,24 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
           forceSubItemUpdate = false;
         else
           _navigationList.CurrentIndex = 0;
+
+        NestedMenuItems.Clear();
+        CollectionUtils.AddAll(NestedMenuItems, _navigationList);
       }
 
-      var currentIndex = _navigationList.CurrentIndex;
-      NestedMenuItems.Clear();
-      int fillItems = 4;
-      var count = _navigationList.Count;
-      for (int i = currentIndex - fillItems; i < currentIndex + count; i++)
+      bool afterSelected = false;
+      for (int i = 0; i < NestedMenuItems.Count; i++)
       {
-        var item = _navigationList.GetAt(i) ?? new NestedItem(Consts.KEY_NAME, ""); /* Placeholder for empty space before current list item */
-        NestedMenuItems.Add(item);
+        var item = (NestedItem)NestedMenuItems[i];
+        //item.IsCenteredItem = i == _navigationList.CurrentIndex;
+        item.AfterSelected = afterSelected;
+        bool selected = item == _navigationList.Current;
+        item.Selected = selected;
+        afterSelected |= selected;
       }
-      foreach (var nestedItem in NestedMenuItems)
-      {
-        nestedItem.Selected = nestedItem == _navigationList.Current;
-      }
-      NestedMenuItems.FireChange();
+      if (recreateList)
+        NestedMenuItems.FireChange();
+
       SetSubItems(_navigationList.Current, forceSubItemUpdate);
     }
 
@@ -240,7 +286,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       if (item == null)
         return;
 
-      EnableAnimations = false;
       HomeMenuGroup group = item.AdditionalProperties[KEY_ITEM_GROUP] as HomeMenuGroup;
       bool fireChange = false;
       List<WorkflowAction> actions = GetGroupActions(group);
@@ -308,12 +353,12 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       {
         foreach (HomeMenuAction action in group.Actions)
           _groupedActions[action.ActionId] = action;
-        ListItem item = new ListItem(Consts.KEY_NAME, group.DisplayName);
+        NestedItem item = new NestedItem(Consts.KEY_NAME, group.DisplayName);
         item.AdditionalProperties[KEY_ITEM_GROUP] = group;
         _navigationList.Add(item);
       }
       //Entry for all actions without a group
-      ListItem extrasItem = new ListItem(Consts.KEY_NAME, LocalizationHelper.CreateResourceString(_settings.Settings.OthersGroupName));
+      NestedItem extrasItem = new NestedItem(Consts.KEY_NAME, LocalizationHelper.CreateResourceString(_settings.Settings.OthersGroupName).Evaluate());
       _navigationList.Add(extrasItem);
     }
 
@@ -395,11 +440,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         SubItems[i].Selected = (currentActionId == null && i == 0) ||
           (TryGetAction(SubItems[i], out action) && action.ActionId == currentActionId);
       }
-    }
-
-    private void SetSelection(int oldindex, int newindex)
-    {
-      UpdateList(false);
     }
 
     protected static bool TryGetAction(ListItem item, out WorkflowAction action)

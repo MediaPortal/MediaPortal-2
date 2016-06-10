@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Buttons,Consts"
+    >
+
+  <ResourceWrapper x:Key="TransitionKeyFrame" Resource="00:00:00.200"/>
+  <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:00.300"/>
+  <ResourceWrapper x:Key="RenderTransformY" Resource="280"/>
+
+  <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="{StaticResource TransitionDuration}" FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+  </Storyboard>
+
+  <Storyboard x:Key="MainItemTransformAnimationQuick" FillBehavior="HoldEnd">
+    <DoubleAnimation BeginTime="00:00:00" To="{StaticResource RenderTransformY}" Duration="00:00:00.001" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenuItemContainer" Storyboard.TargetProperty="RenderTransform.Y" />
+  </Storyboard>
+
+  <Storyboard x:Key="MainItemTransformAnimation" FillBehavior="HoldEnd">
+    <DoubleAnimation BeginTime="00:00:00" To="{StaticResource RenderTransformY}" Duration="{StaticResource TransitionDuration}" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenuItemContainer" Storyboard.TargetProperty="RenderTransform.Y" />
+  </Storyboard>
+
+  <Storyboard x:Key="MainItemTransformAnimationReverse" FillBehavior="HoldEnd">
+    <DoubleAnimation BeginTime="00:00:00" To="0" Duration="{StaticResource TransitionDuration}" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenuItemContainer" Storyboard.TargetProperty="RenderTransform.Y" />
+  </Storyboard>
+
+  <Storyboard x:Key="ListFadeAnimation" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionKeyFrame}" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1.0"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="FocusFrameFadeAnimation" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FocusFrame" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionKeyFrame}" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1.0"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+</ResourceDictionary>

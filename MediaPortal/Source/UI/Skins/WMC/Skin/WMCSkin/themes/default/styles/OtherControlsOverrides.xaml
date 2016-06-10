@@ -7,7 +7,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
-    DependsOnStyleResources="Colors,Buttons,Consts,OtherControls"
+    DependsOnStyleResources="Colors,Buttons,Consts,OtherControls,Animations"
     >
 
   <!-- BackgroundManager model -->
@@ -29,76 +29,35 @@
           <Grid x:Name="ScrollViewerGrid">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
-              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="None"
-                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-              <ScrollContentPresenter.OpacityMask>
+            <wmc:HomeMenuContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Vertical"
+                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableMainMenuAnimations}">
+              <wmc:HomeMenuContentPresenter.Triggers>
+                <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
+                  <EventTrigger.Actions>
+                    <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                  </EventTrigger.Actions>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Screen.Show">
+                  <TriggerCommand Command="{Command Source={StaticResource HomeMenuModel}, Path=EnableAnimations}"/>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Screen.Hide">
+                  <TriggerCommand Command="{Command Source={StaticResource HomeMenuModel}, Path=DisableAnimations}"/>
+                </EventTrigger>
+              </wmc:HomeMenuContentPresenter.Triggers>
+              <wmc:HomeMenuContentPresenter.OpacityMask>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                   <GradientStop Color="Transparent" Offset="0.01" />
                   <GradientStop Color="Black" Offset="0.15" />
                   <GradientStop Color="Black" Offset="0.85" />
                   <GradientStop Color="Transparent" Offset="0.98" />
                 </LinearGradientBrush>
-              </ScrollContentPresenter.OpacityMask>
-            </ScrollContentPresenter>
-            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
-                Grid.ZIndex="0" Margin="2,10,2,2"
-                RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
-
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-              </Grid.RowDefinitions>
-
-              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
-                  Height="{ThemeResource ScrollBarWidth}"
-                  ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundColor}">
-              </Rectangle>
-
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
-                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarKnobWidth}"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                </Rectangle>
-              </StackPanel>
-            </Grid>
-            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
-                Grid.ZIndex="0" Margin="10,2,2,2"
-                RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
-
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-
-              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
-                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4"
-                  Width="{ThemeResource ScrollBarWidth}"
-                  ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
-                  Fill="{ThemeResource ScrollBarBackgroundColor}">
-              </Rectangle>
-
-              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
-                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
-                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
-                </Rectangle>
-              </StackPanel>
-            </Grid>
+              </wmc:HomeMenuContentPresenter.OpacityMask>
+            </wmc:HomeMenuContentPresenter>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -112,20 +71,13 @@
           <Grid x:Name="ScrollViewerGrid">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
-              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
             <wmc:SubItemsContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
-                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableAnimations}">
-              <wmc:SubItemsContentPresenter.Resources>
-                <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                  <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
-                </Storyboard>
-              </wmc:SubItemsContentPresenter.Resources>
+                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableSubMenuAnimations}">
               <wmc:SubItemsContentPresenter.Triggers>
                 <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
                   <EventTrigger.Actions>
@@ -278,7 +230,18 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" Opacity="0">
+            <StackPanel.Triggers>
+              <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="BeginFadeAnimation" Storyboard="{ThemeResource ListFadeAnimation}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="BeginFadeAnimation" />
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </StackPanel.Triggers>
+          </StackPanel>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -288,12 +251,69 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource SubItemContainerStyle}"/>
   </Style>
 
+  <Style x:Key="MyMainMenuContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Control x:Name="MainMenuItemContainer">
+            <Control.RenderTransform>
+              <TranslateTransform Y="0"/>
+            </Control.RenderTransform>
+            <Control.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+              
+              <!--Quick animation for when animations are disabled (A simple setter doesn't seem to work when Property is in the form AttachedProperty.Property)-->
+              <DataTrigger Binding="{Binding AfterSelected}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="BeginMainItemTransformAnimationQuick" Storyboard="{ThemeResource MainItemTransformAnimationQuick}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="BeginMainItemTransformAnimationReverse" Storyboard="{ThemeResource MainItemTransformAnimationReverse}"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+              
+              <!--Full animation when animations are enabled-->
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Binding="{Binding AfterSelected}" Value="True"/>
+                  <Condition Binding="{Binding Source={StaticResource HomeMenuModel}, Path=EnableMainMenuAnimations}" Value="True" />
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                  <BeginStoryboard x:Name="BeginMainItemTransformAnimation" Storyboard="{ThemeResource MainItemTransformAnimation}"/>
+                </MultiTrigger.EnterActions>
+              </MultiTrigger>
+              
+              <!--Triggers the ContentPresenter to auto scroll the item to center-->
+              <DataTrigger Binding="{Binding Selected}" Value="True">
+                <DataTrigger.EnterActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                         ElementName="MainMenuItemContainer"
+                         Path="BringIntoView"/>
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </DataTrigger.EnterActions>
+              </DataTrigger>
+            </Control.Triggers>
+            <Control.TemplateControl>
+              <ContentPresenter/>
+            </Control.TemplateControl>
+          </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <DataTemplate x:Key="MyMainMenuItemDataTemplate">
     <StackPanel x:Name="ItemControl" Orientation="Horizontal">
       <Label x:Name="ItemLabel" Content="{Binding [Name]}"
             HorizontalAlignment="Left" VerticalAlignment="Center"
-            Color="{ThemeResource TextColor}" Height="91"
-            FontSize="{ThemeResource HugeFontSize}">
+            Color="{ThemeResource MenuTextBackground}" Height="91"
+            FontSize="{ThemeResource HugeFontSize}" Margin="20,0,0,0"
+            >
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="Selected"/>
@@ -301,13 +321,6 @@
             <Binding Source="{ThemeResource MenuTextBackground}"/>
           </MultiBinding>
         </Label.Color>
-        <Label.Margin>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="Selected"/>
-            <Binding Source="0,20,0,280"/>
-            <Binding Source="20,0,0,0"/>
-          </MultiBinding>
-        </Label.Margin>
       </Label>
     </StackPanel>
   </DataTemplate>
@@ -329,14 +342,25 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="False" Orientation="Vertical"
-                      KeyPress="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="False" Orientation="Vertical" Opacity="0"
+                      KeyPress="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}">
+            <StackPanel.Triggers>
+              <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableMainMenuAnimations}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="BeginFadeAnimation" Storyboard="{ThemeResource ListFadeAnimation}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="BeginFadeAnimation" />
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </StackPanel.Triggers>
+          </StackPanel>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource MyMainMenuItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MyMainMenuContainerStyle}"/>
   </Style>
 
   <DataTemplate x:Key="TopMenuItemDataTemplate">
