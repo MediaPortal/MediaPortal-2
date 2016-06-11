@@ -331,19 +331,8 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="False" Orientation="Vertical" Opacity="0"
-                      KeyPress="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}">
-            <StackPanel.Triggers>
-              <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableMainMenuAnimations}" Value="True">
-                <DataTrigger.EnterActions>
-                  <BeginStoryboard x:Name="BeginFadeAnimation" Storyboard="{ThemeResource ListFadeAnimation}"/>
-                </DataTrigger.EnterActions>
-                <DataTrigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="BeginFadeAnimation" />
-                </DataTrigger.ExitActions>
-              </DataTrigger>
-            </StackPanel.Triggers>
-          </StackPanel>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="False" Orientation="Vertical"
+                      KeyPress="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

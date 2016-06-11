@@ -30,8 +30,8 @@
     <DoubleAnimation BeginTime="00:00:00" To="0" Duration="{StaticResource TransitionDuration}" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenuItemContainer" Storyboard.TargetProperty="RenderTransform.Y" />
   </Storyboard>
 
-  <Storyboard x:Key="ListFadeAnimation" FillBehavior="HoldEnd">
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="Opacity">
+  <Storyboard x:Key="MainMenuFadeAnimation" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
       <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionKeyFrame}" Value="0"/>
       <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1.0"/>
