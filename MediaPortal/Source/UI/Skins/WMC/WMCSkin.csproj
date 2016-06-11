@@ -448,11 +448,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\NewsItemDetail.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\NewsItems.xaml">
       <SubType>Designer</SubType>
     </Content>
