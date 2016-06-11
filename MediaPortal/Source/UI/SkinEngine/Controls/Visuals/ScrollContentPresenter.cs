@@ -162,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
 
         if (IsVertCentering)
-          differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight) - _actualScrollOffsetY;
+          differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
         else if (_doScroll)
           differenceY = CalculateVisibleScrollDifference(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
 
