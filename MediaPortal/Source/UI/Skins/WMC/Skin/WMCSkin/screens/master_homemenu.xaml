@@ -50,8 +50,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="520"/>
-          <RowDefinition Height="460"/>
+          <RowDefinition Height="500"/>
+          <RowDefinition Height="480"/>
         </Grid.RowDefinitions>
         <Grid.Resources>
           <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
@@ -125,8 +125,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </MultiTrigger>
           </Grid.Triggers>
 
-          <Image x:Name="FocusFrame" Source="Focus.frame.png" 
-               Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="10,-70,0,97"/>
+          <!--Image x:Name="FocusFrame" Source="Focus.frame.png" 
+               Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="10,-70,0,97"/-->
 
           <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 
                    SetFocusPrio="DefaultHigh"
@@ -139,6 +139,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </ListView>
         </Grid>
 
+        <Grid Grid.Row="2" Grid.Column="0" Opacity="1" Panel.ZIndex="99">
+          <Image x:Name="FocusFrame" Source="Focus.frame.png" 
+               Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="11,-1,0,18"/>
+        </Grid>
+        
         <!--<Rectangle x:Name="HoverGrid" Margin="0,200,8,120" RadiusX="25" RadiusY="25" HorizontalAlignment="Right" Width="440" Height="250" StrokeThickness="2"
             Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3">
           <Rectangle.Stroke>

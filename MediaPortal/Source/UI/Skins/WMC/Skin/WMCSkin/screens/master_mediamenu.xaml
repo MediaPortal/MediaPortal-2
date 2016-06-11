@@ -103,7 +103,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
              Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
-          <Grid x:Name="RightPanel" Margin="0,80,-650,-80" VerticalAlignment="Stretch"
+          <Grid x:Name="RightPanel" Margin="0,80,-650,-80" VerticalAlignment="Stretch" Panel.ZIndex="1000"
               Width="650" HorizontalAlignment="Right">
             <Grid.IsVisible>
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
