@@ -46,6 +46,13 @@ using MediaPortal.Common.General;
 
 namespace MediaPortal.UiComponents.WMCSkin.Models
 {
+  public enum ScrollDirection
+  {
+    None,
+    Up,
+    Down
+  }
+
   public class HomeMenuModel : MenuModel
   {
     #region Protected Members
@@ -58,6 +65,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     protected AbstractProperty _enableSubMenuAnimationsProperty;
     protected AbstractProperty _enableMainMenuAnimationsProperty;
+    protected AbstractProperty _scrollDirectionProperty;
 
     private readonly DelayedEvent _delayedMenuUpdateEvent;
     private readonly DelayedEvent _delayedAnimationEnableEvent;
@@ -76,6 +84,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       _enableSubMenuAnimationsProperty = new WProperty(typeof(bool), false);
       _enableMainMenuAnimationsProperty = new WProperty(typeof(bool), false);
+      _scrollDirectionProperty = new WProperty(typeof(ScrollDirection), ScrollDirection.None);
+
       _navigationList = new NavigationList<ListItem>();
       _groupedActions = new Dictionary<Guid, HomeMenuAction>();
       _availableActions = new Dictionary<Guid, WorkflowAction>();
@@ -148,6 +158,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       set { _enableMainMenuAnimationsProperty.SetValue(value); }
     }
 
+    public AbstractProperty ScrollDirectionProperty
+    {
+      get { return _scrollDirectionProperty; }
+    }
+
+    public ScrollDirection ScrollDirection
+    {
+      get { return (ScrollDirection)_scrollDirectionProperty.GetValue(); }
+      set { _scrollDirectionProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public Methods
@@ -161,6 +182,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       EnableSubMenuAnimations = false;
       EnableMainMenuAnimations = false;
+      ScrollDirection = ScrollDirection.None;
     }
 
     public void MoveNext()
@@ -212,6 +234,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     private void SetSelection(int oldindex, int newindex)
     {
+      ScrollDirection = newindex > oldindex ? ScrollDirection.Down : ScrollDirection.Up;
       EnableSubMenuAnimations = false;
       UpdateList(false);
     }

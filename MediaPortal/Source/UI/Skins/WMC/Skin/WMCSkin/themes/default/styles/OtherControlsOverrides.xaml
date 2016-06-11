@@ -230,18 +230,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" Opacity="0">
-            <StackPanel.Triggers>
-              <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableSubMenuAnimations}" Value="True">
-                <DataTrigger.EnterActions>
-                  <BeginStoryboard x:Name="BeginFadeAnimation" Storyboard="{ThemeResource ListFadeAnimation}"/>
-                </DataTrigger.EnterActions>
-                <DataTrigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="BeginFadeAnimation" />
-                </DataTrigger.ExitActions>
-              </DataTrigger>
-            </StackPanel.Triggers>
-          </StackPanel>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
