@@ -39,7 +39,7 @@
               <wmc:HomeMenuContentPresenter.Triggers>
                 <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
                   <EventTrigger.Actions>
-                    <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                    <BeginStoryboard Storyboard="{ThemeResource HomeMenuScrollAnimation}"/>
                   </EventTrigger.Actions>
                 </EventTrigger>
                 <EventTrigger RoutedEvent="Screen.Show">
@@ -81,7 +81,7 @@
               <wmc:SubItemsContentPresenter.Triggers>
                 <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
                   <EventTrigger.Actions>
-                    <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                    <BeginStoryboard Storyboard="{ThemeResource HomeMenuScrollAnimation}"/>
                   </EventTrigger.Actions>
                 </EventTrigger>
               </wmc:SubItemsContentPresenter.Triggers>
