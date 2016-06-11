@@ -62,10 +62,10 @@
             <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
               <Label DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" 
                      FontSize="{ThemeResource SmallFontSize}"
-                     Content="{Binding Title}" Margin="0" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                     Content="{Binding Title}" Margin="0" Wrap="True" VerticalAlignment="Stretch" />
               <Label Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" 
                      FontSize="{ThemeResource SmallFontSize}"
-                     Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" 
+                     Content="{Binding Path=LastUpdated, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" 
                      HorizontalAlignment="Left" VerticalAlignment="Stretch" />
               <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=Items.Count}" 
                      DataContext="{Binding ElementName=newslist,Path=CurrentItem}"

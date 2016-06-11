@@ -19,7 +19,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Image Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill" Margin="0,10,10,0" Width="190" Height="280">
+  <Image Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Margin="0,10,10,0" Height="280">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                           FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
@@ -35,8 +35,8 @@
   </Image>
 
   <Label x:Name="MediaItemName" Grid.Row="0"
-          HorizontalAlignment="Stretch"
-          Margin="-10,-15,0,0"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          Margin="-10,-15,0,0" Wrap="True"
           Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
           Color="{ThemeResource TextColor}"/>
 
