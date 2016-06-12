@@ -7,7 +7,7 @@
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   x:Name="MediaItemDetails"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-  Margin="0,-700,50,100">
+  Margin="100,0,10,100">
 
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
