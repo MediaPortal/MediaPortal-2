@@ -35,6 +35,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Include.Resources>
 
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png">
+      </Image>
+    </ControlTemplate>
+
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>

@@ -167,21 +167,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <!--StackPanel x:Name="WindowButtonsPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0"
-          HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource Self},Path=Screen}">
-          <!Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="3"
-            OpacityMask="#A0000000" HorizontalAlignment="Left" 
-            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Trigger.Setters>
-                  <Setter Property="OpacityMask" Value="#FF000000"/>
-                </Trigger.Setters>
-              </Trigger>
-            </Button.Triggers>
-          </Button>
-        </StackPanel--> <!-- WindowButtonsPanel -->
-        <Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,50,0">
+
+        <!--Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,50,0">
           <Label x:Name="HeaderLabel"
               FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
               Content="Home" />
@@ -191,6 +178,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <GradientStop Offset="1.0" Color="#1A000000" />
             </LinearGradientBrush>
           </Grid.OpacityMask>
+        </-->
+        <Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,30,50,0">
+          <Grid.Resources>
+            <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+          </Grid.Resources>
+          <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+                 FontSize="{ThemeResource NormalFontSize}"
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
         </Grid>
         <!-- HeaderTextPanel -->
         <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal"
