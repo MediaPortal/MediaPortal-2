@@ -163,6 +163,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (episodes.Count == 1)
       {
         episode = episodes[0];
+        seriesInfo.ImdbId = seriesDetail.ImdbId;
+        seriesInfo.TvdbId = seriesDetail.Id;
+        seriesInfo.FirstAired = episode.FirstAired;
         seriesInfo.Episode = episode.EpisodeName;
         SetEpisodeDetails(seriesInfo, episode);
         return true;
