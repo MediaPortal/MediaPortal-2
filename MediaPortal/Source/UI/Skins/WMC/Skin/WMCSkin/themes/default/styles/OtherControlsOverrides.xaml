@@ -246,7 +246,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Control x:Name="MainMenuItemContainer">
             <Control.RenderTransform>
-              <TranslateTransform Y="0"/>
+              <TranslateTransform Y="0" X="0"/>
             </Control.RenderTransform>
             <Control.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -284,7 +284,11 @@
                          Path="BringIntoView"/>
                     </TriggerCommand.Command>
                   </TriggerCommand>
+                  <BeginStoryboard x:Name="BeginTranslateXAnimation" Storyboard="{ThemeResource SelectedMainItemAnimation}"/>
                 </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="BeginTranslateXAnimationReverse" Storyboard="{ThemeResource SelectedMainItemAnimationReverse}"/>
+                </DataTrigger.ExitActions>
               </DataTrigger>
             </Control.Triggers>
             <Control.TemplateControl>
