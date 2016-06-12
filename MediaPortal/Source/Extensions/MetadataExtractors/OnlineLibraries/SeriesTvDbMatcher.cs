@@ -183,6 +183,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
       seriesInfo.Summary = string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
         Select(e => string.Format("{0,02}) {1}", e.EpisodeNumber, e.Overview)).ToArray());
 
+      seriesInfo.ImdbId = episodes.Min(e => e.ImdbId);
+      seriesInfo.TvdbId = episodes.Min(e => e.Id);
+      seriesInfo.FirstAired = episodes.Min(e => e.FirstAired);
+
       // Don't clear seriesInfo.Actors again. It's already been filled with actors from series details.
       var guestStars = episodes.SelectMany(e => e.GuestStars).Distinct().ToList();
       if (guestStars.Count > 0)
