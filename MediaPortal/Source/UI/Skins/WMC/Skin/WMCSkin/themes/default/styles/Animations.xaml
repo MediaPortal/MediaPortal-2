@@ -31,7 +31,7 @@
   </Storyboard>
 
   <Storyboard x:Key="MainMenuFadeAnimation" FillBehavior="HoldEnd">
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="Opacity">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainLayoutPanel" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
       <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionKeyFrame}" Value="0"/>
       <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1.0"/>
