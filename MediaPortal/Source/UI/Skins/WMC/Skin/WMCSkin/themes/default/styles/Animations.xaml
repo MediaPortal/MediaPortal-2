@@ -9,8 +9,10 @@
     >
 
   <ResourceWrapper x:Key="TransitionKeyFrame" Resource="00:00:00.200"/>
+  <ResourceWrapper x:Key="TransitionKeyFrameReverse" Resource="00:00:00.100"/>
   <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:00.300"/>
   <ResourceWrapper x:Key="RenderTransformY" Resource="279"/>
+  <ResourceWrapper x:Key="RenderTransformX" Resource="-20"/>
   <ResourceWrapper x:Key="SubMenuTransformY" Resource="93"/>
   <ResourceWrapper x:Key="NegativeSubMenuTransformY" Resource="-93"/>
 
@@ -28,6 +30,22 @@
 
   <Storyboard x:Key="MainItemTransformAnimationReverse" FillBehavior="HoldEnd">
     <DoubleAnimation BeginTime="00:00:00" To="0" Duration="{StaticResource TransitionDuration}" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenuItemContainer" Storyboard.TargetProperty="RenderTransform.Y" />
+  </Storyboard>
+  
+  <Storyboard x:Key="SelectedMainItemAnimation" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenuItemContainer" Storyboard.TargetProperty="RenderTransform.X">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionKeyFrame}" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="{StaticResource RenderTransformX}"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+  
+  <Storyboard x:Key="SelectedMainItemAnimationReverse" FillBehavior="Stop">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="Stop" Storyboard.TargetName="MainMenuItemContainer" Storyboard.TargetProperty="RenderTransform.X">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{StaticResource RenderTransformX}"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionKeyFrameReverse}" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
+    </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
   <Storyboard x:Key="MainMenuFadeAnimation" FillBehavior="HoldEnd">
