@@ -589,6 +589,7 @@ namespace MediaPortal.UI.Players.Video
               case StreamGroup.VsFilterSubtitle:
               case StreamGroup.VsFilterSubtitleOptions:
               case StreamGroup.DirectVobSubtitle:
+              case StreamGroup.VsFilterSubtitleExtern:
                 subtitleStreams.AddUnique(currentStream, true);
                 break;
               case StreamGroup.MatroskaEdition: // This is a MKV Edition handled by Haali splitter
