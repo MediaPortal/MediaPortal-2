@@ -41,11 +41,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     protected Guid _role;
     protected Guid _linkedRole;
+    protected IEnumerable<Guid> _necessaryMIATypeIds;
+    protected SortInformation _sortInformation;
 
-    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole)
+    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, SortInformation sortInformation)
     {
       _role = role;
       _linkedRole = linkedRole;
+      _necessaryMIATypeIds = necessaryMIATypeIds;
+      _sortInformation = sortInformation;
     }
 
     #region Base overrides
@@ -55,23 +59,26 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
-      MediaItemQuery query = new MediaItemQuery(necessaryMIATypeIds, filter);
+      IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
+      MediaItemQuery query = new MediaItemQuery(mias, filter);
+      if (_sortInformation != null)
+        query.SortInformation = new List<SortInformation> { _sortInformation };
       IList<MediaItem> items = cd.Search(query, true);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
-      int numEmptyEntries = 0;
       foreach (MediaItem item in items)
       {
         string name;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
-        if (name == string.Empty)
-          numEmptyEntries ++;
-        else
-          result.Add(new FilterValue(name, new RelationshipFilter(item.MediaItemId, _role, _linkedRole), null, item, this));
+        result.Add(new FilterValue(name,
+          new RelationshipFilter(item.MediaItemId, _role, _linkedRole),
+          null,
+          item,
+          this));
       }
       return result;
     }
 
-    protected virtual string GetDisplayName (object groupKey)
+    protected virtual string GetDisplayName(object groupKey)
     {
       return string.Format("{0}", groupKey).Trim();
     }

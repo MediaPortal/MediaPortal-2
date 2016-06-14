@@ -32,47 +32,19 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   /// <summary>
   /// Filter criterion which filters by the Series name.
   /// </summary>
-  public class FilterBySeriesSeasonCriterion : MLFilterCriterion
+  public class FilterBySeriesSeasonCriterion : RelationshipMLFilterCriterion
   {
-    #region Base overrides
-
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public FilterBySeriesSeasonCriterion() :
+      base(SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE, Consts.NECESSARY_SEASON_MIAS,
+        new SortInformation(SeasonAspect.ATTR_SEASON, SortDirection.Ascending))
     {
-      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      if (cd == null)
-        throw new NotConnectedException("The MediaLibrary is not connected");
-
-      IEnumerable<Guid> mias = new[] { MediaAspect.ASPECT_ID, SeasonAspect.ASPECT_ID }.Concat(necessaryMIATypeIds);
-      MediaItemQuery query = new MediaItemQuery(mias, filter)
-      {
-        SortInformation = new List<SortInformation> { new SortInformation(SeasonAspect.ATTR_SEASON, SortDirection.Ascending) }
-      };
-      var items = cd.Search(query, true);
-      IList<FilterValue> result = new List<FilterValue>(items.Count);
-      foreach (var item in items)
-      {
-        string title;
-        MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out title);
-        result.Add(new FilterValue(title,
-          new RelationshipFilter(item.MediaItemId, SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE),
-          null,
-          item,
-          new FilterBySeasonEpisodeCriterion()));
-      }
-      return result;
     }
-
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
-    {
-      return null;
-    }
-
-    #endregion
   }
 }

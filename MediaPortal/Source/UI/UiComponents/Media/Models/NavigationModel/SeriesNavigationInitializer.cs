@@ -26,6 +26,9 @@ using System.Collections.Generic;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Linq;
+using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -38,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationMode = Models.MediaNavigationMode.Series;
       _mediaNavigationRootState = Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT;
       _viewName = Consts.RES_SERIES_VIEW_NAME;
-      _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
+      _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 

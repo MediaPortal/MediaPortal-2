@@ -539,6 +539,12 @@ namespace MediaPortal.UiComponents.Media.General
           MovieAspect.ASPECT_ID,
       };
 
+    public static readonly Guid[] NECESSARY_ALBUM_MIAS = new Guid[]
+      {
+          MediaAspect.ASPECT_ID,
+          AudioAlbumAspect.ASPECT_ID
+      };
+
     public static readonly Guid[] NECESSARY_AUDIO_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,
