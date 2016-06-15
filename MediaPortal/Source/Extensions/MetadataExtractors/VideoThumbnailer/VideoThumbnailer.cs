@@ -138,24 +138,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       // Check for a reasonable time offset
       long defaultVideoOffset = 720;
       long videoDuration;
+      string downscale = ",scale=iw/2:-1"; // Reduces the video frame size to a half of original
       IList<MultipleMediaItemAspect> videoAspects;
-      if(MediaItemAspect.TryGetAspects(extractedAspectData, VideoAspect.Metadata, out videoAspects))
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAspect.Metadata, out videoAspects))
+      {
         if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoAspect.ATTR_DURATION)) > 0)
         {
           if (defaultVideoOffset > videoDuration * 1 / 3)
             defaultVideoOffset = videoDuration * 1 / 3;
         }
 
-      string downscale = ",scale=iw/2:-1"; // Reduces the video frame size to a half of original
-
-      int videoWidth;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_WIDTH, out videoWidth))
-      {
+        int videoWidth = videoAspects[0].GetAttributeValue<int>(VideoAspect.ATTR_WIDTH);
         // Don't downscale SD video frames, quality is already quite low.
         if (videoWidth > 0 && videoWidth <= 720)
           downscale = "";
       }
-
       // ToDo: Move creation of temp file names to FileUtils class
       string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".jpg";
       string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
