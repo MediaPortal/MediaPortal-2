@@ -134,8 +134,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegLib", "Extensions\Met
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevTools", "..\Tools\DevTools\DevTools.csproj", "{98D58DAF-00AE-44BA-94BC-600C35AF77C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Online", "..\Incubator\FanArtService.Online\FanArtService.Online.csproj", "{81DF4C8D-827C-4998-BE20-86295DE65F6F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -333,10 +331,6 @@ Global
 		{98D58DAF-00AE-44BA-94BC-600C35AF77C8}.Debug|x86.Build.0 = Debug|x86
 		{98D58DAF-00AE-44BA-94BC-600C35AF77C8}.Release|x86.ActiveCfg = Release|x86
 		{98D58DAF-00AE-44BA-94BC-600C35AF77C8}.Release|x86.Build.0 = Release|x86
-		{81DF4C8D-827C-4998-BE20-86295DE65F6F}.Debug|x86.ActiveCfg = Debug|x86
-		{81DF4C8D-827C-4998-BE20-86295DE65F6F}.Debug|x86.Build.0 = Debug|x86
-		{81DF4C8D-827C-4998-BE20-86295DE65F6F}.Release|x86.ActiveCfg = Release|x86
-		{81DF4C8D-827C-4998-BE20-86295DE65F6F}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -402,6 +396,5 @@ Global
 		{F1A04140-5C63-4688-8A9E-A195AAF95DE1} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 		{D2416E5A-CF6A-4B45-836D-02300D666127} = {F7CD0109-EDD1-4265-9D15-DA808A6F01F3}
 		{98D58DAF-00AE-44BA-94BC-600C35AF77C8} = {23FE1AB5-FA54-4863-8E01-871B3A969E71}
-		{81DF4C8D-827C-4998-BE20-86295DE65F6F} = {1FEC2432-78BD-4084-B08D-4FC99D808484}
 	EndGlobalSection
 EndGlobal

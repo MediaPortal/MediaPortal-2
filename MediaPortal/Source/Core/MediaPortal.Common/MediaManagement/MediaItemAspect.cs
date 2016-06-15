@@ -641,6 +641,30 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Convenience method to get a list of same attribute specification of a multi attribute.
+    /// </summary>
+    /// <typeparam name="TE">Type of aspect specification</typeparam>
+    /// <param name="aspectData">Aspects</param>
+    /// <param name="attributeSpecification">Requested aspect attribute</param>
+    /// <param name="values">List of values of all aspects</param>
+    /// <returns><c>true</c> if at least one aspect value was found.</returns>
+    public static bool TryGetAttribute<TE>(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      MediaItemAspectMetadata.MultipleAttributeSpecification attributeSpecification, out List<TE> values)
+    {
+      IList<MultipleMediaItemAspect> aspects;
+      values  = new List<TE>();
+      if (TryGetAspects(aspectData, attributeSpecification.ParentMIAM, out aspects))
+      {
+        foreach (MultipleMediaItemAspect aspect in aspects)
+        {
+          TE value = aspect.GetAttributeValue<TE>(attributeSpecification);
+          values.Add(value);
+        }
+      }
+      return values.Count > 0;
+    }
+
+    /// <summary>
     /// Convenience method to set a collection attribute in a dictionary of media item aspectData. If the given <paramref name="aspectData"/>
     /// dictionary contains the media item aspect of the requested aspect type, that aspect instance is used to store the
     /// attribute corresponding to the given <paramref name="attributeSpecification"/>. If the corresponding aspect instance is not

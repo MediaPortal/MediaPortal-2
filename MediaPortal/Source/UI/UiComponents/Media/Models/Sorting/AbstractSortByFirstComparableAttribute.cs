@@ -27,21 +27,20 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Utilities;
-using static MediaPortal.Common.MediaManagement.MediaItemAspectMetadata;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public abstract class AbstractSortByFirstComparableAttribute<T> : SortByTitle where T : IComparable<T>
   {
-    protected SingleAttributeSpecification _attr;
-    protected MultipleAttributeSpecification _multiAttr;
+    protected MediaItemAspectMetadata.SingleAttributeSpecification _attr;
+    protected MediaItemAspectMetadata.MultipleAttributeSpecification _multiAttr;
 
-    protected AbstractSortByFirstComparableAttribute(SingleAttributeSpecification attr)
+    protected AbstractSortByFirstComparableAttribute(MediaItemAspectMetadata.SingleAttributeSpecification attr)
     {
       _attr = attr;
     }
 
-    protected AbstractSortByFirstComparableAttribute(MultipleAttributeSpecification attr)
+    protected AbstractSortByFirstComparableAttribute(MediaItemAspectMetadata.MultipleAttributeSpecification attr)
     {
       _multiAttr = attr;
     }

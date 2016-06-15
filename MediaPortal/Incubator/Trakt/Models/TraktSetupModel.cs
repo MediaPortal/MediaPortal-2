@@ -922,9 +922,10 @@ namespace MediaPortal.UiComponents.Trakt.Models
     /// </summary>
     private string GetVideoAudioCodec(MediaItem mediaItem)
     {
+      List<string> audioCodecs;
       string audioCodec;
 
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_AUDIOENCODING, out audioCodec) && !string.IsNullOrWhiteSpace(audioCodec))
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAudioAspect.ATTR_AUDIOENCODING, out audioCodecs) && !string.IsNullOrWhiteSpace(audioCodec = audioCodecs.First()))
       {
         switch (audioCodec.ToLowerInvariant())
         {
@@ -960,11 +961,11 @@ namespace MediaPortal.UiComponents.Trakt.Models
     /// </summary>
     private string GetVideoMediaType(MediaItem mediaItem)
     {
-      bool isDvd;
+      List<bool> isDvd;
 
       MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_ISDVD, out isDvd);
 
-      if (isDvd)
+      if (isDvd.First())
         return TraktMediaType.dvd.ToString();
 
       return TraktMediaType.digital.ToString();
@@ -998,9 +999,10 @@ namespace MediaPortal.UiComponents.Trakt.Models
     /// </summary>
     private string GetVideoResolution(MediaItem mediaItem)
     {
+      List<int> widths;
       int width;
 
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_WIDTH, out width) && width > 0)
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_WIDTH, out widths) && (width = widths.First()) > 0)
 
         switch (width)
         {

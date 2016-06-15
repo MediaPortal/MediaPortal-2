@@ -25,7 +25,6 @@
 using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Utilities;
-using static MediaPortal.Common.MediaManagement.MediaItemAspectMetadata;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
@@ -33,16 +32,16 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
   public abstract class AbstractSortByComparableObjectAttribute<T> : Sorting where T : class, IComparable<T>
   {
     protected string _displayName;
-    protected SingleAttributeSpecification _sortAttr;
-    protected MultipleAttributeSpecification _sortMultiAttr;
+    protected MediaItemAspectMetadata.SingleAttributeSpecification _sortAttr;
+    protected MediaItemAspectMetadata.MultipleAttributeSpecification _sortMultiAttr;
 
-    protected AbstractSortByComparableObjectAttribute(string displayName, SingleAttributeSpecification sortAttr)
+    protected AbstractSortByComparableObjectAttribute(string displayName, MediaItemAspectMetadata.SingleAttributeSpecification sortAttr)
     {
       _displayName = displayName;
       _sortAttr = sortAttr;
     }
 
-    protected AbstractSortByComparableObjectAttribute(string displayName, MultipleAttributeSpecification sortAttr)
+    protected AbstractSortByComparableObjectAttribute(string displayName, MediaItemAspectMetadata.MultipleAttributeSpecification sortAttr)
     {
       _displayName = displayName;
       _sortMultiAttr = sortAttr;
