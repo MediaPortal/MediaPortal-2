@@ -45,7 +45,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Incubator\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj">
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj">
       <Project>{bd0ad1e7-48a9-404e-9c82-291ce3b41657}</Project>
       <Name>Tve3RecordingMetadataExtractor</Name>
     </ProjectReference>

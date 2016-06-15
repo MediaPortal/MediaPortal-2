@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_menu.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SleepTimer.Title]"/>
+
+    <!-- SystemStateModel -->
+    <Model x:Key="SleepTimerModel" Id="40FDD1C3-CFAB-4731-9636-96726301B648"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel DataContext="{Binding Source={StaticResource SleepTimerModel}}">
+
+        <!-- Time -->
+        <Grid Margin="10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Label Grid.Column="0" Grid.RowSpan="2"  Content="[SleepTimer.TimeStr]" Color="{ThemeResource TextColor}"/>
+          <TextBox Text="{Binding Path=TimeText,Mode=TwoWay}" IsEnabled="{Binding TextInputEnabled}" Margin="10,0,5,0" Grid.RowSpan="2" Grid.Column="1" Width="100" HorizontalAlignment="Right"/>
+          <Button Command="{Command AddTime}" IsEnabled="{Binding AddEnabled}" Grid.Column="2" Grid.Row="0"  Margin="1" Style="{ThemeResource ArrowButtonUpStyle}" Width="25" Height="25" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          <Button Command="{Command SubTime}" IsEnabled="{Binding SubEnabled}" Grid.Column="2" Grid.Row="1" Margin="1" Style="{ThemeResource ArrowButtonDownStyle}" Width="25" Height="25" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          <Label Grid.Column="3" Grid.RowSpan="2" Margin="5,0,0,0"  Content="[SleepTimer.Minutes]" Color="{ThemeResource TextColor}"/>
+        </Grid>
+
+        <Label Margin="10" Content="{Binding ErrorText}" Color="{ThemeResource ErrorTextColor}"/>
+
+        <Button IsEnabled="{Binding MediaItemEnabled}" Content ="[SleepTimer.MediaItem]" Margin="5" Command="{Command FromMediaItem}"/>
+        <Button IsEnabled="{Binding MediaItemEnabled}" Content ="[SleepTimer.Playlist]" Margin="5" Command="{Command FromPlaylist}"/>
+
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Label Grid.Column="0" VerticalAlignment="Center" Content="[SleepTimer.Action]" Color="{ThemeResource TextColor}"/>
+          <Button Grid.Column="1" Margin="20,0,5,0" IsEnabled="{Binding TextInputEnabled}" Content ="{Binding ButtonText}" Command="{Command Select}"/>
+        </Grid>
+
+        <Button Margin="10,50,10,10" IsEnabled="{Binding ActivateEnabled}" Content ="{Binding StartButtonText}" Command="{Command Activate}"/>
+      </StackPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

@@ -2,7 +2,9 @@
 <resources>
   <string name="SlimTvClient.Title">Cliente Slim TV</string>
   <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.Main.Help">Aquí puedes ver tus programas de TV y Radio favoritos y cambiar entre los canales.</string>
   <string name="SlimTvClient.TvGuide">Guia de TV</string>
+  <string name="SlimTvClient.TvGuide.Help">Busca en tu Guía Electrónica de Programación y selecciona los programas que quieres ver o programar para su grabación.</string>
   <string name="SlimTvClient.SingleChannelGuide">Guía de Canales</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Información del programa</string>
   <string name="SlimTvClient.ChannelLabel">Canal</string>
@@ -12,6 +14,9 @@
   <string name="SlimTvClient.ProgramStartLabel">Hora de inicio</string>
   <string name="SlimTvClient.ProgramEndLabel">Hora de finalización</string>
   <string name="SlimTvClient.EpisodeLabel">Episodio</string>
+  <string name="SlimTvClient.CurrentProgram">Programa Actual</string>
+  <string name="SlimTvClient.NextProgram">Próximo Programa</string>
+  <string name="SlimTvClient.Progress">Progreso</string>
   <string name="SlimTvClient.Guide">Guia de TV</string>
   <string name="SlimTvClient.NoProgram">No hay datos del programa.</string>
   <string name="SlimTvClient.ChooseProgramAction">Elige una acción para el programa...</string>
@@ -22,6 +27,7 @@
   <string name="SlimTvClient.RecordNow">Grabar ahora</string>
   <string name="SlimTvClient.DeleteSchedule">Borrar agenda</string>
   <string name="SlimTvClient.CreateSchedule">Agenda de grabación</string>
+  <string name="SlimTvClient.ProgramSearch">Buscar programas</string>
   <!--Extended recording features-->
   <string name="SlimTvClient.RecordActions">Opciones de grabación</string>
   <string name="SlimTvClient.StopCurrentRecording">Parar grabación actual \"{0}\"</string>
@@ -44,13 +50,17 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Semanas</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Días trabajando</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Semanalmente cada vez que en este canal</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Grabaciones por nombre</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Grabaciones por nombre</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Detalles de programación</string>
   <string name="SlimTvClient.ScheduleName">Nombre de la programación</string>
   <string name="SlimTvClient.ScheduleType">Tipo de programación</string>
   <string name="SlimTvClient.Schedules">Programaciones</string>
+  <string name="SlimTvClient.Schedules.Help">Mira qué programaciones de grabación tienes activas. Aquí también puedes eliminar las programaciones.</string>
   <string name="SlimTvClient.ExtendedSchedule">Programación extendida</string>
   <string name="SlimTvClient.ScheduleManagement">Gestionar programaciones</string>
+  <string name="SlimTvClient.ScheduleModeSeries">Gestionar programaciones de series</string>
   <string name="SlimTvClient.ErrorNoTvProvider">No hay proveedor de TV disponible (aún)</string>
   <!--Settings-->
   <string name="SlimTvClient.EpgNumberOfRows">Número de filas en EPG</string>
@@ -59,7 +69,12 @@
   <string name="SlimTvClient.EpgNumberOfHours.Help">Define el número de horas (programas) mostradas en EPG</string>
   <string name="SlimTvClient.AutoStartTv">Iniciar automáticamente TV</string>
   <string name="SlimTvClient.AutoStartTv.Help">Si está habilitado, la TV se iniciará directamente en el último canal seleccionado</string>
+  <string name="SlimTvClient.ShowSeriesInfo">Mostrar información de series</string>
+  <string name="SlimTvClient.ShowSeriesInfo.Help">Si se activa, la guía de programación mostrará la información disponible de series y capítulos.</string>
+  <string name="SlimTvClient.HideAllChannelsGroup">Ocultar grupo \"Todos los Canales\"</string>
+  <string name="SlimTvClient.HideAllChannelsGroup.Help">SI está activado, el grupo incorporado \"Todos los canales\" se ocultará.</string>
   <string name="SlimTvClient.RecordingsMenuItem">Grabaciones</string>
+  <string name="SlimTvClient.Recordings.Help">Aquí puedes encontrar una lista de tus programas grabados para reproducirlos.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Grabaciones de TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrar por canal</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Canal: {0}</string>

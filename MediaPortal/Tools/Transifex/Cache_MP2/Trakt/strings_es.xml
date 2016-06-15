@@ -1,14 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Trakt.Enable">Habilitar scrobbling</string>
+  <string name="Trakt.Close">Cerrar</string>
   <string name="Trakt.UsernamePasswordGroup">Detalles de la cuenta</string>
   <string name="Trakt.Username">Usuario</string>
-  <string name="Trakt.Password">Contraseña</string>
-  <string name="Trakt.TestAccount">Probar cuenta</string>
+  <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
+  <string name="Trakt.PinCode">Código Pin Recibido</string>
+  <string name="Trakt.Authorize">Autorizar</string>
   <string name="Trakt.SyncMovies">Sincronizando películas...</string>
   <string name="Trakt.SyncSeries">Sincronizando series...</string>
   <string name="Trakt.SyncFinished">¡Sincronización completa!</string>
   <string name="Trakt.MediaLibraryNotConnected">El servidor no está conectado, ¡no se pudo sincronizar!</string>
+  <string name="Trakt.WrongToken">Token no disponible</string>
+  <string name="Trakt.EmptyUsername">Por favor inserta su nombre de usuario</string>
+  <string name="Trakt.NotAuthorized">¡Autorizar primero!</string>
+  <string name="Trakt.CheckPin">Imposible ingresar en trakt, ¿pin incorrecto?</string>
+  <string name="Trakt.LoggedIn">¡Ingresado con éxito!</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Configurar Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Configurar detalles de la cuenta para el servicio Trakt.tv</string>

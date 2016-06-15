@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Consts"
+    >
+
+  <!-- TODO: this solution would avoid a lot of duplicated style definition, but unfortunately the DynamicResource for Width/Height is not evaluated 
+  <ControlTemplate x:Key="BaseShadowControlTemplate">
+    <Grid Margin="{DynamicResource ResourceKey=ShadowMargin}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{DynamicResource ResourceKey=CornerRadius}" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="{DynamicResource ResourceKey=CornerRadius}" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{DynamicResource ResourceKey=CornerRadius}" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="{DynamicResource ResourceKey=CornerRadius}" />
+      </Grid.RowDefinitions>
+      <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
+      <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
+      <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
+      <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
+      <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
+      <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
+      <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
+      <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
+      <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ShadowC_3_18">
+    <Control Template="{ThemeResource BaseShadowControlTemplate}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="ShadowMargin" Resource="-3"/>
+        <ResourceWrapper x:Key="CornerRadius" Resource="18"/>
+      </Control.Resources>
+    </Control>
+  </ControlTemplate>
+  -->
+
+  <!--TO BE DELETED, ONLY HERE TO MAKE PLUGINS WORK TEMPORARILY-->
+  <Style x:Key="Shadow_3_19">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="-2,-2,-4,-4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="20" />
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="20" />
+              <RowDefinition Height="*"  />
+              <RowDefinition Height="20" />
+            </Grid.RowDefinitions>
+            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_00.png" />
+            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_10.png" />
+            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_20.png" />
+            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_01.png" />
+            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_11.png" />
+            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_21.png" />
+            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_02.png" />
+            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_12.png" />
+            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_22.png" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Shadow_3_20">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="-2,-2,-4,-4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="20" />
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="20" />
+              <RowDefinition Height="*"  />
+              <RowDefinition Height="20" />
+            </Grid.RowDefinitions>
+            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_00.png" />
+            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_10.png" />
+            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_20.png" />
+            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_01.png" />
+            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_11.png" />
+            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_21.png" />
+            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_02.png" />
+            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_12.png" />
+            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_22.png" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Shadow_3_23">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="-2, -2, -4, -4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="23" />
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="23" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="23" />
+              <RowDefinition Height="*"  />
+              <RowDefinition Height="23" />
+            </Grid.RowDefinitions>
+            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_00.png" />
+            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_10.png" />
+            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_20.png" />
+            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_01.png" />
+            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_11.png" />
+            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_21.png" />
+            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_02.png" />
+            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.8" Source="shadow_12.png" />
+            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.8" Source="shadow_22.png" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Shadow_3_28">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="-3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="28" />
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="28" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="28" />
+              <RowDefinition Height="*"  />
+              <RowDefinition Height="28" />
+            </Grid.RowDefinitions>
+            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
+            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
+            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
+            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
+            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
+            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
+            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
+            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
+            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+</ResourceDictionary>

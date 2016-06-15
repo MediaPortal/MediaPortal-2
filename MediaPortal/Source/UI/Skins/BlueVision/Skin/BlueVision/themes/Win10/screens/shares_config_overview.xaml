@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.SharesConfiguration.Title]"/>
+
+    <!-- Shares configuration model -->
+    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="0" Margin="10" Content="[SharesConfig.GlobalShares]" Color="{ThemeResource TextColor}"/>
+          <ListView Name="ServerSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource SharesConfigListViewStyle}"
+              IsVisible="{Binding IsHomeServerConnected}"
+              ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}">
+            <ListView.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+                <TranslateTransform X="20" />
+              </ResourceWrapper>
+            </ListView.Resources>
+          </ListView>
+          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
+              Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Wrap="true"
+              Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        </Grid>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Margin="10" Grid.Row="0" Content="[SharesConfig.LocalShares]" Color="{ThemeResource TextColor}"/>
+          <ListView Name="ClientSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource SharesConfigListViewStyle}"
+              IsVisible="{Binding ShowLocalShares}"
+              ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
+          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !ShowLocalShares}"
+              Content="[SharesConfig.NoConfigLocalSharesHomeServerLocal]" Wrap="true"
+              Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        </Grid>
+      </UniformGrid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

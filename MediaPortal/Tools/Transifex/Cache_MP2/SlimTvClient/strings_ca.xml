@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Hora d\'inici</string>
   <string name="SlimTvClient.ProgramEndLabel">Hora de final</string>
   <string name="SlimTvClient.EpisodeLabel">Episodi</string>
+  <string name="SlimTvClient.Progress">Curs</string>
   <string name="SlimTvClient.Guide">Guia de TV</string>
   <string name="SlimTvClient.NoProgram">No hi han dades de programa.</string>
   <string name="SlimTvClient.ChooseProgramAction">Trieu l\'acció de programa...</string>
@@ -20,6 +21,8 @@
   <string name="SlimTvClient.DeleteSchedule">Suprimeix la planificació</string>
   <string name="SlimTvClient.CreateSchedule">Planificació d\'enregistraments</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Enregistraments per nom</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Enregistraments per nom</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ni hi ha cap proveïdor disponible (encara)</string>
   <!--Settings-->

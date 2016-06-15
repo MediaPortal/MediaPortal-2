@@ -28,6 +28,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using HttpServer;
+using HttpServer.Authentication;
 using HttpServer.HttpModules;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
@@ -192,6 +193,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public void AddHttpModule(HttpModule module)
     {
       _httpServers.Values.ToList().ForEach(x => x.Add(module));
+    }
+
+    public void AddAuthenticationModule(AuthenticationModule module)
+    {
+      _httpServers.Values.ToList().ForEach(x => x.AuthenticationModules.Add(module));
     }
 
     public void RemoveHttpModule(HttpModule module)

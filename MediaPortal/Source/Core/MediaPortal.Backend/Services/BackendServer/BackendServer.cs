@@ -30,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Utilities.Network;
 using UPnP.Infrastructure;
 using UPnP.Infrastructure.Dv;
 using ILogger = MediaPortal.Common.Logging.ILogger;
@@ -139,6 +140,7 @@ namespace MediaPortal.Backend.Services.BackendServer
       UPnPConfiguration.USE_IPV4 = serverSettings.UseIPv4;
       UPnPConfiguration.USE_IPV6 = serverSettings.UseIPv6;
       UPnPConfiguration.IP_ADDRESS_BINDINGS = serverSettings.IPAddressBindingsList;
+      NetworkUtils.LimitIPEndpoints = serverSettings.LimitIPEndpoints;
       HttpResponse.HTTP_SERVER_NAME = MP2_HTTP_SERVER_NAME;
 
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();

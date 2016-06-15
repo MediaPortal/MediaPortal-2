@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Actualités</string>
+  <string name="News.Title.Help">Lire vos sites favoris d\'actualités.</string>
   <string name="News.FeedsStateDisplayLabel">Actualités</string>
   <string name="News.Published">Publié</string>
   <string name="News.ConfiguredFeeds">Flux configurés</string>

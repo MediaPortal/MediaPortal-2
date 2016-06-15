@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare_players.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    >
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/>
+
+    <ControlTemplate x:Key="Menu_Button_DummyConfig">
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,0,19"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              IsEnabled="False">
+      </Button>
+    </ControlTemplate>
+    
+    <ControlTemplate x:Key="Client_Template">
+      <mp_special_controls:PlayerControl Margin="10" PlayerContext="CurrentPlayer">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid Margin="-65,18,-65,32" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" >
+            <Grid.RowDefinitions>
+              <RowDefinition Height="45"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="420"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,0,50,0">
+              <RadioButton x:Name="General" Content="[General.Title]" HorizontalAlignment="Center" VerticalAlignment="Bottom" 
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True">
+                <Label x:Name="TabLabel" Content="[General.Title]" Color="Black" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel" Property="FontFamily" Value="DefaultBold"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>         
+              <RadioButton x:Name="CastCrew" Content="[CastCrew.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False">
+                <Label x:Name="TabLabel2" Content="[CastCrew.Title]" Color="Black" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel2" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel2" Property="FontFamily" Value="DefaultBold"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>          
+              <RadioButton x:Name="MediaInfo" Content="[MediaInfo.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False">
+                <Label x:Name="TabLabel3" Content="[MediaInfo.Title]" Color="Black" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel3" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel3" Property="FontFamily" Value="DefaultBold"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>        
+              <Control>
+                <Control.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"/>
+                    <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Control.IsVisible>
+                <Control.TemplateControl>
+                  <RadioButton x:Name="Series" Content="Series" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
+                </Control.TemplateControl>
+              </Control>
+              <!--Control>
+                <Control.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"  />
+                    <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Control.IsVisible>
+                <Control.TemplateControl>
+                  <RadioButton Content="Album" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Style="{ThemeResource TabButtonStyle}" GroupName="Group1" IsEnabled="True"/>
+                </Control.TemplateControl>
+              </Control-->     
+            </StackPanel>
+
+            <Border Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,50,0">
+              <Border.Background>
+                <SolidColorBrush Color="#666666" Opacity="0.90"/>
+              </Border.Background>
+            </Border>
+
+            <Control x:Name="CP_MovieGeneral" Grid.Row="1" Grid.Column="0" Margin="0,0,50,0"
+                     IsVisible="{Binding ElementName=General, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+              <!--Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible-->
+              <Control.TemplateControl>
+                <Include Source="screens\CP_MovieGeneral.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+            <Control x:Name="CP_MovieCastCrew" Grid.Row="1" Grid.Column="0" Margin="0,0,50,0"
+                     IsVisible="{Binding ElementName=CastCrew, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+              <!-->Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible-->
+              <Control.TemplateControl>
+                <Include Source="screens\CP_MovieCastCrew.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+            <Control x:Name="CP_MovieMediaInfo" Grid.Row="1" Grid.Column="0" Margin="0,0,50,0"
+                     IsVisible="{Binding ElementName=MediaInfo, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+              <!-->Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible-->
+              <Control.TemplateControl>
+                <Include Source="screens\CP_MediaInfo.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+            <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="10,0,0,0">
+                <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"/>
+            </Grid>
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

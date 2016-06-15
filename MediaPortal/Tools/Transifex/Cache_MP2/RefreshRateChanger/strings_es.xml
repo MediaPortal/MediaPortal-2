@@ -4,4 +4,7 @@
   <string name="RefreshRateChanger.IsEnabled.Help">Si se activa el refresco de pantalla intentará cambiarse para coincidir con los fps del vídeo.</string>
   <string name="RefreshRateChanger.NoChangeForRate">Excluir frecuencias de refresco</string>
   <string name="RefreshRateChanger.NoChangeForRate.Help">Lista de exclusión de cambios de frecuencias de refresco. Introduzca los valores como enteros separados por comas (es decir, 23,25,50).</string>
+  <string name="RefreshRateChanger.RateMappings">Refrescar asignaciones de frecuencia</string>
+  <string name="RefreshRateChanger.RateMappings.Help">Anular las asignaciones predeterminadas.
+Formato: fps:Hz; fps:Hz (p.e. \"23:24\": para vídeo fps=23.976 cambio de refresco de pantalla a 24Hz).</string>
 </resources>

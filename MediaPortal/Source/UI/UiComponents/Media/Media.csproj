@@ -162,6 +162,7 @@
     <Compile Include="Models\MediaItemsActionModel.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\AudioFilterByAlbumArtistScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
@@ -404,6 +405,11 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Skin\default\screens\VideoFilterByPlayCount.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByAlbumArtist.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

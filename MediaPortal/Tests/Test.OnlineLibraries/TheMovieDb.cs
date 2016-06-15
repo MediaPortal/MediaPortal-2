@@ -103,7 +103,7 @@ namespace Test.OnlineLibraries
         new MovieInfo { MovieName = "Schattenwelt" },
         new MovieInfo { MovieName = "Salt", Year = 2010 },
         new MovieInfo { MovieName = "Resident Evil: Damnation" },
-        new MovieInfo { MovieName = "Rango" },
+        new MovieInfo { MovieName = "Rango", Year = 2011 },
         new MovieInfo { MovieName = "Quarantäne", Year=1989 },
         new MovieInfo { MovieName = "Prometheus - Dunkle Zeichen" },
         new MovieInfo { MovieName = "Prince of Persia: Der Sand der Zeit" },
@@ -139,6 +139,8 @@ namespace Test.OnlineLibraries
         new MovieInfo { MovieName = "The.Theory.of.Everything.2014.1080p.HC.WEBRip.x264.AAC2.0" },
         new MovieInfo { MovieName = "Starred Up (2014)" },
         new MovieInfo { MovieName = "Fury[2014].AC3.XViD" },
+        // Test for movie titles consisting only of a number
+        new MovieInfo { MovieName = "1911 (2011)" },
       };
 
       foreach (MovieInfo movieInfo in shouldMatchMovies)

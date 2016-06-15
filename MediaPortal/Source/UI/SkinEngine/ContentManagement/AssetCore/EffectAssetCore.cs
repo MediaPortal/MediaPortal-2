@@ -108,7 +108,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         if (_effect != null)
           return true;
 
-        string errors = string.Empty;
         try
         {
           const ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
@@ -118,10 +117,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           _handleTechnique = _effect.GetTechnique(0);
           return true;
         }
-        catch
+        catch(Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", _effectName);
-          ServiceRegistration.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
+          ServiceRegistration.Get<ILogger>().Error("EffectAsset: Unable to load '{0}'", ex, _effectName);
           return false;
         }
       }

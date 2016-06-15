@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[BlueVision.Configuration]"/>
+
+    <!-- NewsSetup model -->
+    <Model x:Key="Model" Id="92A16CDF-480B-4A40-9C76-7F9B0779319F"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+
+      <Grid DataContext="{Binding Source={StaticResource Model}}" MinHeight="350" MinWidth="700">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Label Content="[BlueVision.DisableHomeTab]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="0" Grid.Column="1"/>
+
+        <CheckBox x:Name="DisableHomeTabCheckbox" Margin="5" Grid.Row="0" Grid.Column="0"
+            IsChecked="{Binding Path=DisableHomeTab,Mode=TwoWay}"
+            Content="{Binding}" />
+
+        <Label Content="[BlueVision.DisableAutoSelection]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="1" Grid.Column="1"/>
+
+        <CheckBox x:Name="DisableAutoSelectionCheckbox" Margin="5" Grid.Row="1" Grid.Column="0"
+            IsChecked="{Binding Path=DisableAutoSelection,Mode=TwoWay}"
+            Content="{Binding}" />
+
+        <Label Content="[BlueVision.UseAlternativeSplashscreen]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="2" Grid.Column="1"/>
+
+        <CheckBox x:Name="UseAlternativeSplashscreenCheckbox" Margin="5" Grid.Row="2" Grid.Column="0"
+            IsChecked="{Binding Path=UseAlternativeSplashscreen,Mode=TwoWay}"
+            Content="{Binding}" />
+
+        <Label Content="[BlueVision.ResetMenuLayout]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="3" Grid.Column="1"/>
+
+        <CheckBox x:Name="ResetMenuLayoutCheckbox" Margin="5" Grid.Row="3" Grid.Column="0"
+            IsChecked="{Binding Path=ResetGroupLayout,Mode=TwoWay}"
+            Content="{Binding}" />
+
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+          <Button.Command>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="SaveSettings"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+      </Grid>
+
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

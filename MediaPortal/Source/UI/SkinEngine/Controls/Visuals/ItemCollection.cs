@@ -99,6 +99,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result;
     }
 
+    /// <summary>
+    /// Sets the <see cref="ListViewItem.ItemIndex"/> for all contained elements.
+    /// </summary>
+    public void SetItemIndexes()
+    {
+      lock (_syncObj)
+        for (int i = 0; i < _elements.Count; i++)
+        {
+          ListViewItem lvi = _elements[i] as ListViewItem;
+          if (lvi != null)
+            lvi.ItemIndex = i;
+        }
+    }
+
     #region ICollection implementation
 
     public void Add(object element)

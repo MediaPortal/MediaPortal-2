@@ -82,8 +82,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
     private TimeSpan _maxCacheDuration;
 
     protected ApiWrapper<TImg, TLang> _wrapper = null;
-    protected bool UseSeasonIdForFanArt { get; }
-    protected bool UseEpisodeIdForFanArt { get; }
+    protected bool UseSeasonIdForFanArt { get; set; }
+    protected bool UseEpisodeIdForFanArt { get; set; }
 
     #endregion
 

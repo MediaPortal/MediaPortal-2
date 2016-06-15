@@ -1,0 +1,363 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{05F27655-7016-4899-AFA3-3022B82B1C8C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.UiComponents.ApolloOne</RootNamespace>
+    <AssemblyName>ApolloOne</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\ApolloOne.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\ApolloOne.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Converters\StringCaseConverter.cs" />
+    <Compile Include="Models\GridListItem.cs" />
+    <Compile Include="Models\HomeMenuModel.cs" />
+    <Compile Include="Models\GridListView.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\MenuSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\ApolloOne\fonts\default-font.xml" />
+    <Content Include="Skin\ApolloOne\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\ApolloOne\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\ApolloOne\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
+    <Content Include="Skin\ApolloOne\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\ApolloOne\images\7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51.jpg" />
+    <Content Include="Skin\ApolloOne\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
+    <Content Include="Skin\ApolloOne\images\87355E05-A15B-452A-85B8-98D4FC80034E.jpg" />
+    <Content Include="Skin\ApolloOne\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\ApolloOne\images\A298DFBE-9DA8-4C16-A3EA-A9B354F3910C.jpg" />
+    <Content Include="Skin\ApolloOne\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\ApolloOne\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\ApolloOne\images\Background.jpg" />
+    <Content Include="Skin\ApolloOne\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
+    <Content Include="Skin\ApolloOne\images\BD93C5B3-402C-40A2-B323-DA891ED5F50E.jpg" />
+    <Content Include="Skin\ApolloOne\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
+    <Content Include="Skin\ApolloOne\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
+    <Content Include="Skin\ApolloOne\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\ApolloOne\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
+    <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask.png" />
+    <Content Include="Skin\ApolloOne\images\MediaItem_OpacityMask_wide.png" />
+    <Content Include="Skin\ApolloOne\images\MediaItem_Shadow.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\Audio.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\AudioMute.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\ForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\NextChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\PauseButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\PlayButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\PreviousChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\RewindButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SelectChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SelectSubtitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SelectTitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SkipBackButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\SkipForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large.Dark\StopButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\Audio.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\AudioMute.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\ForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\NextChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\PauseButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\PlayButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\PreviousChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\RewindButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SelectChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SelectSubtitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SelectTitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SkipBackButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\SkipForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Large\StopButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\Audio.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\AudioMute.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\ForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\NextChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\PauseButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\PlayButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\PreviousChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\RewindButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SelectChapterButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SelectSubtitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SelectTitleButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SkipBackButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\SkipForwardButton.png" />
+    <Content Include="Skin\ApolloOne\images\PlayerControls.Small\StopButton.png" />
+    <Content Include="Skin\ApolloOne\images\shadow_bottom.png" />
+    <Content Include="Skin\ApolloOne\images\shadow_top.png" />
+    <Content Include="Skin\ApolloOne\images\ShutdownIcon.png" />
+    <Content Include="Skin\ApolloOne\images\VideoLarge.png" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemAudioDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemImageDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemMovieDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemFanArt.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemOthersDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemSeriesDetails.inc" />
+    <Content Include="Skin\ApolloOne\screens\MediaItemsList.inc" />
+    <Content Include="Skin\ApolloOne\screens\MultiDetails.inc" />
+    <Content Include="Skin\ApolloOne\skin.xml" />
+    <Content Include="Skin\ApolloOne\themes\default\theme.xml" />
+    <Content Include="Skin\ApolloOne\themes\default\workflow\ApolloOne-actions.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\ApolloOne\sounds\" />
+    <Folder Include="Skin\ApolloOne\superlayers\" />
+    <Folder Include="Skin\ApolloOne\themes\default\images\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\master_bare.xaml" />
+    <Content Include="Skin\ApolloOne\screens\master_menu.xaml" />
+    <Content Include="Skin\ApolloOne\screens\home.xaml" />
+    <Content Include="Skin\ApolloOne\screens\master_homemenu.xaml" />
+    <Content Include="Skin\ApolloOne\themes\default\styles\OtherControls.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\ApolloOne\themes\default\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\ApolloOne\themes\default\styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\ApolloOne\themes\default\styles\Brushes.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\ApolloOne\themes\default\styles\Consts.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+    <None Include="Skin\ApolloOne\fonts\DefaultBold.desc" />
+    <None Include="Skin\ApolloOne\fonts\Default.desc" />
+    <None Include="Skin\ApolloOne\fonts\FiraSansOT-Light.ttf" />
+    <None Include="Skin\ApolloOne\fonts\FiraSansOT-Regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\Graphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
+      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
+      <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
+      <Project>{4efed5be-2f6a-4944-bb96-053d5945ba1f}</Project>
+      <Name>SkinBase</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\BusyCursor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\master_dialog_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\ApolloOne\screens\master_configuration_menu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_choose_categories.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_choose_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_choose_system.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_edit_name.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_edit_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_overview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_problem.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_remove_shares.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\shares_config_share_info.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\SharesOverview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\ShowHomeServer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\configuration-section.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\MediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\SimpleShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\SimpleFilterItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\OSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\FullScreenContentAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\FullscreenContentDVD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\FullscreenContentImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\MediaGraphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\themes\default\styles\FullScreenContentConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\master_dialog_menu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

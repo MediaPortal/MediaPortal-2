@@ -144,6 +144,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public int FirstScanLine;
     public long Id = 0;
     public bool ShouldDraw;
+    public Int32 ScreenHeight; // Required for aspect ratio correction
     public Int32 ScreenWidth; // Required for aspect ratio correction
     public Int32 HorizontalPosition;
     public Texture SubTexture;
@@ -612,6 +613,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         Height = (uint)nativeSub.Height,
         Width = (uint)nativeSub.Width,
         ScreenWidth = nativeSub.ScreenWidth,
+        ScreenHeight = nativeSub.ScreenHeight,
         FirstScanLine = nativeSub.FirstScanLine,
         HorizontalPosition = nativeSub.HorizontalPosition,
         Id = _subCounter++
@@ -685,13 +687,16 @@ namespace MediaPortal.UI.Players.Video.Subtitles
           // Check the target texture dimensions and adjust scaling and translation
           SurfaceDescription desc = targetTexture.GetLevelDescription(0);
           Matrix transform = Matrix.Identity;
+
+          // Position subtitle and scale it to match video frame size, if required
           transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
 
-          // TODO: Check scaling requirements for SD and HD sources
-          // Subtitle could be smaller for 16:9 anamorphic video (subtitle width: 720, video texture: 1024)
-          // then we need to scale the subtitle width also.
-          if (currentSubtitle.ScreenWidth != desc.Width)
-            transform *= Matrix.Scaling((float)desc.Width / currentSubtitle.ScreenWidth, 1, 1);
+          if (currentSubtitle.ScreenWidth != desc.Width || currentSubtitle.ScreenHeight != desc.Height)
+          {
+            var factorW = (float)desc.Width / currentSubtitle.ScreenWidth;
+            var factorH = (float)desc.Height / currentSubtitle.ScreenHeight;
+            transform *= Matrix.Scaling(factorW, factorH, 1);
+          }
 
           sprite.Transform = transform;
           sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);

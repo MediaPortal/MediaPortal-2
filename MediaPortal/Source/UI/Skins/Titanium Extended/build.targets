@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginFiles Include="$(ProjectDir)plugin.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
+    <Copy SourceFiles="@(SkinFiles)" DestinationFiles="@(SkinFiles->'$(PluginDestination)Skin\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

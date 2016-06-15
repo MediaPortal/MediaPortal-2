@@ -7,8 +7,8 @@
     Description="Metadata extractors reading metadata from local nfo-files">
 
   <Version
-    PluginVersion="0.10"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    PluginVersion="0.11"
+    ReleaseDate="2015-12-12 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
   <DependsOn>

@@ -273,7 +273,8 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
                 catch (IllegalCallException) { return null; }
               }
             ).Where(share => share != null && share.Exists).Cast<IFileSystemResourceAccessor>().ToList(); // "share.Exists" considers the user's access rights.
-        return _underlayingResource == null ? null : WrapLocalFsResourceAccessors(_underlayingResource.GetChildDirectories());
+        var childDirectories = _underlayingResource == null ? null : _underlayingResource.GetChildDirectories();
+        return childDirectories == null ? null : WrapLocalFsResourceAccessors(childDirectories);
       }
     }
 

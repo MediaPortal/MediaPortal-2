@@ -11,4 +11,6 @@
   <string name="SystemState.Logoff">گۆڕینی بەکارهێنەر</string>
   <string name="SystemState.MinimizeMP">بچوککردنەوەی MediaPortal</string>
   <string name="SystemState.ShutdownMP">داخستنی MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">هەڵبژاردنەکانی کوژاندنەوە</string>
+  <string name="SleepTimer.Stop">وەستاندن</string>
 </resources>

@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{92CA1D17-632A-4C23-B7AE-1F092CEABD78}</ProjectGuid>
+    <ProjectGuid>{81DF4C8D-827C-4998-BE20-86295DE65F6F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.UserServices.FanArtService.Online</RootNamespace>
@@ -67,7 +67,7 @@
       <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
       <Name>OnlineLibraries</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+    <ProjectReference Include="..\..\Source\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
       <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
       <Name>FanArtService.Interfaces</Name>
     </ProjectReference>

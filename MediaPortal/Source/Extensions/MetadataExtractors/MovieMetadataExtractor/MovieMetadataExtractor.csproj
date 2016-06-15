@@ -13,6 +13,8 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -96,6 +98,10 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+      <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
+      <Name>FanArtService.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MatroskaLib\MatroskaLib.csproj">
       <Project>{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4}</Project>
       <Name>MatroskaLib</Name>
@@ -106,9 +112,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
-    <None Include="packages.config" />
+    <None Include="build.targets">
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
 </Project>

@@ -8,7 +8,7 @@
     <Upgrade Id="9743129C-FED3-404A-A66E-3C1557BE0178">
       <UpgradeVersion Property="OLD_VERSION_FOUND"
                       Minimum="2.0.0.0"
-                      Maximum="2.0.0.0"
+                      Maximum="2.99.99"
                       IncludeMinimum="yes"
                       IncludeMaximum="yes"
                       OnlyDetect="no"

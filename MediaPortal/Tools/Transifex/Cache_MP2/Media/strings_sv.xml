@@ -2,15 +2,22 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Utforska media</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Utforska mediabiblioteket för alla typer av media. Här kan du även komma åt flyttbara medier.</string>
   <string name="Media.LocalMediaMenuItem">Lokal media</string>
   <string name="Media.AudioMenuItem">Ljud</string>
+  <string name="Media.AudioMenuItem.Help">Spela upp musik eller ljudböcker från ljudbiblioteket och se mer information om media. Dy kan också skapa spellistor med din favoritmusik.</string>
   <string name="Media.VideosMenuItem">Videor</string>
+  <string name="Media.VideosMenuItem.Help">Utforska mediabiblioteket för video. På den här sidan kan du lista all video, inklusive filmer, TV-avsnitt och övriga videor. Du kan skapa filter enligt dina egna önskemål för att begränsa vilka videor som listas </string>
   <string name="Media.SeriesMenuItem">TV-serier</string>
+  <string name="Media.SeriesMenuItem.Help">Utforska mediabiblioteket för TV-serier. Du kan se extra information för säsonger och avsnitt så som betyg, genre, skådespelare, posters och fanart. Du kan skapa filter enligt dina egna önskemål för att begränsa vilka TV-serier som listas </string>
   <string name="Media.MoviesMenuItem">Filmer</string>
+  <string name="Media.MoviesMenuItem.Help">Utforska mediabiblioteket för filmer. Du kan se extra information så som betyg, genre, skådespelare, posters och fanart. Du kan skapa filter enligt dina egna önskemål för att begränsa vilka filmer som listas </string>
   <string name="Media.ImagesMenuItem">Bilder</string>
+  <string name="Media.ImagesMenuItem.Help">Utforska mediabiblioteket för bilder Du kan se extra information såsom år, plats och övrig bildinformation. Du kan skapa filter enligt dina egna önskemål för att begränsa vilka bilder som listas </string>
   <string name="Media.LatestMediaMenuItem">Senaste media</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtrera på artist</string>
+  <string name="Media.FilterByAlbumArtistMenuItem">Filtrera på album och artist</string>
   <string name="Media.FilterByAlbumMenuItem">Filtrera på album</string>
   <string name="Media.FilterByAudioGenreMenuItem">Filtrera på genre</string>
   <string name="Media.FilterByDecadeMenuItem">Filtrera på årtionde</string>
@@ -51,6 +58,7 @@
   <!--For example: "R.E.M."-->
   <string name="Media.FilterArtistNavbarDisplayLabel">Artist: {0}</string>
   <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumArtistNavbarDisplayLabel">Album och artist: {0}</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">Album: {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Årtionde: {0}</string>
@@ -120,6 +128,7 @@
   <string name="Media.ChooseAudioDecadeHeader">Välj ett årtionde</string>
   <string name="Media.ChooseAlbumHeader">Välj ett album</string>
   <string name="Media.ChooseArtistHeader">Välj en artist</string>
+  <string name="Media.ChooseAlbumArtistHeader">Välj ett album och artist</string>
   <string name="Media.ChooseAudioGenreHeader">Välj en genre</string>
   <string name="Media.ChooseImageYearHeader">Välj ett år</string>
   <string name="Media.ChooseImageSizeHeader">Välj en storlek</string>
@@ -233,6 +242,7 @@
   <string name="Media.SeriesTitleLabel">TV-serier</string>
   <string name="Media.SeriesSeasonLabel">Säsong</string>
   <string name="Media.SeriesEpisodeLabel">Avsnitt:</string>
+  <string name="Media.FirstAiredLabel">Först visad:</string>
   <string name="Media.SeriesEpisodeNameLabel">Avsnitt titel:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Bildinformation</string>

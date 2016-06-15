@@ -51,7 +51,10 @@ namespace MediaPortal.UI.Players.Video.Interfaces
 
     [PreserveSig]
     int OnVideoFormatChanged(int streamType, int width, int height, int aspectRatioX, int aspectRatioY, int bitrate,
-        int isInterlaced);
+                             int isInterlaced);
+
+    [PreserveSig]
+    int OnBitRateChanged(int bitrate);
   }
 
   /// <summary>

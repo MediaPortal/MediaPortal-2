@@ -1,0 +1,44 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Tve3RecordingMetadataExtractor"
+    PluginId="{89F8DD04-1CD5-4F78-8105-6979157E8936}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Metadata extractor for extracting information from MediaPortal TVEngine3 recordings">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}" CompatibleAPI="1"/> <!-- MediaInfoPlugin -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="1"/> <!-- OnlineLibraries -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="Tve3RecordingMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <!-- .TS +.XML TVE recordings, no online lookup of series -->
+    <Instance
+        Id="Tve3RecordingMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.Tve3RecordingMetadataExtractor"/>
+    <!-- .TS +.XML TVE recordings, only online lookup of series -->
+    <Instance
+        Id="Tve3RecordingSeriesMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.Tve3RecordingSeriesMetadataExtractor"/>
+
+    <!-- WTV / DVR-MS recordings, no online lookup of series -->
+    <Instance
+        Id="WTVRecordingMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.WTVRecordingMetadataExtractor"/>
+    <!-- WTV / DVR-MS recordings, only online lookup of series -->
+    <Instance
+        Id="WTVRecordingSeriesMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.WTVRecordingSeriesMetadataExtractor"/>
+  </Register>
+</Plugin>

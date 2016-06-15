@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.MenuItem">Partymusikspelare</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Starta en spellista och hindra användningen av MediaPotal 2 under tiden.</string>
   <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Partymusikspelare</string>
   <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Partymusikspelare</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Partymusikspelare konfiguration</string>

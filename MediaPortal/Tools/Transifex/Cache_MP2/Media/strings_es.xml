@@ -2,15 +2,22 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Biblioteca de archivos</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Navega por la biblioteca a través todo tipo de archivos por su estructura de origen. Aquí tienes también acceso a discos extraíbles.</string>
   <string name="Media.LocalMediaMenuItem">Biblioteca local</string>
   <string name="Media.AudioMenuItem">Sonido</string>
+  <string name="Media.AudioMenuItem.Help">Reproduce tu música o audio libros desde tu biblioteca y obtén información adicional. También puedes crear listas de reproducción de tus canciones favoritas.</string>
   <string name="Media.VideosMenuItem">Vídeos</string>
+  <string name="Media.VideosMenuItem.Help">Navega por la biblioteca de vídeos. En esta vista puedes ver todos los vídeos, incluido películas, episodios y otros. Puedes configurar el filtro para limitarlo exactamente a lo que necesites.</string>
   <string name="Media.SeriesMenuItem">Series</string>
+  <string name="Media.SeriesMenuItem.Help">Navega por la biblioteca de series. Obtén también información adicional sobre temporadas y episodios, tales como puntuación, género, actores, poster, fanart y mucho más. Puedes configurar el filtro para limitarlo exactamente a lo que necesites.</string>
   <string name="Media.MoviesMenuItem">Películas</string>
+  <string name="Media.MoviesMenuItem.Help">Navega por la biblioteca de películas. Obtén información adicional como puntuación, género, actores, poster, fanart y mucho más. Puedes configurar el filtro para limitarlo exactamente a lo que necesites.</string>
   <string name="Media.ImagesMenuItem">Imágenes</string>
+  <string name="Media.ImagesMenuItem.Help">Navega por la biblioteca de imágenes. Obtén información adicional como localización, año o detalles de la imagen. Puedes configurar el filtro para limitarlo exactamente a lo que necesites.</string>
   <string name="Media.LatestMediaMenuItem">Último archivo</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Filtrar por artista</string>
+  <string name="Media.FilterByAlbumArtistMenuItem">Filtrar por artista del álbum</string>
   <string name="Media.FilterByAlbumMenuItem">Filtrar por album</string>
   <string name="Media.FilterByAudioGenreMenuItem">Filtrar por género</string>
   <string name="Media.FilterByDecadeMenuItem">Filtrar por década</string>
@@ -51,6 +58,7 @@
   <!--For example: "R.E.M."-->
   <string name="Media.FilterArtistNavbarDisplayLabel">Artista: {0}</string>
   <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumArtistNavbarDisplayLabel">Artista de Album: {0}</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">Album: {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Género: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Década: {0}</string>
@@ -120,6 +128,7 @@
   <string name="Media.ChooseAudioDecadeHeader">Elegir década</string>
   <string name="Media.ChooseAlbumHeader">Elegir album</string>
   <string name="Media.ChooseArtistHeader">Elegir artista</string>
+  <string name="Media.ChooseAlbumArtistHeader">Elegir un artista de album</string>
   <string name="Media.ChooseAudioGenreHeader">Elegir género</string>
   <string name="Media.ChooseImageYearHeader">Elegir año</string>
   <string name="Media.ChooseImageSizeHeader">Elegir tamaño</string>
@@ -233,6 +242,7 @@
   <string name="Media.SeriesTitleLabel">Series:</string>
   <string name="Media.SeriesSeasonLabel">Temporada:</string>
   <string name="Media.SeriesEpisodeLabel">Episodio(s):</string>
+  <string name="Media.FirstAiredLabel">Primera emisión:</string>
   <string name="Media.SeriesEpisodeNameLabel">Título del episodio:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Información imagen actual</string>

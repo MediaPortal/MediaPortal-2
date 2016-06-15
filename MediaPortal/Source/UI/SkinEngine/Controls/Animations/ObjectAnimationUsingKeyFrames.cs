@@ -95,8 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Animation methods
 
-    public override void Setup(TimelineContext context,
-        IDictionary<IDataDescriptor, object> propertyConfigurations)
+    public override void Setup(TimelineContext context, IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
       base.Setup(context, propertyConfigurations);
       if (KeyFrames.Count > 0)
@@ -109,7 +108,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       if (patc.DataDescriptor == null) return;
       foreach (DiscreteObjectKeyFrame key in KeyFrames)
       {
-        if (key.KeyTime.TotalMilliseconds < timepassed)
+        if (key.KeyTime.TotalMilliseconds > timepassed)
           continue;
         object value = key.Value;
         if (patc.DataDescriptor.Value == value)

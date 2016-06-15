@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure.Dv;
 
 namespace MediaPortal.UI.Services.ServerCommunication
@@ -32,22 +33,33 @@ namespace MediaPortal.UI.Services.ServerCommunication
   public class UPnPFrontendServer : UPnPServer
   {
     public const int SSDP_ADVERTISMENT_INTERVAL = 180;
+    protected readonly UPnPSystemResumeHelper _systemResumeHelper;
 
     public UPnPFrontendServer(string frontendServerSystemId)
     {
       AddRootDevice(new MP2FrontendServerDevice(frontendServerSystemId));
       // TODO: add UPnP standard MediaRenderer device: it's not implemented yet
       //AddRootDevice(new UPnPMediaRendererDevice(...));
+
+      _systemResumeHelper = new UPnPSystemResumeHelper(this);
     }
 
     public void Start()
     {
       Bind(SSDP_ADVERTISMENT_INTERVAL);
+      _systemResumeHelper.Startup();
     }
 
     public void Stop()
     {
+      _systemResumeHelper.Shutdown();
       Close();
+    }
+
+    public override void Dispose()
+    {
+      _systemResumeHelper.Dispose();
+      base.Dispose();
     }
   }
 }

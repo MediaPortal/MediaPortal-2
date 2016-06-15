@@ -43,24 +43,24 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
     private static readonly Guid[] OPTIONAL_MIAS = { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
-    private static Dictionary<FanArtConstants.FanArtMediaType, string> fanArtScopeMap = new Dictionary<FanArtConstants.FanArtMediaType, string>()
+    private static Dictionary<string, string> fanArtScopeMap = new Dictionary<string, string>()
     {
-      { FanArtConstants.FanArtMediaType.Album, FanArtScope.Album },
-      { FanArtConstants.FanArtMediaType.Audio, FanArtScope.Album },
-      { FanArtConstants.FanArtMediaType.Artist, FanArtScope.Artist },
-      { FanArtConstants.FanArtMediaType.Composer, FanArtScope.Writer },
-      { FanArtConstants.FanArtMediaType.MusicLabel, FanArtScope.Label },
+      { FanArtMediaTypes.Album, FanArtScope.Album },
+      { FanArtMediaTypes.Audio, FanArtScope.Album },
+      { FanArtMediaTypes.Artist, FanArtScope.Artist },
+      { FanArtMediaTypes.Composer, FanArtScope.Writer },
+      { FanArtMediaTypes.MusicLabel, FanArtScope.Label },
     };
 
-    private static Dictionary<FanArtConstants.FanArtType, string> fanArtTypeMap = new Dictionary<FanArtConstants.FanArtType, string>()
+    private static Dictionary<string, string> fanArtTypeMap = new Dictionary<string, string>()
     {
-      { FanArtConstants.FanArtType.Banner, FanArtType.Banners },
-      { FanArtConstants.FanArtType.ClearArt, FanArtType.ClearArt },
-      { FanArtConstants.FanArtType.DiscArt, FanArtType.DiscArt },
-      { FanArtConstants.FanArtType.FanArt, FanArtType.Backdrops },
-      { FanArtConstants.FanArtType.Logo, FanArtType.Logos },
-      { FanArtConstants.FanArtType.Poster, FanArtType.Posters },
-      { FanArtConstants.FanArtType.Thumbnail, FanArtType.Thumbnails },
+      { FanArtTypes.Banner, FanArtType.Banners },
+      { FanArtTypes.ClearArt, FanArtType.ClearArt },
+      { FanArtTypes.DiscArt, FanArtType.DiscArt },
+      { FanArtTypes.FanArt, FanArtType.Backdrops },
+      { FanArtTypes.Logo, FanArtType.Logos },
+      { FanArtTypes.Poster, FanArtType.Posters },
+      { FanArtTypes.Thumbnail, FanArtType.Thumbnails },
     };
 
     /// <summary>
@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
 
@@ -101,13 +101,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       MediaItem mediaItem = items.First();
       List<string> fanArtFiles = new List<string>();
       object infoObject = null;
-      if (mediaType == FanArtConstants.FanArtMediaType.Artist || mediaType == FanArtConstants.FanArtMediaType.Composer)
+      if (mediaType == FanArtMediaTypes.Artist || mediaType == FanArtMediaTypes.Composer)
         infoObject = new PersonInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.MusicLabel)
+      else if (mediaType == FanArtMediaTypes.MusicLabel)
         infoObject = new CompanyInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Audio)
+      else if (mediaType == FanArtMediaTypes.Audio)
         infoObject = new TrackInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Album)
+      else if (mediaType == FanArtMediaTypes.Album)
         infoObject = new AlbumInfo().FromMetadata(mediaItem.Aspects);
 
       fanArtFiles.AddRange(MusicTheAudioDbMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));

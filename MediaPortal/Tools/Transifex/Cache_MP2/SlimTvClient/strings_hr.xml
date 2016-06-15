@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Vrijeme početka</string>
   <string name="SlimTvClient.ProgramEndLabel">Vrijeme završetka</string>
   <string name="SlimTvClient.EpisodeLabel">Epizoda</string>
+  <string name="SlimTvClient.Progress">Napredak</string>
   <string name="SlimTvClient.Guide">TV Vodič</string>
   <string name="SlimTvClient.NoProgram">Nema podataka o programu.</string>
   <string name="SlimTvClient.ChooseProgramAction">Odaberite radnju programa... </string>
@@ -20,6 +21,8 @@
   <string name="SlimTvClient.DeleteSchedule">Obrišite raspored</string>
   <string name="SlimTvClient.CreateSchedule">Snimanje po rasporedu</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Snimci prema nazivu</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Snimci prema nazivu</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">(Još) nije dostupan TV provider</string>
   <!--Settings-->

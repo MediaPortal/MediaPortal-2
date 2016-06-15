@@ -35,6 +35,7 @@ using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -43,25 +44,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
     private static readonly Guid[] OPTIONAL_MIAS = { MovieAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
-    private static Dictionary<FanArtConstants.FanArtMediaType, string> fanArtScopeMap = new Dictionary<FanArtConstants.FanArtMediaType, string>()
+    private static Dictionary<string, string> fanArtScopeMap = new Dictionary<string, string>()
     {
-      { FanArtConstants.FanArtMediaType.Movie, FanArtScope.Movie },
-      { FanArtConstants.FanArtMediaType.MovieCollection, FanArtScope.Collection },
-      { FanArtConstants.FanArtMediaType.Actor, FanArtScope.Actor },
-      { FanArtConstants.FanArtMediaType.Director, FanArtScope.Director },
-      { FanArtConstants.FanArtMediaType.Writer, FanArtScope.Writer },
-      { FanArtConstants.FanArtMediaType.Company, FanArtScope.Company },
+      { FanArtMediaTypes.Movie, FanArtScope.Movie },
+      { FanArtMediaTypes.MovieCollection, FanArtScope.Collection },
+      { FanArtMediaTypes.Actor, FanArtScope.Actor },
+      { FanArtMediaTypes.Director, FanArtScope.Director },
+      { FanArtMediaTypes.Writer, FanArtScope.Writer },
+      { FanArtMediaTypes.Company, FanArtScope.Company },
     };
 
-    private static Dictionary<FanArtConstants.FanArtType, string> fanArtTypeMap = new Dictionary<FanArtConstants.FanArtType, string>()
+    private static Dictionary<string, string> fanArtTypeMap = new Dictionary<string, string>()
     {
-      { FanArtConstants.FanArtType.Banner, FanArtType.Banners },
-      { FanArtConstants.FanArtType.ClearArt, FanArtType.ClearArt },
-      { FanArtConstants.FanArtType.DiscArt, FanArtType.DiscArt },
-      { FanArtConstants.FanArtType.FanArt, FanArtType.Backdrops },
-      { FanArtConstants.FanArtType.Logo, FanArtType.Logos },
-      { FanArtConstants.FanArtType.Poster, FanArtType.Posters },
-      { FanArtConstants.FanArtType.Thumbnail, FanArtType.Thumbnails },
+      { FanArtTypes.Banner, FanArtType.Banners },
+      { FanArtTypes.ClearArt, FanArtType.ClearArt },
+      { FanArtTypes.DiscArt, FanArtType.DiscArt },
+      { FanArtTypes.FanArt, FanArtType.Backdrops },
+      { FanArtTypes.Logo, FanArtType.Logos },
+      { FanArtTypes.Poster, FanArtType.Posters },
+      { FanArtTypes.Thumbnail, FanArtType.Thumbnails },
     };
 
     /// <summary>
@@ -76,7 +77,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
 
@@ -102,15 +103,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       MediaItem mediaItem = items.First();
       List<string> fanArtFiles = new List<string>();
       object infoObject = null;
-      if (mediaType == FanArtConstants.FanArtMediaType.Actor || mediaType == FanArtConstants.FanArtMediaType.Director || mediaType == FanArtConstants.FanArtMediaType.Writer)
+      if (mediaType == FanArtMediaTypes.Actor || mediaType == FanArtMediaTypes.Director || mediaType == FanArtMediaTypes.Writer)
         infoObject = new PersonInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Character)
+      else if (mediaType == FanArtMediaTypes.Character)
         infoObject = new CharacterInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Company)
+      else if (mediaType == FanArtMediaTypes.Company)
         infoObject = new CompanyInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Movie)
+      else if (mediaType == FanArtMediaTypes.Movie)
         infoObject = new MovieInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.MovieCollection)
+      else if (mediaType == FanArtMediaTypes.MovieCollection)
         infoObject = new MovieCollectionInfo().FromMetadata(mediaItem.Aspects);
 
       fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));

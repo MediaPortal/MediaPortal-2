@@ -140,6 +140,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       IsItemsEmpty = false;
       TooManyItems = false;
       NumItemsStr = "-";
+      NumItems = 0;
       lock (_syncObj)
         _view = null;
       _items = new ItemsList();

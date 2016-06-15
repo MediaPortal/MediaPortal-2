@@ -1,19 +1,33 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
-  [DataContract]
-  public class TraktEpisodeSummary
-  {
-    [DataMember(Name = "show")]
-    public TraktShow Show { get; set; }
-
-    [DataMember(Name = "episode")]
-    public TraktEpisode Episode { get; set; }
-
-    public override string ToString()
+    [DataContract]
+    public class TraktEpisodeSummary : TraktEpisode
     {
-      return string.Format("{0} - {1}x{2}{3}", Show.Title, Episode.Season, Episode.Number, string.IsNullOrEmpty(Episode.Title) ? string.Empty : " - " + Episode.Title);
+        [DataMember(Name = "images")]
+        public TraktEpisodeImages Images { get; set; }
+
+        [DataMember(Name = "number_abs")]
+        public int? AbsoluteNumber { get; set; }
+
+        [DataMember(Name = "first_aired")]
+        public string FirstAired { get; set; }
+
+        [DataMember(Name = "updated_at")]
+        public string UpdatedAt { get; set; }
+
+        [DataMember(Name = "overview")]
+        public string Overview { get; set; }
+
+        [DataMember(Name = "rating")]
+        public double? Rating { get; set; }
+
+        [DataMember(Name = "votes")]
+        public int Votes { get; set; }
+
+        [DataMember(Name = "available_translations")]
+        public List<string> AvailableTranslations { get; set; }
     }
-  }
 }

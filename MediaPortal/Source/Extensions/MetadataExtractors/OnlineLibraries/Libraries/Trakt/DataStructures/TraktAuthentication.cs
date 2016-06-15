@@ -5,7 +5,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
   [DataContract]
   public class TraktAuthentication
   {
-    [DataMember(Name = "username")]
+    [DataMember(Name = "login")]
     public string Username { get; set; }
 
     [DataMember(Name = "password")]

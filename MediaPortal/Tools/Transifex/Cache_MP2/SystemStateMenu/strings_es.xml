@@ -9,6 +9,21 @@
   <string name="SystemState.Suspend">Suspernder</string>
   <string name="SystemState.Restart">Reiniciar</string>
   <string name="SystemState.Logoff">Cerrar sesión</string>
+  <string name="SystemState.SleepTimerConfig">Configurar temporizador de apagado</string>
+  <string name="SystemState.SleepTimerStop">Detener temporizador de apagado</string>
   <string name="SystemState.MinimizeMP">Minimizar MediaPortal</string>
   <string name="SystemState.ShutdownMP">Cerrar MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Menñu de apagado</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Configuración menú de apagado</string>
+  <string name="SleepTimer.Title">Temporizador de apagado</string>
+  <string name="SleepTimer.Start">Inicio</string>
+  <string name="SleepTimer.Stop">Parar</string>
+  <string name="SleepTimer.Action">Acción:</string>
+  <string name="SleepTimer.TimeStr">Hora:</string>
+  <string name="SleepTimer.Minutes">min.</string>
+  <string name="SleepTimer.MediaItem">Después del elemento actual</string>
+  <string name="SleepTimer.Playlist">Después de la lista de reproducción actual</string>
+  <string name="SleepTimer.ShutdownTextSingle">{0} en menos de un minuto</string>
+  <string name="SleepTimer.ShutdownTextMulti">{0} en {1} minutos</string>
+  <string name="SleepTimer.MaxMinutes">Máximos minutos para apagado:</string>
 </resources>

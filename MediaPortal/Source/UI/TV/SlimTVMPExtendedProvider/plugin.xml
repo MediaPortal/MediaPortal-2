@@ -1,0 +1,78 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="SlimTVMPExtendedProvider"
+    PluginId="{FD70FD97-CB53-4500-8632-0ADCEF359489}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="The SlimTVMPExtendedProvider uses MPExtended and MP TvServer to provide basic TV capabilities.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>    <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>    <!-- Configuration plugin -->
+  </DependsOn>
+
+  <ConflictsWith>
+    <PluginReference PluginId="{2ED35264-D9EB-4C6A-A035-2BEA4C0A5024}"/>    <!-- SlimTvNativeProvider -->
+  </ConflictsWith>
+
+  <Runtime>
+    <Assembly FileName="SlimTv.Interfaces.dll"/>
+    <Assembly FileName="SlimTV.MPExtendedProvider.dll"/>
+  </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="MPExtendedLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Services">
+    <Service Id="SlimTVMPExtendedProviderService" RegistrationClassName="MediaPortal.Plugins.SlimTv.Interfaces.ITvProvider"        
+        ServiceClassName="MediaPortal.Plugins.SlimTv.Providers.SlimTVMPExtendedProvider"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Plugins"
+        Redundant="true"
+        Text="[Settings.Plugins]"/>
+  </Register>
+  
+  <Register Location="/Configuration/Settings/Plugins">
+    <ConfigSection
+        Id="TV"
+        Redundant="true"
+        Text="[Settings.Plugins.TV]"/>
+  </Register>
+
+
+  <Register Location="/Configuration/Settings/Plugins/TV">
+    <ConfigSetting
+        Id="MPExtendedServerAddress"
+        Text="[Settings.Plugins.TV.MPExtendedServerAddress]"
+        HelpText="[Settings.Plugins.TV.MPExtendedServerAddress.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedServerAddress"/>
+    <ConfigSetting
+        Id="MPExtendedUsername"
+        Text="[Settings.Plugins.TV.MPExtendedUsername]"
+        HelpText="[Settings.Plugins.TV.MPExtendedUsername.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedUsername"/>
+    <ConfigSetting
+        Id="MPExtendedPassword"
+        Text="[Settings.Plugins.TV.MPExtendedPassword]"
+        HelpText="[Settings.Plugins.TV.MPExtendedPassword.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedPassword"/>
+  </Register>
+  
+  <!-- The ResourceProvider to access Tve3. -->
+  <Register Location="/ResourceProviders">
+    <Instance Id="SlimTvProvider" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider.SlimTvResourceProvider"/>
+  </Register>
+</Plugin>

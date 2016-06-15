@@ -1,0 +1,526 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5B09CF07-6386-44C1-B786-CAAC78835CAA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.UiComponents.Titanium</RootNamespace>
+    <AssemblyName>Titanium</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\fonts\default-font.xml" />
+    <Content Include="Skin\Titanium\images\02992BEC-1E6D-4C29-8D79-F95F59E3F625.jpg" />
+    <Content Include="Skin\Titanium\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F.jpg" />
+    <Content Include="Skin\Titanium\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\Titanium\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
+    <Content Include="Skin\Titanium\images\36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F.jpg" />
+    <Content Include="Skin\Titanium\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\Titanium\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
+    <Content Include="Skin\Titanium\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
+    <Content Include="Skin\Titanium\images\9C3E6701-6856-49ec-A4CD-0CEB15F385F6.jpg" />
+    <Content Include="Skin\Titanium\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\Titanium\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\Titanium\images\background_settings.png" />
+    <Content Include="Skin\Titanium\images\ShutdownIcon.png" />
+    <Content Include="Skin\Titanium\images\basichome_button_focus.png" />
+    <Content Include="Skin\Titanium\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
+    <Content Include="Skin\Titanium\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
+    <Content Include="Skin\Titanium\images\D83604C0-0936-4416-9DE8-7B6D7C50023C.jpg" />
+    <Content Include="Skin\Titanium\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
+    <Content Include="Skin\Titanium\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\Titanium\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
+    <Content Include="Skin\Titanium\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\Titanium\images\fanart_overlay.png" />
+    <Content Include="Skin\Titanium\images\homebutton_mask.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\0.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\1.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\10.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\11.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\12.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\13.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\14.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\15.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\16.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\17.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\18.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\19.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\2.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\20.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\21.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\22.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\23.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\24.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\25.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\26.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\27.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\28.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\29.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\3.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\30.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\31.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\32.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\33.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\34.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\35.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\36.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\37.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\38.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\39.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\4.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\40.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\41.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\42.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\43.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\44.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\45.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\46.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\47.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\5.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\6.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\7.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\8.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\9.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\na.png" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\permission.txt" />
+    <Content Include="Skin\Titanium\images\Weather\128x128\WEATHERALERT.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\0.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\1.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\10.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\11.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\12.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\13.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\14.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\15.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\16.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\17.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\18.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\19.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\2.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\20.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\21.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\22.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\23.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\24.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\25.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\26.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\27.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\28.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\29.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\3.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\30.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\31.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\32.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\33.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\34.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\35.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\36.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\37.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\38.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\39.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\4.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\40.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\41.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\42.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\43.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\44.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\45.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\46.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\47.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\5.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\6.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\7.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\8.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\9.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\na.png" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\permission.txt" />
+    <Content Include="Skin\Titanium\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\Titanium\screens\FSCWindowButtons.inc" />
+    <Content Include="Skin\Titanium\screens\MultiDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemMovieCollectionDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemSeriesDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemAudioDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemVideoDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemMovieDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemImageDetails.inc" />
+    <Content Include="Skin\Titanium\screens\MediaItemsList.inc" />
+    <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\Titanium\skin.xml" />
+    <Content Include="Skin\Titanium\sounds\click.wav" />
+    <Content Include="Skin\Titanium\sounds\navigate.wav" />
+    <Content Include="Skin\Titanium\themes\anniversary-large\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\anniversary\images\background.png" />
+    <Content Include="Skin\Titanium\themes\anniversary\images\basichome_button_focus.png" />
+    <Content Include="Skin\Titanium\themes\anniversary\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\anniversary\theme.xml" />
+    <Content Include="Skin\Titanium\themes\anniversary-large\fonts\default-font.xml" />
+    <Content Include="Skin\Titanium\themes\anniversary-large\theme.xml" />
+    <Content Include="Skin\Titanium\themes\blue-large\fonts\default-font.xml" />
+    <Content Include="Skin\Titanium\themes\blue-large\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\blue-large\theme.xml" />
+    <Content Include="Skin\Titanium\themes\blue\images\background.png" />
+    <Content Include="Skin\Titanium\themes\blue\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\blue\theme.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\Titanium\themes\default-large\fonts\default-font.xml" />
+    <Content Include="Skin\Titanium\themes\default-large\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\default-large\theme.xml" />
+    <Content Include="Skin\Titanium\themes\default\images\AudioLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\AudioSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\FilterLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\FilterSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\ImageLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\ImageSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\images\NavigationLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\NavigationSmall.png" />
+    <None Include="Skin\Titanium\fonts\TitanBold.desc" />
+    <None Include="Skin\Titanium\fonts\Titan.desc" />
+    <None Include="Skin\Titanium\fonts\TITAN.TTF" />
+    <None Include="Skin\Titanium\fonts\TITANLIGHT.TTF" />
+    <None Include="Skin\Titanium\fonts\TITANMEDIUM.TTF" />
+    <None Include="Skin\Titanium\fonts\TITANSMALL.TTF" />
+    <None Include="Skin\Titanium\themes\default\styles\OtherControlsOverrides.xaml" />
+    <Content Include="Skin\Titanium\themes\default\images\background.png" />
+    <Content Include="Skin\Titanium\themes\default\images\preview.jpg" />
+    <Content Include="Skin\Titanium\themes\default\images\unwatched_flag.png" />
+    <Content Include="Skin\Titanium\themes\default\images\VideoLarge.png" />
+    <Content Include="Skin\Titanium\themes\default\images\VideoSmall.png" />
+    <Content Include="Skin\Titanium\themes\default\theme.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Titanium\screens\home.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Titanium\screens\master_home.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Titanium\screens\master_homemenu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\Titanium\screens\master_menu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\master_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Titanium\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Titanium\themes\default\styles\Backgrounds.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\AnalogClock.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Graphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\MediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\OSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\themes\default\styles\Widgets.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\WeatherStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\master_dialog_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullScreenContentAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullscreenContentDVD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\FullscreenContentImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\FullScreenContentConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\backgrounds\default-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\MediaGraphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\DialogVirtualKeyboard.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\VirtualKeyboardStyle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\SimpleShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\blue\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\VideoShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\MoviesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\AudioShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\ImageShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\SeriesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\MoviesFilterByCollection.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\configuration-section.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\Titanium\screens\master_configuration_menu.xaml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_choose_categories.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_share_info.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_choose_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_choose_system.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_edit_name.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_edit_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_overview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_problem.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\shares_config_remove_shares.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\SharesOverview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\ShowHomeServer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\BrowseMediaNavigation.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\anniversary\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\blue-large\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\blue-large\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default-large\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default-large\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\anniversary-large\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\anniversary-large\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\LatestMedia.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+</Project>

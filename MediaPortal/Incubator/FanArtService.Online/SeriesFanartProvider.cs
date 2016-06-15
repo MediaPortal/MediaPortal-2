@@ -43,28 +43,28 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
     private static readonly Guid[] OPTIONAL_MIAS = { SeriesAspect.ASPECT_ID, SeasonAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
-    private static Dictionary<FanArtConstants.FanArtMediaType, string> fanArtScopeMap = new Dictionary<FanArtConstants.FanArtMediaType, string>()
+    private static Dictionary<string, string> fanArtScopeMap = new Dictionary<string, string>()
     {
-      { FanArtConstants.FanArtMediaType.Episode, FanArtScope.Episode },
-      { FanArtConstants.FanArtMediaType.Series, FanArtScope.Series },
-      { FanArtConstants.FanArtMediaType.SeriesSeason, FanArtScope.Season },
-      { FanArtConstants.FanArtMediaType.Actor, FanArtScope.Actor },
-      { FanArtConstants.FanArtMediaType.Character, FanArtScope.Character },
-      { FanArtConstants.FanArtMediaType.Director, FanArtScope.Director },
-      { FanArtConstants.FanArtMediaType.Writer, FanArtScope.Writer },
-      { FanArtConstants.FanArtMediaType.Company, FanArtScope.Company },
-      { FanArtConstants.FanArtMediaType.Network, FanArtScope.Network },
+      { FanArtMediaTypes.Episode, FanArtScope.Episode },
+      { FanArtMediaTypes.Series, FanArtScope.Series },
+      { FanArtMediaTypes.SeriesSeason, FanArtScope.Season },
+      { FanArtMediaTypes.Actor, FanArtScope.Actor },
+      { FanArtMediaTypes.Character, FanArtScope.Character },
+      { FanArtMediaTypes.Director, FanArtScope.Director },
+      { FanArtMediaTypes.Writer, FanArtScope.Writer },
+      { FanArtMediaTypes.Company, FanArtScope.Company },
+      { FanArtMediaTypes.Network, FanArtScope.Network },
     };
 
-    private static Dictionary<FanArtConstants.FanArtType, string> fanArtTypeMap = new Dictionary<FanArtConstants.FanArtType, string>()
+    private static Dictionary<string, string> fanArtTypeMap = new Dictionary<string, string>()
     {
-      { FanArtConstants.FanArtType.Banner, FanArtType.Banners },
-      { FanArtConstants.FanArtType.ClearArt, FanArtType.ClearArt },
-      { FanArtConstants.FanArtType.DiscArt, FanArtType.DiscArt },
-      { FanArtConstants.FanArtType.FanArt, FanArtType.Backdrops },
-      { FanArtConstants.FanArtType.Logo, FanArtType.Logos },
-      { FanArtConstants.FanArtType.Poster, FanArtType.Posters },
-      { FanArtConstants.FanArtType.Thumbnail, FanArtType.Thumbnails },
+      { FanArtTypes.Banner, FanArtType.Banners },
+      { FanArtTypes.ClearArt, FanArtType.ClearArt },
+      { FanArtTypes.DiscArt, FanArtType.DiscArt },
+      { FanArtTypes.FanArt, FanArtType.Backdrops },
+      { FanArtTypes.Logo, FanArtType.Logos },
+      { FanArtTypes.Poster, FanArtType.Posters },
+      { FanArtTypes.Thumbnail, FanArtType.Thumbnails },
     };
 
     /// <summary>
@@ -79,7 +79,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
 
@@ -105,17 +105,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       MediaItem mediaItem = items.First();
       List<string> fanArtFiles = new List<string>();
       object infoObject = null;
-      if (mediaType == FanArtConstants.FanArtMediaType.Actor || mediaType == FanArtConstants.FanArtMediaType.Director || mediaType == FanArtConstants.FanArtMediaType.Writer)
+      if (mediaType == FanArtMediaTypes.Actor || mediaType == FanArtMediaTypes.Director || mediaType == FanArtMediaTypes.Writer)
         infoObject = new PersonInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Character)
+      else if (mediaType == FanArtMediaTypes.Character)
         infoObject = new CharacterInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Company || mediaType == FanArtConstants.FanArtMediaType.Network)
+      else if (mediaType == FanArtMediaTypes.Company || mediaType == FanArtMediaTypes.Network)
         infoObject = new CompanyInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Series)
+      else if (mediaType == FanArtMediaTypes.Series)
         infoObject = new SeriesInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.SeriesSeason)
+      else if (mediaType == FanArtMediaTypes.SeriesSeason)
         infoObject = new SeasonInfo().FromMetadata(mediaItem.Aspects);
-      else if (mediaType == FanArtConstants.FanArtMediaType.Episode)
+      else if (mediaType == FanArtMediaTypes.Episode)
         infoObject = new EpisodeInfo().FromMetadata(mediaItem.Aspects);
 
       fanArtFiles.AddRange(SeriesTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
@@ -123,10 +123,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       fanArtFiles.AddRange(SeriesTvMazeMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
       fanArtFiles.AddRange(SeriesFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
 
-      if (fanArtFiles.Count == 0 && mediaType == FanArtConstants.FanArtMediaType.SeriesSeason &&
-        (fanArtType == FanArtConstants.FanArtType.Banner || fanArtType == FanArtConstants.FanArtType.Poster))
+      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.SeriesSeason &&
+        (fanArtType == FanArtTypes.Banner || fanArtType == FanArtTypes.Poster))
       {
-        mediaType = FanArtConstants.FanArtMediaType.Series;
+        mediaType = FanArtMediaTypes.Series;
         infoObject = new SeriesInfo().FromMetadata(mediaItem.Aspects);
         fanArtFiles.AddRange(SeriesTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
         fanArtFiles.AddRange(SeriesTvDbMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));

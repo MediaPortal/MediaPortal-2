@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+
+    <!-- Note: the following definitions are copied from SlimTVClient plugin, but got another changed ActionID and "Home" as SourceStates -->
+    <PushNavigationTransition Id="A298DFBE-9DA8-4C16-A3EA-A9B354F3910C"
+      Name="SlimTvClient->Guide"
+      DisplayCategory="A-1SlimTvClientMultiChannelGuide"
+      SortOrder="b"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
+      DisplayTitle="[SlimTvClient.TvGuide]"
+      HelpText="[SlimTvClient.TvGuide.Help]"/>
+
+    <PushNavigationTransition Id="87355E05-A15B-452A-85B8-98D4FC80034E"
+      Name="SlimTvClient->Schedules"
+      DisplayCategory="A-1SlimTvClientSchedules"
+      SortOrder="c"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="88842E97-2EF9-4658-AD35-8D74E3C689A4"
+      DisplayTitle="[SlimTvClient.Schedules]"
+      HelpText="[SlimTvClient.Schedules.Help]"/>
+
+    <PushNavigationTransition Id="D91738E9-3F85-443B-ABBD-EF01731734AD"
+      Name="SlimTvClient->ProgramSearch"
+      DisplayCategory="A-2SlimTvClientProgramSearch"
+      SortOrder="c"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
+      DisplayTitle="[SlimTvClient.ProgramSearch]"/>
+
+    <WorkflowContributorAction Id="7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51"
+      Name="SlimTvClient->Recordings"
+      DisplayCategory="A-2Recordings"
+      SortOrder="d"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"
+      HelpText="[SlimTvClient.Recordings.Help]"/>  <!-- Recordings action -->
+
+  </MenuActions>
+</Workflow>

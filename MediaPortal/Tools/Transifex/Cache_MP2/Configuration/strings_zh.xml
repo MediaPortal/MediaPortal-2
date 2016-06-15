@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">设置</string>
+  <string name="Configuration.Name.Help">配置媒体源并更改MediaPortal的外观和感觉</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">设置</string>
   <string name="Configuration.MainSettings">主要设置</string>
   <!--2nd Header for root configuration section-->

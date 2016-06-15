@@ -39,7 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
     public const string GROUP_YEAR = "year";
     public static readonly IList<Regex> REGEXP_TITLE_YEAR = new List<Regex>
       {
-        new Regex(@"(?<title>[^\\|\/]*?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase), // For LocalFileSystemPath & CanonicalLocalResourcePath
+        new Regex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase), // For LocalFileSystemPath & CanonicalLocalResourcePath
         // Can be extended
       };
 
@@ -74,6 +74,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
 
     public static bool CleanupTitle(MovieInfo movieInfo)
     {
+      if (string.IsNullOrEmpty(movieInfo.MovieName.Text))
+        return false;
       string originalTitle = movieInfo.MovieName.Text;
       foreach (Regex regex in REGEXP_CLEANUPS)
         movieInfo.MovieName.Text = regex.Replace(movieInfo.MovieName.Text, "");

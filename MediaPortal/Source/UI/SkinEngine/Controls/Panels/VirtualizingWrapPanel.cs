@@ -867,6 +867,70 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return false;
     }
 
+    protected override void SaveChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        base.SaveChildrenState(state, prefix);
+      else
+      {
+        IList<FrameworkElement> arrangedItemsCopy;
+        int index;
+        lock (Children.SyncRoot)
+        {
+          if (_arrangedItems == null)
+            return;
+
+          arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
+          index = _firstArrangedLineIndex;
+        }
+        state[prefix + "/ItemsStartIndex"] = index;
+        state[prefix + "/NumItems"] = arrangedItemsCopy.Count;
+        foreach (FrameworkElement child in arrangedItemsCopy)
+        {
+          int saveIndex = index;
+          // If there is an ItemIndex, prefer it to save state
+          ListViewItem liv = child as ListViewItem;
+          if (liv != null)
+            saveIndex = liv.ItemIndex;
+          if (child != null)
+            child.SaveUIState(state, prefix + "/Child_" + saveIndex);
+          index++;
+        }
+      }
+    }
+
+    public override void RestoreChildrenState(IDictionary<string, object> state, string prefix)
+    {
+      IItemProvider itemProvider = ItemProvider;
+      if (itemProvider == null)
+        base.RestoreChildrenState(state, prefix);
+      else
+      {
+        object oNumItems;
+        object oIndex;
+        int? numItems;
+        int? startIndex;
+        if (state.TryGetValue(prefix + "/ItemsStartIndex", out oIndex) && state.TryGetValue(prefix + "/NumItems", out oNumItems) &&
+            (startIndex = (int?)oIndex).HasValue && (numItems = (int?)oNumItems).HasValue)
+        {
+          int endIndexExcl = Math.Min(startIndex.Value + numItems.Value, itemProvider.NumItems); // Limit to a maximum of NumItems.
+          for (int i = startIndex.Value; i < endIndexExcl; i++)
+          {
+            FrameworkElement child = GetItem(i, itemProvider, false);
+            if (child == null)
+              continue;
+            int restoreIndex = i;
+            // If there is an ItemIndex, prefer it to restore state
+            ListViewItem liv = child as ListViewItem;
+            if (liv != null)
+              restoreIndex = liv.ItemIndex;
+            child.RestoreUIState(state, prefix + "/Child_" + restoreIndex);
+          }
+        }
+      }
+    }
+
     #endregion
 
     #region IScrollInfo implementation overrides

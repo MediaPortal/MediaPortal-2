@@ -1,0 +1,34 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Local FanArt provider"
+    PluginId="{584814BE-14CB-4DFC-85F7-94B5A90F7FB3}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides support for posters, backdrops and other types of local stored fanart.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="2"/> <!-- FanartService -->
+    <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}" CompatibleAPI="1"/> <!-- MatroskaLib -->
+
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="FanArtService.Local.dll"/>
+    <Assembly FileName="FanArtService.Interfaces.dll"/>
+  </Runtime>
+
+  <!-- We use our own local name here to avoid circular references to FanArtService -->
+  <Register Location="/Fanart/Providers">
+    <FanartProviderBuilder Id="{279D584D-9C31-425D-B71B-154FD84B8F9F}" MediaTypes="Poster,Fanart" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.LocalFanartProvider"/>
+    <FanartProviderBuilder Id="{B3B36840-C9E2-4B25-B630-7F6662E48D83}" MediaTypes="Poster,Fanart" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Local.MkvAttachmentsProvider"/>
+  </Register>
+</Plugin>

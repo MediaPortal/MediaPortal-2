@@ -32,7 +32,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
 
-namespace MediaPortal.Extensions.OnlineLibraries
+namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MovieTheMovieDbMatcher : MovieMatcher<ImageItem, string>
   {
@@ -48,13 +48,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
-    private static readonly TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
+    private static readonly TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
 
     #endregion
 
     #region Init
 
-    public MovieTheMovieDbMatcher() : 
+    public MovieTheMovieDbMatcher() :
       base(CACHE_PATH, MAX_MEMCACHE_DURATION)
     {
     }

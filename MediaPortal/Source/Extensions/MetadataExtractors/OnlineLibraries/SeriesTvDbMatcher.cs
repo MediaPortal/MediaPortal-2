@@ -55,7 +55,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    protected static TimeSpan MIN_REFRESH_INTERVAL = TimeSpan.FromHours(12);
 
     #endregion
 

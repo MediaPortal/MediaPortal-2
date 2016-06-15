@@ -12,6 +12,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Starttid</string>
   <string name="SlimTvClient.ProgramEndLabel">Sluttid</string>
   <string name="SlimTvClient.EpisodeLabel">Afsnit</string>
+  <string name="SlimTvClient.Progress">Fremdrift</string>
   <string name="SlimTvClient.Guide">TV guide</string>
   <string name="SlimTvClient.NoProgram">Ingen program data.</string>
   <string name="SlimTvClient.ChooseProgramAction">Vælg programhandling...</string>
@@ -41,6 +42,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Weekender</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Hverdage</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Ugentligt, hver gang på denne kanal</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Optagelser pr. navn</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Optagelser pr. navn</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV udbyder tilgængelig (p.t.)</string>
   <!--Settings-->

@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">Ajustes</string>
+  <string name="Configuration.Name.Help">Configurar los medios y cambiar la apariencia de MediaPortal.</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Ajustes</string>
   <string name="Configuration.MainSettings">Ajustes principales</string>
   <!--2nd Header for root configuration section-->

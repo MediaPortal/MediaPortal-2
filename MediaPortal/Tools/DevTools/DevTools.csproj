@@ -63,7 +63,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Incubator\SQLiteDatabase\SQLiteDatabase.csproj">
+    <ProjectReference Include="..\..\Source\Backend\Database\SQLiteDatabase\SQLiteDatabase.csproj">
       <Project>{8a791c9c-5d72-42e8-b8d3-ed25adc24188}</Project>
       <Name>SQLiteDatabase</Name>
     </ProjectReference>

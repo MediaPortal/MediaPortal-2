@@ -3,8 +3,6 @@
   <string name="Trakt.Enable">Scrobbling inschakelen</string>
   <string name="Trakt.UsernamePasswordGroup">Accountdetails</string>
   <string name="Trakt.Username">Gebruikersnaam</string>
-  <string name="Trakt.Password">Wachtwoord</string>
-  <string name="Trakt.TestAccount">Testaccount</string>
   <string name="Trakt.SyncMovies">Films synchroniseren... </string>
   <string name="Trakt.SyncSeries">Series synchroniseren...</string>
   <string name="Trakt.SyncFinished">Synchronisatie voltooid!</string>

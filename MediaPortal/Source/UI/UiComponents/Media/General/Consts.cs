@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.General
@@ -78,6 +79,20 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_IMAGES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_IMAGES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_SERIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_SERIES_NAVIGATION_ROOT);
     public static readonly Guid WF_STATE_ID_MOVIES_NAVIGATION_ROOT = new Guid(STR_WF_STATE_ID_MOVIES_NAVIGATION_ROOT);
+
+    /// <summary>
+    /// Contains a list of all default navigation root states.
+    /// </summary>
+    public static readonly Guid[] WF_STATE_IDS_MEDIA_ROOTS =
+                                    {
+                                      WF_STATE_ID_BROWSE_MEDIA_NAVIGATION_ROOT,
+                                      WF_STATE_ID_LOCAL_MEDIA_NAVIGATION_ROOT,
+                                      WF_STATE_ID_AUDIO_NAVIGATION_ROOT,
+                                      WF_STATE_ID_VIDEOS_NAVIGATION_ROOT,
+                                      WF_STATE_ID_IMAGES_NAVIGATION_ROOT,
+                                      WF_STATE_ID_SERIES_NAVIGATION_ROOT,
+                                      WF_STATE_ID_MOVIES_NAVIGATION_ROOT
+                                    };
 
     public static readonly Guid WF_STATE_ID_LATEST_MEDIA = new Guid(STR_WF_STATE_ID_LATEST_MEDIA);
 
@@ -149,6 +164,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SIMPLE_SEARCH_VIEW_NAME = "[Media.SimpleSearchViewName]";
 
     public const string RES_FILTER_BY_ARTIST_MENU_ITEM = "[Media.FilterByArtistMenuItem]";
+    public const string RES_FILTER_BY_ALBUM_ARTIST_MENU_ITEM = "[Media.FilterByAlbumArtistMenuItem]";
     public const string RES_FILTER_BY_ALBUM_MENU_ITEM = "[Media.FilterByAlbumMenuItem]";
     public const string RES_FILTER_BY_AUDIO_GENRE_MENU_ITEM = "[Media.FilterByAudioGenreMenuItem]";
     public const string RES_FILTER_BY_DECADE_MENU_ITEM = "[Media.FilterByDecadeMenuItem]";
@@ -180,6 +196,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.BrowseMediaNavigationNavbarDisplayLabel]";
     public const string RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL = "[Media.LocalMediaNavigationNavbarDisplayLabel]";
     public const string RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL = "[Media.FilterArtistNavbarDisplayLabel]";
+    public const string RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumArtistNavbarDisplayLabel]";
     public const string RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL = "[Media.FilterAlbumNavbarDisplayLabel]";
     public const string RES_FILTER_AUDIO_GENRE_NAVBAR_DISPLAY_LABEL = "[Media.FilterAudioGenreNavbarDisplayLabel]";
     public const string RES_FILTER_DECADE_NAVBAR_DISPLAY_LABEL = "[Media.FilterDecadeNavbarDisplayLabel]";
@@ -338,6 +355,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_LOCAL_MEDIA_NAVIGATION = "LocalMediaNavigation";
     public const string SCREEN_AUDIO_SHOW_ITEMS = "AudioShowItems";
     public const string SCREEN_AUDIO_FILTER_BY_ARTIST = "AudioFilterByArtist";
+    public const string SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST = "AudioFilterByAlbumArtist";
     public const string SCREEN_AUDIO_FILTER_BY_ALBUM = "AudioFilterByAlbum";
     public const string SCREEN_AUDIO_FILTER_BY_GENRE = "AudioFilterByGenre";
     public const string SCREEN_AUDIO_FILTER_BY_DECADE = "AudioFilterByDecade";

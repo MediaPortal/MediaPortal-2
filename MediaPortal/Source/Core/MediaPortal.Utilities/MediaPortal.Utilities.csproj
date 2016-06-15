@@ -61,6 +61,7 @@
     <Compile Include="Collections\SafeDictionary.cs" />
     <Compile Include="CollectionUtils.cs" />
     <Compile Include="Conversion\Conversion.cs" />
+    <Compile Include="Events\DelayedEvent.cs" />
     <Compile Include="Graphics\ImageUtilities.cs" />
     <Compile Include="Network\Netbios\NbName.cs" />
     <Compile Include="Network\Netbios\NbNsClient.cs" />

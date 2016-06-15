@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <!-- General font sizes -->
+  <ResourceWrapper x:Key="HeaderFontSize" Resource="56"/>
+  <ResourceWrapper x:Key="DialogTitleFontSize" Resource="40"/>
+
+  <ResourceWrapper x:Key="DateTimeFontSize" Resource="26"/>
+
+  <ResourceWrapper x:Key="BigFontSize" Resource="36"/>
+  <ResourceWrapper x:Key="NormalFontSize" Resource="30"/>
+  <ResourceWrapper x:Key="SmallFontSize" Resource="26"/>
+  <ResourceWrapper x:Key="SmallerFontSize" Resource="24"/>
+  <ResourceWrapper x:Key="TinyFontSize" Resource="20"/>
+
+  <ResourceWrapper x:Key="OsdTitleFontSize" Resource="46"/>
+
+  <!-- Screen transitions -->
+  <ResourceWrapper x:Key="ScreenTransitionEndTime" Resource="00:00:00.20"/>
+  <ResourceWrapper x:Key="DialogTransitionEndTime" Resource="00:00:00.20"/>
+
+  <ResourceWrapper x:Key="ButtonRadius" Resource="6"/>
+  
+  <ResourceWrapper x:Key="DialogButtonMinWidth" Resource="200"/>
+
+  <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>
+  <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="2"/>
+
+  <ResourceWrapper x:Key="VirtualKeyboardBorderThickness" Resource="10"/>
+  <ResourceWrapper x:Key="VirtualKeyboardCornerRadius" Resource="10"/>
+
+  <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="15"/>
+
+  <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
+  <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="2"/>
+  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="0"/>
+  <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="20"/>
+  <ResourceWrapper x:Key="PlayerControlFontSize" Resource="{ThemeResource SmallerFontSize}"/>
+
+  <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
+
+  <ResourceWrapper x:Key="PiPVideoWidth" Resource="320"/>
+  
+  <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="30"/>
+  
+  <!-- width and margin for small OSD buttons -->
+  <ResourceWrapper x:Key="OSDControlWidth" Resource="20" />
+  <ResourceWrapper x:Key="OSDControlMargin" Resource="8" />
+
+  <!-- Progress bar -->
+  <ResourceWrapper x:Key="ProgressBarRadius" Resource="5"/>
+  <ResourceWrapper x:Key="ProgressBarIndicatorMargin" Resource="1"/>
+
+  <ResourceWrapper x:Key="GridLayoutWidth" Resource="114" />
+  <ResourceWrapper x:Key="GridLayoutHeight" Resource="88" />
+
+</ResourceDictionary>

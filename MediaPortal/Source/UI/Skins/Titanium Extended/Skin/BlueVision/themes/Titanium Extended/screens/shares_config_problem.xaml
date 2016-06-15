@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.EditShareProblemHeader]"/>
+
+    <!-- Shares configuration model -->
+    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <ResourceWrapper x:Key="ChooseResourceProviderStateId" Resource="F3163500-3015-4a6f-91F6-A3DA5DC3593C"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Content="[SharesConfig.EditShareProblemText]"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Color="{ThemeResource TextColor}" Wrap="True"/>
+        <Grid Grid.Row="2" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource DialogButtonStyle}"
+              Content="[System.Back]"
+              Command="{Command Source={Service WorkflowManager},Path=ShowDefaultScreen}"/>
+          <Button x:Name="OkButton" Grid.Column="2" Style="{ThemeResource DialogButtonStyle}"
+              Content="[System.Ok]"
+              Command="{Command Source={StaticResource Model},Path=NavigateBackToOverview}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

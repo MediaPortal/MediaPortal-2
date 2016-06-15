@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.MenuItem">Party-Musikabspieler</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Playlist abspielen und den sonstigen Gebrauch von MediaPortal unterbinden. </string>
   <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party-Musikabspieler</string>
   <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party-Musikabspieler</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Party-Musikabspieler-Konfiguration</string>

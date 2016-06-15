@@ -37,6 +37,7 @@ using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
 using System.IO;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -124,6 +125,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
+      // Try to use an existing TMDB id for exact mapping
+      int tmdbId;
+      if (GetTmdbId(extractedAspectData, out tmdbId) || MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+        movieInfo.MovieDbId = tmdbId;
+
       // Try to use an existing IMDB id for exact mapping
       string imdbId;
       if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
@@ -164,6 +170,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         movieInfo.SetMetadata(extractedAspectData);
 
       return false;
+    }
+
+    internal static bool GetTmdbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, out int tmdbId)
+    {
+      tmdbId = 0;
+      string id;
+      return
+        MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id)
+         && int.TryParse(id, out tmdbId);
     }
 
     #endregion

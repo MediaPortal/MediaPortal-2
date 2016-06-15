@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.MenuItem">Lecteur en mode Soirée</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Démarrer une playlist et empêcher l\'utilisation de MediaPortal .</string>
   <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Lecteur en mode Soirée</string>
   <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Lecteur en mode Soirée</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Configuration du lecteur en mode Soirée</string>

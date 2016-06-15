@@ -339,8 +339,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       if (string.IsNullOrEmpty(_text))
         return new string[0];
 
+      // Remove trailing whitespaces, because wrap logic depends on non-whitespaces for last line.
+      var text = _text.TrimEnd();
       IList<string> result = new List<string>();
-      foreach (string para in _text.Split(Environment.NewLine.ToCharArray()))
+      foreach (string para in text.Split(Environment.NewLine.ToCharArray()))
       {
         int paraLength = para.Length;
         int nextIndex = 0;
@@ -392,7 +394,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
                   nextIndex = wordIndex;
                 }
               }
-              // Start new line						
+              // Start new line
               if (sectionIndex != lineStartIndex)
                 result.Add(para.Substring(lineStartIndex, sectionIndex - lineStartIndex));
               lineStartIndex = wordIndex;

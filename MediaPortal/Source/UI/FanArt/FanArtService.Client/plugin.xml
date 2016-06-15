@@ -1,0 +1,38 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="FanArt Service Client"
+    PluginId="{15FD97A4-D925-4D8A-9DF0-5349743EED0C}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Provides Client access to Fanart stored in MP2 Server">
+
+  <Version
+    PluginVersion="1.1"
+    ReleaseDate="2015-11-20 01:00:00 GMT+01:00"
+    CurrentAPI="2"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <CoreDependency Name="UPnP" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="1"/> <!-- Media -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="FanArtService.Client.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.FanArtPlugin"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91" Name="FanArtBackgroundModel" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.Models.FanArtBackgroundModel"/>
+  </Register>
+
+  <Builder Name="FanartImageSourceProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider.FanartImageSourceProviderBuilder"/>
+  <Register Location="/Fanart/FanartImageSourceProviders">
+    <FanartImageSourceProviderBuilder Id="{7B38898A-BD75-4B6B-9BF6-51A30729FFC5}" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourceProvider.FanartImageSourceProvider"/>
+  </Register>
+  
+</Plugin>

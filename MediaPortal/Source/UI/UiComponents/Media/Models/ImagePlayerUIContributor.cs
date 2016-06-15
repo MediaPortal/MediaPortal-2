@@ -44,6 +44,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected MediaWorkflowStateType _mediaWorkflowStateType;
     protected IImagePlayer _player;
+    protected AbstractProperty _transitionDurationProperty;
     protected AbstractProperty _imageWidthProperty;
     protected AbstractProperty _imageHeightProperty;
     protected AbstractProperty _cameraMakeProperty;
@@ -64,7 +65,23 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Constructor
 
     public ImagePlayerUIContributor() : base(true, 300)
-    {}
+    {
+      _transitionDurationProperty = new WProperty(typeof(double), 2d);
+      _imageWidthProperty = new WProperty(typeof(int), null);
+      _imageHeightProperty = new WProperty(typeof(int), null);
+      _cameraMakeProperty = new WProperty(typeof(string), string.Empty);
+      _cameraModelProperty = new WProperty(typeof(string), string.Empty);
+      _imageExposureBiasProperty = new WProperty(typeof(double), null);
+      _imageExposureTimeProperty = new WProperty(typeof(string), string.Empty);
+      _imageFlashModeProperty = new WProperty(typeof(string), string.Empty);
+      _imageFNumberProperty = new WProperty(typeof(string), string.Empty);
+      _imageDimensionsProperty = new WProperty(typeof(string), string.Empty);
+      _imageISOSpeedProperty = new WProperty(typeof(string), string.Empty);
+      _imageMeteringModeProperty = new WProperty(typeof(string), string.Empty);
+      _imageCountryProperty = new WProperty(typeof(string), string.Empty);
+      _imageStateProperty = new WProperty(typeof(string), string.Empty);
+      _imageCityProperty = new WProperty(typeof(string), string.Empty);
+    }
 
     #endregion
 
@@ -76,6 +93,17 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     #region Image metadata related properties
+
+    public AbstractProperty TransitionDurationProperty
+    {
+      get { return _transitionDurationProperty; }
+    }
+
+    public double TransitionDuration
+    {
+      get { return (double)_transitionDurationProperty.GetValue(); }
+      set { _transitionDurationProperty.SetValue(value); }
+    }
 
     public AbstractProperty ImageWidthProperty
     {
@@ -264,21 +292,6 @@ namespace MediaPortal.UiComponents.Media.Models
       _playerContext = stateType == MediaWorkflowStateType.CurrentlyPlaying ? PlayerChoice.CurrentPlayer : PlayerChoice.PrimaryPlayer;
       _mediaWorkflowStateType = stateType;
       _player = player as IImagePlayer;
-
-      _imageWidthProperty = new WProperty(typeof(int), null);
-      _imageHeightProperty = new WProperty(typeof(int), null);
-      _cameraMakeProperty = new WProperty(typeof(string), string.Empty);
-      _cameraModelProperty = new WProperty(typeof(string), string.Empty);
-      _imageExposureBiasProperty = new WProperty(typeof(double), null);
-      _imageExposureTimeProperty = new WProperty(typeof(string), string.Empty);
-      _imageFlashModeProperty = new WProperty(typeof(string), string.Empty);
-      _imageFNumberProperty = new WProperty(typeof(string), string.Empty);
-      _imageDimensionsProperty = new WProperty(typeof(string), string.Empty);
-      _imageISOSpeedProperty = new WProperty(typeof(string), string.Empty);
-      _imageMeteringModeProperty = new WProperty(typeof(string), string.Empty);
-      _imageCountryProperty = new WProperty(typeof(string), string.Empty);
-      _imageStateProperty = new WProperty(typeof(string), string.Empty);
-      _imageCityProperty = new WProperty(typeof(string), string.Empty);
     }
 
     #endregion
@@ -316,6 +329,9 @@ namespace MediaPortal.UiComponents.Media.Models
         }
         else
         {
+          var mpc = playerContext != null ?playerContext.CurrentPlayer as IMediaPlaybackControl : null;
+          if (mpc != null)
+            TransitionDuration = mpc.IsPaused ? 0.1d : 2.0d;
           ImageDimensions = String.Format("{0} x {1}", imageAspect[ImageAspect.ATTR_WIDTH], imageAspect[ImageAspect.ATTR_HEIGHT]);
           CameraMake = (string) imageAspect[ImageAspect.ATTR_MAKE];
           CameraModel = (string) imageAspect[ImageAspect.ATTR_MODEL];

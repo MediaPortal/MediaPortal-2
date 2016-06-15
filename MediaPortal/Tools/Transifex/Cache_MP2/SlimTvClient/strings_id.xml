@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Waktu mulai</string>
   <string name="SlimTvClient.ProgramEndLabel">Waktu selesai</string>
   <string name="SlimTvClient.EpisodeLabel">Episode</string>
+  <string name="SlimTvClient.Progress">Perkembangan</string>
   <string name="SlimTvClient.Guide">Panduan TV</string>
   <string name="SlimTvClient.NoProgram">Tidak ada data program.</string>
   <string name="SlimTvClient.ChooseProgramAction">Pilih aksi program...</string>
@@ -20,6 +21,8 @@
   <string name="SlimTvClient.DeleteSchedule">Hapus jadwal</string>
   <string name="SlimTvClient.CreateSchedule">Jadwal perekaman</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Rekaman berdasarkan nama</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Rekaman berdasarkan nama</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Tidak ada penyedia TV tersedia (belum)</string>
   <!--Settings-->

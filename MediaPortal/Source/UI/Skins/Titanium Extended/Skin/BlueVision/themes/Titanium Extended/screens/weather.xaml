@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Weather.Title]"/>
+
+    <!-- Weather model -->
+    <Model x:Key="Model" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="40,0,20,0"
+          DataContext="{Binding Source={StaticResource Model}}">
+        <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,0,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.Triggers>
+            <!-- Setting default state of menu to hidden -->
+            <!-- Checking if weather has been configured -->
+            <EventTrigger RoutedEvent="Screen.Show">
+              <TriggerCommand Command="{Command Path=CheckWeatherConfigured}"/>
+            </EventTrigger>
+          </Grid.Triggers>
+
+          <Image Grid.Row="0" Grid.Column="2" Margin="0,30,30,0" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+          
+          <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,40">
+ 
+            <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
+              <Image x:Name="BigIcon" Width="150" Height="150" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
+              <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+                  Content="{Binding CurrentLocation.Condition.Temperature}" VerticalAlignment="Center"/>
+              <!-- Morpheus_xx 2011-29-12: Currently not supported by grabber, temporary removed
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content=" ("/>
+              <Label x:Name="TempFeel" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                  Content="{Binding CurrentLocation.Condition.FeelsLikeTemp}"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                  Content=")"/>-->
+            </StackPanel>
+            <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"
+                Content="{Binding CurrentLocation.Name}"/>
+          </StackPanel>
+          <Grid x:Name="CurrentConditionDetail" Grid.Column="2" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="30"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+         
+            <!-- Morpheus_xx 2011-29-12: Currently not supported by grabber, temporary removed
+            <Label Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Sunrise]"/>
+            <Label Grid.Column="2" Grid.Row="0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.LocationInfo.SunRise}"/>
+
+            <Label Grid.Column="0" Grid.Row="1" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Sunset]" />
+            <Label Grid.Column="2" Grid.Row="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.LocationInfo.SunSet}"/>-->
+
+            <Label Grid.Column="0" Grid.Row="2" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource EmphasisTextColor}" Content="[Weather.Wind]" HorizontalAlignment="Right"/>
+            <Label Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Wind}"/>
+
+            <Label Grid.Column="0" Grid.Row="3" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource EmphasisTextColor}" Content="[Weather.Humidity]" HorizontalAlignment="Right" />
+            <Label Grid.Column="2" Grid.Row="3" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Humidity}"/>
+
+            <Label Grid.Column="0" Grid.Row="4" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource EmphasisTextColor}" Content="[Weather.Precipitation]" HorizontalAlignment="Right" />
+            <Label Grid.Column="2" Grid.Row="4" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Precipitation}"/>
+
+            <Label Grid.Column="0" Grid.Row="5" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource EmphasisTextColor}" Content="[Weather.Pressure]" HorizontalAlignment="Right" />
+            <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Pressure}"/>
+
+            <!-- Morpheus_xx 2011-29-12: Currently not supported by grabber, temporary removed
+            <Label Grid.Column="0" Grid.Row="4" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.Dewpoint]"/>
+            <Label Grid.Column="2" Grid.Row="4" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.DewPoint}"/>
+
+            <Label Grid.Column="0" Grid.Row="5" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="[Weather.UVIndex]"/>
+            <Label Grid.Column="2" Grid.Row="5" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.UVIndex}"/>-->
+          </Grid>
+        </Grid>
+
+        <!-- Forecasts (dynamic count) -->
+
+        <ListView Margin="-30,20,0,20" HorizontalAlignment="Left" VerticalAlignment="Center"
+              Style="{ThemeResource ForecastListViewStyle}"
+              ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" >
+        </ListView>
+
+        <StackPanel HorizontalAlignment="Center" Margin="0,58,0,0">
+          <Label Content="{Binding LastUpdateTime}" Color="Black" IsVisible="{Binding !IsUpdating}"/>
+          <Label x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource TextColor}"/>
+        </StackPanel>
+        
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
