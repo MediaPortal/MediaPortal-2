@@ -245,7 +245,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     /// <param name="cacheProvider">The cache provider used to store the information</param>
     /// <param name="apiKey">Api key to use for this project</param>
-    public TvdbHandler(ICacheProvider cacheProvider) : base()
+    public TvdbHandler(ICacheProvider cacheProvider) : this()
     {
       _cacheProvider = cacheProvider; //store given cache provider
     }

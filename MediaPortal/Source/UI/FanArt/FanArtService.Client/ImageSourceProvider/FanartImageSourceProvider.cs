@@ -42,7 +42,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         };
         return true;
       }
-      SeriesItem episode = listItem as SeriesItem;
+      EpisodeItem episode = listItem as EpisodeItem;
       if (episode != null)
       {
         fanartImageSource = new FanArtImageSource

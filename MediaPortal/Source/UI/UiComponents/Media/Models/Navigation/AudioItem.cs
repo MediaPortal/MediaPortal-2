@@ -29,6 +29,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities;
+using MediaPortal.Common.MediaManagement.Helpers;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -42,15 +44,15 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      SingleMediaItemAspect audioAspect;
-      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, AudioAspect.Metadata, out audioAspect))
-      {
-        IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>)audioAspect[AudioAspect.ATTR_ARTISTS];
-        string artists = artistsEnumer == null ? null : StringUtils.Join(", ", artistsEnumer);
-        SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
-        long? duration = audioAspect == null ? null : (long?)audioAspect[AudioAspect.ATTR_DURATION];
-        Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds(duration.Value)) : string.Empty;
-      }
+      TrackInfo trackInfo = new TrackInfo();
+      if (!trackInfo.FromMetadata(mediaItem.Aspects))
+        return;
+
+
+      string artists = StringUtils.Join(", ", trackInfo.Artists.Select(a => a.Name));
+      SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
+      long? duration = trackInfo.Duration > 0 ? trackInfo.Duration : default(long?);
+      Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds(duration.Value)) : string.Empty;
       FireChange();
     }
 

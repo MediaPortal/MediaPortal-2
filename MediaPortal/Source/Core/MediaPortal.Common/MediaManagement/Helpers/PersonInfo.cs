@@ -61,12 +61,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
-    public PersonInfo(string name = null)
-    {
-      if (!string.IsNullOrEmpty(name))
-        FromString(name);
-    }
-
     /// <summary>
     /// Copies the contained person information into MediaItemAspect.
     /// </summary>

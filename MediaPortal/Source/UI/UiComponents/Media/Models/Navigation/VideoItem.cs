@@ -27,6 +27,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -40,15 +41,34 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      SingleMediaItemAspect videoAspect;
-      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
+      IList<MultipleMediaItemAspect> videoAspects;
+      IList<MultipleMediaItemAspect> audioAspects;
+      if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAspect.Metadata, out videoAspects) && 
+        MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioAspect.Metadata, out audioAspects))
       {
-        long? duration = (long?)videoAspect[VideoAspect.ATTR_DURATION];
+        //TODO: Handle that videos might be from different versions of the movie
+        long? duration = null;
+        List<string> videoEncodings = new List<string>();
+        foreach (MultipleMediaItemAspect videoAspect in videoAspects)
+        { 
+          duration += (long?)videoAspect[VideoAspect.ATTR_DURATION];
+          string videoEnc = (string)videoAspect[VideoAspect.ATTR_VIDEOENCODING];
+          if (!string.IsNullOrEmpty(videoEnc))
+            if (!videoEncodings.Contains(videoEnc))
+              videoEncodings.Add(videoEnc);
+        }
+        List<string> audioEncodings = new List<string>();
+        foreach (MultipleMediaItemAspect audioAspect in audioAspects)
+        {
+          string audioEnc = (string)audioAspect[VideoAudioAspect.ATTR_AUDIOENCODING];
+          if (!string.IsNullOrEmpty(audioEnc))
+            if (!audioEncodings.Contains(audioEnc))
+              audioEncodings.Add(audioEnc);
+        }
         SimpleTitle = Title;
         Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int)duration.Value)) : string.Empty;
-        AudioEncoding = (string)videoAspect[VideoAspect.ATTR_AUDIOENCODING];
-        VideoEncoding = (string)videoAspect[VideoAspect.ATTR_VIDEOENCODING];
-        StoryPlot = (string)videoAspect[VideoAspect.ATTR_STORYPLOT];
+        AudioEncoding = audioEncodings.Count > 0 ? string.Join(", ", audioEncodings) : string.Empty;
+        VideoEncoding = videoEncodings.Count > 0 ? string.Join(", ", videoEncodings) : string.Empty;
       }
       FireChange();
     }
@@ -69,12 +89,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_VIDEO_ENCODING]; }
       set { SetLabel(Consts.KEY_VIDEO_ENCODING, value); }
-    }
-
-    public string StoryPlot
-    {
-      get { return this[Consts.KEY_STORY_PLOT]; }
-      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
     }
   }
 }

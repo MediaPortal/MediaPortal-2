@@ -23,17 +23,23 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
-namespace MediaPortal.UiComponents.Media.Models.Sorting
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class VideoSortByFirstWriter : AbstractSortByFirstComparableAttribute<string>
+  public class MovieFilterByDirectorScreenData : AbstractVideosFilterScreenData
   {
-    public VideoSortByFirstWriter() : base(VideoAspect.ATTR_WRITERS) { }
-
-    public override string DisplayName
+    public MovieFilterByDirectorScreenData() :
+        base(Consts.SCREEN_VIDEOS_FILTER_BY_DIRECTOR, Consts.RES_FILTER_BY_DIRECTOR_MENU_ITEM,
+        Consts.RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(MovieAspect.ATTR_DIRECTORS))
     {
-      get { return Consts.RES_SORT_BY_WRITER; }
+    }
+
+    public override AbstractFiltersScreenData<FilterItem> Derive()
+    {
+      return new MovieFilterByDirectorScreenData();
     }
   }
 }

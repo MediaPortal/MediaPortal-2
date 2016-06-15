@@ -334,7 +334,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         // Fanart loading now depends on the MediaItemId to support local fanart
         FanArtName = video.MediaItem.MediaItemId.ToString();
         SimpleTitle = video.SimpleTitle;
-        ItemDescription = video.StoryPlot;
+        ItemDescription = string.Empty;
         return;
       }
       FilterItem filterItem = SelectedItem as FilterItem;

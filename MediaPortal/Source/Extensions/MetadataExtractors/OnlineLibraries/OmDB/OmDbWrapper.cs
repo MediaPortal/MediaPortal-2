@@ -71,11 +71,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
     {
       episodes = null;
       SeriesInfo seriesSearch = null;
-      if (episodeSearch.SeriesMovieDbId <= 0)
+      if(string.IsNullOrEmpty(episodeSearch.SeriesImdbId))
       {
         seriesSearch = episodeSearch.CloneBasicSeries();
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
+        episodeSearch.CopyIdsFrom(seriesSearch);
       }
 
       if (!string.IsNullOrEmpty(episodeSearch.SeriesImdbId) && episodeSearch.SeasonNumber.HasValue)
@@ -93,12 +94,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
               EpisodeInfo info = new EpisodeInfo()
               {
                 ImdbId = episode.ImdbID,
-                SeriesName = seriesSearch.SeriesName,
+                SeriesName = season.Title,
                 SeasonNumber = episodeSearch.SeasonNumber.Value,
                 EpisodeName = new LanguageText(episode.Title, false),
               };
               info.EpisodeNumbers.Add(episode.EpisodeNumber);
-              info.CopyIdsFrom(seriesSearch);
+              info.CopyIdsFrom(episodeSearch.CloneBasicSeries());
               episodes.Add(info);
             }
           }
@@ -189,7 +190,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
         movie.TotalRating = movieDetail.TomatoUserRating ?? 0;
         movie.RatingCount = movieDetail.TomatoUserTotalReviews ?? 0;
       }
-      movie.Score = movieDetail.Metascore.HasValue ? movieDetail.Metascore.Value : 0;
 
       movie.Genres = movieDetail.Genres;
 
@@ -253,7 +253,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
         series.TotalRating = seriesDetail.TomatoUserRating ?? 0;
         series.RatingCount = seriesDetail.TomatoUserTotalReviews ?? 0;
       }
-      series.Score = seriesDetail.Metascore.HasValue ? seriesDetail.Metascore.Value : 0;
       series.Genres = seriesDetail.Genres;
 
       //Only use these if absolutely necessary because there is no way to ID them
@@ -273,11 +272,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.OmDB
             seasonNumber++;
             continue;
           }
-
-          series.NextEpisodeName = new LanguageText(episodeDetails.Title, true);
-          series.NextEpisodeAirDate = episodeDetails.Released;
-          series.NextEpisodeSeasonNumber = seasonDetails.SeasonNumber;
-          series.NextEpisodeNumber = episodeDetails.EpisodeNumber;
+          if (episodeDetails != null)
+          {
+            series.NextEpisodeName = new LanguageText(episodeDetails.Title, true);
+            series.NextEpisodeAirDate = episodeDetails.Released;
+            series.NextEpisodeSeasonNumber = seasonDetails.SeasonNumber;
+            series.NextEpisodeNumber = episodeDetails.EpisodeNumber;
+          }
         }
         break;
       }

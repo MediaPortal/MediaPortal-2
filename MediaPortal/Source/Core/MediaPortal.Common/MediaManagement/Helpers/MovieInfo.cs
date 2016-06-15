@@ -92,12 +92,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
-    public MovieInfo(string name = null)
-    {
-      if (!string.IsNullOrEmpty(name))
-        FromString(name);
-    }
-
     /// <summary>
     /// Copies the contained movie information into MediaItemAspect.
     /// </summary>
@@ -208,14 +202,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
         {
+          Languages.Clear();
           IList<MultipleMediaItemAspect> audioAspects;
           if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
           {
-            foreach (MultipleMediaItemAspect aspect in audioAspects)
+            foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
-              string language = (string)aspect.GetAttributeValue(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language))
-                Languages.Add(language);
+              {
+                if (Languages.Contains(language))
+                  Languages.Add(language);
+              }
             }
           }
         }
@@ -241,14 +239,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
         {
+          Languages.Clear();
           IList<MultipleMediaItemAspect> audioAspects;
           if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
           {
-            foreach (MultipleMediaItemAspect aspect in audioAspects)
+            foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
-              string language = (string)aspect.GetAttributeValue(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language))
-                Languages.Add(language);
+              {
+                if (Languages.Contains(language))
+                  Languages.Add(language);
+              }
             }
           }
         }

@@ -21,7 +21,6 @@
 
   <Runtime>
     <Assembly FileName="MovieMetadataExtractor.dll"/>
-    <Assembly FileName="FanArtService.Interfaces.dll"/>
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">

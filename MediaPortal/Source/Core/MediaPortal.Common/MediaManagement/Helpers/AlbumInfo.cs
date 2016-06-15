@@ -81,12 +81,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
-    public AlbumInfo(string name = null)
-    {
-      if (!string.IsNullOrEmpty(name))
-        FromString(name);
-    }
-
     /// <summary>
     /// Copies the contained track information into MediaItemAspect.
     /// </summary>

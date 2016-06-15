@@ -28,6 +28,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
@@ -56,11 +57,13 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
       var rl = mediaItem.GetResourceLocator();
 
-      Guid parentDirectoryId;
-      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, out parentDirectoryId))
+      IList<MultipleMediaItemAspect> pras;
+      if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
         return false;
 
-	  MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, GetNewPlayCount());
+      Guid parentDirectoryId = pras[0].GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID);
+
+	    MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, GetNewPlayCount());
 
       cd.AddOrUpdateMediaItem(parentDirectoryId, rl.NativeSystemId, rl.NativeResourcePath, MediaItemAspect.GetAspects(mediaItem.Aspects));
 

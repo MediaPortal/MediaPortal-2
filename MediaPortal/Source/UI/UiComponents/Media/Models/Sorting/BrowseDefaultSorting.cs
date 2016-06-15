@@ -44,6 +44,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       SingleMediaItemAspect aspectX;
       SingleMediaItemAspect aspectY;
+      IList<MultipleMediaItemAspect> aspectsX;
+      IList<MultipleMediaItemAspect> aspectsY;
 
       // Check audio
       if (!MediaItemAspect.TryGetAspect(x.Aspects, AudioAspect.Metadata, out aspectX))
@@ -59,9 +61,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       // None of them is an audio item
 
       // Check video
-      if (!MediaItemAspect.TryGetAspect(x.Aspects, VideoAspect.Metadata, out aspectX))
+      if (!MediaItemAspect.TryGetAspects(x.Aspects, VideoAspect.Metadata, out aspectsX))
         aspectX = null;
-      if (!MediaItemAspect.TryGetAspect(y.Aspects, VideoAspect.Metadata, out aspectY))
+      if (!MediaItemAspect.TryGetAspects(y.Aspects, VideoAspect.Metadata, out aspectsY))
         aspectY = null;
       if (aspectX != null && aspectY != null)
         // Both are vido items - compare to each other

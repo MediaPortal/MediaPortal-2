@@ -98,6 +98,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       try
       {
+        // Try online lookup
+        if (!Init())
+          return false;
+
         MovieInfo movieMatch = null;
         string movieId = null;
         bool matchFound = false;
@@ -507,8 +511,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       else if (type.IsArray)
       {
-        Type elementType = Type.GetType(
-             type.FullName.Replace("[]", string.Empty));
+        Type elementType = obj.GetType().GetElementType();
         var array = obj as Array;
         Array arrayCopy = Array.CreateInstance(elementType, array.Length);
         for (int i = 0; i < array.Length; i++)

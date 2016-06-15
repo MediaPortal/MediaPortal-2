@@ -51,7 +51,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IEnumerable<Guid> mias = new[] { MediaAspect.ASPECT_ID, SeriesAspect.ASPECT_ID }.Concat(necessaryMIATypeIds);
       MediaItemQuery query = new MediaItemQuery(mias, filter)
       {
-        SortInformation = new List<SortInformation> { new SortInformation(SeriesAspect.ATTR_SERIESNAME, SortDirection.Ascending) }
+        SortInformation = new List<SortInformation> { new SortInformation(SeriesAspect.ATTR_SERIES_NAME, SortDirection.Ascending) }
       };
       var items = cd.Search(query, true);
       IList<FilterValue> result = new List<FilterValue>(items.Count);

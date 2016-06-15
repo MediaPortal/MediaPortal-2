@@ -516,11 +516,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       episodeInfo.TvMazeId = episodeMatches.First().TvMazeId;
       episodeInfo.TvRageId = episodeMatches.First().TvRageId;
 
-      episodeInfo.SeriesImdbId = episodeMatches.First().ImdbId;
-      episodeInfo.SeriesMovieDbId = episodeMatches.First().MovieDbId;
-      episodeInfo.SeriesTvdbId = episodeMatches.First().TvdbId;
-      episodeInfo.SeriesTvRageId = episodeMatches.First().TvRageId;
-      episodeInfo.SeriesTvMazeId = episodeMatches.First().TvMazeId;
+      episodeInfo.SeriesImdbId = episodeMatches.First().SeriesImdbId;
+      episodeInfo.SeriesMovieDbId = episodeMatches.First().SeriesMovieDbId;
+      episodeInfo.SeriesTvdbId = episodeMatches.First().SeriesTvdbId;
+      episodeInfo.SeriesTvRageId = episodeMatches.First().SeriesTvRageId;
+      episodeInfo.SeriesTvMazeId = episodeMatches.First().SeriesTvMazeId;
       episodeInfo.SeriesName = episodeMatches.First().SeriesName;
       episodeInfo.SeriesFirstAired = episodeMatches.First().SeriesFirstAired;
 
@@ -550,11 +550,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       episodeInfo.TvMazeId = episodeMatch.TvMazeId;
       episodeInfo.TvRageId = episodeMatch.TvRageId;
 
-      episodeInfo.SeriesImdbId = episodeMatch.ImdbId;
-      episodeInfo.SeriesMovieDbId = episodeMatch.MovieDbId;
-      episodeInfo.SeriesTvdbId = episodeMatch.TvdbId;
-      episodeInfo.SeriesTvRageId = episodeMatch.TvRageId;
-      episodeInfo.SeriesTvMazeId = episodeMatch.TvMazeId;
+      episodeInfo.SeriesImdbId = episodeMatch.SeriesImdbId;
+      episodeInfo.SeriesMovieDbId = episodeMatch.SeriesMovieDbId;
+      episodeInfo.SeriesTvdbId = episodeMatch.SeriesTvdbId;
+      episodeInfo.SeriesTvRageId = episodeMatch.SeriesTvRageId;
+      episodeInfo.SeriesTvMazeId = episodeMatch.SeriesTvMazeId;
       episodeInfo.SeriesName = episodeMatch.SeriesName;
       episodeInfo.SeriesFirstAired = episodeMatch.SeriesFirstAired;
 
@@ -1228,7 +1228,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected int GetLevenshteinDistance(MovieInfo movieOnline, MovieInfo movieSearch)
     {
       string cleanedName = RemoveCharacters(movieSearch.MovieName.Text);
-      return Math.Min(
+      if (string.IsNullOrEmpty(movieOnline.OriginalName))
+        return StringUtils.GetLevenshteinDistance(RemoveCharacters(movieOnline.MovieName.Text), cleanedName);
+      else
+        return Math.Min(
         StringUtils.GetLevenshteinDistance(RemoveCharacters(movieOnline.MovieName.Text), cleanedName),
         StringUtils.GetLevenshteinDistance(RemoveCharacters(movieOnline.OriginalName), cleanedName)
         );
@@ -1243,9 +1246,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected int GetLevenshteinDistance(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
     {
       string cleanedName = RemoveCharacters(seriesSearch.SeriesName.Text);
-      return Math.Min(
-        StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName),
-        StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.OriginalName), cleanedName)
+      if (string.IsNullOrEmpty(seriesOnline.OriginalName))
+        return StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName);
+      else
+        return Math.Min(
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName),
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.OriginalName), cleanedName)
         );
     }
 
@@ -1286,6 +1292,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <returns>Cleaned string</returns>
     protected string RemoveCharacters(string name)
     {
+      if (string.IsNullOrEmpty(name))
+        return name;
+
       name = name.ToLowerInvariant();
       string result = new[] { "-", ",", "/", ":", " ", " ", ".", "'", "(", ")", "[", "]", "teil", "part" }.Aggregate(name, (current, s) => current.Replace(s, ""));
       result = result.Replace("&", "and");

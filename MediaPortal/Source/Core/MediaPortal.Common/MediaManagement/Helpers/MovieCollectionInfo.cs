@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {

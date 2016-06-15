@@ -99,12 +99,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
-    public TrackInfo(string name = null)
-    {
-      if (!string.IsNullOrEmpty(name))
-        FromString(name);
-    }
-
     /// <summary>
     /// Copies the contained track information into MediaItemAspect.
     /// </summary>

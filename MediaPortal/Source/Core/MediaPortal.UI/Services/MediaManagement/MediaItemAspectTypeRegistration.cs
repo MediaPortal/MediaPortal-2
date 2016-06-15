@@ -56,5 +56,18 @@ namespace MediaPortal.UI.Services.MediaManagement
       if (cd != null)
         cd.AddMediaItemAspectStorage(miaType);
     }
+
+    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
+    {
+      //TODO: Implement with remaining parameters
+      if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
+        return;
+      _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+      IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = serverConnectionManager == null ? null :
+          serverConnectionManager.ContentDirectory;
+      if (cd != null)
+        cd.AddMediaItemAspectStorage(miaType);
+    }
   }
 }

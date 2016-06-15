@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public VideosFilterByLanguageScreenData() :
         base(Consts.SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG, Consts.RES_FILTER_BY_AUDIO_LANG_MENU_ITEM,
-        Consts.RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL, new LanguageFilterCriterion(VideoAspect.ATTR_AUDIOLANGUAGES))
+        Consts.RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL, new LanguageFilterCriterion(VideoAudioAspect.ATTR_AUDIOLANGUAGE))
     { }
 
     public override AbstractFiltersScreenData<FilterItem> Derive()

@@ -49,9 +49,6 @@ protected AbstractProperty _seriesNameProperty;
 protected AbstractProperty _seasonProperty;
 protected AbstractProperty _seriesSeasonNameProperty;
 protected AbstractProperty _descriptionProperty;
-protected AbstractProperty _firstAiredProperty;
-protected AbstractProperty _totalRatingProperty;
-protected AbstractProperty _ratingCountProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -102,39 +99,6 @@ public string Description
   set { _descriptionProperty.SetValue(value); }
 }
 
-public AbstractProperty FirstAiredProperty
-{
-  get{ return _firstAiredProperty; }
-}
-
-public DateTime? FirstAired
-{
-  get { return (DateTime?) _firstAiredProperty.GetValue(); }
-  set { _firstAiredProperty.SetValue(value); }
-}
-
-public AbstractProperty TotalRatingProperty
-{
-  get{ return _totalRatingProperty; }
-}
-
-public double? TotalRating
-{
-  get { return (double?) _totalRatingProperty.GetValue(); }
-  set { _totalRatingProperty.SetValue(value); }
-}
-
-public AbstractProperty RatingCountProperty
-{
-  get{ return _ratingCountProperty; }
-}
-
-public int? RatingCount
-{
-  get { return (int?) _ratingCountProperty.GetValue(); }
-  set { _ratingCountProperty.SetValue(value); }
-}
-
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -156,9 +120,6 @@ public SeasonAspectWrapper()
   _seasonProperty = new SProperty(typeof(int?));
   _seriesSeasonNameProperty = new SProperty(typeof(string));
   _descriptionProperty = new SProperty(typeof(string));
-  _firstAiredProperty = new SProperty(typeof(DateTime?));
-  _totalRatingProperty = new SProperty(typeof(double?));
-  _ratingCountProperty = new SProperty(typeof(int?));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -181,13 +142,10 @@ public void Init(MediaItem mediaItem)
      return;
   }
 
-  SeriesName = (string) aspect[SeasonAspect.ATTR_SERIESNAME];
+  SeriesName = (string) aspect[SeasonAspect.ATTR_SERIES_NAME];
   Season = (int?) aspect[SeasonAspect.ATTR_SEASON];
   SeriesSeasonName = (string) aspect[SeasonAspect.ATTR_SERIES_SEASON];
   Description = (string) aspect[SeasonAspect.ATTR_DESCRIPTION];
-  FirstAired = (DateTime?) aspect[SeasonAspect.ATTR_FIRSTAIRED];
-  TotalRating = (double?) aspect[SeasonAspect.ATTR_TOTAL_RATING];
-  RatingCount = (int?) aspect[SeasonAspect.ATTR_RATING_COUNT];
 }
 
 public void SetEmpty()
@@ -196,9 +154,6 @@ public void SetEmpty()
   Season = null;
   SeriesSeasonName = null;
   Description = null;
-  FirstAired = null;
-  TotalRating = null;
-  RatingCount = null;
 }
 
 

@@ -56,12 +56,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
-    public CompanyInfo(string name = null)
-    {
-      if (!string.IsNullOrEmpty(name))
-        FromString(name);
-    }
-
     /// <summary>
     /// Copies the contained company information into MediaItemAspect.
     /// </summary>

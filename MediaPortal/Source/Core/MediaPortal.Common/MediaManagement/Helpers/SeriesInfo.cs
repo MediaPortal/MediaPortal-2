@@ -102,12 +102,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     #region Members
 
-    public SeriesInfo(string name = null)
-    {
-      if (!string.IsNullOrEmpty(name))
-        FromString(name);
-    }
-
     /// <summary>
     /// Copies the contained series information into MediaItemAspect.
     /// </summary>
@@ -117,7 +111,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (SeriesName.IsEmpty) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, SeriesName);
+      MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, SeriesName.Text);
       if (!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ORIG_SERIES_NAME, OriginalName);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
       if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
@@ -227,6 +221,24 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
           Thumbnail = data;
 
+        if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
+        {
+          Languages.Clear();
+          IList<MultipleMediaItemAspect> audioAspects;
+          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
+          {
+            foreach (MultipleMediaItemAspect audioAspect in audioAspects)
+            {
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+              if (!string.IsNullOrEmpty(language))
+              {
+                if (Languages.Contains(language))
+                  Languages.Add(language);
+              }
+            }
+          }
+        }
+
         return true;
       }
       else if (aspectData.ContainsKey(SeasonAspect.ASPECT_ID))
@@ -287,6 +299,24 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
           Thumbnail = data;
+
+        if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
+        {
+          Languages.Clear();
+          IList<MultipleMediaItemAspect> audioAspects;
+          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
+          {
+            foreach (MultipleMediaItemAspect audioAspect in audioAspects)
+            {
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+              if (!string.IsNullOrEmpty(language))
+              {
+                if (Languages.Contains(language))
+                  Languages.Add(language);
+              }
+            }
+          }
+        }
 
         return true;
       }

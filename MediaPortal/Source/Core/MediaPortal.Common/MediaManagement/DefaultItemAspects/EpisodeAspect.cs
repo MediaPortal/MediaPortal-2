@@ -76,6 +76,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("EpisodeName", 300, Cardinality.Inline, false);
 
     /// <summary>
+    /// First aired date of episode.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_FIRSTAIRED =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("FirstAired", typeof(DateTime), Cardinality.Inline, false);
+
+    /// <summary>
     /// Contains the overall rating of the episode. Value ranges from 0 (very bad) to 10 (very good).
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TOTAL_RATING =
@@ -131,6 +137,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_EPISODE,
             ATTR_DVDEPISODE,
             ATTR_EPISODE_NAME,
+            ATTR_FIRSTAIRED,
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT,
             ATTR_STORYPLOT,

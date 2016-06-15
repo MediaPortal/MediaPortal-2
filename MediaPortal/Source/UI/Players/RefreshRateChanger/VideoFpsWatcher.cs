@@ -67,8 +67,12 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       if (mediaItem == null)
         return;
 
-      int intFps;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_FPS, out intFps))
+      IList<MultipleMediaItemAspect> videoAspects;
+      if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAspect.Metadata, out videoAspects))
+        return;
+
+      int intFps = Convert.ToInt32(videoAspects[0].GetAttributeValue<float>(VideoAspect.ATTR_FPS));
+      if (intFps > 0)
       {
         int mappedIntFps;
         if (!_settings.Settings.RateMappings.TryGetValue(intFps, out mappedIntFps) || mappedIntFps <= 0)

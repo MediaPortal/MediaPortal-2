@@ -185,7 +185,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, SeriesName);     
+      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, SeriesName.Text);     
       if(!EpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, CleanString(EpisodeName.Text));
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
@@ -297,14 +297,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
       {
+        Languages.Clear();
         IList<MultipleMediaItemAspect> audioAspects;
         if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
         {
-          foreach (MultipleMediaItemAspect aspect in audioAspects)
+          foreach (MultipleMediaItemAspect audioAspect in audioAspects)
           {
-            string language = (string)aspect.GetAttributeValue(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+            string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
             if (!string.IsNullOrEmpty(language))
-              Languages.Add(language);
+            {
+              if (Languages.Contains(language))
+                Languages.Add(language);
+            }
           }
         }
       }
@@ -397,8 +401,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       info.TvMazeId = SeriesTvMazeId;
       info.TvRageId = SeriesTvRageId;
 
-      SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage);
-      FirstAired = SeriesFirstAired;
+      info.SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage);
+      info.FirstAired = SeriesFirstAired;
       return info;
     }
 
@@ -413,7 +417,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       info.TvMazeId = SeriesTvMazeId;
       info.TvRageId = SeriesTvRageId;
 
-      SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage);
+      info.SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage);
       return info;
     }
 

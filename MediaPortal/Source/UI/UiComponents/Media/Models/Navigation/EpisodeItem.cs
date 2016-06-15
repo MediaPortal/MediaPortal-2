@@ -22,10 +22,7 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
 
@@ -42,24 +39,17 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       EpisodeInfo episodeInfo = new EpisodeInfo();
-      SingleMediaItemAspect episodeAspect;
-      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, EpisodeAspect.Metadata, out episodeAspect)) 
+      if (!episodeInfo.FromMetadata(mediaItem.Aspects)) 
         return;
 
-      Series = episodeInfo.Series = (string)episodeAspect[EpisodeAspect.ATTR_SERIESNAME] ?? string.Empty;
-      EpisodeName = episodeInfo.Episode = (string)episodeAspect[EpisodeAspect.ATTR_EPISODENAME] ?? string.Empty;
-      episodeInfo.SeasonNumber = (int)(episodeAspect[EpisodeAspect.ATTR_SEASON] ?? 0);
+      Series = episodeInfo.SeriesName.Text;
+      EpisodeName = episodeInfo.EpisodeName.Text;
       Season = episodeInfo.SeasonNumber.ToString();
+      EpisodeNumber = episodeInfo.FormatString(string.Format("{{{0}}}", EpisodeInfo.EPISODENUM_INDEX));
 
-      IList<int> episodes = episodeAspect[EpisodeAspect.ATTR_EPISODE] as IList<int>;
-      if (episodes != null)
-      {
-        foreach (int episode in episodes.ToList().OrderBy(e => e))
-          episodeInfo.EpisodeNumbers.Add(episode);
-        EpisodeNumber = episodeInfo.FormatString(string.Format("{{{0}}}", EpisodeInfo.EPISODENUM_INDEX));
-      }
       // Use the short string without series name here
       SimpleTitle = episodeInfo.ToShortString();
+      StoryPlot = episodeInfo.Summary.Text;
       FireChange();
     }
 
@@ -89,6 +79,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_SERIES_EPISODE_NAME]; }
       set { SetLabel(Consts.KEY_SERIES_EPISODE_NAME, value); }
+    }
+
+    public string StoryPlot
+    {
+      get { return this[Consts.KEY_STORY_PLOT]; }
+      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
     }
   }
 }

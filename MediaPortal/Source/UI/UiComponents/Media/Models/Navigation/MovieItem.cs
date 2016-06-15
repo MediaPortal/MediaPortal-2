@@ -22,10 +22,11 @@
 
 #endregion
 
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -40,12 +41,13 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       MovieInfo movieInfo = new MovieInfo();
-      SingleMediaItemAspect movieAspect;
-      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, MovieAspect.Metadata, out movieAspect)) 
+      if (!movieInfo.FromMetadata(mediaItem.Aspects)) 
         return;
 
-      MovieName = (string)movieAspect[MovieAspect.ATTR_MOVIE_NAME] ?? string.Empty;
-      CollectionName = movieInfo.CollectionName = (string)movieAspect[MovieAspect.ATTR_COLLECTION_NAME] ?? string.Empty;
+      MovieName = movieInfo.MovieName.Text;
+      CollectionName = movieInfo.CollectionName.Text;
+      StoryPlot = movieInfo.Summary.Text;
+      Duration = movieInfo.Runtime > 0 ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds(movieInfo.Runtime)) : string.Empty;
       FireChange();
     }
 
@@ -59,6 +61,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_MOVIE_COLLECTION]; }
       set { SetLabel(Consts.KEY_MOVIE_COLLECTION, value); }
+    }
+
+    public string StoryPlot
+    {
+      get { return this[Consts.KEY_STORY_PLOT]; }
+      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
     }
   }
 }

@@ -50,10 +50,12 @@ namespace MediaPortal.UiComponents.BackgroundManager.Helper
     {
       if (mediaItem == null)
         return false;
-      IList<MultipleMediaItemAspect> resourceAspects;
-      if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out resourceAspects))
+
+      IList<MultipleMediaItemAspect> pras;
+      if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
         return false;
-      var mimeType = (string)resourceAspects[0][ProviderResourceAspect.ATTR_MIME_TYPE];
+
+      string mimeType = pras[0].GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE);
       return mimeType.StartsWith("video/");
     }
   }

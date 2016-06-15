@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Init
 
-    public SeriesTvDbMatcher() : 
+    public SeriesTvDbMatcher() :
       base(CACHE_PATH, MAX_MEMCACHE_DURATION)
     {
     }
@@ -74,10 +74,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         TvDbWrapper wrapper = new TvDbWrapper();
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-        wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
         if (wrapper.Init(CACHE_PATH))
         {
           _wrapper = wrapper;
+          wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
           return true;
         }
       }
@@ -162,9 +162,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Refreshing local cache");
         threadPool.Add(() =>
         {
-          if (Init())
-            ((TvDbWrapper)_wrapper).UpdateCache();
-        });
+            if (_wrapper != null)
+              ((TvDbWrapper)_wrapper).UpdateCache();
+          });
       }
     }
 
@@ -305,7 +305,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       if (idx > 0)
       {
-        ServiceRegistration.Get<ILogger>().Debug( @"SeriesTvDbMatcher Download: Saved {0} banners", idx);
+        ServiceRegistration.Get<ILogger>().Debug(@"SeriesTvDbMatcher Download: Saved {0} banners", idx);
         return idx;
       }
 

@@ -148,14 +148,18 @@ namespace MediaPortal.UiComponents.Media.Views
         {
           SingleMediaItemAspect ma = null;
           MediaItemAspect.TryGetAspect(childDirectory.Aspects, MediaAspect.Metadata, out ma);
-          SingleMediaItemAspect pra = null;
-          MediaItemAspect.TryGetAspect(childDirectory.Aspects, ProviderResourceAspect.Metadata, out pra);
-          MediaLibraryBrowseViewSpecification subViewSpecification = new MediaLibraryBrowseViewSpecification(
-              (string) ma.GetAttributeValue(MediaAspect.ATTR_TITLE), childDirectory.MediaItemId,
-              (string) pra.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID),
-              ResourcePath.Deserialize((string) pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
-              _necessaryMIATypeIds, _optionalMIATypeIds);
-          subViewSpecifications.Add(subViewSpecification);
+          IList<MultipleMediaItemAspect> pras = null;
+
+          MediaItemAspect.TryGetAspects(childDirectory.Aspects, ProviderResourceAspect.Metadata, out pras);
+          foreach (MultipleMediaItemAspect pra in pras)
+          {
+            MediaLibraryBrowseViewSpecification subViewSpecification = new MediaLibraryBrowseViewSpecification(
+                (string)ma.GetAttributeValue(MediaAspect.ATTR_TITLE), childDirectory.MediaItemId,
+                (string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID),
+                ResourcePath.Deserialize((string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
+                _necessaryMIATypeIds, _optionalMIATypeIds);
+            subViewSpecifications.Add(subViewSpecification);
+          }
         }
       }
       catch (UPnPRemoteException e)

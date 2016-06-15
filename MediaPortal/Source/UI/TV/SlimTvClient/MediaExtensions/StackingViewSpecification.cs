@@ -87,7 +87,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       string name;
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_MOVIE_NAME, out name))
         return name;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SERIESNAME, out name))
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SERIES_NAME, out name))
         return name;
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_TITLE, out name))
         return name;

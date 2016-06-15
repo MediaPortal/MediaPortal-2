@@ -13,7 +13,7 @@
 
   <DependsOn>
     <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="1"/> <!-- OnlineLibraries -->
-    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="1"/> <!-- FanArtService -->
+    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="2"/> <!-- FanArtService -->
 
     <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />

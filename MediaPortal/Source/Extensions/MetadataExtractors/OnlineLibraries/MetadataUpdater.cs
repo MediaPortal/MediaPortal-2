@@ -51,32 +51,35 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           object currentObj = (object)currentList[iCurrent];
           object newObj = (object)newList[iNew];
-
-          FieldInfo[] fields = currentObj.GetType().GetFields();
-          if (fields != null)
+          Type objType = currentObj.GetType();
+          if (objType.IsClass)
           {
-            foreach (FieldInfo field in fields)
+            FieldInfo[] fields = currentObj.GetType().GetFields();
+            if (fields != null)
             {
-              if (field.Name.EndsWith("Id", StringComparison.InvariantCultureIgnoreCase))
+              foreach (FieldInfo field in fields)
               {
-                object currentVal = field.GetValue(currentObj);
-                object newVal = field.GetValue(newObj);
-                SetOrUpdateId(ref currentVal, newVal);
-                field.SetValue(currentObj, currentVal);
-              }
-              else if (field.GetValue(currentObj) is string || field.GetValue(newObj) is string)
-              {
-                string currentVal = (string)field.GetValue(currentObj);
-                string newVal = (string)field.GetValue(newObj);
-                SetOrUpdateString(ref currentVal, newVal);
-                field.SetValue(currentObj, currentVal);
-              }
-              else
-              {
-                object currentVal = field.GetValue(currentObj);
-                object newVal = field.GetValue(newObj);
-                SetOrUpdateValue(ref currentVal, newVal);
-                field.SetValue(currentObj, currentVal);
+                if (field.Name.EndsWith("Id", StringComparison.InvariantCultureIgnoreCase))
+                {
+                  object currentVal = field.GetValue(currentObj);
+                  object newVal = field.GetValue(newObj);
+                  SetOrUpdateId(ref currentVal, newVal);
+                  field.SetValue(currentObj, currentVal);
+                }
+                else if (field.GetValue(currentObj) is string || field.GetValue(newObj) is string)
+                {
+                  string currentVal = (string)field.GetValue(currentObj);
+                  string newVal = (string)field.GetValue(newObj);
+                  SetOrUpdateString(ref currentVal, newVal);
+                  field.SetValue(currentObj, currentVal);
+                }
+                else
+                {
+                  object currentVal = field.GetValue(currentObj);
+                  object newVal = field.GetValue(newObj);
+                  SetOrUpdateValue(ref currentVal, newVal);
+                  field.SetValue(currentObj, currentVal);
+                }
               }
             }
           }

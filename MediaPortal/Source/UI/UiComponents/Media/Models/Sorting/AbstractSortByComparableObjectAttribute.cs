@@ -25,18 +25,27 @@
 using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Utilities;
+using static MediaPortal.Common.MediaManagement.MediaItemAspectMetadata;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public abstract class AbstractSortByComparableObjectAttribute<T> : Sorting where T : class, IComparable<T>
   {
     protected string _displayName;
-    protected SingleMediaItemAspectMetadata.SingleAttributeSpecification _sortAttr;
+    protected SingleAttributeSpecification _sortAttr;
+    protected MultipleAttributeSpecification _sortMultiAttr;
 
-    protected AbstractSortByComparableObjectAttribute(string displayName, SingleMediaItemAspectMetadata.SingleAttributeSpecification sortAttr)
+    protected AbstractSortByComparableObjectAttribute(string displayName, SingleAttributeSpecification sortAttr)
     {
       _displayName = displayName;
       _sortAttr = sortAttr;
+    }
+
+    protected AbstractSortByComparableObjectAttribute(string displayName, MultipleAttributeSpecification sortAttr)
+    {
+      _displayName = displayName;
+      _sortMultiAttr = sortAttr;
     }
 
     public override string DisplayName
@@ -46,14 +55,29 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      SingleMediaItemAspect aspectX;
-      SingleMediaItemAspect aspectY;
-      SingleMediaItemAspectMetadata metadata = _sortAttr.ParentMIAM;
-      if (MediaItemAspect.TryGetAspect(x.Aspects, metadata, out aspectX) && MediaItemAspect.TryGetAspect(y.Aspects, metadata, out aspectY))
+      if (_sortAttr != null)
       {
-        T valX = (T) aspectX.GetAttributeValue(_sortAttr);
-        T valY = (T) aspectY.GetAttributeValue(_sortAttr);
-        return ObjectUtils.Compare(valX, valY);
+        SingleMediaItemAspect aspectX;
+        SingleMediaItemAspect aspectY;
+        SingleMediaItemAspectMetadata metadata = _sortAttr.ParentMIAM;
+        if (MediaItemAspect.TryGetAspect(x.Aspects, metadata, out aspectX) && MediaItemAspect.TryGetAspect(y.Aspects, metadata, out aspectY))
+        {
+          T valX = (T)aspectX.GetAttributeValue(_sortAttr);
+          T valY = (T)aspectY.GetAttributeValue(_sortAttr);
+          return ObjectUtils.Compare(valX, valY);
+        }
+      }
+      else if (_sortMultiAttr != null)
+      {
+        IList<MultipleMediaItemAspect> aspectsX;
+        IList<MultipleMediaItemAspect> aspectsY;
+        MultipleMediaItemAspectMetadata metadata = _sortMultiAttr.ParentMIAM;
+        if (MediaItemAspect.TryGetAspects(x.Aspects, metadata, out aspectsX) && MediaItemAspect.TryGetAspects(y.Aspects, metadata, out aspectsY))
+        {
+          T valX = (T)aspectsX[0].GetAttributeValue(_sortMultiAttr);
+          T valY = (T)aspectsY[0].GetAttributeValue(_sortMultiAttr);
+          return ObjectUtils.Compare(valX, valY);
+        }
       }
       return 0;
     }

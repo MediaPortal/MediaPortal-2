@@ -42,6 +42,8 @@ using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.Common.Runtime;
 using Timer = System.Timers.Timer;
+using MediaPortal.Common.MediaManagement.Helpers;
+using System.Linq;
 
 namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 {
@@ -520,12 +522,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         SingleMediaItemAspect mediaAspect;
         if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
           mediaAspect = null;
-        SingleMediaItemAspect videoAspect;
-        if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
-          videoAspect = null;
-        SingleMediaItemAspect audioAspect;
-        if (_currentMediaItem == null || !MediaItemAspect.TryGetAspect(_currentMediaItem.Aspects, AudioAspect.Metadata, out audioAspect))
-          audioAspect = null;
+        MovieInfo movie = new MovieInfo();
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) || !movie.FromMetadata(_currentMediaItem.Aspects))
+          movie = null;
+        EpisodeInfo episode = new EpisodeInfo();
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID) || !episode.FromMetadata(_currentMediaItem.Aspects))
+          episode = null;
+        TrackInfo track = new TrackInfo();
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) || !track.FromMetadata(_currentMediaItem.Aspects))
+          track = null;
 
         if (player == null)
         {
@@ -707,7 +712,24 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           VideoYear = recordingTime.HasValue ? (int?) recordingTime.Value.Year : null;
           AudioYear = VideoYear;
         }
-        if (videoAspect == null)
+        
+        if (movie != null)
+        {
+          VideoGenres = movie.Genres;
+          VideoActors = movie.Actors.Select(a => a.Name);
+          VideoDirectors = movie.Directors.Select(a => a.Name);
+          VideoWriters = movie.Writers.Select(a => a.Name);
+          VideoStoryPlot = movie.Summary.ToString();
+        }
+        else if (episode != null)
+        {
+          VideoGenres = episode.Genres;
+          VideoActors = episode.Actors.Select(p => p.Name);
+          VideoDirectors = episode.Directors.Select(p => p.Name);
+          VideoWriters = episode.Writers.Select(p => p.Name);
+          VideoStoryPlot = episode.Summary.ToString();
+        }
+        else
         {
           VideoGenres = EMPTY_NAMES_COLLECTION;
           VideoActors = EMPTY_NAMES_COLLECTION;
@@ -715,21 +737,13 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           VideoWriters = EMPTY_NAMES_COLLECTION;
           VideoStoryPlot = string.Empty;
         }
-        else
-        {
-          VideoGenres = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_GENRES];
-          VideoActors = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_ACTORS];
-          VideoDirectors = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_DIRECTORS];
-          VideoWriters = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_WRITERS];
-          VideoStoryPlot = (string) videoAspect[VideoAspect.ATTR_STORYPLOT];
-        }
-        if (audioAspect == null)
+        if (track == null)
         {
           AudioArtists = EMPTY_NAMES_COLLECTION;
         }
         else
         {
-          AudioArtists = (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS];
+          AudioArtists = track.Artists.Select(p => p.Name);
         }
         IsMuted = playerManager.Muted;
         CheckShowMouseControls();

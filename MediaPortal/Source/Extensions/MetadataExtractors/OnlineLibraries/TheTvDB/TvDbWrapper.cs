@@ -218,7 +218,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
 
       TvdbSeries seriesDetail = null;
       if (season.SeriesTvdbId > 0)
-        seriesDetail = _tvdbHandler.GetSeries(season.SeriesMovieDbId, language, true, false, false);
+        seriesDetail = _tvdbHandler.GetSeries(season.SeriesTvdbId, language, true, false, false);
       if (seriesDetail == null && !cacheOnly && !string.IsNullOrEmpty(season.SeriesImdbId))
       {
         TvdbSearchResult foundSeries = _tvdbHandler.GetSeriesByRemoteId(ExternalId.ImdbId, season.SeriesImdbId);
@@ -391,7 +391,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.TheTvDB
     {
       images = new FanArtImageCollection<TvdbBanner>();
       TvdbSeries seriesDetail = null;
-      language = language ?? TvdbLanguage.UniversalLanguage; // Download all image information, filter later!
+      language = language ?? PreferredLanguage;
 
       if (scope == FanArtScope.Series)
       {

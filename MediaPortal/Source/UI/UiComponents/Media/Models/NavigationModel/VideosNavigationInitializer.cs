@@ -46,16 +46,12 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       base.Prepare();
 
-      _defaultScreen = new VideosFilterByGenreScreenData();
+      _defaultScreen = new VideosFilterByYearScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new VideosFilterByLanguageScreenData(),
-          new VideosFilterByActorScreenData(),
-          new VideosFilterByDirectorScreenData(),
-          new VideosFilterByWriterScreenData(),
           _defaultScreen,
-          new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
         };
@@ -65,11 +61,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         {
           _defaultSorting,
           new SortByYear(),
-          new VideoSortByFirstGenre(),
           new VideoSortByDuration(),
-          new VideoSortByFirstActor(),
-          new VideoSortByFirstDirector(),
-          new VideoSortByFirstWriter(),
           new VideoSortBySize(),
           new VideoSortByAspectRatio(),
           new SortBySystem(),
