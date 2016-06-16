@@ -120,7 +120,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
           if (((NavigationContext)message.MessageData[WorkflowManagerMessaging.CONTEXT]).WorkflowState.StateId == HOME_STATE_ID)
             UpdateMenu();
         }
-        else if (_settings == null && messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
+        else if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {
           var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
           if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
@@ -292,7 +292,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       for (int i = 0; i < NestedMenuItems.Count; i++)
       {
         var item = (NestedItem)NestedMenuItems[i];
-        //item.IsCenteredItem = i == _navigationList.CurrentIndex;
         item.AfterSelected = afterSelected;
         bool selected = item == _navigationList.Current;
         item.Selected = selected;
