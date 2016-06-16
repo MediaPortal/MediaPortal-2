@@ -92,10 +92,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       NestedMenuItems = new ItemsList();
       SubItems = new ItemsList();
       _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
-      _delayedMenuUpdateEvent.OnEventHandler += ReCreateMenuItems;
+      _delayedMenuUpdateEvent.OnEventHandler += OnUpdateMenu;
       _delayedAnimationEnableEvent = new DelayedEvent(500);
-      _delayedAnimationEnableEvent.OnEventHandler += EnableAnimations;
-      _navigationList.OnCurrentChanged += SetSelection;
+      _delayedAnimationEnableEvent.OnEventHandler += OnEnableAnimations;
+      _navigationList.OnCurrentChanged += OnNavigationListCurrentChanged;
       SubscribeToMessages();
     }
 
@@ -173,18 +173,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     #region Public Methods
 
-    public void EnableAnimations()
-    {
-      _delayedAnimationEnableEvent.EnqueueEvent(this, EventArgs.Empty);
-    }
-
-    public void DisableAnimations()
-    {
-      EnableSubMenuAnimations = false;
-      EnableMainMenuAnimations = false;
-      ScrollDirection = ScrollDirection.None;
-    }
-
     public void MoveNext()
     {
       _navigationList.MoveNext();
@@ -221,13 +209,36 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     #endregion
 
-    protected void EnableAnimations(object sender, EventArgs e)
+    #region Enable/Disable Animations
+
+    public void EnableAnimations()
+    {
+      _delayedAnimationEnableEvent.EnqueueEvent(this, EventArgs.Empty);
+    }
+
+    public void DisableAnimations()
+    {
+      EnableSubMenuAnimations = false;
+      EnableMainMenuAnimations = false;
+      ScrollDirection = ScrollDirection.None;
+    }
+
+    protected void OnEnableAnimations(object sender, EventArgs e)
     {
       EnableSubMenuAnimations = true;
       EnableMainMenuAnimations = true;
     }
 
-    private void SetSelection(int oldindex, int newindex)
+    #endregion
+
+    #region Menu Update
+
+    protected void UpdateMenu()
+    {
+      _delayedMenuUpdateEvent.EnqueueEvent(this, EventArgs.Empty);
+    }
+
+    private void OnNavigationListCurrentChanged(int oldindex, int newindex)
     {
       ScrollDirection = newindex > oldindex ? ScrollDirection.Down : ScrollDirection.Up;
       EnableSubMenuAnimations = false;
@@ -247,12 +258,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         UpdateMenu();
     }
 
-    private void UpdateMenu()
-    {
-      _delayedMenuUpdateEvent.EnqueueEvent(this, EventArgs.Empty);
-    }
-
-    private void ReCreateMenuItems(object sender, EventArgs e)
+    private void OnUpdateMenu(object sender, EventArgs e)
     {
       if (_settings == null)
       {
@@ -262,10 +268,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       }
       DisableAnimations();
       UpdateList(true);
-      _delayedAnimationEnableEvent.EnqueueEvent(this, EventArgs.Empty);
+      EnableAnimations();
     }
 
-    private void UpdateList(bool recreateList)
+    protected void UpdateList(bool recreateList)
     {
       bool forceSubItemUpdate = true;
       // Get new menu entries from base list
@@ -298,7 +304,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       SetSubItems(_navigationList.Current, forceSubItemUpdate);
     }
 
-    private void SetSubItems(ListItem item, bool forceUpdate)
+    protected void SetSubItems(ListItem item, bool forceUpdate)
     {
       if (item == null)
         return;
@@ -317,7 +323,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         SubItems.FireChange();
     }
 
-    protected void LoadGroupsFromSettings()
+    protected void UpdateGroups()
     {
       var settingsGroups = _settings.Settings.Groups;
       _groups = new List<HomeMenuGroup>();
@@ -363,7 +369,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         return;
 
       _refreshNeeded = false;
-      LoadGroupsFromSettings();
+      UpdateGroups();
       _groupedActions.Clear();
       _navigationList.Clear();
       foreach (HomeMenuGroup group in _groups)
@@ -469,5 +475,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       action = null;
       return false;
     }
+
+    #endregion
   }
 }
