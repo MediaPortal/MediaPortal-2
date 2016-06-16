@@ -206,11 +206,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       }
     }
 
-    public void OnKeyPress(object sender, KeyPressEventArgs e)
-    {
-
-    }
-
     public void OnMouseWheel(object sender, MouseWheelEventArgs e)
     {
       if (e.NumDetents > 0)

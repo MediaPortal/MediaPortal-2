@@ -319,9 +319,7 @@
   </DataTemplate>
 
   <Style x:Key="MyMainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <!--<EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}"/>-->
     <EventSetter Event="MouseWheel" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnMouseWheel}"/>
-    <!--<EventSetter Event="KeyPressed" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>-->
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -335,8 +333,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="False" Orientation="Vertical"
-                      KeyPress="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
