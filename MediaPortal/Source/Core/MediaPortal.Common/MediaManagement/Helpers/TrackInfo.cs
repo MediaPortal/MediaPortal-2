@@ -28,6 +28,7 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
+using System.Collections;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -178,22 +179,26 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumCdDdId);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_UPCEAN, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumUpcEanId);
 
-      ICollection<object> collection;
+      //Brownard 17.06.2016
+      //The returned type of the collection differs on the server and client.
+      //On the server it's an object collection but on the client it's a string collection due to [de]serialization.
+      //Use the non generic Ienumerable to allow for both types.
+      IEnumerable collection;
       Artists.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ARTISTS, out collection))
-        Artists.AddRange(collection.Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
+        Artists.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
 
       AlbumArtists.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, out collection))
-        AlbumArtists.AddRange(collection.Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
+        AlbumArtists.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
 
       Composers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, out collection))
-        Composers.AddRange(collection.Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_COMPOSER }));
+        Composers.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_COMPOSER }));
 
       Genres.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_GENRES, out collection))
-        Genres.AddRange(collection.Select(s => s.ToString()));
+        Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -189,33 +190,37 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           TvRageId = Convert.ToInt32(id);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out ImdbId);
 
-        ICollection<object> collection;
+        //Brownard 17.06.2016
+        //The returned type of the collection differs on the server and client.
+        //On the server it's an object collection but on the client it's a string collection due to [de]serialization.
+        //Use the non generic Ienumerable to allow for both types.
+        IEnumerable collection;
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, out collection))
-          NextEpisodeNumber = Convert.ToInt32(collection.First());
+          NextEpisodeNumber = Convert.ToInt32(collection.Cast<object>().First());
 
         Actors.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ACTORS, out collection))
-          Actors.AddRange(collection.Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ACTOR }));
+          Actors.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ACTOR }));
 
         Characters.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, out collection))
-          Characters.AddRange(collection.Select(s => new CharacterInfo() { Name = s.ToString() }));
+          Characters.AddRange(collection.Cast<object>().Select(s => new CharacterInfo() { Name = s.ToString() }));
 
         Genres.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_GENRES, out collection))
-          Genres.AddRange(collection.Select(s => s.ToString()));
+          Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_AWARDS, out collection))
-          Awards.AddRange(collection.Select(s => s.ToString()));
+          Awards.AddRange(collection.Cast<object>().Select(s => s.ToString()));
 
         Networks.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COMPANIES, out collection))
-          Networks.AddRange(collection.Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_TV_NETWORK }));
+          Networks.AddRange(collection.Cast<object>().Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_TV_NETWORK }));
 
         ProductionCompanies.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COMPANIES, out collection))
-          ProductionCompanies.AddRange(collection.Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_PRODUCTION }));
+          ProductionCompanies.AddRange(collection.Cast<object>().Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_PRODUCTION }));
 
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
