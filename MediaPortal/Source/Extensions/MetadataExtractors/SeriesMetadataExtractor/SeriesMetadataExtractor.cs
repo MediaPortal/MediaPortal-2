@@ -108,7 +108,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       IEnumerable<int> episodeNumbers;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
           MediaItemAspect.TryGetAttribute(extractedAspectData, EpisodeAspect.ATTR_SEASON, out seasonNumber) &&
-          (episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE)) != null)
+          (episodeNumbers = episodeAspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE).Cast<int>()) != null)
       {
         episodeInfo.SeriesName = title;
         episodeInfo.SeasonNumber = seasonNumber;

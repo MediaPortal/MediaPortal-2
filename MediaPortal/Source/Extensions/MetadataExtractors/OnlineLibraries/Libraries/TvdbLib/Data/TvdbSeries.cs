@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
   public class TvdbSeries : TvdbSeriesFields
   {
     #region private properties
-    private Dictionary<TvdbLanguage, TvdbSeriesFields> _seriesTranslations;
+    private Dictionary<TvdbLanguage, TvdbSeriesFields> _seriesTranslations = new Dictionary<TvdbLanguage, TvdbSeriesFields>();
     #endregion
 
     /// <summary>

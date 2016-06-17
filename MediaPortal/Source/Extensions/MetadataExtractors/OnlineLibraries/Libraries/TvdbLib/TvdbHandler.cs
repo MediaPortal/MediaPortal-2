@@ -980,6 +980,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//changes occured in series
             TvdbSeries series;
             series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(s);
+            if (series == null)
+              break;
 
             int currProg = (int)(100.0 / countUpdatedSeries * countSeriesDone);
 
@@ -1023,6 +1025,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//changes occured in series
             TvdbSeries series;
             series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(ue.SeriesId);
+            if (series == null)
+              break;
 
             int progress = (int)(100.0 / countEpisodeUpdates * countEpisodesDone);
             String text = "";
@@ -1062,6 +1066,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//banner for this series has changed
             int currProg = (int)(100.0 / countUpdatedBanner * countBannerDone);
             TvdbSeries series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(b.SeriesId);
+            if (series == null)
+              break;
             bool updated = UpdateBanner(series, b);
             if (updated)
             {
