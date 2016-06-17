@@ -23,14 +23,14 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.Helpers;
-using System.Linq;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {

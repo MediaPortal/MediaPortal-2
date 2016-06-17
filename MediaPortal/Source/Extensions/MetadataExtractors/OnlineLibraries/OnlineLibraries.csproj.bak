@@ -1,0 +1,445 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.Extensions.OnlineLibraries</RootNamespace>
+    <AssemblyName>OnlineLibraries</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\..\..\..\Packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Device" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Libraries\MovieDbV3\Data\Network.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Company.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Credits.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\IdResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PagedCompanySearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PagedPersonSearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\CompanySearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\SeriesRating.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\SeriesRatingResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\IdSearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PersonSearchResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabelSearchResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabelResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLifeSpan.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtist.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackArea.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabelDetail.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackLabel.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackCoverArt.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtistResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecordingResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecording.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackReleaseSearchResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\MusicBrainzDownloader.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbBaseResponse.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbSearchItem.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbSearchResult.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbBaseItem.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbEpisode.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbSeasonEpisode.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbSeason.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbSeries.cs" />
+    <Compile Include="Libraries\OmDbV1\Data\OmDbMovie.cs" />
+    <Compile Include="Libraries\OmDbV1\OmDbApiV1.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeCountry.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeason.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeLink.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeNetwork.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeExternals.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeImageCollection.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeLinkCollection.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeEmbedded.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeEpisode.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazePerson.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeCast.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeRating.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeSchedule.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeries.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazePersonSearchResult.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSeasonSearch.cs" />
+    <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSearchResult.cs" />
+    <Compile Include="Libraries\TvMazeV1\TvMazeApiV1.cs" />
+    <Compile Include="FanArt.cs" />
+    <Compile Include="MusicMatcher.cs" />
+    <Compile Include="SeriesMatcher.cs" />
+    <Compile Include="MovieMatcher.cs" />
+    <Compile Include="MovieFanArtTvMatcher.cs" />
+    <Compile Include="MovieOmDbMatcher.cs" />
+    <Compile Include="MetadataUpdater.cs" />
+    <Compile Include="OmDB\OmDbWrapper.cs" />
+    <Compile Include="SeriesOmDbMatcher.cs" />
+    <Compile Include="SeriesTvMazeMatcher.cs" />
+    <Compile Include="SeriesTheMovieDbMatcher.cs" />
+    <Compile Include="MusicFanArtTvMatcher.cs" />
+    <Compile Include="FanArtTV\FanArtTVWrapper.cs" />
+    <Compile Include="CDFreeDbMatcher.cs" />
+    <Compile Include="FreeDB\FreeDbWrapper.cs" />
+    <Compile Include="GeoLocationService.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbTracks.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbTrack.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbMvids.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbMvid.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbArtists.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbArtist.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbAlbum.cs" />
+    <Compile Include="Libraries\AudioDbV1\Data\AudioDbAlbums.cs" />
+    <Compile Include="Libraries\AudioDbV1\AudioDbApiV1.cs" />
+    <Compile Include="Libraries\Common\CompressionWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Libraries\Common\Data\TraceRouteResponse.cs" />
+    <Compile Include="Libraries\Common\Downloader.cs" />
+    <Compile Include="Libraries\Common\IRequestRateLimiter.cs" />
+    <Compile Include="Libraries\Common\RequestRatePerTimeSpanLimiter.cs" />
+    <Compile Include="Libraries\Common\TraceRoute.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtSeasonThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtTVThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtMovieThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtLabelThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtCDArtThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtAlbumThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtAlbumDetails.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtLabelThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtMovieDiscThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtMovieThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtArtistThumbs.cs" />
+    <Compile Include="Libraries\FanArtTVV3\Data\FanArtThumb.cs" />
+    <Compile Include="Libraries\FanArtTVV3\FanArtTVApiV3.cs" />
+    <Compile Include="Libraries\FreeDB\Data\FreeDBCDInfo.cs" />
+    <Compile Include="Libraries\FreeDB\Data\FreeDBCDInfoDetail.cs" />
+    <Compile Include="Libraries\FreeDB\Data\FreeDBCDTrackDetail.cs" />
+    <Compile Include="Libraries\FreeDB\FreeDBQuery.cs" />
+    <Compile Include="Libraries\FreeDB\Data\FreeDBSite.cs" />
+    <Compile Include="Libraries\FreeDB\XMCDParser.cs" />
+    <Compile Include="Libraries\FreeGeoIP\Data\FreeGeoIPResponse.cs" />
+    <Compile Include="Libraries\FreeGeoIP\IPLookup.cs" />
+    <Compile Include="Libraries\Google\Data\MapsApiGeocodeResponse.cs" />
+    <Compile Include="Libraries\Google\Maps.cs" />
+    <Compile Include="Libraries\IAddressResolver.cs" />
+    <Compile Include="Libraries\ICoordinateResolver.cs" />
+    <Compile Include="Libraries\IGeoLocationService.cs" />
+    <Compile Include="Libraries\Microsoft\GPSLookup.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PagedSeriesSearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Episode.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\SeasonEpisode.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\SeriesSearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Season.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\SeriesSeason.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Series.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\ExternalIds.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Person.cs" />
+    <Compile Include="Libraries\MovieDbV3\MovieDbDownloader.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackImageCollection.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackDisc.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackRelation.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackRating.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\Track.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackImageThumbnail.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackImage.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackMedia.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackRelease.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackTag.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackArtistCredit.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackReleaseGroup.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackData.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackBaseName.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\Data\TrackSearchResult.cs" />
+    <Compile Include="Libraries\MusicBrainzV2\MusicBrainzApiV2.cs" />
+    <Compile Include="Libraries\OpenStreetMap\Data\GeocoderResponse.cs" />
+    <Compile Include="Libraries\OpenStreetMap\Geocoder.cs" />
+    <Compile Include="Libraries\Trakt\Authentication\TraktAuth.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktActivity.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktAuthentication.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktCalendar.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktComment.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktCommentItem.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktComments.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisode.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeCollected.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeHistory.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeId.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeImages.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeSummary.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeSummaryEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeWatched.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktEpisodeWatchList.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktFollowerRequest.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktId.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktImage.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktLastSyncActivities.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktLike.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktLikes.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktList.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktListDetail.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktListItem.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovie.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieCollected.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieHistory.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieId.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieImages.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMoviesPopular.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMoviesTrending.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieSummary.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMoviesUpdated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieTrending.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieUpdate.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieWatched.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktMovieWatchList.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktNetworkApproval.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktNetworkFriend.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktNetworkUser.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktOAuthLogin.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktOAuthToken.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPagination.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPerson.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonId.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonMovieCast.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonMovieCredits.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonMovieCrew.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonMovieJob.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonShowCast.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonShowCredits.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonShowCrew.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonShowJob.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktPersonSummary.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktRating.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktRatingDistribution.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktScrobble.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktScrobbleEpisode.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktScrobbleMovie.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktScrobbleResponse.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSearchResult.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSeasonId.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSeasonImages.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSeasonRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSeasonSummary.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSeasonWatchList.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShow.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowId.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowImages.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSeason.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowsPopular.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowsTrending.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowSummary.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowsUpdated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowTrending.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowUpdate.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktShowWatchList.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktStatus.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncAll.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncEpisodeCollected.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncEpisodeRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncEpisodes.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncEpisodesCollected.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncEpisodesRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncEpisodesWatched.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncEpisodeWatched.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncMovieCollected.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncMovieRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncMovies.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncMoviesCollected.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncMoviesRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncMoviesWatched.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncMovieWatched.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncPaused.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncResponse.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncSeasonEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncSeasonRatedEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncSeasonsEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncSeasonsRatedEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowCollectedEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowRatedEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShows.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowsCollectedEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowsEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowsRated.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowsRatedEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowsWatchedEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktSyncShowWatchedEx.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktUser.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktUserImages.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktUserStatistics.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktUserSummary.cs" />
+    <Compile Include="Libraries\Trakt\DataStructures\TraktUserToken.cs" />
+    <Compile Include="Libraries\Trakt\Enums\TraktEnums.cs" />
+    <Compile Include="Libraries\Trakt\Extension\DateTimeExtensions.cs" />
+    <Compile Include="Libraries\Trakt\Extension\EnumerableExtensions.cs" />
+    <Compile Include="Libraries\Trakt\Extension\JsonExtensions.cs" />
+    <Compile Include="Libraries\Trakt\Extension\StringExtensions.cs" />
+    <Compile Include="Libraries\Trakt\TraktAPI.cs" />
+    <Compile Include="Libraries\Trakt\TraktURIs.cs" />
+    <Compile Include="Libraries\Trakt\Web\TraktWeb.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Matches\MatchStorage.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\CastItem.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\CrewItem.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Genre.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\MovieCollection.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\MovieTrailers.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\MovieCasts.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\ProductionCompany.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\ProductionCountry.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Trailer.cs" />
+    <Compile Include="Matches\MovieCollectionMatch.cs" />
+    <Compile Include="SerializableRegex.cs" />
+    <Compile Include="Matches\TrackMatch.cs" />
+    <Compile Include="SeriesFanArtTvMatcher.cs" />
+    <Compile Include="MusicTheAudioDbMatcher.cs" />
+    <Compile Include="MusicBrainzMatcher.cs" />
+    <Compile Include="MusicBrainz\MusicBrainzWrapper.cs" />
+    <Compile Include="Matches\BaseMatcher.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Configuration.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\ImageItem.cs" />
+    <Compile Include="Libraries\TvdbLib\Cache\BinaryCacheProvider.cs" />
+    <Compile Include="Libraries\TvdbLib\Cache\ICacheProvider.cs" />
+    <Compile Include="Libraries\TvdbLib\Cache\XmlCacheProvider.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Banner\TvdbActorBanner.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Banner\TvdbBanner.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Banner\TvdbBannerWithThumb.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Banner\TvdbEpisodeBanner.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Banner\TvdbFanartBanner.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Banner\TvdbPosterBanner.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Banner\TvdbSeasonBanner.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Banner\TvdbSeriesBanner.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\Comparer\EpisodeComparer.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbActor.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbData.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbEpisode.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbLanguage.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbMirror.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbRating.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbSearchResult.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbSeries.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbSeriesFields.cs" />
+    <Compile Include="Libraries\TvdbLib\Data\TvdbUser.cs" />
+    <Compile Include="Libraries\TvdbLib\Exceptions\TvdbCacheNotInitialisedException.cs" />
+    <Compile Include="Libraries\TvdbLib\Exceptions\TvdbContentNotFoundException.cs" />
+    <Compile Include="Libraries\TvdbLib\Exceptions\TvdbException.cs" />
+    <Compile Include="Libraries\TvdbLib\Exceptions\TvdbInvalidApiKeyException.cs" />
+    <Compile Include="Libraries\TvdbLib\Exceptions\TvdbInvalidXmlException.cs" />
+    <Compile Include="Libraries\TvdbLib\Exceptions\TvdbNotAvailableException.cs" />
+    <Compile Include="Libraries\TvdbLib\Exceptions\TvdbUserNotFoundException.cs" />
+    <Compile Include="Libraries\Common\Log.cs" />
+    <Compile Include="Libraries\TvdbLib\TvdbDownloader.cs" />
+    <Compile Include="Libraries\TvdbLib\TvdbHandler.cs" />
+    <Compile Include="Libraries\TvdbLib\TvdbLinkCreator.cs" />
+    <Compile Include="Libraries\Common\Util.cs" />
+    <Compile Include="Libraries\TvdbLib\TvDbUtils.cs" />
+    <Compile Include="Libraries\TvdbLib\Xml\TvdbXmlReader.cs" />
+    <Compile Include="Libraries\TvdbLib\Xml\TvdbXmlWriter.cs" />
+    <Compile Include="MovieTheMovieDbMatcher.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeriesTvDbMatcher.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Movie.cs" />
+    <Compile Include="Libraries\MovieDbV3\MovieDbApiV3.cs" />
+    <Compile Include="Matches\MovieMatch.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\MovieSearchResult.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\PagedMovieSearchResult.cs" />
+    <Compile Include="TheAudioDB\TheAudioDbWrapper.cs" />
+    <Compile Include="Matches\BaseMatch.cs" />
+    <Compile Include="Matches\SeriesMatch.cs" />
+    <Compile Include="Libraries\Common\Settings.cs" />
+    <Compile Include="TheMovieDB\TheMovieDbWrapper.cs" />
+    <Compile Include="ApiWrapper.cs" />
+    <Compile Include="TheTvDB\TvDbWrapper.cs" />
+    <Compile Include="TvMaze\TvMazeWrapper.cs" />
+    <Compile Include="UniqueEventedQueue.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+</Project>

@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -175,6 +176,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         // "Series.Name.101.Episode.Or.Release.Info", attention: this expression can lead to false matches for every filename with nnn included
         new MatchPattern { Enabled = true, Pattern = @"(?<series>[^\\]+).\W(?<seasonnum>\d{1})(?<episodenum>\d{2})\W(?<episode>.*)\.", RegexOptions = RegexOptions.IgnoreCase },
       };
+
+      SeriesYearRegex = new SerializableRegex(@"(?<series>.*)[ .-]+\((?<year>\d+)\)", RegexOptions.IgnoreCase);
     }
 
     #region Public properties
@@ -197,6 +200,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     /// </summary>
     [Setting(SettingScope.Global)]
     public List<MatchPattern> Patterns { get; set; }
+
+    /// <summary>
+    /// Regular expression used to find a year in the series name
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public SerializableRegex SeriesYearRegex { get; set; }
 
     #endregion
   }

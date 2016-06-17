@@ -33,10 +33,6 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
-using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
-using MediaPortal.Utilities;
-using System.IO;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
@@ -126,9 +122,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
 
       // Try to use an existing TMDB id for exact mapping
-      int tmdbId;
-      if (GetTmdbId(extractedAspectData, out tmdbId) || MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
-        movieInfo.MovieDbId = tmdbId;
+      string tmdbId;
+      if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out tmdbId) ||
+          MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+        movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
 
       // Try to use an existing IMDB id for exact mapping
       string imdbId;
@@ -160,25 +157,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       /* Clear the names from unwanted strings */
       MovieNameMatcher.CleanupTitle(movieInfo);
 
-      MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
-      MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
       MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
       MP4Matcher.ExtractFromTags(lfsra, movieInfo);
+      MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+      MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
       MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
 
       if (!_onlyFanArt)
         movieInfo.SetMetadata(extractedAspectData);
 
       return false;
-    }
-
-    internal static bool GetTmdbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, out int tmdbId)
-    {
-      tmdbId = 0;
-      string id;
-      return
-        MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id)
-         && int.TryParse(id, out tmdbId);
     }
 
     #endregion

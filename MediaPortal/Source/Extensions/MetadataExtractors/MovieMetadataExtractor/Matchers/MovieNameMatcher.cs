@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
 
     public static bool CleanupTitle(MovieInfo movieInfo)
     {
-      if (string.IsNullOrEmpty(movieInfo.MovieName.Text))
+      if (movieInfo.MovieName.IsEmpty)
         return false;
       string originalTitle = movieInfo.MovieName.Text;
       foreach (Regex regex in REGEXP_CLEANUPS)

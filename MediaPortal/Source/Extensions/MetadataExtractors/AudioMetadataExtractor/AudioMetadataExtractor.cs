@@ -41,7 +41,7 @@ using TagLib;
 using File = TagLib.File;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor

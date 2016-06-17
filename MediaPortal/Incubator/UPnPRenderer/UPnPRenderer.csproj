@@ -18,8 +18,6 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>0ef9f236</NuGetPackageImportStamp>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Source\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -142,8 +140,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\Packages\MediaPortal.UrlSourceSplitter.2.1.4.5454\build\MediaPortal.UrlSourceSplitter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\MediaPortal.UrlSourceSplitter.2.1.4.5454\build\MediaPortal.UrlSourceSplitter.targets'))" />
     <Error Condition="!Exists('..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets'))" />
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <Import Project="..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

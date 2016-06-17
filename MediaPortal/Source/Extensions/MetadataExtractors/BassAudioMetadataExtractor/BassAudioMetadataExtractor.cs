@@ -36,10 +36,9 @@ using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Graphics;
-using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Tags;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
 {

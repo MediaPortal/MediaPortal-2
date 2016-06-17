@@ -56,6 +56,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     public const string Banner = "Banner";
     public const string FanArt = "FanArt";
     public const string Thumbnail = "Thumbnail";
+    public const string Cover = "Cover";
     public const string ClearArt = "ClearArt";
     public const string DiscArt = "DiscArt";
     public const string Logo = "Logo";

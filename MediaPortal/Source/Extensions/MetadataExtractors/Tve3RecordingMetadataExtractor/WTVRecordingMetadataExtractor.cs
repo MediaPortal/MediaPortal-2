@@ -35,7 +35,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -77,10 +77,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
       string tmpString;
 
       if (TryGet(metadata, TAG_TITLE, out tmpString))
-        episodeInfo.SeriesName = tmpString;
+        episodeInfo.SeriesName.Text = tmpString;
 
       if (TryGet(metadata, TAG_EPISODENAME, out tmpString))
-        episodeInfo.EpisodeName = tmpString;
+        episodeInfo.EpisodeName.Text = tmpString;
 
       return episodeInfo;
     }

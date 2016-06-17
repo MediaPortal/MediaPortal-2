@@ -22,13 +22,13 @@
 
 #endregion
 
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
-using System;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -43,8 +43,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     private const string GROUP_EPISODENUM = "episodenum";
     private const string GROUP_EPISODE = "episode";
     private const string GROUP_YEAR = "year";
-
-    protected static Regex _yearMatcher = new Regex(@"(?<series>.*)[ .-]+\((?<year>\d+)\)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
@@ -96,6 +94,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
               replacement.Replace(ref tmp);
               episodeInfo.EpisodeName.Text = tmp;
             }
+            if (!episodeInfo.SeriesName.IsEmpty)
+            {
+              Match yearMa = settings.SeriesYearRegex.Regex.Match(episodeInfo.SeriesName.Text);
+              if (yearMa.Success)
+              {
+                episodeInfo.SeriesName = EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value);
+                episodeInfo.SeriesFirstAired = new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1);
+              }
+            }
             return true;
           }
         }
@@ -110,16 +117,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
         info.SeriesName = EpisodeInfo.CleanupWhiteSpaces(group.Value);
-
-      if (!info.SeriesName.IsEmpty)
-      {
-        Match yearMa = _yearMatcher.Match(info.SeriesName.Text);
-        if (yearMa.Success)
-        {
-          info.SeriesName = EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value);
-          info.SeriesFirstAired = new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1);
-        }
-      }
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)

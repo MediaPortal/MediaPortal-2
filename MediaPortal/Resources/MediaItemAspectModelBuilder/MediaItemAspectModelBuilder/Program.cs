@@ -37,12 +37,16 @@ namespace MediaItemAspectModelBuilder
       const bool createAsControl = true;
       const bool exposeNullables = true;
 
+
       List<Type> typeList = new List<Type> { typeof(MediaAspect), typeof(VideoAspect), typeof(VideoAudioAspect),
         typeof(AudioAspect), typeof(AudioAlbumAspect),
         typeof(ImageAspect),typeof(ImageCollectionAspect),
         typeof(MovieAspect), typeof(MovieCollectionAspect),
         typeof(SeriesAspect), typeof(SeasonAspect), typeof(EpisodeAspect),
         typeof(PersonAspect), typeof(CharacterAspect), typeof(CompanyAspect)};
+      string classNamespace = "MediaPortal.UiComponents.Media.Models.AspectWrappers";
+      string codeBasePath = @"..\..\..\..\..\Source\UI\UiComponents\Media\Models\AspectWrappers\";
+
       BuildWrappers(typeList, classNamespace, createAsControl, exposeNullables, codeBasePath);
 
       typeList = new List<Type> { typeof(RecordingAspect) };
