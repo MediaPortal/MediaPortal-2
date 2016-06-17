@@ -22,27 +22,24 @@
 
 #endregion
 
+using HomeEditor.Groups;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.General;
+using MediaPortal.Common.Messaging;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Input;
+using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.Utilities;
+using MediaPortal.Utilities.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using HomeEditor.Groups;
-using HomeEditor.Settings;
-using MediaPortal.Common;
-using MediaPortal.Common.Commands;
-using MediaPortal.Common.Localization;
-using MediaPortal.Common.Messaging;
-using MediaPortal.Common.Services.Settings;
-using MediaPortal.UiComponents.SkinBase.General;
-using MediaPortal.UiComponents.SkinBase.Models;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.MpfElements.Input;
-using MediaPortal.Utilities;
-using MediaPortal.Utilities.Events;
-using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.Common.General;
 
 namespace MediaPortal.UiComponents.WMCSkin.Models
 {
@@ -62,19 +59,19 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public static readonly Guid CUSTOM_HOME_STATE_ID = new Guid("B285DC02-AA8C-47F2-8795-0B13B6E66306");
     protected const string KEY_ITEM_GROUP = "HomeMenuModel: Group";
     protected const string KEY_ITEM_SELECTED_ACTION_ID = "HomeMenuModel: SelectedActionId";
-
+    
     protected AbstractProperty _enableSubMenuAnimationsProperty;
     protected AbstractProperty _enableMainMenuAnimationsProperty;
     protected AbstractProperty _scrollDirectionProperty;
 
+    protected HomeMenuActionProxy _homeProxy;
+    protected bool _attachedToMenuItems;
+    protected NavigationList<ListItem> _navigationList;
+    protected ItemsList _mainItems;
+    protected ItemsList _subItems;
+
     private readonly DelayedEvent _delayedMenuUpdateEvent;
     private readonly DelayedEvent _delayedAnimationEnableEvent;
-    private NavigationList<ListItem> _navigationList;
-    protected List<HomeMenuGroup> _groups;
-    protected Dictionary<Guid, HomeMenuAction> _groupedActions;
-    protected Dictionary<Guid, WorkflowAction> _availableActions;
-    protected bool _refreshNeeded;
-    protected SettingsChangeWatcher<HomeEditorSettings> _settings;
 
     #endregion
 
@@ -86,11 +83,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       _enableMainMenuAnimationsProperty = new WProperty(typeof(bool), false);
       _scrollDirectionProperty = new WProperty(typeof(ScrollDirection), ScrollDirection.None);
 
+      _homeProxy = new HomeMenuActionProxy();
       _navigationList = new NavigationList<ListItem>();
-      _groupedActions = new Dictionary<Guid, HomeMenuAction>();
-      _availableActions = new Dictionary<Guid, WorkflowAction>();
-      NestedMenuItems = new ItemsList();
-      SubItems = new ItemsList();
+      _mainItems = new ItemsList();
+      _subItems = new ItemsList();
       _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
       _delayedMenuUpdateEvent.OnEventHandler += OnUpdateMenu;
       _delayedAnimationEnableEvent = new DelayedEvent(500);
@@ -133,8 +129,15 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     #region Public Properties
 
-    public ItemsList NestedMenuItems { get; private set; }
-    public ItemsList SubItems { get; private set; }
+    public ItemsList NestedMenuItems
+    {
+      get { return _mainItems; }
+    }
+
+    public ItemsList SubItems
+    {
+      get { return _subItems; }
+    }
 
     public AbstractProperty EnableSubMenuAnimationsProperty
     {
@@ -245,10 +248,20 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       UpdateList(false);
     }
 
-    private void OnSettingsChanged(object sender, EventArgs e)
+    private void OnUpdateMenu(object sender, EventArgs e)
     {
-      _refreshNeeded = true;
-      UpdateMenu();
+      AttachToMenuItems();
+      DisableAnimations();
+      UpdateList(true);
+      EnableAnimations();
+    }
+
+    protected void AttachToMenuItems()
+    {
+      if (_attachedToMenuItems)
+        return;
+      MenuItems.ObjectChanged += OnMenuItemsChanged;
+      _attachedToMenuItems = true;
     }
 
     private void OnMenuItemsChanged(IObservable observable)
@@ -258,19 +271,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         UpdateMenu();
     }
 
-    private void OnUpdateMenu(object sender, EventArgs e)
-    {
-      if (_settings == null)
-      {
-        _settings = new SettingsChangeWatcher<HomeEditorSettings>();
-        _settings.SettingsChanged += OnSettingsChanged;
-        MenuItems.ObjectChanged += OnMenuItemsChanged;
-      }
-      DisableAnimations();
-      UpdateList(true);
-      EnableAnimations();
-    }
-
     protected void UpdateList(bool recreateList)
     {
       bool forceSubItemUpdate = true;
@@ -278,28 +278,27 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       if (recreateList)
       {
         var previousSelected = _navigationList.Current;
-        UpdateAvailableActions();
         UpdateNavigationList();
         if (_navigationList.MoveTo(i => i == previousSelected))
           forceSubItemUpdate = false;
         else
           _navigationList.CurrentIndex = 0;
 
-        NestedMenuItems.Clear();
-        CollectionUtils.AddAll(NestedMenuItems, _navigationList);
+        _mainItems.Clear();
+        CollectionUtils.AddAll(_mainItems, _navigationList);
       }
 
       bool afterSelected = false;
-      for (int i = 0; i < NestedMenuItems.Count; i++)
+      for (int i = 0; i < _mainItems.Count; i++)
       {
-        var item = (NestedItem)NestedMenuItems[i];
+        var item = (NestedItem)_mainItems[i];
         item.AfterSelected = afterSelected;
         bool selected = item == _navigationList.Current;
         item.Selected = selected;
         afterSelected |= selected;
       }
       if (recreateList)
-        NestedMenuItems.FireChange();
+        _mainItems.FireChange();
 
       SetSubItems(_navigationList.Current, forceSubItemUpdate);
     }
@@ -311,100 +310,33 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
       HomeMenuGroup group = item.AdditionalProperties[KEY_ITEM_GROUP] as HomeMenuGroup;
       bool fireChange = false;
-      List<WorkflowAction> actions = GetGroupActions(group);
-      if (forceUpdate || SubItemsNeedUpdate(SubItems, actions))
+      var actions = _homeProxy.GetGroupActions(group);
+      if (forceUpdate || SubItemsNeedUpdate(_subItems, actions))
       {
-        SubItems.Clear();
-        CollectionUtils.AddAll(SubItems, CreateSubItems(actions));
+        _subItems.Clear();
+        CollectionUtils.AddAll(_subItems, CreateSubItems(actions));
         fireChange = true;
       }
       FocusCurrentSubItem(item);
       if (fireChange)
-        SubItems.FireChange();
-    }
-
-    protected void UpdateGroups()
-    {
-      var settingsGroups = _settings.Settings.Groups;
-      _groups = new List<HomeMenuGroup>();
-      if (settingsGroups != null && settingsGroups.Count > 0)
-        _groups.AddRange(settingsGroups);
-      else
-        _groups.AddRange(DefaultGroups.Create());
-    }
-
-    protected void UpdateAvailableActions()
-    {
-      UninitializeActions();
-      _availableActions.Clear();
-      foreach (ListItem item in MenuItems)
-      {
-        WorkflowAction action;
-        if (TryGetAction(item, out action))
-          _availableActions[action.ActionId] = action;
-      }
-
-      var customActions = ServiceRegistration.Get<IWorkflowManager>().MenuStateActions.Values
-        .Where(a => a.SourceStateIds != null && a.SourceStateIds.Contains(CUSTOM_HOME_STATE_ID));
-      foreach (WorkflowAction action in customActions)
-        _availableActions[action.ActionId] = action;
-      InitializeActions();
-    }
-
-    protected void InitializeActions()
-    {
-      foreach (WorkflowAction action in _availableActions.Values)
-        action.AddRef();
-    }
-
-    protected void UninitializeActions()
-    {
-      foreach (WorkflowAction action in _availableActions.Values)
-        action.RemoveRef();
+        _subItems.FireChange();
     }
 
     protected void UpdateNavigationList()
     {
-      if (_groups != null && !_refreshNeeded)
+      _homeProxy.UpdateActions(MenuItems);
+      if (!_homeProxy.GroupsUpdated)
         return;
-
-      _refreshNeeded = false;
-      UpdateGroups();
-      _groupedActions.Clear();
       _navigationList.Clear();
-      foreach (HomeMenuGroup group in _groups)
+      foreach (HomeMenuGroup group in _homeProxy.Groups)
       {
-        foreach (HomeMenuAction action in group.Actions)
-          _groupedActions[action.ActionId] = action;
         NestedItem item = new NestedItem(Consts.KEY_NAME, group.DisplayName);
         item.AdditionalProperties[KEY_ITEM_GROUP] = group;
         _navigationList.Add(item);
       }
       //Entry for all actions without a group
-      NestedItem extrasItem = new NestedItem(Consts.KEY_NAME, LocalizationHelper.CreateResourceString(_settings.Settings.OthersGroupName).Evaluate());
+      NestedItem extrasItem = new NestedItem(Consts.KEY_NAME, _homeProxy.OthersName.Evaluate());
       _navigationList.Add(extrasItem);
-    }
-
-    protected List<WorkflowAction> GetGroupActions(HomeMenuGroup group)
-    {
-      var availableActions = _availableActions;
-      List<WorkflowAction> actions;
-      if (group == null)
-      {
-        actions = _availableActions.Values.Where(a => !_groupedActions.ContainsKey(a.ActionId)).ToList();
-        actions.Sort(Compare);
-      }
-      else
-      {
-        actions = new List<WorkflowAction>();
-        foreach (var actionItem in group.Actions)
-        {
-          WorkflowAction action;
-          if (availableActions.TryGetValue(actionItem.ActionId, out action))
-            actions.Add(action);
-        }
-      }
-      return actions;
     }
 
     protected bool SubItemsNeedUpdate(IList<ListItem> currentItems, IList<WorkflowAction> actions)
@@ -424,15 +356,16 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       return false;
     }
 
-    protected List<ListItem> CreateSubItems(List<WorkflowAction> actions)
+    protected List<ListItem> CreateSubItems(IList<WorkflowAction> actions)
     {
+      var groupedActions = _homeProxy.GroupedActions;
       List<ListItem> items = new List<ListItem>();
       foreach (var action in actions)
       {
         WorkflowAction workflowAction = action;
         HomeMenuAction groupedAction;
         ListItem listItem;
-        if (_groupedActions.TryGetValue(workflowAction.ActionId, out groupedAction))
+        if (groupedActions.TryGetValue(workflowAction.ActionId, out groupedAction))
           listItem = new ListItem(Consts.KEY_NAME, groupedAction.DisplayName);
         else
           listItem = new ListItem(Consts.KEY_NAME, workflowAction.DisplayTitle);
@@ -458,10 +391,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         currentActionId = parentItem.AdditionalProperties[KEY_ITEM_SELECTED_ACTION_ID] as Guid?;
 
       WorkflowAction action;
-      for (int i = 0; i < SubItems.Count; i++)
+      for (int i = 0; i < _subItems.Count; i++)
       {
-        SubItems[i].Selected = (currentActionId == null && i == 0) ||
-          (TryGetAction(SubItems[i], out action) && action.ActionId == currentActionId);
+        _subItems[i].Selected = (currentActionId == null && i == 0) ||
+          (TryGetAction(_subItems[i], out action) && action.ActionId == currentActionId);
       }
     }
 
