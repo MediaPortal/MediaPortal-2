@@ -118,23 +118,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         newResourceIndex++;
 
         string accessorPath;
-        ResourcePath resourcePath;
+        string existingAccessorPath;
         bool resourceExists = false; //Resource might already be added in the initial add
         foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
         {
           if (existingProviderResourceAspects != null)
           {
             accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-            resourcePath = ResourcePath.Deserialize(accessorPath);
-            string extractedPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
 
             foreach (MultipleMediaItemAspect exisitingProviderResourceAspect in existingProviderResourceAspects)
             {
-              accessorPath = (string)exisitingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-              resourcePath = ResourcePath.Deserialize(accessorPath);
-              string existingPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
+              existingAccessorPath = (string)exisitingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
 
-              if (extractedPath.Equals(existingPath, StringComparison.InvariantCultureIgnoreCase))
+              if (accessorPath.Equals(existingAccessorPath, StringComparison.InvariantCultureIgnoreCase))
               {
                 resourceExists = true;
                 break;
@@ -239,14 +235,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                   foreach (MultipleMediaItemAspect existingProviderResourceAspect in existingProviderResourceAspects)
                   {
                     accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                    resourcePath = ResourcePath.Deserialize(accessorPath);
-                    string subPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
+                    ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
 
                     accessorPath = (string)existingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                    resourcePath = ResourcePath.Deserialize(accessorPath);
-                    string videoPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
+                    ResourcePath existingResourcePath = ResourcePath.Deserialize(accessorPath);
 
-                    if (Path.GetFileNameWithoutExtension(subPath).StartsWith(Path.GetFileNameWithoutExtension(videoPath), StringComparison.InvariantCultureIgnoreCase))
+                    if (ResourcePath.GetFileNameWithoutExtension(resourcePath).StartsWith(ResourcePath.GetFileNameWithoutExtension(existingResourcePath), StringComparison.InvariantCultureIgnoreCase))
                     {
                       string resType = (string)existingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_TYPE);
                       if (resType.StartsWith("VIDEO", StringComparison.InvariantCultureIgnoreCase))
