@@ -185,8 +185,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, SeriesName.Text);     
-      if(!EpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, CleanString(EpisodeName.Text));
+      MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, SeriesName.Text);
+      if (!EpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, CleanString(EpisodeName.Text));
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
       MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers.Select(e => (object)e).ToList());
@@ -312,22 +312,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           }
         }
       }
-
       return true;
     }
 
     public string FormatString(string format)
     {
-      if (AreReqiredFieldsFilled)
-      {
-        Match seriesMatch = _fromSeriesName.Match(SeriesName.Text);
-        return string.Format(format,
-          SeriesFirstAired.HasValue && !seriesMatch.Success ? string.Format(SERIES_FORMAT_STR, SeriesName, SeriesFirstAired.Value.Year) : SeriesName,
-          SeasonNumber.ToString().PadLeft(2, '0'),
-          StringUtils.Join(",", EpisodeNumbers.OrderBy(e => e).Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
-          EpisodeName);
-      }
-      return "EpisodeInfo: No complete match";
+      if (!AreReqiredFieldsFilled)
+        return "EpisodeInfo: No complete match";
+      Match seriesMatch = _fromSeriesName.Match(SeriesName.Text);
+      return string.Format(format,
+        SeriesFirstAired.HasValue && !seriesMatch.Success ? string.Format(SERIES_FORMAT_STR, SeriesName, SeriesFirstAired.Value.Year) : SeriesName,
+        SeasonNumber.ToString().PadLeft(2, '0'),
+        StringUtils.Join(",", EpisodeNumbers.OrderBy(e => e).Select(episodeNumber => episodeNumber.ToString().PadLeft(2, '0'))),
+        EpisodeName);
     }
 
     public string ToShortString()
@@ -338,7 +335,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool FromString(string name)
     {
       Match match = _fromName.Match(name);
-      if(match.Success)
+      if (match.Success)
       {
         SeriesName = match.Groups["series"].Value;
         Match seriesMatch = _fromSeriesName.Match(SeriesName.Text);
@@ -358,6 +355,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public bool CopyIdsFrom(SeriesInfo episodeSeries)
     {
+      if (episodeSeries == null)
+        return false;
       SeriesImdbId = episodeSeries.ImdbId;
       SeriesMovieDbId = episodeSeries.MovieDbId;
       SeriesTvdbId = episodeSeries.TvdbId;
@@ -368,6 +367,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public bool CopyIdsFrom(SeasonInfo episodeSeason)
     {
+      if (episodeSeason == null)
+        return false;
       SeriesImdbId = episodeSeason.SeriesImdbId;
       SeriesMovieDbId = episodeSeason.SeriesMovieDbId;
       SeriesTvdbId = episodeSeason.SeriesTvdbId;
@@ -378,6 +379,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public bool CopyIdsFrom(EpisodeInfo otherEpisode)
     {
+      if (otherEpisode == null)
+        return false;
       MovieDbId = otherEpisode.MovieDbId;
       ImdbId = otherEpisode.ImdbId;
       TvdbId = otherEpisode.TvdbId;
@@ -394,30 +397,31 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public SeriesInfo CloneBasicSeries()
     {
-      SeriesInfo info = new SeriesInfo();
-      info.ImdbId = SeriesImdbId;
-      info.MovieDbId = SeriesMovieDbId;
-      info.TvdbId = SeriesTvdbId;
-      info.TvMazeId = SeriesTvMazeId;
-      info.TvRageId = SeriesTvRageId;
-
-      info.SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage);
-      info.FirstAired = SeriesFirstAired;
+      SeriesInfo info = new SeriesInfo
+      {
+        ImdbId = SeriesImdbId,
+        MovieDbId = SeriesMovieDbId,
+        TvdbId = SeriesTvdbId,
+        TvMazeId = SeriesTvMazeId,
+        TvRageId = SeriesTvRageId,
+        SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage),
+        FirstAired = SeriesFirstAired
+      };
       return info;
     }
 
     public SeasonInfo CloneBasicSeason()
     {
-      SeasonInfo info = new SeasonInfo();
-      info.SeasonNumber = SeasonNumber;
-
-      info.ImdbId = SeriesImdbId;
-      info.MovieDbId = SeriesMovieDbId;
-      info.TvdbId = SeriesTvdbId;
-      info.TvMazeId = SeriesTvMazeId;
-      info.TvRageId = SeriesTvRageId;
-
-      info.SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage);
+      SeasonInfo info = new SeasonInfo
+      {
+        SeasonNumber = SeasonNumber,
+        ImdbId = SeriesImdbId,
+        MovieDbId = SeriesMovieDbId,
+        TvdbId = SeriesTvdbId,
+        TvMazeId = SeriesTvMazeId,
+        TvRageId = SeriesTvRageId,
+        SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage)
+      };
       return info;
     }
 

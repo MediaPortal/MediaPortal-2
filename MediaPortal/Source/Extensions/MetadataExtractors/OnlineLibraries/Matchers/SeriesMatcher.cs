@@ -175,9 +175,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         //Always save match even if none to avoid retries
-        StoreSeriesMatch(episodeSeries, episodeMatch.CloneBasicSeries());
+        SeriesInfo cloneBasicSeries = episodeMatch != null ? episodeMatch.CloneBasicSeries() : null;
+        StoreSeriesMatch(episodeSeries, cloneBasicSeries);
 
-        if (matchFound)
+        if (matchFound && episodeMatch != null)
         {
           MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, episodeMatch.ImdbId);
           MetadataUpdater.SetOrUpdateId(ref episodeInfo.MovieDbId, episodeMatch.MovieDbId);
@@ -821,7 +822,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (seriesMatch == null)
       {
-        _storage.TryAddMatch(new SeriesMatch()
+        _storage.TryAddMatch(new SeriesMatch
         {
           ItemName = seriesSearch.ToString()
         });
@@ -1350,7 +1351,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual bool VerifyFanArtImage(TImg image)
     {
-      return true;
+      return image != null;
     }
 
     protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string scope, string type)

@@ -108,7 +108,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (episodes == null)
               episodes = new List<EpisodeInfo>();
 
-            EpisodeInfo info = new EpisodeInfo()
+            EpisodeInfo info = new EpisodeInfo
             {
               TvdbId = episode.Id,
               SeriesName = new LanguageText(seriesDetail.SeriesName, false),
@@ -126,15 +126,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes == null)
       {
         episodes = new List<EpisodeInfo>();
-        EpisodeInfo info = new EpisodeInfo()
+        EpisodeInfo info = new EpisodeInfo
         {
-          SeriesName = seriesSearch.SeriesName,
+          SeriesName = episodeSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
         info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
-        info.Languages = seriesSearch.Languages;
+        info.Languages = episodeSearch.Languages;
         episodes.Add(info);
         return true;
       }
@@ -149,7 +149,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series = null;
       List<TvdbSearchResult> foundSeries = _tvdbHandler.SearchSeries(seriesSearch.SeriesName.Text, language);
       if (foundSeries == null) return false;
-      series = foundSeries.Select(s => new SeriesInfo()
+      series = foundSeries.Select(s => new SeriesInfo
       {
         TvdbId = s.Id,
         ImdbId = s.ImdbId,

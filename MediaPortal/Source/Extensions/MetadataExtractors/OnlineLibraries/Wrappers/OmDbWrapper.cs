@@ -109,9 +109,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes == null)
       {
         episodes = new List<EpisodeInfo>();
-        EpisodeInfo info = new EpisodeInfo()
+        EpisodeInfo info = new EpisodeInfo
         {
-          SeriesName = seriesSearch.SeriesName,
+          SeriesName = episodeSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
         };
