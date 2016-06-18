@@ -82,6 +82,8 @@
     <Content Include="Skin\WMCSkin\images\Effects\Layer4.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer5.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer6.png" />
+    <Content Include="Skin\WMCSkin\images\HOME.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\HOME.NOFOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.NOFOCUS.PNG" />
