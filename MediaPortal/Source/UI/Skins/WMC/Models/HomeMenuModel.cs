@@ -64,7 +64,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected AbstractProperty _enableMainMenuAnimationsProperty;
     protected AbstractProperty _scrollDirectionProperty;
 
+    protected readonly object _syncOb = new object();
     protected HomeMenuActionProxy _homeProxy;
+    protected bool _updatingMenu;
     protected bool _attachedToMenuItems;
     protected NavigationList<ListItem> _navigationList;
     protected ItemsList _mainItems;
@@ -243,17 +245,43 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     private void OnNavigationListCurrentChanged(int oldindex, int newindex)
     {
-      ScrollDirection = newindex > oldindex ? ScrollDirection.Down : ScrollDirection.Up;
-      EnableSubMenuAnimations = false;
-      UpdateList(false);
+      lock (_syncOb)
+      {
+        if (_updatingMenu)
+          return;
+        _updatingMenu = true;
+      }
+      try
+      {
+        ScrollDirection = newindex > oldindex ? ScrollDirection.Down : ScrollDirection.Up;
+        EnableSubMenuAnimations = false;
+        UpdateList(false);
+      }
+      finally
+      {
+        _updatingMenu = false;
+      }
     }
 
     private void OnUpdateMenu(object sender, EventArgs e)
     {
-      AttachToMenuItems();
-      DisableAnimations();
-      UpdateList(true);
-      EnableAnimations();
+      lock (_syncOb)
+      {
+        if (_updatingMenu)
+          return;
+        _updatingMenu = true;
+      }
+      try
+      {
+        AttachToMenuItems();
+        DisableAnimations();
+        UpdateList(true);
+        EnableAnimations();
+      }
+      finally
+      {
+        _updatingMenu = false;
+      }
     }
 
     protected void AttachToMenuItems()
@@ -277,15 +305,14 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       // Get new menu entries from base list
       if (recreateList)
       {
-        var previousSelected = _navigationList.Current;
-        UpdateNavigationList();
-        if (_navigationList.MoveTo(i => i == previousSelected))
-          forceSubItemUpdate = false;
-        else
+        if (UpdateNavigationList())
+        {
+          _mainItems.Clear();
+          CollectionUtils.AddAll(_mainItems, _navigationList);
           _navigationList.CurrentIndex = 0;
-
-        _mainItems.Clear();
-        CollectionUtils.AddAll(_mainItems, _navigationList);
+        }
+        else
+          forceSubItemUpdate = false;
       }
 
       bool afterSelected = false;
@@ -299,7 +326,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       }
       if (recreateList)
         _mainItems.FireChange();
-
       SetSubItems(_navigationList.Current, forceSubItemUpdate);
     }
 
@@ -322,11 +348,11 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         _subItems.FireChange();
     }
 
-    protected void UpdateNavigationList()
+    protected bool UpdateNavigationList()
     {
       _homeProxy.UpdateActions(MenuItems);
       if (!_homeProxy.GroupsUpdated)
-        return;
+        return false; ;
       _navigationList.Clear();
       foreach (HomeMenuGroup group in _homeProxy.Groups)
       {
@@ -337,6 +363,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       //Entry for all actions without a group
       NestedItem extrasItem = new NestedItem(Consts.KEY_NAME, _homeProxy.OthersName.Evaluate());
       _navigationList.Add(extrasItem);
+      return true;
     }
 
     protected bool SubItemsNeedUpdate(IList<ListItem> currentItems, IList<WorkflowAction> actions)
