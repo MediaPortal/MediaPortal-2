@@ -128,7 +128,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
       List<TrackResult> tracks = new List<TrackResult>();
       foreach(TrackRelease release in Releases)
       {
-        if (!release.Status.Equals("Official", StringComparison.InvariantCultureIgnoreCase)) //Only official releases
+        if (release.Status == null || !release.Status.Equals("Official", StringComparison.InvariantCultureIgnoreCase)) //Only official releases
           continue;
 
         if (release.ReleaseGroup != null && !release.ReleaseGroup.PrimaryType.Equals("Album", StringComparison.InvariantCultureIgnoreCase)) //Only album releases

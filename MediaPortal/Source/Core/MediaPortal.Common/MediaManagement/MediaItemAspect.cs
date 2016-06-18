@@ -755,7 +755,8 @@ namespace MediaPortal.Common.MediaManagement
             {
               IList<string> list = new List<string>();
               foreach (object value in values)
-                list.Add(value.ToString());
+                if (value != null)
+                  list.Add(value.ToString());
               valueStr = string.Format("[{0}]", string.Join(",", list));
             }
           }

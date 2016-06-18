@@ -83,7 +83,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public DateTime? FirstRelease { get; set; }
 
     [DataMember(Name = "artist-credit")]
-    public TrackArtistCredit ArtistCredit { get; set; }
+    public TrackArtistCredit[] ArtistCredit { get; set; }
 
     [DataMember(Name = "primary-type")]
     public string PrimaryType { get; set; }

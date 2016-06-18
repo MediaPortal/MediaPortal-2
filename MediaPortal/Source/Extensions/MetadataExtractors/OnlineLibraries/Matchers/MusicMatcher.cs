@@ -124,7 +124,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           // Use cached values before doing online query
           TrackMatch match = matches.Find(m =>
             string.Equals(m.ItemName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase) &&
-            !string.IsNullOrEmpty(m.AlbumName) && trackInfo.Album.Length > 0 ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true &&
+            !string.IsNullOrEmpty(m.AlbumName) && trackInfo.Album != null ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true &&
             ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum) || trackInfo.TrackNum <= 0 || m.TrackNum <= 0)));
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Try to lookup movie \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
 

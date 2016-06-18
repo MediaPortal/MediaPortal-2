@@ -51,6 +51,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           object currentObj = (object)currentList[iCurrent];
           object newObj = (object)newList[iNew];
+          if (currentObj == null)
+            continue;
           Type objType = currentObj.GetType();
           if (objType.IsClass)
           {

@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public List<TrackArtistCredit> Artists { get; set; }
 
     [DataMember(Name = "length")]
-    public long Length { get; set; }
+    public long? Length { get; set; }
 
     public override string ToString()
     {
