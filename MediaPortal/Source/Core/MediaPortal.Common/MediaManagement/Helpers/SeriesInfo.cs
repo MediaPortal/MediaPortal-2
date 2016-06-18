@@ -122,7 +122,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         if(!NextEpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, NextEpisodeName.Text);
         else if(NextEpisodeNumber.HasValue && NextEpisodeSeasonNumber.HasValue)
-          MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, string.Format(NEXT_EPISODE_FORMAT_STR, SeriesName, NextEpisodeSeasonNumber.Value, NextEpisodeNumber.Value));
+          MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, string.Format(NEXT_EPISODE_FORMAT_STR, SeriesName, NextEpisodeSeasonNumber.Value, NextEpisodeNumber.Value));
         if (NextEpisodeSeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_SEASON, NextEpisodeSeasonNumber.Value);
         if (NextEpisodeNumber.HasValue) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, new List<int>() { NextEpisodeNumber.Value });
         MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, NextEpisodeAirDate.Value);
