@@ -1065,7 +1065,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(seriesInfo);
         ApiWrapperImageCollection<TImg> images;
-        string scope = FanArtMediaTypes.Movie;
+        string scope = FanArtMediaTypes.Series;
         if (_wrapper.GetFanArt(seriesInfo, language, scope, out images) == false)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Failed getting images for movie ID {0}", downloadId);
