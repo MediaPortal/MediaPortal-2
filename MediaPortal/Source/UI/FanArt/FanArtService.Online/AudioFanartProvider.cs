@@ -102,13 +102,29 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       List<string> fanArtFiles = new List<string>();
       object infoObject = null;
       if (mediaType == FanArtMediaTypes.Artist || mediaType == FanArtMediaTypes.Composer)
-        infoObject = new PersonInfo().FromMetadata(mediaItem.Aspects);
+      {
+        PersonInfo personInfo = new PersonInfo();
+        personInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = personInfo;
+      }
       else if (mediaType == FanArtMediaTypes.MusicLabel)
-        infoObject = new CompanyInfo().FromMetadata(mediaItem.Aspects);
+      {
+        CompanyInfo companyInfo = new CompanyInfo();
+        companyInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = companyInfo;
+      }
       else if (mediaType == FanArtMediaTypes.Audio)
-        infoObject = new TrackInfo().FromMetadata(mediaItem.Aspects);
+      {
+        TrackInfo trackInfo = new TrackInfo();
+        trackInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = trackInfo;
+      }
       else if (mediaType == FanArtMediaTypes.Album)
-        infoObject = new AlbumInfo().FromMetadata(mediaItem.Aspects);
+      {
+        AlbumInfo albumInfo = new AlbumInfo();
+        albumInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = albumInfo;
+      }
 
       fanArtFiles.AddRange(MusicTheAudioDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
       fanArtFiles.AddRange(MusicBrainzMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));

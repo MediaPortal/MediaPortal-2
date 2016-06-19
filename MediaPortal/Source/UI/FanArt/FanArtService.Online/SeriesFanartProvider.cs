@@ -106,17 +106,41 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       List<string> fanArtFiles = new List<string>();
       object infoObject = null;
       if (mediaType == FanArtMediaTypes.Actor || mediaType == FanArtMediaTypes.Director || mediaType == FanArtMediaTypes.Writer)
-        infoObject = new PersonInfo().FromMetadata(mediaItem.Aspects);
+      {
+        PersonInfo personInfo = new PersonInfo();
+        personInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = personInfo;
+      }
       else if (mediaType == FanArtMediaTypes.Character)
-        infoObject = new CharacterInfo().FromMetadata(mediaItem.Aspects);
+      {
+        CharacterInfo characterInfo = new CharacterInfo();
+        characterInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = characterInfo;
+      }
       else if (mediaType == FanArtMediaTypes.Company || mediaType == FanArtMediaTypes.TVNetwork)
-        infoObject = new CompanyInfo().FromMetadata(mediaItem.Aspects);
+      {
+        CompanyInfo companyInfo = new CompanyInfo();
+        companyInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = companyInfo;
+      }
       else if (mediaType == FanArtMediaTypes.Series)
-        infoObject = new SeriesInfo().FromMetadata(mediaItem.Aspects);
+      {
+        SeriesInfo seriesInfo = new SeriesInfo();
+        seriesInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = seriesInfo;
+      }
       else if (mediaType == FanArtMediaTypes.SeriesSeason)
-        infoObject = new SeasonInfo().FromMetadata(mediaItem.Aspects);
+      {
+        SeasonInfo seasonInfo = new SeasonInfo();
+        seasonInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = seasonInfo;
+      }
       else if (mediaType == FanArtMediaTypes.Episode)
-        infoObject = new EpisodeInfo().FromMetadata(mediaItem.Aspects);
+      {
+        EpisodeInfo episodeInfo = new EpisodeInfo();
+        episodeInfo.FromMetadata(mediaItem.Aspects);
+        infoObject = episodeInfo;
+      }
 
       fanArtFiles.AddRange(SeriesTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
       fanArtFiles.AddRange(SeriesTvDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
