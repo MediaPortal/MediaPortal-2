@@ -32,9 +32,9 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -43,24 +43,24 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
     private static readonly Guid[] OPTIONAL_MIAS = { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
-    private static Dictionary<string, string> fanArtScopeMap = new Dictionary<string, string>()
+    private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
     {
-      { FanArtMediaTypes.Album, FanArtScope.Album },
-      { FanArtMediaTypes.Audio, FanArtScope.Album },
-      { FanArtMediaTypes.Artist, FanArtScope.Artist },
-      { FanArtMediaTypes.Composer, FanArtScope.Writer },
-      { FanArtMediaTypes.MusicLabel, FanArtScope.Label },
+       FanArtMediaTypes.Album,
+       FanArtMediaTypes.Audio,
+       FanArtMediaTypes.Artist,
+       FanArtMediaTypes.Composer,
+       FanArtMediaTypes.MusicLabel,
     };
 
-    private static Dictionary<string, string> fanArtTypeMap = new Dictionary<string, string>()
+    private static readonly List<string> VALID_FANART_TYPES = new List<string>()
     {
-      { FanArtTypes.Banner, FanArtType.Banners },
-      { FanArtTypes.ClearArt, FanArtType.ClearArt },
-      { FanArtTypes.DiscArt, FanArtType.DiscArt },
-      { FanArtTypes.FanArt, FanArtType.Backdrops },
-      { FanArtTypes.Logo, FanArtType.Logos },
-      { FanArtTypes.Poster, FanArtType.Posters },
-      { FanArtTypes.Thumbnail, FanArtType.Thumbnails },
+      FanArtTypes.Banner,
+      FanArtTypes.ClearArt,
+      FanArtTypes.DiscArt,
+      FanArtTypes.FanArt,
+      FanArtTypes.Logo,
+      FanArtTypes.Poster,
+      FanArtTypes.Thumbnail,
     };
 
     /// <summary>
@@ -79,7 +79,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     {
       result = null;
 
-      if (!fanArtScopeMap.ContainsKey(mediaType) || !fanArtTypeMap.ContainsKey(fanArtType))
+      if (!VALID_MEDIA_TYPES.Contains(mediaType) || !VALID_FANART_TYPES.Contains(fanArtType))
         return false;
 
       if (string.IsNullOrWhiteSpace(name))
@@ -110,9 +110,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       else if (mediaType == FanArtMediaTypes.Album)
         infoObject = new AlbumInfo().FromMetadata(mediaItem.Aspects);
 
-      fanArtFiles.AddRange(MusicTheAudioDbMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
-      fanArtFiles.AddRange(MusicBrainzMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
-      fanArtFiles.AddRange(MusicFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
+      fanArtFiles.AddRange(MusicTheAudioDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(MusicBrainzMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(MusicFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
 
       List<IResourceLocator> files = new List<IResourceLocator>();
       try

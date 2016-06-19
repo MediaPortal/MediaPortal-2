@@ -32,7 +32,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
@@ -44,25 +43,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
     private static readonly Guid[] OPTIONAL_MIAS = { MovieAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
-    private static Dictionary<string, string> fanArtScopeMap = new Dictionary<string, string>()
+    private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
     {
-      { FanArtMediaTypes.Movie, FanArtScope.Movie },
-      { FanArtMediaTypes.MovieCollection, FanArtScope.Collection },
-      { FanArtMediaTypes.Actor, FanArtScope.Actor },
-      { FanArtMediaTypes.Director, FanArtScope.Director },
-      { FanArtMediaTypes.Writer, FanArtScope.Writer },
-      { FanArtMediaTypes.Company, FanArtScope.Company },
+       FanArtMediaTypes.Movie,
+       FanArtMediaTypes.MovieCollection,
+       FanArtMediaTypes.Actor,
+       FanArtMediaTypes.Director,
+       FanArtMediaTypes.Writer,
+       FanArtMediaTypes.Company,
     };
 
-    private static Dictionary<string, string> fanArtTypeMap = new Dictionary<string, string>()
+    private static readonly List<string> VALID_FANART_TYPES = new List<string>()
     {
-      { FanArtTypes.Banner, FanArtType.Banners },
-      { FanArtTypes.ClearArt, FanArtType.ClearArt },
-      { FanArtTypes.DiscArt, FanArtType.DiscArt },
-      { FanArtTypes.FanArt, FanArtType.Backdrops },
-      { FanArtTypes.Logo, FanArtType.Logos },
-      { FanArtTypes.Poster, FanArtType.Posters },
-      { FanArtTypes.Thumbnail, FanArtType.Thumbnails },
+      FanArtTypes.ClearArt,
+      FanArtTypes.DiscArt,
+      FanArtTypes.FanArt,
+      FanArtTypes.Logo,
+      FanArtTypes.Poster,
+      FanArtTypes.Thumbnail,
+      FanArtTypes.Banner,
     };
 
     /// <summary>
@@ -81,7 +80,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     {
       result = null;
 
-      if (!fanArtScopeMap.ContainsKey(mediaType) || !fanArtTypeMap.ContainsKey(fanArtType))
+      if (!VALID_MEDIA_TYPES.Contains(mediaType) || !VALID_FANART_TYPES.Contains(fanArtType))
         return false;
 
       if (string.IsNullOrWhiteSpace(name))
@@ -114,8 +113,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       else if (mediaType == FanArtMediaTypes.MovieCollection)
         infoObject = new MovieCollectionInfo().FromMetadata(mediaItem.Aspects);
 
-      fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
-      fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, fanArtScopeMap[mediaType], fanArtTypeMap[fanArtType]));
+      fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
 
       List<IResourceLocator> files = new List<IResourceLocator>();
       try

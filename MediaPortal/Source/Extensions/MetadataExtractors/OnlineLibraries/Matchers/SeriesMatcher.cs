@@ -1314,7 +1314,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
         }
 
-        scope = FanArtMediaTypes.Network;
+        scope = FanArtMediaTypes.TVNetwork;
         List<CompanyInfo> networks = seriesInfo.Networks;
         if (companies != null && companies.Count > 0)
         {
