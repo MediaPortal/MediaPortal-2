@@ -58,11 +58,18 @@
           </Grid.IsVisible>
 
           <!---Listview Details-->
-          <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>
               <Include Source="screens\MultiListDetails.inc"/>
             </Control.TemplateControl>
           </Control>
+          
+          <!--Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\MultiListDetails.inc"/>
+            </Control.TemplateControl>
+          </-->
         </Grid>
       </Grid>
     </ControlTemplate>
