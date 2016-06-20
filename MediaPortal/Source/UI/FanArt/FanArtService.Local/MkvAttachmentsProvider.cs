@@ -35,6 +35,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
@@ -72,6 +73,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       MediaItem mediaItem = items.First();
+      var resourceLocator = mediaItem.GetResourceLocator();
+      // Virtual resources won't have any local fanart
+      if (resourceLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        return false;
 
       string fileSystemPath = string.Empty;
       IList<string> patterns = new List<string>();
@@ -99,7 +104,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       // File based access
       try
       {
-        var resourceLocator = mediaItem.GetResourceLocator();
         using (var accessor = resourceLocator.CreateAccessor())
         {
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
