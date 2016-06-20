@@ -112,6 +112,7 @@
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByMovieCollectionCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeasonEpisodeCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesSeasonCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesCriterion.cs" />

@@ -533,6 +533,13 @@ namespace MediaPortal.UiComponents.Media.General
           EpisodeAspect.ASPECT_ID,
       };
 
+    public static readonly Guid[] NECESSARY_MOVIE_COLLECTION_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          MovieCollectionAspect.ASPECT_ID
+      };
+
     public static readonly Guid[] NECESSARY_MOVIES_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,
