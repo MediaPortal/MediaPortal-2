@@ -249,6 +249,7 @@ namespace MediaPortal.UI.Players.Video
         int hr = mc.Run();
         new HRESULT(hr).Throw();
 
+        AddSubtitleEngine();
         _initialized = true;
         OnGraphRunning();
       }
@@ -442,9 +443,9 @@ namespace MediaPortal.UI.Players.Video
         new HRESULT(hr).Throw();
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
-        AddSubtitleFilter();
+        // AddSubtitleFilter();
 
-        using(DSFilter source2 = new DSFilter(sourceFilter))
+        using (DSFilter source2 = new DSFilter(sourceFilter))
           hr = source2.OutputPin.Render();
         new HRESULT(hr).Throw();
 
@@ -458,6 +459,10 @@ namespace MediaPortal.UI.Players.Video
     /// Adds subtitle filter if any.
     /// </summary>
     protected virtual void AddSubtitleFilter()
+    {
+    }
+
+    protected virtual void AddSubtitleEngine()
     {
     }
 

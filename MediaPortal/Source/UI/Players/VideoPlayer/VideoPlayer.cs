@@ -33,14 +33,17 @@ using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Settings;
+using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
@@ -51,7 +54,7 @@ using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Video
 {
-  public class VideoPlayer : BaseDXPlayer, ISharpDXVideoPlayer, ISubtitlePlayer, IChapterPlayer, ITitlePlayer, IResumablePlayer
+  public class VideoPlayer : BaseDXPlayer, ISharpDXMultiTexturePlayer, ISubtitlePlayer, IChapterPlayer, ITitlePlayer, IResumablePlayer
   {
     #region Classes & interfaces
 
@@ -102,6 +105,8 @@ namespace MediaPortal.UI.Players.Video
     // DirectShow objects
     protected IBaseFilter _evr;
     protected EVRCallback _evrCallback;
+    protected GraphRebuilder _graphRebuilder;
+    protected IBaseFilter _subsFilter = null;
 
     // Managed Direct3D Resources
     protected Size _displaySize = new Size(100, 100);
@@ -138,6 +143,7 @@ namespace MediaPortal.UI.Players.Video
     protected string[] _chapterNames = null;
 
     protected bool _textureInvalid = true;
+    protected MpcSubsRenderer _mpcSubsRenderer;
 
     #endregion
 
@@ -153,6 +159,7 @@ namespace MediaPortal.UI.Players.Video
         throw new EnvironmentException("This video player can only run on Windows Vista or above");
 
       PlayerTitle = "VideoPlayer";
+      _mpcSubsRenderer = new MpcSubsRenderer(OnTextureInvalidated);
     }
 
     #endregion
@@ -188,6 +195,23 @@ namespace MediaPortal.UI.Players.Video
         return;
       }
       _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
+    }
+
+    protected override void AddSubtitleEngine()
+    {
+      var fileSystemResourceAccessor = _resourceAccessor as IFileSystemResourceAccessor;
+      if (fileSystemResourceAccessor != null)
+      {
+        SubtitleStyle defStyle = new SubtitleStyle();
+        defStyle.Load();
+        MpcSubtitles.SetDefaultStyle(ref defStyle, false);
+
+        IntPtr upDevice = SkinContext.Device.NativePointer;
+        string filename = fileSystemResourceAccessor.ResourcePathName;
+
+        MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", 0);
+        MpcSubtitles.SetEnable(true);
+      }
     }
 
     #endregion
@@ -319,6 +343,7 @@ namespace MediaPortal.UI.Players.Video
             return null;
 
           PostProcessTexture(videoTexture);
+         // _mpcSubsRenderer.DrawItem();
           _textureInvalid = false;
           return videoTexture;
         }
@@ -336,7 +361,13 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     /// <param name="targetTexture"></param>
     protected virtual void PostProcessTexture(Texture targetTexture)
-    { }
+    {}
+
+    public virtual Texture[] TexturePlanes
+    {
+      get { return _mpcSubsRenderer.TexturePlanes; }
+    }
+
 
     public IGeometry GeometryOverride
     {
