@@ -32,65 +32,75 @@ using MediaPortal.UI.General;
 
 namespace MediaPortal.UiComponents.Diagnostics.Service
 {
-  public class DiagnosticsHandler : IDisposable
-  {
-    private AsynchronousMessageQueue _messageQueue;
-
-    public DiagnosticsHandler()
+    public class DiagnosticsHandler : IDisposable
     {
-      ChangeLogLevel();
-      SubscribeToMessages();
-    }
+        private AsynchronousMessageQueue _messageQueue;
 
-    public void Dispose()
-    {
-      UnsubscribeFromMessages();
-    }
-
-    private void SubscribeToMessages()
-    {
-      if (_messageQueue != null)
-        return;
-      _messageQueue = new AsynchronousMessageQueue(this, new[] { WindowsMessaging.CHANNEL, });
-      _messageQueue.PreviewMessage += OnPreviewMessage;
-      _messageQueue.Start();
-    }
-
-    private void UnsubscribeFromMessages()
-    {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
-    }
-
-    private void OnPreviewMessage(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == WindowsMessaging.CHANNEL)
-      {
-        WindowsMessaging.MessageType messageType = (WindowsMessaging.MessageType)message.MessageType;
-        switch (messageType)
+        public DiagnosticsHandler()
         {
-          case WindowsMessaging.MessageType.WindowsBroadcast:
-            Message msg = (Message)message.MessageData[WindowsMessaging.MESSAGE];
-            HandleWindowsMessage(ref msg);
-            message.MessageData[WindowsMessaging.MESSAGE] = msg;
-            break;
+            //SetLogLevel(Level.Debug);
+            //SubscribeToMessages();
         }
-      }
-    }
 
-    protected virtual void HandleWindowsMessage(ref Message m)
-    {
-      ActivationMonitor.HandleMessage(ref m);
-    }
+        public void Dispose()
+        {
+            //UnsubscribeFromMessages();
+            FocusSteelingMonitor.Instance.Dispose();
+        }
 
-    private void ChangeLogLevel()
-    {
-      var loggerRepository = (log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository();
-      loggerRepository.Root.Level = Level.Debug;
-      loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
-      ServiceRegistration.Get<Common.Logging.ILogger>().Debug("DiagnosticService: Switched LogLevel to DEBUG.");
+        //private void SubscribeToMessages()
+        //{
+        //  if (_messageQueue != null)
+        //    return;
+        //  _messageQueue = new AsynchronousMessageQueue(this, new[] { WindowsMessaging.CHANNEL, });
+        //  _messageQueue.PreviewMessage += OnPreviewMessage;
+        //  _messageQueue.Start();
+        //}
+
+        //private void UnsubscribeFromMessages()
+        //{
+        //  if (_messageQueue == null)
+        //    return;
+        //  _messageQueue.Shutdown();
+        //  _messageQueue = null;
+        //}
+
+        //private void OnPreviewMessage(AsynchronousMessageQueue queue, SystemMessage message)
+        //{
+        //  if (message.ChannelName == WindowsMessaging.CHANNEL)
+        //  {
+        //    WindowsMessaging.MessageType messageType = (WindowsMessaging.MessageType)message.MessageType;
+        //    switch (messageType)
+        //    {
+        //      case WindowsMessaging.MessageType.WindowsBroadcast:
+        //        Message msg = (Message)message.MessageData[WindowsMessaging.MESSAGE];
+        //        HandleWindowsMessage(ref msg);
+        //        message.MessageData[WindowsMessaging.MESSAGE] = msg;
+        //        break;
+        //    }
+        //  }
+        //}
+
+        //protected virtual void HandleWindowsMessage(ref Message m)
+        //{
+        //  ActivationMonitor.HandleMessage(ref m);
+        //}
+
+        internal static void SetLogLevel(Level level)
+        {
+            var loggerRepository = (log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository();
+            loggerRepository.Root.Level = level;
+            loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
+            ServiceRegistration.Get<Common.Logging.ILogger>().Debug("DiagnosticService: Switched LogLevel to DEBUG.");
+        }
+
+        internal static Level GetLogLevel()
+        {
+            Level returnValue = Level.Info;
+            var loggerRepository = (log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository();
+            returnValue = loggerRepository.Root.Level;
+            return returnValue;
+        }
+
     }
-  }
 }
