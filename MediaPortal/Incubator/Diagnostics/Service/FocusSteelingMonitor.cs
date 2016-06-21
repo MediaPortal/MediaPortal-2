@@ -17,6 +17,9 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
 
         #region Properties
 
+        /// <summary>
+        /// Guaranteed unique access to focus steeling mechanism
+        /// </summary>
         internal static FocusSteelingMonitor Instance
         {
             get
@@ -29,7 +32,8 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
             }
         }
 
-        internal bool IsMonitoring { get; set; }
+        internal bool IsMonitoring { get; private set; }
+
         #endregion Properties
 
         #region Methods
@@ -39,6 +43,9 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
             UnsubscribeFromMessages();
         }
 
+        /// <summary>
+        /// Subscribe to message & start focus steeling monitoring
+        /// </summary>
         internal void SubscribeToMessages()
         {
             if (_messageQueue != null)
@@ -49,6 +56,9 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
             IsMonitoring = true;
         }
 
+        /// <summary>
+        /// Unsubscribe from message & stop focus steeling monitoring
+        /// </summary>
         internal void UnsubscribeFromMessages()
         {
             if (_messageQueue == null)
