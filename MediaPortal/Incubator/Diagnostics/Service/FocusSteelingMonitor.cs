@@ -31,7 +31,10 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
                 return _instance;
             }
         }
-
+        
+        /// <summary>
+        /// Gets a value indicating the execution status
+        /// </summary>
         internal bool IsMonitoring { get; private set; }
 
         #endregion Properties

@@ -1,5 +1,3 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
-
 /*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
@@ -20,40 +18,26 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
-
-using System;
-using System.Windows.Forms;
 using log4net;
 using log4net.Core;
 using MediaPortal.Common;
-using MediaPortal.Common.Messaging;
-using MediaPortal.UI.General;
+using System;
 
 namespace MediaPortal.UiComponents.Diagnostics.Service
 {
+    /// <summary>
+    /// Provide Diagnostics toolbox:
+    /// - Enable DEBUG logging in Client
+    /// - Enable logging of potential focus steeling
+    /// - Collect log files
+    /// </summary>
     public class DiagnosticsHandler : IDisposable
     {
-
-        public DiagnosticsHandler()
-        {
-        }
+        #region Methods
 
         public void Dispose()
         {
             FocusSteelingMonitor.Instance.Dispose();
-        }
-
-        /// <summary>
-        /// Set Log Level
-        /// </summary>
-        /// <param name="level">desired log level</param>
-        internal static void SetLogLevel(Level level)
-        {
-            var loggerRepository = (log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository();
-            loggerRepository.Root.Level = level;
-            loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
-            ServiceRegistration.Get<Common.Logging.ILogger>().Debug(string.Format( "DiagnosticService: Switched LogLevel to {0}" , level.ToString()) );
         }
 
         /// <summary>
@@ -68,5 +52,18 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
             return returnValue;
         }
 
+        /// <summary>
+        /// Set Log Level
+        /// </summary>
+        /// <param name="level">desired log level</param>
+        internal static void SetLogLevel(Level level)
+        {
+            var loggerRepository = (log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository();
+            loggerRepository.Root.Level = level;
+            loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
+            ServiceRegistration.Get<Common.Logging.ILogger>().Debug(string.Format("DiagnosticService: Switched LogLevel to {0}", level.ToString()));
+        }
+
+        #endregion Methods
     }
 }
