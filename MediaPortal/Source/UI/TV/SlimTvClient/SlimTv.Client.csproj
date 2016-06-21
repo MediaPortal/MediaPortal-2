@@ -460,6 +460,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\MediaItemRecordingDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemRecordingListDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\ProgramInfoMain.inc" />
     <Content Include="Skin\WMCSkin\screens\ProgramInfoSchedule.inc" />
     <Content Include="Skin\WMCSkin\screens\ProgramInfo.inc" />
@@ -505,6 +507,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\SlimTvClient-main.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\RecordingsShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

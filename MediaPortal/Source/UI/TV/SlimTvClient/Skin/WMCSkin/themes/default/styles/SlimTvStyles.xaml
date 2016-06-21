@@ -875,10 +875,11 @@
   <DataTemplate DataType="{x:Type navitems:ChannelFilterItem}">
     <Control>
       <Control.Template>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ListViewChannelFilterItemTemplate}"/>
           <Binding Source="{StaticResource GridViewChannelFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewVideoItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -944,10 +945,11 @@
   <DataTemplate DataType="{x:Type navitems:RecordingItem}">
     <Control>
       <Control.Template>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ListViewRecordingItemTemplate}"/>
           <Binding Source="{StaticResource GridViewVideoItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewVideoItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
