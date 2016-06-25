@@ -38,6 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     #region Protected fields
 
     protected UIElement _element;
+    protected bool _triggerState;
     protected AbstractProperty _enterActionsProperty;
     protected AbstractProperty _exitActionsProperty;
     protected AbstractProperty _settersProperty;
@@ -145,6 +146,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     protected void ExecuteTriggerStartActions()
     {
+      if (_triggerState)
+        return;
+      _triggerState = true;
       foreach (TriggerAction action in EnterActions)
         action.Execute(_element);
       foreach (Setter s in Setters)
@@ -153,6 +157,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     protected void ExecuteTriggerEndActions()
     {
+      if (!_triggerState)
+        return;
+      _triggerState = false;
       foreach (TriggerAction action in ExitActions)
         action.Execute(_element);
       foreach (Setter s in Setters)
