@@ -109,9 +109,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes == null)
       {
         episodes = new List<EpisodeInfo>();
-        EpisodeInfo info = new EpisodeInfo
+        EpisodeInfo info = new EpisodeInfo()
         {
-          SeriesName = episodeSearch.SeriesName,
+          SeriesName = seriesSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
         };
@@ -266,6 +266,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         seasonDetails = _omDbHandler.GetSeriesSeason(series.ImdbId, seasonNumber, cacheOnly);
         if (seasonDetails != null)
         {
+          foreach(OmDbSeasonEpisode episodeDetail in seasonDetails.Episodes)
+          {
+            EpisodeInfo info = new EpisodeInfo()
+            {
+              ImdbId = episodeDetail.ImdbID,
+
+              SeriesImdbId = seriesDetail.ImdbID,
+              SeriesName = new LanguageText(seriesDetail.Title, true),
+              SeriesFirstAired = series.FirstAired,
+
+              SeasonNumber = seasonNumber,
+              EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+              FirstAired = episodeDetail.Released,
+              EpisodeName = new LanguageText(episodeDetail.Title, true),
+            };
+
+            series.Episodes.Add(info);
+          }
+
           OmDbSeasonEpisode episodeDetails = seasonDetails.Episodes.Where(e => e.Released > DateTime.Now).FirstOrDefault();
           if (episodeDetails == null)
           {

@@ -252,6 +252,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         album.TotalTracks = discInfo.Tracks.Count();
         album.ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?);
 
+        foreach (FreeDBCDTrackDetail trackDetail in discInfo.Tracks)
+        {
+          TrackInfo track = new TrackInfo()
+          {
+            AlbumCdDdId = album.CdDdId,
+            Album = discInfo.Title,
+            AlbumArtists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST),
+            TotalTracks = discInfo.Tracks.Count(),
+            ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?),
+
+            TrackNum = trackDetail.TrackNumber,
+            TrackName = trackDetail.Title,
+            Artists = ConvertToPersons(trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST),
+            Duration = trackDetail.Duration
+          };
+          album.Tracks.Add(track);
+        }
+
         return true;
       }
       return false;

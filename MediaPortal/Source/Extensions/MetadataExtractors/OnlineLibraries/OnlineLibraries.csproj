@@ -293,10 +293,12 @@
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSearchResult.cs" />
     <Compile Include="Libraries\TvMazeV1\TvMazeApiV1.cs" />
     <Compile Include="Matchers\MusicMatcher.cs" />
+    <Compile Include="Matchers\SimpleNameMatcher.cs" />
     <Compile Include="Matchers\SeriesMatcher.cs" />
     <Compile Include="Matchers\MovieMatcher.cs" />
     <Compile Include="Matchers\MovieFanArtTvMatcher.cs" />
     <Compile Include="Matchers\MovieOmDbMatcher.cs" />
+    <Compile Include="Matches\SimpleNameMatch.cs" />
     <Compile Include="MetadataUpdater.cs" />
     <Compile Include="SerializableRegex.cs" />
     <Compile Include="Wrappers\ApiWrapperImageCollection.cs" />

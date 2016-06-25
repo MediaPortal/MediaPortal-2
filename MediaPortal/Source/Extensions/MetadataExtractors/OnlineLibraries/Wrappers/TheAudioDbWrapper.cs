@@ -194,7 +194,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineMusicPerson(PersonInfo person, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
     {
       AudioDbArtist artistDetail = null;
       language = language ?? PreferredLanguage;
@@ -232,8 +232,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return true;
     }
 
+    public override bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
+    {
+      return UpdateFromOnlineMusicTrackAlbumPerson(trackInfo.CloneBasicAlbum(), person, language, cacheOnly);
+    }
+
     public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
     {
+      bool cacheIncomplete = false;
       AudioDbTrack trackDetail = null;
       language = language ?? PreferredLanguage;
 
@@ -276,15 +282,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (trackDetail.AlbumId.HasValue)
       {
         AudioDbAlbum album = _audioDbHandler.GetAlbum(trackDetail.AlbumId.Value, cacheOnly);
+        if (cacheOnly && album == null)
+          cacheIncomplete = true;
         if (album != null && album.LabelId.HasValue)
           track.MusicLabels = ConvertToCompanies(album.LabelId.Value, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
       }
 
-      return true;
+      return !cacheIncomplete;
     }
 
     public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
     {
+      bool cacheIncomplete = false;
       AudioDbAlbum albumDetail = null;
       language = language ?? PreferredLanguage;
 
@@ -321,10 +330,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
 
       List<AudioDbTrack> albumTracks = _audioDbHandler.GetTracksByAlbumId(albumDetail.AlbumId, cacheOnly);
-      if(albumTracks != null && albumTracks.Count > 0)
+      if (cacheOnly && albumTracks == null)
+        cacheIncomplete = true;
+      if (albumTracks != null && albumTracks.Count > 0)
+      {
         album.TotalTracks = albumTracks.Count;
 
-      return true;
+        foreach(AudioDbTrack trackDetail in albumTracks)
+        {
+          trackDetail.SetLanguage(language);
+
+          TrackInfo track = new TrackInfo();
+          track.AudioDbId = trackDetail.TrackId;
+          track.MusicBrainzId = trackDetail.MusicBrainzID;
+          track.AlbumAudioDbId = trackDetail.AlbumId.HasValue ? trackDetail.AlbumId.Value : 0;
+          track.AlbumMusicBrainzGroupId = trackDetail.MusicBrainzAlbumID;
+
+          track.TrackName = trackDetail.Track;
+          track.Album = albumDetail.Album;
+          track.TrackNum = trackDetail.TrackNumber;
+          track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 0;
+          track.TotalRating = trackDetail.Rating ?? 0;
+          track.RatingCount = trackDetail.RatingCount ?? 0;
+          track.TrackLyrics = trackDetail.TrackLyrics;
+          track.Duration = trackDetail.Duration ?? 0;
+
+          if (trackDetail.ArtistId.HasValue)
+          {
+            track.Artists = ConvertToPersons(trackDetail.ArtistId.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+          }
+          track.Genres = new List<string>(new string[] { trackDetail.Genre });
+
+          track.AlbumArtists = album.Artists;
+          track.MusicLabels = album.MusicLabels;
+
+          album.Tracks.Add(track);
+        }
+      }
+
+      return !cacheIncomplete;
     }
 
     #endregion

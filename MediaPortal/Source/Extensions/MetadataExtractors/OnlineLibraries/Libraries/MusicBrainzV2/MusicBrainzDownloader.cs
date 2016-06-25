@@ -25,6 +25,7 @@
 using System;
 using System.Text;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using System.Net;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 {
@@ -51,6 +52,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       try
       {
         return webClient.DownloadString(url);
+      }
+      catch (WebException ex)
+      {
+        if(((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.ServiceUnavailable)
+        {
+          //Rate limiting
+          LIMITER.RequestDone();
+          LIMITER.RateLimit().Wait();
+          return webClient.DownloadString(url);
+        }
+        throw;
       }
       finally
       {

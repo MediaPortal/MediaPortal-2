@@ -103,7 +103,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         foreach (TvdbEpisode episode in seriesDetail.Episodes)
         {
-          if (episodeSearch.EpisodeNumbers.Contains(episode.EpisodeNumber) || episodeSearch.EpisodeNumbers.Count == 0)
+          if ((episodeSearch.EpisodeNumbers.Contains(episode.EpisodeNumber) || episodeSearch.EpisodeNumbers.Count == 0) && 
+            episode.AbsoluteNumber > 0)
           {
             if (episodes == null)
               episodes = new List<EpisodeInfo>();
@@ -128,13 +129,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         episodes = new List<EpisodeInfo>();
         EpisodeInfo info = new EpisodeInfo
         {
-          SeriesName = episodeSearch.SeriesName,
+          SeriesName = seriesSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
         info.EpisodeNumbers.AddRange(episodeSearch.EpisodeNumbers);
-        info.Languages = episodeSearch.Languages;
+        info.Languages = seriesSearch.Languages;
         episodes.Add(info);
         return true;
       }
@@ -201,8 +202,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
       series.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
 
+      foreach (TvdbEpisode episodeDetail in seriesDetail.Episodes)
+      {
+        if (episodeDetail.AbsoluteNumber < 0)
+          continue;
+
+        EpisodeInfo info = new EpisodeInfo()
+        {
+          TvMazeId = episodeDetail.Id,
+
+          SeriesTvdbId = seriesDetail.Id,
+          SeriesImdbId = seriesDetail.ImdbId,
+          SeriesName = new LanguageText(seriesDetail.SeriesName, false),
+          SeriesFirstAired = seriesDetail.FirstAired,
+
+          TvdbId = episodeDetail.Id,
+          ImdbId = episodeDetail.ImdbId,
+          SeasonNumber = episodeDetail.SeasonNumber,
+          EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+          DvdEpisodeNumbers = new List<double>(new double[] { episodeDetail.DvdEpisodeNumber }),
+          FirstAired = episodeDetail.FirstAired,
+          EpisodeName = new LanguageText(episodeDetail.EpisodeName, false),
+          Summary = new LanguageText(episodeDetail.Overview, false),
+          Genres = seriesDetail.Genre,
+          TotalRating = episodeDetail.Rating,
+          RatingCount = episodeDetail.RatingCount,
+        };
+
+        info.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
+        info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR, info.Actors.Count));
+        info.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
+        info.Directors = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, 0);
+        info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0);
+        info.Languages.Add(episodeDetail.Language.Abbriviation);
+
+        series.Episodes.Add(info);
+      }
+
       TvdbEpisode nextEpisode = seriesDetail.Episodes.Where(e => e.FirstAired > DateTime.Now).FirstOrDefault();
-      if (nextEpisode != null)
+      if (nextEpisode != null && nextEpisode.AbsoluteNumber > 0)
       {
         series.NextEpisodeName = nextEpisode.EpisodeName;
         series.NextEpisodeAirDate = nextEpisode.FirstAired;
@@ -271,7 +309,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         foreach (int episodeNumber in episode.EpisodeNumbers)
         {
-          episodeDetail = seriesDetail.Episodes.Where(e => e.EpisodeNumber == episodeNumber && e.SeasonNumber == episode.SeasonNumber.Value).FirstOrDefault();
+          episodeDetail = seriesDetail.Episodes.Where(e => e.EpisodeNumber == episodeNumber &&
+          e.SeasonNumber == episode.SeasonNumber.Value && e.AbsoluteNumber > 0).FirstOrDefault();
           if (episodeDetail == null) return false;
 
           EpisodeInfo info = new EpisodeInfo()

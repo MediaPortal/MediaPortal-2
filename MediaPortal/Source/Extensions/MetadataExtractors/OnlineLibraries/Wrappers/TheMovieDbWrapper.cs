@@ -202,6 +202,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
     {
+      bool cacheIncomplete = false;
       language = language ?? PreferredLanguage;
 
       Movie movieDetail = null;
@@ -238,7 +239,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       movie.Tagline = movieDetail.Tagline;
 
       MovieCasts movieCasts = _movieDbHandler.GetMovieCastCrew(movieDetail.Id, language, cacheOnly);
-      if(movieCasts != null)
+      if (cacheOnly && movieCasts == null)
+        cacheIncomplete = true;
+      if (movieCasts != null)
       {
         movie.Actors = ConvertToPersons(movieCasts.Cast, PersonAspect.OCCUPATION_ACTOR);
         movie.Writers = ConvertToPersons(movieCasts.Crew.Where(p => p.Job == "Author").ToList(), PersonAspect.OCCUPATION_WRITER);
@@ -246,7 +249,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         movie.Characters = ConvertToCharacters(movieCasts.Cast);
       }
 
-      return true;
+      return !cacheIncomplete;
     }
 
     public override bool UpdateFromOnlineMovieCollection(MovieCollectionInfo collection, string language, bool cacheOnly)
@@ -265,7 +268,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return true;
     }
 
-    public override bool UpdateFromOnlineMoviePerson(PersonInfo person, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, string language, bool cacheOnly)
     {
       language = language ?? PreferredLanguage;
 
@@ -298,7 +301,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return true;
     }
 
-    public override bool UpdateFromOnlineMovieCompany(CompanyInfo company, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, string language, bool cacheOnly)
+    {
+      bool cacheIncomplete = false;
+      language = language ?? PreferredLanguage;
+
+      if (movieInfo.MovieDbId <= 0)
+        return false;
+
+      MovieCasts movieCasts = _movieDbHandler.GetMovieCastCrew(movieInfo.MovieDbId, language, cacheOnly);
+      if (cacheOnly && movieCasts == null)
+        cacheIncomplete = true;
+      if (movieCasts != null)
+      {
+        List<CharacterInfo> characters = ConvertToCharacters(movieCasts.Cast);
+        int index = characters.IndexOf(character);
+        if(index >= 0)
+        {
+          character.ActorMovieDbId = characters[index].ActorMovieDbId;
+          character.ActorName = characters[index].ActorName;
+          character.Name = characters[index].Name;
+          character.Order = characters[index].Order;
+
+          return true;
+        }
+      }
+
+      return !cacheIncomplete;
+    }
+
+    public override bool UpdateFromOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, string language, bool cacheOnly)
     {
       language = language ?? PreferredLanguage;
 
@@ -318,6 +350,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
     {
+      bool cacheIncomplete = false;
       language = language ?? PreferredLanguage;
 
       Series seriesDetail = null;
@@ -365,19 +398,59 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           series.Certification = cert.ContentRating;
       }
 
-      MovieCasts movieCasts = _movieDbHandler.GetSeriesCastCrew(seriesDetail.Id, language, cacheOnly);
-      if (movieCasts != null)
+      MovieCasts seriesCast = _movieDbHandler.GetSeriesCastCrew(seriesDetail.Id, language, cacheOnly);
+      if (cacheOnly && seriesCast == null)
+        cacheIncomplete = true;
+      if (seriesCast != null)
       {
-        series.Actors = ConvertToPersons(movieCasts.Cast, PersonAspect.OCCUPATION_ACTOR);
-        series.Characters = ConvertToCharacters(movieCasts.Cast);
+        series.Actors = ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR);
+        series.Characters = ConvertToCharacters(seriesCast.Cast);
       }
 
       SeriesSeason season = seriesDetail.Seasons.Where(s => s.AirDate < DateTime.Now).LastOrDefault();
       if (season != null)
       {
         Season currentSeason = _movieDbHandler.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber, language, cacheOnly);
-        if(currentSeason != null)
+        if (cacheOnly && currentSeason == null)
+          cacheIncomplete = true;
+        if (currentSeason != null)
         {
+          foreach(SeasonEpisode episodeDetail in currentSeason.Episodes)
+          {
+            EpisodeInfo info = new EpisodeInfo()
+            {
+              SeriesMovieDbId = seriesDetail.Id,
+              SeriesImdbId = seriesDetail.ExternalId.ImDbId,
+              SeriesTvdbId = seriesDetail.ExternalId.TvDbId ?? 0,
+              SeriesTvRageId = seriesDetail.ExternalId.TvRageId ?? 0,
+              SeriesName = new LanguageText(seriesDetail.Name, false),
+              SeriesFirstAired = seriesDetail.FirstAirDate,
+
+              SeasonNumber = episodeDetail.SeasonNumber,
+              EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+              FirstAired = episodeDetail.AirDate,
+              TotalRating = episodeDetail.Rating ?? 0,
+              RatingCount = episodeDetail.RatingCount ?? 0,
+              EpisodeName = new LanguageText(episodeDetail.Name, false),
+              Summary = new LanguageText(episodeDetail.Overview, false),
+              Genres = seriesDetail.Genres.Select(g => g.Name).ToList(),
+            };
+
+            info.Actors = new List<PersonInfo>();
+            info.Characters = new List<CharacterInfo>();
+            if (seriesCast != null)
+            {
+              info.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR));
+              info.Characters.AddRange(ConvertToCharacters(seriesCast.Cast));
+            }
+            info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
+            info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
+            info.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
+            info.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER);
+
+            series.Episodes.Add(info);
+          }
+
           SeasonEpisode nextEpisode = currentSeason.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
           if (nextEpisode == null) //Try next season
           {
@@ -397,7 +470,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
       }
 
-      return true;
+      return !cacheIncomplete;
     }
 
     public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
@@ -433,6 +506,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
     {
+      bool cacheIncomplete = false;
       language = language ?? PreferredLanguage;
 
       List<EpisodeInfo> episodeDetails = new List<EpisodeInfo>();
@@ -445,6 +519,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         seriesDetail = _movieDbHandler.GetSeries(episode.SeriesMovieDbId, language, cacheOnly);
         if (seriesDetail == null) return false;
         seriesCast = _movieDbHandler.GetSeriesCastCrew(episode.SeriesMovieDbId, language, cacheOnly);
+        if (cacheOnly && seriesCast == null)
+          cacheIncomplete = true;
 
         foreach (int episodeNumber in episode.EpisodeNumbers)
         {
@@ -493,28 +569,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if(episodeDetails.Count > 1)
       {
         SetMultiEpisodeDetails(episode, episodeDetails);
-        return true;
+        return !cacheIncomplete;
       }
       else if (episodeDetails.Count > 0)
       {
         SetEpisodeDetails(episode, episodeDetails[0]);
-        return true;
+        return !cacheIncomplete;
       }
       return false;
     }
 
-    public override bool UpdateFromOnlineSeriesPerson(PersonInfo person, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineMoviePerson(person, language, cacheOnly);
+      return UpdateFromOnlineMoviePerson(null, person, language, cacheOnly);
     }
 
-    public override bool UpdateFromOnlineSeriesCompany(CompanyInfo company, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language, bool cacheOnly)
+    {
+      return UpdateFromOnlineMoviePerson(null, person, language, cacheOnly);
+    }
+
+    public override bool UpdateFromOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, string language, bool cacheOnly)
     {
       language = language ?? PreferredLanguage;
 
       if (company.Type == CompanyAspect.COMPANY_PRODUCTION)
       {
-        return UpdateFromOnlineMovieCompany(company, language, cacheOnly);
+        return UpdateFromOnlineMovieCompany(null, company, language, cacheOnly);
       }
       else if (company.Type == CompanyAspect.COMPANY_TV_NETWORK)
       {
@@ -529,6 +610,40 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return true;
       }
       return false;
+    }
+
+    public override bool UpdateFromOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, string language, bool cacheOnly)
+    {
+      bool cacheIncomplete = false;
+      language = language ?? PreferredLanguage;
+
+      if (seriesInfo.MovieDbId <= 0)
+        return false;
+
+      MovieCasts seriesCast = _movieDbHandler.GetSeriesCastCrew(seriesInfo.MovieDbId, language, cacheOnly);
+      if (cacheOnly && seriesCast == null)
+        cacheIncomplete = true;
+      if (seriesCast != null)
+      {
+        List<CharacterInfo> characters = ConvertToCharacters(seriesCast.Cast);
+        int index = characters.IndexOf(character);
+        if (index >= 0)
+        {
+          character.ActorMovieDbId = characters[index].ActorMovieDbId;
+          character.ActorName = characters[index].ActorName;
+          character.Name = characters[index].Name;
+          character.Order = characters[index].Order;
+
+          return true;
+        }
+      }
+
+      return !cacheIncomplete;
+    }
+
+    public override bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language, bool cacheOnly)
+    {
+      return UpdateFromOnlineSeriesCharacter(episodeInfo.CloneBasicSeries(), character, language, cacheOnly);
     }
 
     #endregion

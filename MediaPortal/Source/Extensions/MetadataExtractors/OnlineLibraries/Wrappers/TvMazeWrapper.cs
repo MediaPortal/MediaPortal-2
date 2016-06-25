@@ -193,6 +193,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         if(seriesDetail.Embedded.Episodes != null)
         {
+          foreach(TvMazeEpisode episodeDetail in seriesDetail.Embedded.Episodes)
+          {
+            EpisodeInfo info = new EpisodeInfo()
+            {
+              TvMazeId = episodeDetail.Id,
+
+              SeriesTvMazeId = seriesDetail.Id,
+              SeriesImdbId = seriesDetail.Externals.ImDbId,
+              SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
+              SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
+              SeriesName = new LanguageText(seriesDetail.Name, true),
+              SeriesFirstAired = seriesDetail.Premiered,
+
+              SeasonNumber = episodeDetail.SeasonNumber,
+              EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+              FirstAired = episodeDetail.AirDate,
+              EpisodeName = new LanguageText(episodeDetail.Name, true),
+              Summary = new LanguageText(episodeDetail.Summary, true),
+              Genres = seriesDetail.Genres,
+            };
+
+            info.Actors = series.Actors;
+            info.Characters = series.Characters;
+
+            series.Episodes.Add(info);
+          }
+
           TvMazeEpisode nextEpisode = seriesDetail.Embedded.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
           if (nextEpisode != null)
           {
@@ -211,12 +238,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       TvMazeSeries seriesDetail = null;
       TvMazeSeason seasonDetail = null;
-      if (season.SeriesMovieDbId > 0)
-        seriesDetail = _tvMazeHandler.GetSeries(season.SeriesMovieDbId, cacheOnly);
+      if (season.SeriesTvMazeId > 0)
+        seriesDetail = _tvMazeHandler.GetSeries(season.SeriesTvMazeId, cacheOnly);
       if (seriesDetail == null) return false;
-      if (season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
+      if (season.SeriesTvMazeId > 0 && season.SeasonNumber.HasValue)
       {
-        List<TvMazeSeason> seasons = _tvMazeHandler.GetSeriesSeasons(season.SeriesMovieDbId, cacheOnly);
+        List<TvMazeSeason> seasons = _tvMazeHandler.GetSeriesSeasons(season.SeriesTvMazeId, cacheOnly);
         if (seasons != null)
           seasonDetail = seasons.Where(s => s.SeasonNumber == season.SeasonNumber).FirstOrDefault();
       }
@@ -297,7 +324,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public override bool UpdateFromOnlineSeriesPerson(PersonInfo person, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, string language, bool cacheOnly)
     {
       TvMazePerson personDetail = null;
       if (person.TvMazeId > 0)
@@ -310,17 +337,41 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return true;
     }
 
-    public override bool UpdateFromOnlineSeriesCharacter(CharacterInfo character, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      TvMazePerson personDetail = null;
-      if (character.TvMazeId > 0)
-        personDetail = _tvMazeHandler.GetCharacter(character.TvMazeId, cacheOnly);
-      if (personDetail == null) return false;
+      return UpdateFromOnlineSeriesPerson(episodeInfo.CloneBasicSeries(), person, language, cacheOnly);
+    }
 
-      character.TvMazeId = personDetail.Id;
-      character.Name = personDetail.Name;
+    public override bool UpdateFromOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, string language, bool cacheOnly)
+    {
+      TvMazeSeries seriesDetail = null;
+      if (seriesInfo.TvMazeId > 0)
+        seriesDetail = _tvMazeHandler.GetSeries(seriesInfo.TvMazeId, cacheOnly);
+      if (seriesDetail == null) return false;
+      if (seriesDetail.Embedded != null)
+      {
+        if (seriesDetail.Embedded.Cast != null)
+        {
+          List<CharacterInfo> characters = ConvertToCharacters(seriesDetail.Embedded.Cast);
+          int index = characters.IndexOf(character);
+          if (index >= 0)
+          {
+            character.ActorMovieDbId = characters[index].ActorMovieDbId;
+            character.ActorName = characters[index].ActorName;
+            character.Name = characters[index].Name;
+            character.Order = characters[index].Order;
 
-      return true;
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    public override bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language, bool cacheOnly)
+    {
+      return UpdateFromOnlineSeriesCharacter(episodeInfo.CloneBasicSeries(), character, language, cacheOnly);
     }
 
     #endregion

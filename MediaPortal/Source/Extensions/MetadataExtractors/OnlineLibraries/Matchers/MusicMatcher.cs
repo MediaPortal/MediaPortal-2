@@ -48,15 +48,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "MusicMatches.xml");
       _maxCacheDuration = maxCacheDuration;
+
+      _artistMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ArtistMatches.xml"));
+      _composerMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ComposerMatches.xml"));
+      _labelMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "LabelMatches.xml"));
+
+      Init();
     }
 
-    private new bool Init()
+    public override bool Init()
     {
-      if (!base.Init())
-        return false;
-
       if (_wrapper != null)
         return true;
+
+      if (!base.Init())
+        return false;
 
       return InitWrapper();
     }
@@ -81,6 +87,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private string _cachePath;
     private string _matchesSettingsFile;
     private TimeSpan _maxCacheDuration;
+
+    private SimpleNameMatcher _artistMatcher;
+    private SimpleNameMatcher _composerMatcher;
+    private SimpleNameMatcher _labelMatcher;
 
     /// <summary>
     /// Contains the initialized MovieWrapper.
@@ -123,8 +133,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           // Use cached values before doing online query
           TrackMatch match = matches.Find(m =>
-            string.Equals(m.ItemName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase) &&
-            !string.IsNullOrEmpty(m.AlbumName) && trackInfo.Album != null ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true &&
+            (string.Equals(m.ItemName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+            (!string.IsNullOrEmpty(m.AlbumName) && !string.IsNullOrEmpty(trackInfo.Album) ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true) &&
             ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum) || trackInfo.TrackNum <= 0 || m.TrackNum <= 0)));
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Try to lookup movie \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
 
@@ -151,6 +161,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 if (_wrapper.UpdateFromOnlineMusicTrack(trackMatch, language, false))
                   matchFound = true;
               }
+            }
+            else
+            {
+              matchFound = true;
             }
           }
         }
@@ -186,6 +200,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers, true);
           MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels, true);
+
+          //Store person matches
+          foreach (PersonInfo person in trackInfo.AlbumArtists)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+              _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
+          }
+          foreach (PersonInfo person in trackInfo.Artists)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+              _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
+          }
+          foreach (PersonInfo person in trackInfo.Composers)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+              _composerMatcher.StoreNameMatch(id, person.Name, person.Name);
+          }
+
+          //Store company matches
+          foreach (CompanyInfo company in trackInfo.MusicLabels)
+          {
+            string id;
+            if (GetCompanyId(company, out id))
+              _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
+          }
 
           MetadataUpdater.SetOrUpdateValue(ref trackMatch.Thumbnail, trackMatch.Thumbnail);
           if (trackInfo.Thumbnail == null)
@@ -226,26 +268,46 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         TrackInfo trackMatch = CloneProperties(trackInfo);
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ARTIST)
+        {
           persons = trackMatch.Artists;
+          foreach (PersonInfo person in persons)
+          {
+            string id;
+            if (_artistMatcher.GetNameMatch(person.Name, out id))
+              SetPersonId(person, id);
+          }
+        }
         else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
+        {
           persons = trackMatch.Composers;
         foreach (PersonInfo person in persons)
         {
+            string id;
+            if (_composerMatcher.GetNameMatch(person.Name, out id))
+              SetPersonId(person, id);
+          }
+        }
+        foreach (PersonInfo person in persons)
+        {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMusicPerson(person, language, true))
+          if (!_wrapper.UpdateFromOnlineMusicTrackPerson(trackMatch, person, language, true))
           {
             if (!forceQuickMode)
             {
               //Try to update person information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMusicPerson(person, language, false))
+              if (!_wrapper.UpdateFromOnlineMusicTrackPerson(trackMatch, person, language, false))
               {
                 //Search for the person online and update the Ids if a match is found
                 if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
                 {
                   //Ids were updated now try to fetch the online person info
-                  if (_wrapper.UpdateFromOnlineMusicPerson(person, language, false))
+                  if (_wrapper.UpdateFromOnlineMusicTrackPerson(trackMatch, person, language, false))
                     updated = true;
                 }
+              }
+              else
+              {
+                updated = true;
               }
             }
           }
@@ -268,6 +330,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in trackInfo.Artists)
           {
+            string id;
+            if (GetPersonId(person, out id))
+              _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
+
             if (person.Thumbnail == null)
             {
               thumbs = GetFanArtFiles(person, FanArtMediaTypes.Artist, FanArtTypes.Thumbnail);
@@ -280,6 +346,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in trackInfo.Composers)
           {
+            string id;
+            if (GetPersonId(person, out id))
+              _composerMatcher.StoreNameMatch(id, person.Name, person.Name);
+
             if (person.Thumbnail == null)
             {
               thumbs = GetFanArtFiles(person, FanArtMediaTypes.Writer, FanArtTypes.Thumbnail);
@@ -311,24 +381,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         AlbumInfo albumMatch = CloneProperties(albumInfo);
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ARTIST)
+        {
           persons = albumMatch.Artists;
         foreach (PersonInfo person in persons)
         {
+            string id;
+            if (_artistMatcher.GetNameMatch(person.Name, out id))
+              SetPersonId(person, id);
+          }
+        }
+        foreach (PersonInfo person in persons)
+        {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMusicPerson(person, language, true))
+          if (!_wrapper.UpdateFromOnlineMusicTrackAlbumPerson(albumMatch, person, language, true))
           {
             if (!forceQuickMode)
             {
               //Try to update person information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMusicPerson(person, language, false))
+              if (!_wrapper.UpdateFromOnlineMusicTrackAlbumPerson(albumMatch, person, language, false))
               {
                 //Search for the person online and update the Ids if a match is found
                 if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
                 {
                   //Ids were updated now try to fetch the online person info
-                  if (_wrapper.UpdateFromOnlineMusicPerson(person, language, false))
+                  if (_wrapper.UpdateFromOnlineMusicTrackAlbumPerson(albumMatch, person, language, false))
                     updated = true;
                 }
+              }
+              else
+              {
+                updated = true;
               }
             }
           }
@@ -349,6 +431,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in albumInfo.Artists)
           {
+            string id;
+            if (GetPersonId(person, out id))
+              _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
+
             if (person.Thumbnail == null)
             {
               thumbs = GetFanArtFiles(person, FanArtMediaTypes.Artist, FanArtTypes.Thumbnail);
@@ -380,24 +466,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         AlbumInfo albumMatch = CloneProperties(albumInfo);
         List<CompanyInfo> companies = new List<CompanyInfo>();
         if (companyType == CompanyAspect.COMPANY_MUSIC_LABEL)
+        {
           companies = albumMatch.MusicLabels;
         foreach (CompanyInfo company in companies)
         {
+            string id;
+            if (_labelMatcher.GetNameMatch(company.Name, out id))
+              SetCompanyId(company, id);
+          }
+        }
+        foreach (CompanyInfo company in companies)
+        {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMusicCompany(company, language, true))
+          if (!_wrapper.UpdateFromOnlineMusicTrackAlbumCompany(albumMatch, company, language, true))
           {
             if (!forceQuickMode)
             {
               //Try to update company information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMusicCompany(company, language, false))
+              if (!_wrapper.UpdateFromOnlineMusicTrackAlbumCompany(albumMatch, company, language, false))
               {
                 //Search for the company online and update the Ids if a match is found
                 if (_wrapper.SearchCompanyUniqueAndUpdate(company, language))
                 {
                   //Ids were updated now try to fetch the online company info
-                  if (_wrapper.UpdateFromOnlineMusicCompany(company, language, false))
+                  if (_wrapper.UpdateFromOnlineMusicTrackAlbumCompany(albumMatch, company, language, false))
                     updated = true;
                 }
+              }
+              else
+              {
+                updated = true;
               }
             }
           }
@@ -418,6 +516,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in albumInfo.MusicLabels)
           {
+            string id;
+            if (GetCompanyId(company, out id))
+              _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
+
             if (company.Thumbnail == null)
             {
               thumbs = GetFanArtFiles(company, FanArtMediaTypes.Company, FanArtTypes.Logo);
@@ -447,6 +549,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         TLang language = FindBestMatchingLanguage(albumInfo);
         bool updated = false;
         AlbumInfo albumMatch = CloneProperties(albumInfo);
+        albumMatch.Tracks.Clear();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineMusicTrackAlbum(albumMatch, language, true))
         {
@@ -462,6 +565,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 if (_wrapper.UpdateFromOnlineMusicTrackAlbum(albumMatch, language, false))
                   updated = true;
               }
+            }
+            else
+            {
+              updated = true;
             }
           }
         }
@@ -494,6 +601,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, true);
+          MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
+
+          //Store person matches
+          foreach (PersonInfo person in albumInfo.Artists)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+              _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
+          }
+
+          //Store company matches
+          foreach (CompanyInfo company in albumInfo.MusicLabels)
+          {
+            string id;
+            if (GetCompanyId(company, out id))
+              _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
+          }
 
           MetadataUpdater.SetOrUpdateValue(ref albumInfo.Thumbnail, albumMatch.Thumbnail);
         }
@@ -562,7 +686,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         _storage.TryAddMatch(new TrackMatch()
         {
-          ItemName = trackSearch.ToString()
+          ItemName = trackSearch.TrackName,
+          AlbumName = trackSearch.Album,
+          TrackNum = trackSearch.TrackNum
         });
         return;
       }
@@ -573,8 +699,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         var onlineMatch = new TrackMatch
         {
           Id = idValue,
-          ItemName = trackSearch.ToString(),
-          TrackName = trackMatch.ToString(),
+          ItemName = trackSearch.TrackName,
+          TrackName = trackMatch.TrackName,
           AlbumName = trackMatch.Album,
           TrackNum = trackMatch.TrackNum
         };
@@ -638,9 +764,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return false;
     }
 
+    protected virtual bool SetPersonId(PersonInfo person, string id)
+    {
+      return false;
+    }
+
     protected virtual bool GetCompanyId(CompanyInfo company, out string id)
     {
       id = null;
+      return false;
+    }
+
+    protected virtual bool SetCompanyId(CompanyInfo company, string id)
+    {
       return false;
     }
 

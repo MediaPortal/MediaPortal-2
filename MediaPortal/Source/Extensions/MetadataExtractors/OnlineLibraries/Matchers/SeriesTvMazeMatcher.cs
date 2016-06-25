@@ -123,6 +123,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return id != null;
     }
 
+    protected override bool SetCompanyId(CompanyInfo company, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        company.TvMazeId = Convert.ToInt32(id);
+        return true;
+      }
+      return false;
+    }
+
     protected override bool GetCharacterId(CharacterInfo character, out string id)
     {
       id = null;
@@ -131,12 +141,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return id != null;
     }
 
+    protected override bool SetCharacterId(CharacterInfo character, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        character.TvMazeId = Convert.ToInt32(id);
+        return true;
+      }
+      return false;
+    }
+
     protected override bool GetPersonId(PersonInfo person, out string id)
     {
       id = null;
       if (person.TvMazeId > 0)
         id = person.TvMazeId.ToString();
       return id != null;
+    }
+
+    protected override bool SetPersonId(PersonInfo person, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        person.TvMazeId = Convert.ToInt32(id);
+        return true;
+      }
+      return false;
     }
 
     #endregion

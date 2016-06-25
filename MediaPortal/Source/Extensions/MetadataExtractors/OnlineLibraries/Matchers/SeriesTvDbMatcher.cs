@@ -144,12 +144,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return id != null;
     }
 
+    protected override bool SetCompanyId(CompanyInfo company, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        company.TvdbId = Convert.ToInt32(id);
+        return true;
+      }
+      return false;
+    }
+
     protected override bool GetPersonId(PersonInfo person, out string id)
     {
       id = null;
       if (person.TvdbId > 0)
         id = person.TvdbId.ToString();
       return id != null;
+    }
+
+    protected override bool SetPersonId(PersonInfo person, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        person.TvdbId = Convert.ToInt32(id);
+        return true;
+      }
+      return false;
     }
 
     #endregion

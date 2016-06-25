@@ -131,7 +131,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         foundReleases = exactMatches;
 
       //Prefer the once with artwork
-      exactMatches = foundReleases.FindAll(a => a.CoverArt.Front);
+      exactMatches = foundReleases.FindAll(a => a.CoverArt != null && a.CoverArt.Front);
       if (exactMatches.Count > 0)
         foundReleases = exactMatches;
 
@@ -278,7 +278,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineMusicCompany(CompanyInfo company, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
     {
       TrackLabel labelDetail = null;
       if (!string.IsNullOrEmpty(company.MusicBrainzId))
@@ -293,7 +293,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return true;
     }
 
-    public override bool UpdateFromOnlineMusicPerson(PersonInfo person, string language, bool cacheOnly)
+    public override bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
     {
       TrackArtist artistDetail = null;
       if (!string.IsNullOrEmpty(person.MusicBrainzId))
@@ -307,6 +307,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       person.Occupation = PersonAspect.OCCUPATION_ARTIST;
 
       return true;
+    }
+
+    public override bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
+    {
+      return UpdateFromOnlineMusicTrackAlbumPerson(trackInfo.CloneBasicAlbum(), person, language, cacheOnly);
     }
 
     public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
@@ -415,6 +420,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (albumDetail.Labels != null)
         album.MusicLabels = ConvertToCompanies(albumDetail.Labels, CompanyAspect.COMPANY_MUSIC_LABEL);
+
+      foreach (TrackMedia media in albumDetail.Media)
+      {
+        if (media.Tracks == null || media.Tracks.Count <= 0)
+          continue;
+
+        if(media.Tracks.Count == album.TotalTracks || album.TotalTracks == 0)
+        {
+          foreach (TrackData trackDetail in media.Tracks)
+          {
+            TrackInfo track = new TrackInfo();
+            track.MusicBrainzId = trackDetail.Id;
+            track.AlbumMusicBrainzId = albumDetail.Id;
+
+            track.TrackName = trackDetail.Title;
+            track.Album = albumDetail.Title;
+            track.TotalTracks = album.TotalTracks;
+            track.DiscNum = album.DiscNum;
+            track.ReleaseDate = album.ReleaseDate;
+
+            int trackNo = 0;
+            if(int.TryParse(trackDetail.Number, out trackNo))
+              track.TrackNum = trackNo;
+
+            track.Artists = ConvertToPersons(trackDetail.Artists, PersonAspect.OCCUPATION_ARTIST);
+            track.AlbumArtists = ConvertToPersons(albumDetail.Artists, PersonAspect.OCCUPATION_ARTIST);
+
+            album.Tracks.Add(track);
+          }
+        }
+        return true;
+      }
 
       return true;
     }

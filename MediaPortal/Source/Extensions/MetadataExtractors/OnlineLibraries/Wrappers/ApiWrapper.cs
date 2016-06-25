@@ -181,7 +181,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (movies.Count == 1)
       {
-        if (GetLevenshteinDistance(movies[0], movieSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (movieSearch.MovieName.IsEmpty || GetLevenshteinDistance(movies[0], movieSearch) <= MAX_LEVENSHTEIN_DIST)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
           return true;
@@ -321,7 +321,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (episodes.Count == 1)
       {
-        if (GetLevenshteinDistance(episodes[0], episodeSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (episodeSearch.EpisodeName.IsEmpty || GetLevenshteinDistance(episodes[0], episodeSearch) <= MAX_LEVENSHTEIN_DIST)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
           return true;
@@ -440,7 +440,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (series.Count == 1)
       {
-        if (GetLevenshteinDistance(series[0], seriesSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (seriesSearch.SeriesName.IsEmpty || GetLevenshteinDistance(series[0], seriesSearch) <= MAX_LEVENSHTEIN_DIST)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
           return true;
@@ -539,6 +539,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.Actors = episodeMatches.SelectMany(e => e.Actors).Distinct().ToList();
       episodeInfo.Directors = episodeMatches.SelectMany(e => e.Directors).Distinct().ToList();
       episodeInfo.Writers = episodeMatches.SelectMany(e => e.Writers).Distinct().ToList();
+      episodeInfo.Characters = episodeMatches.SelectMany(e => e.Characters).Distinct().ToList();
     }
 
     protected virtual void SetEpisodeDetails(EpisodeInfo episodeInfo, EpisodeInfo episodeMatch)
@@ -570,6 +571,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.Actors = episodeMatch.Actors;
       episodeInfo.Directors = episodeMatch.Directors;
       episodeInfo.Writers = episodeMatch.Writers;
+      episodeInfo.Characters = episodeMatch.Characters;
     }
 
     #endregion
@@ -637,7 +639,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (persons.Count == 1)
       {
-        if (GetLevenshteinDistance(persons[0], personSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (string.IsNullOrEmpty(personSearch.Name) || GetLevenshteinDistance(persons[0], personSearch) <= MAX_LEVENSHTEIN_DIST)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", personSearch);
           return true;
@@ -667,17 +669,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return persons.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMoviePerson(PersonInfo person, TLang language, bool cacheOnly)
+    public virtual bool UpdateFromOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
       return false;
     }
 
-    public virtual bool UpdateFromOnlineSeriesPerson(PersonInfo person, TLang language, bool cacheOnly)
+    public virtual bool UpdateFromOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMusicPerson(PersonInfo person, TLang language, bool cacheOnly)
+    public virtual bool UpdateFromOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
       return false;
     }
@@ -747,7 +759,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (characters.Count == 1)
       {
-        if (GetLevenshteinDistance(characters[0], characterSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (string.IsNullOrEmpty(characterSearch.Name) || GetLevenshteinDistance(characters[0], characterSearch) <= MAX_LEVENSHTEIN_DIST)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", characterSearch);
           return true;
@@ -777,12 +789,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return characters.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMovieCharacter(CharacterInfo character, TLang language, bool cacheOnly)
+    public virtual bool UpdateFromOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, TLang language, bool cacheOnly)
     {
       return false;
     }
 
-    public virtual bool UpdateFromOnlineSeriesCharacter(CharacterInfo character, TLang language, bool cacheOnly)
+    public virtual bool UpdateFromOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, TLang language, bool cacheOnly)
     {
       return false;
     }
@@ -853,7 +870,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (companies.Count == 1)
       {
-        if (GetLevenshteinDistance(companies[0], companySearch) <= MAX_LEVENSHTEIN_DIST)
+        if (string.IsNullOrEmpty(companySearch.Name) || GetLevenshteinDistance(companies[0], companySearch) <= MAX_LEVENSHTEIN_DIST)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", companySearch);
           return true;
@@ -883,17 +900,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return companies.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMovieCompany(CompanyInfo company, TLang language, bool cacheOnly)
+    public virtual bool UpdateFromOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
       return false;
     }
 
-    public virtual bool UpdateFromOnlineSeriesCompany(CompanyInfo company, TLang language, bool cacheOnly)
+    public virtual bool UpdateFromOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMusicCompany(CompanyInfo company, TLang language, bool cacheOnly)
+    public virtual bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
       return false;
     }
@@ -938,7 +955,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (tracks.Count == 1)
       {
-        if (GetLevenshteinDistance(tracks[0], trackSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (string.IsNullOrEmpty(trackSearch.TrackName) || GetLevenshteinDistance(tracks[0], trackSearch) <= MAX_LEVENSHTEIN_DIST)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name +  ": Unique match found \"{0}\"!", trackSearch);
           return true;
@@ -1053,7 +1070,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (albums.Count == 1)
       {
-        if (GetLevenshteinDistance(albums[0], albumSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (string.IsNullOrEmpty(albumSearch.Album) || GetLevenshteinDistance(albums[0], albumSearch) <= MAX_LEVENSHTEIN_DIST)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
           return true;
@@ -1226,6 +1243,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <returns>Levenshtein distance</returns>
     protected int GetLevenshteinDistance(MovieInfo movieOnline, MovieInfo movieSearch)
     {
+      if(movieOnline.MovieName.IsEmpty || movieSearch.MovieName.IsEmpty)
+        return MAX_LEVENSHTEIN_DIST + 1;
+
       string cleanedName = RemoveCharacters(movieSearch.MovieName.Text);
       if (string.IsNullOrEmpty(movieOnline.OriginalName))
         return StringUtils.GetLevenshteinDistance(RemoveCharacters(movieOnline.MovieName.Text), cleanedName);
@@ -1238,12 +1258,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     protected int GetLevenshteinDistance(EpisodeInfo episodeOnline, EpisodeInfo episodeSearch)
     {
+      if (episodeOnline.EpisodeName.IsEmpty || episodeSearch.EpisodeName.IsEmpty)
+        return MAX_LEVENSHTEIN_DIST + 1;
+
       string cleanedName = RemoveCharacters(episodeSearch.EpisodeName.Text);
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(episodeOnline.EpisodeName.Text), cleanedName);
     }
 
     protected int GetLevenshteinDistance(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
     {
+      if (seriesOnline.SeriesName.IsEmpty || seriesSearch.SeriesName.IsEmpty)
+        return MAX_LEVENSHTEIN_DIST + 1;
+
       string cleanedName = RemoveCharacters(seriesSearch.SeriesName.Text);
       if (string.IsNullOrEmpty(seriesOnline.OriginalName))
         return StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName);
@@ -1256,30 +1282,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     protected int GetLevenshteinDistance(PersonInfo personOnline, PersonInfo personSearch)
     {
+      if (string.IsNullOrEmpty(personOnline.Name) || string.IsNullOrEmpty(personSearch.Name))
+        return MAX_LEVENSHTEIN_DIST + 1;
+
       string cleanedName = RemoveCharacters(personSearch.Name);
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(personOnline.Name), cleanedName);
     }
 
     protected int GetLevenshteinDistance(CharacterInfo characterOnline, CharacterInfo characterSearch)
     {
+      if (string.IsNullOrEmpty(characterOnline.Name) || string.IsNullOrEmpty(characterSearch.Name))
+        return MAX_LEVENSHTEIN_DIST + 1;
+
       string cleanedName = RemoveCharacters(characterSearch.Name);
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(characterOnline.Name), cleanedName);
     }
 
-    protected int GetLevenshteinDistance(CompanyInfo company, CompanyInfo companySearch)
+    protected int GetLevenshteinDistance(CompanyInfo companyOnline, CompanyInfo companySearch)
     {
+      if (string.IsNullOrEmpty(companyOnline.Name) || string.IsNullOrEmpty(companySearch.Name))
+        return MAX_LEVENSHTEIN_DIST + 1;
+
       string cleanedName = RemoveCharacters(companySearch.Name);
-      return StringUtils.GetLevenshteinDistance(RemoveCharacters(company.Name), cleanedName);
+      return StringUtils.GetLevenshteinDistance(RemoveCharacters(companyOnline.Name), cleanedName);
     }
 
     protected int GetLevenshteinDistance(TrackInfo trackOnline, TrackInfo trackSearch)
     {
+      if (string.IsNullOrEmpty(trackOnline.TrackName) || string.IsNullOrEmpty(trackSearch.TrackName))
+        return MAX_LEVENSHTEIN_DIST + 1;
+
       string cleanedName = RemoveCharacters(trackSearch.TrackName);
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(trackOnline.TrackName), cleanedName);
     }
 
     protected int GetLevenshteinDistance(AlbumInfo albumOnline, AlbumInfo albumSearch)
     {
+      if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album))
+        return MAX_LEVENSHTEIN_DIST + 1;
+
       string cleanedName = RemoveCharacters(albumSearch.Album);
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(albumOnline.Album), cleanedName);
     }

@@ -48,15 +48,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "MovieMatches.xml");
       _maxCacheDuration = maxCacheDuration;
+
+      _actorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ActorMatches.xml"));
+      _directorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "DirectorMatches.xml"));
+      _writerMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "WriterMatches.xml"));
+      _characterMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CharacterMatches.xml"));
+      _companyMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CompanyMatches.xml"));
+
+      Init();
     }
 
-    private new bool Init()
+    public override bool Init()
     {
-      if (!base.Init())
-        return false;
-
       if (_wrapper != null)
         return true;
+
+      if (!base.Init())
+        return false;
 
       return InitWrapper();
     }
@@ -81,6 +89,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private string _cachePath;
     private string _matchesSettingsFile;
     private TimeSpan _maxCacheDuration;
+
+    private SimpleNameMatcher _companyMatcher;
+    private SimpleNameMatcher _actorMatcher;
+    private SimpleNameMatcher _directorMatcher;
+    private SimpleNameMatcher _writerMatcher;
+    private SimpleNameMatcher _characterMatcher;
 
     /// <summary>
     /// Contains the initialized MovieWrapper.
@@ -145,12 +159,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (!_wrapper.UpdateFromOnlineMovie(movieMatch, language, false))
             {
               //Search for the movie online and update the Ids if a match is found
-              if(_wrapper.SearchMovieUniqueAndUpdate(movieMatch, language))
+              if (_wrapper.SearchMovieUniqueAndUpdate(movieMatch, language))
               {
                 //Ids were updated now try to update movie information from online source
                 if (_wrapper.UpdateFromOnlineMovie(movieMatch, language, false))
                   matchFound = true;
               }
+            }
+            else
+            {
+              matchFound = true;
             }
           }
         }
@@ -187,6 +205,42 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies, true);
           MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers, true);
+
+          //Store person matches
+          foreach (PersonInfo person in movieInfo.Actors)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+              _actorMatcher.StoreNameMatch(id, person.Name, person.Name);
+          }
+          foreach (PersonInfo person in movieInfo.Directors)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+              _directorMatcher.StoreNameMatch(id, person.Name, person.Name);
+          }
+          foreach (PersonInfo person in movieInfo.Writers)
+          {
+            string id;
+            if (GetPersonId(person, out id))
+              _writerMatcher.StoreNameMatch(id, person.Name, person.Name);
+          }
+
+          //Store character matches
+          foreach (CharacterInfo character in movieInfo.Characters)
+          {
+            string id;
+            if (GetCharacterId(character, out id))
+              _characterMatcher.StoreNameMatch(id, character.Name, character.Name);
+          }
+
+          //Store company matches
+          foreach (CompanyInfo company in movieInfo.ProductionCompanies)
+          {
+            string id;
+            if (GetCompanyId(company, out id))
+              _companyMatcher.StoreNameMatch(id, company.Name, company.Name);
+          }
 
           MetadataUpdater.SetOrUpdateValue(ref movieInfo.Thumbnail, movieMatch.Thumbnail);
           if (movieInfo.Thumbnail == null)
@@ -227,28 +281,56 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         MovieInfo movieMatch = CloneProperties(movieInfo);
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ACTOR)
+        {
           persons = movieMatch.Actors;
+          foreach (PersonInfo person in persons)
+          {
+            string id;
+            if (_actorMatcher.GetNameMatch(person.Name, out id))
+              SetPersonId(person, id);
+          }
+        }
         else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
+        {
           persons = movieMatch.Directors;
+          foreach (PersonInfo person in persons)
+          {
+            string id;
+            if (_directorMatcher.GetNameMatch(person.Name, out id))
+              SetPersonId(person, id);
+          }
+        }
         else if (occupation == PersonAspect.OCCUPATION_WRITER)
+        {
           persons = movieMatch.Writers;
         foreach (PersonInfo person in persons)
         {
+            string id;
+            if (_writerMatcher.GetNameMatch(person.Name, out id))
+              SetPersonId(person, id);
+          }
+        }
+        foreach (PersonInfo person in persons)
+        {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMoviePerson(person, language, true))
+          if (!_wrapper.UpdateFromOnlineMoviePerson(movieMatch, person, language, true))
           {
             if (!forceQuickMode)
             {
               //Try to update person information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMoviePerson(person, language, false))
+              if (!_wrapper.UpdateFromOnlineMoviePerson(movieMatch, person, language, false))
               {
                 //Search for the person online and update the Ids if a match is found
                 if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
                 {
                   //Ids were updated now try to fetch the online person info
-                  if (_wrapper.UpdateFromOnlineMoviePerson(person, language, false))
+                  if (_wrapper.UpdateFromOnlineMoviePerson(movieMatch, person, language, false))
                     updated = true;
                 }
+              }
+              else
+              {
+                updated = true;
               }
             }
           }
@@ -273,6 +355,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieInfo.Actors)
           {
+            string id;
+            if (GetPersonId(person, out id))
+              _actorMatcher.StoreNameMatch(id, person.Name, person.Name);
+
             if (person.Thumbnail == null)
             {
               thumbs = GetFanArtFiles(person, FanArtMediaTypes.Actor, FanArtTypes.Thumbnail);
@@ -285,6 +371,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieInfo.Directors)
           {
+            string id;
+            if (GetPersonId(person, out id))
+              _directorMatcher.StoreNameMatch(id, person.Name, person.Name);
+
             if (person.Thumbnail == null)
             {
               thumbs = GetFanArtFiles(person, FanArtMediaTypes.Director, FanArtTypes.Thumbnail);
@@ -297,6 +387,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieInfo.Writers)
           {
+            string id;
+            if (GetPersonId(person, out id))
+              _writerMatcher.StoreNameMatch(id, person.Name, person.Name);
+
             if (person.Thumbnail == null)
             {
               thumbs = GetFanArtFiles(person, FanArtMediaTypes.Writer, FanArtTypes.Thumbnail);
@@ -328,21 +422,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         MovieInfo movieMatch = CloneProperties(movieInfo);
         foreach (CharacterInfo character in movieMatch.Characters)
         {
+          string id;
+          if (_characterMatcher.GetNameMatch(character.Name, out id))
+            SetCharacterId(character, id);
+
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMovieCharacter(character, language, true))
+          if (!_wrapper.UpdateFromOnlineMovieCharacter(movieMatch, character, language, true))
           {
             if (!forceQuickMode)
             {
               //Try to update character information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMovieCharacter(character, language, false))
+              if (!_wrapper.UpdateFromOnlineMovieCharacter(movieMatch, character, language, false))
               {
                 //Search for the character online and update the Ids if a match is found
                 if (_wrapper.SearchCharacterUniqueAndUpdate(character, language))
                 {
                   //Ids were updated now try to fetch the online character info
-                  if (_wrapper.UpdateFromOnlineMovieCharacter(character, language, false))
+                  if (_wrapper.UpdateFromOnlineMovieCharacter(movieMatch, character, language, false))
                     updated = true;
                 }
+              }
+              else
+              {
+                updated = true;
               }
             }
           }
@@ -358,6 +460,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         List<string> thumbs = new List<string>();
         foreach (CharacterInfo character in movieInfo.Characters)
         {
+          string id;
+          if (GetCharacterId(character, out id))
+            _characterMatcher.StoreNameMatch(id, character.Name, character.Name);
+
           if (character.Thumbnail == null)
           {
             thumbs = GetFanArtFiles(character, FanArtMediaTypes.Character, FanArtTypes.Thumbnail);
@@ -388,24 +494,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         MovieInfo movieMatch = CloneProperties(movieInfo);
         List<CompanyInfo> companies = new List<CompanyInfo>();
         if (companyType == CompanyAspect.COMPANY_PRODUCTION)
+        {
           companies = movieMatch.ProductionCompanies;
         foreach (CompanyInfo company in companies)
         {
+            string id;
+            if (_companyMatcher.GetNameMatch(company.Name, out id))
+              SetCompanyId(company, id);
+          }
+        }
+        foreach (CompanyInfo company in companies)
+        {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineMovieCompany(company, language, true))
+          if (!_wrapper.UpdateFromOnlineMovieCompany(movieMatch, company, language, true))
           {
             if (!forceQuickMode)
             {
               //Try to update company information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineMovieCompany(company, language, false))
+              if (!_wrapper.UpdateFromOnlineMovieCompany(movieMatch, company, language, false))
               {
                 //Search for the company online and update the Ids if a match is found
                 if (_wrapper.SearchCompanyUniqueAndUpdate(company, language))
                 {
                   //Ids were updated now try to fetch the online company info
-                  if (_wrapper.UpdateFromOnlineMovieCompany(company, language, false))
+                  if (_wrapper.UpdateFromOnlineMovieCompany(movieMatch, company, language, false))
                     updated = true;
                 }
+              }
+              else
+              {
+                updated = true;
               }
             }
           }
@@ -426,6 +544,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in movieInfo.ProductionCompanies)
           {
+            string id;
+            if (GetCompanyId(company, out id))
+              _companyMatcher.StoreNameMatch(id, company.Name, company.Name);
+
             if (company.Thumbnail == null)
             {
               thumbs = GetFanArtFiles(company, FanArtMediaTypes.Company, FanArtTypes.Logo);
@@ -455,6 +577,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         TLang language = default(TLang);
         bool updated = false;
         MovieCollectionInfo movieCollectionMatch = CloneProperties(movieCollectionInfo);
+        movieCollectionMatch.Movies.Clear();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineMovieCollection(movieCollectionMatch, language, true))
         {
@@ -545,7 +668,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         _storage.TryAddMatch(new MovieMatch()
         {
-          ItemName = movieSearch.ToString()
+          ItemName = movieSearch.MovieName.ToString()
         });
         return;
       }
@@ -603,15 +726,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return false;
     }
 
+    protected virtual bool SetPersonId(PersonInfo person, string id)
+    {
+      return false;
+    }
+
     protected virtual bool GetCharacterId(CharacterInfo character, out string id)
     {
       id = null;
       return false;
     }
 
+    protected virtual bool SetCharacterId(CharacterInfo character, string id)
+    {
+      return false;
+    }
+
     protected virtual bool GetCompanyId(CompanyInfo company, out string id)
     {
       id = null;
+      return false;
+    }
+
+    protected virtual bool SetCompanyId(CompanyInfo company, string id)
+    {
       return false;
     }
 
