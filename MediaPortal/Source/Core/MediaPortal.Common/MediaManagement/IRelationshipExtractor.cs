@@ -53,6 +53,11 @@ namespace MediaPortal.Common.MediaManagement
     Guid[] LinkedRoleAspects { get; }
 
     /// <summary>
+    /// The type of external Ids to match against to find existing relation
+    /// </summary>
+    string ExternalIdType { get; }
+
+    /// <summary>
     /// Part 1 of the relationship building - try to build a relationship
     /// from a group of aspects with Role to another group of aspects Linked Role
     /// </summary>

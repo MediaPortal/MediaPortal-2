@@ -30,6 +30,8 @@ using MediaPortal.Utilities.Graphics;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using DuoVia.FuzzyStrings;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -52,6 +54,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Binary data for the thumbnail image.
     /// </summary>
     public byte[] Thumbnail = null;
+
+    private const string SORT_REGEX = @"(^The\s+)|(^An?\s+)|(^De[rsmn]\s+)|(^Die\s+)|(^Das\s+)|(^Ein(e[srmn]?)?\s+)";
+    private const string CLEAN_REGEX = @"<[^>]+>|&nbsp;";
 
     #region Members
 
@@ -79,18 +84,41 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
-    public string CleanString(string value)
+    public static string GetSortTitle(string title)
     {
-      if (string.IsNullOrEmpty(value)) return null;
-      return Regex.Replace(Regex.Replace(value, @"<[^>]+>|&nbsp;", "").Trim(), @"\s{2,}", " ");
+      if (string.IsNullOrEmpty(title)) return null;
+      return Regex.Replace(title, SORT_REGEX, "").Trim();
     }
 
-    public bool MatchNames(string name1, string name2, double threshold = 0.62)
+    public static string CleanString(string value)
+    {
+      if (string.IsNullOrEmpty(value)) return null;
+      return Regex.Replace(Regex.Replace(value, CLEAN_REGEX, "").Trim(), @"\s{2,}", " ");
+    }
+
+    public static bool MatchNames(string name1, string name2, double threshold = 0.62)
     {
       double dice = name1.DiceCoefficient(name2);
       return dice > threshold;
 
       //return name1.FuzzyEquals(name2);
+    }
+
+    public static bool IsVirtualResource(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      IList<MultipleMediaItemAspect> providerResourceAspects;
+      if (MediaItemAspect.TryGetAspects(aspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
+      {
+        string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        if (string.IsNullOrEmpty(accessorPath))
+          return true;
+        ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
+        if (resourcePath.BasePathSegment.ProviderId != VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        {
+          return false;
+        }
+      }
+      return true;
     }
 
     #endregion

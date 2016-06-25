@@ -162,18 +162,18 @@ private void MediaItemChanged(AbstractProperty property, object oldvalue)
 public void Init(MediaItem mediaItem)
 {
   IList<MultipleMediaItemAspect> aspects;
-  if (mediaItem == null ||!MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioAspect.Metadata, out aspects))
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioStreamAspect.Metadata, out aspects))
   {
      SetEmpty();
      return;
   }
 
-  ResourceIndex = (int?) aspects[0][VideoAudioAspect.ATTR_RESOURCE_INDEX];
-  StreamIndex = (int?) aspects[0][VideoAudioAspect.ATTR_STREAM_INDEX];
-  AudioEncoding = (string) aspects[0][VideoAudioAspect.ATTR_AUDIOENCODING];
-  AudioBitRate = (long?) aspects[0][VideoAudioAspect.ATTR_AUDIOBITRATE];
-  AudioChannels = (int?) aspects[0][VideoAudioAspect.ATTR_AUDIOCHANNELS];
-  AudioLanguage = (string) aspects[0][VideoAudioAspect.ATTR_AUDIOLANGUAGE];
+  ResourceIndex = (int?) aspects[0][VideoAudioStreamAspect.ATTR_RESOURCE_INDEX];
+  StreamIndex = (int?) aspects[0][VideoAudioStreamAspect.ATTR_STREAM_INDEX];
+  AudioEncoding = (string) aspects[0][VideoAudioStreamAspect.ATTR_AUDIOENCODING];
+  AudioBitRate = (long?) aspects[0][VideoAudioStreamAspect.ATTR_AUDIOBITRATE];
+  AudioChannels = (int?) aspects[0][VideoAudioStreamAspect.ATTR_AUDIOCHANNELS];
+  AudioLanguage = (string) aspects[0][VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE];
 }
 
 public void SetEmpty()

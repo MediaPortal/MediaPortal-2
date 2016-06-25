@@ -59,7 +59,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string TYPE_SERIES = "SERIES";
     public static readonly string TYPE_TRACK = "TRACK";
     public static readonly string TYPE_ALBUM = "ALBUM";
-    public static readonly string TYPE_COMAPANY = "COMPANY";
+    public static readonly string TYPE_COMPANY = "COMPANY";
     public static readonly string TYPE_NETWORK = "NETWORK";
 
     /// <summary>

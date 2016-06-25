@@ -32,17 +32,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ProviderResourceAspect
   {
-    // TODO: Put this somewhere else?
-    public static readonly string TYPE_VIDEO = "VIDEO";
-    public static readonly string TYPE_SUBTITLE = "SUB";
-    public static readonly string TYPE_HSBS = "VIDEO_HSBS";
-    public static readonly string TYPE_SBS = "VIDEO_SBS";
-    public static readonly string TYPE_HTAB = "VIDEO_HTAB";
-    public static readonly string TYPE_TAB = "VIDEO_TAB";
-    public static readonly string TYPE_AUDIO = "AUDIO";
-    public static readonly string TYPE_IMAGE = "IMAGE";
-    public static readonly string TYPE_DIR = "DIR";
-
     /// <summary>
     /// Media item aspect id of the provider resource aspect.
     /// </summary>
@@ -73,18 +62,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the type of the resource.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_TYPE =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("ResourceType", 50, Cardinality.Inline, true);
-
-    /// <summary>
-    /// The part number if part of a multiple parts. Use -1 if not a part.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_PART =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("PartNum", typeof(int), Cardinality.Inline, true);
-
-    /// <summary>
     /// Contains a media size. For regular files this is the file size, directories might contain the total size of all content.
     /// Online resources like streams might have <c>0</c> as size.
     /// </summary>
@@ -110,8 +87,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_RESOURCE_INDEX,
             ATTR_PRIMARY,
             ATTR_MIME_TYPE,
-            ATTR_RESOURCE_TYPE,
-            ATTR_RESOURCE_PART,
             ATTR_SIZE,
             ATTR_RESOURCE_ACCESSOR_PATH,
             ATTR_PARENT_DIRECTORY_ID,

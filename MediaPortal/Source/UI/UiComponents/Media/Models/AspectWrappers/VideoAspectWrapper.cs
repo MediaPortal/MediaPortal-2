@@ -172,17 +172,6 @@ public float? FPS
   set { _fPSProperty.SetValue(value); }
 }
 
-public AbstractProperty IsDVDProperty
-{
-  get{ return _isDVDProperty; }
-}
-
-public bool? IsDVD
-{
-  get { return (bool?) _isDVDProperty.GetValue(); }
-  set { _isDVDProperty.SetValue(value); }
-}
-
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -227,23 +216,22 @@ private void MediaItemChanged(AbstractProperty property, object oldvalue)
 public void Init(MediaItem mediaItem)
 {
   IList<MultipleMediaItemAspect> aspects;
-  if (mediaItem == null ||!MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAspect.Metadata, out aspects))
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out aspects))
   {
      SetEmpty();
      return;
   }
 
-  ResourceIndex = (int?) aspects[0][VideoAspect.ATTR_RESOURCE_INDEX];
-  StreamIndex = (int?) aspects[0][VideoAspect.ATTR_STREAM_INDEX];
-  Duration = (long?) aspects[0][VideoAspect.ATTR_DURATION];
-  AudioStreamCount = (int?) aspects[0][VideoAspect.ATTR_AUDIOSTREAMCOUNT];
-  VideoEncoding = (string) aspects[0][VideoAspect.ATTR_VIDEOENCODING];
-  VideoBitRate = (long?) aspects[0][VideoAspect.ATTR_VIDEOBITRATE];
-  AspectWidth = (int?) aspects[0][VideoAspect.ATTR_WIDTH];
-  AspectHeight = (int?) aspects[0][VideoAspect.ATTR_HEIGHT];
-  AspectRatio = (float?) aspects[0][VideoAspect.ATTR_ASPECTRATIO];
-  FPS = (float?) aspects[0][VideoAspect.ATTR_FPS];
-  IsDVD = (bool?) aspects[0][VideoAspect.ATTR_ISDVD];
+  ResourceIndex = (int?) aspects[0][VideoStreamAspect.ATTR_RESOURCE_INDEX];
+  StreamIndex = (int?) aspects[0][VideoStreamAspect.ATTR_STREAM_INDEX];
+  Duration = (long?) aspects[0][VideoStreamAspect.ATTR_DURATION];
+  AudioStreamCount = (int?) aspects[0][VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT];
+  VideoEncoding = (string) aspects[0][VideoStreamAspect.ATTR_VIDEOENCODING];
+  VideoBitRate = (long?) aspects[0][VideoStreamAspect.ATTR_VIDEOBITRATE];
+  AspectWidth = (int?) aspects[0][VideoStreamAspect.ATTR_WIDTH];
+  AspectHeight = (int?) aspects[0][VideoStreamAspect.ATTR_HEIGHT];
+  AspectRatio = (float?) aspects[0][VideoStreamAspect.ATTR_ASPECTRATIO];
+  FPS = (float?) aspects[0][VideoStreamAspect.ATTR_FPS];
 }
 
 public void SetEmpty()
@@ -258,7 +246,6 @@ public void SetEmpty()
   AspectHeight = null;
   AspectRatio = null;
   FPS = null;
-  IsDVD = null;
 }
 
 

@@ -69,5 +69,10 @@ namespace MediaPortal.UI.Services.MediaManagement
       if (cd != null)
         cd.AddMediaItemAspectStorage(miaType);
     }
+
+    public void RegisterMediaItemAspectRoleDependency(Guid role, Guid parentRole)
+    {
+      //TODO: Is this necessary on client?
+    }
   }
 }

@@ -43,6 +43,11 @@ namespace MediaPortal.Common.MediaManagement
     Guid[] MergeableAspects { get; }
 
     /// <summary>
+    /// The type of external Ids to match against to find existing media items
+    /// </summary>
+    string ExternalIdType { get; }
+
+    /// <summary>
     /// Some resources cannot exist on their own and must be merged
     /// </summary>
     bool RequiresMerge(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects);

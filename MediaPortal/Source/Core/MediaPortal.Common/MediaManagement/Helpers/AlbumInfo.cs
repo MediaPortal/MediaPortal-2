@@ -79,6 +79,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<string> Genres = new List<string>();
     public List<string> Awards = new List<string>();
     public List<string> Languages = new List<string>();
+    public List<TrackInfo> Tracks = new List<TrackInfo>();
 
     #region Members
 
@@ -91,6 +92,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (string.IsNullOrEmpty(Album)) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true);
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, Album);
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_COMPILATION, Compilation);
       if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_DESCRIPTION, Description.Text);
@@ -267,8 +270,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      //if (ReleaseDate.HasValue)
-      //  return string.Format(ALBUM_FORMAT_STR, Album, ReleaseDate.Value.Year);
       return Album;
     }
 

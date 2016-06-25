@@ -583,10 +583,10 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
             playlistDuration = playlistDuration.Add(miDur);
           }
           else
-            if (item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out aspects))
+            if (item.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out aspects))
             {
               var aspect = aspects.First();
-              long? dur = aspect == null ? null : (long?)aspect[VideoAspect.ATTR_DURATION];
+              long? dur = aspect == null ? null : (long?)aspect[VideoStreamAspect.ATTR_DURATION];
               TimeSpan miDur = dur.HasValue ? TimeSpan.FromSeconds(dur.Value) : TimeSpan.FromSeconds(0);
               playlistDuration = playlistDuration.Add(miDur);
             }

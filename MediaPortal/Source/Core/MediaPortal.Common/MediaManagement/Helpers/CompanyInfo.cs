@@ -66,6 +66,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (string.IsNullOrEmpty(Type)) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Name));
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true);
       MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_NAME, Name);
       if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
       MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_TYPE, Type);
@@ -81,12 +83,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else
       {
-        if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_COMAPANY, ImdbId);
-        if (TvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_COMAPANY, TvdbId.ToString());
-        if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COMAPANY, MovieDbId.ToString());
-        if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_COMAPANY, MusicBrainzId);
-        if (AudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_COMAPANY, AudioDbId.ToString());
-        if (TvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_COMAPANY, TvMazeId.ToString());
+        if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_COMPANY, ImdbId);
+        if (TvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_COMPANY, TvdbId.ToString());
+        if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COMPANY, MovieDbId.ToString());
+        if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_COMPANY, MusicBrainzId);
+        if (AudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_COMPANY, AudioDbId.ToString());
+        if (TvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_COMPANY, TvMazeId.ToString());
       }
 
       SetThumbnailMetadata(aspectData);
@@ -123,16 +125,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       else
       {
         string id;
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_COMAPANY, out id))
+        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_COMPANY, out id))
           TvdbId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COMAPANY, out id))
+        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COMPANY, out id))
           MovieDbId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_COMAPANY, out id))
+        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_COMPANY, out id))
           AudioDbId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_COMAPANY, out id))
+        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_COMPANY, out id))
           TvMazeId = Convert.ToInt32(id);
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_COMAPANY, out ImdbId);
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_COMAPANY, out MusicBrainzId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_COMPANY, out ImdbId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_COMPANY, out MusicBrainzId);
       }
 
       byte[] data;

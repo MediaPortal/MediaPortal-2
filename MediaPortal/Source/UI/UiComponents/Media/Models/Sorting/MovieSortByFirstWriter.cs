@@ -29,7 +29,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class MovieSortByFirstWriter : AbstractSortByFirstComparableAttribute<string>
   {
-    public MovieSortByFirstWriter() : base(MovieAspect.ATTR_WRITERS) { }
+    public MovieSortByFirstWriter() : base(VideoAspect.ATTR_WRITERS) { }
 
     public override string DisplayName
     {

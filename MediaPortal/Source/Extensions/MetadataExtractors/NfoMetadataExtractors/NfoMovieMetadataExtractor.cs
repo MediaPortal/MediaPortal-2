@@ -192,7 +192,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
         // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
         // has identified this MediaItem as a video and therefore added a VideoAspect.
-        if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+        if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
         {
           _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
           return false;

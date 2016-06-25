@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public EpisodeFilterByWriterScreenData() :
         base(Consts.SCREEN_VIDEOS_FILTER_BY_WRITER, Consts.RES_FILTER_BY_WRITER_MENU_ITEM,
-        Consts.RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(EpisodeAspect.ATTR_WRITERS))
+        Consts.RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_WRITERS))
     {
     }
 

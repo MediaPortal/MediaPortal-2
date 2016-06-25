@@ -186,7 +186,7 @@ namespace MediaPortal.DevTools
 
     public int GetVideoCount()
     {
-      Guid[] types = new Guid[] { VideoAspect.ASPECT_ID };
+      Guid[] types = new Guid[] { VideoStreamAspect.ASPECT_ID };
       IFilter filter = new LikeFilter(MediaAspect.ATTR_TITLE, "%", null, false);
 
       return GetContentDirectory().CountMediaItems(types, filter, true);
@@ -202,11 +202,11 @@ namespace MediaPortal.DevTools
 
     public IList<MediaItem> SearchSeries(string text)
     {
-      Guid[] types = new Guid[] { MediaAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
+      Guid[] types = new Guid[] { MediaAspect.ASPECT_ID, VideoStreamAspect.ASPECT_ID };
       IFilter titleFilter = new LikeFilter(MediaAspect.ATTR_TITLE, string.Format("%{0}%", text), null, false);
-      IFilter actorsFilter = new LikeFilter(EpisodeAspect.ATTR_ACTORS, string.Format("%{0}%", text), null, false);
-      IFilter directorsFilter = new LikeFilter(EpisodeAspect.ATTR_DIRECTORS, string.Format("%{0}%", text), null, false);
-      IFilter writersFilter = new LikeFilter(EpisodeAspect.ATTR_WRITERS, string.Format("%{0}%", text), null, false);
+      IFilter actorsFilter = new LikeFilter(VideoAspect.ATTR_ACTORS, string.Format("%{0}%", text), null, false);
+      IFilter directorsFilter = new LikeFilter(VideoAspect.ATTR_DIRECTORS, string.Format("%{0}%", text), null, false);
+      IFilter writersFilter = new LikeFilter(VideoAspect.ATTR_WRITERS, string.Format("%{0}%", text), null, false);
       IFilter episodeFilter = new LikeFilter(EpisodeAspect.ATTR_EPISODE_NAME, string.Format("%{0}%", text), null, false);
       IFilter seriesFilter = new LikeFilter(EpisodeAspect.ATTR_SERIES_NAME, string.Format("%{0}%", text), null, false);
       IFilter filter = new BooleanCombinationFilter(BooleanOperator.Or, new IFilter[] { titleFilter, actorsFilter, directorsFilter, writersFilter, episodeFilter, seriesFilter });

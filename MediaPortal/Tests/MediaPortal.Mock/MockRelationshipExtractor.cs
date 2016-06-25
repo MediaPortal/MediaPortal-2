@@ -37,6 +37,7 @@ namespace MediaPortal.Mock
     public Guid[] RoleAspects { get; set; }
     public Guid LinkedRole { get; set; }
     public Guid[] LinkedRoleAspects { get; set; }
+    public string ExternalIdType { get; set; }
 
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {

@@ -55,7 +55,7 @@ namespace MediaPortal.UPnPRenderer.MediaItems
       {
         { ProviderResourceAspect.ASPECT_ID, new MediaItemAspect[] { new MultipleMediaItemAspect(ProviderResourceAspect.Metadata) }},
         { MediaAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(MediaAspect.Metadata) }},
-        { AudioAspect.ASPECT_ID, new MediaItemAspect[] { new MultipleMediaItemAspect(VideoAspect.Metadata) }}
+        { VideoAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(VideoAspect.Metadata) }}
       });
 
       SetProviderResourceAspect(resolvedPlaybackUrl, item, UPnPRendererVideoPlayer.MIMETYPE);
@@ -68,7 +68,7 @@ namespace MediaPortal.UPnPRenderer.MediaItems
       {
         { ProviderResourceAspect.ASPECT_ID, new MediaItemAspect[] { new MultipleMediaItemAspect(ProviderResourceAspect.Metadata) }},
         { MediaAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(MediaAspect.Metadata) }},
-        { AudioAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(ImageAspect.Metadata) }}
+        { ImageAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(ImageAspect.Metadata) }}
       });
 
       SetProviderResourceAspect(resolvedPlaybackUrl, item, UPnPRendererImagePlayer.MIMETYPE);

@@ -69,6 +69,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (string.IsNullOrEmpty(Name)) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Name));
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true);
       MediaItemAspect.SetAttribute(aspectData, CharacterAspect.ATTR_CHARACTER_NAME, Name);
       if(!string.IsNullOrEmpty(ActorName)) MediaItemAspect.SetAttribute(aspectData, CharacterAspect.ATTR_ACTOR_NAME, ActorName);
 

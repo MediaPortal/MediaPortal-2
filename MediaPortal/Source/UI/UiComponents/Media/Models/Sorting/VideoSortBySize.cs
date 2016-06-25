@@ -40,13 +40,13 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       IList<MultipleMediaItemAspect> videoAspectsX;
       IList<MultipleMediaItemAspect> videoAspectsY;
-      if (MediaItemAspect.TryGetAspects(item1.Aspects, VideoAspect.Metadata, out videoAspectsX) && MediaItemAspect.TryGetAspects(item2.Aspects, VideoAspect.Metadata, out videoAspectsY))
+      if (MediaItemAspect.TryGetAspects(item1.Aspects, VideoStreamAspect.Metadata, out videoAspectsX) && MediaItemAspect.TryGetAspects(item2.Aspects, VideoStreamAspect.Metadata, out videoAspectsY))
       {
         int smallestX = -1;
         foreach (MultipleMediaItemAspect videoAspect in videoAspectsX)
         {
-          int? x = (int?)videoAspect.GetAttributeValue(VideoAspect.ATTR_WIDTH);
-          int? y = (int?)videoAspect.GetAttributeValue(VideoAspect.ATTR_HEIGHT);
+          int? x = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
+          int? y = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT);
           int size = x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
           if (smallestX == -1 || size < smallestX)
             smallestX = size;
@@ -54,8 +54,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         int smallestY = -1;
         foreach (MultipleMediaItemAspect videoAspect in videoAspectsY)
         {
-          int? x = (int?)videoAspect.GetAttributeValue(VideoAspect.ATTR_WIDTH);
-          int? y = (int?)videoAspect.GetAttributeValue(VideoAspect.ATTR_HEIGHT);
+          int? x = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
+          int? y = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT);
           int size = x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
           if (smallestY == -1 || size < smallestY)
             smallestY = size;

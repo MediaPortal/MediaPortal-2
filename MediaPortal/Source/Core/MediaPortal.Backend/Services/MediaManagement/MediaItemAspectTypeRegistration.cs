@@ -56,5 +56,11 @@ namespace MediaPortal.Backend.Services.MediaManagement
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       mediaLibrary.AddMediaItemAspectStorage(miam, fkSpecs, refMiam, refSpecs);
     }
+
+    public void RegisterMediaItemAspectRoleDependency(Guid role, Guid parentRole)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      mediaLibrary.RegisterMediaItemAspectRoleDependency(role, parentRole);
+    }
   }
 }

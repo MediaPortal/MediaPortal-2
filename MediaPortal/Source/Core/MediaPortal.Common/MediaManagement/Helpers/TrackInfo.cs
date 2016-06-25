@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.Text.RegularExpressions;
-using System.Collections.ObjectModel;
 using System.Collections;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
@@ -36,7 +35,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// <see cref="TrackInfo"/> contains information about a track. It's used as an interface structure for external 
   /// online data scrapers to fill in metadata.
   /// </summary>
-  public class TrackInfo : BaseInfo
+  public class TrackInfo : BaseInfo, IComparable<TrackInfo>
   {
     /// <summary>
     /// Returns the index for "Album" used in <see cref="FormatString"/>.
@@ -58,10 +57,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Short format string that holds track number and name.
     /// </summary>
     public static string SHORT_FORMAT_STR = "{1} - {2}";
-    /// <summary>
-    /// Format string that holds album name and album year.
-    /// </summary>
-    public static string ALBUM_FORMAT_STR = "{0} ({1})";
 
     protected static Regex _fromName = new Regex(@"(?<album>.*): (?<trackNum>\d+) - (?<track>.*)", RegexOptions.IgnoreCase);
     protected static Regex _fromAlbumName = new Regex(@"(?<album>.*) \((?<year>\d+)\)", RegexOptions.IgnoreCase);
@@ -109,6 +104,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (string.IsNullOrEmpty(TrackName)) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(TrackName));
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, IsVirtualResource(aspectData));
       MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_TRACKNAME, TrackName);
       MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_COMPILATION, Compilation);
       if (!string.IsNullOrEmpty(TrackLyrics)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_LYRICS, TrackLyrics);
@@ -116,6 +113,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (TrackNum > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_TRACK, TrackNum);
       if (TotalTracks > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_NUMTRACKS, TotalTracks);
       if (Duration > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_DURATION, Duration);
+      MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ISCD, false);
 
       if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, MusicBrainzId);
       if (!string.IsNullOrEmpty(IsrcId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_ISRC, ExternalIdentifierAspect.TYPE_TRACK, IsrcId);
@@ -272,14 +270,46 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      //if (string.IsNullOrEmpty(Album))
+      if (string.IsNullOrEmpty(Album))
         return TrackName;
 
-      //Match albumMatch = _fromAlbumName.Match(Album);
-      //return string.Format(TRACK_FORMAT_STR,
-      //  ReleaseDate.HasValue && !albumMatch.Success ? string.Format(ALBUM_FORMAT_STR, Album, ReleaseDate.Value.Year) : Album,
-      //  TrackNum,
-      //  TrackName);
+      Match albumMatch = _fromAlbumName.Match(Album);
+      return string.Format(TRACK_FORMAT_STR,
+        Album,
+        TrackNum,
+        TrackName);
+    }
+
+    public override bool Equals(object obj)
+    {
+      TrackInfo other = obj as TrackInfo;
+      if (obj == null) return false;
+      if (AudioDbId > 0 && AudioDbId == other.AudioDbId) return true;
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
+        string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+      if (!string.IsNullOrEmpty(IsrcId) && !string.IsNullOrEmpty(other.IsrcId) &&
+        string.Equals(IsrcId, other.IsrcId, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && Album == other.Album &&
+        TrackNum > 0 && other.TrackNum > 0 && TrackNum == other.TrackNum)
+        return true;
+      if (!string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) &&
+        MatchNames(TrackName, other.TrackName))
+        return true;
+
+      return false;
+    }
+
+    public int CompareTo(TrackInfo other)
+    {
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && Album == other.Album &&
+        TrackNum > 0 && other.TrackNum > 0 && TrackNum != other.TrackNum)
+        return TrackNum.CompareTo(other.TrackNum);
+      if (string.IsNullOrEmpty(TrackName) || string.IsNullOrEmpty(other.TrackName))
+        return 1;
+
+      return TrackName.CompareTo(other.TrackName);
     }
 
     #endregion

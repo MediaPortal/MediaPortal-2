@@ -43,6 +43,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Title", 1000, Cardinality.Inline, true);
 
     /// <summary>
+    /// Contains the sortable title of the media item.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SORT_TITLE =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SortTitle", 1000, Cardinality.Inline, true);
+
+    /// <summary>
     /// Contains the recording time and date of the media item. Can be used for an exact recording time
     /// (e.g. for images) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
@@ -74,15 +80,23 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LASTPLAYED =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline, false);
 
+    /// <summary>
+    /// Set to <c>true</c> if this media item represents a virtual resource.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISVIRTUAL =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsVirtual", typeof(bool), Cardinality.Inline, true);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
             ATTR_TITLE,
+            ATTR_SORT_TITLE,
             ATTR_RECORDINGTIME,
             ATTR_RATING,
             ATTR_COMMENT,
             ATTR_PLAYCOUNT,
             ATTR_LASTPLAYED,
+            ATTR_ISVIRTUAL,
         });
   }
 }

@@ -364,12 +364,12 @@ public void Init(MediaItem mediaItem)
   Score = (float?) aspect[MovieAspect.ATTR_SCORE];
   TotalRating = (double?) aspect[MovieAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[MovieAspect.ATTR_RATING_COUNT];
-  Actors = (IEnumerable<string>) aspect[MovieAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
-  Directors = (IEnumerable<string>) aspect[MovieAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
-  Writers = (IEnumerable<string>) aspect[MovieAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
-  Characters = (IEnumerable<string>) aspect[MovieAspect.ATTR_CHARACTERS] ?? EMPTY_STRING_COLLECTION;
-  Genres = (IEnumerable<string>) aspect[MovieAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-  StoryPlot = (string) aspect[MovieAspect.ATTR_STORYPLOT];
+  Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
+  Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
+  Writers = (IEnumerable<string>) aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
+  Characters = (IEnumerable<string>) aspect[VideoAspect.ATTR_CHARACTERS] ?? EMPTY_STRING_COLLECTION;
+  Genres = (IEnumerable<string>) aspect[VideoAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+  StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
 }
 
 public void SetEmpty()

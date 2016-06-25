@@ -191,12 +191,13 @@ namespace MediaPortal.Common
 
       miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
 
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata, 
-        new MediaItemAspectMetadata.AttributeSpecification[] { VideoAspect.Metadata.AttributeSpecifications[VideoAspect.ATTR_RESOURCE_INDEX.AttributeName] },
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoStreamAspect.Metadata, 
+        new MediaItemAspectMetadata.AttributeSpecification[] { VideoStreamAspect.Metadata.AttributeSpecifications[VideoStreamAspect.ATTR_RESOURCE_INDEX.AttributeName] },
         ProviderResourceAspect.Metadata,
         new MediaItemAspectMetadata.AttributeSpecification[] { ProviderResourceAspect.Metadata.AttributeSpecifications[ProviderResourceAspect.ATTR_RESOURCE_INDEX.AttributeName] });
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioAspect.Metadata,
-        new MediaItemAspectMetadata.AttributeSpecification[] { VideoAudioAspect.Metadata.AttributeSpecifications[VideoAudioAspect.ATTR_RESOURCE_INDEX.AttributeName] },
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioStreamAspect.Metadata,
+        new MediaItemAspectMetadata.AttributeSpecification[] { VideoAudioStreamAspect.Metadata.AttributeSpecifications[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX.AttributeName] },
         ProviderResourceAspect.Metadata,
         new MediaItemAspectMetadata.AttributeSpecification[] { ProviderResourceAspect.Metadata.AttributeSpecifications[ProviderResourceAspect.ATTR_RESOURCE_INDEX.AttributeName] });
       miatr.RegisterLocallyKnownMediaItemAspectType(SubtitleAspect.Metadata,
@@ -206,6 +207,7 @@ namespace MediaPortal.Common
 
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);
+      miatr.RegisterMediaItemAspectRoleDependency(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageCollectionAspect.Metadata);
@@ -213,9 +215,12 @@ namespace MediaPortal.Common
       miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
+      miatr.RegisterMediaItemAspectRoleDependency(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES);
+      miatr.RegisterMediaItemAspectRoleDependency(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieCollectionAspect.Metadata);
+      miatr.RegisterMediaItemAspectRoleDependency(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(CompanyAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(PersonAspect.Metadata);

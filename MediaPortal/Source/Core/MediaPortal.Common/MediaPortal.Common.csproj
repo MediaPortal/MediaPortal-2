@@ -76,7 +76,8 @@
     <Compile Include="MediaManagement\DefaultItemAspects\CharacterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
     <Compile Include="MediaManagement\Helpers\ImageCollectionInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\LanguageString.cs" />

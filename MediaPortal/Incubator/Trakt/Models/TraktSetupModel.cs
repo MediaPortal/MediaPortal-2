@@ -925,7 +925,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       List<string> audioCodecs;
       string audioCodec;
 
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAudioAspect.ATTR_AUDIOENCODING, out audioCodecs) && !string.IsNullOrWhiteSpace(audioCodec = audioCodecs.First()))
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAudioStreamAspect.ATTR_AUDIOENCODING, out audioCodecs) && !string.IsNullOrWhiteSpace(audioCodec = audioCodecs.First()))
       {
         switch (audioCodec.ToLowerInvariant())
         {
@@ -1002,7 +1002,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       List<int> widths;
       int width;
 
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_WIDTH, out widths) && (width = widths.First()) > 0)
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoStreamAspect.ATTR_WIDTH, out widths) && (width = widths.First()) > 0)
 
         switch (width)
         {

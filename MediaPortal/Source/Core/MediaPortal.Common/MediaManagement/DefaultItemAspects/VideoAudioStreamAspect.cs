@@ -29,7 +29,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// <summary>
   /// Contains the metadata specification of the "VideoAudio" media item aspect which is assigned to all video media items.
   /// </summary>
-  public static class VideoAudioAspect
+  public static class VideoAudioStreamAspect
   {
     /// <summary>
     /// Media item aspect id of the video aspect.
@@ -74,7 +74,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name
-        ASPECT_ID, "VideoAudioItem", new[] {
+        ASPECT_ID, "VideoAudioStreamItem", new[] {
             ATTR_RESOURCE_INDEX,
             ATTR_STREAM_INDEX,
             ATTR_AUDIOENCODING,

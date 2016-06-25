@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
   class MkvAttachmentsProvider : IBinaryFanArtProvider
   {
-    private static readonly Guid[] NECESSARY_MIAS = { VideoAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
+    private static readonly Guid[] NECESSARY_MIAS = { VideoStreamAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
     private static ICollection<string> SUPPORTED_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
     {
       ".mkv",

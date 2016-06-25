@@ -939,11 +939,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
       if (seriesName != null && season.HasValue && episode.HasValue && episodeName != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, String.Format(EpisodeInfo.EPISODE_FORMAT_STR,
-                                                                                                seriesName,
-                                                                                                season.Value.ToString().PadLeft(2, '0'),
-                                                                                                StringUtils.Join(", ", _stubs.OrderBy(e => e.Episode).Select(e => e.Episode.ToString().PadLeft(2, '0'))),
-                                                                                                string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray())));
+        string name = String.Format(EpisodeInfo.EPISODE_FORMAT_STR,
+          seriesName,
+          season.Value.ToString().PadLeft(2, '0'),
+          StringUtils.Join(", ", _stubs.OrderBy(e => e.Episode).Select(e => e.Episode.ToString().PadLeft(2, '0'))),
+          string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray()));
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, name);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(name));
         return true;
       }
       return false;
@@ -991,7 +993,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #region VideoAspect
 
     /// <summary>
-    /// Tries to write metadata into <see cref="EpisodeAspect.ATTR_GENRES"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_GENRES"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -999,14 +1001,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_useSeriesStubs && _seriesStubs[0].Genres != null && _seriesStubs[0].Genres.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, EpisodeAspect.ATTR_GENRES, _seriesStubs[0].Genres.ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, _seriesStubs[0].Genres.ToList());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="EpisodeAspect.ATTR_ACTORS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1021,14 +1023,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList();
       if (actors != null && actors.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, EpisodeAspect.ATTR_ACTORS, actors);
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="EpisodeAspect.ATTR_DIRECTORS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_DIRECTORS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1036,14 +1038,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Director != null)
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, EpisodeAspect.ATTR_DIRECTORS, _stubs.Select(e => e.Director).Distinct());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, _stubs.Select(e => e.Director).Distinct());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="EpisodeAspect.ATTR_WRITERS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_WRITERS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1051,14 +1053,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Credits != null && _stubs[0].Credits.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, EpisodeAspect.ATTR_WRITERS, _stubs.SelectMany(e => e.Credits).Distinct());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, _stubs.SelectMany(e => e.Credits).Distinct());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="EpisodeAspect.ATTR_STORYPLOT"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_STORYPLOT"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1068,30 +1070,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_stubs[0].Plot != null)
       {
         if (_stubs.Count == 1)
-          MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_STORYPLOT, _stubs[0].Plot);
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Plot);
         else
-          MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episode).Select(e => string.Format("{0,02}) {1}", e.Episode, e.Plot)).ToArray()));
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episode).Select(e => string.Format("{0,02}) {1}", e.Episode, e.Plot)).ToArray()));
         return true;
       }
       // priority 2:
       if (_stubs[0].Outline != null)
       {
         if (_stubs.Count == 1)
-          MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_STORYPLOT, _stubs[0].Outline);
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Outline);
         else
-          MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episode).Select(e => string.Format("{0,02}) {1}", e.Episode, e.Outline)).ToArray()));
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, string.Join("\r\n\r\n", _stubs.OrderBy(e => e.Episode).Select(e => string.Format("{0,02}) {1}", e.Episode, e.Outline)).ToArray()));
         return true;
       }
       // priority 3:
       if (_useSeriesStubs && _seriesStubs[0].Plot != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_STORYPLOT, _seriesStubs[0].Plot);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _seriesStubs[0].Plot);
         return true;
       }
       // priority 4:
       if (_useSeriesStubs && _seriesStubs[0].Outline != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_STORYPLOT, _seriesStubs[0].Outline);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _seriesStubs[0].Outline);
         return true;
       }
       return false;

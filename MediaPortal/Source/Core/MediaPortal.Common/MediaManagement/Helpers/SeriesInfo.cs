@@ -100,6 +100,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<CompanyInfo> ProductionCompanies = new List<CompanyInfo>();
     public List<string> Genres = new List<string>();
     public List<string> Awards = new List<string>();
+    public List<EpisodeInfo> Episodes = new List<EpisodeInfo>();
 
     #region Members
 
@@ -112,6 +113,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (SeriesName.IsEmpty) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(SeriesName.Text));
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true);
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, SeriesName.Text);
       if (!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ORIG_SERIES_NAME, OriginalName);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
@@ -119,11 +122,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_CERTIFICATION, Certification);
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ENDED, IsEnded);
 
-      if(NextEpisodeAirDate.HasValue)
+      if (NextEpisodeAirDate.HasValue)
       {
-        if(!NextEpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, NextEpisodeName.Text);
-        else if(NextEpisodeNumber.HasValue && NextEpisodeSeasonNumber.HasValue)
-          MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, string.Format(NEXT_EPISODE_FORMAT_STR, SeriesName, NextEpisodeSeasonNumber.Value, NextEpisodeNumber.Value));
+        if (!NextEpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, NextEpisodeName.Text);
+        else if (NextEpisodeNumber.HasValue && NextEpisodeSeasonNumber.HasValue)
+          MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, string.Format(NEXT_EPISODE_FORMAT_STR, SeriesName, NextEpisodeSeasonNumber.Value, NextEpisodeNumber.Value));
         if (NextEpisodeSeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_SEASON, NextEpisodeSeasonNumber.Value);
         if (NextEpisodeNumber.HasValue) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, new List<int>() { NextEpisodeNumber.Value });
         MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, NextEpisodeAirDate.Value);
@@ -140,10 +143,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_RATING_COUNT, RatingCount);
       if (Score > 0d) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SCORE, Score);
 
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList<object>());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList<object>());
+      MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_ISDVD, false);
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList<object>());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_GENRES, Genres.ToList<object>());
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres.ToList<object>());
       if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_AWARDS, Awards.ToList<object>());
 
       if (Networks.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, Networks.Select(p => p.Name).ToList<object>());
@@ -168,16 +172,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_RATING_COUNT, out RatingCount);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_SCORE, out Score);
 
-        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_SEASON, out NextEpisodeSeasonNumber);
-        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, out NextEpisodeAirDate);
-
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, out tempString);
         SeriesName = new LanguageText(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, out tempString);
         Description = new LanguageText(tempString, false);
-        MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, out tempString);
-        NextEpisodeName = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id))
@@ -199,15 +198,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           NextEpisodeNumber = Convert.ToInt32(collection.Cast<object>().First());
 
         Actors.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ACTORS, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_ACTORS, out collection))
           Actors.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ACTOR }));
 
         Characters.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, out collection))
           Characters.AddRange(collection.Cast<object>().Select(s => new CharacterInfo() { Name = s.ToString() }));
 
         Genres.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_GENRES, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_GENRES, out collection))
           Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
 
         Awards.Clear();
@@ -222,19 +221,30 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COMPANIES, out collection))
           ProductionCompanies.AddRange(collection.Cast<object>().Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_PRODUCTION }));
 
+        DateTime dateNextEpisode;
+        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_AIR_DATE, out dateNextEpisode) && dateNextEpisode > DateTime.Now)
+        {
+          NextEpisodeAirDate = dateNextEpisode;
+          MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE_NAME, out tempString);
+          NextEpisodeName = new LanguageText(tempString, false);
+          MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_SEASON, out NextEpisodeSeasonNumber);
+          if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NEXT_EPISODE, out collection))
+            NextEpisodeNumber = Convert.ToInt32(collection.Cast<object>().First());
+        }
+
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
           Thumbnail = data;
 
-        if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
+        if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
         {
           Languages.Clear();
           IList<MultipleMediaItemAspect> audioAspects;
-          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
+          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
           {
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
-              string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language))
               {
                 if (Languages.Contains(language))
@@ -305,15 +315,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
           Thumbnail = data;
 
-        if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
+        if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
         {
           Languages.Clear();
           IList<MultipleMediaItemAspect> audioAspects;
-          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
+          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
           {
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
-              string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language))
               {
                 if (Languages.Contains(language))

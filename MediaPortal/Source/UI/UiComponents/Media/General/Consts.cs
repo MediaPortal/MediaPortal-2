@@ -509,7 +509,8 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
-          VideoAudioAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_SERIES_MIAS = new Guid[]
@@ -531,7 +532,8 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
-          VideoAudioAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
           EpisodeAspect.ASPECT_ID,
       };
 
@@ -547,7 +549,8 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
-          VideoAudioAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
           MovieAspect.ASPECT_ID,
       };
 

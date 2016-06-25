@@ -43,16 +43,16 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       base.Update(mediaItem);
       IList<MultipleMediaItemAspect> videoAspects;
       IList<MultipleMediaItemAspect> audioAspects;
-      if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAspect.Metadata, out videoAspects) && 
-        MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioAspect.Metadata, out audioAspects))
+      if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out videoAspects) && 
+        MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioStreamAspect.Metadata, out audioAspects))
       {
         //TODO: Handle that videos might be from different versions of the movie
         long? duration = null;
         List<string> videoEncodings = new List<string>();
         foreach (MultipleMediaItemAspect videoAspect in videoAspects)
         { 
-          duration += (long?)videoAspect[VideoAspect.ATTR_DURATION];
-          string videoEnc = (string)videoAspect[VideoAspect.ATTR_VIDEOENCODING];
+          duration += (long?)videoAspect[VideoStreamAspect.ATTR_DURATION];
+          string videoEnc = (string)videoAspect[VideoStreamAspect.ATTR_VIDEOENCODING];
           if (!string.IsNullOrEmpty(videoEnc))
             if (!videoEncodings.Contains(videoEnc))
               videoEncodings.Add(videoEnc);
@@ -60,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         List<string> audioEncodings = new List<string>();
         foreach (MultipleMediaItemAspect audioAspect in audioAspects)
         {
-          string audioEnc = (string)audioAspect[VideoAudioAspect.ATTR_AUDIOENCODING];
+          string audioEnc = (string)audioAspect[VideoAudioStreamAspect.ATTR_AUDIOENCODING];
           if (!string.IsNullOrEmpty(audioEnc))
             if (!audioEncodings.Contains(audioEnc))
               audioEncodings.Add(audioEnc);

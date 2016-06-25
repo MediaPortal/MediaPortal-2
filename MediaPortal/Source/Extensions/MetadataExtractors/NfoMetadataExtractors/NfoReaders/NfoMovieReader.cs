@@ -37,7 +37,6 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
@@ -126,7 +125,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' found when parsing the nfo-file as plain text.", _miNumber, imdbId);
 
             // Returns true, if the found IMDB-ID represents a movie (not a series)
-            if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(new MovieInfo { ImdbId = imdbId }, _forceQuickMode))
+            if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(new MovieInfo { ImdbId = imdbId }, false))
             {
               _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' confirmed online to represent a movie. Storing only Imdb-ID.", _miNumber, imdbId);
               var stub = new MovieStub { Id = imdbId };
@@ -1286,6 +1285,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_stubs[0].Title != null)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _stubs[0].Title);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(_stubs[0].Title));
         return true;
       }
       return false;
@@ -1355,7 +1355,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #region VideoAspect
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_GENRES"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_GENRES"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1363,14 +1363,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Genres != null && _stubs[0].Genres.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_GENRES, _stubs[0].Genres.ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, _stubs[0].Genres.ToList());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_ACTORS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1378,14 +1378,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Actors != null && _stubs[0].Actors.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_DIRECTORS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_DIRECTORS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1393,14 +1393,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Director != null)
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_WRITERS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_WRITERS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1408,14 +1408,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Credits != null && _stubs[0].Credits.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_WRITERS, _stubs[0].Credits.ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_WRITERS, _stubs[0].Credits.ToList());
         return true;
       }
       return false;
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="MovieAspect.ATTR_STORYPLOT"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_STORYPLOT"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1424,13 +1424,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // priority 1:
       if (_stubs[0].Plot != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_STORYPLOT, _stubs[0].Plot);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Plot);
         return true;
       }
       // priority 2:
       if (_stubs[0].Outline != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_STORYPLOT, _stubs[0].Outline);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, _stubs[0].Outline);
         return true;
       }
       return false;

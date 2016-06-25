@@ -127,7 +127,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     {
       // We can only work on files and make sure this file was detected by a lower MDE before (title is set then).
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+      if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
         return false;
 
       byte[] thumb;
@@ -140,15 +140,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       long videoDuration;
       string downscale = ",scale=iw/2:-1"; // Reduces the video frame size to a half of original
       IList<MultipleMediaItemAspect> videoAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAspect.Metadata, out videoAspects))
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoAspects))
       {
-        if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoAspect.ATTR_DURATION)) > 0)
+        if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoStreamAspect.ATTR_DURATION)) > 0)
         {
           if (defaultVideoOffset > videoDuration * 1 / 3)
             defaultVideoOffset = videoDuration * 1 / 3;
         }
 
-        int videoWidth = videoAspects[0].GetAttributeValue<int>(VideoAspect.ATTR_WIDTH);
+        int videoWidth = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
         // Don't downscale SD video frames, quality is already quite low.
         if (videoWidth > 0 && videoWidth <= 720)
           downscale = "";

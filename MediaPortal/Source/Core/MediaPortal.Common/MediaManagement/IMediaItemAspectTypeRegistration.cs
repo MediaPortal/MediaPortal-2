@@ -68,5 +68,17 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="refType">Media item aspect type referenced by this media item aspect type.</param>
     /// <param name="refSpecs">Media item aspect type attributes referenced by this media item aspect types attributes.</param>
     void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs);
+
+    /// <summary>
+    /// Registration method for all media item aspect types which have roles that are in a hierarchy. Specify a 
+    /// relationship between child role and parent role.
+    /// </summary>
+    /// <remarks>
+    /// This method will be used to delete virtual media items that are pure virtual, meaning no physical resource is attached 
+    /// to any media item in the hierarchy.
+    /// </remarks>
+    /// <param name="role">The role of the child.</param>
+    /// <param name="parentRole">The role of the parent.</param>
+    void RegisterMediaItemAspectRoleDependency(Guid role, Guid parentRole);
   }
 }

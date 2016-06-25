@@ -106,6 +106,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (SeriesName.IsEmpty || !SeasonNumber.HasValue) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(ToString()));
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true);
       MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, SeriesName.Text);
       if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SEASON, SeasonNumber.Value);

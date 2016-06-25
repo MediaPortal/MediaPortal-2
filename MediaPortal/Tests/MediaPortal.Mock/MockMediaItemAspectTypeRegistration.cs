@@ -49,5 +49,10 @@ namespace MediaPortal.Mock
     {
       throw new NotImplementedException();
     }
+
+    public void RegisterMediaItemAspectRoleDependency(Guid role, Guid parentRole)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

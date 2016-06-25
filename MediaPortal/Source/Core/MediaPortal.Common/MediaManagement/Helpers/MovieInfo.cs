@@ -102,9 +102,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (MovieName.IsEmpty) return false;
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(MovieName.Text));
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, IsVirtualResource(aspectData));
       MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, MovieName.Text);
       if (ReleaseDate.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, ReleaseDate.Value);
-      if (!Summary.IsEmpty) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_STORYPLOT, CleanString(Summary.Text));
+      if (!Summary.IsEmpty) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, CleanString(Summary.Text));
       if (!string.IsNullOrEmpty(Tagline)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TAGLINE, Tagline);
       if (!CollectionName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, CollectionName.Text);
       if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_CERTIFICATION, Certification);
@@ -121,13 +123,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Score > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_SCORE, Score);
       if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TOTAL_RATING, TotalRating);
       if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, RatingCount);
-      
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList<object>());
-      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_DIRECTORS, Directors.Select(p => p.Name).ToList<object>());
-      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_WRITERS, Writers.Select(p => p.Name).ToList<object>());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_GENRES, Genres.ToList<object>());
+      MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_ISDVD, false);
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList<object>());
+      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Select(p => p.Name).ToList<object>());
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Select(p => p.Name).ToList<object>());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList<object>());
+
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres.ToList<object>());
       if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_AWARDS, Awards.ToList<object>());
 
       if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_COMPANIES, ProductionCompanies.Select(c => c.Name).ToList<object>());
@@ -156,7 +159,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, out tempString);
         MovieName = new LanguageText(tempString, false);
-        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_STORYPLOT, out tempString);
+        MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
         Summary = new LanguageText(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out tempString);
         CollectionName = new LanguageText(tempString, false);
@@ -174,23 +177,23 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         //Use the non generic Ienumerable to allow for both types.
         IEnumerable collection;
         Actors.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_ACTORS, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_ACTORS, out collection))
           Actors.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ACTOR }));
 
         Directors.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_DIRECTORS, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, out collection))
           Directors.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_DIRECTOR }));
 
         Writers.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_WRITERS, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_WRITERS, out collection))
           Writers.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_WRITER }));
 
         Characters.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_CHARACTERS, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, out collection))
           Characters.AddRange(collection.Cast<object>().Select(s => new CharacterInfo() { Name = s.ToString() }));
 
         Genres.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_GENRES, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_GENRES, out collection))
           Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
 
         Awards.Clear();
@@ -205,15 +208,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
           Thumbnail = data;
 
-        if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
+        if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
         {
           Languages.Clear();
           IList<MultipleMediaItemAspect> audioAspects;
-          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
+          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
           {
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
-              string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language))
               {
                 if (Languages.Contains(language))
@@ -242,15 +245,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
           Thumbnail = data;
 
-        if (aspectData.ContainsKey(VideoAudioAspect.ASPECT_ID))
+        if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
         {
           Languages.Clear();
           IList<MultipleMediaItemAspect> audioAspects;
-          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioAspect.Metadata, out audioAspects))
+          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
           {
             foreach (MultipleMediaItemAspect audioAspect in audioAspects)
             {
-              string language = audioAspect.GetAttributeValue<string>(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language))
               {
                 if (Languages.Contains(language))
@@ -311,8 +314,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      //if (ReleaseDate.HasValue)
-      //  return string.Format(MOVIE_FORMAT_STR, MovieName, ReleaseDate.Value.Year);
+      if (ReleaseDate.HasValue)
+        return string.Format(MOVIE_FORMAT_STR, MovieName, ReleaseDate.Value.Year);
       return MovieName.Text;
     }
 
@@ -335,6 +338,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (Order != other.Order)
         return Order.CompareTo(other.Order);
+      if (ReleaseDate.HasValue && other.ReleaseDate.HasValue && ReleaseDate.Value != other.ReleaseDate.Value)
+        return ReleaseDate.Value.CompareTo(other.ReleaseDate.Value);
       if (MovieName.IsEmpty || other.MovieName.IsEmpty)
         return 1;
 
