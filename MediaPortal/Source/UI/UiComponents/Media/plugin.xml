@@ -235,7 +235,18 @@
     <MediaItemActionBuilder Id="{6840E4DB-3787-421F-910E-7450BD5A408C}" Caption="[Media.SetWatched]" Sort="C.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.SetWatched"/>
     <MediaItemActionBuilder Id="{37417344-B43E-486F-A2C5-DFF9E8C1C8E1}" Caption="[Media.DeleteFromStorage]" Sort="D.2" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.DeleteFromStorage"/>
   </Register>
-  
+
+  <!-- MediaNavigationFilter -->
+  <Builder Name="MediaNavigationFilterBuilder" ClassName="MediaPortal.UiComponents.Media.Extensions.MediaNavigationFilterBuilder"/>
+  <Register Location="/Media/Filters">
+    <MediaNavigationFilterBuilder Id="{58B4F0AB-D57B-46DD-BDF2-4FBDA83B03E8}" ClassName="VideosNavigationInitializer"
+                                  Filter="{FilterWrapper}{Empty}{AttributeType}287a2809-d38d-4f98-b613-e9c09904392d:SeriesName{/AttributeType}{/Empty}{/FilterWrapper}"
+                                  />
+    <MediaNavigationFilterBuilder Id="{774CD13B-0572-4A8D-ABE6-CDD552FA9F1D}" ClassName="VideosNavigationInitializer"
+                                  Filter="{FilterWrapper}{Empty}{AttributeType}2ad64410-5ba3-4163-af03-f8cbbd0ec252:MovieName{/AttributeType}{/Empty}{/FilterWrapper}"
+                                  />
+  </Register>
+
   <!-- Root Sections -->
   <Register Location="/Configuration/Settings">
     <ConfigSection

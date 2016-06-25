@@ -111,6 +111,7 @@
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
+    <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByPlayCountCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySystemCriterion.cs" />
     <Compile Include="FilterCriteria\LanguageFilterCriterion.cs" />
@@ -159,6 +160,7 @@
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
+    <Compile Include="Models\ScreenData\MoviesSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByPlayCountScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByWriterScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByDirectorScreenData.cs" />
@@ -168,6 +170,7 @@
     <Compile Include="Models\ScreenData\SeriesShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterBySeasonScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesSimpleSearchScreenData.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbumTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbum.cs" />
     <Compile Include="Models\Sorting\AudioSortByTrack.cs" />
@@ -248,6 +251,8 @@
     <Compile Include="FilterCriteria\MLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
     <Compile Include="General\Utils.cs" />
+    <Compile Include="SecondaryFilter\IItemsFilter.cs" />
+    <Compile Include="SecondaryFilter\RemoteNumpadFilter.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
     <Compile Include="Settings\Configuration\OpenPlayerStrategy.cs" />
     <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
@@ -293,6 +298,7 @@
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
+    <Content Include="Skin\default\screens\MediaItemsFilterKeyBindings.inc" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MediaItemsList.inc">
