@@ -22,24 +22,26 @@
 
 #endregion
 
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Plugins.SlimTv.Providers.Items
+namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
-  public class Channel : IChannel
+  public class ZapTimeoutSetting : LimitedNumberSelect
   {
-    #region IChannel Member
+    public override void Load()
+    {
+      _type = NumberType.FloatingPoint;
+      _step = 0.2;
+      _lowerLimit = 0.4;
+      _upperLimit = 5.0;
+      _value = SettingsManager.Load<SlimTvClientSettings>().ZapTimeout;
+    }
 
-    public int ServerIndex { get; set; }
-
-    public int ChannelId { get; set; }
-
-    public int ChannelNumber { get; set; }
-
-    public string Name { get; set; }
-
-    public MediaType MediaType { get; set; }
-
-    #endregion
+    public override void Save()
+    {
+      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      settings.ZapTimeout = _value;
+      SettingsManager.Save(settings);
+    }
   }
 }

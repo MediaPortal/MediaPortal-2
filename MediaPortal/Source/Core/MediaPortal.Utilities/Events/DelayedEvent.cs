@@ -41,6 +41,7 @@ namespace MediaPortal.Utilities.Events
     protected EventHandler _onEventHandler;
     protected object _sender;
     protected EventArgs _args;
+    protected bool _eventPending = false;
 
     #endregion
 
@@ -72,6 +73,7 @@ namespace MediaPortal.Utilities.Events
     {
       lock (_syncObj)
       {
+        _eventPending = true;
         if (_timer == null)
         {
           _timer = new Timer(_delayMilliSeconds) { Enabled = true, AutoReset = false };
@@ -117,6 +119,11 @@ namespace MediaPortal.Utilities.Events
       }
     }
 
+    public bool IsEventPending
+    {
+      get { return _eventPending; }
+    }
+
     #region Private members
 
     private void TimerElapsed(object sender, ElapsedEventArgs e)
@@ -129,6 +136,7 @@ namespace MediaPortal.Utilities.Events
         return;
 
       handler(_sender, _args);
+      _eventPending = false;
     }
 
     #endregion
