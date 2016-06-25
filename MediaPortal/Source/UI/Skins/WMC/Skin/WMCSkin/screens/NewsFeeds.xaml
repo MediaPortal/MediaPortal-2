@@ -94,7 +94,7 @@
                  Opacity="0.4"/>
               <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.4">
                 <Label.Content>
-                  <Binding ElementName="newslist" Path="ItemsSource.Count" />
+                  <Binding ElementName="newslist" Path="ItemsCount" />
                 </Label.Content>
               </Label>
             </StackPanel>
