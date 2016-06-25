@@ -152,8 +152,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
         }
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_TYPE, ProviderResourceAspect.TYPE_IMAGE);
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_PART, -1);
 
         // Extract EXIF information from media item.
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))
