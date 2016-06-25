@@ -60,6 +60,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       _extractors.Add(new TrackComposerRelationshipExtractor());
       _extractors.Add(new AlbumArtistRelationshipExtractor());
       _extractors.Add(new AlbumLabelRelationshipExtractor());
+      _extractors.Add(new AlbumTrackRelationshipExtractor());
     }
 
     public RelationshipExtractorMetadata Metadata

@@ -59,11 +59,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public string ExternalIdType
+    {
+      get
+      {
+        return ExternalIdentifierAspect.TYPE_PERSON;
+      }
+    }
+
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
-      // Build the person MI
+      // Build the track MI
 
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
@@ -81,10 +89,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       foreach (PersonInfo person in trackInfo.Composers)
       {
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        extractedLinkedAspects.Add(personAspects);
         person.SetMetadata(personAspects);
+
+        if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        extractedLinkedAspects.Add(personAspects);
       }
-      return true;
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

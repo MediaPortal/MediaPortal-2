@@ -307,9 +307,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// <param name="valuesEnumer">Enumeration of values, to which the additional separator behaviour shall be applied.</param>
     protected static IEnumerable<string> ApplyAdditionalSeparator(IEnumerable<string> valuesEnumer)
     {
-      List<String> result = new List<String>();
       if (valuesEnumer == null || valuesEnumer.ToList<String>().Count == 0)
-        return result;
+        return null;
+      List<String> result = new List<String>();
       if (USE_ADDITIONAL_SEPARATOR)
       {
         foreach (String value in valuesEnumer)
@@ -385,15 +385,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_TYPE, ProviderResourceAspect.TYPE_AUDIO);
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_PART, -1);
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, fsra.CanonicalLocalResourcePath.Serialize());
         // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
         // mimetype handling in the BASS player, which expects audio/xxx.
         if (!string.IsNullOrWhiteSpace(tag.MimeType))
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
 
         TrackInfo trackInfo = new TrackInfo();
         trackInfo.TrackName = title;

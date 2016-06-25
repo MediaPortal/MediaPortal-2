@@ -33,4 +33,10 @@
         Id="AudioRelationshipExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.AudioRelationshipExtractor"/>
   </Register>
+
+<Register Location="/Media/MergeHandlers">
+    <Instance
+        Id="TrackMergeHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.TrackMergeHandler"/>
+  </Register>
 </Plugin>

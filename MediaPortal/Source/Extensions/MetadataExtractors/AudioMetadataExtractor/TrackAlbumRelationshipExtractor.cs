@@ -56,6 +56,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public string ExternalIdType
+    {
+      get
+      {
+        return ExternalIdentifierAspect.TYPE_ALBUM;
+      }
+    }
+
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
@@ -72,9 +80,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      extractedLinkedAspects.Add(albumAspects);
+      albumInfo.SetMetadata(albumAspects);
 
-      return albumInfo.SetMetadata(albumAspects);
+      if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        return false;
+
+      extractedLinkedAspects.Add(albumAspects);
+      return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
