@@ -169,8 +169,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
+                VideoStreamAspect.Metadata,
                 RecordingAspect.Metadata,
+                EpisodeAspect.Metadata
               });
     }
 
@@ -240,10 +241,15 @@ namespace MediaPortal.Extensions.MetadataExtractors
           aspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/wtv");
         }
 
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+
         string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
+        {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
-
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
+        }
+        
         if (TryGet(tags, TAG_GENRE, out value))
           MediaItemAspect.SetCollectionAttribute(extractedAspectData, RecordingAspect.ATTR_GENRES, new List<String>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)));
 

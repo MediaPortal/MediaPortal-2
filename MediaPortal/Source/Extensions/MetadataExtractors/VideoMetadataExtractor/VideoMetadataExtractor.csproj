@@ -82,6 +82,10 @@
       <Project>{7280C551-DCE2-46B7-943E-8C0D90CDC22C}</Project>
       <Name>MediaInfoLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
+      <Name>OnlineLibraries</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
@@ -95,4 +99,3 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
-

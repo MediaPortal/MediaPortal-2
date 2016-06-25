@@ -24,6 +24,8 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings
 {
@@ -60,27 +62,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
         ".vtt",
       };
 
-    protected List<string> _subtitleFileExtensions = new List<string>(DEFAULT_SUBTITLE_FILE_EXTENSIONS);
-    protected List<string> _videoFileExtensions = new List<string>(DEFAULT_VIDEO_FILE_EXTENSIONS);
+    public VideoMetadataExtractorSettings()
+    {
+      VideoFileExtensions = new List<string>(DEFAULT_VIDEO_FILE_EXTENSIONS);
+      SubtitleFileExtensions = new List<string>(DEFAULT_SUBTITLE_FILE_EXTENSIONS);
+      MultiPartVideoRegex = new SerializableRegex(@"\\(?<file>[^\\|^\/]*)(\s|-|_)*(?<media>Disc|CD|DVD)\s*(?<disc>\d{1,2})", RegexOptions.IgnoreCase);
+      StereoscopicVideoRegex = new SerializableRegex(@"\\[-. _](3d|.)?([-. _]*|3d)(?<stereo>(h[-. _]*|half[-. _]*|full[-. _]*)?sbs|(h[-. _]*|half[-. _]*|full[-. _]*)?tab|(h|half[-. _]*|full[-. _]*)?ou)[-. _]", RegexOptions.IgnoreCase);
+    }
 
     /// <summary>
     /// Video extensions for which the <see cref="VideoMetadataExtractor"/> should be used.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<string> VideoFileExtensions
-    {
-      get { return _videoFileExtensions; }
-      set { _videoFileExtensions = value; }
-    }
+    public List<string> VideoFileExtensions { get; set; }
 
     /// <summary>
     /// Subtitle extensions for which the <see cref="VideoMetadataExtractor"/> should be used.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<string> SubtitleFileExtensions
-    {
-      get { return _subtitleFileExtensions; }
-      set { _subtitleFileExtensions = value; }
-    }
+    public List<string> SubtitleFileExtensions { get; set; }
+
+    /// <summary>
+    /// Regular expression used to find a the part number of a multiple video parts
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public SerializableRegex MultiPartVideoRegex { get; set; }
+
+    /// <summary>
+    /// Regular expression used to find a year in the series name
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public SerializableRegex StereoscopicVideoRegex { get; set; }
   }
 }

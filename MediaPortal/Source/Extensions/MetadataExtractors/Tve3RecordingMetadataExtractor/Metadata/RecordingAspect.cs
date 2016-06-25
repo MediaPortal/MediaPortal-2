@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.Aspects
 {
   /// <summary>
   /// Contains the metadata specification of the "Recording" media item aspect which is assigned to all recording media items.
-  /// Recordings here are meant as TV video recordings, so common video related metadata are available in <seealso cref="VideoAspect"/>.
+  /// Recordings here are meant as TV video recordings, so common video related metadata are available in <seealso cref="VideoStreamAspect"/>.
   /// </summary>
   public class RecordingAspect
   {

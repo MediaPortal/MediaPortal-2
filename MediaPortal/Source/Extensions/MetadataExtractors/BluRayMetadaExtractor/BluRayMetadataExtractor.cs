@@ -94,7 +94,7 @@ namespace MediaPortal.Media.MetadataExtractors
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
+                VideoStreamAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
     }
@@ -131,9 +131,9 @@ namespace MediaPortal.Media.MetadataExtractors
               }
 
               // This line is important to keep in, if no VideoAspect is created here, the MediaItems is not detected as Video! 
-              MultipleMediaItemAspect videoAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAspect.Metadata);
-              videoAspect.SetAttribute(VideoAspect.ATTR_RESOURCE_INDEX, 0);
-              videoAspect.SetAttribute(VideoAspect.ATTR_STREAM_INDEX, -1);
+              MultipleMediaItemAspect videoAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+              videoAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              videoAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, -1);
 
               MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
               using (lfsra.EnsureLocalFileSystemAccess())
