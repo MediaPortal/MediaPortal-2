@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
   class MovieDirectorRelationshipExtractor : IRelationshipRoleExtractor
   {
-    private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
+    private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
 
     public Guid Role
@@ -57,6 +57,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public Guid[] LinkedRoleAspects
     {
       get { return LINKED_ROLE_ASPECTS; }
+    }
+
+    public string ExternalIdType
+    {
+      get
+      {
+        return ExternalIdentifierAspect.TYPE_PERSON;
+      }
     }
 
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
@@ -80,10 +88,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       foreach (PersonInfo person in movieInfo.Directors)
       {
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        extractedLinkedAspects.Add(personAspects);
         person.SetMetadata(personAspects);
+
+        if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        extractedLinkedAspects.Add(personAspects);
       }
-      return true;
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
@@ -113,10 +123,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string name = linkedAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME);
 
       SingleMediaItemAspect aspect;
-      if (!MediaItemAspect.TryGetAspect(aspects, MovieAspect.Metadata, out aspect))
+      if (!MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> persons = aspect.GetCollectionAttribute<object>(MovieAspect.ATTR_DIRECTORS);
+      IEnumerable<object> persons = aspect.GetCollectionAttribute<object>(VideoAspect.ATTR_DIRECTORS);
       List<string> nameList = new List<string>(persons.Cast<string>());
 
       index = nameList.IndexOf(name);

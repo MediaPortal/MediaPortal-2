@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -61,6 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       _extractors.Add(new MovieWriterRelationshipExtractor());
       _extractors.Add(new MovieCharacterRelationshipExtractor());
       _extractors.Add(new MovieProductionRelationshipExtractor());
+      _extractors.Add(new MovieCollectionMovieRelationshipExtractor());
     }
 
     public RelationshipExtractorMetadata Metadata

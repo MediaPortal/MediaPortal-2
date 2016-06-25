@@ -58,11 +58,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public string ExternalIdType
+    {
+      get
+      {
+        return ExternalIdentifierAspect.TYPE_COLLECTION;
+      }
+    }
+
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
-      // Build the person MI
+      // Build the collection MI
 
       MovieCollectionInfo collectionInfo = new MovieCollectionInfo();
       if (!collectionInfo.FromMetadata(aspects))
@@ -72,9 +80,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      extractedLinkedAspects.Add(collectionAspects);
+      collectionInfo.SetMetadata(collectionAspects);
 
-      return collectionInfo.SetMetadata(collectionAspects);
+      if (!collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        return false;
+
+      extractedLinkedAspects.Add(collectionAspects);
+      return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
       string title;
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
       if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
@@ -111,11 +111,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       // Allow the online lookup to choose best matching language for metadata
       IList<MultipleMediaItemAspect> audioAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioAspect.Metadata, out audioAspects))
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
       {
         foreach(MultipleMediaItemAspect aspect in audioAspects)
         {
-          string language = (string)aspect.GetAttributeValue(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
           if (!string.IsNullOrEmpty(language))
             movieInfo.Languages.Add(language);
         }
