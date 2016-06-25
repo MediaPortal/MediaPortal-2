@@ -52,6 +52,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -63,6 +64,7 @@
     </Compile>
     <Compile Include="EpisodeMergeHandler.cs" />
     <Compile Include="SeriesCharacterRelationshipExtractor.cs" />
+    <Compile Include="SeriesEpisodeRelationshipExtractor.cs" />
     <Compile Include="SeriesProductionRelationshipExtractor.cs" />
     <Compile Include="SeriesNetworkRelationshipExtractor.cs" />
     <Compile Include="SeriesActorRelationshipExtractor.cs" />

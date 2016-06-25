@@ -50,6 +50,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public string ExternalIdType
+    {
+      get
+      {
+        return ExternalIdentifierAspect.TYPE_SERIES;
+      }
+    }
+
     // TryExtractRelationships is in SeriesBaseTryExtractRelationships
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

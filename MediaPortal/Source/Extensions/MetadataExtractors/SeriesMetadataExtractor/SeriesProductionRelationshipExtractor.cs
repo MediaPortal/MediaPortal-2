@@ -59,6 +59,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public string ExternalIdType
+    {
+      get
+      {
+        return ExternalIdentifierAspect.TYPE_COMPANY;
+      }
+    }
+
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
@@ -81,10 +89,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       foreach (CompanyInfo company in seriesInfo.ProductionCompanies)
       {
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        extractedLinkedAspects.Add(companyAspects);
         company.SetMetadata(companyAspects);
+
+        if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        extractedLinkedAspects.Add(companyAspects);
       }
-      return true;
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

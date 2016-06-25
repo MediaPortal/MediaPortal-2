@@ -25,9 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
-using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -69,6 +66,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new SeriesCharacterRelationshipExtractor());
       _extractors.Add(new SeriesNetworkRelationshipExtractor());
       _extractors.Add(new SeriesProductionRelationshipExtractor());
+      _extractors.Add(new SeriesEpisodeRelationshipExtractor());
     }
 
     public RelationshipExtractorMetadata Metadata

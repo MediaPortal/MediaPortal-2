@@ -59,6 +59,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public string ExternalIdType
+    {
+      get
+      {
+        return ExternalIdentifierAspect.TYPE_SEASON;
+      }
+    }
+
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
@@ -79,8 +87,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      seasonInfo.SetMetadata(seasonAspects);
+
+      if (!seasonAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        return false;
+
       extractedLinkedAspects.Add(seasonAspects);
-      return seasonInfo.SetMetadata(seasonAspects);
+      return true;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

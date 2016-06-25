@@ -96,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
@@ -147,11 +147,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (episodeInfo.AreReqiredFieldsFilled)
       {
         IList<MultipleMediaItemAspect> audioAspects;
-        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioAspect.Metadata, out audioAspects))
+        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
         {
           foreach (MultipleMediaItemAspect aspect in audioAspects)
           {
-            string language = (string)aspect.GetAttributeValue(VideoAudioAspect.ATTR_AUDIOLANGUAGE);
+            string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
             if (!string.IsNullOrEmpty(language))
               episodeInfo.Languages.Add(language);
           }

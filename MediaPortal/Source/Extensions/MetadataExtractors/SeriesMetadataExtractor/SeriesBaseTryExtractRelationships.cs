@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -46,9 +47,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      extractedLinkedAspects.Add(seriesAspects);
+      seriesInfo.SetMetadata(seriesAspects);
 
-      return seriesInfo.SetMetadata(seriesAspects);
+      if (!seriesAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        return false;
+
+      extractedLinkedAspects.Add(seriesAspects);
+      return true;
     }
   }
 }

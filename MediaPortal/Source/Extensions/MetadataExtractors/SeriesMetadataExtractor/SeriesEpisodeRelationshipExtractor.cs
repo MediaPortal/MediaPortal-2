@@ -34,10 +34,10 @@ using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesNetworkRelationshipExtractor : IRelationshipRoleExtractor
+  class SeriesEpisodeRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
-    private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
+    private static readonly Guid[] LINKED_ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
 
     public Guid Role
     {
@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return CompanyAspect.ROLE_COMPANY; }
+      get { return EpisodeAspect.ROLE_EPISODE; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       get
       {
-        return ExternalIdentifierAspect.TYPE_NETWORK;
+        return ExternalIdentifierAspect.TYPE_EPISODE;
       }
     }
 
@@ -71,46 +71,46 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-       // Build the company MI
-
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      SeriesTvMazeMatcher.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK, forceQuickMode);
-      SeriesTvDbMatcher.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK, forceQuickMode);
-      SeriesTheMovieDbMatcher.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK, forceQuickMode);
+      SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
 
-      if (seriesInfo.Networks.Count == 0)
+      if (seriesInfo.Episodes.Count == 0)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
-      foreach (CompanyInfo company in seriesInfo.Networks)
+      foreach (EpisodeInfo episode in seriesInfo.Episodes)
       {
-        IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        company.SetMetadata(companyAspects);
+        IDictionary<Guid, IList<MediaItemAspect>> episodeAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        episode.SetMetadata(episodeAspects);
 
-        if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        extractedLinkedAspects.Add(companyAspects);
+        if (episodeAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(episodeAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      if (!existingAspects.ContainsKey(CompanyAspect.ASPECT_ID))
+      if (!existingAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
         return false;
 
-      CompanyInfo linkedCompany = new CompanyInfo();
-      if(!linkedCompany.FromMetadata(extractedAspects))
+      EpisodeInfo linkedEpisode = new EpisodeInfo();
+      if (!linkedEpisode.FromMetadata(extractedAspects))
         return false;
 
-      CompanyInfo existingCompany = new CompanyInfo();
-      if (!existingCompany.FromMetadata(existingAspects))
+      EpisodeInfo existingEpisode = new EpisodeInfo();
+      if (!existingEpisode.FromMetadata(existingAspects))
         return false;
 
-      return linkedCompany.Equals(existingCompany);
+      return linkedEpisode.Equals(existingEpisode);
     }
 
     public bool TryGetRelationshipIndex(IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects, out int index)
@@ -118,19 +118,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       index = -1;
 
       SingleMediaItemAspect linkedAspect;
-      if (!MediaItemAspect.TryGetAspect(linkedAspects, CompanyAspect.Metadata, out linkedAspect))
+      if (!MediaItemAspect.TryGetAspect(linkedAspects, EpisodeAspect.Metadata, out linkedAspect))
         return false;
 
-      string name = linkedAspect.GetAttributeValue<string>(CompanyAspect.ATTR_COMPANY_NAME);
-
-      SingleMediaItemAspect aspect;
-      if (!MediaItemAspect.TryGetAspect(aspects, SeriesAspect.Metadata, out aspect))
+      int? season = linkedAspect.GetAttributeValue<int?>(EpisodeAspect.ATTR_SEASON);
+      if (!season.HasValue)
         return false;
 
-      IEnumerable<object> actors = aspect.GetCollectionAttribute<object>(SeriesAspect.ATTR_NETWORKS);
-      List<string> nameList = new List<string>(actors.Cast<string>());
+      IEnumerable<object> episodes = linkedAspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE);
+      List<int> episodeList = new List<int>(episodes.Cast<int>());
 
-      index = nameList.IndexOf(name);
+      index = season.Value * 100 + episodeList.First();
       return index >= 0;
     }
 

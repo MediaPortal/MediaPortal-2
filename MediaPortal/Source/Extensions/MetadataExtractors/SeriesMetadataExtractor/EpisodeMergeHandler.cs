@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using System.IO;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -72,20 +73,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
+    public string ExternalIdType
+    {
+      get
+      {
+        return ExternalIdentifierAspect.TYPE_EPISODE;
+      }
+    }
+
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      if (!existingAspects.ContainsKey(EpisodeAspect.ASPECT_ID) || !existingAspects.ContainsKey(VideoAspect.ASPECT_ID))
+      if (!existingAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
         return false;
 
-      EpisodeInfo likedEpisode = new EpisodeInfo();
-      if (!likedEpisode.FromMetadata(extractedAspects))
+      EpisodeInfo linkedEpisode = new EpisodeInfo();
+      if (!linkedEpisode.FromMetadata(extractedAspects))
         return false;
 
       EpisodeInfo existingEpisode = new EpisodeInfo();
       if (!existingEpisode.FromMetadata(existingAspects))
         return false;
 
-      return likedEpisode.EpisodeNumbers.TrueForAll(e => existingEpisode.EpisodeNumbers.Contains(e));
+      return linkedEpisode.Equals(existingEpisode);
     }
 
     public bool TryMerge(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
@@ -97,12 +106,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (!MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
           return false;
 
+        //Don't merge virtual resource
+        string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        ResourcePath resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
+        if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+          return true; //Return that it was merged so it gets ignored
+
         IList<MultipleMediaItemAspect> subtitleAspects;
         MediaItemAspect.TryGetAspects(extractedAspects, SubtitleAspect.Metadata, out subtitleAspects);
 
         //Existing aspects
         IList<MultipleMediaItemAspect> existingProviderResourceAspects;
         MediaItemAspect.TryGetAspects(existingAspects, ProviderResourceAspect.Metadata, out existingProviderResourceAspects);
+
+        //Replace if existing is a virtual resource
+        accessorPath = (string)existingProviderResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
+        if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        {
+          existingAspects[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
+          existingAspects.Remove(ProviderResourceAspect.ASPECT_ID);
+          foreach (Guid aspect in extractedAspects.Keys)
+          {
+            if (!existingAspects.ContainsKey(aspect))
+              existingAspects.Add(aspect, extractedAspects[aspect]);
+          }
+          return true; 
+        }
 
         //Merge
         Dictionary<int, int> resourceIndexMap = new Dictionary<int, int>();
@@ -120,9 +150,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
         newResourceIndex++;
 
-        string accessorPath;
-        ResourcePath resourcePath;
-        ResourcePath existingResourcePath;
         bool resourceExists = false; //Resource might already be added in the initial add
         foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
         {
@@ -130,13 +157,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           {
             accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
             resourcePath = ResourcePath.Deserialize(accessorPath);
+            string extractedPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
 
             foreach (MultipleMediaItemAspect exisitingProviderResourceAspect in existingProviderResourceAspects)
             {
               accessorPath = (string)exisitingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-              existingResourcePath = ResourcePath.Deserialize(accessorPath);
+              resourcePath = ResourcePath.Deserialize(accessorPath);
+              string existingPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
 
-              if (resourcePath.Equals(existingResourcePath))
+              if(extractedPath.Equals(existingPath, StringComparison.InvariantCultureIgnoreCase))
               {
                 resourceExists = true;
                 break;
@@ -158,8 +187,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           newPra.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE));
           newPra.SetAttribute(ProviderResourceAspect.ATTR_SIZE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_SIZE));
           newPra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
-          newPra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_TYPE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_TYPE));
-          newPra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_PART, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_PART));
           newPra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
           newPra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID));
 
@@ -180,14 +207,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 {
                   accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
                   resourcePath = ResourcePath.Deserialize(accessorPath);
+                  string subPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
 
                   accessorPath = (string)existingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                  existingResourcePath = ResourcePath.Deserialize(accessorPath);
+                  resourcePath = ResourcePath.Deserialize(accessorPath);
+                  string videoPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
 
-                  if (ResourcePath.GetFileNameWithoutExtension(resourcePath).StartsWith(ResourcePath.GetFileNameWithoutExtension(existingResourcePath), StringComparison.InvariantCultureIgnoreCase))
+                  if (Path.GetFileNameWithoutExtension(subPath).StartsWith(Path.GetFileNameWithoutExtension(videoPath), StringComparison.InvariantCultureIgnoreCase))
                   {
-                    string resType = (string)existingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_TYPE);
-                    if (resType.StartsWith("VIDEO", StringComparison.InvariantCultureIgnoreCase))
+                    bool resPrimary = existingProviderResourceAspect.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY);
+                    if (resPrimary == true)
                     {
                       videoResourceIndex = providerResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
                       break;
@@ -222,10 +251,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public bool RequiresMerge(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      if (extractedAspects.ContainsKey(VideoAspect.ASPECT_ID))
-        return false;
+      //Don't allow subtitles for episode without actual episode being present
+      if (extractedAspects.ContainsKey(SubtitleAspect.ASPECT_ID) && !extractedAspects.ContainsKey(VideoStreamAspect.ASPECT_ID))
+        return true;
 
-      return true;
+      //Allowed to be virtual so never requires merge
+      return false;
     }
   }
 }
