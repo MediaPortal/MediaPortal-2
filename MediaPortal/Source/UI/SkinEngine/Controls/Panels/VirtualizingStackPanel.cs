@@ -418,7 +418,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // If set to true, we'll check available space from the last to first visible child.
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
-
+          //Get the scroll margins in scroll direction
+          float scrollMarginBefore;
+          float scrollMarginAfter;
+          GetScrollMargin(out scrollMarginBefore, out scrollMarginAfter);
           //Percentage of child size to offset child positions
           float physicalOffset = _actualPhysicalOffset;
 
@@ -446,7 +449,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // 1) Calculate scroll indices
           if (_doScroll)
           {
-            float spaceLeft = actualExtendsInOrientationDirection;
+            //Substract scroll margins from avalable space, additional items in the margin will be added later
+            float spaceLeft = actualExtendsInOrientationDirection - scrollMarginBefore - scrollMarginAfter;
             //Allow space for partially visible items at top and bottom
             if (physicalOffset != 0)
               spaceLeft += _averageItemSize;
@@ -632,18 +636,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             }
           }
 
+          _actualFirstRenderedChildIndex = _actualFirstVisibleChildIndex;
+          _actualLastRenderedChildIndex = _actualLastVisibleChildIndex;
+          //calculate additional items in the scroll margin
+          if (_averageItemSize > 0)
+          {
+            if (scrollMarginBefore > 0)
+            {
+              int inactiveCountBefore = (int)(scrollMarginBefore / _averageItemSize);
+              _actualFirstRenderedChildIndex = Math.Max(0, _actualFirstVisibleChildIndex - inactiveCountBefore);
+            }
+            if (scrollMarginAfter > 0)
+            {
+              int inactiveCountAfter = (int)(scrollMarginAfter / _averageItemSize);
+              _actualLastRenderedChildIndex = Math.Min(numItems - 1, _actualLastVisibleChildIndex + inactiveCountAfter);
+            }
+          }
+
+          //Calculate number of pixels to shift items up/left by based on offset and scroll margin
+          float actualStartOffset = scrollMarginBefore - (_averageItemSize * (_actualFirstVisibleChildIndex - _actualFirstRenderedChildIndex + physicalOffset));
+          float startOffset = actualStartOffset;
+
           // get the 1st group header 1st, so we do not add it twice
           var firstGroupHeaderItem = GetGroupHeader(_actualFirstVisibleChildIndex, true, groupingItemProvider, true);
 
-          _arrangedItemsStartIndex = _actualFirstVisibleChildIndex;
+          _arrangedItemsStartIndex = _actualFirstRenderedChildIndex;
           // Heavy scrolling works best with at least two times the number of visible items arranged above and below
           // our visible children. That was tested out. If someone has a better heuristic, please use it here.
           int numArrangeAroundViewport = ((int)(actualExtendsInOrientationDirection / _averageItemSize) + 1) * NUM_ADD_MORE_FOCUS_ELEMENTS;
           // Elements before _actualFirstVisibleChildIndex
 
-          //Calculate number of pixels to shift items up/left by based on offset
-          float startOffset = -(physicalOffset * _averageItemSize);
-          for (int i = _actualFirstVisibleChildIndex - 1; i >= 0 && i >= _actualFirstVisibleChildIndex - numArrangeAroundViewport; i--)
+          for (int i = _actualFirstRenderedChildIndex - 1; i >= 0 && i >= _actualFirstRenderedChildIndex - numArrangeAroundViewport; i--)
           {
             FrameworkElement item = GetItem(i, itemProvider, true);
             if (item == null || !item.IsVisible)
@@ -662,22 +685,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
 
           //Calculate number of pixels to shift items up/left by based on offset
-          startOffset = -(physicalOffset * _averageItemSize);
+          startOffset = actualStartOffset;
 
           // Elements from _actualFirstVisibleChildIndex to _actualLastVisibleChildIndex + _numArrangeAroundViewport
-          for (int i = _actualFirstVisibleChildIndex; i < numItems && i <= _actualLastVisibleChildIndex + numArrangeAroundViewport; i++)
+          for (int i = _actualFirstRenderedChildIndex; i < numItems && i <= _actualLastRenderedChildIndex + numArrangeAroundViewport; i++)
           {
             FrameworkElement item = GetItem(i, itemProvider, true);
             if (item == null || !item.IsVisible)
               continue;
 
-            var groupHeaderItem = (i == _actualFirstVisibleChildIndex) ? firstGroupHeaderItem : GetGroupHeader(i, false, groupingItemProvider, true);
-            if (groupHeaderItem != null)
+            //Only group items within the active area?
+            if (i >= _actualFirstVisibleChildIndex && i <= _actualLastVisibleChildIndex)
             {
-              ArrangeChild(groupHeaderItem, actualPosition, ref startOffset, false, actualExtendsInNonOrientationDirection, previousVisibleGroupItems);
-              if (i <= _actualLastVisibleChildIndex || (_addOneMoreGroupHeader && i == _actualLastVisibleChildIndex + 1))
+              var groupHeaderItem = (i == _actualFirstVisibleChildIndex) ? firstGroupHeaderItem : GetGroupHeader(i, false, groupingItemProvider, true);
+              if (groupHeaderItem != null)
               {
-                _visibleGroupItems.Add(groupHeaderItem);
+                ArrangeChild(groupHeaderItem, actualPosition, ref startOffset, false, actualExtendsInNonOrientationDirection, previousVisibleGroupItems);
+                if (i <= _actualLastVisibleChildIndex || (_addOneMoreGroupHeader && i == _actualLastVisibleChildIndex + 1))
+                {
+                  _visibleGroupItems.Add(groupHeaderItem);
+                }
               }
             }
 
@@ -699,8 +726,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else
         {
           _arrangedItemsStartIndex = 0;
-          _actualFirstVisibleChildIndex = 0;
-          _actualLastVisibleChildIndex = -1;
+          _actualFirstVisibleChildIndex = _actualFirstRenderedChildIndex = 0;
+          _actualLastVisibleChildIndex = _actualLastRenderedChildIndex = -1;
         }
       }
       if (fireScrolled)
@@ -847,8 +874,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (itemProvider == null)
         return base.GetRenderedChildren();
 
-      return _arrangedItems.Skip(_actualFirstVisibleChildIndex - _arrangedItemsStartIndex).
-          Take(_actualLastVisibleChildIndex - _actualFirstVisibleChildIndex + 1).Concat(_visibleGroupItems);
+      return _arrangedItems.Skip(_actualFirstRenderedChildIndex - _arrangedItemsStartIndex).
+          Take(_actualLastRenderedChildIndex - _actualFirstRenderedChildIndex + 1).Concat(_visibleGroupItems);
     }
 
     #endregion
