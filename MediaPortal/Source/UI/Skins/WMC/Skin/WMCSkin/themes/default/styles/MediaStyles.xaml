@@ -1560,7 +1560,7 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="60"/>
+        <RowDefinition Height="80"/>
       </Grid.RowDefinitions>
 
       <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
@@ -1754,7 +1754,7 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="60"/>
+        <RowDefinition Height="80"/>
       </Grid.RowDefinitions>
 
       <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 

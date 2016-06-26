@@ -33,7 +33,7 @@
         </Control>
 
         <!---Media Items in Listview-->
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="40,-50,0,-210">
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="30,-50,-10,-210">
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsList.inc"/>
           </Control.TemplateControl>
@@ -60,7 +60,7 @@
           <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>
-              <Include Source="screens\MediaItemRecordingListDetails.inc"/>
+              <Include Source="screens\MediaItemListRecordingDetails.inc"/>
             </Control.TemplateControl>
           </Control>
 

@@ -5,7 +5,7 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
-  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails" Margin="{ThemeResource MultiDetailsFooterMargin}"
+  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="90,30,40,-80"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
@@ -16,38 +16,42 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="540"/>
     <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="240"/>
-    <ColumnDefinition Width="110"/>
   </Grid.ColumnDefinitions>
+  
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+         HorizontalAlignment="Stretch" Opacity="0.5" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
+         Color="{ThemeResource TextColor}" Margin="0,50,0,5"/>
 
-  <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" >
-    <Label x:Name="MediaItemName" Wrap="True" Margin="-10,-15,0,0"
-           HorizontalAlignment="Stretch"
+  <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="0" HorizontalAlignment="Left">
+    
+    <Label x:Name="MediaItemName" Wrap="True" Margin="0"
+           HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-           Color="{ThemeResource TextColor}"
-           FontFamily="DefaultBold"/>
+           Color="{ThemeResource TextColor}"/>
+    
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:SeriesAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Episode" Margin="0,0,-10,0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              Content="{Binding Series}" Color="{ThemeResource TextColor}" Scroll="Auto" />
+          <Label x:Name="Episode" Margin="0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 FontSize="{ThemeResource SmallFontSize}"
+              Content="{Binding Series}" Color="{ThemeResource TextColor}" Wrap="True" />
         </ControlTemplate>
       </media:SeriesAspectWrapper.Template>
     </media:SeriesAspectWrapper>
-  </StackPanel>
-  
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
-         Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" HorizontalAlignment="Stretch"
-         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-         Color="{ThemeResource TextColor}" Margin="-10,0,10,25"/>
-
-  <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" Margin="0,-30,0,0">
-    <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+      
+    <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" HorizontalAlignment="Left">
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Channel" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Scroll="Auto" Content="{Binding Channel}" Color="{ThemeResource TextColor}"/>
+          <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+               Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center" Height="80" Margin="-20,0,0,0">
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                            fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+            </Image.Source>
+          </Image>
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
@@ -55,7 +59,17 @@
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="ProgramStart" Scroll="Auto" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+          <Label x:Name="Channel" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 FontSize="{ThemeResource SmallFontSize}"
+                 Content="{Binding Channel}" Opacity="0.5" Color="{ThemeResource TextColor}"/>
+        </ControlTemplate>
+      </tv:RecordingAspectWrapper.Template>
+    </tv:RecordingAspectWrapper>
+
+    <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+      <tv:RecordingAspectWrapper.Template>
+        <ControlTemplate>
+          <Label x:Name="ProgramStart" Scroll="Auto" Opacity="0.5" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                 Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                 Color="{ThemeResource TextColor}"/>
         </ControlTemplate>
@@ -65,7 +79,8 @@
     <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Duration" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+          <Label x:Name="Duration" Opacity="0.5" FontSize="{ThemeResource SmallFontSize}"
+                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
               Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm\:ss}" Color="{ThemeResource TextColor}" />
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
@@ -76,22 +91,30 @@
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
           <Label x:Name="Genre" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              Content="{Binding Genres}" Color="{ThemeResource TextColor}" />
+              Content="{Binding Genres}" Color="{ThemeResource TextColor}" Opacity="0.5" />
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
     </media:VideoAspectWrapper>
   </StackPanel>
 
-    <tv:RecordingAspectWrapper Grid.Row="1" Grid.Column="2" 
+    <tv:RecordingAspectWrapper Grid.Row="0" Grid.Column="1"
                              MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
-            <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-40,0,130">
-              <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
-                              fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-              </Image.Source>
+            <Image DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" MaxHeight="280">
+             <Image.Source>
+                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" HorizontalTextureAlignment="Right" VerticalTextureAlignment="Top"
+                          FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}"/>
+                </Image.Source>
+                <Image.OpacityMask>
+                  <VisualBrush>
+                    <VisualBrush.Visual>
+                      <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+                    </VisualBrush.Visual>
+                  </VisualBrush>
+              </Image.OpacityMask>
             </Image>
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>

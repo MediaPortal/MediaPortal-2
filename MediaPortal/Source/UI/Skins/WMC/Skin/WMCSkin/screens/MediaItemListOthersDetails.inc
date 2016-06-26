@@ -4,7 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,0,20">
+  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,-200">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
@@ -19,7 +19,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Image Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Margin="0,10,10,0" Height="280">
+  <Image Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Height="280">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" HorizontalTextureAlignment="Right" VerticalTextureAlignment="Top"
                           FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
@@ -36,15 +36,14 @@
 
   <Label x:Name="MediaItemName" Grid.Row="0"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-          Margin="-10,-15,0,0" Wrap="True"
+          Margin="0,0,20,0" Wrap="True" FontSize="{ThemeResource SmallFontSize}"
           Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
           Color="{ThemeResource TextColor}"/>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1"
-        Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
-        HorizontalAlignment="Stretch"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="2" Grid.ColumnSpan="2"
+        HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-        Margin="-10,0,5,25"
+        Margin="0,40,5,25" TextTrimming="WordEllipsis"
         Color="{ThemeResource TextColor}"/>
 
 </Grid>

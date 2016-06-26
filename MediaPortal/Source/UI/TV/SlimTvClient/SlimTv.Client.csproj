@@ -460,8 +460,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\MediaItemRecordingDetails.inc" />
-    <Content Include="Skin\WMCSkin\screens\MediaItemRecordingListDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemRecordingDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListRecordingDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\ProgramInfoMain.inc" />
     <Content Include="Skin\WMCSkin\screens\ProgramInfoSchedule.inc" />
     <Content Include="Skin\WMCSkin\screens\ProgramInfo.inc" />
