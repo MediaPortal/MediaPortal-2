@@ -201,7 +201,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
             {
               foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in series.SeriesTranslations.Where(kvp => kvp.Key.Abbriviation.Equals(language.Abbriviation)))
               {
-                series.SeriesTranslations[kvp.Key].Episodes = epList;
+                series.SeriesTranslations[kvp.Key].Episodes.Clear();
+                series.SeriesTranslations[kvp.Key].Episodes.AddRange(epList);
                 series.SeriesTranslations[kvp.Key].EpisodesLoaded = true;
                 series.SetLanguage(language);
                 break;
@@ -302,7 +303,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {
             foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in series.SeriesTranslations.Where(kvp => kvp.Key.Abbriviation.Equals(language.Abbriviation)))
             {
-              series.SeriesTranslations[kvp.Key].Episodes = epList;
+              series.SeriesTranslations[kvp.Key].Episodes.Clear();
+              series.SeriesTranslations[kvp.Key].Episodes.AddRange(epList);
               series.SeriesTranslations[kvp.Key].EpisodesLoaded = true;
               series.SetLanguage(language);
               break;

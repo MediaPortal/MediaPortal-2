@@ -99,10 +99,10 @@ namespace MediaPortal.UI.Players.BassPlayer
     {
       Log.Debug("Disposing BassPlayer");
 
-      _inputSourceFactory.Dispose();
-      _inputSourceFactory = null;
       _controller.Dispose();
       _controller = null;
+      _inputSourceFactory.Dispose();
+      _inputSourceFactory = null;
     }
 
     #endregion

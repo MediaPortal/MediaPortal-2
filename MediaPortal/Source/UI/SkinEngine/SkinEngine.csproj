@@ -282,7 +282,6 @@
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ResolutionResourceExtension.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceExtension.cs" />
-    <Compile Include="MpfElements\Converters\GetIndexMultiConverter.cs" />
     <Compile Include="MpfElements\Converters\CommaSeparatedValuesConverter.cs" />
     <Compile Include="MpfElements\Converters\AbstractSingleDirectionConverter.cs" />
     <Compile Include="MpfElements\Converters\EmptyString2FalseConverter.cs" />
@@ -325,6 +324,7 @@
     <Compile Include="MpfElements\Converters\expr\Variable.cs" />
     <Compile Include="MpfElements\Converters\DurationConverter.cs" />
     <Compile Include="MpfElements\Converters\MPFConverter.cs" />
+    <Compile Include="MpfElements\Converters\GetIndexMultiConverter.cs" />
     <Compile Include="MpfElements\Converters\PriorityBindingConverter.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\Error.cs" />

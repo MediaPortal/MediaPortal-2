@@ -264,15 +264,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       // ReSharper disable UseObjectOrCollectionInitializer
       ListViewItem result = new ListViewItem
-      // ReSharper restore UseObjectOrCollectionInitializer
-      {
-        Context = dataItem,
-        Content = dataItem,
-        Screen = _parent.Screen,
-        VisualParent = lvParent,
-        LogicalParent = lvParent,
-        ItemIndex = index
-      };
+// ReSharper restore UseObjectOrCollectionInitializer
+        {
+            Context = dataItem,
+            Content = dataItem,
+            Screen = _parent.Screen,
+            VisualParent = lvParent,
+            LogicalParent = lvParent,
+            ItemIndex = index
+        };
       // Set this after the other properties have been initialized to avoid duplicate work
       // No need to set the LogicalParent because styles and content templates don't bind bindings
       result.Style = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle);

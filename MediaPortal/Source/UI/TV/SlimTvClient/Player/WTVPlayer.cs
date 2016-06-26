@@ -22,12 +22,10 @@
 
 #endregion
 
-using System;
 using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video;
-using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {

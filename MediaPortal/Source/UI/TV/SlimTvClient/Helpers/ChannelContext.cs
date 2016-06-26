@@ -89,6 +89,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       }
     }
 
+    public static bool IsSameChannel(IChannel channel1, IChannel channel2)
+    {
+      if (channel1 == channel2)
+        return true;
+
+      if (channel1 != null && channel2 != null)
+        return channel1.ChannelId == channel2.ChannelId && channel1.MediaType == channel2.MediaType;
+      return false;
+    }
+
     /// <summary>
     /// Applies a filter to channel groups. This will be used to remove "All Channels" group if needed.
     /// </summary>
@@ -112,7 +122,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannels(ChannelGroups.Current, out channels))
       {
-        Channels.Clear();
+        Channels.ClearAndReset();
         Channels.AddRange(channels);
         Channels.FireListChanged();
         // Check user zapping setting for channel index vs. number preferance
@@ -141,6 +151,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public EventHandler OnListChanged;
 
     private int _current;
+
+    public void ClearAndReset()
+    {
+      Clear();
+      _current = 0;
+    }
 
     public T Current
     {

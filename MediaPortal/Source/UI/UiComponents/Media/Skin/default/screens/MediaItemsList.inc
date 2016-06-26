@@ -13,6 +13,10 @@
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
+
+  <!-- All KeyBindings are included from shared resource -->
+  <Include Source="screens\MediaItemsFilterKeyBindings.inc"/>
+
   <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding IsItemsValid}">
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
@@ -35,5 +39,4 @@
   <Label IsVisible="{Binding !IsItemsValid}"
       HorizontalAlignment="Center" VerticalAlignment="Center"
       Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
-  <KeyBinding Key="F5" Command="{Command Reload}"/>
 </Grid>
