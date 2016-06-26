@@ -61,7 +61,7 @@
                 </Image.Source>
               </Image>
 
-            <Grid Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" Height="250" Width="500">
+            <Grid Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" Height="280" Width="500">
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -75,13 +75,13 @@
                      FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Stretch"
                      Content="{Binding Path=SelectedFeed.Title}" Wrap="True" />
 
-            <Label Grid.Row="1" Grid.Column="0" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" Color="{ThemeResource TextColor}" 
+              <Label Grid.Row="1" Grid.Column="0" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" Color="{ThemeResource TextColor}" 
                      FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Stretch" TextTrimming="WordEllipsis" Margin="0,0,0,7"
                      Content="{Binding Title}" Wrap="True"/>
 
-            <Label Grid.Row="2" Grid.Column="0" Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" 
+              <Label Grid.Row="2" Grid.Column="0" Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" 
                      FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Stretch" Margin="0,0,0,7"
-                     Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />              
+                     Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
             </Grid>
 
             <ScrollViewer Grid.ColumnSpan="2" Grid.Row="1" CanContentScroll="True" Margin="0,40,0,20" VerticalScrollBarVisibility="Hidden"

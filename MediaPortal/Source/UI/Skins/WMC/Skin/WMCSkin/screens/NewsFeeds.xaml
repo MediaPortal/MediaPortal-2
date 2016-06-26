@@ -35,7 +35,7 @@
           </Grid.RowDefinitions>
           <!-- Feeds -->
           <ListView x:Name="newslist" Margin="30,0,50,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="true"
-                    Style="{ThemeResource NewsFeedsContainerStyle}" ItemsSource="{Binding Path=Feeds}">
+                    Style="{ThemeResource NewsFeedsContainerStyle}" ItemsSource="{Binding Path=Feeds}" SetFocusPrio="Highest">
             <ListView.Resources>
               <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
               <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
@@ -59,7 +59,7 @@
                    Source="{Binding Path=Icon}"/>
               </Image.Source>
             </Image>
-            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" VerticalAlignment="Stretch">
               <Label DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" 
                      FontSize="{ThemeResource SmallFontSize}"
                      Content="{Binding Title}" Margin="0" Wrap="True" VerticalAlignment="Stretch" />
@@ -77,7 +77,7 @@
           </Grid>
           <!-- Updating Overlay -->
           <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
-                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource HugeFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           <DockPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false"
                    IsVisible="{Binding IsItemsValid}">
             <StackPanel DockPanel.Dock="Right" Margin="0,10,45,-10" Orientation="Horizontal">
