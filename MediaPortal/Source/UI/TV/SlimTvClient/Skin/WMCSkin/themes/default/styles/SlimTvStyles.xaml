@@ -848,7 +848,7 @@
       </DockPanel>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}"
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="0,0,10,0"
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </ControlTemplate>
@@ -926,8 +926,21 @@
           </Image.FallbackSource>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" 
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
+      <!--Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Margin="0,0,10,0"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/-->
+      <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2">
+        <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
+                     Color="{ThemeResource TextColor}">
+          <Label.Content>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+              <Binding Path="Duration"/>
+            </MultiBinding>
+          </Label.Content>
+        </Label>
+        <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"/>
+      </StackPanel>
       <Grid x:Name="Details" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
         <Grid.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutSize}.{Small}"/>

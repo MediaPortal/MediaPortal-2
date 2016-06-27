@@ -79,9 +79,19 @@
     <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Duration" Opacity="0.5" FontSize="{ThemeResource SmallFontSize}"
-                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm\:ss}" Color="{ThemeResource TextColor}" />
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StackPanel Orientation="Horizontal">
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
+                     Color="{ThemeResource TextColor}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                    <Binding Path="Duration"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"/>
+            </StackPanel>
+          </Grid>
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
     </media:VideoAspectWrapper>
