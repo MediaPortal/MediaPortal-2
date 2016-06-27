@@ -61,6 +61,7 @@
     <Compile Include="Actions\SkinSettingsAction.cs" />
     <Compile Include="Controls\HomeMenuContentPresenter.cs" />
     <Compile Include="Controls\SubItemsContentPresenter.cs" />
+    <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Models\HomeMenuActionProxy.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\NavigationList.cs" />

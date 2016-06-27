@@ -7,6 +7,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
+    xmlns:wmcc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Converters;assembly=WMCSkin"
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls,Animations"
     >
 
@@ -16,8 +17,16 @@
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
+  <wmcc:IncludeItemsListActionFilter x:Key="IncludeItemsListActionFilter"/>
+  <wmcc:ExcludeItemsListActionFilter x:Key="ExcludeItemsListActionFilter"/>
 
-  <!-- default brush used to paint the background of a page/window -->
+  <!--
+  Workflow ActionIds that will be shown in MediaMenu by default. Other actions are excluded 
+  Format has to be a ";" delimited list of Guids
+  -->
+  <ResourceWrapper x:Key="ActionIdFilter">b15ea757-905e-46fa-a71d-c132885c221e;d205e9bc-a970-429d-88f8-bbb92cf3f19a</ResourceWrapper>
+
+    <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
     <ImageBrush x:Name="BackdropImageBackground" ImageSource="Background.png" />
   </ResourceWrapper>
