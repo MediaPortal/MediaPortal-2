@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using Microsoft.Win32;
 
 namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 {
@@ -37,13 +38,18 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 
         public override void Save()
         {
-            if (_yes)
+            if (!_yes) return;
+
+            using (RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Team Mediaportal\Mediaportal 2"))
             {
-                string collectorPath = System.Environment.CurrentDirectory;
-                collectorPath = System.IO.Path.Combine(System.IO.Directory.GetParent(collectorPath).FullName, "MP2-LogCollector\\MP2-LogCollector.exe");
-                if (System.IO.File.Exists(collectorPath))
+                if (registryKey != null)
                 {
-                    System.Diagnostics.Process.Start(collectorPath);
+                    string logCollectorPath = (string)registryKey.GetValue("INSTALLDIR_LOG_COLLECTOR");
+                    string collectorPath = System.IO.Path.Combine(logCollectorPath, "MP2-LogCollector.exe");
+                    if (System.IO.File.Exists(collectorPath))
+                    {
+                        System.Diagnostics.Process.Start(collectorPath);
+                    }
                 }
             }
         }

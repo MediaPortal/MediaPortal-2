@@ -35,18 +35,13 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
         public override void Load()
         {
             log4net.Core.Level activeLevel = Diagnostics.Service.DiagnosticsHandler.GetLogLevel();
-            if (activeLevel == log4net.Core.Level.Debug)
-                _yes = true;
-            else
-                _yes = false;
+            _yes = (activeLevel == log4net.Core.Level.All) ? true : false;
         }
 
         public override void Save()
         {
-            if (_yes)
-                Diagnostics.Service.DiagnosticsHandler.SetLogLevel(log4net.Core.Level.Debug);
-            else
-                Diagnostics.Service.DiagnosticsHandler.SetLogLevel(log4net.Core.Level.Info);
+            log4net.Core.Level desired = (_yes) ?  log4net.Core.Level.All : log4net.Core.Level.Info;
+            Diagnostics.Service.DiagnosticsHandler.SetLogLevel(desired);
         }
 
         #endregion Methods
