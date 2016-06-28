@@ -38,7 +38,9 @@ namespace MediaItemAspectModelBuilder
       const bool exposeNullables = true;
 
 
-      List<Type> typeList = new List<Type> { typeof(MediaAspect), typeof(VideoAspect), typeof(VideoAudioAspect),
+      List<Type> typeList = new List<Type> {
+        typeof(MediaAspect), typeof(ImporterAspect),
+        typeof(VideoAspect), typeof(VideoStreamAspect), typeof(VideoAudioStreamAspect),
         typeof(AudioAspect), typeof(AudioAlbumAspect),
         typeof(ImageAspect),typeof(ImageCollectionAspect),
         typeof(MovieAspect), typeof(MovieCollectionAspect),
