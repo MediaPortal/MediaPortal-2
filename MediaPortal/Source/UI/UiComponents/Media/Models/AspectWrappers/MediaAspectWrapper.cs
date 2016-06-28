@@ -46,11 +46,13 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 #region Fields
 
 protected AbstractProperty _titleProperty;
+protected AbstractProperty _sortTitleProperty;
 protected AbstractProperty _recordingTimeProperty;
 protected AbstractProperty _ratingProperty;
 protected AbstractProperty _commentProperty;
 protected AbstractProperty _playCountProperty;
 protected AbstractProperty _lastPlayedProperty;
+protected AbstractProperty _isVirtualProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -66,6 +68,17 @@ public string Title
 {
   get { return (string) _titleProperty.GetValue(); }
   set { _titleProperty.SetValue(value); }
+}
+
+public AbstractProperty SortTitleProperty
+{
+  get{ return _sortTitleProperty; }
+}
+
+public string SortTitle
+{
+  get { return (string) _sortTitleProperty.GetValue(); }
+  set { _sortTitleProperty.SetValue(value); }
 }
 
 public AbstractProperty RecordingTimeProperty
@@ -123,6 +136,17 @@ public DateTime? LastPlayed
   set { _lastPlayedProperty.SetValue(value); }
 }
 
+public AbstractProperty IsVirtualProperty
+{
+  get{ return _isVirtualProperty; }
+}
+
+public bool? IsVirtual
+{
+  get { return (bool?) _isVirtualProperty.GetValue(); }
+  set { _isVirtualProperty.SetValue(value); }
+}
+
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -141,11 +165,13 @@ public MediaItem MediaItem
 public MediaAspectWrapper()
 {
   _titleProperty = new SProperty(typeof(string));
+  _sortTitleProperty = new SProperty(typeof(string));
   _recordingTimeProperty = new SProperty(typeof(DateTime?));
   _ratingProperty = new SProperty(typeof(int?));
   _commentProperty = new SProperty(typeof(string));
   _playCountProperty = new SProperty(typeof(int?));
   _lastPlayedProperty = new SProperty(typeof(DateTime?));
+  _isVirtualProperty = new SProperty(typeof(bool?));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -169,21 +195,25 @@ public void Init(MediaItem mediaItem)
   }
 
   Title = (string) aspect[MediaAspect.ATTR_TITLE];
+  SortTitle = (string) aspect[MediaAspect.ATTR_SORT_TITLE];
   RecordingTime = (DateTime?) aspect[MediaAspect.ATTR_RECORDINGTIME];
   Rating = (int?) aspect[MediaAspect.ATTR_RATING];
   Comment = (string) aspect[MediaAspect.ATTR_COMMENT];
   PlayCount = (int?) aspect[MediaAspect.ATTR_PLAYCOUNT];
   LastPlayed = (DateTime?) aspect[MediaAspect.ATTR_LASTPLAYED];
+  IsVirtual = (bool?) aspect[MediaAspect.ATTR_ISVIRTUAL];
 }
 
 public void SetEmpty()
 {
   Title = null;
+  SortTitle = null;
   RecordingTime = null;
   Rating = null;
   Comment = null;
   PlayCount = null;
   LastPlayed = null;
+  IsVirtual = null;
 }
 
 

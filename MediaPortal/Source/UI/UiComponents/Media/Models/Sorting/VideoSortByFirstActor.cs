@@ -27,13 +27,13 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public class MovieSortByFirstWriter : AbstractSortByFirstComparableAttribute<string>
+  public class VideoSortByFirstActor : AbstractSortByFirstComparableAttribute<string>
   {
-    public MovieSortByFirstWriter() : base(VideoAspect.ATTR_WRITERS) { }
+    public VideoSortByFirstActor() : base(VideoAspect.ATTR_ACTORS) {}
 
     public override string DisplayName
     {
-      get { return Consts.RES_SORT_BY_WRITER; }
+      get { return Consts.RES_SORT_BY_ACTOR; }
     }
   }
 }

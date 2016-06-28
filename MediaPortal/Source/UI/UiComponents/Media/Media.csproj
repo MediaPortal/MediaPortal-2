@@ -134,6 +134,7 @@
     <Compile Include="Models\AspectWrappers\EpisodeAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImageCollectionAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\ImporterAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MovieAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MovieCollectionAspectWrapper.cs" />
@@ -141,7 +142,8 @@
     <Compile Include="Models\AspectWrappers\SeasonAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\SeriesAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\VideoAudioAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\VideoAudioStreamAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
@@ -177,8 +179,7 @@
     <Compile Include="Models\ScreenData\EpisodeFilterByActorScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByActorScreenData.cs" />
     <Compile Include="Models\ScreenData\EpisodeFilterByDirectorScreenData.cs" />
-    <Compile Include="Models\ScreenData\EpisodeFilterByGenreScreenData.cs" />
-    <Compile Include="Models\ScreenData\SeriesFilterByGenreScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideoFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByPlayCountScreenData.cs" />
     <Compile Include="Models\ScreenData\EpisodeFilterByWriterScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByWriterScreenData.cs" />
@@ -198,17 +199,16 @@
     <Compile Include="Models\Sorting\AbstractSortByFirstComparableAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableObjectAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableValueAttribute.cs" />
-    <Compile Include="Models\Sorting\SeriesSortByFirstActor.cs" />
-    <Compile Include="Models\Sorting\MovieSortByFirstWriter.cs" />
+    <Compile Include="Models\Sorting\VideoSortByFirstWriter.cs" />
     <Compile Include="Models\Sorting\SortByFirstAiredDate.cs" />
     <Compile Include="Models\Sorting\SeriesSortByEpisode.cs" />
     <Compile Include="Models\Sorting\SortByDate.cs" />
     <Compile Include="Models\Sorting\VideoSortByAspectRatio.cs" />
     <Compile Include="Models\Sorting\VideoSortBySize.cs" />
     <Compile Include="Models\Sorting\VideoSortByDuration.cs" />
-    <Compile Include="Models\Sorting\MovieSortByFirstActor.cs" />
-    <Compile Include="Models\Sorting\MovieSortByFirstDirector.cs" />
-    <Compile Include="Models\Sorting\MovieSortByFirstGenre.cs" />
+    <Compile Include="Models\Sorting\VideoSortByFirstActor.cs" />
+    <Compile Include="Models\Sorting\VideoSortByFirstDirector.cs" />
+    <Compile Include="Models\Sorting\VideoSortByFirstGenre.cs" />
     <Compile Include="Models\Sorting\SortBySystem.cs" />
     <Compile Include="Models\Sorting\ImageSortBySize.cs" />
     <Compile Include="Models\Sorting\SortByYear.cs" />
@@ -240,7 +240,6 @@
     <Compile Include="Models\ScreenData\ImagesFilterByYearScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByYearScreenData.cs" />
-    <Compile Include="Models\ScreenData\MovieFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByDecadeScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByGenreScreenData.cs" />

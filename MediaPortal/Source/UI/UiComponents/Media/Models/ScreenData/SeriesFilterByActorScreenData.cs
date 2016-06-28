@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesFilterByActorScreenData() :
         base(Consts.SCREEN_VIDEOS_FILTER_BY_ACTOR, Consts.RES_FILTER_BY_ACTOR_MENU_ITEM,
-        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_ACTORS))
+        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_ACTORS))
     {
     }
 

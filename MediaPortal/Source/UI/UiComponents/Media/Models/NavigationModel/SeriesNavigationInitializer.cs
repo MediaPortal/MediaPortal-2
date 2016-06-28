@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),
         new SeriesFilterByActorScreenData(),
-        new SeriesFilterByGenreScreenData(),
+        new VideoFilterByGenreScreenData(),
         new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };
       _defaultSorting = new SeriesSortByEpisode();

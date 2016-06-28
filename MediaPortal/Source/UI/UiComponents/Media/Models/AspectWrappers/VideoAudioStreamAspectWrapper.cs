@@ -32,10 +32,10 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 {
 /// <summary>
-/// VideoAudioAspectWrapper wraps the contents of <see cref="VideoAudioAspect"/> into properties that can be bound from xaml controls.
+/// VideoAudioStreamAspectWrapper wraps the contents of <see cref="VideoAudioStreamAspect"/> into properties that can be bound from xaml controls.
 /// Note: this code was automatically created by the MediaItemAspectModelBuilder helper tool under Resources folder.
 /// </summary>
-public class VideoAudioAspectWrapper: Control
+public class VideoAudioStreamAspectWrapper: Control
 {
 #region Constants
 
@@ -138,7 +138,7 @@ public MediaItem MediaItem
 
 #region Constructor
 
-public VideoAudioAspectWrapper()
+public VideoAudioStreamAspectWrapper()
 {
   _resourceIndexProperty = new SProperty(typeof(int?));
   _streamIndexProperty = new SProperty(typeof(int?));

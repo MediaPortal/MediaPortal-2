@@ -59,12 +59,6 @@ protected AbstractProperty _revenueProperty;
 protected AbstractProperty _scoreProperty;
 protected AbstractProperty _totalRatingProperty;
 protected AbstractProperty _ratingCountProperty;
-protected AbstractProperty _actorsProperty;
-protected AbstractProperty _directorsProperty;
-protected AbstractProperty _writersProperty;
-protected AbstractProperty _charactersProperty;
-protected AbstractProperty _genresProperty;
-protected AbstractProperty _storyPlotProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -225,72 +219,6 @@ public int? RatingCount
   set { _ratingCountProperty.SetValue(value); }
 }
 
-public AbstractProperty ActorsProperty
-{
-  get{ return _actorsProperty; }
-}
-
-public IEnumerable<string> Actors
-{
-  get { return (IEnumerable<string>) _actorsProperty.GetValue(); }
-  set { _actorsProperty.SetValue(value); }
-}
-
-public AbstractProperty DirectorsProperty
-{
-  get{ return _directorsProperty; }
-}
-
-public IEnumerable<string> Directors
-{
-  get { return (IEnumerable<string>) _directorsProperty.GetValue(); }
-  set { _directorsProperty.SetValue(value); }
-}
-
-public AbstractProperty WritersProperty
-{
-  get{ return _writersProperty; }
-}
-
-public IEnumerable<string> Writers
-{
-  get { return (IEnumerable<string>) _writersProperty.GetValue(); }
-  set { _writersProperty.SetValue(value); }
-}
-
-public AbstractProperty CharactersProperty
-{
-  get{ return _charactersProperty; }
-}
-
-public IEnumerable<string> Characters
-{
-  get { return (IEnumerable<string>) _charactersProperty.GetValue(); }
-  set { _charactersProperty.SetValue(value); }
-}
-
-public AbstractProperty GenresProperty
-{
-  get{ return _genresProperty; }
-}
-
-public IEnumerable<string> Genres
-{
-  get { return (IEnumerable<string>) _genresProperty.GetValue(); }
-  set { _genresProperty.SetValue(value); }
-}
-
-public AbstractProperty StoryPlotProperty
-{
-  get{ return _storyPlotProperty; }
-}
-
-public string StoryPlot
-{
-  get { return (string) _storyPlotProperty.GetValue(); }
-  set { _storyPlotProperty.SetValue(value); }
-}
-
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -322,12 +250,6 @@ public MovieAspectWrapper()
   _scoreProperty = new SProperty(typeof(float?));
   _totalRatingProperty = new SProperty(typeof(double?));
   _ratingCountProperty = new SProperty(typeof(int?));
-  _actorsProperty = new SProperty(typeof(IEnumerable<string>));
-  _directorsProperty = new SProperty(typeof(IEnumerable<string>));
-  _writersProperty = new SProperty(typeof(IEnumerable<string>));
-  _charactersProperty = new SProperty(typeof(IEnumerable<string>));
-  _genresProperty = new SProperty(typeof(IEnumerable<string>));
-  _storyPlotProperty = new SProperty(typeof(string));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -364,12 +286,6 @@ public void Init(MediaItem mediaItem)
   Score = (float?) aspect[MovieAspect.ATTR_SCORE];
   TotalRating = (double?) aspect[MovieAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[MovieAspect.ATTR_RATING_COUNT];
-  Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
-  Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
-  Writers = (IEnumerable<string>) aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
-  Characters = (IEnumerable<string>) aspect[VideoAspect.ATTR_CHARACTERS] ?? EMPTY_STRING_COLLECTION;
-  Genres = (IEnumerable<string>) aspect[VideoAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-  StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
 }
 
 public void SetEmpty()
@@ -388,12 +304,6 @@ public void SetEmpty()
   Score = null;
   TotalRating = null;
   RatingCount = null;
-  Actors = EMPTY_STRING_COLLECTION;
-  Directors = EMPTY_STRING_COLLECTION;
-  Writers = EMPTY_STRING_COLLECTION;
-  Characters = EMPTY_STRING_COLLECTION;
-  Genres = EMPTY_STRING_COLLECTION;
-  StoryPlot = null;
 }
 
 

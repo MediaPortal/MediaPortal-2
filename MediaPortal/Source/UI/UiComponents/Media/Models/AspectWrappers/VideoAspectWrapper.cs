@@ -45,131 +45,94 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 
 #region Fields
 
-protected AbstractProperty _resourceIndexProperty;
-protected AbstractProperty _streamIndexProperty;
-protected AbstractProperty _durationProperty;
-protected AbstractProperty _audioStreamCountProperty;
-protected AbstractProperty _videoEncodingProperty;
-protected AbstractProperty _videoBitRateProperty;
-protected AbstractProperty _aspectWidthProperty;
-protected AbstractProperty _aspectHeightProperty;
-protected AbstractProperty _aspectRatioProperty;
-protected AbstractProperty _fPSProperty;
+protected AbstractProperty _genresProperty;
+protected AbstractProperty _actorsProperty;
+protected AbstractProperty _directorsProperty;
+protected AbstractProperty _writersProperty;
+protected AbstractProperty _charactersProperty;
 protected AbstractProperty _isDVDProperty;
+protected AbstractProperty _storyPlotProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
 
 #region Properties
 
-public AbstractProperty ResourceIndexProperty
+public AbstractProperty GenresProperty
 {
-  get{ return _resourceIndexProperty; }
+  get{ return _genresProperty; }
 }
 
-public int? ResourceIndex
+public IEnumerable<string> Genres
 {
-  get { return (int?) _resourceIndexProperty.GetValue(); }
-  set { _resourceIndexProperty.SetValue(value); }
+  get { return (IEnumerable<string>) _genresProperty.GetValue(); }
+  set { _genresProperty.SetValue(value); }
 }
 
-public AbstractProperty StreamIndexProperty
+public AbstractProperty ActorsProperty
 {
-  get{ return _streamIndexProperty; }
+  get{ return _actorsProperty; }
 }
 
-public int? StreamIndex
+public IEnumerable<string> Actors
 {
-  get { return (int?) _streamIndexProperty.GetValue(); }
-  set { _streamIndexProperty.SetValue(value); }
+  get { return (IEnumerable<string>) _actorsProperty.GetValue(); }
+  set { _actorsProperty.SetValue(value); }
 }
 
-public AbstractProperty DurationProperty
+public AbstractProperty DirectorsProperty
 {
-  get{ return _durationProperty; }
+  get{ return _directorsProperty; }
 }
 
-public long? Duration
+public IEnumerable<string> Directors
 {
-  get { return (long?) _durationProperty.GetValue(); }
-  set { _durationProperty.SetValue(value); }
+  get { return (IEnumerable<string>) _directorsProperty.GetValue(); }
+  set { _directorsProperty.SetValue(value); }
 }
 
-public AbstractProperty AudioStreamCountProperty
+public AbstractProperty WritersProperty
 {
-  get{ return _audioStreamCountProperty; }
+  get{ return _writersProperty; }
 }
 
-public int? AudioStreamCount
+public IEnumerable<string> Writers
 {
-  get { return (int?) _audioStreamCountProperty.GetValue(); }
-  set { _audioStreamCountProperty.SetValue(value); }
+  get { return (IEnumerable<string>) _writersProperty.GetValue(); }
+  set { _writersProperty.SetValue(value); }
 }
 
-public AbstractProperty VideoEncodingProperty
+public AbstractProperty CharactersProperty
 {
-  get{ return _videoEncodingProperty; }
+  get{ return _charactersProperty; }
 }
 
-public string VideoEncoding
+public IEnumerable<string> Characters
 {
-  get { return (string) _videoEncodingProperty.GetValue(); }
-  set { _videoEncodingProperty.SetValue(value); }
+  get { return (IEnumerable<string>) _charactersProperty.GetValue(); }
+  set { _charactersProperty.SetValue(value); }
 }
 
-public AbstractProperty VideoBitRateProperty
+public AbstractProperty IsDVDProperty
 {
-  get{ return _videoBitRateProperty; }
+  get{ return _isDVDProperty; }
 }
 
-public long? VideoBitRate
+public bool? IsDVD
 {
-  get { return (long?) _videoBitRateProperty.GetValue(); }
-  set { _videoBitRateProperty.SetValue(value); }
+  get { return (bool?) _isDVDProperty.GetValue(); }
+  set { _isDVDProperty.SetValue(value); }
 }
 
-public AbstractProperty AspectWidthProperty
+public AbstractProperty StoryPlotProperty
 {
-  get{ return _aspectWidthProperty; }
+  get{ return _storyPlotProperty; }
 }
 
-public int? AspectWidth
+public string StoryPlot
 {
-  get { return (int?) _aspectWidthProperty.GetValue(); }
-  set { _aspectWidthProperty.SetValue(value); }
-}
-
-public AbstractProperty AspectHeightProperty
-{
-  get{ return _aspectHeightProperty; }
-}
-
-public int? AspectHeight
-{
-  get { return (int?) _aspectHeightProperty.GetValue(); }
-  set { _aspectHeightProperty.SetValue(value); }
-}
-
-public AbstractProperty AspectRatioProperty
-{
-  get{ return _aspectRatioProperty; }
-}
-
-public float? AspectRatio
-{
-  get { return (float?) _aspectRatioProperty.GetValue(); }
-  set { _aspectRatioProperty.SetValue(value); }
-}
-
-public AbstractProperty FPSProperty
-{
-  get{ return _fPSProperty; }
-}
-
-public float? FPS
-{
-  get { return (float?) _fPSProperty.GetValue(); }
-  set { _fPSProperty.SetValue(value); }
+  get { return (string) _storyPlotProperty.GetValue(); }
+  set { _storyPlotProperty.SetValue(value); }
 }
 
 public AbstractProperty MediaItemProperty
@@ -189,17 +152,13 @@ public MediaItem MediaItem
 
 public VideoAspectWrapper()
 {
-  _resourceIndexProperty = new SProperty(typeof(int?));
-  _streamIndexProperty = new SProperty(typeof(int?));
-  _durationProperty = new SProperty(typeof(long?));
-  _audioStreamCountProperty = new SProperty(typeof(int?));
-  _videoEncodingProperty = new SProperty(typeof(string));
-  _videoBitRateProperty = new SProperty(typeof(long?));
-  _aspectWidthProperty = new SProperty(typeof(int?));
-  _aspectHeightProperty = new SProperty(typeof(int?));
-  _aspectRatioProperty = new SProperty(typeof(float?));
-  _fPSProperty = new SProperty(typeof(float?));
+  _genresProperty = new SProperty(typeof(IEnumerable<string>));
+  _actorsProperty = new SProperty(typeof(IEnumerable<string>));
+  _directorsProperty = new SProperty(typeof(IEnumerable<string>));
+  _writersProperty = new SProperty(typeof(IEnumerable<string>));
+  _charactersProperty = new SProperty(typeof(IEnumerable<string>));
   _isDVDProperty = new SProperty(typeof(bool?));
+  _storyPlotProperty = new SProperty(typeof(string));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -215,37 +174,31 @@ private void MediaItemChanged(AbstractProperty property, object oldvalue)
 
 public void Init(MediaItem mediaItem)
 {
-  IList<MultipleMediaItemAspect> aspects;
-  if (mediaItem == null ||!MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out aspects))
+  SingleMediaItemAspect aspect;
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspect(mediaItem.Aspects, VideoAspect.Metadata, out aspect))
   {
      SetEmpty();
      return;
   }
 
-  ResourceIndex = (int?) aspects[0][VideoStreamAspect.ATTR_RESOURCE_INDEX];
-  StreamIndex = (int?) aspects[0][VideoStreamAspect.ATTR_STREAM_INDEX];
-  Duration = (long?) aspects[0][VideoStreamAspect.ATTR_DURATION];
-  AudioStreamCount = (int?) aspects[0][VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT];
-  VideoEncoding = (string) aspects[0][VideoStreamAspect.ATTR_VIDEOENCODING];
-  VideoBitRate = (long?) aspects[0][VideoStreamAspect.ATTR_VIDEOBITRATE];
-  AspectWidth = (int?) aspects[0][VideoStreamAspect.ATTR_WIDTH];
-  AspectHeight = (int?) aspects[0][VideoStreamAspect.ATTR_HEIGHT];
-  AspectRatio = (float?) aspects[0][VideoStreamAspect.ATTR_ASPECTRATIO];
-  FPS = (float?) aspects[0][VideoStreamAspect.ATTR_FPS];
+  Genres = (IEnumerable<string>) aspect[VideoAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+  Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
+  Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
+  Writers = (IEnumerable<string>) aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
+  Characters = (IEnumerable<string>) aspect[VideoAspect.ATTR_CHARACTERS] ?? EMPTY_STRING_COLLECTION;
+  IsDVD = (bool?) aspect[VideoAspect.ATTR_ISDVD];
+  StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
 }
 
 public void SetEmpty()
 {
-  ResourceIndex = null;
-  StreamIndex = null;
-  Duration = null;
-  AudioStreamCount = null;
-  VideoEncoding = null;
-  VideoBitRate = null;
-  AspectWidth = null;
-  AspectHeight = null;
-  AspectRatio = null;
-  FPS = null;
+  Genres = EMPTY_STRING_COLLECTION;
+  Actors = EMPTY_STRING_COLLECTION;
+  Directors = EMPTY_STRING_COLLECTION;
+  Writers = EMPTY_STRING_COLLECTION;
+  Characters = EMPTY_STRING_COLLECTION;
+  IsDVD = null;
+  StoryPlot = null;
 }
 
 
