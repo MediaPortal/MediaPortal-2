@@ -699,7 +699,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       object first;
       int? iFirst;
       if (state.TryGetValue(prefix + "/FirstVisibleChild", out first) && (iFirst = first as int?).HasValue)
-        SetScrollIndex(iFirst.Value, true);
+        SetPartialScrollIndex(iFirst.Value, true);
     }
 
     #endregion
@@ -907,7 +907,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       if (visibleChildren.Count == 0)
         return false;
-      SetScrollIndex(0, true);
+      SetPartialScrollIndex(0, true);
       visibleChildren[0].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }
@@ -917,7 +917,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       if (visibleChildren.Count == 0)
         return false;
-      SetScrollIndex(int.MaxValue, false);
+      SetPartialScrollIndex(int.MaxValue, false);
       visibleChildren[visibleChildren.Count - 1].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }

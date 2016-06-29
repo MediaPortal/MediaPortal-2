@@ -975,7 +975,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (item == null || !InVisualPath(item, currentElement))
         return false;
       //last item has focus, focus first item
-      SetScrollIndex(0, true);
+      SetPartialScrollIndex(0, true);
       item = GetItem(0, itemProvider, false);
       if (item != null)
         item.SetFocusPrio = SetFocusPriority.Default;
@@ -1002,7 +1002,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (item == null || !InVisualPath(item, currentElement))
         return false;
       //first item has focus, focus last item
-      SetScrollIndex(maxIndex, false);
+      SetPartialScrollIndex(maxIndex, false);
       item = GetItem(maxIndex, itemProvider, false);
       if (item != null)
         item.SetFocusPrio = SetFocusPriority.Default;
@@ -1044,7 +1044,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.LowerBound(ref index, 1);
           index = firstVisibleChildIndex - index;
           CalcHelper.Bound(ref index, 0, numItems - 1);
-          SetScrollIndex(index, true);
+          SetPartialScrollIndex(index, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -1098,7 +1098,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.LowerBound(ref index, 1);
           index = lastVisibleChildIndex + index;
           CalcHelper.Bound(ref index, 0, numItems - 1);
-          SetScrollIndex(index, false);
+          SetPartialScrollIndex(index, false);
           FrameworkElement item = GetItem(index, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -1152,7 +1152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.LowerBound(ref index, 1);
           index = firstVisibleChildIndex - index;
           CalcHelper.Bound(ref index, 0, numItems - 1);
-          SetScrollIndex(index, true);
+          SetPartialScrollIndex(index, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -1206,7 +1206,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.LowerBound(ref index, 1);
           index = lastVisibleChildIndex + index;
           CalcHelper.Bound(ref index, 0, numItems - 1);
-          SetScrollIndex(index, false);
+          SetPartialScrollIndex(index, false);
           FrameworkElement item = GetItem(index, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -1239,7 +1239,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
-      SetScrollIndex(0, true);
+      SetPartialScrollIndex(0, true);
       return true;
     }
 
@@ -1259,7 +1259,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
-      SetScrollIndex(numItems - 1, false);
+      SetPartialScrollIndex(numItems - 1, false);
       return true;
     }
 

@@ -864,7 +864,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       object first;
       int? iFirst;
       if (state.TryGetValue(prefix + "/FirstVisibleLine", out first) && (iFirst = first as int?).HasValue)
-        SetScrollIndex(iFirst.Value, true);
+        SetPartialScrollIndex(iFirst.Value, true);
     }
 
     #endregion
