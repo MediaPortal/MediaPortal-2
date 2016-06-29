@@ -25,7 +25,7 @@
   Workflow ActionIds that will be shown in MediaMenu by default. Other actions are excluded 
   Format has to be a ";" delimited list of Guids
   -->
-  <ResourceWrapper x:Key="ActionIdFilter">
+  <!--ResourceWrapper x:Key="ActionIdFilter">
     03189090-a3c1-4346-9a84-4acd6725dde0;
     f400fbea-6e32-4735-be52-15dfdbb64fcc;
     b15ea757-905e-46fa-a71d-c132885c221e;
@@ -33,9 +33,19 @@
     377692F9-C2E5-4D30-BF27-24F12B2CD9C8;
     09243059-ee44-460d-8412-2e994ccb5a98;
     09eae702-d9ec-4325-82d9-4843502c966b
+  </-->
+
+  <ResourceWrapper x:Key="ActionIdFilter">
+    63935BB2-3434-482b-BE52-EBE787522EA7;
+    D5D980B9-EB3C-4f07-AB20-0684C35D2764;
+    652C8DEE-38F8-4479-BBB3-F25557641E60;
+    63935BB2-3434-482b-BE52-EBE787522EA7;
+    D83604C0-0936-4416-9DE8-7B6D7C50023C;
+    36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F;
+    9C3E6701-6856-49ec-A4CD-0CEB15F385F6
   </ResourceWrapper>
 
-    <!-- default brush used to paint the background of a page/window -->
+  <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
     <ImageBrush x:Name="BackdropImageBackground" ImageSource="Background.png" />
   </ResourceWrapper>
