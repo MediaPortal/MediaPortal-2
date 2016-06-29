@@ -838,9 +838,9 @@
         </Image>
       </DockPanel>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
     </Grid>
   </ControlTemplate>
 
@@ -908,9 +908,9 @@
         </Image>
       </DockPanel>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
     </Grid>
   </ControlTemplate>
 
@@ -922,24 +922,80 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"/>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="0,1.5,0,0">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="#FF447da7" Offset="0"/>
+            <GradientStop Color="#FF124273" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <!--Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"/-->
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" FontFamily="SegoeUIBold"
+             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="NumItems" Content="{Binding NumItems}"
+             HorizontalAlignment="Right" VerticalAlignment="Bottom"
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,5,5"/>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewContainerItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource COVERVIEW_FILTER_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource POSTER_COVER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource COVERVIEW_FILTER_HEIGHT}"/>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="72"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"
-           FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center"/>
+      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3,-2,-3,-2"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Rectangle.Stroke>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+            <GradientStop Color="#CCFFFFFF" Offset="0"/>
+            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
+            <GradientStop Color="#66FFFFFF" Offset="1"/>
+          </LinearGradientBrush>
+        </Rectangle.Stroke>
+      </Rectangle>
+      
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="0,1.5,0,0.5">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="#FF447da7" Offset="0"/>
+            <GradientStop Color="#FF124273" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      
+      <Image Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}" Stretch="Uniform"
+                   Source="NavigationLarge.png" Margin="20">
+      </Image>
+
+      <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Rectangle.Fill>
+          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
+                   Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"
+                   HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.7"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>
     </Grid>
   </ControlTemplate>
+  
 
   <!-- Series Filter -->
   <ControlTemplate x:Key="ListViewSeriesFilterItemTemplate">
@@ -947,7 +1003,7 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="60"/>
+        <ColumnDefinition Width="90"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
@@ -991,7 +1047,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="0,0,10,0" FontFamily="SegoeUIBold"
+      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="10,0,10,0" FontFamily="SegoeUIBold" HorizontalAlignment="Right"
           Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/> <!--x:Name needs to be duration, so the TextColor can be changed in ControlStyle-->
     </Grid>
   </ControlTemplate>
@@ -1037,7 +1093,7 @@
       </Grid.RowDefinitions>
 
       <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                       RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3"
+                       RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3,2,-3,2"
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
         <Rectangle.Stroke>
           <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
@@ -1049,7 +1105,7 @@
       </Rectangle>
 
       <Image Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}" Stretch="Fill"
-                   FallbackSource="VideoLarge.png" Margin="0">
+                   FallbackSource="Video.png" Margin="0">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
                     fanart:MaxWidth="{StaticResource POSTER_COVER_WIDTH}" fanart:MaxHeight="{StaticResource POSTER_COVER_HEIGHT}"/>
@@ -1092,6 +1148,159 @@
     </Grid>
   </ControlTemplate>
 
+  <!-- Series Season Filter -->
+  <ControlTemplate x:Key="ListViewSeriesSeasonFilterItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="90"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="SegoeUIBold"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
+        <!--Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource WatchedTextColor}"/>
+          </MultiBinding>
+        </-->
+      </Label>
+      <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+        </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-20,2,-20,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+        </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+        </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+        </Image.IsVisible>
+      </Image>
+      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="10,0,10,0" FontFamily="SegoeUIBold" HorizontalAlignment="Right"
+          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <!--x:Name needs to be duration, so the TextColor can be changed in ControlStyle-->
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewSeriesSeasonFilterItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Image Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}" Stretch="Fill">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+        </Image.Source>
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Image.IsVisible>
+          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+        </Image.IsVisible>
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="CoverViewSeriesSeasonFilterItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="72"/>
+      </Grid.RowDefinitions>
+
+      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="5" RadiusY="5" StrokeThickness="3" Margin="-2,2,-2,2"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Rectangle.Stroke>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+            <GradientStop Color="#CCFFFFFF" Offset="0"/>
+            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
+            <GradientStop Color="#66FFFFFF" Offset="1"/>
+          </LinearGradientBrush>
+        </Rectangle.Stroke>
+      </Rectangle>
+
+      <Image Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}" Stretch="Fill"
+             FallbackSource="Video.png" Margin="0">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+        </Image.Source>
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+
+      <!-- Unwatched indicator>
+      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,20,0,0">
+        <Image.IsVisible>
+          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+        </Image.IsVisible>
+      </Image-->
+
+      <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Rectangle.Fill>
+          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
+             Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold"
+             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="0.7"/>
+            <Binding Source="1.0"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>
+    </Grid>
+  </ControlTemplate>
+
+
+ 
+
+
   <!-- Movie Collection Filter -->
   <ControlTemplate x:Key="ListViewMovieFilterItemTemplate">
     <Grid x:Name="ItemControl">
@@ -1106,10 +1315,17 @@
       </Grid.RowDefinitions>
 
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="SegoeUIBold"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-
-      <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
+        <!--Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource WatchedTextColor}"/>
+          </MultiBinding>
+        </-->
+      </Label>
+      <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -1118,8 +1334,8 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-            FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-20,2,-20,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -1128,8 +1344,8 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-            FallbackSource="VideoLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -1143,24 +1359,34 @@
           Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </ControlTemplate>
-
+  
   <ControlTemplate x:Key="GridViewMovieFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_CONTAINER_WIDTH}"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Image Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}" Stretch="Uniform" FallbackSource="VideoLarge.png"
-             Grid.Row="0" Grid.Column="1">
+      <Image Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}" Stretch="Fill"
+             FallbackSource="Video.png">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <!-- Unwatched indicator -->
+      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Image.IsVisible>
+          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+        </Image.IsVisible>
       </Image>
     </Grid>
   </ControlTemplate>
@@ -1168,15 +1394,66 @@
   <ControlTemplate x:Key="CoverViewMovieFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_CONTAINER_WIDTH}"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource COVERVIEW_FILTER_HEIGHT}"/>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="72"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"/>
+      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="5" RadiusY="5" StrokeThickness="3" Margin="-2,2,-2,2"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Rectangle.Stroke>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+            <GradientStop Color="#CCFFFFFF" Offset="0"/>
+            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
+            <GradientStop Color="#66FFFFFF" Offset="1"/>
+          </LinearGradientBrush>
+        </Rectangle.Stroke>
+      </Rectangle>
+
+      <Image Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}" Stretch="Fill"
+                   FallbackSource="Video.png" Margin="0">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+
+      <!-- Unwatched indicator -->
+      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,20,0,0">
+        <Image.IsVisible>
+          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+        </Image.IsVisible>
+      </Image>
+
+      <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                       RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Rectangle.Fill>
+          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
+             Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold"
+             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="0.7"/>
+            <Binding Source="1.0"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>
     </Grid>
   </ControlTemplate>
 
@@ -1237,7 +1514,7 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Image Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}" Stretch="Fill"
-                   Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
+                   Source="{Binding MediaItem}" FallbackSource="Video.png">
         <Image.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
@@ -1278,7 +1555,7 @@
       </Rectangle>
 
       <Image Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}" Stretch="Fill"
-                   Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" Margin="0">
+                   Source="{Binding MediaItem}" FallbackSource="Video.png" Margin="0">
         <Image.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
@@ -1331,20 +1608,20 @@
       </Grid.RowDefinitions>
       <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+            Source="{Binding MediaItem}" FallbackSource="Video.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
           </Image.IsVisible>
         </Image>
 
         <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+            Source="{Binding MediaItem}" FallbackSource="Video.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-            Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+            Source="{Binding MediaItem}" FallbackSource="Video.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
           </Image.IsVisible>
@@ -1396,7 +1673,7 @@
         <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
       <Image Stretch="Uniform" Margin="1"
-                   Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
+                   Source="{Binding MediaItem}" FallbackSource="Video.png">
       </Image>
       <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Image.IsVisible>
@@ -1413,6 +1690,15 @@
         <RowDefinition Height="70"/>
       </Grid.RowDefinitions>
 
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="1">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="#FF447da7" Offset="0"/>
+            <GradientStop Color="#FF124273" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+
       <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
                   MaxHeight="{StaticResource VIDEO_COVER_HEIGHT}" Width="{StaticResource VIDEO_COVER_WIDTH}">
         <Grid.OpacityMask>
@@ -1428,7 +1714,7 @@
           </Grid.RowDefinitions>
         </Grid>
         <Image Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="0,0,0,0"
-                       Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" >
+                       Source="{Binding MediaItem}" FallbackSource="Video.png" >
           <Image.Opacity>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -1535,7 +1821,7 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Image Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" Stretch="Fill"
-                   Source="{Binding MediaItem}" FallbackSource="VideoLarge.png">
+                   Source="{Binding MediaItem}" FallbackSource="Video.png">
         <Image.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
@@ -1576,7 +1862,7 @@
       </Rectangle>
 
       <Image Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Fill"
-                   Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" Margin="0">
+                   Source="{Binding MediaItem}" FallbackSource="Video.png" Margin="0">
         <Image.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
@@ -1725,7 +2011,7 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Image Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" Stretch="Fill"
-                   FallbackSource="VideoLarge.png">
+                   FallbackSource="Video.png">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -1770,7 +2056,7 @@
       </Rectangle>
 
       <Image Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Fill"
-                   FallbackSource="VideoLarge.png" Margin="0">
+                   FallbackSource="Video.png" Margin="0">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -1942,6 +2228,19 @@
           <Binding Source="{StaticResource ListViewSeriesFilterItemTemplate}"/>
           <Binding Source="{StaticResource GridViewSeriesFilterItemTemplate}"/>
           <Binding Source="{StaticResource CoverViewSeriesFilterItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type navitems:SeasonFilterItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewSeriesSeasonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewSeriesSeasonFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewSeriesSeasonFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
