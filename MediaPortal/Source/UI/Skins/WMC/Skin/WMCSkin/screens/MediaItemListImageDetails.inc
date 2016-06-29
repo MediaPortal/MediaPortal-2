@@ -24,7 +24,7 @@
                       <ColumnDefinition Width="450"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
+                    <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" FontFamily="SegoeUIBold"
                         Content="[Media.ImageTitleLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
                     <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
                         Content="{Binding Title}" Color="{ThemeResource TextColor}"/>

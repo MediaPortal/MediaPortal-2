@@ -46,7 +46,7 @@
     <ResourceWrapper x:Key="BANNER_GRID_WIDTH" Resource="460"/>
     <ResourceWrapper x:Key="BANNER_GRID_HEIGHT" Resource="105"/>
 
-    <ResourceWrapper x:Key="VIDEO_GRID_WIDTH" Resource="225"/>
+    <ResourceWrapper x:Key="VIDEO_GRID_WIDTH" Resource="263"/>
     <ResourceWrapper x:Key="VIDEO_GRID_HEIGHT" Resource="162"/>
 
     <ResourceWrapper x:Key="VIDEO_COVER_WIDTH" Resource="260"/>

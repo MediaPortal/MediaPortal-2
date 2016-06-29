@@ -34,7 +34,7 @@
     </Image.OpacityMask>
   </Image>
 
-  <Label x:Name="MediaItemName" Grid.Row="0"
+  <Label x:Name="MediaItemName" Grid.Row="0" FontFamily="SegoeUIBold"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
           Margin="0,0,20,0" Wrap="True" FontSize="{ThemeResource SmallFontSize}"
           Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"

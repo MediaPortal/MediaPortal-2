@@ -15,10 +15,9 @@
 
   <Label x:Name="MediaItemName" Grid.Row="0"
           HorizontalAlignment="Stretch"
-          Margin="-10,-15,0,0"
+          Margin="-10,-15,0,0" FontFamily="SegoeUIBold"
           Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-          Color="{ThemeResource TextColor}"
-          FontFamily="DefaultBold"/>
+          Color="{ThemeResource TextColor}"/>
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1"
         Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"

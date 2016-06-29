@@ -42,7 +42,7 @@
   <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
     <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" TextTrimming="WordEllipsis"
-            HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
+            HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
             Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
             Color="{ThemeResource TextColor}"/>
     
