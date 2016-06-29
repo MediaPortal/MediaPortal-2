@@ -74,7 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
-    <Content Include="Skin\WMCSkin\fonts\default-font.xml" />
+    <Content Include="Skin\WMCSkin\fonts\default-font.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4EFocus.png" />
     <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4ENofocus.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
@@ -313,6 +315,8 @@
     <Content Include="Skin\WMCSkin\fonts\SansBetween.ttf" />
     <Content Include="Skin\WMCSkin\fonts\SketchyTimes.desc" />
     <Content Include="Skin\WMCSkin\fonts\SketchyTimes.ttf" />
+    <None Include="Skin\WMCSkin\fonts\seguisb.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\seguisb.desc" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\home.xaml" />
