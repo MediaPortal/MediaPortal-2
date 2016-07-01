@@ -234,10 +234,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       float offset = (float)(lineIndex % 1);
       lock (_renderLock)
       {
-        if (_pendingScrollIndex == lineIndex && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
+        if (_pendingScrollIndex == index && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
             (!_pendingScrollIndex.HasValue && _actualPhysicalOffset == offset &&
-             ((_scrollToFirst && _actualFirstVisibleLineIndex == lineIndex) ||
-              (!_scrollToFirst && _actualLastVisibleLineIndex == lineIndex))))
+             ((_scrollToFirst && _actualFirstVisibleLineIndex == index) ||
+              (!_scrollToFirst && _actualLastVisibleLineIndex == index))))
           return;
         _pendingScrollIndex = index;
         _pendingPhysicalOffset = offset;
