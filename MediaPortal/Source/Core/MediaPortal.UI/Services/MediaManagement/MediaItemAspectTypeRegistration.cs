@@ -59,7 +59,8 @@ namespace MediaPortal.UI.Services.MediaManagement
 
     public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
     {
-      //TODO: Is this necessary on client?
+      //TODO: Implement with remaining parameters
+      RegisterLocallyKnownMediaItemAspectType(miaType);
     }
 
     public void RegisterMediaItemAspectRoleDependency(Guid role, Guid parentRole)
