@@ -184,6 +184,20 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
+    public static IDbCommand SelectAllUserMediaItemDataCommand(ITransaction transaction, Guid profileId, Guid mediaItemId, out int mediaItemDataKeyIndex, out int mediaItemDataIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT DATA_KEY, MEDIA_ITEM_DATA FROM USER_MEDIA_ITEM_DATA WHERE PROFILE_ID=@PROFILE_ID AND MEDIA_ITEM_ID=@MEDIA_ITEM_ID";
+
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
+
+      mediaItemDataKeyIndex = 0;
+      mediaItemDataIndex = 1;
+      return result;
+    }
+
     public static IDbCommand CreateUserMediaItemDataCommand(ITransaction transaction, Guid profileId, Guid mediaItemId, string dataKey, string mediaItemData)
     {
       IDbCommand result = transaction.CreateCommand();

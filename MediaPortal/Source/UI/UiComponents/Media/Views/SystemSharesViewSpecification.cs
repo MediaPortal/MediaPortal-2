@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -99,12 +100,18 @@ namespace MediaPortal.UiComponents.Media.Views
       IContentDirectory cd = scm.ContentDirectory;
       if (cd == null)
         return;
-      foreach(Share share in cd.GetShares(_systemId, SharesFilter.All))
+
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+      foreach (Share share in cd.GetShares(_systemId, SharesFilter.All))
       {
         // Check if we want to filter only for given MediaCategories
         if (_restrictedMediaCategories != null && !share.MediaCategories.Intersect(_restrictedMediaCategories).Any())
           continue;
-        MediaItem parentDirectory = cd.LoadItem(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION);
+        MediaItem parentDirectory = cd.LoadItem(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile);
         if (parentDirectory == null)
           continue;
         IList<MultipleMediaItemAspect> pras = null;

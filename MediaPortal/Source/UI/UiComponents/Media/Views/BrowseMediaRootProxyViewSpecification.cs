@@ -32,6 +32,7 @@ using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -136,8 +137,13 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null)
         return;
 
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
       MediaItem parentDirectory = cd.LoadItem(localShare.SystemId, localShare.BaseResourcePath,
-          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION);
+          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION, userProfile);
       if (parentDirectory == null)
         return;
       navigateToViewDlgt(new MediaLibraryBrowseViewSpecification(localShare.Name, parentDirectory.MediaItemId,
@@ -152,9 +158,14 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null)
         return null;
 
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
       ResourcePath directoryPath = viewRA.CanonicalLocalResourcePath;
       MediaItem directoryItem = cd.LoadItem(systemId, directoryPath,
-          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION);
+          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION, userProfile);
       if (directoryItem == null)
         return null;
       return new MediaLibraryBrowseViewSpecification(viewRA.ResourceName, directoryItem.MediaItemId, systemId,

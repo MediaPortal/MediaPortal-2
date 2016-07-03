@@ -582,14 +582,24 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
             TimeSpan miDur = dur.HasValue ? TimeSpan.FromSeconds(dur.Value) : TimeSpan.FromSeconds(0);
             playlistDuration = playlistDuration.Add(miDur);
           }
-          else
-            if (item.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out aspects))
+          else if (item.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out aspects))
+          {
+            var aspect = aspects.First();
+            int? part = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART];
+            int? partSet = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
+            long? dur = null;
+            if (!part.HasValue || part < 0)
             {
-              var aspect = aspects.First();
-              long? dur = aspect == null ? null : (long?)aspect[VideoStreamAspect.ATTR_DURATION];
-              TimeSpan miDur = dur.HasValue ? TimeSpan.FromSeconds(dur.Value) : TimeSpan.FromSeconds(0);
-              playlistDuration = playlistDuration.Add(miDur);
+              dur = (long?)aspect[VideoStreamAspect.ATTR_DURATION];
             }
+            else if(partSet.HasValue)
+            {
+              dur = aspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet && 
+              aspect[VideoStreamAspect.ATTR_DURATION] != null).Sum(a => (long)a[VideoStreamAspect.ATTR_DURATION]);
+            }
+            TimeSpan miDur = dur.HasValue ? TimeSpan.FromSeconds(dur.Value) : TimeSpan.FromSeconds(0);
+            playlistDuration = playlistDuration.Add(miDur);
+          }
         }
 
         // currentTime

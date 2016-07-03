@@ -49,6 +49,7 @@ using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 using RelocationMode = MediaPortal.Backend.MediaLibrary.RelocationMode;
+using MediaPortal.Backend.Services.UserProfileDataManagement;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -68,11 +69,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public MediaItem LoadLocalItem(ResourcePath path,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
       {
         try
         {
-          return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+          return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
         }
         catch (Exception)
         {
@@ -81,11 +82,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, offset, limit);
+          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, offset, limit);
         }
         catch (Exception)
         {
@@ -712,7 +713,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public MediaItem LoadItem(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
     {
       lock (_syncObj)
       {
@@ -737,17 +738,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
         var result = cmiq.QueryMediaItem();
-        
+
         // This is the second part of the rework as decribed above (remove ProviderResourceAspect if it wasn't requested)
         if (removeProviderResourceAspect && result != null)
           result.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
-        
+
+        LoadUserDataForMediaItem(userProfile, result);
+
         return result;
       }
     }
 
     public IList<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
+        Guid? userProfile = null, uint? offset = null, uint? limit = null)
     {
       lock (_syncObj)
       {
@@ -756,16 +760,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         browseQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         browseQuery.Limit = limit;
         browseQuery.Offset = offset;
-        return Search(browseQuery, false);
+        return Search(browseQuery, false, userProfile);
       }
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline)
+    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfile = null)
     {
-      return Search(null, null , query, filterOnlyOnline);
+      return Search(null, null , query, filterOnlyOnline, userProfile);
     }
 
-    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline)
+    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfile = null)
     {
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
       MediaItemQuery executeQuery = query;
@@ -783,6 +787,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         items = cmiq.QueryList(database, transaction);
       Logger.Debug("Found media items [{0}]", string.Join(",", items.Select(x => x.MediaItemId)));
       IList<MediaItem> result = new List<MediaItem>(items.Count);
+      foreach (MediaItem item in items)
+      {
+        LoadUserDataForMediaItem(userProfile, item);
+      }
+
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
       { // The provider resource aspect was not requested and thus has to be removed from the result items
         foreach (MediaItem item in items)
@@ -864,6 +873,37 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
           necessaryMIATypeIDs, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cciq.Execute();
+    }
+
+    private void LoadUserDataForMediaItem(Guid? userProfile, MediaItem mediaItem)
+    {
+      if (userProfile.HasValue)
+      {
+        mediaItem.UserData.Clear();
+
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        ITransaction transaction = database.BeginTransaction();
+        try
+        {
+          int dataKeyIndex;
+          int dataIndex;
+          using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectAllUserMediaItemDataCommand(transaction,
+            userProfile.Value, mediaItem.MediaItemId, out dataKeyIndex, out dataIndex))
+          {
+            using (IDataReader reader = command.ExecuteReader())
+            {
+              while (reader.Read())
+              {
+                mediaItem.UserData.Add(database.ReadDBValue<string>(reader, dataKeyIndex), database.ReadDBValue<string>(reader, dataIndex));
+              }
+            }
+          }
+        }
+        finally
+        {
+          transaction.Dispose();
+        }
+      }
     }
 
     #endregion

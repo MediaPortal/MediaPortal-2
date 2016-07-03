@@ -273,18 +273,19 @@ namespace MediaPortal.Common.Services.ServerCommunication
     #region Media query
 
     public MediaItem LoadItem(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile)
     {
       CpAction action = GetAction("X_MediaPortal_LoadItem");
       IList<object> inParameters = new List<object> {systemId, path.Serialize(),
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
-          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes)};
+          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
+          userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (MediaItem) outParameters[0];
     }
 
     public IList<MediaItem> Browse(Guid parentDirectory,
-      IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+      IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile,
       uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_Browse");
@@ -294,24 +295,32 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
         offset,
-        limit
+        limit,
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>)outParameters[0];
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline)
+    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_Search");
       String onlineStateStr = SerializeOnlineState(onlyOnline);
-      IList<object> inParameters = new List<object> {query, onlineStateStr};
+      IList<object> inParameters = new List<object>
+      {
+        query,
+        onlineStateStr,
+        offset,
+        limit,
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null
+      };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
 
     public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes,
       IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
-      uint? offset = null, uint? limit = null)
+      Guid? userProfile, uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_SimpleTextSearch");
       String searchModeStr = SerializeExcludeClobs(excludeCLOBs);
@@ -322,7 +331,8 @@ namespace MediaPortal.Common.Services.ServerCommunication
         searchText,
         MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
         MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
-        filter, searchModeStr, onlineStateStr, capitalizationMode, offset, limit
+        filter, searchModeStr, onlineStateStr, capitalizationMode, offset, limit,
+        userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null
       };
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>)outParameters[0];

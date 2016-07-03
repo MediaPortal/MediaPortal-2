@@ -28,7 +28,6 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
-using static MediaPortal.Common.MediaManagement.MediaItemAspectMetadata;
 
 namespace MediaPortal.Backend.MediaLibrary
 {
@@ -104,9 +103,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
     /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns></returns>
     MediaItem LoadItem(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs);
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
+        Guid? userProfile = null);
 
     /// <summary>
     /// Lists all media items with the given parent directory.
@@ -117,10 +118,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns>Result collection of media items at the given location.</returns>
     IList<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
-      uint? offset = null, uint? limit = null);
+      IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
+      Guid? userProfile = null, uint ? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items.
@@ -128,10 +130,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="query">Query object which specifies the search parameters.</param>
     /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
     /// are currently online are returned.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns>List of matching media items with the media item aspects of the given
     /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
     /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
-    IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline);
+    IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfile = null);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given
@@ -296,7 +299,8 @@ namespace MediaPortal.Backend.MediaLibrary
 
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
 
-    void AddMediaItemAspectStorage(MediaItemAspectMetadata miam, AttributeSpecification[] specs, MediaItemAspectMetadata dependMiam, AttributeSpecification[] dependSpecs);
+    void AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] specs, 
+      MediaItemAspectMetadata dependMiam, MediaItemAspectMetadata.AttributeSpecification[] dependSpecs);
 
     void RemoveMediaItemAspectStorage(Guid aspectId);
 

@@ -659,17 +659,18 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       // Media query
 
-      DvAction mpnp10LoadItemAction = new DvAction("X_MediaPortal_LoadItem", OnMPnP10LoadItem,
-          new DvArgument[] {
-            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
-            new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
-            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("MediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, true),
-          });
-      AddAction(mpnp10LoadItemAction);
+      // Superseded MPnP 1.1
+      //DvAction mpnp10LoadItemAction = new DvAction("X_MediaPortal_LoadItem", OnMPnP10LoadItem,
+      //    new DvArgument[] {
+      //      new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
+      //      new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
+      //      new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //      new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+      //    },
+      //    new DvArgument[] {
+      //      new DvArgument("MediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, true),
+      //    });
+      //AddAction(mpnp10LoadItemAction);
 
       // Superseded MPnP 1.1
       //DvAction mpnp10BrowseAction = new DvAction("X_MediaPortal_Browse", OnMPnP10Browse,
@@ -683,15 +684,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       //    });
       //AddAction(mpnp10BrowseAction);
 
-      DvAction mpnp10SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP10Search,
-          new DvArgument[] {
-            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
-            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
-          });
-      AddAction(mpnp10SearchAction);
+      // Superseded MPnP 1.1
+      //DvAction mpnp10SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP10Search,
+      //    new DvArgument[] {
+      //      new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+      //      new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+      //    },
+      //    new DvArgument[] {
+      //      new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+      //    });
+      //AddAction(mpnp10SearchAction);
 
       // Superseded MPnP 1.1
       //DvAction mpnp10TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP10TextSearch,
@@ -867,12 +869,26 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In), 
-            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In), 
+            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
+            new DvArgument("UserProfile", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
       AddAction(mpnp11BrowseAction);
+
+      DvAction mpnp11SearchAction = new DvAction("X_MediaPortal_Search", OnMPnP11Search,
+          new DvArgument[] {
+            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+            new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In),
+            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
+            new DvArgument("UserProfile", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          });
+      AddAction(mpnp11SearchAction);
 
       DvAction mpnp11TextSearchAction = new DvAction("X_MediaPortal_SimpleTextSearch", OnMPnP11TextSearch,
           new DvArgument[] {
@@ -884,7 +900,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
             new DvArgument("CapitalizationMode", A_ARG_TYPE_CapitalizationMode, ArgumentDirection.In),
             new DvArgument("Offset", A_ARG_TYPE_Index, ArgumentDirection.In), 
-            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In), 
+            new DvArgument("Limit", A_ARG_TYPE_Count, ArgumentDirection.In),
+            new DvArgument("UserProfile", A_ARG_TYPE_Uuid, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
@@ -903,6 +920,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true)
           });
       AddAction(mpnp11LoadCustomPlaylistAction);
+
+      DvAction mpnp11LoadItemAction = new DvAction("X_MediaPortal_LoadItem", OnMPnP11LoadItem,
+          new DvArgument[] {
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
+            new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("UserProfile", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, true),
+          });
+      AddAction(mpnp11LoadItemAction);
 
       #endregion
 
@@ -1622,7 +1652,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
       uint? offset = (uint?)inParams[3];
       uint? limit = (uint?)inParams[4];
-      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes, offset, limit);
+      Guid? userProfile = null;
+      if (!string.IsNullOrEmpty((string)inParams[5]))
+        userProfile = MarshallingHelper.DeserializeGuid((string)inParams[5]);
+      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes, userProfile, offset, limit);
 
       outParams = new List<object> { result };
       return null;
@@ -1635,6 +1668,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string onlineStateStr = (string)inParams[1];
       uint? offset = (uint?)inParams[2];
       uint? limit = (uint?)inParams[3];
+      Guid? userProfile = null;
+      if (!string.IsNullOrEmpty((string)inParams[4]))
+        userProfile = MarshallingHelper.DeserializeGuid((string)inParams[4]);
       bool all;
       UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
       if (error != null)
@@ -1644,7 +1680,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       query.Limit = limit;
       query.Offset = offset;
-      IList<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Search(query, !all);
+      IList<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Search(query, !all, userProfile);
       outParams = new List<object> { mediaItems };
       return null;
     }
@@ -1661,6 +1697,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string capitalizationMode = (string)inParams[6];
       uint? offset = (uint?)inParams[7];
       uint? limit = (uint?)inParams[8];
+      Guid? userProfile = null;
+      if (!string.IsNullOrEmpty((string)inParams[9]))
+        userProfile = MarshallingHelper.DeserializeGuid((string)inParams[9]);
       bool excludeCLOBs;
       bool all = false;
       bool caseSensitive = true;
@@ -1677,7 +1716,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           filter, !excludeCLOBs, caseSensitive);
       query.Limit = limit;
       query.Offset = offset;
-      IList<MediaItem> mediaItems = mediaLibrary.Search(query, !all);
+      IList<MediaItem> mediaItems = mediaLibrary.Search(query, !all, userProfile);
       outParams = new List<object> { mediaItems };
       return null;
     }
@@ -1693,6 +1732,22 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().LoadCustomPlaylist(
           mediaItemIds, necessaryMIATypes, optionalMIATypes, offset, limit);
       outParams = new List<object> { result };
+      return null;
+    }
+
+    static UPnPError OnMPnP11LoadItem(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      string systemId = (string)inParams[0];
+      ResourcePath path = ResourcePath.Deserialize((string)inParams[1]);
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[3]);
+      Guid? userProfile = null;
+      if(!string.IsNullOrEmpty((string)inParams[4]))
+        userProfile = MarshallingHelper.DeserializeGuid((string)inParams[4]);
+      MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, path,
+          necessaryMIATypes, optionalMIATypes, userProfile);
+      outParams = new List<object> { mediaItem };
       return null;
     }
 

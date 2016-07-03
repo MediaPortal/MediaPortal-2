@@ -44,6 +44,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Enums;
 using MediaPortal.UiComponents.Trakt.Service;
 using MediaPortal.UiComponents.Trakt.Settings;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Trakt.Models
 {
@@ -318,9 +319,14 @@ namespace MediaPortal.UiComponents.Trakt.Models
           return false;
         }
 
+        Guid? userProfile = null;
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+          userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
         #region Get local database info
 
-        var collectedMovies = contentDirectory.Search(new MediaItemQuery(types, null, null), true);
+        var collectedMovies = contentDirectory.Search(new MediaItemQuery(types, null, null), true, userProfile);
 
         TraktLogger.Info("Found {0} movies available to sync in local database", collectedMovies.Count);
 
@@ -615,9 +621,14 @@ namespace MediaPortal.UiComponents.Trakt.Models
             return false;
           }
 
+          Guid? userProfile = null;
+          IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+          if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+            userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
           #region Get data from local database
 
-          var localEpisodes = contentDirectory.Search(mediaItemQuery, true);
+          var localEpisodes = contentDirectory.Search(mediaItemQuery, true, userProfile);
           int episodeCount = localEpisodes.Count;
 
           TraktLogger.Info("Found {0} total episodes in local database", episodeCount);

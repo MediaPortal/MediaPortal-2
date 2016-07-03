@@ -138,9 +138,10 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
     /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns></returns>
     MediaItem LoadItem(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile);
 
     /// <summary>
     /// Lists all media items with the given parent directory.
@@ -149,12 +150,13 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
     /// If a media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Result collection of media items at the given location.</returns>
     IList<MediaItem> Browse(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
-      uint? offset = null, uint? limit = null);
+        Guid? userProfile, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items.
@@ -162,10 +164,13 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="query">Query object which specifies the search parameters.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
     /// are currently online are returned.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of matching media items with the media item aspects of the given
     /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
     /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
-    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
+    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items which searches items by a given <paramref name="searchText"/> and which is constrained
@@ -180,12 +185,13 @@ namespace MediaPortal.Common.SystemCommunication
     /// are currently online are returned.</param>
     /// <param name="caseSensitive">If set to <c>true</c>, the query is done case sensitive, else it is done case
     /// insensitive.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of matching media items.</returns>
     IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
-      uint? offset = null, uint? limit = null);
+      Guid? userProfile, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given

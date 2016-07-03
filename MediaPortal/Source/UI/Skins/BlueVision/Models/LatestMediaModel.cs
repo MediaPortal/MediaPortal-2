@@ -40,6 +40,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -163,7 +164,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         SortInformation = new List<SortInformation> { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
 
-      var items = contentDirectory.Search(query, false);
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+      var items = contentDirectory.Search(query, false, userProfile);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

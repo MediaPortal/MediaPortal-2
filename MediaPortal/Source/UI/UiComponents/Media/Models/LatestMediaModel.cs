@@ -37,6 +37,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -120,8 +121,12 @@ namespace MediaPortal.UiComponents.Media.Models
         Limit = QUERY_LIMIT, // Last 5 imported items
         SortInformation = new List<SortInformation> { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      var items = contentDirectory.Search(query, false);
+      var items = contentDirectory.Search(query, false, userProfile);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

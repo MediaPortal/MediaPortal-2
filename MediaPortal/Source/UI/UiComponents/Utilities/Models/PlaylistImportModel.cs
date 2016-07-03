@@ -47,6 +47,7 @@ using MediaPortal.UiComponents.Utilities.General;
 using MediaPortal.UiComponents.Utilities.Playlists;
 using MediaPortal.UiComponents.Utilities.Settings;
 using MediaPortal.Utilities;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Utilities.Models
 {
@@ -166,6 +167,11 @@ namespace MediaPortal.UiComponents.Utilities.Models
           return null;
         }
 
+        Guid? userProfile = null;
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+          userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
         IList<Guid> result = new List<Guid>();
         NumMatched = 0;
         NumProcessed = 0;
@@ -178,7 +184,8 @@ namespace MediaPortal.UiComponents.Utilities.Models
             if (IsCancelled)
               return null;
             CheckUpdateScreenData();
-            MediaItem item = cd.LoadItem(systemId, LocalFsResourceProviderBase.ToResourcePath(localMediaFile), necessaryAudioAspectIds, optionalAudioAspectIds);
+            MediaItem item = cd.LoadItem(systemId, LocalFsResourceProviderBase.ToResourcePath(localMediaFile), 
+              necessaryAudioAspectIds, optionalAudioAspectIds, userProfile);
             NumProcessed++;
             if (item == null)
             {

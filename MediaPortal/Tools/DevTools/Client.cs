@@ -211,7 +211,7 @@ namespace MediaPortal.DevTools
       IFilter seriesFilter = new LikeFilter(EpisodeAspect.ATTR_SERIES_NAME, string.Format("%{0}%", text), null, false);
       IFilter filter = new BooleanCombinationFilter(BooleanOperator.Or, new IFilter[] { titleFilter, actorsFilter, directorsFilter, writersFilter, episodeFilter, seriesFilter });
 
-      return GetContentDirectory().Search(new MediaItemQuery(types, new Guid[] { SeriesAspect.ASPECT_ID }, filter), true);
+      return GetContentDirectory().Search(new MediaItemQuery(types, new Guid[] { SeriesAspect.ASPECT_ID }, filter), true, null);
     }
   }
 }

@@ -312,7 +312,7 @@ namespace MediaPortal.DevTools
     private static void ShowMediaItems(Client client, IFilter filter)
     {
       IMediaItemAspectTypeRegistration registration = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      IList<MediaItem> items = client.GetContentDirectory().Search(new MediaItemQuery(null, registration.LocallyKnownMediaItemAspectTypes.Keys, filter), true);
+      IList<MediaItem> items = client.GetContentDirectory().Search(new MediaItemQuery(null, registration.LocallyKnownMediaItemAspectTypes.Keys, filter), true, null);
       foreach (MediaItem item in items)
       {
         Console.WriteLine("\nItem {0}:", item.MediaItemId);

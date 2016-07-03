@@ -46,6 +46,7 @@ namespace MediaPortal.Common.MediaManagement
 
     protected Guid _id;
     protected readonly IDictionary<Guid, IList<MediaItemAspect>> _aspects;
+    protected readonly IDictionary<string, string> _userData = new Dictionary<string, string>();
 
     #endregion
 
@@ -69,6 +70,19 @@ namespace MediaPortal.Common.MediaManagement
       _aspects = new Dictionary<Guid, IList<MediaItemAspect>>(aspects);
     }
 
+    /// <summary>
+    /// Creates a new media item.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the media item in the media library. For local media items, this must be <c>Guid.Empty</c>.</param>
+    /// <param name="aspects">Dictionary of media item aspects for the new media item instance.</param>
+    /// <param name="userData">Dictionary of user specific data for the new media item instance.</param>
+    public MediaItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<string,string> userData)
+    {
+      _id = mediaItemId;
+      _aspects = new Dictionary<Guid, IList<MediaItemAspect>>(aspects);
+      _userData = new Dictionary<string, string>(userData);
+    }
+
     public Guid MediaItemId
     {
       get { return _id; }
@@ -77,6 +91,11 @@ namespace MediaPortal.Common.MediaManagement
     public IDictionary<Guid, IList<MediaItemAspect>> Aspects
     {
       get { return _aspects; }
+    }
+
+    public IDictionary<string, string> UserData
+    {
+      get { return _userData; }
     }
 
     /// <summary>
@@ -134,6 +153,8 @@ namespace MediaPortal.Common.MediaManagement
 
     void IXmlSerializable.ReadXml(XmlReader reader)
     {
+      XmlSerializer stringSerializer = new XmlSerializer(typeof(string));
+
       try
       {
         // First read attributes, then check for empty start element
@@ -149,14 +170,38 @@ namespace MediaPortal.Common.MediaManagement
       }
       while (reader.NodeType != XmlNodeType.EndElement)
       {
-        MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
-        if(mia is SingleMediaItemAspect)
+        if (reader.Name == "Aspect")
         {
-          MediaItemAspect.SetAspect(_aspects, (SingleMediaItemAspect)mia);
+          MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
+          if (mia is SingleMediaItemAspect)
+          {
+            MediaItemAspect.SetAspect(_aspects, (SingleMediaItemAspect)mia);
+          }
+          else if (mia is MultipleMediaItemAspect)
+          {
+            MediaItemAspect.AddOrUpdateAspect(_aspects, (MultipleMediaItemAspect)mia);
+          }
         }
-        else if(mia is MultipleMediaItemAspect)
+        else if (reader.Name == "UserData")
         {
-          MediaItemAspect.AddOrUpdateAspect(_aspects, (MultipleMediaItemAspect)mia);
+          string key = null;
+          string data = null;
+
+          reader.ReadStartElement();
+
+          if (reader.MoveToAttribute("Key"))
+            key = reader.ReadContentAsString();
+          if (reader.MoveToAttribute("Data"))
+            data = reader.ReadContentAsString();
+
+          if(key != null && data != null)
+            _userData.Add(key, data);
+
+          reader.ReadEndElement(); //UserData
+        }
+        else
+        {
+          reader.Read();
         }
       }
       reader.ReadEndElement(); // MI
@@ -164,10 +209,22 @@ namespace MediaPortal.Common.MediaManagement
 
     void IXmlSerializable.WriteXml(XmlWriter writer)
     {
+      XmlSerializer stringSerializer = new XmlSerializer(typeof(string));
+
       writer.WriteAttributeString("Id", _id.ToString("D"));
       foreach (IList<MediaItemAspect> list in _aspects.Values)
         foreach(MediaItemAspect mia in list)
           mia.Serialize(writer);
+
+      foreach (string key in _userData.Keys)
+      {
+        writer.WriteStartElement("UserData");
+
+        writer.WriteAttributeString("Key", key);
+        writer.WriteAttributeString("Data", _userData[key]);
+
+        writer.WriteEndElement();
+      }
     }
 
     public void Serialize(XmlWriter writer)

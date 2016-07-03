@@ -50,6 +50,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           };
       AddStateVariable(A_ARG_TYPE_UserProfileEnumeration);
 
+      //Used for transporting a user profile
       DvStateVariable A_ARG_TYPE_UserProfile = new DvStateVariable("A_ARG_TYPE_UserProfile", new DvExtendedDataType(UPnPExtendedDataTypes.DtUserProfile))
           {
             SendEvents = false,
