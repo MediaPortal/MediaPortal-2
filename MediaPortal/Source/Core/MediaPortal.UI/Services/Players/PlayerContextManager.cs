@@ -258,6 +258,9 @@ namespace MediaPortal.UI.Services.Players
 
     protected static bool IsWatched(MediaItem mediaItem, IResumeState resumeState)
     {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      PlayerContextManagerSettings settings = settingsManager.Load<PlayerContextManagerSettings>();
+
       int iPlayPercentage = 100;
       PositionResumeState positionResume = resumeState as PositionResumeState;
       if (positionResume != null)
@@ -297,7 +300,7 @@ namespace MediaPortal.UI.Services.Players
           iPlayPercentage = 0;
       }
 
-      return iPlayPercentage >= 90;
+      return iPlayPercentage >= settings.WatchedPlayPercentage;
     }
 
     protected static void NotifyPlayback(MediaItem mediaItem, bool watched)
