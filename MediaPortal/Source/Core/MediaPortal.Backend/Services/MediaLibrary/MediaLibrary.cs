@@ -1894,7 +1894,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Playback
 
-    public void NotifyPlayback(Guid mediaItemId)
+    public void NotifyPlayback(Guid mediaItemId, bool watched)
     {
       MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
       if (item == null)
@@ -1902,8 +1902,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       SingleMediaItemAspect mediaAspect;
 	    MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out mediaAspect);
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
-      int playCount = (int) (mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);
+      if (watched)
+      {
+        int playCount = (int)(mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);
+      }
       UpdateMediaItem(mediaItemId, new MediaItemAspect[] {mediaAspect});
     }
 

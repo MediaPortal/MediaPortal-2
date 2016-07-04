@@ -287,7 +287,7 @@ namespace MediaPortal.Backend.MediaLibrary
 
     #region Playback
 
-    void NotifyPlayback(Guid mediaItemId);
+    void NotifyPlayback(Guid mediaItemId, bool watched);
 
     #endregion
 

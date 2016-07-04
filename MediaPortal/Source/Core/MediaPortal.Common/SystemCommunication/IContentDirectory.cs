@@ -334,7 +334,7 @@ namespace MediaPortal.Common.SystemCommunication
 
     #region Playback
 
-    void NotifyPlayback(Guid mediaItemId);
+    void NotifyPlayback(Guid mediaItemId, bool watched);
 
     #endregion
   }

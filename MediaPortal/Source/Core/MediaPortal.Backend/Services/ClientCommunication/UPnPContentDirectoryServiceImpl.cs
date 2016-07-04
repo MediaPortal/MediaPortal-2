@@ -851,13 +851,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       // Media playback
 
-      DvAction mpnp10NotifyPlaybackAction = new DvAction("X_MediaPortal_NotifyPlayback", OnMPnP10NotifyPlayback,
-          new DvArgument[] {
-            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In), 
-          },
-          new DvArgument[] {
-          });
-      AddAction(mpnp10NotifyPlaybackAction);
+      //Superseded
+      //DvAction mpnp10NotifyPlaybackAction = new DvAction("X_MediaPortal_NotifyPlayback", OnMPnP10NotifyPlayback,
+      //    new DvArgument[] {
+      //      new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In), 
+      //    },
+      //    new DvArgument[] {
+      //    });
+      //AddAction(mpnp10NotifyPlaybackAction);
       
       #endregion
 
@@ -933,6 +934,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("MediaItem", A_ARG_TYPE_MediaItem, ArgumentDirection.Out, true),
           });
       AddAction(mpnp11LoadItemAction);
+
+      // Media playback
+
+      DvAction mpnp11NotifyPlaybackAction = new DvAction("X_MediaPortal_NotifyPlayback", OnMPnP11NotifyPlayback,
+          new DvArgument[] {
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Watched", A_ARG_TYPE_Bool, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(mpnp11NotifyPlaybackAction);
 
       #endregion
 
@@ -1635,7 +1647,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      mediaLibrary.NotifyPlayback(mediaItemId);
+      mediaLibrary.NotifyPlayback(mediaItemId, true);
       outParams = null;
       return null;
     }
@@ -1748,6 +1760,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, path,
           necessaryMIATypes, optionalMIATypes, userProfile);
       outParams = new List<object> { mediaItem };
+      return null;
+    }
+
+    static UPnPError OnMPnP11NotifyPlayback(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      bool watched = (bool)inParams[1];
+      mediaLibrary.NotifyPlayback(mediaItemId, watched);
+      outParams = null;
       return null;
     }
 

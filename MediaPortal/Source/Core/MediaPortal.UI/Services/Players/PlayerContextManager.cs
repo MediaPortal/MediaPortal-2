@@ -41,6 +41,8 @@ using MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy;
 using MediaPortal.UI.Services.Players.Settings;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Common.SystemCommunication;
 
 namespace MediaPortal.UI.Services.Players
 {
@@ -241,6 +243,93 @@ namespace MediaPortal.UI.Services.Players
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
         userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
+
+      PlayerContext pc = PlayerContext.GetPlayerContext(psc);
+      if (pc == null || !pc.IsActive)
+        return;
+
+      if (!pc.CurrentMediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
+        pc.CurrentMediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
+      pc.CurrentMediaItem.UserData[PlayerContext.KEY_RESUME_STATE] = serialized;
+
+      bool watched = IsWatched(pc.CurrentMediaItem, resumeState);
+      NotifyPlayback(pc.CurrentMediaItem, watched);
+    }
+
+    protected static bool IsWatched(MediaItem mediaItem, IResumeState resumeState)
+    {
+      int iPlayPercentage = 100;
+      PositionResumeState positionResume = resumeState as PositionResumeState;
+      if (positionResume != null)
+      {
+        TimeSpan resumePosition = positionResume.ResumePosition;
+        TimeSpan duration = TimeSpan.FromSeconds(0);
+        IList<MediaItemAspect> aspects;
+        if (mediaItem.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out aspects))
+        {
+          var aspect = aspects.First();
+          int? part = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART];
+          int? partSet = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
+          long? dur = null;
+          if (!part.HasValue || part < 0)
+          {
+            dur = (long?)aspect[VideoStreamAspect.ATTR_DURATION];
+          }
+          else if (partSet.HasValue)
+          {
+            dur = aspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            aspect[VideoStreamAspect.ATTR_DURATION] != null).Sum(a => (long)a[VideoStreamAspect.ATTR_DURATION]);
+          }
+          if (dur.HasValue)
+            duration = TimeSpan.FromSeconds(dur.Value);
+        }
+        else if (mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspects))
+        {
+          var aspect = aspects.First();
+          long? dur = aspect == null ? null : (long?)aspect[AudioAspect.ATTR_DURATION];
+          if (dur.HasValue)
+            duration = TimeSpan.FromSeconds(dur.Value);
+        }
+
+        if (duration.TotalSeconds > 0)
+          iPlayPercentage = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
+        else
+          iPlayPercentage = 0;
+      }
+
+      return iPlayPercentage >= 90;
+    }
+
+    protected static void NotifyPlayback(MediaItem mediaItem, bool watched)
+    {
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
+      if (cd != null)
+        cd.NotifyPlayback(mediaItem.MediaItemId, watched);
+
+      if (watched)
+      {
+        // Update loaded item also, so changes will be visible in GUI without reloading
+        int currentPlayCount;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out currentPlayCount))
+        {
+          MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, ++currentPlayCount);
+          ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
+        }
+
+        if (!mediaItem.UserData.ContainsKey(PlayerContext.KEY_PLAY_COUNT))
+          mediaItem.UserData.Add(PlayerContext.KEY_PLAY_COUNT, "0");
+
+        currentPlayCount = Convert.ToInt32(mediaItem.UserData[PlayerContext.KEY_PLAY_COUNT]);
+        currentPlayCount++;
+        mediaItem.UserData[PlayerContext.KEY_PLAY_COUNT] = currentPlayCount.ToString();
+
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement.IsValidUser)
+          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, PlayerContext.KEY_PLAY_COUNT, currentPlayCount.ToString());
+
+      }
     }
 
     protected void HandlePlayerEnded(IPlayerSlotController psc)
