@@ -23,6 +23,11 @@
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
+    <!-- .TS +.XML Radio recordings, no online lookup of series -->
+    <Instance
+        Id="RadioRecordingMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.RadioRecordingMetadataExtractor"/>
+    
     <!-- .TS +.XML TVE recordings, no online lookup of series -->
     <Instance
         Id="Tve3RecordingMetadataExtractor"

@@ -36,7 +36,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       {
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
-          VideoAspect.ASPECT_ID,
           new Guid("C389F655-ED60-4271-91EA-EC589BD815C6") /* RecordingAspect.ASPECT_ID*/
       };
 
