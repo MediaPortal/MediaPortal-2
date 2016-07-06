@@ -50,6 +50,7 @@ using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 using RelocationMode = MediaPortal.Backend.MediaLibrary.RelocationMode;
 using MediaPortal.Backend.Services.UserProfileDataManagement;
+using System.IO;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -153,6 +154,69 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    protected class ShareWatcher : FileSystemWatcher
+    {
+      IEnumerable<string> _mediaCategories;
+
+      public event FileSystemEventHandler OnShareChange;
+
+      public ShareWatcher(Share share)
+        : base()
+      {
+        _mediaCategories = share.MediaCategories;
+        string sharePath = LocalFsResourceProviderBase.ToDosPath(share.BaseResourcePath);
+        if (!string.IsNullOrEmpty(sharePath))
+        {
+          Path = sharePath;
+          NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName;
+          Filter = "*.*";
+          IncludeSubdirectories = true;
+
+          // Add event handlers.
+          Changed += new FileSystemEventHandler(OnChanged);
+          Created += new FileSystemEventHandler(OnChanged);
+          Deleted += new FileSystemEventHandler(OnChanged);
+          Renamed += new RenamedEventHandler(OnRenamed);
+          EnableRaisingEvents = true;
+        }
+      }
+
+      private void OnChanged(object source, FileSystemEventArgs e)
+      {
+        try
+        {
+          ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(System.IO.Path.GetDirectoryName(e.FullPath));
+          IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+          importerWorker.ScheduleImport(path, _mediaCategories, false);
+
+          OnShareChange?.Invoke(this, e);
+        }
+        catch (Exception ex)
+        {
+          Logger.Error("MediaLibrary: Share watcher error", ex);
+          throw;
+        }
+      }
+
+      private void OnRenamed(object source, RenamedEventArgs e)
+      {
+        try
+        {
+          ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(System.IO.Path.GetDirectoryName(e.FullPath));
+          IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+          importerWorker.ScheduleImport(path, _mediaCategories, false);
+
+          FileSystemEventArgs args = new FileSystemEventArgs(WatcherChangeTypes.Renamed, e.FullPath, e.Name);
+          OnShareChange?.Invoke(this, args);
+        }
+        catch (Exception ex)
+        {
+          Logger.Error("MediaLibrary: Share watcher error", ex);
+          throw;
+        }
+      }
+    }
+
     #endregion
 
     #region Consts
@@ -177,6 +241,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Thread _mediaReconcilerThread;
     protected BlockingCollection<Guid> _mediaReconcilerQueue = new BlockingCollection<Guid>();
     protected Dictionary<Guid, List<Guid>> _virtualRoleHierarchy = new Dictionary<Guid, List<Guid>>();
+    protected Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
     protected object opsSync = new object();
 
     #endregion
@@ -629,21 +694,35 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       _miaManagement = new MIA_Management();
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
 
-      //Load pending operations
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
-      using (ITransaction transaction = database.BeginTransaction())
+      InitPendingOperation();
+      InitShareWatchers();
+    }
+
+    private void InitPendingOperation()
+    {
+      try
       {
-        using (IDbCommand command = MediaLibrary_SubSchema.SelectMediaItemPendingOperationCommand(transaction, MediaLibrary_SubSchema.MEDIA_ITEM_RECONCILE_OP))
+        //Load pending operations
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+        using (ITransaction transaction = database.BeginTransaction())
         {
-          using (IDataReader reader = command.ExecuteReader())
+          using (IDbCommand command = MediaLibrary_SubSchema.SelectMediaItemPendingOperationCommand(transaction, MediaLibrary_SubSchema.MEDIA_ITEM_RECONCILE_OP))
           {
-            while (reader.Read())
+            using (IDataReader reader = command.ExecuteReader())
             {
-              _mediaReconcilerQueue.Add(database.ReadDBValue<Guid>(reader, 0));
+              while (reader.Read())
+              {
+                _mediaReconcilerQueue.Add(database.ReadDBValue<Guid>(reader, 0));
+              }
+              reader.Close();
             }
-            reader.Close();
           }
         }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error initializing pending operations'", e);
+        throw;
       }
     }
 
@@ -658,6 +737,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       NotifySystemOffline(_localSystemId);
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Suspend();
+      DeInitShareWatchers();
     }
 
     #endregion
@@ -1555,7 +1635,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemAspect.AddOrUpdateRelationship(linkedAspects, roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);
     }
 
-    public void DeleteMediaItemAndReleationships(ITransaction transaction, Guid mediaItemId)
+    private void DeleteMediaItemAndReleationships(ITransaction transaction, Guid mediaItemId)
     {
       ISQLDatabase database = transaction.Database;
 
@@ -1639,7 +1719,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public void DeleteVirtualParents(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    private void DeleteVirtualParents(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
     {
       try
       {
@@ -1785,7 +1865,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public void DeleteOrphan(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    private void DeleteOrphan(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
     {
       try
       {
@@ -1819,7 +1899,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-  public void UpdateVirtualParents(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    private void UpdateVirtualParents(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
     {
       try
       {
@@ -2124,6 +2204,49 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Shares management
 
+    private void InitShareWatchers()
+    {
+      try
+      {
+        IDictionary<Guid, Share> shares = GetShares(_localSystemId);
+        foreach(Share share in shares.Values)
+        {
+          TryScheduleLocalShareImport(share);
+
+          ShareWatcher watcher = new ShareWatcher(share);
+          watcher.OnShareChange += Watcher_OnShareChange;
+          _shareWatchers.Add(share.ShareId, watcher);
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error initializing shares", e);
+        throw;
+      }
+    }
+
+    private void DeInitShareWatchers()
+    {
+      try
+      {
+        foreach (Guid shareId in _shareWatchers.Keys)
+        {
+          _shareWatchers[shareId].Dispose();
+        }
+        _shareWatchers.Clear();
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error initializing shares", e);
+        throw;
+      }
+    }
+
+    private void Watcher_OnShareChange(object sender, FileSystemEventArgs e)
+    {
+      Logger.Debug("MediaLibrary: Share watcher " + e.FullPath + " " + e.ChangeType);
+    }
+
     public void RegisterShare(Share share)
     {
       Logger.Info("MediaLibrary: Registering share '{0}' at system {1}: Setting name '{2}', base resource path '{3}' and media categories '{4}'",
@@ -2153,6 +2276,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
 
         TryScheduleLocalShareImport(share);
+
+        ShareWatcher watcher = new ShareWatcher(share);
+        watcher.OnShareChange += Watcher_OnShareChange;
+        _shareWatchers.Add(share.ShareId, watcher);
       }
       catch (Exception e)
       {
@@ -2186,7 +2313,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           command.ExecuteNonQuery();
 
         DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath, true);
+
         transaction.Commit();
+
+        _shareWatchers[shareId].Dispose();
+        _shareWatchers.Remove(shareId);
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
@@ -2216,6 +2347,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         transaction.Commit();
 
+        if(systemId == _localSystemId)
+        {
+          foreach (Guid shareId in _shareWatchers.Keys)
+          {
+            _shareWatchers[shareId].Dispose();
+          }
+          _shareWatchers.Clear();
+        }
+        
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
       catch (Exception e)
