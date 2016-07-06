@@ -310,7 +310,7 @@ namespace MediaPortal.Backend.MediaLibrary
 
     MediaItemAspectMetadata GetManagedMediaItemAspectMetadata(Guid aspectId);
 
-    void RegisterMediaItemAspectRoleDependency(Guid role, Guid parentRole);
+    void RegisterMediaItemAspectRoleHierarchy(Guid childRole, Guid parentRole);
 
     #endregion
 

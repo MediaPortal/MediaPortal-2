@@ -63,7 +63,7 @@ namespace MediaPortal.UI.Services.MediaManagement
       RegisterLocallyKnownMediaItemAspectType(miaType);
     }
 
-    public void RegisterMediaItemAspectRoleDependency(Guid role, Guid parentRole)
+    public void RegisterMediaItemAspectRoleHierarchy(Guid role, Guid parentRole)
     {
       //TODO: Is this necessary on client?
     }

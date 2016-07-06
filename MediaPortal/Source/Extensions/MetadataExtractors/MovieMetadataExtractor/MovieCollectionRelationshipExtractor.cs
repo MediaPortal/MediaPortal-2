@@ -82,6 +82,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       collectionInfo.SetMetadata(collectionAspects);
 
+      bool movieVirtual = true;
+      if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
+      {
+        MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
+      }
+
       if (!collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 

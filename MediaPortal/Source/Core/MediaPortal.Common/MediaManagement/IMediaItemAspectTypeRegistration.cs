@@ -79,6 +79,6 @@ namespace MediaPortal.Common.MediaManagement
     /// </remarks>
     /// <param name="role">The role of the child.</param>
     /// <param name="parentRole">The role of the parent.</param>
-    void RegisterMediaItemAspectRoleDependency(Guid role, Guid parentRole);
+    void RegisterMediaItemAspectRoleHierarchy(Guid role, Guid parentRole);
   }
 }

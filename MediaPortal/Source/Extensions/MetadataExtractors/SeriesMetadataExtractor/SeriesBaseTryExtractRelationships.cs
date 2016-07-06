@@ -49,6 +49,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seriesInfo.SetMetadata(seriesAspects);
 
+      if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+      {
+        bool episodeVirtual = true;
+        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out episodeVirtual))
+        {
+          MediaItemAspect.SetAttribute(seriesAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
+        }
+      }
+
       if (!seriesAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 

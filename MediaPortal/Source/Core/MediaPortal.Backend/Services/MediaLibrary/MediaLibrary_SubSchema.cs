@@ -50,7 +50,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
 
     internal const int MEDIA_ITEM_RECONCILE_OP = 1;
-    internal const int MEDIA_ITEM_DELETE_OP = 2;
 
     #endregion
 

@@ -207,7 +207,7 @@ namespace MediaPortal.Common
 
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);
-      miatr.RegisterMediaItemAspectRoleDependency(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM);
+      miatr.RegisterMediaItemAspectRoleHierarchy(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageCollectionAspect.Metadata);
@@ -215,12 +215,13 @@ namespace MediaPortal.Common
       miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
-      miatr.RegisterMediaItemAspectRoleDependency(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES);
-      miatr.RegisterMediaItemAspectRoleDependency(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES);
+      miatr.RegisterMediaItemAspectRoleHierarchy(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES);
+      miatr.RegisterMediaItemAspectRoleHierarchy(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON);
+      miatr.RegisterMediaItemAspectRoleHierarchy(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieCollectionAspect.Metadata);
-      miatr.RegisterMediaItemAspectRoleDependency(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION);
+      miatr.RegisterMediaItemAspectRoleHierarchy(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(CompanyAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(PersonAspect.Metadata);

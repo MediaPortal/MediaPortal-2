@@ -82,6 +82,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);
 
+      bool trackVirtual = true;
+      if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
+      {
+        MediaItemAspect.SetAttribute(albumAspects, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
+      }
+
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
