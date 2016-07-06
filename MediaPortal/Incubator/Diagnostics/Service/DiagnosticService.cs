@@ -38,6 +38,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
         public void Dispose()
         {
             FocusSteelingMonitor.Instance.Dispose();
+            FormLogMonitor.Instance.Dispose();
         }
 
         /// <summary>

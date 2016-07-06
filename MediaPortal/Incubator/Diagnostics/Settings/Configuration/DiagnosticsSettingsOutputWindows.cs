@@ -19,39 +19,53 @@
 */
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
-using Microsoft.Win32;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 {
-    internal class DiagnosticsSettingsCollectLog : YesNo
+    internal class DiagnosticsSettingsOutputWindows : YesNo
     {
+        #region Private Delegates
+
+        private delegate void dVoidMethod();
+
+        #endregion Private Delegates
 
         #region Public Methods
 
         public override void Load()
         {
-            _yes = false;
+            _yes = FormLogMonitor.Instance.Visible;
         }
 
         public override void Save()
         {
-            if (!_yes) return;
-
-            using (RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Team Mediaportal\Mediaportal 2"))
+            if (_yes)
             {
-                if (registryKey != null)
+                if (FormLogMonitor.Instance.Visible) return;
+
+                string commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                string slogfolder = System.IO.Path.Combine(commonAppData, @"Team MediaPortal\MP2-Client\Log");
+                List<FileInfo> logsfiles = Tools.FileSorter.SortByLastWriteTime(slogfolder, "*.log");
+
+                foreach (var file in logsfiles)
                 {
-                    string logCollectorPath = (string)registryKey.GetValue("INSTALLDIR_LOG_COLLECTOR");
-                    string collectorPath = System.IO.Path.Combine(logCollectorPath, "MP2-LogCollector.exe");
-                    if (System.IO.File.Exists(collectorPath))
-                    {
-                        System.Diagnostics.Process.Start(collectorPath);
-                    }
+                    FormLogMonitor.Instance.AddLog(file.FullName);
                 }
+
+                SkinContext.Form.Invoke(new dVoidMethod(FormLogMonitor.Instance.Show));
+            }
+            else
+            {
+                if (!FormLogMonitor.Instance.Visible) return;
+
+                FormLogMonitor.Instance.Dispose();
             }
         }
 
         #endregion Public Methods
-
     }
 }

@@ -58,6 +58,11 @@
         Text="Collect log files"
         HelpText="Provide log collection now"
         ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsCollectLog"/>
+    <ConfigSetting
+        Id="LogMonitor"
+        Text="Show logs"
+        HelpText="Provide log collection now"
+        ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsOutputWindows"/>
   </Register>
 
 

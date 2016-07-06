@@ -1,5 +1,4 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
-
+﻿
 /*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
@@ -20,8 +19,6 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
-
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
@@ -29,7 +26,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
     internal class DiagnosticsSettingsFocusSteelling : YesNo
     {
 
-        #region Methods
+        #region Public Methods
 
         public override void Load()
         {
@@ -50,7 +47,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
             }
         }
 
-        #endregion Methods
+        #endregion Public Methods
 
     }
 }
