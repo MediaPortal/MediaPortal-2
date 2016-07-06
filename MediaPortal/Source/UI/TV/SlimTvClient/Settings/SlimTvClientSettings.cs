@@ -41,6 +41,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public double EpgVisibleHours { get; set; }
 
     /// <summary>
+    /// Defines the zapping timeout in seconds.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = 2d)]
+    public double ZapTimeout { get; set; }
+
+    /// <summary>
     /// If set to <c>true</c>, TV gets started when entering TV home state.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = false)]
@@ -51,5 +57,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = true)]
     public bool ShowSeriesInfo { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, zapping uses the actual index of channel inside current group.
+    /// If <c>false</c>, the logical channel number of the channel will be used.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool ZapByChannelIndex { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, the inbuilt "All Channels" group will be hidden.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool HideAllChannelsGroup { get; set; }
   }
 }

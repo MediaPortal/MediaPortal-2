@@ -11,4 +11,5 @@
   <string name="SystemState.Logoff">Khóa lại</string>
   <string name="SystemState.MinimizeMP">Thu nhỏ chương trình</string>
   <string name="SystemState.ShutdownMP">Đóng lại chương trình</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Menu Shutdown</string>
 </resources>

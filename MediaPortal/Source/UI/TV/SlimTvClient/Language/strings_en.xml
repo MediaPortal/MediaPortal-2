@@ -16,6 +16,9 @@
   <string name="SlimTvClient.ProgramStartLabel">Start time</string>
   <string name="SlimTvClient.ProgramEndLabel">End time</string>
   <string name="SlimTvClient.EpisodeLabel">Episode</string>
+  <string name="SlimTvClient.CurrentProgram">Current Program</string>
+  <string name="SlimTvClient.NextProgram">Next Program</string>
+  <string name="SlimTvClient.Progress">Progress</string>
 
   <string name="SlimTvClient.Guide">TV Guide</string>
   <string name="SlimTvClient.NoProgram">No program data.</string>
@@ -57,6 +60,9 @@
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Working days</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Weekly every time on this channel</string>
 
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Recordings by name</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Recordings by name</string>
+
   <!-- Schedule management -->
   <string name="SlimTvClient.ScheduleDetails">Schedule details</string>
   <string name="SlimTvClient.ScheduleName">Schedule name</string>
@@ -78,6 +84,12 @@
   <string name="SlimTvClient.AutoStartTv.Help">If enabled, the last selected channel will be started when entering TV home</string>
   <string name="SlimTvClient.ShowSeriesInfo">Show series infos</string>
   <string name="SlimTvClient.ShowSeriesInfo.Help">If enabled, the program guide will show series and episode information if available.</string>
+  <string name="SlimTvClient.ZapByChannelIndex">Zap by channel index</string>
+  <string name="SlimTvClient.ZapByChannelIndex.Help">Configures if the channel zapping should use index or logical program number.</string>
+  <string name="SlimTvClient.ZapTimeout">Zap timeout</string>
+  <string name="SlimTvClient.ZapTimeout.Help">Configures the delay until tuning starts.</string>
+  <string name="SlimTvClient.HideAllChannelsGroup">Hide "All Channels" group</string>
+  <string name="SlimTvClient.HideAllChannelsGroup.Help">If enabled, the inbuilt "All Channels" group will be hidden.</string>
 
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.Recordings.Help">Here you can find a list of your recorded programs for playback.</string>

@@ -22,10 +22,12 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -39,28 +41,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     private const string GROUP_SEASONNUM = "seasonnum";
     private const string GROUP_EPISODENUM = "episodenum";
     private const string GROUP_EPISODE = "episode";
-
-    protected static List<Regex> _matchers = new List<Regex>
-        {
-          // Filename only pattern
-          // Series\Season...\S01E01* or Series\Season...\1x01*
-          new Regex(@"(?<series>[^\\]*)\\[^\\]*(?<seasonnum>\d+)[^\\]*\\S*(?<seasonnum>\d+)[EX](?<episodenum>\d+)*(?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // MP1 EpisodeScanner recommendations for recordings: Series - (Episode) S1E1, also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
-          new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)[\s|\.|\-|_]{0,1}E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
-          // "Series 1x1 - Episode" and multi-episodes "Series 1x1_2 - Episodes"
-          new Regex(@"(?<series>[^\\]+)\W(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // "Series S1E01 - Episode" and multi-episodes "Series S1E01_02 - Episodes", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
-          new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // "Series.Name.1x01.Episode.Or.Release.Info"
-          new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // "Series.Name.S01E01.Episode.Or.Release.Info", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
-          new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // Folder + filename pattern
-          // "Series\1\11 - Episode" "Series\Staffel 2\11 - Episode" "Series\Season 3\12 Episode" "Series\3. Season\13-Episode"
-          new Regex(@"(?<series>[^\\]*)\\[^\\|\d]*(?<seasonnum>\d+)\D*\\(?<episodenum>\d+)\s*-\s*(?<episode>[^\\]+)\.", RegexOptions.IgnoreCase),
-          // "Series.Name.101.Episode.Or.Release.Info", attention: this expression can lead to false matches for every filename with nnn included
-          new Regex(@"(?<series>[^\\]+).\W(?<seasonnum>\d{1})(?<episodenum>\d{2})\W(?<episode>.*)\.", RegexOptions.IgnoreCase),
-        };
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileLfsra"/> for known patterns. The match is only successful,
@@ -83,13 +63,38 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// <returns><c>true</c> if successful.</returns>
     public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
     {
-      foreach (Regex matcher in _matchers)
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>();
+
+      // First do replacements before match
+      foreach (var replacement in settings.Replacements.Where(r => r.BeforeMatch))
+      {
+        replacement.Replace(ref folderOrFileName);
+      }
+
+      foreach (var pattern in settings.Patterns)
       {
         // Calling EnsureLocalFileSystemAccess not necessary; only string operation
-        Match ma = matcher.Match(folderOrFileName);
-        seriesInfo = ParseSeries(ma);
-        if (seriesInfo.IsCompleteMatch)
-          return true;
+        Regex matcher;
+        if (pattern.GetRegex(out matcher))
+        {
+          Match ma = matcher.Match(folderOrFileName);
+          seriesInfo = ParseSeries(ma);
+          if (seriesInfo.IsCompleteMatch)
+          {
+            // Do replacements after successful match
+            foreach (var replacement in settings.Replacements.Where(r => !r.BeforeMatch))
+            {
+              string tmp = seriesInfo.Series;
+              replacement.Replace(ref tmp);
+              seriesInfo.Series = tmp;
+
+              tmp = seriesInfo.Episode;
+              replacement.Replace(ref tmp);
+              seriesInfo.Episode = tmp;
+            }
+            return true;
+          }
+        }
       }
       seriesInfo = null;
       return false;

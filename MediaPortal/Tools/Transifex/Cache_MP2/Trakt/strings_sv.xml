@@ -1,14 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Trakt.Enable">Aktivera scrobbling</string>
+  <string name="Trakt.Close">Stäng</string>
   <string name="Trakt.UsernamePasswordGroup">Kontouppgifter</string>
   <string name="Trakt.Username">Användarnamn</string>
-  <string name="Trakt.Password">Lösenord</string>
-  <string name="Trakt.TestAccount">Testa konto </string>
+  <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
+  <string name="Trakt.PinCode">Tag emot pinkod</string>
+  <string name="Trakt.Authorize">Logga in</string>
   <string name="Trakt.SyncMovies">Synkroniserar filmer ...</string>
   <string name="Trakt.SyncSeries">Synkroniserar TV-serier...</string>
   <string name="Trakt.SyncFinished">Synkronisering klar!</string>
   <string name="Trakt.MediaLibraryNotConnected">Hemmaservern är för närvarande inte uppkopplad, så synkronisering är inte möjlig.</string>
+  <string name="Trakt.WrongToken">Certifikat är inte tillgängligt</string>
+  <string name="Trakt.EmptyUsername">Skriv ditt användarnamn</string>
+  <string name="Trakt.NotAuthorized">Logga in först!</string>
+  <string name="Trakt.CheckPin">Kunde inte logga in på trakt. Fel pinkod?</string>
+  <string name="Trakt.LoggedIn">Lyckades logga in!</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Inställningar för Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Ange kontouppgifter för Trakt.tv</string>

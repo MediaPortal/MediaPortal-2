@@ -105,6 +105,13 @@
   -->
   </Register>
 
+  <!-- MediaNavigationFilter -->
+  <Register Location="/Media/Filters">
+    <MediaNavigationFilterBuilder Id="{DD6FC152-0A98-4E4B-B3F4-643A68364470}" ClassName="VideosNavigationInitializer"
+                                  Filter="{FilterWrapper}{Empty}{AttributeType}c389f655-ed60-4271-91ea-ec589bd815c6:Channel{/AttributeType}{/Empty}{/FilterWrapper}"
+                                  />
+  </Register>
+
   <Register Location="/Models">
     <Model Id="8BEC1372-1C76-484c-8A69-C7F3103708EC" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvClientModel"/>
     <Model Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvSingleChannelGuideModel"/>
@@ -113,6 +120,7 @@
     <Model Id="71F1D594-21BF-4639-9F8A-3CE8D8170333" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvProgramSearchModel"/>
     <Model Id="7610403A-4488-47A4-8C27-FD1FE833E52B" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvScheduleManagement"/>
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
+    <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
   </Register>
 
   <Register Location="/Resources/Skin">
@@ -141,6 +149,11 @@
         HelpText="[SlimTvClient.AutoStartTv.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.AutoStartTvSetting"/>
     <ConfigSetting
+        Id="HideAllChannelsGroupSetting"
+        Text="[SlimTvClient.HideAllChannelsGroup]"
+        HelpText="[SlimTvClient.HideAllChannelsGroup.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.HideAllChannelsGroupSetting"/>
+    <ConfigSetting
         Id="ShowSeriesInfoSetting"
         Text="[SlimTvClient.ShowSeriesInfo]"
         HelpText="[SlimTvClient.ShowSeriesInfo.Help]"
@@ -155,5 +168,15 @@
         Text="[SlimTvClient.EpgNumberOfHours]"
         HelpText="[SlimTvClient.EpgNumberOfHours.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNumberOfHoursSetting"/>
+    <ConfigSetting
+        Id="ZapByChannelIndex"
+        Text="[SlimTvClient.ZapByChannelIndex]"
+        HelpText="[SlimTvClient.ZapByChannelIndex.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ZapByChannelIndexSetting"/>
+    <ConfigSetting
+        Id="ZapTimeoutSetting"
+        Text="[SlimTvClient.ZapTimeout]"
+        HelpText="[SlimTvClient.ZapTimeout.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ZapTimeoutSetting"/>
   </Register>
 </Plugin>

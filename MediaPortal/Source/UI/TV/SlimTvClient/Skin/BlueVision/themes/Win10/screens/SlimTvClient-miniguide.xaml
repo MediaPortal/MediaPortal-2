@@ -18,12 +18,13 @@
     <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="1805" Height="900"
         DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="-5,130,-20,0">
-        <Grid.Triggers>
-          <EventTrigger RoutedEvent="Screen.Show">
-            <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
-          </EventTrigger>
-        </Grid.Triggers>
 
+       <Grid.Triggers>
+        <EventTrigger RoutedEvent="Screen.Show">
+         <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
+         </EventTrigger>
+       </Grid.Triggers>
+        
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="300"/>
           <ColumnDefinition Width="*"/>
@@ -57,26 +58,25 @@
                 Command="{Command SelectGroup}"/>
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
                 Command="{Command NextGroup}"/>
-          </StackPanel>
-
-          <StackPanel x:Name="PiPControl" IsVisible="{Binding PiPAvailable}" Margin="20,0,20,0"
-                      HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
-            <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}"
-                Content="PiP enabled:" Command="{Command TogglePiP}" />
-            <Label x:Name="PiPStatusLabel" Margin="10,0,0,0" Content="{Binding PiPEnabled}" VerticalAlignment="Center"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-          </StackPanel>   
+          </StackPanel>  
         </StackPanel>
+
+        <Control Template="{ThemeResource PiPControlTemplate}" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
+         HorizontalAlignment="Left"/>
+        
         <Label x:Name="TimeLabel" Grid.Column="1" Grid.Row="0"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
                FontSize="{ThemeResource SmallFontSize}" Margin="0,0,60,0" FontFamily="DefaultBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="20,0,20,0"
+        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="20,0,15,0"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
             ItemsSource="{Binding Path=CurrentGroupChannels}"
             SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="15" />
+            </ResourceWrapper>
             <CommandList x:Key="Menu_Command">
               <CommandBridge Command="{Binding Path=Command,Mode=OneTime}"/>
               <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>

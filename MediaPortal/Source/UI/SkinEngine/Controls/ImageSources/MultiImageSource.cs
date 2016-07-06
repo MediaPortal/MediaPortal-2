@@ -288,7 +288,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         {
             FrameSize = _frameSize,
             ShaderEffect = Effect,
-            Rotation = rotation
+            Rotation = rotation,
+            HorizontalTextureAlignment = HorizontalTextureAlignment,
+            VerticalTextureAlignment = VerticalTextureAlignment
         };
       // Clear next
       _nextTexture = null;

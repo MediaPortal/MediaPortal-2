@@ -2,7 +2,9 @@
 <resources>
   <string name="SlimTvClient.Title">Slim TV Client</string>
   <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.Main.Help">Täällä voit katsoa suosikki TV ja radio ohjelmiasi ja vaihtaa kanavia.</string>
   <string name="SlimTvClient.TvGuide">TV opas</string>
+  <string name="SlimTvClient.TvGuide.Help">Selaa EPG:tä ja valitse ohjelmat joita haluaisit katsoa tai ajasta tallennuksia.</string>
   <string name="SlimTvClient.SingleChannelGuide">Ohjelmaopas</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Ohjelman tiedot</string>
   <string name="SlimTvClient.ChannelLabel">Kanava</string>
@@ -12,6 +14,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Aloitusaika</string>
   <string name="SlimTvClient.ProgramEndLabel">Lopetusaika</string>
   <string name="SlimTvClient.EpisodeLabel">Jakso</string>
+  <string name="SlimTvClient.Progress">Edistyminen</string>
   <string name="SlimTvClient.Guide">TV opas</string>
   <string name="SlimTvClient.NoProgram">Ei ohjelmatietoja.</string>
   <string name="SlimTvClient.ChooseProgramAction">Valitse ohjelman toiminto...</string>
@@ -22,6 +25,7 @@
   <string name="SlimTvClient.RecordNow">Tallenna</string>
   <string name="SlimTvClient.DeleteSchedule">Poista ajastus</string>
   <string name="SlimTvClient.CreateSchedule">Ajasta tallennus</string>
+  <string name="SlimTvClient.ProgramSearch">Etsi ohjelmia</string>
   <!--Extended recording features-->
   <string name="SlimTvClient.RecordActions">Tallennus toiminnot</string>
   <string name="SlimTvClient.StopCurrentRecording">Lopeta nykyinen tallennus \'{0}\'</string>
@@ -44,20 +48,29 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Viikonloppuisin</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Arkisin</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Viikottain joka kerta tällä kanavalla</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Tallennukset nimen mukaan</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Tallennukset nimen mukaan</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Ajastuksen tiedot</string>
   <string name="SlimTvClient.ScheduleName">Ajastuksen nimi</string>
   <string name="SlimTvClient.ScheduleType">Ajastuksen tyyppi</string>
   <string name="SlimTvClient.Schedules">Ajastukset</string>
+  <string name="SlimTvClient.Schedules.Help">Tarkista mitkä ajastukset tallenteille olet valinnut. Voit myös poistaa ajastuksia täältä.</string>
   <string name="SlimTvClient.ExtendedSchedule">Laajennettu ajastus</string>
   <string name="SlimTvClient.ScheduleManagement">Hallitse ajastuksia</string>
+  <string name="SlimTvClient.ScheduleModeSeries">Hallitse sarjojen ajastuksia</string>
   <string name="SlimTvClient.ErrorNoTvProvider">TV:n palveluntarjoajaa ei saatavilla (vielä)</string>
   <!--Settings-->
   <string name="SlimTvClient.EpgNumberOfRows">Rivien määrä ohjelmaoppaassa</string>
   <string name="SlimTvClient.EpgNumberOfRows.Help">Määrittää rivien (kanavien) määrän, jotka näytetään ohjelmaoppaassa</string>
   <string name="SlimTvClient.EpgNumberOfHours">Tuntien määrä ohjelmaoppaassa</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Määrittää tuntien (ohjelmien) määrän, jotka näytetään ohjelmaoppaassa</string>
+  <string name="SlimTvClient.AutoStartTv">Automaattisesti käynnistä TV</string>
+  <string name="SlimTvClient.AutoStartTv.Help">Jos päällä, viimeiseksi käynnissä ollut kanava valitaan kun TV käynnistetään</string>
+  <string name="SlimTvClient.ShowSeriesInfo">Näytä sarjojen tiedot</string>
+  <string name="SlimTvClient.ShowSeriesInfo.Help">Jos päällä, ohjelmaopas näyttää sarjan ja jakson tiedot, jos saatavilla.</string>
   <string name="SlimTvClient.RecordingsMenuItem">Tallennukset</string>
+  <string name="SlimTvClient.Recordings.Help">Täällä voit löytää listan tallennetuista ohjelmistasi.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV tallennukset</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Suodata kanavan mukaan</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanava: {0}</string>

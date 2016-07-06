@@ -9,6 +9,7 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">用户名和密码</string>
   <string name="Settings.ServerSettings.Username">用户名：</string>
   <string name="Settings.ServerSettings.Password">密码：</string>
+  <string name="Settings.ServerSettings.ImporterWorker">媒体源导入器配置</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">自动刷新共享配置</string>
   <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">启用自动刷新</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">每天运行的小时数(基于24小时一天)</string>

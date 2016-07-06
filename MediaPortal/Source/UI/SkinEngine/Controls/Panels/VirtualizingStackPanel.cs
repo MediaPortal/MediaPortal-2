@@ -143,17 +143,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Layouting
 
-    public override void SetScrollIndex(int childIndex, bool first)
+    /// <summary>
+    /// Combines logical and physical scrolling, allows you to scroll to a partial index.
+    /// e.g. If childIndex == 9.25 then the panel will scroll to child 9 plus a quarter of its size.
+    /// </summary>
+    /// <param name="childIndex">Index to scroll to.</param>
+    /// <param name="first">Make the child with the given <paramref name="childIndex"/> the first or last shown element.</param>
+    protected override void SetPartialScrollIndex(double childIndex, bool first)
     {
-      // Albert, 2010-12-28: We need to override this method because we need to lock on Children.SyncRoot
+      int index = (int)childIndex;
+      float offset = (float)(childIndex % 1);
       lock (Children.SyncRoot)
       {
-        if (_pendingScrollIndex == childIndex && _scrollToFirst == first ||
-            (!_pendingScrollIndex.HasValue &&
-             ((_scrollToFirst && _actualFirstVisibleChildIndex == childIndex) ||
-              (!_scrollToFirst && _actualLastVisibleChildIndex == childIndex))))
+        if (_pendingScrollIndex == index && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
+            (!_pendingScrollIndex.HasValue && _actualPhysicalOffset == offset &&
+             ((_scrollToFirst && _actualFirstVisibleChildIndex == index) ||
+              (!_scrollToFirst && _actualLastVisibleChildIndex == index))))
           return;
-        _pendingScrollIndex = childIndex;
+        _pendingScrollIndex = index;
+        _pendingPhysicalOffset = offset;
         _scrollToFirst = first;
       }
       InvalidateLayout(true, true);
@@ -190,7 +198,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           break;
         FrameworkElement item = GetItem(end + 1, itemProvider, true);
         if (item == null || !item.IsVisible)
+        {
+          end++;
           continue;
+        }
         if (ct-- == 0)
           break;
         float childExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
@@ -328,16 +339,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // If set to true, we'll check available space from the last to first visible child.
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
+
+          //Percentage of child size to offset child positions
+          float physicalOffset = _actualPhysicalOffset;
+
           if (_pendingScrollIndex.HasValue)
           {
             fireScrolled = true;
             int pendingSI = _pendingScrollIndex.Value;
+            physicalOffset = _actualPhysicalOffset = _pendingPhysicalOffset;
             CalcHelper.Bound(ref pendingSI, 0, numItems - 1);
             if (_scrollToFirst)
               _actualFirstVisibleChildIndex = pendingSI;
             else
             {
               _actualLastVisibleChildIndex = pendingSI;
+              //If we have an offset then there will be part of an additional item visible
+              if (physicalOffset != 0)
+                _actualLastVisibleChildIndex++;
               invertLayouting = true;
             }
             _pendingScrollIndex = null;
@@ -347,6 +366,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (_doScroll)
           {
             float spaceLeft = actualExtendsInOrientationDirection;
+            //Allow space for partially visible items at top and bottom
+            if (physicalOffset != 0)
+              spaceLeft += _averageItemSize;
             if (invertLayouting)
             {
               CalcHelper.Bound(ref _actualLastVisibleChildIndex, 0, numItems - 1);
@@ -438,7 +460,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // our visible children. That was tested out. If someone has a better heuristic, please use it here.
           int numArrangeAroundViewport = ((int) (actualExtendsInOrientationDirection / _averageItemSize) + 1) * NUM_ADD_MORE_FOCUS_ELEMENTS;
           // Elements before _actualFirstVisibleChildIndex
-          float startOffset = 0;
+
+          //Calculate number of pixels to shift items up/left by based on offset
+          float startOffset = -(physicalOffset * _averageItemSize);
           for (int i = _actualFirstVisibleChildIndex - 1; i >= 0 && i >= _actualFirstVisibleChildIndex - numArrangeAroundViewport; i--)
           {
             FrameworkElement item = GetItem(i, itemProvider, true);
@@ -472,7 +496,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             _arrangedItemsStartIndex = i;
           }
 
-          startOffset = 0;
+          //Calculate number of pixels to shift items up/left by based on offset
+          startOffset = -(physicalOffset * _averageItemSize);
           // Elements from _actualFirstVisibleChildIndex to _actualLastVisibleChildIndex + _numArrangeAroundViewport
           for (int i = _actualFirstVisibleChildIndex; i < numItems && i <= _actualLastVisibleChildIndex + numArrangeAroundViewport; i++)
           {

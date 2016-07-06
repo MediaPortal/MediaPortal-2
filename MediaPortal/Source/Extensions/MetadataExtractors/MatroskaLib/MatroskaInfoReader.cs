@@ -146,10 +146,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             tagName = parts[0];
 
           var result = from simpleTag in GetTagsForTargetType(doc, targetType).Elements("Simple")
-                       where simpleTag.Element("Name").Value == tagName && !string.IsNullOrEmpty(simpleTag.Element("String").Value)
-                       select simpleTag.Element("String").Value;
-          if (result.Any())
-            tagsToExtract[key] = result.ToList();
+                       let nameElement = simpleTag.Element("Name")
+                       let stringElement = simpleTag.Element("String")
+                       where nameElement != null && nameElement.Value == tagName &&
+                             stringElement != null && !string.IsNullOrWhiteSpace(stringElement.Value)
+                       select stringElement.Value;
+
+          var resultList = result.ToList();
+          if (resultList.Any())
+            tagsToExtract[key] = resultList.ToList();
         }
       }
     }
@@ -315,11 +320,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     {
       if (targetTypeValue.HasValue)
         return from simpleTag in doc.Descendants("Tags").Descendants("Tag")
-               where simpleTag.Element("Targets").HasElements && simpleTag.Element("Targets").Element("TargetTypeValue") != null && Convert.ToInt32(simpleTag.Element("Targets").Element("TargetTypeValue").Value) == targetTypeValue.Value
+               let targetsElement = simpleTag.Element("Targets")
+               where targetsElement != null && targetsElement.HasElements 
+               let targetTypeValueElement = targetsElement.Element("TargetTypeValue")
+               where targetTypeValueElement != null && Convert.ToInt32(targetTypeValueElement.Value) == targetTypeValue.Value
                select simpleTag;
 
       return from simpleTag in doc.Descendants("Tags").Descendants("Tag")
-             where !simpleTag.Element("Targets").HasElements
+             let targetsElement = simpleTag.Element("Targets")
+             where !targetsElement.HasElements
              select simpleTag;
     }
 

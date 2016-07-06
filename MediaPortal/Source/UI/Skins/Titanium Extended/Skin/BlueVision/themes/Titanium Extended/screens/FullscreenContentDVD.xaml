@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    x:Name="FullscreenContentDVD">
+
+  <Grid x:Name="FullscreenLayoutGrid" DataContext="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}}">
+    <!-- DataContext model = VideoPlayerModel -->
+    <Grid.Resources>
+      <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
+    </Grid.Resources>
+    <Grid.Background>
+      <VideoBrush Stream="0"/>
+    </Grid.Background>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="180"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="100"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <mp_special_controls:UserInputCapture Grid.Row="0" Grid.RowSpan="4" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+        IsActive="{Binding PlayerUIContributor.DvdPlayerHandlesInput}"
+        MousePositionMode="Relative"
+        Buttons="Left"
+        KeyPressedCommand="{CommandStencil PlayerUIContributor.OnKeyPress}"
+        MouseMovedCommand="{CommandStencil PlayerUIContributor.OnMouseMove}"
+        MouseClickedCommand="{CommandStencil PlayerUIContributor.OnMouseClick}"/>
+
+    <!--Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control-->
+
+    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
+          IsVisible="{Binding !IsOSDVisible}"/>
+
+    <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
+      <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
+            Style="{ThemeResource SecondaryMediaOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            AutoVisibility="true"/>
+    </DockPanel>
+
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3"
+            Style="{ThemeResource PrimaryDvdOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.IsVisible>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <Binding Path="IsOSDVisible"/>
+          <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+        </MultiBinding>
+      </mp_special_controls:PlayerControl.IsVisible>
+    </mp_special_controls:PlayerControl>
+
+    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
+    <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
+    <KeyBinding Key="Yellow" Command="{Command PlayerUIContributor.OpenChooseSubtitleDialog}" IsEnabled="{Binding PlayerUIContributor.SubtitlesAvailable}"/>
+    <KeyBinding Key="Blue" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=A3F53310-4D93-4f93-8B09-D53EE8ACD829}" />
+
+    <KeyBinding Key="Up" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=InstantSkipForward}">
+      <KeyBinding.IsEnabled>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <Binding Path="!IsOSDVisible"/>
+          <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+        </MultiBinding>
+      </KeyBinding.IsEnabled>
+    </KeyBinding>
+    
+    <KeyBinding Key="Down" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=InstantSkipBackward}">
+      <KeyBinding.IsEnabled>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <Binding Path="!IsOSDVisible"/>
+          <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+        </MultiBinding>
+      </KeyBinding.IsEnabled>
+    </KeyBinding>
+
+    <KeyBinding Key="Right" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=SkipStepForward}">
+      <KeyBinding.IsEnabled>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <Binding Path="!IsOSDVisible"/>
+          <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+        </MultiBinding>
+      </KeyBinding.IsEnabled>
+    </KeyBinding>
+
+    <KeyBinding Key="Left" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=SkipStepBackward}">
+      <KeyBinding.IsEnabled>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <Binding Path="!IsOSDVisible"/>
+          <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+        </MultiBinding>
+      </KeyBinding.IsEnabled>
+    </KeyBinding>
+    
+  </Grid>
+</Screen>

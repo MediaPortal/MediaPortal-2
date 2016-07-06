@@ -84,7 +84,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       get { return _providerList; }
     }
 
-    public IList<FanArtImage> GetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
+    public IList<FanArtImage> GetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom)
     {
       InitProviders();
       foreach (IFanArtProvider fanArtProvider in _providerList)

@@ -1,0 +1,873 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    DependsOnStyleResources="Colors,Buttons,OtherControls"
+    >
+
+  <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource DefaultButtonStyle}">
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+
+  <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border Background="{ThemeResource DialogBackgroundBrush}" BorderBrush="{ThemeResource DialogBorderBrush}"
+              BorderThickness="{ThemeResource VirtualKeyboardBorderThickness}" CornerRadius="{ThemeResource VirtualKeyboardCornerRadius}">
+            <StackPanel>
+              <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
+                  IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}"
+                  Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+              <VirtualKeyboardPresenter/>
+            </StackPanel>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Fallback keyboard layout which is loaded when no localized keyboard layout is available.
+       Localized keyboard layouts should be provided by localization plugins which provide language files.
+       To provide a localized keyboard layout, copy this control template into a file with name
+       VirtualKeyboardStyle_XX.xaml, where XX is the two-letter code for the language, like
+       de for german. Then change your copied control to build the desired layout. -->
+  <ControlTemplate x:Key="VirtualKeyboardLayout">
+    <Grid x:Name="FullKeyboardLayout">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/> <!-- Control buttons -->
+        <ColumnDefinition Width="*"/> <!-- Actual keyboard -->
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Grid x:Name="ControlArea" Grid.Column="0" Grid.Row="0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- TODO: Change styles to toggle button style -->
+        <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="5" IsChecked="{Binding Path=AltGrState,Mode=TwoWay}"/>
+        <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="5" IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
+        <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="5" IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
+      </Grid>
+
+      <Grid x:Name="Keyboard-Normal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} &amp;&amp; {2}">
+            <Binding Path="!ShiftState"/>
+            <Binding Path="!CapsLockState"/>
+            <Binding Path="!AltGrState"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="Normal-Line 1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="`" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=`}"/>
+          <Button Content="1" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=1}"/>
+          <Button Content="2" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=2}"/>
+          <Button Content="3" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=3}"/>
+          <Button Content="4" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=4}"/>
+          <Button Content="5" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=5}"/>
+          <Button Content="6" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=6}"/>
+          <Button Content="7" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=7}"/>
+          <Button Content="8" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=8}"/>
+          <Button Content="9" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=9}"/>
+          <Button Content="0" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=0}"/>
+          <Button Content="-" Grid.Row="0" Grid.Column="11" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=-}"/>
+          <Button Content="=" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource VKButtonStyle}">
+            <Button.Command>
+              <Command Path="Character" Parameters="="/>
+            </Button.Command>
+          </Button>
+          <Button Content="&lt;-" Grid.Row="0" Grid.Column="13" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Backspace}"/>
+        </Grid> <!-- Line 1 -->
+        <Grid x:Name="Normal-Line 2" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="q" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=q}"/>
+          <Button Content="w" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=w}"/>
+          <Button Content="e" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=e}"/>
+          <Button Content="r" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=r}"/>
+          <Button Content="t" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=t}"/>
+          <Button Content="y" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=y}"/>
+          <Button Content="u" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=u}"/>
+          <Button Content="i" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=i}"/>
+          <Button Content="o" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=o}"/>
+          <Button Content="p" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=p}"/>
+          <Button Content="[" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=[}"/>
+          <Button Content="]" Grid.Row="0" Grid.Column="11" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=]}"/>
+          <Button Content="\" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=\}"/>
+        </Grid> <!-- Line 2 -->
+        <Grid x:Name="Normal-Line 3" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="a" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=a}"/>
+          <Button Content="s" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=s}"/>
+          <Button Content="d" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=d}"/>
+          <Button Content="f" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=f}"/>
+          <Button Content="g" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=g}"/>
+          <Button Content="h" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=h}"/>
+          <Button Content="j" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=j}"/>
+          <Button Content="k" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=k}"/>
+          <Button Content="l" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=l}"/>
+          <Button Content=";" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=;}"/>
+          <Button Content="'" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters='}"/>
+        </Grid> <!-- Line 3 -->
+        <Grid x:Name="Normal-Line 4" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="z" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=z}"/>
+          <Button Content="x" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=x}"/>
+          <Button Content="c" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=c}"/>
+          <Button Content="v" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=v}"/>
+          <Button Content="b" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=b}"/>
+          <Button Content="n" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=n}"/>
+          <Button Content="m" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=m}"/>
+          <Button Content="," Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}">
+            <Button.Command>
+              <Command Path="Character" Parameters=","/>
+            </Button.Command>
+          </Button>
+          <Button Content="." Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=.}"/>
+          <Button Content="/" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=/}"/>
+        </Grid> <!-- Line 4 -->
+        <Grid x:Name="Normal-Line 5" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button Content="" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonWideStyle}"
+              Command="{Command Space}"/>
+          <Button Content="[System.Done]" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Close}"/>
+        </Grid> <!-- Line 5 -->
+      </Grid> <!-- Keyboard-Normal -->
+
+      <Grid x:Name="Keyboard-Shift" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) &amp;&amp; {2}">
+            <Binding Path="ShiftState"/>
+            <Binding Path="CapsLockState"/>
+            <Binding Path="!AltGrState"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="Shift-Line 1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="~" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=~}"/>
+          <Button Content="!" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=!}"/>
+          <Button Content="@" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=@}"/>
+          <Button Content="#" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=#}"/>
+          <Button Content="$" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=$}"/>
+          <Button Content="%" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=%}"/>
+          <Button Content="^" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=^}"/>
+          <Button Content="&amp;" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}">
+            <Button.Command>
+              <Command Path="Character" Parameters="&amp;"/>
+            </Button.Command>
+          </Button>
+          <Button Content="*" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=*}"/>
+          <Button Content="(" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=(}"/>
+          <Button Content=")" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=)}"/>
+          <Button Content="_" Grid.Row="0" Grid.Column="11" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=_}"/>
+          <Button Content="+" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=+}"/>
+          <Button Content="&lt;-" Grid.Row="0" Grid.Column="13" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Backspace}"/>
+        </Grid> <!-- Line 1 -->
+        <Grid x:Name="Shift-Line 2" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="Q" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Q}"/>
+          <Button Content="W" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=W}"/>
+          <Button Content="E" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=E}"/>
+          <Button Content="R" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=R}"/>
+          <Button Content="T" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=T}"/>
+          <Button Content="Y" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Y}"/>
+          <Button Content="U" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=U}"/>
+          <Button Content="I" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=I}"/>
+          <Button Content="O" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=O}"/>
+          <Button Content="P" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=P}"/>
+          <Button Content="{}{" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}">
+            <Button.Command>
+              <Command Path="Character" Parameters="{}{"/>
+            </Button.Command>
+          </Button>
+          <Button Content="{}}" Grid.Row="0" Grid.Column="11" Margin="5" Style="{ThemeResource VKButtonStyle}">
+            <Button.Command>
+              <Command Path="Character" Parameters="{}}"/>
+            </Button.Command>
+          </Button>
+          <Button Content="|" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=|}"/>
+        </Grid> <!-- Line 2 -->
+        <Grid x:Name="Shift-Line 3" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="A" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=A}"/>
+          <Button Content="S" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=S}"/>
+          <Button Content="D" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=D}"/>
+          <Button Content="F" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=F}"/>
+          <Button Content="G" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=G}"/>
+          <Button Content="H" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=H}"/>
+          <Button Content="J" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=J}"/>
+          <Button Content="K" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=K}"/>
+          <Button Content="L" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=L}"/>
+          <Button Content=":" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=:}"/>
+          <Button Content="&quot;" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}">
+            <Button.Command>
+              <Command Path="Character" Parameters="&quot;"/>
+            </Button.Command>
+          </Button>
+        </Grid> <!-- Line 3 -->
+        <Grid x:Name="Shift-Line 4" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="Z" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Z}"/>
+          <Button Content="X" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=X}"/>
+          <Button Content="C" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=C}"/>
+          <Button Content="V" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=V}"/>
+          <Button Content="B" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=B}"/>
+          <Button Content="N" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=N}"/>
+          <Button Content="M" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=M}"/>
+          <Button Content="&lt;" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}">
+            <Button.Command>
+              <Command Path="Character" Parameters="&lt;"/>
+            </Button.Command>
+          </Button>
+          <Button Content="&gt;" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}">
+            <Button.Command>
+              <Command Path="Character" Parameters="&gt;"/>
+            </Button.Command>
+          </Button>
+          <Button Content="?" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=?}"/>
+        </Grid> <!-- Line 4 -->
+        <Grid x:Name="Shift-Line 5" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button Content="" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonWideStyle}"
+              Command="{Command Space}"/>
+          <Button Content="[System.Done]" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Close}"/>
+        </Grid> <!-- Line 5 -->
+      </Grid> <!-- Keyboard-Shift -->
+
+      <Grid x:Name="Keyboard-AltGr" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} &amp;&amp; {2}">
+            <Binding Path="!ShiftState"/>
+            <Binding Path="!CapsLockState"/>
+            <Binding Path="AltGrState"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="AltGr-Line 1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content=" " Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="¡" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¡}"/>
+          <Button Content="²" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=²}"/>
+          <Button Content="³" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=³}"/>
+          <Button Content="¤" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¤}"/>
+          <Button Content="€" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=€}"/>
+          <Button Content="¼" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¼}"/>
+          <Button Content="½" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=½}"/>
+          <Button Content="¾" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¾}"/>
+          <Button Content="‘" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=‘}"/>
+          <Button Content="’" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=’}"/>
+          <Button Content="¥" Grid.Row="0" Grid.Column="11" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¥}"/>
+          <Button Content="*" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=*}"/>
+          <Button Content="&lt;-" Grid.Row="0" Grid.Column="13" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Backspace}"/>
+        </Grid> <!-- Line 1 -->
+        <Grid x:Name="AltGr-Line 2" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="ä" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ä}"/>
+          <Button Content="å" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=å}"/>
+          <Button Content="é" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=é}"/>
+          <Button Content="®" Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=®}"/>
+          <Button Content="Þ" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Þ}"/>
+          <Button Content="ü" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ü}"/>
+          <Button Content="ú" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ú}"/>
+          <Button Content="í" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=í}"/>
+          <Button Content="ó" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ó}"/>
+          <Button Content="ö" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ö}"/>
+          <Button Content="«" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=«}"/>
+          <Button Content="»" Grid.Row="0" Grid.Column="11" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=»}"/>
+          <Button Content="¬" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¬}"/>
+        </Grid> <!-- Line 2 -->
+        <Grid x:Name="AltGr-Line 3" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="á" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=á}"/>
+          <Button Content="ß" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ß}"/>
+          <Button Content="ð" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ð}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="¶" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¶}"/>
+          <Button Content="´" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=´}"/>
+        </Grid> <!-- Line 3 -->
+        <Grid x:Name="AltGr-Line 4" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="æ" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=æ}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="©" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=©}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="ñ" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ñ}"/>
+          <Button Content="µ" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=µ}"/>
+          <Button Content="ç" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=ç}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="¿" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¿}"/>
+        </Grid> <!-- Line 4 -->
+        <Grid x:Name="AltGr-Line 5" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button Content="" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonWideStyle}"
+              Command="{Command Space}"/>
+          <Button Content="[System.Done]" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Close}"/>
+        </Grid> <!-- Line 5 -->
+      </Grid> <!-- Keyboard-AltGr -->
+
+      <Grid x:Name="Keyboard-Shift-AltGr" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1}) &amp;&amp; {2}">
+            <Binding Path="ShiftState"/>
+            <Binding Path="CapsLockState"/>
+            <Binding Path="AltGrState"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="Shift-AltGr-Line 1" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content=" " Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="¹" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¡}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="£" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=£}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="11" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="÷" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=÷}"/>
+          <Button Content="&lt;-" Grid.Row="0" Grid.Column="13" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Backspace}"/>
+        </Grid> <!-- Line 1 -->
+        <Grid x:Name="Shift-AltGr-Line 2" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="Ä" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ä}"/>
+          <Button Content="Å" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Å}"/>
+          <Button Content="É" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=É}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="Þ" Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Þ}"/>
+          <Button Content="Ü" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ü}"/>
+          <Button Content="Ú" Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ú}"/>
+          <Button Content="Í" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Í}"/>
+          <Button Content="Ó" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ó}"/>
+          <Button Content="Ö" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ö}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="11" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="¦" Grid.Row="0" Grid.Column="12" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¦}"/>
+        </Grid> <!-- Line 2 -->
+        <Grid x:Name="Shift-AltGr-Line 3" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="Á" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Á}"/>
+          <Button Content="§" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=§}"/>
+          <Button Content="Ð" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ð}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="Ø" Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ø}"/>
+          <Button Content="°" Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=°}"/>
+          <Button Content="¨" Grid.Row="0" Grid.Column="10" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¨}"/>
+        </Grid> <!-- Line 3 -->
+        <Grid x:Name="Shift-AltGr-Line 4" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+            <ColumnDefinition Width="AutoStretch"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Content="Æ" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Æ}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="¢" Grid.Row="0" Grid.Column="2" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=¢}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="3" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="4" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="Ñ" Grid.Row="0" Grid.Column="5" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ñ}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="6" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content="Ç" Grid.Row="0" Grid.Column="7" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Character,Parameters=Ç}"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="8" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+          <Button Content=" " Grid.Row="0" Grid.Column="9" Margin="5" Style="{ThemeResource VKButtonStyle}" IsEnabled="false"/>
+        </Grid> <!-- Line 4 -->
+        <Grid x:Name="Shift-AltGr-Line 5" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button Content="" Grid.Row="0" Grid.Column="0" Margin="5" Style="{ThemeResource ButtonWideStyle}"
+              Command="{Command Space}"/>
+          <Button Content="[System.Done]" Grid.Row="0" Grid.Column="1" Margin="5" Style="{ThemeResource VKButtonStyle}"
+              Command="{Command Path=Close}"/>
+        </Grid> <!-- Line 5 -->
+      </Grid> <!-- Keyboard-Shift-AltGr -->
+    </Grid> <!-- FullKeyboardLayout -->
+  </ControlTemplate>
+
+</ResourceDictionary>

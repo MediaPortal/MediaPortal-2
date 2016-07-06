@@ -12,15 +12,30 @@
 
     <!-- SystemStateModel -->
     <Model x:Key="SystemStateModel" Id="25F16911-ED0D-4439-9858-5E69C970C037"/>
+    <Model x:Key="SleepTimerModel" Id="40FDD1C3-CFAB-4731-9636-96726301B648"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True" Resource="{Binding Source={StaticResource SystemStateModel},Path=ShutdownItems,Mode=OneTime}"/>
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel DataContext="{Binding Source={StaticResource SystemStateModel}}">
 
-    <!-- Menu_Command -->
-    <Command x:Key="Menu_Command"
-                    Source="{StaticResource SystemStateModel}"
-                    Path="Select"
-                    Parameters="{LateBoundValue BindingValue={Binding}}" />
+        <ListView ItemsSource="{Binding Path=ShutdownItems,Mode=OneTime}"
+                  Style="{ThemeResource SystemStateMenuListViewStyle}">
+          <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <!--<Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>-->
+                <CommandBridge Command="{Binding Command}" />
+              </CommandList>
 
+            </ListView.Resources>
+        </ListView>
+
+        <!-- SleepTimer state -->
+        <Label  DataContext="{Binding Source={StaticResource SleepTimerModel}}"
+                IsVisible="{Binding Path=ShutdownText, Converter={StaticResource EmptyStringToFalseConverter}}"
+                HorizontalAlignment="Stretch" Margin="15"
+                Content="{Binding ShutdownText}"
+                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      </StackPanel>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

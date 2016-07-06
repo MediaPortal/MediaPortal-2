@@ -55,14 +55,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (fanart == null)
         return false;
 
-      FanArtConstants.FanArtMediaType mediaType;
-      FanArtConstants.FanArtType fanArtType;
+      string mediaType = request.Param["mediatype"].Value;
+      string fanArtType = request.Param["fanarttype"].Value;
       int maxWidth;
       int maxHeight;
-      if (!Enum.TryParse(request.Param["mediatype"].Value, out mediaType))
-        return false;
-      if (!Enum.TryParse(request.Param["fanarttype"].Value, out fanArtType))
-        return false;
       string name = request.Param["name"].Value;
       if (string.IsNullOrWhiteSpace(name))
         return false;

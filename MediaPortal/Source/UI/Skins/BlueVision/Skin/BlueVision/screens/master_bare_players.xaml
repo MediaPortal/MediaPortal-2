@@ -49,7 +49,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
       <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OnScreenShow}"/>
       <EventTrigger.Actions>
         <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
       </EventTrigger.Actions>
@@ -112,10 +111,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="150"/>
       </Grid.ColumnDefinitions>
 
-      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"> </Control>
-      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"> </Control>
-      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"> </Control>
-      
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="60,0,0,0"
+        HorizontalAlignment="Left" VerticalAlignment="Center"
+        IsEnabled="False">
+      </Button>
 
       <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Center" >
         <Label x:Name="SelectedItem"

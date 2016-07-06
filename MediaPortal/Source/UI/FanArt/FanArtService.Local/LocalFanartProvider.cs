@@ -40,7 +40,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
   public class LocalFanartProvider : IFanArtProvider
   {
     private readonly static Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID };
-    private readonly static List<String> EXTENSIONS = new List<string> { ".jpg", ".png", ".tbn" };
+    private readonly static ICollection<String> EXTENSIONS = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".png", ".tbn" };
 
     /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
@@ -54,13 +54,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
     /// <param name="singleRandom">If <c>true</c> only one random image URI will be returned</param>
     /// <param name="result">Result if return code is <c>true</c>.</param>
     /// <returns><c>true</c> if at least one match was found.</returns>
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
       Guid mediaItemId;
 
       // Don't try to load "fanart" for images
-      if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtConstants.FanArtMediaType.Image)
+      if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtMediaTypes.Image)
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
@@ -82,6 +82,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         var mediaItemPath = mediaIteamLocator.NativeResourcePath;
         var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
         var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString());
+        var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
 
         using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
         {
@@ -90,16 +91,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           {
             var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
 
-            if (fanArtType == FanArtConstants.FanArtType.Poster || fanArtType == FanArtConstants.FanArtType.Thumbnail)
+            if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                where potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension ||
+                where /* Allow same file name only for non-images, otherwise each image would be its own thumbnail */
+                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) || 
                       potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "-poster" ||
                       potentialFanArtFileNameWithoutExtension == "folder"
                 select potentialFanArtFile);
 
-            if (fanArtType == FanArtConstants.FanArtType.FanArt)
+            if (fanArtType == FanArtTypes.FanArt)
             {
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles

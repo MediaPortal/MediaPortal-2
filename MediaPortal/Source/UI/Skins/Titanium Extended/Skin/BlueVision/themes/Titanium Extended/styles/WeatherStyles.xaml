@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    DependsOnStyleResources="Colors,Buttons"
+    >
+  
+  <!-- Only override DataTemplate style here, used for a single day forecast -->
+  <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Border x:Name="ForecastItemBorder" Width="310" Height="250" Margin="20" CornerRadius="20" Background="#0DFFFFFF">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Image Width="80" Height="80" Source="{Binding BigIconProperty}" Stretch="UniformToFill" Margin="5,5,15,5"/>
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding High}" HorizontalAlignment="Center"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Low}" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+
+</ResourceDictionary>

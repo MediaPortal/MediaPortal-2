@@ -77,11 +77,14 @@
         </StackPanel>
 
         <ListView Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-              Margin="0,0,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Margin="0,0,2,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ExtScheduleListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"
               SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="10" />
+            </ResourceWrapper>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>

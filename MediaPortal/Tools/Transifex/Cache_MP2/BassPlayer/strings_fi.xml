@@ -1,6 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Soittimet</string>
+  <string name="Settings.Players.AudioPlayer">Audio soitin</string>
+  <string name="Settings.Players.BassPlayer.Setup">Muokkaa ulostulo laitteita</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Muokkaa BassPlayerin ulostulo laitteita ja asetuksia</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Eksklusiivinen tila</string>
   <string name="Settings.Players.Rendering">Renderöinti</string>
   <string name="Settings.Players.Rendering.CrossFading">Ristiinhäivytys</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Ristiinhäivytys päällä</string>

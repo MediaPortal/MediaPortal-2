@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -33,6 +34,8 @@ using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
@@ -40,6 +43,7 @@ using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.SkinEngine;
+using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
@@ -94,6 +98,11 @@ namespace MediaPortal.UI.Players.Video
     public const string VSFILTER_CLSID = "{9852A670-F845-491b-9BE6-EBD841B8A613}";
     public const string VSFILTER_NAME = "xy-VSFilter";
     public const string VSFILTER_FILENAME = "VSFilter.dll";
+
+    // ClosedCaptions parser
+    public const string CCFILTER_CLSID = "{6F0B7D9C-7548-49A9-AC4C-1DA1927E6C15}";
+    public const string CCFILTER_NAME = "Core CC Parser";
+    public const string CCFILTER_FILENAME = "cccp.ax";
 
     #endregion
 
@@ -188,6 +197,24 @@ namespace MediaPortal.UI.Players.Video
         return;
       }
       _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
+
+      AddClosedCaptionsFilter();
+    }
+
+    protected virtual void AddClosedCaptionsFilter()
+    {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      if (settings.EnableClosedCaption)
+      {
+        // ClosedCaptions filter
+        var ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+        if (ccFilter == null)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, CCFILTER_FILENAME);
+          return;
+        }
+        _graphBuilder.AddFilter(ccFilter, CCFILTER_FILENAME);
+      }
     }
 
     #endregion
@@ -211,6 +238,11 @@ namespace MediaPortal.UI.Players.Video
         FilterGraphTools.TryRelease(ref _evr);
         throw new VideoPlayerException("Initializing of EVR failed");
       }
+
+      // Check if CC is enabled, in this case the EVR needs one more input pin
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      if (settings.EnableClosedCaption)
+        _streamCount++;
 
       // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR. This has to be done after the custom presenter is initialized.
       IEVRFilterConfig config = (IEVRFilterConfig)_evr;
@@ -537,6 +569,11 @@ namespace MediaPortal.UI.Players.Video
 
             // We get a pointer to pointer for a structure.
             AMMediaType mediaType = (AMMediaType)Marshal.PtrToStructure(Marshal.ReadIntPtr(pp_mediaType), typeof(AMMediaType));
+            if (mediaType == null)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("Stream {0}: Could not determine MediaType!", i);
+              continue;
+            }
             int groupNumber = Marshal.ReadInt32(pp_groupNumber);
             int lcid = Marshal.ReadInt32(pp_lcid);
             string name = Marshal.PtrToStringAuto(Marshal.ReadIntPtr(pp_name));
@@ -625,15 +662,21 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder == null || !_initialized || !forceRefresh && _chapterTimestamps != null)
         return;
 
+      if (!EnumerateInternalChapters())
+        EnumerateExternalChapters();
+    }
+
+    protected virtual bool EnumerateInternalChapters()
+    {
       // Try to find a filter implementing IAMExtendSeeking for chapter support
       IAMExtendedSeeking extendSeeking = FilterGraphTools.FindFilterByInterface<IAMExtendedSeeking>(_graphBuilder);
       if (extendSeeking == null)
-        return;
+        return false;
       try
       {
         int markerCount;
         if (extendSeeking.get_MarkerCount(out markerCount) != 0 || markerCount <= 0)
-          return;
+          return false;
 
         _chapterTimestamps = new double[markerCount];
         _chapterNames = new string[markerCount];
@@ -652,6 +695,104 @@ namespace MediaPortal.UI.Players.Video
       {
         Marshal.ReleaseComObject(extendSeeking);
       }
+      return true;
+    }
+
+    /// <summary>
+    /// Tries to load chapter information from external file. This method checks for ComSkip files (.txt).
+    /// </summary>
+    /// <returns></returns>
+    protected virtual bool EnumerateExternalChapters()
+    {
+      var fsra = _resourceAccessor as IFileSystemResourceAccessor;
+      if (fsra == null || !fsra.IsFile)
+        return false;
+
+      try
+      {
+        string filePath = _resourceAccessor.CanonicalLocalResourcePath.ToString();
+        string metaFilePath = ProviderPathHelper.ChangeExtension(filePath, ".txt");
+        IResourceAccessor raTextFile;
+        if (!ResourcePath.Deserialize(metaFilePath).TryCreateLocalResourceAccessor(out raTextFile))
+          return false;
+
+        List<double> positions = new List<double>();
+        using (LocalFsResourceAccessorHelper lfsra = new LocalFsResourceAccessorHelper(raTextFile))
+        {
+          if (lfsra.LocalFsResourceAccessor == null)
+            return false;
+          using (var stream = lfsra.LocalFsResourceAccessor.OpenRead())
+          using (var chaptersReader = new StreamReader(stream))
+          {
+            string line = chaptersReader.ReadLine();
+
+            int fps;
+            if (string.IsNullOrWhiteSpace(line) || !int.TryParse(line.Substring(line.LastIndexOf(' ') + 1), out fps))
+            {
+              ServiceRegistration.Get<ILogger>().Warn("VideoPlayer: EnumerateExternalChapters() - Invalid ComSkip chapter file");
+              return false;
+            }
+
+            double framesPerSecond = fps / 100.0;
+
+            while ((line = chaptersReader.ReadLine()) != null)
+            {
+              if (String.IsNullOrEmpty(line))
+                continue;
+
+              string[] tokens = line.Split('\t');
+              if (tokens.Length != 2)
+                continue;
+
+              foreach (var token in tokens)
+              {
+                int time;
+                if (int.TryParse(token, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out time))
+                  positions.Add(time / framesPerSecond);
+              }
+            }
+          }
+        }
+
+        // Insert start of video as position
+        if (!positions.Contains(0d))
+          positions.Insert(0, 0d);
+
+        var chapterNames = new List<string>();
+        var chapterTimes = new List<double>();
+
+        for (int index = 0; index < positions.Count - 1; index++)
+        {
+          var timeFrom = positions[index];
+          var timeTo = positions[index + 1];
+          // Filter out segments with less than 2 seconds duration
+          if (timeTo - timeFrom <= 2)
+            continue;
+          var chapterName = string.Format("ComSkip {0} [{1} - {2}]", chapterNames.Count + 1,
+            FormatDuration(timeFrom),
+            FormatDuration(timeTo));
+          chapterNames.Add(chapterName);
+          chapterTimes.Add(timeFrom);
+        }
+        _chapterNames = chapterNames.ToArray();
+        _chapterTimestamps = chapterTimes.ToArray();
+        return _chapterNames.Length > 0;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("VideoPlayer: EnumerateExternalChapters() - Exception while reading ComSkip chapter file", ex);
+        return false;
+      }
+    }
+
+    protected string FormatDuration(double durationSeconds)
+    {
+      var culture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+      DurationConverter dc = new DurationConverter();
+      object time;
+      if (dc.Convert(durationSeconds, null, null, culture, out time))
+        return time.ToString();
+      return "-";
     }
 
     #endregion
@@ -762,7 +903,9 @@ namespace MediaPortal.UI.Players.Video
         }
         else
         {
-          subtitleStreams.EnableStream(NO_SUBTITLES);
+          StreamInfo noSubtitleStream = subtitleStreams.FindSimilarStream(NO_SUBTITLES);
+          if (noSubtitleStream != null)
+            subtitleStreams.EnableStream(noSubtitleStream.Name);
         }
       }
       else

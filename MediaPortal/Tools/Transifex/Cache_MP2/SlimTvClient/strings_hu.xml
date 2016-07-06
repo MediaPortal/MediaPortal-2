@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Kezdet</string>
   <string name="SlimTvClient.ProgramEndLabel">Vége</string>
   <string name="SlimTvClient.EpisodeLabel">Epizód</string>
+  <string name="SlimTvClient.Progress">Folyamat</string>
   <string name="SlimTvClient.Guide">Tv műsorújság</string>
   <string name="SlimTvClient.NoProgram">Nincs adat a műsorról.</string>
   <string name="SlimTvClient.ChooseProgramAction">Tevékenység kiválasztása</string>

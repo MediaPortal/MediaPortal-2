@@ -27,8 +27,10 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 
@@ -41,7 +43,6 @@ namespace MediaPortal.UiComponents.Media.Views
   {
     #region Protected fields
 
-    protected string _searchText;
     protected IFilter _filter;
     protected bool _excludeCLOBs;
     protected bool _onlyOnline;
@@ -50,11 +51,10 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Ctor
 
-    public SimpleTextSearchViewSpecification(string viewDisplayName, string searchText, IFilter filter,
+    public SimpleTextSearchViewSpecification(string viewDisplayName, IFilter filter,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, bool excludeCLOBs, bool onlyOnline) :
-        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
+      base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
     {
-      _searchText = searchText;
       _filter = filter;
       _excludeCLOBs = excludeCLOBs;
       _onlyOnline = onlyOnline;
@@ -70,11 +70,6 @@ namespace MediaPortal.UiComponents.Media.Views
     public bool ExcludeCLOBs
     {
       get { return _excludeCLOBs; }
-    }
-
-    public string SearchText
-    {
-      get { return _searchText; }
     }
 
     public IFilter Filter
@@ -100,8 +95,11 @@ namespace MediaPortal.UiComponents.Media.Views
         return;
       try
       {
-        mediaItems = cd.SimpleTextSearch(_searchText, _necessaryMIATypeIds, _optionalMIATypeIds,
-            _filter, _excludeCLOBs, _onlyOnline, false);
+        MediaItemQuery query = new MediaItemQuery(_necessaryMIATypeIds, _optionalMIATypeIds, _filter)
+        {
+          Limit = Consts.MAX_NUM_ITEMS_VISIBLE
+        };
+        mediaItems = cd.Search(query, true);
       }
       catch (UPnPRemoteException e)
       {

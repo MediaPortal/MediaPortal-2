@@ -15,8 +15,17 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}" >
+        
+        <Rectangle Fill="Black" Opacity="0.5" Margin="-89,-14,-84,75" DockPanel.Dock="Center" >
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
+
+        <Border BorderThickness="0" Background="#CC777777" Margin="-80,-5,-75,75" DockPanel.Dock="Center"/>
+        
         <!-- Items -->
-        <ListView x:Name="newsitems" Margin="-85,0,-90,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <ListView x:Name="newsitems" Margin="-75,0,-85,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsItemsContainerStyle}" DockPanel.Dock="Center"
               ItemsSource="{Binding Path=SelectedFeed.Items}">
           <ListView.Resources>
@@ -26,7 +35,7 @@
           </ListView.Resources>
         </ListView>
       
-      <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-85,625,-70,-625" >
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-85,640,-70,-625" >
         <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
           <Label Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newsitems,Path=CurrentItem}"
                  Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" HorizontalAlignment="Right" VerticalAlignment="Stretch" />

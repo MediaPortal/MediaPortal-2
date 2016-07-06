@@ -5,11 +5,13 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     x:Name="FullscreenLayoutTv"
     Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"
-    >   <!-- DataContext model = SlimTvClient -->
+    >
+  <!-- DataContext model = SlimTvClient -->
 
   <Grid x:Name="FullscreenLayoutGrid">
     <Grid.Resources>
       <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
+      <Model x:Key="ChannelZapModel" Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375"/>
     </Grid.Resources>
     <Grid.Background>
       <VideoBrush Stream="0"/>
@@ -32,7 +34,7 @@
       </Control.TemplateControl>
     </Control>
 
-    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
+    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
           IsVisible="{Binding !IsOSDVisible}"/>
 
     <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
@@ -46,23 +48,8 @@
             Style="{ThemeResource PrimarySlimTvOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
-    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
-    <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
-
-    <KeyBinding Key="Up" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=InstantSkipForward}" IsEnabled="{Binding !IsOSDVisible}"/>
-    <KeyBinding Key="Down" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=InstantSkipBackward}" IsEnabled="{Binding !IsOSDVisible}"/>
-
-    <KeyBinding Key="Right" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=SkipStepForward}" IsEnabled="{Binding !IsOSDVisible}"/>
-    <KeyBinding Key="Left" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=SkipStepBackward}" IsEnabled="{Binding !IsOSDVisible}"/>
-
-    <KeyBinding Key="Escape" Command="{Command CloseOSD}" IsEnabled="{Binding IsOSDVisible}"/>
-
-    <KeyBinding Key="PageUp" Command="{Command ZapNextChannel}"/>
-    <KeyBinding Key="PageDown" Command="{Command ZapPrevChannel}"/>
-
-    <KeyBinding Key="Record" Command="{Command RecordDialog}"/>
-    <KeyBinding Key="R" Command="{Command RecordDialog}"/>
-
-    <KeyBinding Key="Ok" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=SlimTVClient-miniguide}" IsEnabled="{Binding !IsOSDVisible}"/>
+    <!-- All KeyBindings are included from shared resource -->
+    <Include Source="screens\FullscreenTvKeybindings.inc"/>
   </Grid>
 </Screen>
+

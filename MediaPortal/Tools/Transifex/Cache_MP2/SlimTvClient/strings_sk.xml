@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Začiatok</string>
   <string name="SlimTvClient.ProgramEndLabel">Koniec</string>
   <string name="SlimTvClient.EpisodeLabel">Epizóda</string>
+  <string name="SlimTvClient.Progress">Priebeh</string>
   <string name="SlimTvClient.Guide">TV program</string>
   <string name="SlimTvClient.NoProgram">Bez údajov o programe.</string>
   <string name="SlimTvClient.ChooseProgramAction">Vyberte akciu programu...</string>
@@ -21,6 +22,8 @@
   <string name="SlimTvClient.DeleteSchedule">Vymazať tento plán</string>
   <string name="SlimTvClient.CreateSchedule">Naplánovať záznam</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nahrávky podľa mena</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nahrávky podľa mena</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Žiadny TV poskytovateľ nie je zatiaľ dostupný</string>
   <!--Settings-->

@@ -9,7 +9,7 @@
   <Version
     PluginVersion="1.0"
     ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
-    CurrentAPI="1"/>
+    CurrentAPI="2"/>
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
@@ -25,11 +25,17 @@
 
   <Register Location="/Models">
     <Model Id="25F16911-ED0D-4439-9858-5E69C970C037"
-           Name="SystemStateModel"
-           ClassName="MediaPortal.Plugins.SystemStateMenu.Models.SystemStateModel"/>
+           Name="SystemStateDialogModel"
+           ClassName="MediaPortal.Plugins.SystemStateMenu.Models.SystemStateDialogModel"/>
+    <Model Id="B348CBF3-ABCF-4D3D-9397-DBA2FFA49FD6"
+           Name="SystemStateMenuModel"
+           ClassName="MediaPortal.Plugins.SystemStateMenu.Models.SystemStateMenuModel"/>
     <Model Id="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"
            Name="SystemStateConfigurationModel"
            ClassName="MediaPortal.Plugins.SystemStateMenu.Models.SystemStateConfigurationModel"/>
+    <Model Id="40FDD1C3-CFAB-4731-9636-96726301B648"
+           Name="SleepTimerModel"
+           ClassName="MediaPortal.Plugins.SystemStateMenu.Models.SleepTimerModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -45,6 +51,12 @@
                  DialogScreen="dialogSystemStateConfiguration"
                  DisplayLabel="[SystemState.ShutdownConfigurationDialogStateDisplayLabel]"
                  WorkflowModel="869C15FC-AF55-4003-BF0D-F5AF7B6D0B3B"/>
+    <!-- SleepTimer Dialog -->
+    <DialogState Id="5BFE10D3-6D66-46D8-B0BE-74F4190DA6A9"
+                 Name="dialogSleepTimer"
+                 DialogScreen="dialogSleepTimer"
+                 DisplayLabel="[SystemState.ShutdownDialogStateDisplayLabel]"
+                 WorkflowModel="40FDD1C3-CFAB-4731-9636-96726301B648"/>
   </Register>
 
   <Register Location="/Resources/Language">

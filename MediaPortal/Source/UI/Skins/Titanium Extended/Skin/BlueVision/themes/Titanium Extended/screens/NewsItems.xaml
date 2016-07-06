@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[News.Title]"/>
+
+    <!-- News model -->
+    <Model x:Key="Model" Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}" Margin="20" LastChildFill="true">
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" Margin="0,10,0,-10" VerticalAlignment="Stretch" HorizontalAlignment="Center">
+          <Label DataContext="{Binding ElementName=newsitems,Path=CurrentItem}" Color="Black" FontFamily="Titanium"
+                 Content="{Binding Title}" Margin="0" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </StackPanel>
+        
+        <!-- Items -->
+        <Grid Margin="0,0,-14,30" DockPanel.Dock="Right" Width="870">
+          <Image Source="menu_fade.png" Margin="-30,-20,0,0" Width="100" Stretch="Fill" HorizontalAlignment="Left" />
+          <ListView x:Name="newsitems" Margin="0,0,-60,30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Style="{ThemeResource NewsItemsContainerStyle}" 
+                ItemsSource="{Binding Path=SelectedFeed.Items}">
+            <ListView.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+              <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
+                    Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            </ListView.Resources>
+          </ListView>
+        </Grid>
+
+        <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}"
+                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource HugeFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="0,0,60,0" >
+          <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+            <Label Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newsitems,Path=CurrentItem}"
+                   Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" 
+                   HorizontalAlignment="Left" VerticalAlignment="Stretch" />
+            <Label DataContext="{Binding ElementName=newsitems,Path=CurrentItem}" FontFamily="DefaultBold" Color="{ThemeResource TextColor}"
+                   Content="{Binding Title}" Margin="0" Wrap="True" HorizontalAlignment="Stretch" 
+                   Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" VerticalAlignment="Stretch" MaxHeight="70" />
+            <Label DataContext="{Binding ElementName=newsitems,Path=CurrentItem}" Color="{ThemeResource TextColor}" Opacity="0.7" MaxHeight="480"
+                   Content="{Binding Summary}" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"/>
+          </StackPanel>
+        </DockPanel>
+        
+     </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

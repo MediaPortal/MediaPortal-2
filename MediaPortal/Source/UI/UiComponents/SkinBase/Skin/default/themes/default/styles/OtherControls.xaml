@@ -23,6 +23,7 @@
   <DateFormatConverter x:Key="DateFormatConverter"/>
   <DurationConverter x:Key="DurationConverter"/>
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
+  <GetIndexMultiConverter x:Key="GetIndexMultiConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
   <SafeFilenameConverter x:Key="SafeFilenameConverter"/>
   <StringSplitConverter x:Key="StringSplitConverter"/>

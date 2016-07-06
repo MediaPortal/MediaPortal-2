@@ -116,6 +116,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, out movieLanguages) && movieLanguages.Count > 0)
         movieInfo.Languages.AddRange(movieLanguages);
 
+      // Try to use an existing TMDB id for exact mapping
+      int tmdbId;
+      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, out tmdbId) ||
+          MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+        movieInfo.MovieDbId = tmdbId;
+
       // Try to use an existing IMDB id for exact mapping
       string imdbId;
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||

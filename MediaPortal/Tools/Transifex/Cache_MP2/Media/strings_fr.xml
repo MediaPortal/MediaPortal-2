@@ -2,15 +2,22 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Parcourir les fichiers multimédias</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Parcourir la bibliothèque multimédia pour tous types de médias. Ici, vous avez également accès à des lecteurs amovibles.</string>
   <string name="Media.LocalMediaMenuItem">Fichiers multimédias locaux</string>
   <string name="Media.AudioMenuItem">Audio</string>
+  <string name="Media.AudioMenuItem.Help">Lire de la musique ou des livres audio de votre bibliothèque, ainsi  qu\'afficher des informations des contenus. Vous pouvez également créer des listes de lecture pour vos chansons préférées.</string>
   <string name="Media.VideosMenuItem">Vidéos</string>
+  <string name="Media.VideosMenuItem.Help">Parcourir la vidéothèque. Ici, vous avez accès à toutes vidéos , films,  épisodes et autres. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
   <string name="Media.SeriesMenuItem">Séries</string>
+  <string name="Media.SeriesMenuItem.Help">Parcourir la vidéothèque des séries. Obtenir des informations  la série, saisons et  épisodes du type notes, genre, acteurs, affiches, fanarts et plus. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
   <string name="Media.MoviesMenuItem">Films</string>
+  <string name="Media.MoviesMenuItem.Help">Parcourir la vidéothèque des films. Obtenir des informations du type notes, genre, acteurs, affiches, fanarts et plus. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
   <string name="Media.ImagesMenuItem">Images</string>
-  <string name="Media.LatestMediaMenuItem">Dernier média</string>
+  <string name="Media.ImagesMenuItem.Help">Parcourir la photothèque. Obtenir des informations du type lieux, l\'année et détails de l\'image. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
+  <string name="Media.LatestMediaMenuItem">Dernier fichier multimédia</string>
   <!--Filter titles-->
   <string name="Media.FilterByArtistMenuItem">Trier par artiste</string>
+  <string name="Media.FilterByAlbumArtistMenuItem">Trier par album de l\'artiste</string>
   <string name="Media.FilterByAlbumMenuItem">Trier par album</string>
   <string name="Media.FilterByAudioGenreMenuItem">Trier par genre</string>
   <string name="Media.FilterByDecadeMenuItem">Trier par décade</string>
@@ -51,6 +58,7 @@
   <!--For example: "R.E.M."-->
   <string name="Media.FilterArtistNavbarDisplayLabel">Artiste : {0}</string>
   <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumArtistNavbarDisplayLabel">Album de l\'artiste</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">Album : {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre : {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Décade : {0}</string>
@@ -82,7 +90,7 @@
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque Série</string>
   <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Vidéothèque</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Bibliothèque Image</string>
-  <string name="Media.LatestMediaWorkflowNavigationContextDisplayLabel">Dernier média</string>
+  <string name="Media.LatestMediaWorkflowNavigationContextDisplayLabel">Dernier fichier multimédia</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Vidéo en cours de lecture</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Vidéo en plein écran</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Musique en cours de lecture</string>
@@ -98,7 +106,7 @@
   <string name="Media.PlayOrEnqueueItemsWorkflowStateNavigationContextDisplayLabel">Lire / mettre en file</string>
   <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Lire</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Lire</string>
-  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Choisir le type de média</string>
+  <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Choisir le type de fichier multimédia</string>
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Parcourir l\'arborescence des fichiers multimédias</string>
   <string name="Media.LocalMediaNavigationHeader">Parcourir l\'arborescence des fichiers multimédias locaux</string>
@@ -120,6 +128,7 @@
   <string name="Media.ChooseAudioDecadeHeader">Choisir un décade</string>
   <string name="Media.ChooseAlbumHeader">Choisir un album</string>
   <string name="Media.ChooseArtistHeader">Choisir un artiste</string>
+  <string name="Media.ChooseAlbumArtistHeader">Choisir un album d\'un artiste</string>
   <string name="Media.ChooseAudioGenreHeader">Choisir un genre</string>
   <string name="Media.ChooseImageYearHeader">Choisir une année</string>
   <string name="Media.ChooseImageSizeHeader">Choisir une taille de fichier</string>

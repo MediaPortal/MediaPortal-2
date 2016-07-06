@@ -25,8 +25,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common;
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
@@ -53,6 +59,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected AbstractItemsScreenData.PlayableItemCreatorDelegate _genericPlayableItemCreatorDelegate;
     protected ViewSpecification _customRootViewSpecification;
     protected IEnumerable<string> _restrictedMediaCategories = null;
+    protected IFilter _filter = null; // Can be set by derived classes to apply an inital filter
+    protected List<IFilter> _filters = new List<IFilter>();
+    protected FixedItemStateTracker _tracker;
 
     #endregion
 
@@ -66,11 +75,11 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
           return new MovieItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-          return new AudioItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+          return new AudioItem(mi) { Command = new MethodDelegateCommand(() => MediaNavigationModel.AddCurrentViewToPlaylist(mi)) };
         if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
           return new VideoItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
-          return new ImageItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+          return new ImageItem(mi) { Command = new MethodDelegateCommand(() => MediaNavigationModel.AddCurrentViewToPlaylist(mi)) };
         return null;
       };
     }
@@ -90,6 +99,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// </summary>
     protected virtual void Prepare()
     {
+      // Read filters from plugin.xml and apply the matching ones
+      BuildFilters();
+
       _customRootViewSpecification = null;
     }
 
@@ -114,7 +126,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(_viewName, null, _necessaryMias, skinDependentOptionalMIATypeIDs, true)
+        new MediaLibraryQueryViewSpecification(_viewName, _filter, _necessaryMias, skinDependentOptionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
         };
@@ -145,6 +157,56 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _availableScreens = null;
       _defaultScreen = new BrowseMediaNavigationScreenData(_genericPlayableItemCreatorDelegate);
       _customRootViewSpecification = new BrowseMediaRootProxyViewSpecification(_viewName, _necessaryMias, null, _restrictedMediaCategories);
+    }
+
+    /// <summary>
+    /// Reads filter settings for <see cref="BaseNavigationInitializer"/> derived classes from plugin.xml.
+    /// </summary>
+    protected void BuildFilters()
+    {
+      if (_tracker != null)
+        return;
+
+      _tracker = new FixedItemStateTracker("BaseNavigationInitializer - Media navigation filter registration");
+
+      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(MediaNavigationFilterBuilder.MEDIA_FILTERS_PATH))
+      {
+        try
+        {
+          MediaNavigationFilter navigationFilter = pluginManager.RequestPluginItem<MediaNavigationFilter>(
+              MediaNavigationFilterBuilder.MEDIA_FILTERS_PATH, itemMetadata.Id, _tracker);
+          if (navigationFilter == null)
+            ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Media navigation filter with id '{0}'", itemMetadata.Id);
+          else
+          {
+            string extensionClass = navigationFilter.ClassName;
+            if (extensionClass == null)
+              throw new PluginInvalidStateException("Could not find class type for Media navigation filter  {0}", navigationFilter.ClassName);
+
+            if (extensionClass != GetType().Name)
+              continue;
+
+            _filters.Add(navigationFilter.Filter);
+          }
+        }
+        catch (PluginInvalidStateException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Cannot add Media navigation filter with id '{0}'", e, itemMetadata.Id);
+        }
+      }
+
+      if (_filters.Count == 0)
+      {
+        _filter = null;
+        return;
+      }
+
+      _filter = _filters.Count == 1 ? 
+        // Single filter
+        _filters[0] : 
+        // Or a "AND" combined filter
+        new BooleanCombinationFilter(BooleanOperator.And, _filters);
     }
   }
 }

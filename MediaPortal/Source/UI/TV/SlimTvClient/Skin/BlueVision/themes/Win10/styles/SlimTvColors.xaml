@@ -10,6 +10,7 @@
   <ResourceWrapper x:Key="ProgramBaseFill" Resource="#505050"/>
   <ResourceWrapper x:Key="ProgramFocusedFill" Resource="#003366"/>
   <ResourceWrapper x:Key="ProgramRunningFill" Resource="#004444"/>
+  <ResourceWrapper x:Key="ProgramRecordFill" Resource="#8F0000"/>
   <ResourceWrapper x:Key="ProgramScheduledFill">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="Transparent" Offset="0"/>

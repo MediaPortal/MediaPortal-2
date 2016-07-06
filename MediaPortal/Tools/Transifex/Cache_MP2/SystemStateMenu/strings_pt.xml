@@ -11,4 +11,7 @@
   <string name="SystemState.Logoff">terminar sessão</string>
   <string name="SystemState.MinimizeMP">Minimizar o MediaPortal</string>
   <string name="SystemState.ShutdownMP">Fechar o MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Menu de encerramento</string>
+  <string name="SleepTimer.Start">Início</string>
+  <string name="SleepTimer.Stop">Parar</string>
 </resources>

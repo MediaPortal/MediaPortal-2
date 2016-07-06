@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False">
-        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="-570,0,20,-100"
+        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="-570,15,20,-160"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Label Color="{ThemeResource HintTextColor}" DockPanel.Dock="Center"
               HorizontalAlignment="Stretch"
@@ -25,7 +25,7 @@
         </DockPanel>
 
         <ListView x:Name="ConfigItemsList"
-            DockPanel.Dock="Center"
+            DockPanel.Dock="Center" Margin="15,0,0,0"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
             Style="{ThemeResource ContentsMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"

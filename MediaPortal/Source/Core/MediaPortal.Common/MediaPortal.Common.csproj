@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
@@ -367,6 +368,7 @@
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
     <Compile Include="UPnP\UPnPDtDictionary.cs" />
     <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
+    <Compile Include="UPnP\UPnPSystemResumeHelper.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
@@ -422,4 +424,3 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
-

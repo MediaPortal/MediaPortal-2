@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    >
+
+  <ResourceWrapper x:Key="NewsItemLogoWidth720" Resource="56"/>
+  <ResourceWrapper x:Key="NewsItemLogoWidth1080" Resource="120"/>
+
+  <ResourceWrapper x:Key="NewsItemDetailsImageMaxHeight720" Resource="150"/>
+  <ResourceWrapper x:Key="NewsItemDetailsImageMaxHeight1080" Resource="200"/>
+
+  <ResourceWrapper x:Key="NewsItemHeight720" Resource="56"/>
+  <ResourceWrapper x:Key="NewsItemHeight1080" Resource="120"/>
+
+  <ResourceWrapper x:Key="NewsItemDateWidth720" Resource="56"/>
+  <ResourceWrapper x:Key="NewsItemDateWidth1080" Resource="118"/>
+  
+  <ResourceWrapper x:Key="NewsItemTitleMargin720" Resource="5,0,5,1"/>
+  <ResourceWrapper x:Key="NewsItemTitleMargin1080" Resource="5,7,5,7"/>
+
+  <ResourceWrapper x:Key="NewsDialogWidth720" Resource="650"/>
+  <ResourceWrapper x:Key="NewsDialogWidth1080" Resource="1000"/>
+
+  <ResourceWrapper x:Key="NewsFeedTitleWidth720" Resource="150"/>
+  <ResourceWrapper x:Key="NewsFeedTitleWidth1080" Resource="240"/>
+
+  <ResourceWrapper x:Key="NewsFeedListHeight720" Resource="300"/>
+  <ResourceWrapper x:Key="NewsFeedListHeight1080" Resource="450"/>
+
+</ResourceDictionary>

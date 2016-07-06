@@ -132,7 +132,8 @@ namespace UPnP.Infrastructure.Dv.GENA
       {
         _disposed = true;
         foreach (AsyncRequestState state in new List<AsyncRequestState>(_pendingRequests))
-          state.Request.Abort();
+          if (state.Request != null)
+            state.Request.Abort();
       }
     }
 

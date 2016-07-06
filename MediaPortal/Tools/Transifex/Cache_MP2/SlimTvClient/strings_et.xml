@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">Algusaeg</string>
   <string name="SlimTvClient.ProgramEndLabel">Lõpuaeg</string>
   <string name="SlimTvClient.EpisodeLabel">Episood</string>
+  <string name="SlimTvClient.Progress">Edenemine</string>
   <string name="SlimTvClient.Guide">TV Kava</string>
   <string name="SlimTvClient.NoProgram">Pole saateandmeid</string>
   <string name="SlimTvClient.ChooseProgramAction">Vali saatemeede ...</string>

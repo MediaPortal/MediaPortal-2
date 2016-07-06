@@ -42,7 +42,13 @@
   <!-- Button related -->
   <ResourceWrapper x:Key="ButtonControlRadiusX" Resource="15"/>
   <ResourceWrapper x:Key="ButtonControlRadiusY" Resource="15"/>
-
+  
+  <!-- Radio and Checkbox Button related -->
+  <ResourceWrapper x:Key="RadioButtonControlRadiusX" Resource="12"/>
+  <ResourceWrapper x:Key="RadioButtonControlRadiusY" Resource="12"/>
+  <ResourceWrapper x:Key="RadioButtonControlWidth" Resource="24"/>
+  <ResourceWrapper x:Key="RadioButtonControlHeight" Resource="24"/>
+  
   <!-- MediaItem related -->
   <ResourceWrapper x:Key="MediaItemsRadiusX" Resource="10"/>
   <ResourceWrapper x:Key="MediaItemsRadiusY" Resource="10"/>
@@ -61,5 +67,5 @@
   <!-- Footer Details -->
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
   <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="0"/>
-
+  
 </ResourceDictionary>

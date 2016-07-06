@@ -49,13 +49,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
     #region Implementation of IFanArtProvider
 
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;
       return false;
     }
 
-    public bool TryGetFanArt(FanArtConstants.FanArtMediaType mediaType, FanArtConstants.FanArtType fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
+    public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
     {
       result = null;
       Guid mediaItemId;
@@ -77,19 +77,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       IList<string> patterns = new List<string>();
       switch (fanArtType)
       {
-        case FanArtConstants.FanArtType.Banner:
+        case FanArtTypes.Banner:
           patterns.Add("banner.");
           break;
-        case FanArtConstants.FanArtType.ClearArt:
+        case FanArtTypes.ClearArt:
           patterns.Add("clearart.");
           break;
-        case FanArtConstants.FanArtType.Poster:
-        case FanArtConstants.FanArtType.Thumbnail:
+        case FanArtTypes.Poster:
+        case FanArtTypes.Thumbnail:
           patterns.Add("cover.");
           patterns.Add("poster.");
           patterns.Add("folder.");
           break;
-        case FanArtConstants.FanArtType.FanArt:
+        case FanArtTypes.FanArt:
           patterns.Add("backdrop.");
           patterns.Add("fanart.");
           break;

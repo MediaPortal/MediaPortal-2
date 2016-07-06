@@ -93,7 +93,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Label Content="{Binding Source={DynamicResource ResourceKey=Header_Text},Path=Resource}" Margin="40,-30,0,0"
                  FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>-->
 
-          <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"  Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
+          <Control x:Name="ContentControl" SetFocusPrio="DefaultLow" Template="{DynamicResource ResourceKey=Contents_Template}"  Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
                    IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
           <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"

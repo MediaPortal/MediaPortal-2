@@ -1,0 +1,514 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A0493D76-A38B-4B0F-92E6-B7B51200D005}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.UiComponents.BlueVision</RootNamespace>
+    <AssemblyName>BlueVision</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <NuGetPackageImportStamp>a3efaf78</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\ApolloOne.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\BlueVision.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX">
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\fonts\default-font.xml" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\02992BEC-1E6D-4C29-8D79-F95F59E3F625.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\09eae702-d9ec-4325-82d9-4843502c966b.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\17D2390E-5B05-4fbd-89F6-24D60CEB427F_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\2DED75C0-5EAE-4E69-9913-6B50A9AB2956.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\2DED75C0-5EAE-4E69-9913-6B50A9AB2956_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\30715D73-4205-417f-80AA-E82F0834171F_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\30F57CBA-459C-4202-A587-09FFF5098251_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\55556593-9FE9-436c-A3B6-A971E10C9D44_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\7D68C459-EE9B-4EAA-AE2C-C2C365139AEE.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\80D2E2CC-BAAA-4750-807B-F37714153751_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\87355E05-A15B-452A-85B8-98D4FC80034E.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\87355E05-A15B-452A-85B8-98D4FC80034E_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\93442DF7-186D-42e5-A0F5-CF1493E68F49_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\9C3E6701-6856-49ec-A4CD-0CEB15F385F6.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\A298DFBE-9DA8-4C16-A3EA-A9B354F3910C.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\A298DFBE-9DA8-4C16-A3EA-A9B354F3910C_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\A4DF2DF6-8D66-479a-9930-D7106525EB07_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703_2.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\background.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\background_.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\background_blue.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\basichome_button_focus - Kopie.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\basichome_button_focus.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\BB49A591-7705-408F-8177-45D633FDFAD0_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\BD93C5B3-402C-40A2-B323-DA891ED5F50E.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\D83604C0-0936-4416-9DE8-7B6D7C50023C.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E00B8442-8230-4D7B-B871-6AC77755A0D5_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\F6255762-C52A-4231-9E67-14C28735216E_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\fanart_overlay.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\filmstrip_mask.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_00.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_02.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_20.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_22.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_bottom.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_corner.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_left.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_right.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\focus_top.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\GroupMenu_Background.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\hiddenmenu_tab.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\hiddenmenu_tab_up.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\homebutton_mask.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\info_bar.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\listcontrol_item_selected.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\list_poster_shadow.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\menu_bar.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\menu_bg.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\menu_fade.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Movies.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\MP2_logo_bw.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\panel_settings.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\panel_thumbs.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\panel_thumbs_coverflow.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\panel_thumbs_noinfo.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\preview.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\settings_button_database_focus.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\settings_checkmark_checked.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\settings_checkmark_focus.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\settings_checkmark_unchecked.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\ShutdownIcon.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\tvseries_widebanner_large_focus.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\tvseries_widebanner_mask.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\unwatched_flag.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\video_thumb_focus.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\video_thumb_mask.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\0.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\1.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\10.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\11.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\12.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\13.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\14.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\15.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\16.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\17.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\18.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\19.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\2.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\20.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\21.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\22.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\23.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\24.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\25.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\26.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\27.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\28.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\29.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\3.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\30.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\31.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\32.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\33.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\34.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\35.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\36.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\37.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\38.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\39.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\4.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\40.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\41.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\42.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\43.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\44.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\45.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\46.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\47.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\5.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\6.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\7.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\8.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\9.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\na.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\permission.txt" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\WEATHERALERT.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\0.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\1.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\10.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\11.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\12.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\13.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\14.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\15.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\16.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\17.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\18.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\19.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\2.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\20.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\21.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\22.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\23.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\24.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\25.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\26.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\27.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\28.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\29.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\3.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\30.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\31.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\32.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\33.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\34.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\35.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\36.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\37.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\38.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\39.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\4.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\40.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\41.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\42.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\43.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\44.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\45.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\46.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\47.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\5.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\6.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\7.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\8.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\9.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\na.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\permission.txt" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FSCWindowButtons.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemAudioDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemImageDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieCollectionDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieDetailsCover.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeriesDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemsList.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemsListHeader.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemVideoDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\sounds\click.wav" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\sounds\navigate.wav" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\theme.xml" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\workflow\BlueVision-actions.xml" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="build.targets" />
+    <None Include="packages.config" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\Titan.desc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\TITAN.TTF" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\TitanBold.desc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\TITANLIGHT.TTF" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\TITANMEDIUM.TTF" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\TITANSMALL.TTF" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
+      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
+      <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj">
+      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
+      <Name>Media</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
+      <Project>{4efed5be-2f6a-4944-bb96-053d5945ba1f}</Project>
+      <Name>SkinBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Input\MceRemoteReceiver\MceRemoteReceiver.csproj">
+      <Project>{AA23A7F2-8B6D-4C0C-8FAD-F2F58E3F8B08}</Project>
+      <Name>MceRemoteReceiver</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\backgrounds\default-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\AudioShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\BrowseMediaNavigation.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\configuration-section.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\DialogVirtualKeyboard.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullScreenContentAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullscreenContentDVD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullscreenContentImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\home.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ImageShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\LatestMedia.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\master_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\master_configuration_menu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\master_dialog_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\master_home.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\master_homemenu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\master_menu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MoviesFilterByCollection.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MoviesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesFilterByName.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesFilterBySeason.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SharesOverview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_choose_categories.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_choose_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_choose_system.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_edit_name.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_edit_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_overview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_problem.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_remove_shares.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\shares_config_share_info.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ShowHomeServer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SimpleFilterItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SimpleShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\VideoShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\AnalogClock.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\Backgrounds.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\Brushes.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\BusyCursor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\Colors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\Consts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\FullScreenContentConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\Graphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\MediaConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\MediaGraphics.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\MediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\NewsConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\NewsStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\OSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\OtherControls.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\VirtualKeyboardStyle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\WeatherStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\Widgets.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+  <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -19,7 +19,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonCoverStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}" Margin="2">
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}" Margin="1">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -38,36 +38,37 @@
   
   <!-- Style for a single feed item -->
   <DataTemplate x:Key="NewsFeedDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="0" >
+    <Grid Margin="1" >
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="200"/>
+        <ColumnDefinition Width="291"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="165"/>
+        <RowDefinition Height="186"/>
       </Grid.RowDefinitions>
-      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.5" Margin="0"> </Border>
-      <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="2" VerticalAlignment="Center" HorizontalAlignment="Center"
-               MaxWidth="{ResolutionResource NewsItemLogoWidth}"/>
+      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0"> </Border>
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center"
+               MaxWidth="{ResolutionResource NewsItemLogoWidth}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.7"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
     </Grid>
   </DataTemplate>
 
   <!-- Style for a single news item -->
   <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="1" Width="285" Height="183" >
+    <Grid Margin="1" Width="291" Height="186" >
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-
-      <Grid.Opacity>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-          <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-          <Binding Source="1.0"/>
-          <Binding Source="0.8"/>
-        </MultiBinding>
-      </Grid.Opacity>
+      <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0"> </Border>
       <DockPanel Grid.Row="0" Grid.Column="0">
         <Grid DockPanel.Dock="Center">
           <Grid.ColumnDefinitions>
@@ -80,18 +81,15 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-
-          <Image Grid.Column="1" Grid.Row="1" x:Name="thumb" Stretch="Uniform" Source="{Binding Thumb}" Margin="0">
-            <Image.OpacityMask >
-              <VisualBrush>
-                <VisualBrush.Visual>
-                  <Border Background="White" CornerRadius="{StaticResource MediumRadius}"
-                          BorderThickness="0" BorderBrush="Black" />
-                </VisualBrush.Visual>
-              </VisualBrush>
-            </Image.OpacityMask>
+          <Image Grid.Column="1" Grid.Row="1" x:Name="thumb" Stretch="Uniform" Source="{Binding Thumb}" Margin="8">
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.7"/>
+              </MultiBinding>
+            </Image.Opacity>
           </Image>
-
         </Grid>
 
       <Image DockPanel.Dock="Center" Stretch="Fill" Margin="1"

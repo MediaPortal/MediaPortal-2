@@ -22,22 +22,17 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" Margin="-135,0,-135,42" >
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <LinearGradientBrush.GradientStops>
-                <GradientStop Color="#00000000" Offset="0"  />
-                <GradientStop Color="#CC000000" Offset="1"  />
-              </LinearGradientBrush.GradientStops>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
+        <Rectangle Grid.Row="0" Grid.Column="0" Fill="Black" Opacity="0.5" Margin="-89,-14,-84,65">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
 
-        <Border BorderThickness="0" Background="#F2666666" Margin="-80,30,-75,30"/>
+        <Border Grid.Row="0" Grid.Column="0" BorderThickness="0" Background="{StaticResource GrayBackgroundWithBlurBehind}" Margin="-80,-5,-75,65"/>
         
         <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             DataContext="{Binding Source={StaticResource Model}}">
-          <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-50,0,-50,0">
+          <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-50,-35,-50,35">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="100"/>
@@ -52,7 +47,7 @@
             </Grid.Triggers>
 
             <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0"
-                HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,55,0,50">
+                HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,55,0,25">
               <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
                 <Image x:Name="BigIcon" Width="150" Height="150" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
                 <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"

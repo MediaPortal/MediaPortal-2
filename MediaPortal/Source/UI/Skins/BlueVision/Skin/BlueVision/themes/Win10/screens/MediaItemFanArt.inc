@@ -5,7 +5,7 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="{DynamicResource Cover_Width}"
-  Margin="-25,-30,-80,40">
+  Margin="-25,-20,-77,30">
 
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
@@ -13,25 +13,17 @@
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
-
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
   </Grid.Resources>
- 
-  <Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Margin="1" Width="380" Height="555"
-         Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;555}">
-  </Image>
- 
+  
+  <Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Margin="1" Width="{DynamicResource Cover_Width}" Height="560">
+    <Image.Source>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" HorizontalTextureAlignment="Right"
+                     Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;560;False}"
+                     FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" />
+    </Image.Source>
+  </Image> 
 </Grid>
-
-
-<!-- Darkened band -->
-<!--Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
-             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0"
-             IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}"/-->
-
-<!-- Item label -->
-<!--Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-         Color="{ThemeResource TextColor}"/-->
 
 

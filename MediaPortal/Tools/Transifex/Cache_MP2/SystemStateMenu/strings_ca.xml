@@ -11,4 +11,7 @@
   <string name="SystemState.Logoff">Tancar sessió</string>
   <string name="SystemState.MinimizeMP">Minimitzar MediaPortal</string>
   <string name="SystemState.ShutdownMP">Tancar MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Menú d\'apagada</string>
+  <string name="SleepTimer.Start">Inici</string>
+  <string name="SleepTimer.Stop">Atura</string>
 </resources>

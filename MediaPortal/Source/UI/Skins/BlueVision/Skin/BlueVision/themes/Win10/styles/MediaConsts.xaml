@@ -4,21 +4,29 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
-  <ResourceWrapper x:Key="MEDIA_THUMB_Audio" Resource="175"/>
-  
-  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="220"/>
-  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="405"/>
-  <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="127"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_Audio" Resource="170"/>
+  <ResourceWrapper x:Key="MEDIA_AUDIO_WIDTH" Resource="140"/>
+  <ResourceWrapper x:Key="MEDIA_AUDIO_HEIGHT" Resource="132"/>
 
-  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="150"/>
-  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="81.25"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="169"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="133"/>
+
+  <ResourceWrapper x:Key="VIDEO_COVER_HEIGHT" Resource="280"/>
+
+  <ResourceWrapper x:Key="MEDIA_COVERFLOW_WIDTH" Resource="249"/>
+  <ResourceWrapper x:Key="MEDIA_COVERFLOW_HEIGHT" Resource="373"/>
+  
+  <ResourceWrapper x:Key="AUDIO_COVERFLOW" Resource="353"/>
+
+  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="428"/>
+  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="85.7"/>
+
+  <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="124"/>
   <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="180"/>
 
-  <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="225"/>
-  <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="130"/>
+  <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="169"/>
+  <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="133"/>
 
-  <ResourceWrapper x:Key="REFLEXION_WIDTH" Resource="130"/>
-  <ResourceWrapper x:Key="REFLEXION_HEIGHT" Resource="300"/>
   <ResourceWrapper x:Key="COVERVIEW_FILTER_WIDTH" Resource="190"/>
   <ResourceWrapper x:Key="COVERVIEW_FILTER_HEIGHT" Resource="440"/>
 

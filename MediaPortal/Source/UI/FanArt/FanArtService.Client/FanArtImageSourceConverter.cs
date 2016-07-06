@@ -24,7 +24,6 @@
 
 using System;
 using System.Globalization;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 
@@ -55,10 +54,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
       if (args.Length < 3)
         return false;
 
-      FanArtConstants.FanArtType fanartType;
-      if (!Enum.TryParse(args[0], out fanartType))
-        return false;
-
+      string fanartType = args[0];
       int maxWidth;
       int maxHeight;
       int.TryParse(args[1], out maxWidth);

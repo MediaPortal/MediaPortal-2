@@ -3,6 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_menu.xaml"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     >
   <Include.Resources>
@@ -16,62 +17,111 @@
     <!-- Contents -->
     <!--<ControlTemplate x:Key="Client_Template">-->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,-20,0,20"
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-50,30,-70,-180"
               DataContext="{Binding Source={StaticResource SlimTvSingleChannelGuide}}">
 
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
+          <ColumnDefinition Width="300"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="220"/> 
         </Grid.RowDefinitions>
 
-        <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
-            HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+        <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Fill="Black" Opacity="0.5" Margin="-39,-9,-14,0">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
+
+        <Rectangle Grid.Column="0" Grid.Row="0" Fill="#D9777777" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-30,0,-5,0" />
+
+        <StackPanel x:Name="Groups" Margin="-20,9,20,8" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-            Command="{Command PrevGroup}"/>
+              Command="{Command PrevGroup}" >
+            <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
           <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-            Command="{Command NextGroup}"/>
-          <Label x:Name="GroupNameLabel" Content="{Binding GroupName}"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+              Command="{Command NextGroup}" Margin="7,0,0,0">
+            <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
+          <Label x:Name="CurrentGroupNameLabel" Content="{Binding GroupName}" VerticalAlignment="Center"
+                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
         </StackPanel>
 
-        <StackPanel x:Name="Channels" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
+        <StackPanel x:Name="Channels" Margin="20,9,20,8" Grid.Column="1" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
           <Button x:Name="PrevChannelButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-              Command="{Command PrevChannel}"/>
+              Command="{Command PrevChannel}">
+            <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
           <Button x:Name="NextChannelButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextChannel}"/>
-          <Label x:Name="CurrentChannelNameLabel" Content="{Binding ChannelName}"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                  Command="{Command NextChannel}" Margin="7,0,0,0">
+            <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
+          <Label x:Name="CurrentChannelNameLabel" Content="{Binding ChannelName}" VerticalAlignment="Center"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
         </StackPanel>
-
-        <ListView  Grid.Column="0" Grid.Row="1"
-              Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource SingleProgramGuideListViewStyle}"
+      
+        <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+              Margin="0,0,-10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource SingleChannelWithLogoAndProgramListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"
               SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="5" />
+            </ResourceWrapper>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
 
-        <!--<GroupBox  Grid.Column="1" Grid.Row="1" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
-                   Style="{ThemeResource ContentGroupBoxStyle}">
-          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Control.TemplateControl>
-              <Include Source="screens\ProgramInfo.inc"/>
-            </Control.TemplateControl>
-          </Control>
-        </GroupBox>-->
-      </Grid>
-    </ControlTemplate>
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="Description_details"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-30,30,-5,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="320"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+              <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
+                     Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+              <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="ProgramEnd" Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                  Color="{ThemeResource TextColor}"/>
+            </StackPanel>
+            <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
+                   HorizontalAlignment="Right"/>
+            <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}"
+                   Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,0,0">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                                          fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+              </Image.Source>
+            </Image>
+          </StackPanel>
+          <Label x:Name="Program" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontFamily="DefaultBold"
+                    Content="{Binding Path=CurrentProgram.Title}" Margin="0,0,0,0"
+                    Color="{ThemeResource TextColor}"/>
 
-    <ControlTemplate x:Key="Alternative_Footer_Template">
-      <Include Source="screens\ProgramInfoSlim.inc"/>
+          <Label Grid.Row="1" Grid.Column="0" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Wrap="True" Scroll="Auto"
+                 Content="{Binding Path=CurrentProgram.Description}"
+                 Color="{ThemeResource TextColor}" Margin="0,0,0,5" />
+        </Grid>
+      </Grid>
     </ControlTemplate>
   </Include.Resources>
 </Include>

@@ -12,7 +12,7 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="1"/> <!-- FanartService -->
+    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="2"/> <!-- FanartService -->
     <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}" CompatibleAPI="1"/> <!-- MatroskaLib -->
 
     <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="1" />

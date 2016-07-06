@@ -42,7 +42,7 @@
               <Label DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
                      Content="{Binding Title}" Margin="0" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
               <Label DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" Opacity="0.7"
-                     Content="{Binding Description}" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     Content="{Binding Description}" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="150"
                      Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" />
             </StackPanel>           
           </DockPanel>      

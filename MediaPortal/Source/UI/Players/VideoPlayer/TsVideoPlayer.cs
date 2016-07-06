@@ -124,6 +124,9 @@ namespace MediaPortal.UI.Players.Video
         _subtitleRenderer.SetPlayer(this);
       }
 
+      // For supporting CC
+      AddClosedCaptionsFilter();
+
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
         // _resourceAccessor points to an rtsp:// stream or network file
@@ -221,6 +224,12 @@ namespace MediaPortal.UI.Players.Video
       _oldVideoFormat = newFormat;
       return 0;
     }
+
+    public int OnBitRateChanged(int bitrate)
+    {
+      return 0;
+    }
+
     #endregion
 
     #region ITSReaderAudioCallback members

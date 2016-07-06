@@ -11,7 +11,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,20">
+            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,0">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="*"/>

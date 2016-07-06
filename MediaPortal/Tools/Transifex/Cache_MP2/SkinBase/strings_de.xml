@@ -38,7 +38,7 @@
   <string name="ServerConnection.HomeServer">Heimserver</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">An Server anbinden</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Vom Server abkoppeln</string>
-  <string name="ServerConnection.HomeServerWorkflowStateLabel">Heimserver</string>
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">MediaPortal Server</string>
   <string name="ServerConnection.AttachedText.Before">Dieser MediaPortal-2-Client ist einem Heimserver zugewiesen.</string>
   <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Dieser MediaPortal-2-Client ist momentan keinem Heimserver zugewiesen.</string>

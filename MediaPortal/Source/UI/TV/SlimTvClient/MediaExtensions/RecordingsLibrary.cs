@@ -64,7 +64,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 
       AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
 
-      _defaultScreen = new VideosShowItemsScreenData(picd);
+      _defaultScreen = new RecordingsShowItemsScreenData(picd);
       _availableScreens = new List<AbstractScreenData>
         {
           _defaultScreen,
@@ -76,7 +76,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
           //new VideosFilterByGenreScreenData(),
           //new VideosFilterByYearScreenData(),
           //new VideosFilterBySystemScreenData(),
-          new VideosSimpleSearchScreenData(picd),
+          new RecordingsSimpleSearchScreenData(picd),
         };
 
       _defaultSorting = new SortByRecordingDateDesc();

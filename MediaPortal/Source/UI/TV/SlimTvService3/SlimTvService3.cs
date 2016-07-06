@@ -403,6 +403,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         channels = radioChannels
           .Where(c => c.VisibleInGuide)
           .Select(c => c.ToChannel())
+          .Where(c => c != null)
           .ToList();
       }
       else
@@ -412,6 +413,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           // .OrderBy(c => c.SortOrder)
           .Where(c => c.VisibleInGuide)
           .Select(c => c.ToChannel())
+          .Where(c => c != null)
           .ToList();
       }
       return true;

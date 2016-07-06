@@ -2,15 +2,22 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Medien durchsuchen</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Durchsuchen der Medienbibliothek nach allen Arten von Medien, angeordnet nach der Dateistruktur. Der Zugriff auf Wechseldatenträger ist hier ebenfalls möglich.</string>
   <string name="Media.LocalMediaMenuItem">Lokale Medien</string>
   <string name="Media.AudioMenuItem">Audio</string>
+  <string name="Media.AudioMenuItem.Help">Musik oder Hörbücher aus der Medienbibliothek abspielen und zusätzliche Medieninformationen abrufen. Hier werden auch Playlists mit allen Lieblingssongs erstellt.</string>
   <string name="Media.VideosMenuItem">Videos</string>
+  <string name="Media.VideosMenuItem.Help">Durchsuchen der Medienbibliothek nach allen Arten von Videos, egal ob Spielfilme, Serien oder nicht kategorisierte Videos. Man kann Filter verwenden, um die Auswahl an die eigenen Wünsche anzupassen.</string>
   <string name="Media.SeriesMenuItem">Serien</string>
+  <string name="Media.SeriesMenuItem.Help">Durchsuchen der Medienbibliothek nach Serien. Es werden Zusatzinformationen auch für Staffeln und Episoden wie etwa Genres, Schauspieler oder Ratings angezeigt. Man kann Filter verwenden, um die Auswahl an die eigenen Wünsche anzupassen.</string>
   <string name="Media.MoviesMenuItem">Filme</string>
+  <string name="Media.MoviesMenuItem.Help">Durchsuchen der Medienbibliothek nach Spielfilmen. Es werden Zusatzinformationen wie etwa Genres, Schauspieler oder Ratings angezeigt. Man kann Filter verwenden, um die Auswahl an die eigenen Wünsche anzupassen.</string>
   <string name="Media.ImagesMenuItem">Bilder</string>
+  <string name="Media.ImagesMenuItem.Help">Durchsuchen der Medienbibliothek nach Bildern. Es werden Zusatzinformationen wie etwa Geodaten, Datum oder EXIF-Informationen angezeigt. Man kann Filter verwenden, um die Auswahl an die eigenen Wünsche anzupassen.</string>
   <string name="Media.LatestMediaMenuItem">Neueste Medien</string>
   <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Nach Künstler filtern</string>
+  <string name="Media.FilterByArtistMenuItem">Nach Interpret filtern</string>
+  <string name="Media.FilterByAlbumArtistMenuItem">Nach Album-Interpret filtern</string>
   <string name="Media.FilterByAlbumMenuItem">Nach Album filtern</string>
   <string name="Media.FilterByAudioGenreMenuItem">Nach Genre filtern</string>
   <string name="Media.FilterByDecadeMenuItem">Nach Jahrzehnt filtern</string>
@@ -49,8 +56,9 @@
   <!--For example: "R.E.M."-->
   <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
-  <string name="Media.FilterArtistNavbarDisplayLabel">Künstler: {0}</string>
+  <string name="Media.FilterArtistNavbarDisplayLabel">Interpret: {0}</string>
   <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumArtistNavbarDisplayLabel">Album-Interpret: {0}</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">Album: {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Jahrzehnt: {0}</string>
@@ -119,7 +127,8 @@
   <string name="Media.ChooseSeasonHeader">Wähle eine Staffel</string>
   <string name="Media.ChooseAudioDecadeHeader">Wähle ein Jahrzehnt</string>
   <string name="Media.ChooseAlbumHeader">Wähle ein Album</string>
-  <string name="Media.ChooseArtistHeader">Wähle einen Künstler</string>
+  <string name="Media.ChooseArtistHeader">Wähle einen Interpreten</string>
+  <string name="Media.ChooseAlbumArtistHeader">Wähle einen Interpreten</string>
   <string name="Media.ChooseAudioGenreHeader">Wähle ein Genre</string>
   <string name="Media.ChooseImageYearHeader">Wähle ein Jahr</string>
   <string name="Media.ChooseImageSizeHeader">Wähle eine Größe</string>
@@ -233,6 +242,7 @@
   <string name="Media.SeriesTitleLabel">Serie:</string>
   <string name="Media.SeriesSeasonLabel">Staffel:</string>
   <string name="Media.SeriesEpisodeLabel">Folge(n):</string>
+  <string name="Media.FirstAiredLabel">Veröffentlicht:</string>
   <string name="Media.SeriesEpisodeNameLabel">Folgentitel:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Aktuelle Bild-Informationen</string>
@@ -253,7 +263,7 @@
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Aktuelle Audio-Information</string>
   <string name="Media.AudioAlbumLabel">Album:</string>
-  <string name="Media.AudioArtistsLabel">Künstler:</string>
+  <string name="Media.AudioArtistsLabel">Interpret:</string>
   <string name="Media.AudioTitleLabel">Titel:</string>
   <string name="Media.AudioYearLabel">Jahr:</string>
   <string name="Media.AudioDurationLabel">Dauer:</string>
@@ -313,7 +323,7 @@
   <string name="Media.SortByGenre">Sortierung nach Genre</string>
   <string name="Media.SortByAlbum">Sortierung nach Album und Name</string>
   <string name="Media.SortByTrack">Sortierung nach Titelnummer</string>
-  <string name="Media.SortByArtist">Sortierung nach Künstler</string>
+  <string name="Media.SortByArtist">Sortierung nach Interpret</string>
   <string name="Media.SortByYear">Sortierung nach Jahr</string>
   <string name="Media.SortBySize">Sortierung nach Größe</string>
   <string name="Media.SortBySystem">Sortierung nach System</string>

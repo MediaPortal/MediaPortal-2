@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -78,6 +77,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly AutoResetEvent _renderFinishedEvent = new AutoResetEvent(false);
     private bool _videoPlayerSuspended = false;
     private IVideoPlayerSynchronizationStrategy _videoPlayerSynchronizationStrategy = null;
+    private Size _screenSize;
+    private int _screenBpp;
     private Size _previousWindowClientSize;
     private Point _previousWindowLocation;
     private FormWindowState _previousWindowState;
@@ -100,6 +101,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private readonly object _reclaimDeviceSyncObj = new object();
 
     private bool _adaptToSizeEnabled;
+    private bool _disableTopMost;
 
     public MainForm(ScreenManager screenManager)
     {
@@ -135,6 +137,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
         preferredScreen = System.Windows.Forms.Screen.AllScreens[validScreenNum];
         StartPosition = FormStartPosition.Manual;
       }
+
+      // Store original desktop size
+      _screenSize = preferredScreen.Bounds.Size;
+      _screenBpp = preferredScreen.BitsPerPixel;
 
       Size desiredWindowedSize;
       if (appSettings.WindowPosition.HasValue && appSettings.WindowSize.HasValue)
@@ -355,7 +361,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 #if DEBUG
       TopMost = _forceOnTop;
 #else
-      TopMost = _forceOnTop || IsFullScreen && (force || this == ActiveForm);
+      TopMost = !_disableTopMost && (_forceOnTop || IsFullScreen && (force || this == ActiveForm));
       if (force)
       {
         this.SafeActivate();
@@ -541,6 +547,16 @@ namespace MediaPortal.UI.SkinEngine.GUI
       StartUI();
     }
 
+    public bool DisableTopMost
+    {
+      get { return _disableTopMost; }
+      set
+      {
+        _disableTopMost = value;
+        CheckTopMost();
+      }
+    }
+
     public bool IsFullScreen
     {
       get { return _mode == ScreenMode.FullScreen; }
@@ -663,6 +679,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       try
       {
         logger.Debug("SkinEngine MainForm: Stopping");
+        StoreClientBounds();
         StopUI();
         UIResourcesHelper.ReleaseUIResources();
       }
@@ -890,13 +907,26 @@ namespace MediaPortal.UI.SkinEngine.GUI
         return;
       }
 
+      // Handle display changes. There are different cases which lead to this message:
+      // 1. When changing the screen resolution, wanted or unwanted (i.e. some graphic cards reset to 1024x768 during resume from standby)
+      // 2. When the refresh rate is changed, but other parameters remain the same (i.e. can happen by RefreshRateChanger plugin)
+      // In 1st case we need to reset the DX device, in 2nd this leads to interuption of workflow and is not required.
       if (m.Msg == WM_DISPLAYCHANGE)
       {
         int bitDepth = m.WParam.ToInt32();
         int screenWidth = m.LParam.ToInt32() & 0xFFFF;
         int screenHeight = m.LParam.ToInt32() >> 16;
-        ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Display changed to {0}x{1}@{2}.", screenWidth, screenHeight, bitDepth);
-        GraphicsDevice.Reset();
+        if (bitDepth != _screenBpp || screenWidth != _screenSize.Width || screenWidth != _screenSize.Width)
+        {
+          _screenSize = new Size(screenWidth, screenHeight);
+          _screenBpp = bitDepth;
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Display changed to {0}x{1}@{2}.", screenWidth, screenHeight, bitDepth);
+          GraphicsDevice.Reset();
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Info("SkinEngine MainForm: Display changed refresh rate, size remained {0}x{1}@{2}.", screenWidth, screenHeight, bitDepth);
+        }
       }
 
       // Albert, 2010-03-13: The following code can be used to make the window always maintain a fixed aspect ratio.

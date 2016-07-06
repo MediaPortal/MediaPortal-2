@@ -8,11 +8,11 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
-    DependsOnStyleResources="Colors,Buttons,Consts,Widgets"
+    DependsOnStyleResources="Colors,Buttons,Consts,Widgets,MediaConsts"
     >
 
   <!-- BackgroundManager model -->
-  <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+  <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/> 
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
 
   <!-- ***************************** Converters ********************************* -->
@@ -178,7 +178,7 @@
               </StackPanel>
             </Grid>
             <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
-                Grid.ZIndex="0" Margin="2,2,10,2"
+                Grid.ZIndex="0" Margin="-15,2,0,2"
                 RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
               <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
               <Grid.ColumnDefinitions>
@@ -353,6 +353,26 @@
     </Setter>
   </Style>
 
+  <Style x:Key="SettingsMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource MenuButtonWideStyle}" Margin="0,0,20,0"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="PopupMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
@@ -440,7 +460,7 @@
   <DataTemplate x:Key="MainMenuItemDataTemplateHover">
     <Grid>
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_4_24}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
 
       <Grid x:Name="ItemControl">
@@ -544,6 +564,19 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource ContentsMenuItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SettingsMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ContentsMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SettingsMenuItemContainerStyle}"/>
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
@@ -728,7 +761,7 @@
       </Grid.Width-->
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_18}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>

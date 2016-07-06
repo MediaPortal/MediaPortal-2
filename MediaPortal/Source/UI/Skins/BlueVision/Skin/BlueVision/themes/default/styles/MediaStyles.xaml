@@ -128,8 +128,12 @@
         <RowDefinition Height="{StaticResource GRIDVIEW_FILTER_HEIGHT}"/>
       </Grid.RowDefinitions>
 
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0,0,0,0" Source="Container.png"
-           Width="{StaticResource MEDIA_THUMB_WIDTH}" Height="{StaticResource MEDIA_THUMB_HEIGHT}">
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Fill"
+           Width="{StaticResource MEDIA_THUMB_WIDTH}" Height="{StaticResource MEDIA_THUMB_HEIGHT}" FallbackSource="Container.png">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -398,7 +402,7 @@
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -673,7 +677,7 @@
   <ControlTemplate x:Key="GridViewSeriesSeasonFilterItemTemplate">
     <Grid Margin="2,2,2,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_BANNER_WIDTH}" Height="{StaticResource MEDIA_BANNER_HEIGHT}">
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -882,7 +886,7 @@
     <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_18}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -1251,7 +1255,7 @@
       </Grid.RowDefinitions>
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_19}" />
+      <Control Style="{ThemeResource Shadow_3_20}" />
       <!-- SHADOW -->
 
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -1574,7 +1578,7 @@
       </Grid.RowDefinitions>
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_24}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -1825,7 +1829,7 @@
         <RowDefinition Height="175"/>
       </Grid.RowDefinitions>
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_24}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
       <Grid>
         <Grid.OpacityMask>
@@ -2058,7 +2062,7 @@
     <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="193" Height="128">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_35_22}" />
+      <Control Style="{ThemeResource Shadow_3_23}" />
       <!-- SHADOW -->
 
       <Grid>
@@ -2274,7 +2278,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource MediaItemButtonCoverStyle}"
+          <Button Style="{ThemeResource MediaItemButtonHomeStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -2702,32 +2706,79 @@
     <Setter Property="PlayerContext" Value="SecondaryPlayer"/>
   </Style>
 
+  <DataTemplate x:Key="HomeScreenItemTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" Margin="4,3,4,3" Width="{StaticResource MEDIA_AUDIO_WIDTH}" Height="{StaticResource MEDIA_AUDIO_HEIGHT}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <!-- SHADOW -->
+      <Control Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" Width="{Binding ElementName=PosterGrid,Path=ActualWidth}" 
+               Style="{ThemeResource Shadow_3_20}" IsVisible="{Binding ElementName=thumb, Path=HasImage}"/>
+      <!-- SHADOW -->
+
+      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" 
+            MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}" MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}">
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>     
+      
+        <Image x:Name="thumb" Stretch="Uniform" Margin="0" Source="{Binding MediaItem}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.85"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <!-- Unwatched indicator -->
+        <Image Source="unwatched_flag.png" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-2" Height="40" Width="40">
+          <Image.IsVisible>
+            <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+          </Image.IsVisible>
+        </Image>
+      </Grid>       
+    </Grid>
+  </DataTemplate>
+
   <Style x:Key="MediaItemsListListViewStyle2" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
-    <Setter Property="ItemTemplate"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource HomeScreenItemTemplate}"/>
     <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
     <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MediaItemCoverWithContextMenuContainerStyle}"/>
     <Setter Property="LayoutTransform">
       <Setter.Value>
         <TransformGroup>
-          <ScaleTransform ScaleX="0.76" ScaleY="0.76"/>
+          <ScaleTransform ScaleX="1" ScaleY="1"/>
         </TransformGroup>
       </Setter.Value>
     </Setter>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="15,0,0,0"/>
+          <ScrollViewer CanContentScroll="True" Margin="0,5,0,-25"
+              VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <!--ScrollViewer.OpacityMask >
+              <ImageBrush ImageSource="Home_screen_fade.png"/>
+            </ScrollViewer.OpacityMask-->
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <WrapPanel x:Name="GridItemsHost" IsItemsHost="True" HorizontalAlignment="Center">
-          </WrapPanel>
+          <VirtualizingStackPanel x:Name="GridItemsHost" Orientation="Vertical" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

@@ -13,12 +13,12 @@
   <ResourceWrapper x:Key="FooterPanelHeight" Resource="220" />
 
   <!-- Grouped home layout -->
-  <ResourceWrapper x:Key="GridLayoutWidth" Resource="107" />
+  <ResourceWrapper x:Key="GridLayoutWidth" Resource="115" />
   <ResourceWrapper x:Key="GridLayoutHeight" Resource="100" />
 
   <!-- Player control -->
   <ResourceWrapper x:Key="PlayerControlBorderRadius" Resource="15" />
-  <ResourceWrapper x:Key="PlayerControlButtonMargins" Resource="-2.5,0,-2.5,0" />
+  <ResourceWrapper x:Key="PlayerControlButtonMargins" Resource="0" />
   <ResourceWrapper x:Key="PlayerControlHomeButtonMargins" Resource="-2,0,-2,0" />
   <ResourceWrapper x:Key="PlayerControlHeight" Resource="35"/>
   <ResourceWrapper x:Key="PlayerControlButtonOpacity" Resource="0.6"/>
@@ -57,13 +57,15 @@
   <ResourceWrapper x:Key="FocusedButtonAnimationTime1" Resource="00:00:00.300"/>
 
   <!-- ScrollViewer -->
-  <ResourceWrapper x:Key="ScrollBarKnobRadius" Resource="7"/>
+  <ResourceWrapper x:Key="ScrollBarKnobRadius" Resource="1"/>
   <!-- Must be 2x ScrollBarKnobRadius to get circle ! -->
   <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="14"/>
   <ResourceWrapper x:Key="ScrollBarKnobHeight" Resource="14"/>
-
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="6"/>
+  
+  
   <!-- Footer Details -->
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="242"/>
-  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-50,-40,0,0"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-50,-40,-50,-10"/>
 
 </ResourceDictionary>

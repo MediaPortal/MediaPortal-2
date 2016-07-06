@@ -276,15 +276,22 @@
 
   <!-- SingleChannel Program Guide, Item contains StartTime and Title. -->
   <DataTemplate x:Key="SingleChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="StartTime" Grid.Column="0" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
-      <Label x:Name="SeriesLabel" Grid.Column="2" Content="{Binding [Series]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="64" Height="64" Stretch="Uniform" Margin="2">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
+                                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="StartTime" VerticalAlignment="Center" Grid.Column="1" Content="{Binding [StartTime]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" VerticalAlignment="Center" Grid.Column="2" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+      <Label x:Name="SeriesLabel" VerticalAlignment="Center" Grid.Column="3" Content="{Binding [Series]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
     </Grid>
   </DataTemplate>
 
@@ -459,6 +466,7 @@
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{ThemeResource ChannelLogoContainerSmall}"/> <!-- Channel Logo -->
+        <ColumnDefinition Width="Auto"/> <!-- Channel Number -->
         <ColumnDefinition Width="*"/> <!-- Channel Name -->
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
@@ -475,6 +483,7 @@
           <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
+      <Label x:Name="ChannelNumber" Grid.Column="1" Content="{Binding Channel.ChannelNumber}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
       <ContentPresenter Grid.Column="1" Grid.Row="0" x:Name="ButtonContentPresenter" Margin="5,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Grid>
   </DataTemplate>
@@ -486,6 +495,7 @@
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="{ThemeResource ChannelWithLogoAndProgramMargin}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{ThemeResource ChannelLogoContainerMedium}"/> <!-- Channel Logo -->
+        <ColumnDefinition Width="Auto"/> <!-- Channel Number -->
         <ColumnDefinition Width="{ThemeResource MainListChannelNameLength}"/> <!-- Channel Name -->
         <ColumnDefinition Width="{ThemeResource MainListTimeLength}"/>  <!-- Program Time -->
         <ColumnDefinition Width="*"/> <!-- Program Title -->
@@ -505,19 +515,21 @@
           <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
-      
-      <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
 
-      <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramTimeLabel" Margin="5,5,0,5"
+      <Label x:Name="ChannelNumber" Grid.Column="1" Content="{Binding Channel.ChannelNumber}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+
+      <Label Grid.Column="2" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"/>
+
+      <Label Grid.Column="3" Grid.Row="0" x:Name="CurrentProgramTimeLabel" Margin="5,5,0,5"
               Content="{Binding Path=Programs[0].Program.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
               Color="{ThemeResource TextColor}"/>
-      <Label Grid.Column="2" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5"
+      <Label Grid.Column="3" Grid.Row="1" x:Name="NextProgramTimeLabel" Margin="5,0,0,5"
               Content="{Binding Path=Programs[1].Program.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
               Color="{ThemeResource NextProgramLabelColor}"/>
-      <Label Grid.Column="3" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5"
+      <Label Grid.Column="4" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5"
               Content="{Binding Programs[0].Program.Title}"
               Color="{ThemeResource TextColor}"/>
-      <Label Grid.Column="3" Grid.Row="1" x:Name="NextProgramLabel" Margin="5,0,0,5"
+      <Label Grid.Column="4" Grid.Row="1" x:Name="NextProgramLabel" Margin="5,0,0,5"
               Content="{Binding Programs[1].Program.Title}"
               Color="{ThemeResource NextProgramLabelColor}"/>
     </Grid>
@@ -527,6 +539,7 @@
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="{ThemeResource ChannelWithLogoAndProgramMargin}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{ThemeResource ChannelLogoContainerMedium}"/> <!-- Channel Logo -->
+        <ColumnDefinition Width="Auto"/> <!-- Channel Number -->
         <ColumnDefinition Width="{ThemeResource MainListChannelNameLength}"/> <!-- Channel Name -->
         <ColumnDefinition Width="*"/> <!-- Program Title -->
         <ColumnDefinition Width="{ThemeResource MainListTimeLength}"/>  <!-- Program Time -->
@@ -546,15 +559,17 @@
         </Image.Source>
       </Image>
 
+      <Label x:Name="ChannelNumber" Grid.Column="1" Content="{Binding Channel.ChannelNumber}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+
       <!-- Shows the progress of current time in relation to the current playing program -->
-      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="3" Grid.Row="0" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="4" Grid.Row="0" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                     Value="{Binding Programs[0].Progress}"/>
 
-      <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5"
+      <Label Grid.Column="3" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,0,5"
               Content="{Binding Programs[0].Program.Title}"
               Color="{ThemeResource TextColor}"/>
 
-      <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource EmphasisTextColor}"
+      <Label Grid.Column="2" Grid.Row="0" x:Name="NameLabel" Margin="3,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource EmphasisTextColor}"
              VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}"/>
     </Grid>
   </DataTemplate>
@@ -785,8 +800,7 @@
               <Label x:Name="ItemLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
               <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="10,0,0,0"
-                     FontFamily="Default"/>
+                     Margin="10,0,0,0"/>
             </Grid>
           </Button>
         </ControlTemplate>
@@ -808,5 +822,24 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <ControlTemplate x:Key="PiPControlTemplate">
+    <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}"
+                    IsVisible="{Binding PiPAvailable}"
+                    Command="{Command TogglePiP}">
+      <Button.Content>
+        <Image x:Name="PiPIndicatorImage">
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0}?{1}:{2})">
+              <Binding Path="PiPEnabled"/>
+              <Binding Source="PIP_on.png"/>
+              <Binding Source="PIP_off.png"/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
+      </Button.Content>
+    </Button>
+  </ControlTemplate>
+
 
 </ResourceDictionary>

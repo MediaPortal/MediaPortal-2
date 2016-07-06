@@ -22,12 +22,14 @@
     <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="1"/> <!-- Media -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{E5326D7C-698F-48C2-AA15-AD6CCBD1A96F}" CompatibleAPI="2"/> <!-- SystemStateMenu plugin -->
   </DependsOn>
 
   <Register Location="/Models">
     <Model Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177" Name="HomeMenuModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.HomeMenuModel"/>
     <Model Id="19FBB179-51FB-4DB6-B19C-D5C765E9B870" Name="LatestMediaModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.LatestMediaModel"/>
     <Model Id="92A16CDF-480B-4A40-9C76-7F9B0779319F" Name="SetupModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.SetupModel"/>
+    <Model Id="54F798AF-03E1-4A82-938E-D0D0DC608B1A" Name="PowerMenuModel" ClassName="MediaPortal.UiComponents.BlueVision.Models.PowerMenuModel"/>
   </Register>
 
   <Register Location="/Workflow/States">

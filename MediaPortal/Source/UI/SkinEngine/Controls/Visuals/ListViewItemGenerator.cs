@@ -148,7 +148,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    protected FrameworkElement PrepareItem(object dataItem, FrameworkElement lvParent)
+    protected FrameworkElement PrepareItem(object dataItem, FrameworkElement lvParent, int index)
     {
 // ReSharper disable UseObjectOrCollectionInitializer
       ListViewItem result = new ListViewItem
@@ -158,7 +158,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Content = dataItem,
             Screen = _parent.Screen,
             VisualParent = lvParent,
-            LogicalParent = lvParent
+            LogicalParent = lvParent,
+            ItemIndex = index
         };
       // Set this after the other properties have been initialized to avoid duplicate work
       // No need to set the LogicalParent because styles and content templates don't bind bindings
@@ -207,7 +208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return result;
       }
       newCreated = true;
-      result = _materializedItems[index] = PrepareItem(_items[index], lvParent);
+      result = _materializedItems[index] = PrepareItem(_items[index], lvParent, index);
       if (_populatedStartIndex == -1 || _populatedEndIndex == -1)
       {
         _populatedStartIndex = index;

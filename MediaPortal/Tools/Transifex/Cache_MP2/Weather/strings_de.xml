@@ -6,6 +6,7 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Ort auswählen</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Wetter</string>
+  <string name="Weather.Title.Help">Aktuelle Wetterinformationen und Vorhersage.</string>
   <string name="Weather.ChooseLocation">Standort auswählen</string>
   <string name="Weather.Refresh">Aktualisieren</string>
   <string name="Weather.Updating">Aktualisierungsvorgang...</string>

@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
   [DataContract]
-  public class TraktList : TraktListSlug
+  public class TraktList
   {
     [DataMember(Name = "name")]
     public string Name { get; set; }
@@ -15,13 +15,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
     [DataMember(Name = "privacy")]
     public string Privacy { get; set; }
 
-    [DataMember(Name = "show_numbers")]
-    public bool ShowNumbers { get; set; }
+    [DataMember(Name = "display_numbers")]
+    public bool DisplayNumbers { get; set; }
 
-    [DataMember(Name = "allow_shouts")]
-    public bool AllowShouts { get; set; }
-
-    [DataMember(Name = "items")]
-    public List<TraktListItem> Items { get; set; }
+    [DataMember(Name = "allow_comments")]
+    public bool AllowComments { get; set; }
   }
 }

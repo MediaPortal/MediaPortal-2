@@ -76,7 +76,9 @@
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\GridListView.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
+    <Compile Include="Models\PowerMenuModel.cs" />
     <Compile Include="Models\SetupModel.cs" />
+    <Compile Include="Models\SynchronousSettingsChangeWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\MenuSettingsConfiguration.cs" />
     <Compile Include="Settings\MenuSettings.cs" />
@@ -115,6 +117,7 @@
     <Content Include="Skin\BlueVision\images\D675D9BA-A27B-44B9-BC6B-8CF2DC7D220F.png" />
     <Content Include="Skin\BlueVision\images\D805F21B-0A1F-4323-BEB5-B108778F89AA.png" />
     <Content Include="Skin\BlueVision\images\D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" />
+    <Content Include="Skin\BlueVision\images\D91738E9-3F85-443B-ABBD-EF01731734AD.jpg" />
     <Content Include="Skin\BlueVision\images\DF153D5E-0CD9-416c-B18B-E09AD5A864D8.png" />
     <Content Include="Skin\BlueVision\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
     <Content Include="Skin\BlueVision\images\E1748A80-347C-4E1A-8A26-DABEC246A540.png" />
@@ -147,6 +150,8 @@
     <Content Include="Skin\BlueVision\images\Medialogos\audio\7.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\8.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\9.1.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\audio\aac lc-sbr.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\audio\aac lc.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\aac.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\ac3 dolby digital.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\ac3.png" />
@@ -159,6 +164,7 @@
     <Content Include="Skin\BlueVision\images\Medialogos\audio\dtmsa-1.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\DTS ES.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\dts hra.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\audio\dts-hd.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\dts.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\dts9624.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\dtsex.png" />
@@ -174,6 +180,7 @@
     <Content Include="Skin\BlueVision\images\Medialogos\audio\mp2.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\mp3.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\mpeg audio version 1 layer 3.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\audio\MPEG-1 Audio layer 2.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\pcm.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\RA.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\audio\stereo.png" />
@@ -434,7 +441,9 @@
     <Content Include="Skin\BlueVision\images\Medialogos\video\div2.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\div3.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\div3_bak.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\divx 3 low.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\divx 4.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\divx 5.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\divx.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\dx50.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\flash.png" />
@@ -445,6 +454,7 @@
     <Content Include="Skin\BlueVision\images\Medialogos\video\h263.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\h264.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\hdmv.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\hevc.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\iso.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\m2ts.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\mkv.png" />
@@ -452,6 +462,9 @@
     <Content Include="Skin\BlueVision\images\Medialogos\video\mp4.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\mp4v.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg video.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg-1 video.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg-2 video.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg-4 visual ASP.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg-4 visual.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg1video.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg2.png" />
@@ -459,6 +472,7 @@
     <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg4.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\mpeg4video.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\mpg4.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\ms mpeg-4 v3.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\msmpeg4v1.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\msmpeg4v2.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\ogg.png" />
@@ -467,11 +481,14 @@
     <Content Include="Skin\BlueVision\images\Medialogos\video\real.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\rv30.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\rv40.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\sorenson h263.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\theora.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\vc-1.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\vorbis.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\vp6.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\vp6f.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\v_mpeg2.png" />
+    <Content Include="Skin\BlueVision\images\Medialogos\video\V_MPEGH_ISO_HEVC.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\wmahd.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\wmapro.png" />
     <Content Include="Skin\BlueVision\images\Medialogos\video\wmav2.png" />
@@ -569,6 +586,7 @@
     <Content Include="Skin\BlueVision\screens\MultiDetails.inc" />
     <Content Include="Skin\BlueVision\skin.xml" />
     <Content Include="Skin\BlueVision\themes\default-large\fonts\default-font.xml" />
+    <Content Include="Skin\BlueVision\themes\default-large\images\preview.jpg" />
     <Content Include="Skin\BlueVision\themes\default-large\theme.xml" />
     <Content Include="Skin\BlueVision\themes\default\images\preview.jpg" />
     <Content Include="Skin\BlueVision\themes\default\images\SplashScreen.jpg" />
@@ -585,10 +603,15 @@
     <Content Include="Skin\BlueVision\themes\Grey\images\Background.jpg" />
     <Content Include="Skin\BlueVision\themes\Grey\images\preview.jpg" />
     <Content Include="Skin\BlueVision\themes\Grey\theme.xml" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\02992BEC-1E6D-4C29-8D79-F95F59E3F625.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\05D4F591-CB92-4204-955A-5FF665BD8727.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\09EAE702-D9EC-4325-82D9-4843502C966B.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\1190A648-90F3-413D-88AC-DA89684E9766.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\2DED75C0-5EAE-4E69-9913-6B50A9AB2956.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\30715D73-4205-417f-80AA-E82F0834171F.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
-    <Content Include="Skin\BlueVision\themes\Win10\images\7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\7D68C459-EE9B-4EAA-AE2C-C2C365139AEE.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\80D2E2CC-BAAA-4750-807B-F37714153751.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\87355E05-A15B-452A-85B8-98D4FC80034E.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\93442DF7-186D-42e5-A0F5-CF1493E68F49.jpg" />
@@ -598,9 +621,12 @@
     <Content Include="Skin\BlueVision\themes\Win10\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\background.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\BB49A591-7705-408F-8177-45D633FDFAD0.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\BD93C5B3-402C-40A2-B323-DA891ED5F50E.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\D675D9BA-A27B-44B9-BC6B-8CF2DC7D220F.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\D805F21B-0A1F-4323-BEB5-B108778F89AA.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\D91738E9-3F85-443B-ABBD-EF01731734AD.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\DF153D5E-0CD9-416c-B18B-E09AD5A864D8.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\E1748A80-347C-4E1A-8A26-DABEC246A540.png" />
@@ -608,13 +634,17 @@
     <Content Include="Skin\BlueVision\themes\Win10\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\F6255762-C52A-4231-9E67-14C28735216E.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\MP2_logo_bw.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\news.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\preview.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\ShutdownIcon.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\SplashScreen.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\VideoLarge.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\VideoNormal.png" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\VideoWide.png" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\FSCWindowButtons.inc" />
+    <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemFanArt.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemsList.inc" />
-    <Content Include="Skin\BlueVision\themes\Win10\screens\MultiDetails.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\theme.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -643,6 +673,8 @@
   <ItemGroup>
     <None Include="build.targets" />
     <None Include="packages.config" />
+    <None Include="Skin\BlueVision\fonts\bebas-neue.desc" />
+    <None Include="Skin\BlueVision\fonts\bebas-neue.ttf" />
     <None Include="Skin\BlueVision\fonts\DefaultBold.desc" />
     <None Include="Skin\BlueVision\fonts\Default.desc" />
     <None Include="Skin\BlueVision\fonts\FiraSansOT-Light.ttf" />
@@ -681,6 +713,10 @@
     <ProjectReference Include="..\..\Input\MceRemoteReceiver\MceRemoteReceiver.csproj">
       <Project>{AA23A7F2-8B6D-4C0C-8FAD-F2F58E3F8B08}</Project>
       <Name>MceRemoteReceiver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\SystemStateMenu\SystemStateMenu.csproj">
+      <Project>{8e94a59d-33a0-4aeb-830d-24304a63ef23}</Project>
+      <Name>SystemStateMenu</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -998,6 +1034,38 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\CurrentlyPlayingImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\CurrentlyPlayingVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\NewsItemDetail.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\SimpleShowItems.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\weather.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\default\styles\Animations.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\SimpleSearch.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

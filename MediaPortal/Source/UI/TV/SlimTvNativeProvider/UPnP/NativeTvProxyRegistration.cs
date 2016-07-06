@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.ServerCommunication;
@@ -52,46 +53,68 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       UPnPExtendedDataTypes.AddDataType(UPnPDtLiveTvMediaItem.Instance);
     }
 
-    public NativeTvProxyRegistration ()
+    public NativeTvProxyRegistration()
     {
       RegisterService();
     }
 
     public void RegisterService()
     {
+      SubscribeToMessages();
+
       UPnPClientControlPoint controlPoint = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint;
       if (controlPoint == null)
         return;
 
       controlPoint.RegisterAdditionalService(RegisterNativeTvProxy);
-      
-      SubscribeToMessages();
     }
 
     public void UnregisterService()
     {
-      _messageQueue.Shutdown();
       ServiceRegistration.RemoveAndDispose<ITvProvider>();
     }
 
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[] { SystemMessaging.CHANNEL });
-      _messageQueue.PreviewMessage += OnMessageReceived;
-      _messageQueue.Start();
+      if (_messageQueue == null)
+      {
+        _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL, ServerConnectionMessaging.CHANNEL });
+        _messageQueue.PreviewMessage += OnMessageReceived;
+        _messageQueue.Start();
+      }
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
+      if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      {
+        ServerConnectionMessaging.MessageType type = (ServerConnectionMessaging.MessageType)message.MessageType;
+        switch (type)
+        {
+          case ServerConnectionMessaging.MessageType.HomeServerAttached:
+            RegisterService();
+            break;
+          case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
+          case ServerConnectionMessaging.MessageType.HomeServerDetached:
+            UnregisterService();
+            break;
+        }
+      }
       if (message.ChannelName == SystemMessaging.CHANNEL)
       {
-        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
         if (messageType == SystemMessaging.MessageType.SystemStateChanged)
         {
-          SystemState state = (SystemState) message.MessageData[SystemMessaging.NEW_STATE];
+          SystemState state = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
           switch (state)
           {
+            case SystemState.Suspending:
+              ITvProvider tvProvider = ServiceRegistration.Get<ITvProvider>(false);
+              if (tvProvider != null)
+                tvProvider.DeInit();
+              break;
             case SystemState.ShuttingDown:
+              // Called to make sure that timeshifting on server is stopped on shutdown.
               UnregisterService();
               break;
           }
@@ -102,6 +125,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 
     public NativeTvProxy RegisterNativeTvProxy(DeviceConnection connection)
     {
+      ServiceRegistration.Get<ILogger>().Info("NativeTvProxyRegistration: RegisterNativeTvProxy");
+
       CpService tvStub = connection.Device.FindServiceByServiceId(Consts.SLIMTV_SERVICE_ID);
 
       if (tvStub == null)

@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
     protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
     protected static string _collectionMatchesFile = Path.Combine(CACHE_PATH, "CollectionMatches.xml");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
 
     readonly MatchStorage<MovieCollectionMatch, int> _collectionStorage = new MatchStorage<MovieCollectionMatch, int>(_collectionMatchesFile);
 
@@ -92,7 +92,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       string preferredLookupLanguage = FindBestMatchingLanguage(movieInfo);
       Movie movieDetails;
       if (
-        /* Best way is to get details by an unique IMDB id */
+        /* Best way is to get details by an unique Tmdb-ID... */
+        MatchByTmdbId(movieInfo, out movieDetails) ||
+        /* ...or Imdb-ID... */
         MatchByImdbId(movieInfo, out movieDetails) ||
         TryMatch(movieInfo.MovieName, movieInfo.Year, preferredLookupLanguage, false, out movieDetails) ||
         /* Prefer passed year, if no year given, try to process movie title and split between title and year */
@@ -167,6 +169,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
       // By returning null we allow fallback to the default language of the online source (en).
       return null;
+    }
+
+    private bool MatchByTmdbId(MovieInfo movieInfo, out Movie movieDetails)
+    {
+      if (movieInfo.MovieDbId != 0 && _movieDb.GetMovie(movieInfo.MovieDbId, out movieDetails))
+      {
+        SaveMatchToPersistentCache(movieDetails, movieDetails.Title);
+        return true;
+      }
+      movieDetails = null;
+      return false;
     }
 
     private bool MatchByImdbId(MovieInfo movieInfo, out Movie movieDetails)

@@ -16,8 +16,16 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}" LastChildFill="true">
 
-          <!-- Feeds -->
-          <ListView x:Name="newslist" Margin="-85, 0,-40, 50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <Rectangle Fill="Black" Opacity="0.5" Margin="-89,-14,-84,75" DockPanel.Dock="Center" >
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
+
+        <Border BorderThickness="0" Background="{StaticResource GrayBackgroundWithBlurBehind}" Margin="-80,-5,-75,75" DockPanel.Dock="Center"/>       
+
+        <!-- Feeds -->
+          <ListView x:Name="newslist" Margin="-75,0,-85,85" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource NewsFeedsContainerStyle}" DockPanel.Dock="Center" CurrentItem="{Binding Path=FocusedSite, Mode=OneWayToSource}" 
               ItemsSource="{Binding Path=Feeds}" >
             <ListView.Resources>
@@ -30,7 +38,7 @@
           <!-- Updating Overlay -->
           <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
                  Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource HugeFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-85,625,-70,-625" >
+          <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="-83,640,-75,-625" >
             <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
               <Label Color="{ThemeResource TextColor}" Content="{Binding Path=Items.Count}" DataContext="{Binding ElementName=newslist,Path=CurrentItem}"
                      VerticalAlignment="Stretch" HorizontalAlignment="Right"/>

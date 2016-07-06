@@ -79,7 +79,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       MediaItemAspect providerResourceAspect;
       MediaItemAspect mediaAspect;
 
-      SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
+      var resourceAccessor = SlimTvResourceProvider.GetResourceAccessor(slotIndex, path);
       aspects[ProviderResourceAspect.ASPECT_ID] = providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
       aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);

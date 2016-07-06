@@ -33,4 +33,5 @@
   <string name="BlueVision.DisableHomeTab">\"Startbildschirm\"-Reiter deaktivieren</string>
   <string name="BlueVision.DisableAutoSelection">Automatische Menüauswahl deaktivieren</string>
   <string name="BlueVision.UseAlternativeSplashscreen">BlueVision-Startbildschirm verwenden</string>
+  <string name="BlueVision.ResetMenuLayout">Menü auf Standardeinstellungen zurücksetzen</string>
 </resources>

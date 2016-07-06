@@ -4,4 +4,7 @@
   <string name="RefreshRateChanger.IsEnabled.Help">När funktionen är aktiverad så försöks en automatisk ändring av bildskärmens bildfrekvens så att den matchar videons bildfrekvens</string>
   <string name="RefreshRateChanger.NoChangeForRate">Uteslut vissa bildfrekvenser.</string>
   <string name="RefreshRateChanger.NoChangeForRate.Help">Lista av frekvenser som inte ska ändras. Skriv in värdena som heltal åtskiljda av kommatecken (till exempel 23, 25, 50)</string>
+  <string name="RefreshRateChanger.RateMappings">Översättningstabell för bildfrekvenser.</string>
+  <string name="RefreshRateChanger.RateMappings.Help">Ersätt förvald översättningstabell.
+Format: bilder/sekund:Hz; bilder/sekund:Hz (till exempel \"23:24\": för video med bilder/sekund=23.976 ändra skärmens bildfrekvens till 24Hz).</string>
 </resources>

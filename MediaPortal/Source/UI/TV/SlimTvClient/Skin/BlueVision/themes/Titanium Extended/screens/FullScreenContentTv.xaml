@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    x:Name="FullscreenLayoutTv"
+    Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"
+    >   <!-- DataContext model = SlimTvClient -->
+
+  <Grid x:Name="FullscreenLayoutGrid">
+    <Grid.Resources>
+      <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
+    </Grid.Resources>
+    <Grid.Background>
+      <VideoBrush Stream="0"/>
+    </Grid.Background>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="180"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="100"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!--Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
+      <Control.TemplateControl>
+        <Include Source="screens\FSCWindowButtons.inc"/>
+      </Control.TemplateControl>
+    </Control-->
+
+    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
+          IsVisible="{Binding !IsOSDVisible}"/>
+
+    <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
+      <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
+            Style="{ThemeResource SecondaryMediaOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            AutoVisibility="true"/>
+    </DockPanel>
+
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" IsVisible="{Binding IsOSDVisible}"
+            Style="{ThemeResource PrimarySlimTvOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+    <!-- All KeyBindings are included from shared resource -->
+    <Include Source="screens\FullscreenTvKeybindings.inc"/>
+  </Grid>
+</Screen>

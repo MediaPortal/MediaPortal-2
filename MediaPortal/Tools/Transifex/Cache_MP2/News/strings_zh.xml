@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">新闻</string>
+  <string name="News.Title.Help">阅览你最喜爱的新闻站点。</string>
   <string name="News.FeedsStateDisplayLabel">新闻</string>
   <string name="News.Published">发布</string>
   <string name="News.ConfiguredFeeds">配置Feeds</string>

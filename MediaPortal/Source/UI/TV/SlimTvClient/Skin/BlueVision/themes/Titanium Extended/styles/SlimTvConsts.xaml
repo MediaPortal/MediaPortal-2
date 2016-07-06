@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <ResourceWrapper x:Key="ChannelLogoSmall" Resource="80"/>
+  <ResourceWrapper x:Key="ChannelLogoContainerSmall" Resource="50"/>
+
+  <ResourceWrapper x:Key="ChannelLogoMedium" Resource="64"/>
+  <ResourceWrapper x:Key="ChannelLogoContainerMedium" Resource="80"/>
+  
+  <ResourceWrapper x:Key="ChannelLogoLarge" Resource="180"/>
+  <ResourceWrapper x:Key="ChannelLogoContainerLarge" Resource="100"/>
+
+  <ResourceWrapper x:Key="MainListChannelNameLength" Resource="250"/>
+  <ResourceWrapper x:Key="MainListTimeLength" Resource="100"/>
+  <ResourceWrapper x:Key="TvGuideRowHeaderWidth" Resource="350"/>
+
+  <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="220"/>
+
+  <ResourceWrapper x:Key="MiniGuideHeight" Resource="700"/>
+  <ResourceWrapper x:Key="MiniGuideWidth" Resource="900"/>
+  <ResourceWrapper x:Key="MiniGuideDetailsWidth" Resource="500"/>
+
+  <ResourceWrapper x:Key="MultiGuideHeaderWidth" Resource="350"/>
+  <ResourceWrapper x:Key="MultiGuideProgramHeight" Resource="60"/>
+  <ResourceWrapper x:Key="MultiGuideProgramPreviewHeight" Resource="250"/>
+
+  <ResourceWrapper x:Key="SingleGuideProgramWidth" Resource="750"/>
+
+  <ResourceWrapper x:Key="ChannelWithLogoAndProgramMargin" Resource="0,1,0,1"/>
+
+  <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="155"/>
+
+  <ResourceWrapper x:Key="SeriesRecIndicatorHeight" Resource="57"/>
+
+
+  
+
+</ResourceDictionary>

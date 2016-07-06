@@ -31,23 +31,25 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Logging;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Common.Services.Logging;
-using MediaPortal.UI.Settings;
 #if !DEBUG
 using System.Drawing;
 using System.IO;
-using MediaPortal.Utilities.Screens;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Settings;
 #endif
 using MediaPortal.UI.Shares;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.Screens;
 
 [assembly: CLSCompliant(true)]
 
@@ -68,6 +70,8 @@ namespace MediaPortal.Client
     #region Static fields
 
     private static Mutex _mutex = null;
+    private static DelayedEvent _focusTimer = null;
+    private static DelayedEvent _deactivatedEvent = null;
 
     #endregion
 
@@ -221,6 +225,9 @@ namespace MediaPortal.Client
 
           systemStateService.SwitchSystemState(SystemState.Running, true);
 
+          if (mpOptions.AutoStart)
+            StartFocusKeeper();
+
           Application.Run();
 
           systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
@@ -273,5 +280,58 @@ namespace MediaPortal.Client
         Application.Exit();
       }
     }
+
+    #region Startup focus workaround
+
+    /// <summary>
+    /// Helper method to prevent stealing focus of main window by other processes during auto start phase of Windows.
+    /// </summary>
+    private static void StartFocusKeeper()
+    {
+      Form form = ServiceRegistration.Get<IScreenControl>() as Form;
+      if (form != null)
+      {
+        ServiceRegistration.Get<ILogger>().Info("ApplicationLauncher: Autostart by Windows. Starting Focus Keeper.");
+        // Max. seconds after startup of MainForm.
+        _focusTimer = new DelayedEvent(10000);
+        _focusTimer.OnEventHandler += StopFocusKeeper;
+        _focusTimer.EnqueueEvent(null, EventArgs.Empty);
+
+        // Collects all deactivations and executes the handler after 500 ms.
+        // This is especially required, because in deactivate event handler it's not possible to reactivate the form.
+        _deactivatedEvent = new DelayedEvent(500);
+        _deactivatedEvent.OnEventHandler += PreventDeactivate;
+        form.Deactivate += EnqueueDeactivationEvent;
+      }
+    }
+
+    private static void EnqueueDeactivationEvent(object sender, EventArgs e)
+    {
+      _deactivatedEvent.EnqueueEvent(sender, e);
+    }
+
+    private static void StopFocusKeeper(object sender, EventArgs e)
+    {
+      ServiceRegistration.Get<ILogger>().Info("ApplicationLauncher: Stopping Focus Keeper.");
+
+      Form form = ServiceRegistration.Get<IScreenControl>() as Form;
+      if (form != null)
+        form.Deactivate -= EnqueueDeactivationEvent;
+
+      _deactivatedEvent.Dispose();
+      _deactivatedEvent = null;
+      _focusTimer.Dispose();
+      _focusTimer = null;
+    }
+
+    private static void PreventDeactivate(object sender, EventArgs e)
+    {
+      ServiceRegistration.Get<ILogger>().Info("ApplicationLauncher: Window got deactivated. Reactivate it again.");
+      Form form = ServiceRegistration.Get<IScreenControl>() as Form;
+      if (form != null)
+        form.SafeActivate();
+    }
+
+    #endregion
   }
 }

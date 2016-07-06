@@ -11,6 +11,7 @@
   <string name="SlimTvClient.ProgramStartLabel">प्रारंभ समय</string>
   <string name="SlimTvClient.ProgramEndLabel">समाप्त समय</string>
   <string name="SlimTvClient.EpisodeLabel">एपिसोड</string>
+  <string name="SlimTvClient.Progress">प्रगति</string>
   <string name="SlimTvClient.Guide">टीवी गाइड</string>
   <string name="SlimTvClient.NoProgram">कोई कार्यक्रम डेटा नहीं |</string>
   <string name="SlimTvClient.ChooseProgramAction">कार्यक्रम के लिए कार्रवाई चुनें ...</string>

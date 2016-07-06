@@ -50,8 +50,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">
+
+        <Rectangle Fill="Black" Opacity="0.5" Margin="-69,-9,-66,62" DockPanel.Dock="Center">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
        
-        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="0,0,-100,0">
+        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="0,20,-90,0" >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="480"/>
           </Grid.ColumnDefinitions>
@@ -64,17 +70,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
           </Grid.Resources>
 
-          <Border Grid.Row="1" Grid.Column="0" Margin="-115,-18,-60,62">
-            <Border.Background>
-              <SolidColorBrush Color="#000000" Opacity="0.85"/>
-            </Border.Background>
-          </Border>
           <Border Grid.Row="1" Grid.Column="0" Margin="-60,-19,0,61">
             <Border.Background>
               <SolidColorBrush Color="Gray" Opacity="1"/>
             </Border.Background>
           </Border>
-          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Margin="-30,5,0,0" Style="{ThemeResource MainMenuListViewStyle}"
+          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Margin="-15,5,10,0" Style="{ThemeResource MainMenuListViewStyle}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
@@ -84,30 +85,24 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="98,0,-57,0">
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="88,20,-57,40" >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-
-          <Border Grid.Row="1" Grid.Column="0" Margin="98,-18,-120,62">
+          <Border Grid.Column="0" Grid.Row="0" Margin="0,-19,0,21">
             <Border.Background>
-              <SolidColorBrush Color="#000000" Opacity="0.85"/>
-            </Border.Background>
-          </Border>
-          <Border Grid.Column="0" Grid.Row="0" Margin="0,-19,0,61">
-            <Border.Background>
-              <SolidColorBrush Color="#555555" Opacity="1"/>
+              <SolidColorBrush Color="#555555" Opacity="0.8"/>
             </Border.Background>
           </Border>
 
           <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"
               IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
-              Grid.Row="0" Grid.Column="0" Margin="31,5,32,15"/>
+              Grid.Row="0" Grid.Column="0" Margin="31,5,32,35"/>
 
-          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0" Margin="31,5,32,15"
+          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0" Margin="31,5,32,35"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
              Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -49,6 +50,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty EpisodeNumberProperty { get; set; }
     public AbstractProperty EpisodeTitleProperty { get; set; }
     public AbstractProperty SeriesProperty { get; set; }
+    public AbstractProperty ChannelNameProperty { get; set; }
 
     /// <summary>
     /// Gets or Sets the Title.
@@ -168,6 +170,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       set { SeriesProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Gets or Sets the channel name.
+    /// </summary>
+    public String ChannelName
+    {
+      get { return (String)ChannelNameProperty.GetValue(); }
+      set { ChannelNameProperty.SetValue(value); }
+    }
+
     public ProgramProperties()
     {
       ProgramIdProperty = new WProperty(typeof(int), 0);
@@ -183,6 +194,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       SeasonNumberProperty = new WProperty(typeof(String), String.Empty);
       EpisodeTitleProperty = new WProperty(typeof(String), String.Empty);
       SeriesProperty = new WProperty(typeof(String), String.Empty);
+      ChannelNameProperty = new WProperty(typeof(String), String.Empty);
       Attach();
     }
 
@@ -213,6 +225,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       }
       try
       {
+        IChannel channel;
+        IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
+        if (program != null && channelAndGroupInfo != null && channelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+          ChannelName = channel.Name;
+
         _settingProgram = true;
         IProgramSeries series = program as IProgramSeries;
         if (series != null)

@@ -11,4 +11,8 @@
   <string name="SystemState.Logoff">Kirjaudu ulos</string>
   <string name="SystemState.MinimizeMP">Pienennä MediaPortal</string>
   <string name="SystemState.ShutdownMP">Sulje MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Sammutus valikko</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Sammutus valikon asetukset</string>
+  <string name="SleepTimer.Start">Alku</string>
+  <string name="SleepTimer.Stop">Pysäytä</string>
 </resources>

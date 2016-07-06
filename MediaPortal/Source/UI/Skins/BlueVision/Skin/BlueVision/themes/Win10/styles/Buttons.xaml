@@ -31,7 +31,7 @@
   <Storyboard x:Key="FocusedButtonStoryboard_Media" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0.5"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0.7"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -82,13 +82,6 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
   
-  <Storyboard x:Key="FocusedTabStoryboard" FillBehavior="HoldEnd">
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.15"/>
-    </DoubleAnimationUsingKeyFrames>
-  </Storyboard>
-
   <Storyboard x:Key="FocusedButtonWideStoryboard" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
@@ -566,13 +559,13 @@
         <ControlTemplate>
           <Rectangle x:Name="ButtonControlRectangle"
               Opacity="0" RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-            Margin="5,0,30,0" Stroke="#213848" StrokeThickness="0">
+            Margin="-6,0,36,0" Stroke="#213848" StrokeThickness="0">
             <Rectangle.Fill>
               <LinearGradientBrush>
                 <LinearGradientBrush.GradientStops>
-                  <GradientStop Offset="0" Color="#0066CC"/>
-                  <GradientStop Offset="0.75" Color="#0066CC"/>
-                  <GradientStop Offset="1" Color="#0066CC"/>
+                  <GradientStop Offset="0" Color="{ThemeResource FocusedButtonGradient1Color}"/>
+                  <GradientStop Offset="0.75" Color="{ThemeResource FocusedButtonGradient1Color}"/>
+                  <GradientStop Offset="1" Color="{ThemeResource FocusedButtonGradient1Color}"/>
                 </LinearGradientBrush.GradientStops>
               </LinearGradientBrush>
             </Rectangle.Fill>
@@ -601,12 +594,13 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="ButtonControlRectangle"
+          <!--The focus frame is added directly in mediastyles.xaml to allow variable aspect ratios with fitting focus frame-->
+          <!--Border x:Name="ButtonControlRectangle"
               IsVisible ="False"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="2.5"
               Margin="2.5">
-          </Border>
+          </Border-->
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -616,7 +610,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="1,0,411,0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -628,6 +622,18 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
+            <!--Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-8,0,35,0">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                  <LinearGradientBrush.GradientStops>
+                    <GradientStop Color="#00333333" Offset="0"  />
+                    <GradientStop Color="#99333333" Offset="0.1"  />
+                    <GradientStop Color="#99333333" Offset="0.9"  />
+                    <GradientStop Color="#00333333" Offset="1"  />
+                  </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border-->
             <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
@@ -779,7 +785,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="8" Opacity="0.6">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="5,8,5,8" Opacity="0.6">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -830,7 +836,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid x:Name="GrowControl" Margin="8" Opacity="0.6">
+          <Grid x:Name="GrowControl" Margin="5,8,5,8" Opacity="0.6">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -1090,9 +1096,15 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="0.50">
+          <Border x:Name="ButtonControlRectangle" Height="45" Width="300" BorderThickness="0" Opacity="0.5" >
             <Border.Background>
-              <SolidColorBrush Color="#666666"/>
+              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                <LinearGradientBrush.GradientStops>
+                  <GradientStop Color="#666666" Offset="0"  />
+                  <GradientStop Color="#666666" Offset="0.95"  />
+                  <GradientStop Color="#666666" Offset="1"  />
+                </LinearGradientBrush.GradientStops>
+              </LinearGradientBrush>
             </Border.Background>
           </Border>
         </ControlTemplate>
@@ -1120,35 +1132,11 @@
             </Grid.RenderTransform>
           </Grid>
           <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <!--Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.2"/-->
-              <!--Setter Property="Foreground" Value="White"/-->
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedTabStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="Opacity" Value="0.9"/>
-              <!--Setter Property="Foreground" Value="White"/-->
               <Trigger.EnterActions>
-                <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"/-->
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

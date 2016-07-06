@@ -40,5 +40,14 @@
     <Instance
         Id="WTVRecordingSeriesMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.WTVRecordingSeriesMetadataExtractor"/>
+
+    <!-- Argus recordings, no online lookup of series -->
+    <Instance
+        Id="ArgusRecordingMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.ArgusRecordingMetadataExtractor"/>
+    <!-- Argzs recordings, only online lookup of series -->
+    <Instance
+        Id="ArgusRecordingSeriesMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.ArgusRecordingSeriesMetadataExtractor"/>
   </Register>
 </Plugin>

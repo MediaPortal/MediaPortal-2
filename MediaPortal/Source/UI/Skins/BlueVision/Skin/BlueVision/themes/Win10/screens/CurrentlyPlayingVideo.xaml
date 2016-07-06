@@ -2,7 +2,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_menu.xaml"
+    Source="screens\master_bare_players.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
@@ -10,11 +10,18 @@
   <Include.Resources>
 
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/>
- 
-    <ControlTemplate x:Key="Contents_Template">
+
+    <ControlTemplate x:Key="Menu_Button_DummyConfig">
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,0,19"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              IsEnabled="False">
+      </Button>
+    </ControlTemplate>
+    
+    <ControlTemplate x:Key="Client_Template">
       <mp_special_controls:PlayerControl Margin="10" PlayerContext="CurrentPlayer">
         <mp_special_controls:PlayerControl.TemplateControl>
-          <Grid Margin="-85,18,-85,32" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" >
+          <Grid Margin="-65,18,-65,32" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" >
             <Grid.RowDefinitions>
               <RowDefinition Height="45"/>
               <RowDefinition Height="*"/>
@@ -23,23 +30,40 @@
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="420"/>
             </Grid.ColumnDefinitions>
-            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="700" Margin="-66,0,-66,0" VerticalAlignment="Bottom"  >
-              <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                  <LinearGradientBrush.GradientStops>
-                    <GradientStop Color="#00000000" Offset="0"  />
-                    <GradientStop Color="#CC000000" Offset="1"  />
-                  </LinearGradientBrush.GradientStops>
-                </LinearGradientBrush>
-              </Border.Background>
-            </Border>
-            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-              <RadioButton x:Name="General" Content="[General.Title]" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True"/>
-              <RadioButton x:Name="CastCrew" Content="[CastCrew.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
-              <RadioButton x:Name="MediaInfo" Content="[MediaInfo.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False"/>
+            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="0,0,50,0">
+              <RadioButton x:Name="General" Content="[General.Title]" HorizontalAlignment="Center" VerticalAlignment="Bottom" 
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True">
+                <Label x:Name="TabLabel" Content="[General.Title]" Color="Black" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel" Property="FontFamily" Value="DefaultBold"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>         
+              <RadioButton x:Name="CastCrew" Content="[CastCrew.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False">
+                <Label x:Name="TabLabel2" Content="[CastCrew.Title]" Color="Black" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel2" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel2" Property="FontFamily" Value="DefaultBold"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>          
+              <RadioButton x:Name="MediaInfo" Content="[MediaInfo.Title]" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                           Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False">
+                <Label x:Name="TabLabel3" Content="[MediaInfo.Title]" Color="Black" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                  <Label.Triggers>
+                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                      <Setter TargetName="TabLabel3" Property="Color" Value="White"/>
+                      <Setter TargetName="TabLabel3" Property="FontFamily" Value="DefaultBold"/>
+                    </DataTrigger>
+                  </Label.Triggers>
+                </Label>
+              </RadioButton>        
               <Control>
                 <Control.IsVisible>
                   <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
@@ -66,16 +90,14 @@
               </Control-->     
             </StackPanel>
 
-            <Border Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0">
+            <Border Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,50,0">
               <Border.Background>
                 <SolidColorBrush Color="#666666" Opacity="0.90"/>
               </Border.Background>
             </Border>
 
-            <!--Path Grid.Row="1" Grid.Column="0" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" StrokeLineJoin="Round" Fill="Black" Opacity="0.8"
-                  Data="F1 M -128,483C -128,499.016 -115.016,512 -99,512L 1193,512C 1209.02,512 1222,499.016 1222,483L 1222,29C 1222,12.9837 1209.02,0 1193,0L -128,0"/-->
-
-            <Control x:Name="CP_MovieGeneral" Grid.Row="1" Grid.Column="0" IsVisible="{Binding ElementName=General, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+            <Control x:Name="CP_MovieGeneral" Grid.Row="1" Grid.Column="0" Margin="0,0,50,0"
+                     IsVisible="{Binding ElementName=General, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
               <!--Control.IsVisible>
                 <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                   <Binding Path="MediaItem"  />
@@ -87,7 +109,8 @@
               </Control.TemplateControl>
             </Control>
 
-            <Control x:Name="CP_MovieCastCrew" Grid.Row="1" Grid.Column="0" IsVisible="{Binding ElementName=CastCrew, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+            <Control x:Name="CP_MovieCastCrew" Grid.Row="1" Grid.Column="0" Margin="0,0,50,0"
+                     IsVisible="{Binding ElementName=CastCrew, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
               <!-->Control.IsVisible>
                 <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                   <Binding Path="MediaItem"  />
@@ -99,7 +122,8 @@
               </Control.TemplateControl>
             </Control>
 
-            <Control x:Name="CP_MovieMediaInfo" Grid.Row="1" Grid.Column="0" IsVisible="{Binding ElementName=MediaInfo, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+            <Control x:Name="CP_MovieMediaInfo" Grid.Row="1" Grid.Column="0" Margin="0,0,50,0"
+                     IsVisible="{Binding ElementName=MediaInfo, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
               <!-->Control.IsVisible>
                 <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                   <Binding Path="MediaItem"  />
@@ -112,7 +136,7 @@
             </Control>
 
             <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="10,0,0,0">
-                <Image Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"/>
+                <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"/>
             </Grid>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>

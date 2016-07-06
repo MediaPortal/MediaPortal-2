@@ -61,7 +61,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
     protected static string _matchesSettingsFile = Path.Combine(CACHE_PATH, "Matches.xml");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromHours(12);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    protected static TimeSpan MIN_REFRESH_INTERVAL = TimeSpan.FromHours(12);
 
     protected override string MatchesSettingsFile
     {
@@ -73,6 +74,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #region Fields
 
     protected DateTime _memoryCacheInvalidated = DateTime.MinValue;
+    protected DateTime _lastRefresh = DateTime.MinValue;
     protected ConcurrentDictionary<string, TvdbSeries> _memoryCache = new ConcurrentDictionary<string, TvdbSeries>(StringComparer.OrdinalIgnoreCase);
     protected bool _useUniversalLanguage = false; // Universal language often leads to unwanted cover languages (i.e. russian)
 
@@ -161,22 +163,29 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (episodes.Count == 1)
       {
         episode = episodes[0];
+        seriesInfo.ImdbId = seriesDetail.ImdbId;
+        seriesInfo.TvdbId = seriesDetail.Id;
+        seriesInfo.FirstAired = episode.FirstAired;
         seriesInfo.Episode = episode.EpisodeName;
         SetEpisodeDetails(seriesInfo, episode);
         return true;
       }
 
       // Multiple episodes
-      SetMultiEpisodeDetailsl(seriesInfo, episodes);
+      SetMultiEpisodeDetails(seriesInfo, episodes);
       return true;
     }
 
-    private static void SetMultiEpisodeDetailsl(SeriesInfo seriesInfo, List<TvdbEpisode> episodes)
+    private static void SetMultiEpisodeDetails(SeriesInfo seriesInfo, List<TvdbEpisode> episodes)
     {
       seriesInfo.TotalRating = episodes.Sum(e => e.Rating) / episodes.Count; // Average rating
       seriesInfo.Episode = string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray());
       seriesInfo.Summary = string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
         Select(e => string.Format("{0,02}) {1}", e.EpisodeNumber, e.Overview)).ToArray());
+
+      seriesInfo.ImdbId = episodes.Min(e => e.ImdbId);
+      seriesInfo.TvdbId = episodes.Min(e => e.Id);
+      seriesInfo.FirstAired = episodes.Min(e => e.FirstAired);
 
       // Don't clear seriesInfo.Actors again. It's already been filled with actors from series details.
       var guestStars = episodes.SelectMany(e => e.GuestStars).Distinct().ToList();
@@ -358,6 +367,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         return;
       _memoryCache.Clear();
       _memoryCacheInvalidated = DateTime.Now;
+
+      if (DateTime.Now - _lastRefresh <= MIN_REFRESH_INTERVAL)
+        return;
+
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
       if (threadPool != null)
       {
@@ -368,6 +381,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
             _tv.UpdateCache();
         });
       }
+      _lastRefresh = DateTime.Now;
     }
 
     public override bool Init()

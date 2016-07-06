@@ -32,6 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Protected fields
 
     protected AbstractProperty _selectedProperty;
+    protected AbstractProperty _itemIndexProperty;
 
     #endregion
 
@@ -44,6 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _selectedProperty = new SProperty(typeof(bool), false);
+      _itemIndexProperty = new SProperty(typeof(int), 0);
     }
 
     void Attach()
@@ -62,6 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ListViewItem lvi = (ListViewItem) source;
       Selected = lvi.Selected;
+      ItemIndex = lvi.ItemIndex;
       Attach();
     }
 
@@ -81,6 +84,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (bool) _selectedProperty.GetValue(); }
       set { _selectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ItemIndexProperty
+    {
+      get { return _itemIndexProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the absolute index of this item based on the total amount of available items.
+    /// This is especially used for virtualization, where only a subset of total items are allocated.
+    /// </summary>
+    public int ItemIndex
+    {
+      get { return (int)_itemIndexProperty.GetValue(); }
+      set { _itemIndexProperty.SetValue(value); }
     }
   }
 }

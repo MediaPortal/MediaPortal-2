@@ -149,6 +149,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// </remarks>
     private async Task<DateTime> GetMostRecentMiaCreationDate()
     {
+      if (ImportJobInformation.MetadataExtractorIds.Count == 0)
+        return DateTime.MinValue;
       var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       var relevantMdes = mediaAccessor.LocalMetadataExtractors.Where(kvp => ImportJobInformation.MetadataExtractorIds.Contains(kvp.Key)).Select(kvp => kvp.Value).ToList();
       var relevantMiaIds = relevantMdes.SelectMany(mde => mde.Metadata.ExtractedAspectTypes.Keys).Distinct();

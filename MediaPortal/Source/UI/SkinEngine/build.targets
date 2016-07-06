@@ -10,23 +10,22 @@
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
-  
+
     <ItemGroup>
       <LanguageFiles Include="$(ProjectDir)Language\*.*" />
     </ItemGroup>
-  
+
     <ItemGroup>
       <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
     </ItemGroup>
-  
+
     <ItemGroup>
       <References Include="$(ProjectDir)References\freetype6.dll" />
-      <References Include="$(ProjectDir)References\zlib1.dll" />
       <References Include="$(TargetDir)SharpDX.dll" />
       <References Include="$(TargetDir)SharpDX.Direct3D9.dll" />
     </ItemGroup>
-  
-      <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
     <Copy SourceFiles="@(SkinFiles)" DestinationFiles="@(SkinFiles->'$(PluginDestination)Skin\%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />

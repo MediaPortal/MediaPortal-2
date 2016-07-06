@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">Réglages</string>
+  <string name="Configuration.Name.Help">Configurer les sources de médias et de modifier l\'apparence de MP.</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Paramètres</string>
   <string name="Configuration.MainSettings">Paramètres principaux</string>
   <!--2nd Header for root configuration section-->

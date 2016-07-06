@@ -111,12 +111,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="150"/>
       </Grid.ColumnDefinitions>
 
-      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"> </Control>
-      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"> </Control>
-      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"> </Control>
-      
+      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
+      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
+      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
-      <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Center" >
+
+      <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Center" Orientation="Vertical">
         <Label x:Name="SelectedItem"
                 Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
                 VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
@@ -126,16 +126,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Control.TemplateControl>
             <Include Source="screens\MediaItemsListHeader.inc"/>
           </Control.TemplateControl>
-        </Control>       
+        </Control>
       </StackPanel>
-            
-        <!-- Main Menu Group tabs -->
-        <!-- use custom ListView to modify focus behavior -->
+
+      <!-- Main Menu Group tabs -->
+      <!-- use custom ListView to modify focus behavior -->
 
       <!--Image Source="Menu_Background.png" Grid.Row="0" Grid.Column="1" Opacity="0.25" Stretch="Fill" Height="90" Margin="15,-5,15,-5"
                VerticalAlignment="Center" HorizontalAlignment="Center"/-->
 
-        <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="1"
+      <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="1"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
                                HomeMenuModel="{StaticResource MenuModel}" Margin="-5,8,-5,-8"
                                IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
@@ -147,13 +147,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </bvm:GroupMenuListView>
 
       <!-- Time & Date -->
-        <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="-70,-5,5,0" VerticalAlignment="Center">
-          <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+      <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="-70,-5,5,0" VerticalAlignment="Center">
+        <Label x:Name="TimeLabel"  Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
                 FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold" 
                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-          <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+        <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
-        </StackPanel>
+      </StackPanel>
 
       <!-- Power button -->
       <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="3" Margin="10,-20,50,-20"
@@ -167,9 +167,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Trigger.Setters>
           </Trigger>
         </Button.Triggers>
-      </Button>    
-      
-      
+      </Button>
+
+
       <!--/StackPanel-->
 
       <Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" />
@@ -180,7 +180,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <Image Source="shadow_bottom.png" Margin="-115,0,-115,0" Grid.Row="3" VerticalAlignment="Top" />
 
-    <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top">
+    <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top" Height="{ThemeResource MultiDetailsFooterHeight}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>

@@ -22,6 +22,10 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures;
 
@@ -33,6 +37,42 @@ namespace MediaPortal.UiComponents.Trakt.Settings
     public bool EnableTrakt { get; set; }
 
     [Setting(SettingScope.User)]
-    public TraktAuthentication Authentication { get; set; }
+    public bool IsAuthorized { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = "")]
+    public string Username { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = "")]
+    public string TraktOAuthToken { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool UseSSL { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool KeepTraktLibraryClean { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = 0)]
+    public int TrendingMoviesDefaultLayout { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = 15)]
+    public int WebRequestCacheMinutes { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = 5)]
+    public int SyncPlaybackCacheExpiry { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = 1)]
+    public int LogLevel { get; set; }
+
+    [Setting(SettingScope.User)]
+    public TraktLastSyncActivities LastSyncActivities { get; set; }
+
+    [Setting(SettingScope.User)]
+    public IEnumerable<TraktCache.ListActivity> LastListActivities { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool SkipMoviesWithNoIdsOnSync { get; set; }
+
+    [Setting(SettingScope.User, DefaultValue = 100)]
+    public int SyncBatchSize { get; set; }
   }
 }

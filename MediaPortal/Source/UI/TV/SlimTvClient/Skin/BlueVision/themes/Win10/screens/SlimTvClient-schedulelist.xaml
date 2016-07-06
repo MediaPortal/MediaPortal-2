@@ -9,7 +9,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Schedules]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Schedules]"/> 
 
     <!-- SlimTvScheduleManagement model -->
     <Model x:Key="SlimTvScheduleManagement" Id="7610403A-4488-47A4-8C27-FD1FE833E52B"/>
@@ -23,11 +23,12 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="220"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="-55,0,-60,3" BorderThickness="0">
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="-55,0,-60,3" BorderThickness="0">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <LinearGradientBrush.GradientStops>
@@ -38,55 +39,77 @@
           </Border.Background>
         </Border>
 
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="#F2666666"> </Border>
+        <Rectangle Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Fill="Black" Opacity="0.5" Margin="-8,-8,-8,0">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
+          </Rectangle.Effect>
+        </Rectangle>
         
-        <ListView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Background="#F2666666"> </Border>
+
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+          <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="10,10,5,5" Style="{ThemeResource DefaultCheckBoxStyle}"
+              IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}"
+              Content="{Binding}" />
+          <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Margin="5"/>
+        </StackPanel>
+        
+        <ListView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
               Margin="0,10,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ScheduleListViewStyle}"
               ItemsSource="{Binding Path=SchedulesList}"
               SelectionChanged="{CommandStencil UpdateSchedule}">
           <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="10" />
+            </ResourceWrapper>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
 
-        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,40,0,0">
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,40,0,0">
           <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="450"/>
+            <ColumnDefinition Width="1500"/>
+            <ColumnDefinition Width="320"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-              <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
-                     Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-              <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
-              <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                  Color="{ThemeResource TextColor}"/>
-            </StackPanel>
-            <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
-                   HorizontalAlignment="Right"/>
-            <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}"
-                   Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,0,0">
-              <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
-                                          fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-              </Image.Source>
-            </Image>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" >
+            <Label x:Name="ProgramStart" Margin="-100,0,0,0"  Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+            <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                Color="{ThemeResource TextColor}"/>
           </StackPanel>
 
-          <Label x:Name="ScheduleName" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontFamily="DefaultBold"
-                    Content="{Binding ScheduleName}" Margin="0,0,0,0"
-                    Color="{ThemeResource TextColor}"/>
+          <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
+                 HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" />
 
-          <Label Grid.Row="1" Grid.Column="0" x:Name="ScheduleType" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Wrap="True" Scroll="Auto"
-                 Content="{Binding Path=ScheduleType}"
-                 Color="{ThemeResource TextColor}" Margin="0,0,0,5" />
+          <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="2" Grid.Column="1" Margin="0,10,-5,0"
+                 Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" >
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                                        fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+            </Image.Source>
+          </Image>
+
+          <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" >
+            <Label x:Name="Program" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Content="{Binding CurrentProgram.Title}" Margin="0,0,0,0"
+                   Color="{ThemeResource TextColor}"/>
+            <Label x:Name="SeriesLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Series]}"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+          </StackPanel>
+
+          <Label Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                 Wrap="True" Scroll="Auto" Height="175"
+                 Content="{Binding Path=CurrentProgram.Description}"
+                 Color="{ThemeResource TextColor}" Margin="0,0,0,-10" />
         </Grid>
         
        </Grid>

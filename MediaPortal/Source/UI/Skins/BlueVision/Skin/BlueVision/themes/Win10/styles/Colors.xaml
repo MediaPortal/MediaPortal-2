@@ -6,6 +6,7 @@
 
 
   <ResourceWrapper x:Key="Win10_tile" Resource="#0066CC"/>
+  <ResourceWrapper x:Key="GrayBackgroundWithBlurBehind" Resource="#CC777777"/>
 
 
   <ResourceWrapper x:Key="HomeNonFocusedColor" Resource="#6B6A6A"/>
@@ -70,10 +71,14 @@
   <!--ResourceWrapper x:Key="ScrollBarBackgroundColor_OSD" Resource="#FFCCCCCC" /-->
   <ResourceWrapper x:Key="ScrollBarBackgroundColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-      <GradientStop Color="#00404040" Offset="0"/>
-      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.40"/>
-      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.60"/>
-      <GradientStop Color="#00404040" Offset="1"/>
+      <!--GradientStop Color="#00404040" Offset="0"/>
+      <GradientStop Color="White" Offset="0.40"/>
+      <GradientStop Color="White" Offset="0.60"/>
+      <GradientStop Color="#00404040" Offset="1"/-->
+      <GradientStop Color="#00000000" Offset="0"/>
+      <GradientStop Color="#80000000" Offset="0.20"/>
+      <GradientStop Color="#80000000" Offset="0.80"/>
+      <GradientStop Color="#00000000" Offset="1"/>
     </LinearGradientBrush>
   </ResourceWrapper>
 
@@ -81,8 +86,8 @@
   <ResourceWrapper x:Key="ScrollBarBackgroundXColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
-      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.40"/>
-      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.60"/>
+      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.30"/>
+      <GradientStop Color="{ThemeResource HomeNonFocusedColor}" Offset="0.70"/>
       <GradientStop Color="#00404040" Offset="1"/>
     </LinearGradientBrush>
   </ResourceWrapper>
@@ -100,14 +105,8 @@
   </ResourceWrapper-->
 
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
-
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource=""/>
-
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#DFE0E2" />
-
-  <ResourceWrapper x:Key="ScrollBarWidth" Resource="1"/>
-
-  <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="18"/>
 
   <!-- Star Rating -->
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#E8E8E8"/>

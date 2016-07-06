@@ -20,6 +20,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Vaihda MediaPortal 2:n ulkoasua ja tuntumaa </string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Vaihda teemaa</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Vaihda nykyisen ulkoasun esitystapaa</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Ota käyttöön ulkoasun äänet</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">Muokkaa jos ulkoasun äänien pitäisi kuulua</string>
   <string name="Settings.Players">Soittimet</string>
   <string name="Settings.Players.Rendering">Renderöinti</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Oletus suurennuksen tila</string>

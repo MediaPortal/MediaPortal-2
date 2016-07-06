@@ -6,6 +6,7 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">选择位置</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">天气</string>
+  <string name="Weather.Title.Help">选择当前天气位置和预报。</string>
   <string name="Weather.ChooseLocation">选择位置</string>
   <string name="Weather.Refresh">刷新</string>
   <string name="Weather.Updating">更新中...</string>
