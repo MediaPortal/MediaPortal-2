@@ -427,6 +427,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override int GetHashCode()
     {
+      //TODO: Check if this is functional
       return SeriesName.Text.GetHashCode();
     }
 
