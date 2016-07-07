@@ -295,6 +295,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return Album.GetHashCode();
+    }
+
     #endregion
   }
 }

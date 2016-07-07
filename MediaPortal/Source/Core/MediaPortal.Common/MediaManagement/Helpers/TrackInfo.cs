@@ -301,6 +301,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return TrackName.GetHashCode();
+    }
+
     public int CompareTo(TrackInfo other)
     {
       if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && Album == other.Album &&

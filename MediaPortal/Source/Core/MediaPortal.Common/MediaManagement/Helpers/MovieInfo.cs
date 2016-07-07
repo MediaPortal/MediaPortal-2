@@ -334,6 +334,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return MovieName.Text.GetHashCode();
+    }
+
     public int CompareTo(MovieInfo other)
     {
       if (Order != other.Order)

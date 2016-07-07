@@ -425,6 +425,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return SeriesName.Text.GetHashCode();
+    }
+
     #endregion
   }
 }

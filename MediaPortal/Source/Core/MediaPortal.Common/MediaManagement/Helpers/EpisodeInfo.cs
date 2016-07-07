@@ -465,6 +465,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return EpisodeName.Text.GetHashCode();
+    }
+
     public int CompareTo(EpisodeInfo other)
     {
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&

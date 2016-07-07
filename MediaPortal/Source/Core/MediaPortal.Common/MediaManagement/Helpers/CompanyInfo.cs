@@ -188,6 +188,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return Name.GetHashCode();
+    }
+
     public int CompareTo(CompanyInfo other)
     {
       if (Order != other.Order)

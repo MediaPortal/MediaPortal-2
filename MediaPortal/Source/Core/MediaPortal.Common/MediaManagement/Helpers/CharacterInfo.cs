@@ -196,6 +196,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override int GetHashCode()
+    {
+      return Name.GetHashCode();
+    }
+
     public int CompareTo(CharacterInfo other)
     {
       if (Order != other.Order)
