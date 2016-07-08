@@ -33,13 +33,59 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     /// </summary>
     public class DiagnosticsHandler : IDisposable
     {
-        #region Methods
+
+        #region Private Fields
+
+        private static FocusSteelingMonitor _focusSteelingInstance = null;
+        private static FormLogMonitor _logViewerInstance = null;
+
+        #endregion Private Fields
+
+        #region Internal Properties
+
+        /// <summary>
+        /// Guaranteed unique access to focus steeling mechanism
+        /// </summary>
+        internal static FocusSteelingMonitor FocusSteelingInstance
+        {
+            get
+            {
+                if (_focusSteelingInstance == null)
+                {
+                    _focusSteelingInstance = new FocusSteelingMonitor();
+                }
+                return _focusSteelingInstance;
+            }
+        }
+
+        /// <summary>
+        /// Guaranteed unique access to log viewer
+        /// </summary>
+        internal static FormLogMonitor LogViewerInstance
+        {
+            get
+            {
+                if (_logViewerInstance == null || _logViewerInstance.IsDisposed)
+                {
+                    _logViewerInstance = new FormLogMonitor();
+                }
+                return _logViewerInstance;
+            }
+        }
+
+        #endregion Internal Properties
+
+        #region Public Methods
 
         public void Dispose()
         {
-            FocusSteelingMonitor.Instance.Dispose();
-            FormLogMonitor.Instance.Dispose();
+            DiagnosticsHandler.FocusSteelingInstance.Dispose();
+            DiagnosticsHandler.LogViewerInstance.Dispose();
         }
+
+        #endregion Public Methods
+
+        #region Internal Methods
 
         /// <summary>
         /// Retrieve log level
@@ -65,6 +111,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
             ServiceRegistration.Get<Common.Logging.ILogger>().Debug(string.Format("DiagnosticService: Switched LogLevel to {0}", level.ToString()));
         }
 
-        #endregion Methods
+        #endregion Internal Methods
+
     }
 }

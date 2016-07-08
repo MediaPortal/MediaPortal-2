@@ -22,16 +22,10 @@ using MediaPortal.UiComponents.Diagnostics.Service.UserControls;
 using System;
 using System.Windows.Forms;
 
-namespace MediaPortal.UiComponents.Diagnostics
+namespace MediaPortal.UiComponents.Diagnostics.Service
 {
     public partial class FormLogMonitor : Form
     {
-
-        #region Private Fields
-
-        private static FormLogMonitor _instance = null;
-
-        #endregion Private Fields
 
         #region Public Constructors
 
@@ -41,22 +35,6 @@ namespace MediaPortal.UiComponents.Diagnostics
         }
 
         #endregion Public Constructors
-
-        #region Internal Properties
-
-        internal static FormLogMonitor Instance
-        {
-            get
-            {
-                if (_instance == null || _instance.IsDisposed)
-                {
-                    _instance = new FormLogMonitor();
-                }
-                return _instance;
-            }
-        }
-
-        #endregion Internal Properties
 
         #region Public Methods
 

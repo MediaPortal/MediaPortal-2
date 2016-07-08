@@ -1,4 +1,4 @@
-﻿namespace MediaPortal.UiComponents.Diagnostics
+﻿namespace MediaPortal.UiComponents.Diagnostics.Service
 {
     partial class FormLogMonitor
     {

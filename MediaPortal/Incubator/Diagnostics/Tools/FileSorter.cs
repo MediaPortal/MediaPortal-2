@@ -9,6 +9,8 @@ namespace MediaPortal.UiComponents.Diagnostics.Tools
 {
     public class FileSorter
     {
+        #region Public Methods
+
         public static List<FileInfo> SortByLastWriteTime(string path, string filter)
         {
             FileInfo[] tFiles = new DirectoryInfo(path).GetFiles(filter);
@@ -20,14 +22,24 @@ namespace MediaPortal.UiComponents.Diagnostics.Tools
             return tReturn;
         }
 
+        #endregion Public Methods
+
+        #region Private Classes
+
         private class LastWriteTimeComparer : IComparer<FileInfo>
         {
-            public int Compare(FileInfo f2, FileInfo f1)
+            #region Public Methods
+
+            public int Compare(FileInfo f1, FileInfo f2)
             {
-                return DateTime.Compare(f1.LastWriteTime, f2.LastWriteTime);
+                return DateTime.Compare(f2.LastWriteTime, f1.LastWriteTime);
             }
 
+            #endregion Public Methods
+
         }
+
+        #endregion Private Classes
 
     }
 }

@@ -1,5 +1,4 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
-
+﻿
 /*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
@@ -20,8 +19,6 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#endregion
-
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.General;
 using System;
@@ -31,44 +28,32 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
 {
     internal class FocusSteelingMonitor : IDisposable
     {
-        #region Fields
 
-        private static FocusSteelingMonitor _instance;
+        #region Private Fields
 
         private AsynchronousMessageQueue _messageQueue;
 
-        #endregion Fields
+        #endregion Private Fields
 
-        #region Properties
+        #region Internal Properties
 
-        /// <summary>
-        /// Guaranteed unique access to focus steeling mechanism
-        /// </summary>
-        internal static FocusSteelingMonitor Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new FocusSteelingMonitor();
-                }
-                return _instance;
-            }
-        }
-        
         /// <summary>
         /// Gets a value indicating the execution status
         /// </summary>
         internal bool IsMonitoring { get; private set; }
 
-        #endregion Properties
+        #endregion Internal Properties
 
-        #region Methods
+        #region Public Methods
 
         public void Dispose()
         {
             UnsubscribeFromMessages();
         }
+
+        #endregion Public Methods
+
+        #region Internal Methods
 
         /// <summary>
         /// Subscribe to message & start focus steeling monitoring
@@ -95,10 +80,18 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
             IsMonitoring = false;
         }
 
+        #endregion Internal Methods
+
+        #region Protected Methods
+
         protected virtual void HandleWindowsMessage(ref Message m)
         {
             ActivationMonitor.HandleMessage(ref m);
         }
+
+        #endregion Protected Methods
+
+        #region Private Methods
 
         private void OnPreviewMessage(AsynchronousMessageQueue queue, SystemMessage message)
         {
@@ -116,6 +109,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
             }
         }
 
-        #endregion Methods
+        #endregion Private Methods
+
     }
 }

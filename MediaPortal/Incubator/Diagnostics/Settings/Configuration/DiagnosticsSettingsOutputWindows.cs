@@ -20,6 +20,7 @@
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UiComponents.Diagnostics.Service;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +29,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 {
     internal class DiagnosticsSettingsOutputWindows : YesNo
     {
+
         #region Private Delegates
 
         private delegate void dVoidMethod();
@@ -38,14 +40,14 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 
         public override void Load()
         {
-            _yes = FormLogMonitor.Instance.Visible;
+            _yes = DiagnosticsHandler.LogViewerInstance.Visible;
         }
 
         public override void Save()
         {
             if (_yes)
             {
-                if (FormLogMonitor.Instance.Visible) return;
+                if (DiagnosticsHandler.LogViewerInstance.Visible) return;
 
                 string commonAppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
                 string slogfolder = System.IO.Path.Combine(commonAppData, @"Team MediaPortal\MP2-Client\Log");
@@ -53,19 +55,20 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 
                 foreach (var file in logsfiles)
                 {
-                    FormLogMonitor.Instance.AddLog(file.FullName);
+                    DiagnosticsHandler.LogViewerInstance.AddLog(file.FullName);
                 }
 
-                SkinContext.Form.Invoke(new dVoidMethod(FormLogMonitor.Instance.Show));
+                SkinContext.Form.Invoke(new dVoidMethod(DiagnosticsHandler.LogViewerInstance.Show));
             }
             else
             {
-                if (!FormLogMonitor.Instance.Visible) return;
+                if (!DiagnosticsHandler.LogViewerInstance.Visible) return;
 
-                FormLogMonitor.Instance.Dispose();
+                DiagnosticsHandler.LogViewerInstance.Dispose();
             }
         }
 
         #endregion Public Methods
+
     }
 }

@@ -47,10 +47,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FormLogMonitor.cs">
+    <Compile Include="Service\FormLogMonitor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormLogMonitor.Designer.cs">
+    <Compile Include="Service\FormLogMonitor.Designer.cs">
       <DependentUpon>FormLogMonitor.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -95,7 +95,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="FormLogMonitor.resx">
+    <EmbeddedResource Include="Service\FormLogMonitor.resx">
       <DependentUpon>FormLogMonitor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Service\UserControls\UserControlLogMonitor.resx">
