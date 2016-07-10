@@ -76,6 +76,24 @@
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="..\MediaPortal.Utilities\CollectionUtils.cs">
+      <Link>MediaPortal.Utilities\CollectionUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\MediaPortal.Utilities\Exceptions\Exceptions.cs">
+      <Link>MediaPortal.Utilities\Exceptions.cs</Link>
+    </Compile>
+    <Compile Include="..\MediaPortal.Utilities\Network\NetworkUtils.cs">
+      <Link>MediaPortal.Utilities\NetworkUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\MediaPortal.Utilities\ObjectUtils.cs">
+      <Link>MediaPortal.Utilities\ObjectUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\MediaPortal.Utilities\StringUtils.cs">
+      <Link>MediaPortal.Utilities\StringUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\MediaPortal.Utilities\SystemAPI\WindowsAPI.cs">
+      <Link>MediaPortal.Utilities\WindowsAPI.cs</Link>
+    </Compile>
     <Compile Include="Infrastructure\ConsoleLogger.cs" />
     <Compile Include="Infrastructure\CP\AsyncWebRequestState.cs" />
     <Compile Include="Infrastructure\CP\Description\DeviceDescriptor.cs" />
@@ -88,12 +106,6 @@
     <Compile Include="Infrastructure\Utils\HttpServerHelper.cs" />
     <Compile Include="Infrastructure\Utils\SoapHelper.cs" />
     <Compile Include="Infrastructure\Utils\StringWriterWithEncoding.cs" />
-    <Compile Include="MediaPortal.Utilities\CollectionUtils.cs" />
-    <Compile Include="MediaPortal.Utilities\Exceptions.cs" />
-    <Compile Include="MediaPortal.Utilities\NetworkUtils.cs" />
-    <Compile Include="MediaPortal.Utilities\ObjectUtils.cs" />
-    <Compile Include="MediaPortal.Utilities\StringUtils.cs" />
-    <Compile Include="MediaPortal.Utilities\WindowsAPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\Common\HTTPVersion.cs" />
     <Compile Include="Infrastructure\Common\UPnPVersion.cs" />
