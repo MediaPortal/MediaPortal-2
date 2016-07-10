@@ -137,7 +137,7 @@ namespace MediaPortal.UI.Services.Players
 
       IResumeState resumeState;
       if (resumablePlayer.GetResumeState(out resumeState))
-        PlayerManagerMessaging.SendPlayerResumeStateMessage(this, playerContext.CurrentMediaItem.MediaItemId, resumeState);
+        PlayerManagerMessaging.SendPlayerResumeStateMessage(this, playerContext.CurrentMediaItem, resumeState);
     }
 
     protected void CheckActive()

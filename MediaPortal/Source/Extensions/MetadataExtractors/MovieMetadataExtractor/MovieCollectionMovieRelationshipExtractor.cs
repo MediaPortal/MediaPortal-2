@@ -83,10 +83,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
-      foreach (MovieInfo movie in collectionInfo.Movies)
+      for (int i = 0; i < collectionInfo.Movies.Count; i++)
       {
+        MovieInfo movieInfo = collectionInfo.Movies[i];
+        MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+        MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+        MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+
         IDictionary<Guid, IList<MediaItemAspect>> movieAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        movie.SetMetadata(movieAspects);
+        movieInfo.SetMetadata(movieAspects);
 
         if (movieAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(movieAspects);

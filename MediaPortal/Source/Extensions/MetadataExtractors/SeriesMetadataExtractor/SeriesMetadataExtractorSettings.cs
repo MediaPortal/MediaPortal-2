@@ -207,6 +207,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     [Setting(SettingScope.Global)]
     public SerializableRegex SeriesYearRegex { get; set; }
 
+    /// <summary>
+    /// If <c>true</c>, the SeriesMetadataExtractor does not fetch any information for missing local episodes.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool OnlyLocalMedia { get; set; }
+
     #endregion
   }
 }

@@ -102,5 +102,15 @@ namespace Test.OnlineLibraries
     {
       throw new NotImplementedException();
     }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
+    {
+      throw new NotImplementedException();
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

@@ -83,10 +83,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
-      foreach (TrackInfo track in albumInfo.Tracks)
+      for (int i = 0; i < albumInfo.Tracks.Count; i++)
       {
+        TrackInfo trackInfo = albumInfo.Tracks[i];
+        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+
         IDictionary<Guid, IList<MediaItemAspect>> trackAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        track.SetMetadata(trackAspects);
+        trackInfo.SetMetadata(trackAspects);
 
         if (trackAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(trackAspects);

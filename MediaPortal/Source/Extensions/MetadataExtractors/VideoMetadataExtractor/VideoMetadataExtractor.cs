@@ -569,6 +569,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (!HasSubtitleExtension(lfsra.LocalFileSystemPath))
         return false;
 
+      IList<MultipleMediaItemAspect> providerResourceAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
+      {
+        foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
+        {
+          string accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
+          string extractedPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
+          if (extractedPath.Equals(lfsra.LocalFileSystemPath, StringComparison.InvariantCultureIgnoreCase))
+          {
+            return true;
+          }
+        }
+      }
+
       string subFormat = GetSubtitleFormat(lfsra.LocalFileSystemPath);
       if (!string.IsNullOrEmpty(subFormat))
       {
@@ -939,12 +954,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     {
       try
       {
+        bool refresh = false;
+        if (extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
+          refresh = true;
+
         VideoResult result = null;
         List<string> partSets = new List<string>();
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra == null)
           return false;
-        if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
+        if (!refresh && !fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
         {
           IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
           if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
@@ -1013,35 +1032,42 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           string mediaTitle = DosPathHelper.GetFileNameWithoutExtension(fsra.ResourceName);
           if (HasVideoExtension(filePath))
           {
-            using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
+            if (refresh)
             {
-              // Before we start evaluating the file, check if it is a video at all
-              if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
-                return false;
-
-              result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
             }
-            using (Stream stream = fsra.OpenRead())
-              result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
-
-            if (result != null)
+            else
             {
-              using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+              using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
               {
-                ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
-                if (lfsra != null)
+                // Before we start evaluating the file, check if it is a video at all
+                if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
+                  return false;
+
+                result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
+              }
+              using (Stream stream = fsra.OpenRead())
+                result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
+
+              if (result != null)
+              {
+                using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
                 {
-                  result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet);
+                  ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
+                  if (lfsra != null)
+                  {
+                    result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet);
 
-                  ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
-                  ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
-                  ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
+                    ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
+                    ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
+                    ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
 
-                  //Initial add of all subtitles because they might have been skipped
-                  //during merging as no video item is available for the merge
-                  FindExternalSubtitles(lfsra, extractedAspectData);
+                    //Initial add of all subtitles because they might have been skipped
+                    //during merging as no video item is available for the merge
+                    FindExternalSubtitles(lfsra, extractedAspectData);
 
-                  return true;
+                    return true;
+                  }
                 }
               }
             }

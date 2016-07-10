@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
       return tags.Split(';', '/');
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public new bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // If the base AudioMDE already extracted metadata, don't try here again to avoid conflicts.
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))

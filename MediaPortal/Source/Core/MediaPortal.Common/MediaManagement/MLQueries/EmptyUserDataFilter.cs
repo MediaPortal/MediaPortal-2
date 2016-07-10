@@ -22,24 +22,26 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
 
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.Common.MediaManagement.MLQueries
 {
-  public class MovieFilterByActorScreenData : AbstractVideosFilterScreenData
+  /// <summary>
+  /// Filter which finds empty user data values.
+  /// </summary>
+  public class EmptyUserDataFilter : AbstractUserDataFilter
   {
-    public MovieFilterByActorScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_ACTOR, Consts.RES_FILTER_BY_ACTOR_MENU_ITEM,
-        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_ACTORS))
+    public EmptyUserDataFilter(Guid userProfileId, string userDataKey) : base(userProfileId, userDataKey) { }
+
+    public override string ToString()
     {
+      return _userDataKey + " IS EMPTY";
     }
 
-    public override AbstractFiltersScreenData<FilterItem> Derive()
-    {
-      return new MovieFilterByActorScreenData();
-    }
+    #region Additional members for the XML serialization
+
+    internal EmptyUserDataFilter() { }
+
+    #endregion
   }
 }

@@ -92,6 +92,10 @@
     <Compile Include="MediaManagement\IMediaMergeHandler.cs" />
     <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
     <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
+    <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
@@ -100,6 +104,7 @@
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ImporterWorkerDataflowBlockBase.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemLoadBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemSaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MetadataExtractorBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportJobNewGen.cs" />

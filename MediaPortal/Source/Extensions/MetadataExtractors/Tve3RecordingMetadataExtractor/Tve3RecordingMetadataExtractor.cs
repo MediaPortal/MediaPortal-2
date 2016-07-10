@@ -75,6 +75,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
     {
       try
       {
+        bool refresh = false;
+        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+          refresh = true;
+
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
 
@@ -86,7 +90,16 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         // Handle series information
-        EpisodeInfo episodeInfo = GetSeriesFromTags(tags);
+        EpisodeInfo episodeInfo = null;
+        if (refresh)
+        {
+          episodeInfo = new EpisodeInfo();
+          episodeInfo.FromMetadata(extractedAspectData);
+        }
+        else
+        {
+          episodeInfo = GetSeriesFromTags(tags);
+        }
         if (episodeInfo.AreReqiredFieldsFilled)
         {
           if (!forceQuickMode)

@@ -102,6 +102,18 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
+      public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
+      {
+        try
+        {
+          return _contentDirectory.GetAllManagedMediaItemAspectTypes();
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
       #endregion
 
       #region IImportResultHandler implementation

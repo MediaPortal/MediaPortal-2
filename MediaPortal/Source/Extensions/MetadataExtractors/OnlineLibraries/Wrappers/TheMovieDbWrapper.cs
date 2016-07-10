@@ -262,7 +262,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (collectionDetail == null) return false;
 
       collection.MovieDbId = collectionDetail.Id;
-      collection.CollectionName = collectionDetail.Name;
+      collection.CollectionName = new LanguageText(collectionDetail.Name, false);
       collection.Movies = ConvertToMovies(collectionDetail.Movies);
 
       return true;
@@ -661,7 +661,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         retValue.Add(new MovieInfo()
         {
           MovieDbId = movie.Id,
-          MovieName = movie.Title,
+          MovieName = new LanguageText(movie.Title, false),
           OriginalName = movie.OriginalTitle,
           ReleaseDate = movie.ReleaseDate,
           Order = retValue.Count

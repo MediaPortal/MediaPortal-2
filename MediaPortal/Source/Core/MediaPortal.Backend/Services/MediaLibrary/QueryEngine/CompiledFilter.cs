@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Backend.Services.UserProfileDataManagement;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -273,6 +274,38 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return;
       }
 
+      // Must be done before checking IAttributeFilter - EmptyFilter is also an IAttributeFilter but must be
+      // compiled in a different way
+      EmptyUserDataFilter emptyUserDataFilter = filter as EmptyUserDataFilter;
+      if (emptyUserDataFilter != null)
+      {
+        BindVar userIdVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), emptyUserDataFilter.UserProfileId, typeof(Guid));
+
+        resultParts.Add("NOT EXISTS(");
+        resultParts.Add("SELECT ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add(" FROM ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
+        resultParts.Add(" WHERE ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_PROFILE_ID_COL_NAME);
+        resultParts.Add(" = @" + userIdVar.Name);
+        resultBindVars.Add(userIdVar);
+        resultParts.Add(" AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_DATA_KEY_COL_NAME);
+        resultParts.Add(" = '");
+        resultParts.Add(emptyUserDataFilter.UserDataKey);
+        resultParts.Add("' AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_COL_NAME);
+        resultParts.Add(" IS NOT NULL ");
+        resultParts.Add(" AND ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add("=");
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(")");
+
+        return;
+      }
+
       RelationshipFilter relationshipFilter = filter as RelationshipFilter;
       if (relationshipFilter != null)
       {
@@ -321,6 +354,58 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
         resultParts.Add("=@" + itemIdVar2.Name);
         resultBindVars.Add(itemIdVar2);
+        resultParts.Add(")");
+        return;
+      }
+
+      RelationalUserDataFilter relationalUserDataFilter = filter as RelationalUserDataFilter;
+      if (relationalUserDataFilter != null)
+      {
+        BindVar userIdVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalUserDataFilter.UserProfileId, typeof(Guid));
+        BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalUserDataFilter.FilterValue, typeof(string));
+
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(" IN(");
+        resultParts.Add("SELECT ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add(" FROM ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
+        resultParts.Add(" WHERE ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_PROFILE_ID_COL_NAME);
+        resultParts.Add(" = @" + userIdVar.Name);
+        resultBindVars.Add(userIdVar);
+        resultParts.Add(" AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_DATA_KEY_COL_NAME);
+        resultParts.Add(" = '");
+        resultParts.Add(relationalUserDataFilter.UserDataKey);
+        resultParts.Add("' AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_COL_NAME);
+        switch (relationalUserDataFilter.Operator)
+        {
+          case RelationalOperator.EQ:
+            resultParts.Add(" = ");
+            break;
+          case RelationalOperator.NEQ:
+            resultParts.Add(" <> ");
+            break;
+          case RelationalOperator.LT:
+            resultParts.Add(" < ");
+            break;
+          case RelationalOperator.LE:
+            resultParts.Add(" <= ");
+            break;
+          case RelationalOperator.GT:
+            resultParts.Add(" > ");
+            break;
+          case RelationalOperator.GE:
+            resultParts.Add(" >= ");
+            break;
+          default:
+            throw new NotImplementedException(string.Format(
+                "Relational user data filter operator '{0}' isn't supported by the media library", relationalUserDataFilter.Operator));
+        }
+        resultParts.Add("@" + bindVar.Name);
+        resultBindVars.Add(bindVar);
         resultParts.Add(")");
         return;
       }

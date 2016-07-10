@@ -22,24 +22,17 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
 
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.Common.MediaManagement.MLQueries
 {
-  public class MovieFilterByDirectorScreenData : AbstractVideosFilterScreenData
+  /// <summary>
+  /// Filters comparing user data.
+  /// </summary>
+  public interface IUserDataFilter : IFilter
   {
-    public MovieFilterByDirectorScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_DIRECTOR, Consts.RES_FILTER_BY_DIRECTOR_MENU_ITEM,
-        Consts.RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_DIRECTORS))
-    {
-    }
+    Guid UserProfileId { get; }
 
-    public override AbstractFiltersScreenData<FilterItem> Derive()
-    {
-      return new MovieFilterByDirectorScreenData();
-    }
+    string UserDataKey { get; }
   }
 }

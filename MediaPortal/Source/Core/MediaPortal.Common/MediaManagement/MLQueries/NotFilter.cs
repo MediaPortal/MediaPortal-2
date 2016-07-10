@@ -64,6 +64,8 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("Not", typeof(NotFilter))]
     [XmlElement("Relational", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
+    [XmlElement("RelationalUserData", typeof(RelationalUserDataFilter))]
+    [XmlElement("EmptyUserData", typeof(EmptyUserDataFilter))]
     [XmlElement("False", typeof(FalseFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]

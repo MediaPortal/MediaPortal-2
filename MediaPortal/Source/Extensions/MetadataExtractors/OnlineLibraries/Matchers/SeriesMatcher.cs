@@ -341,6 +341,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //Reset next episode data because it was already aired
+          if (seriesInfo.NextEpisodeAirDate.HasValue && seriesInfo.NextEpisodeAirDate.Value < DateTime.Now)
+          {
+            seriesInfo.NextEpisodeAirDate = null;
+            seriesInfo.NextEpisodeNumber = null;
+            seriesInfo.NextEpisodeSeasonNumber = null;
+            seriesInfo.NextEpisodeName = null;
+          }
+
           MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvdbId, seriesMatch.TvdbId);
           MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesMatch.ImdbId);
           MetadataUpdater.SetOrUpdateId(ref seriesInfo.MovieDbId, seriesMatch.MovieDbId);
@@ -1395,8 +1404,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if(persons != null && persons.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading actors images for ID {0}", downloadId);
-          foreach (PersonInfo person in persons)
+          for (int i = 0; i < persons.Count; i++)
           {
+            PersonInfo person = persons[i];
             if (_wrapper.GetFanArt(person, language, scope, out images) == false)
             {
               if (images != null)

@@ -574,9 +574,31 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+        IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
+    {
+      ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
+      foreach (Guid extractorId in metadataExtractorIds)
+      {
+        IMetadataExtractor extractor;
+        if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
+          extractors.Add(extractor);
+      }
+      return ExtractMetadata(mediaItemAccessor, extractors, existingAspects, forceQuickMode);
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode)
     {
-      IDictionary<Guid, IList<MediaItemAspect>> result = new Dictionary<Guid, IList<MediaItemAspect>>();
+      return ExtractMetadata(mediaItemAccessor, metadataExtractors, new Dictionary<Guid, IList<MediaItemAspect>>(), forceQuickMode);
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+        IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> result = existingAspects;
+      if(result == null)
+        result = new Dictionary<Guid, IList<MediaItemAspect>>();
+
       bool success = false;
       // Execute all metadata extractors in order of their priority
       foreach (IMetadataExtractor extractor in metadataExtractors.OrderBy(m => m.Metadata.Priority))

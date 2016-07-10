@@ -159,8 +159,8 @@ namespace MediaPortal.UI.Services.Players
           case PlayerManagerMessaging.MessageType.PlayerResumeState:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             IResumeState resumeState = (IResumeState) message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
-            Guid mediaItemId = (Guid) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM_ID];
-            HandleResumeInfo(psc, mediaItemId, resumeState);
+            MediaItem mediaItem = (MediaItem) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
+            HandleResumeInfo(psc, mediaItem, resumeState);
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
@@ -232,28 +232,26 @@ namespace MediaPortal.UI.Services.Players
           _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
     }
 
-    protected void HandleResumeInfo(IPlayerSlotController psc, Guid mediaItemId, IResumeState resumeState)
+    protected void HandleResumeInfo(IPlayerSlotController psc, MediaItem mediaItem, IResumeState resumeState)
     {
       // We can only handle resume info for valid MediaItemIds that are coming from MediaLibrary, not from local browsing.
-      if (mediaItemId == Guid.Empty)
+      if (mediaItem == null)
+        return;
+      if (mediaItem.MediaItemId == Guid.Empty)
         return;
 
       string serialized = ResumeStateBase.Serialize(resumeState);
 
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement.IsValidUser)
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, PlayerContext.KEY_RESUME_STATE, serialized);
 
-      PlayerContext pc = PlayerContext.GetPlayerContext(psc);
-      if (pc == null || !pc.IsActive)
-        return;
+      if (!mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
+        mediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
+      mediaItem.UserData[PlayerContext.KEY_RESUME_STATE] = serialized;
 
-      if (!pc.CurrentMediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
-        pc.CurrentMediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
-      pc.CurrentMediaItem.UserData[PlayerContext.KEY_RESUME_STATE] = serialized;
-
-      bool watched = IsWatched(pc.CurrentMediaItem, resumeState);
-      NotifyPlayback(pc.CurrentMediaItem, watched);
+      bool watched = IsWatched(mediaItem, resumeState);
+      NotifyPlayback(mediaItem, watched);
     }
 
     protected static bool IsWatched(MediaItem mediaItem, IResumeState resumeState)

@@ -48,7 +48,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Variables
 
     private readonly bool _forceQuickMode;
-    private readonly Lazy<Task<DateTime>> _mostRecentMiaCreationDate; 
+    private readonly Lazy<Task<DateTime>> _mostRecentMiaCreationDate;
 
     #endregion
 
@@ -58,7 +58,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// Initiates the MetadataExtractorBlock
     /// </summary>
     /// <remarks>
-    /// The preceding FileUnfoldBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
+    /// The preceding MediaItemLoadBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
     /// because all the items are immediately passed to an unbounded InputBlock of this MetadataExtractorBlock, we
     /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 100,
     /// which is a good trade-off between speed and memory usage. For the reason mentioned before, we also have to
@@ -113,14 +113,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // and there were no new relevant MIAs added since then.
           // ToDo: We should only omit MDEs that get their data from the file or directory itself. All others should be called anyway.
           if (importResource.DateOfLastImport > importResource.ResourceAccessor.LastChanged &&
-              importResource.DateOfLastImport > await _mostRecentMiaCreationDate.Value)
+              importResource.DateOfLastImport > await _mostRecentMiaCreationDate.Value &&
+              ((DateTime.Now - importResource.DateOfLastImport).TotalHours <= 23 || importResource.ExistingAspects == null))
           {
             importResource.IsValid = false;
             return importResource;
           }
         }
         
-        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, _forceQuickMode);
+        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, _forceQuickMode);
         if (importResource.Aspects == null)
           importResource.IsValid = false;
 

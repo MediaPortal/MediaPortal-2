@@ -99,48 +99,58 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
+      bool refresh = false;
+      if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        refresh = true;
+
       EpisodeInfo episodeInfo = new EpisodeInfo();
-
-      string title = null;
-      int seasonNumber;
-      SingleMediaItemAspect episodeAspect;
-      MediaItemAspect.TryGetAspect(extractedAspectData, EpisodeAspect.Metadata, out episodeAspect);
-      IEnumerable<int> episodeNumbers;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
-          MediaItemAspect.TryGetAttribute(extractedAspectData, EpisodeAspect.ATTR_SEASON, out seasonNumber) &&
-          (episodeNumbers = episodeAspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE).Cast<int>()) != null)
+      if (refresh)
       {
-        episodeInfo.SeriesName = title;
-        episodeInfo.SeasonNumber = seasonNumber;
-        episodeInfo.EpisodeNumbers.Clear();
-        episodeNumbers.ToList().ForEach(n => episodeInfo.EpisodeNumbers.Add(n));
+        episodeInfo.FromMetadata(extractedAspectData);
       }
-
-      // If there was no complete match, yet, try to get extended information out of matroska files)
-      if (!episodeInfo.AreReqiredFieldsFilled)
+      else
       {
-        MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-        if (matroskaMatcher.MatchSeries(lfsra, episodeInfo))
+        string title = null;
+        int seasonNumber;
+        SingleMediaItemAspect episodeAspect;
+        MediaItemAspect.TryGetAspect(extractedAspectData, EpisodeAspect.Metadata, out episodeAspect);
+        IEnumerable<int> episodeNumbers;
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
+            MediaItemAspect.TryGetAttribute(extractedAspectData, EpisodeAspect.ATTR_SEASON, out seasonNumber) &&
+            (episodeNumbers = episodeAspect.GetCollectionAttribute<object>(EpisodeAspect.ATTR_EPISODE).Cast<int>()) != null)
         {
-          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
-            episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.AreReqiredFieldsFilled);
+          episodeInfo.SeriesName = title;
+          episodeInfo.SeasonNumber = seasonNumber;
+          episodeInfo.EpisodeNumbers.Clear();
+          episodeNumbers.ToList().ForEach(n => episodeInfo.EpisodeNumbers.Add(n));
         }
-      }
 
-      // If no information was found before, try name matching
-      if (!episodeInfo.AreReqiredFieldsFilled)
-      {
-        // Try to match series from folder and file namings
-        SeriesMatcher seriesMatcher = new SeriesMatcher();
-        seriesMatcher.MatchSeries(lfsra, out episodeInfo);
-      }
-      else if(episodeInfo.SeriesFirstAired == null)
-      {
-        EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
-        SeriesMatcher seriesMatcher = new SeriesMatcher();
-        seriesMatcher.MatchSeries(lfsra, out tempEpisodeInfo);
-        if (tempEpisodeInfo.SeriesFirstAired.HasValue)
-          episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
+        // If there was no complete match, yet, try to get extended information out of matroska files)
+        if (!episodeInfo.AreReqiredFieldsFilled)
+        {
+          MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
+          if (matroskaMatcher.MatchSeries(lfsra, episodeInfo))
+          {
+            ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
+              episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.AreReqiredFieldsFilled);
+          }
+        }
+
+        // If no information was found before, try name matching
+        if (!episodeInfo.AreReqiredFieldsFilled)
+        {
+          // Try to match series from folder and file namings
+          SeriesMatcher seriesMatcher = new SeriesMatcher();
+          seriesMatcher.MatchSeries(lfsra, out episodeInfo);
+        }
+        else if (episodeInfo.SeriesFirstAired == null)
+        {
+          EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
+          SeriesMatcher seriesMatcher = new SeriesMatcher();
+          seriesMatcher.MatchSeries(lfsra, out tempEpisodeInfo);
+          if (tempEpisodeInfo.SeriesFirstAired.HasValue)
+            episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
+        }
       }
 
       // Lookup online information (incl. fanart)
@@ -187,6 +197,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
+
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           return ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode);
       }

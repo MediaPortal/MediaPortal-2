@@ -139,5 +139,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
       get { return _audioExtensions; }
       set { _audioExtensions = value; }
     }
+
+    /// <summary>
+    /// If <c>true</c>, the AudioMetadataExtractor does not store any information from online sources but just downloads fanart.
+    /// Useful if all metadata is available e.g. via tags and must not be overwritten.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool OnlyFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, the AudioMetadataExtractor does not fetch any information for missing local album tracks.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool OnlyLocalMedia { get; set; }
   }
 }

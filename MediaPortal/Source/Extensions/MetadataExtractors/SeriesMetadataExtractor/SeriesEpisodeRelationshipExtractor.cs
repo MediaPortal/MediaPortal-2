@@ -86,10 +86,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
-      foreach (EpisodeInfo episode in seriesInfo.Episodes)
+      for (int i = 0; i < seriesInfo.Episodes.Count; i++)
       {
+        EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
+        SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+
         IDictionary<Guid, IList<MediaItemAspect>> episodeAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        episode.SetMetadata(episodeAspects);
+        episodeInfo.SetMetadata(episodeAspects);
 
         if (episodeAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(episodeAspects);

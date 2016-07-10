@@ -104,58 +104,69 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
         return false;
 
+      bool refresh = false;
+      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+        refresh = true;
+
       MovieInfo movieInfo = new MovieInfo
         {
           MovieName = title,
         };
 
+      if (refresh)
+      {
+        movieInfo.FromMetadata(extractedAspectData);
+      }
+      else
+      {
+        // Try to use an existing TMDB id for exact mapping
+        string tmdbId;
+        if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out tmdbId) ||
+            MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+          movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+
+        // Try to use an existing IMDB id for exact mapping
+        string imdbId;
+        if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
+            pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
+            MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
+          movieInfo.ImdbId = imdbId;
+
+        // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
+        foreach (string path in pathsToTest)
+        {
+          MovieInfo dummy = new MovieInfo { MovieName = path };
+          if (MovieNameMatcher.MatchTitleYear(dummy))
+          {
+            movieInfo.MovieName = dummy.MovieName;
+            movieInfo.ReleaseDate = dummy.ReleaseDate;
+            break;
+          }
+        }
+
+        if (movieInfo.ReleaseDate.HasValue == false)
+        {
+          // When searching movie title, the year can be relevant for multiple titles with same name but different years
+          DateTime recordingDate;
+          if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+            movieInfo.ReleaseDate = recordingDate;
+        }
+
+        /* Clear the names from unwanted strings */
+        MovieNameMatcher.CleanupTitle(movieInfo);
+      }
+
       // Allow the online lookup to choose best matching language for metadata
       IList<MultipleMediaItemAspect> audioAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
       {
-        foreach(MultipleMediaItemAspect aspect in audioAspects)
+        foreach (MultipleMediaItemAspect aspect in audioAspects)
         {
           string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
           if (!string.IsNullOrEmpty(language))
             movieInfo.Languages.Add(language);
         }
       }
-
-      // Try to use an existing TMDB id for exact mapping
-      string tmdbId;
-      if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out tmdbId) ||
-          MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
-        movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
-
-      // Try to use an existing IMDB id for exact mapping
-      string imdbId;
-      if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
-          pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
-          MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
-        movieInfo.ImdbId = imdbId;
-
-      // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
-      foreach (string path in pathsToTest)
-      {
-        MovieInfo dummy = new MovieInfo { MovieName = path };
-        if (MovieNameMatcher.MatchTitleYear(dummy))
-        {
-          movieInfo.MovieName = dummy.MovieName;
-          movieInfo.ReleaseDate = dummy.ReleaseDate;
-          break;
-        }
-      }
-
-      if (movieInfo.ReleaseDate.HasValue == false)
-      {
-        // When searching movie title, the year can be relevant for multiple titles with same name but different years
-        DateTime recordingDate;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-          movieInfo.ReleaseDate = recordingDate;
-      }
-
-      /* Clear the names from unwanted strings */
-      MovieNameMatcher.CleanupTitle(movieInfo);
 
       MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
       MP4Matcher.ExtractFromTags(lfsra, movieInfo);
@@ -164,9 +175,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
 
       if (!_onlyFanArt)
-        movieInfo.SetMetadata(extractedAspectData);
+        return movieInfo.SetMetadata(extractedAspectData);
 
-      return false;
+      return true;
     }
 
     #endregion

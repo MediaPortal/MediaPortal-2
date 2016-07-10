@@ -115,6 +115,9 @@ namespace MediaPortal.Media.MetadataExtractors
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
 
+        if (extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+          return true;
+
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
           ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
@@ -131,9 +134,12 @@ namespace MediaPortal.Media.MetadataExtractors
               }
 
               // This line is important to keep in, if no VideoAspect is created here, the MediaItems is not detected as Video! 
-              MultipleMediaItemAspect videoAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
-              videoAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-              videoAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, -1);
+              SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+              videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, true);
+
+              MultipleMediaItemAspect videoStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+              videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, -1);
 
               MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
               using (lfsra.EnsureLocalFileSystemAccess())

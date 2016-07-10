@@ -134,6 +134,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       if (!HasImageExtension(fileName))
         return false;
 
+      if (extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))
+        return true;
+
       MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
       MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.Metadata);
       MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
