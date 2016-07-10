@@ -39,6 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT;
       _viewName = Consts.RES_MOVIES_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
+      _optionalMias = Consts.OPTIONAL_MOVIES_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
@@ -46,15 +47,15 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       base.Prepare();
 
-      _defaultScreen = new VideoFilterByGenreScreenData();
+      _defaultScreen = new VideosFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new MoviesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new MovieFilterByCollectionScreenData(),
           new VideosFilterByPlayCountScreenData(),
-          new MovieFilterByActorScreenData(),
-          new MovieFilterByDirectorScreenData(),
-          new MovieFilterByWriterScreenData(),
+          new VideosFilterByActorScreenData(),
+          new VideosFilterByDirectorScreenData(),
+          new VideosFilterByWriterScreenData(),
           _defaultScreen,
           new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),

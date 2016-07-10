@@ -70,12 +70,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
           _defaultScreen,
           new RecordingFilterByNameScreenData(),
           new RecordingsFilterByChannelScreenData(),
-          //new VideosFilterByActorScreenData(),
-          //new VideosFilterByDirectorScreenData(),
-          //new VideosFilterByWriterScreenData(),
-          //new VideosFilterByGenreScreenData(),
-          //new VideosFilterByYearScreenData(),
-          //new VideosFilterBySystemScreenData(),
+          new VideosFilterByActorScreenData(),
+          new VideosFilterByDirectorScreenData(),
+          new VideosFilterByWriterScreenData(),
+          new VideosFilterByGenreScreenData(),
+          new VideosFilterByYearScreenData(),
+          new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(picd),
         };
 
@@ -84,14 +84,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         {
           _defaultSorting,
           new SortByTitle(),
-          //new VideoSortByFirstGenre(),
-          //new VideoSortByDuration(),
-          //new VideoSortByFirstActor(),
-          //new VideoSortByFirstDirector(),
-          //new VideoSortByFirstWriter(),
-          //new VideoSortBySize(),
-          //new VideoSortByAspectRatio(),
-          //new SortBySystem(),
+          new VideoSortByFirstGenre(),
+          new VideoSortByDuration(),
+          new VideoSortByFirstActor(),
+          new VideoSortByFirstDirector(),
+          new VideoSortByFirstWriter(),
+          new VideoSortBySize(),
+          new VideoSortByAspectRatio(),
+          new SortBySystem(),
         };
 
       var optionalMias = new[]

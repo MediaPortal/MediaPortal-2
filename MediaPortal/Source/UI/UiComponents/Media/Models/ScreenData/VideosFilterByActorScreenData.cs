@@ -29,9 +29,9 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class EpisodeFilterByActorScreenData : AbstractVideosFilterScreenData
+  public class VideosFilterByActorScreenData : AbstractVideosFilterScreenData
   {
-    public EpisodeFilterByActorScreenData() :
+    public VideosFilterByActorScreenData() :
         base(Consts.SCREEN_VIDEOS_FILTER_BY_ACTOR, Consts.RES_FILTER_BY_ACTOR_MENU_ITEM,
         Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_ACTORS))
     {
@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
     public override AbstractFiltersScreenData<FilterItem> Derive()
     {
-      return new EpisodeFilterByActorScreenData();
+      return new VideosFilterByActorScreenData();
     }
   }
 }

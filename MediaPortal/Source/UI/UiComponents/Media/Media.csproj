@@ -177,14 +177,11 @@
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
-    <Compile Include="Models\ScreenData\EpisodeFilterByActorScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByActorScreenData.cs" />
-    <Compile Include="Models\ScreenData\EpisodeFilterByDirectorScreenData.cs" />
-    <Compile Include="Models\ScreenData\VideoFilterByGenreScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByPlayCountScreenData.cs" />
-    <Compile Include="Models\ScreenData\EpisodeFilterByWriterScreenData.cs" />
-    <Compile Include="Models\ScreenData\MovieFilterByWriterScreenData.cs" />
-    <Compile Include="Models\ScreenData\MovieFilterByDirectorScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByWriterScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByDirectorScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByCollectionScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByLanguageScreenData.cs" />
@@ -246,7 +243,7 @@
     <Compile Include="Models\ScreenData\AudioFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByArtistScreenData.cs" />
-    <Compile Include="Models\ScreenData\MovieFilterByActorScreenData.cs" />
+    <Compile Include="Models\ScreenData\VideosFilterByActorScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioShowItemsScreenData.cs" />

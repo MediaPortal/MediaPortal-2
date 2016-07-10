@@ -39,6 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT;
       _viewName = Consts.RES_VIDEOS_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_VIDEO_MIAS;
+      _optionalMias = Consts.OPTIONAL_VIDEO_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
@@ -46,12 +47,16 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       base.Prepare();
 
-      _defaultScreen = new VideosFilterByYearScreenData();
+      _defaultScreen = new VideosFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
-          new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
+        new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new VideosFilterByLanguageScreenData(),
+          new VideosFilterByActorScreenData(),
+          new VideosFilterByDirectorScreenData(),
+          new VideosFilterByWriterScreenData(),
           _defaultScreen,
+          new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
         };
@@ -61,7 +66,11 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         {
           _defaultSorting,
           new SortByYear(),
+          new VideoSortByFirstGenre(),
           new VideoSortByDuration(),
+          new VideoSortByFirstActor(),
+          new VideoSortByFirstDirector(),
+          new VideoSortByFirstWriter(),
           new VideoSortBySize(),
           new VideoSortByAspectRatio(),
           new SortBySystem(),

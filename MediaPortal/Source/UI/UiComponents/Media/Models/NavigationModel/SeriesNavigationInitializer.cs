@@ -42,6 +42,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT;
       _viewName = Consts.RES_SERIES_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
+      _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
@@ -58,7 +59,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),
         new SeriesFilterByActorScreenData(),
-        new VideoFilterByGenreScreenData(),
+        new VideosFilterByGenreScreenData(),
         new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };
       _defaultSorting = new SeriesSortByEpisode();
