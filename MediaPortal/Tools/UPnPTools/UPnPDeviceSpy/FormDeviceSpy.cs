@@ -35,6 +35,7 @@ namespace UPnPDeviceSpy
 
     public FormDeviceSpy()
     {
+      UPnP.Infrastructure.UPnPConfiguration.LOGGER = new Logger();
       InitializeComponent();
       CPData cpData = new CPData();
       _networkTracker = new UPnPNetworkTracker(cpData);

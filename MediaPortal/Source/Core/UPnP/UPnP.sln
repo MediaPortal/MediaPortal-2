@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "UPnP.csproj", "{455
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "..\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnPDeviceSpy", "..\..\..\Tools\UPnPTools\UPnPDeviceSpy\UPnPDeviceSpy.csproj", "{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -24,6 +26,12 @@ Global
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Release|x86.Build.0 = Release|x86
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Test|x86.ActiveCfg = Test|x86
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Test|x86.Build.0 = Test|x86
+		{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}.Debug|x86.ActiveCfg = Debug|x86
+		{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}.Debug|x86.Build.0 = Debug|x86
+		{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}.Release|x86.ActiveCfg = Release|x86
+		{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}.Release|x86.Build.0 = Release|x86
+		{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}.Test|x86.ActiveCfg = Release|x86
+		{40C6F126-9893-4EBF-8A21-BE52E9F92C6A}.Test|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
