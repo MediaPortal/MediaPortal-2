@@ -323,12 +323,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       MovieInfo other = obj as MovieInfo;
       if (obj == null) return false;
-      if (MovieDbId > 0 && MovieDbId == other.MovieDbId) return true;
-      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId) &&
-        string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
-      if (!MovieName.IsEmpty && !other.MovieName.IsEmpty &&
-        MatchNames(MovieName.Text, other.MovieName.Text))
+      if (MovieDbId > 0 && other.MovieDbId > 0)
+        return MovieDbId == other.MovieDbId;
+      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
+        return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!MovieName.IsEmpty && !other.MovieName.IsEmpty && MatchNames(MovieName.Text, other.MovieName.Text))
         return true;
 
       return false;

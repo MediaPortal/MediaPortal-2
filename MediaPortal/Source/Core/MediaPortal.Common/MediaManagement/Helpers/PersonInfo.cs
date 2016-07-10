@@ -164,21 +164,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       PersonInfo other = obj as PersonInfo;
       if (obj == null) return false;
-      if (TvdbId > 0 && TvdbId == other.TvdbId && Occupation == other.Occupation) return true;
-      if (MovieDbId > 0 && MovieDbId == other.MovieDbId && Occupation == other.Occupation) return true;
-      if (AudioDbId > 0 && AudioDbId == other.AudioDbId && Occupation == other.Occupation) return true;
-      if (TvMazeId > 0 && TvMazeId == other.TvMazeId && Occupation == other.Occupation) return true;
-      if (TvRageId > 0 && TvRageId == other.TvRageId && Occupation == other.Occupation) return true;
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
-        string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase) &&
-        Occupation == other.Occupation)
-        return true;
-      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId) &&
-        string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase) && 
-        Occupation == other.Occupation)
-        return true;
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && 
-        MatchNames(Name, other.Name) && Occupation == other.Occupation)
+      if (TvdbId > 0 && other.TvdbId > 0 && Occupation == other.Occupation)
+        return TvdbId == other.TvdbId;
+      if (MovieDbId > 0 && other.MovieDbId > 0 && Occupation == other.Occupation)
+        return MovieDbId == other.MovieDbId;
+      if (AudioDbId > 0 && other.AudioDbId > 0 && Occupation == other.Occupation)
+        return AudioDbId == other.AudioDbId;
+      if (TvMazeId > 0 && other.TvMazeId > 0 && Occupation == other.Occupation)
+        return TvMazeId == other.TvMazeId;
+      if (TvRageId > 0 && other.TvRageId > 0 && Occupation == other.Occupation)
+        return TvRageId == other.TvRageId;
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) && Occupation == other.Occupation)
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId) && Occupation == other.Occupation)
+        return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation)
         return true;
 
       return false;

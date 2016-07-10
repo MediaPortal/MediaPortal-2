@@ -277,13 +277,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       AlbumInfo other = obj as AlbumInfo;
       if (obj == null) return false;
-      if (AudioDbId > 0 && AudioDbId == other.AudioDbId) return true;
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
-        string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
-      if (!string.IsNullOrEmpty(CdDdId) && !string.IsNullOrEmpty(other.CdDdId) &&
-        string.Equals(CdDdId, other.CdDdId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
+      if (AudioDbId > 0 && other.AudioDbId > 0)
+        return AudioDbId == other.AudioDbId;
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(CdDdId) && !string.IsNullOrEmpty(other.CdDdId))
+        return string.Equals(CdDdId, other.CdDdId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) &&
         MatchNames(Album, other.Album) && ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
         ReleaseDate.Value == other.ReleaseDate.Value)

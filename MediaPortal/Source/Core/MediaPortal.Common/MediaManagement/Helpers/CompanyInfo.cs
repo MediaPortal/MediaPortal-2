@@ -174,15 +174,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       CompanyInfo other = obj as CompanyInfo;
       if (obj == null) return false;
-      if (TvdbId > 0 && TvdbId == other.TvdbId && Type == other.Type) return true;
-      if (MovieDbId > 0 && MovieDbId == other.MovieDbId && Type == other.Type) return true;
-      if (AudioDbId > 0 && AudioDbId == other.AudioDbId && Type == other.Type) return true;
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) && 
-        string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase) && 
-        Type == other.Type)
-        return true;
-      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && 
-        MatchNames(Name, other.Name) && Type == other.Type)
+      if (TvdbId > 0 && other.TvdbId > 0 && Type == other.Type)
+        return TvdbId == other.TvdbId;
+      if (MovieDbId > 0 && other.MovieDbId > 0 && Type == other.Type)
+        return MovieDbId == other.MovieDbId;
+      if (AudioDbId > 0 && other.AudioDbId > 0 && Type == other.Type)
+        return AudioDbId == other.AudioDbId;
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) && Type == other.Type)
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Type == other.Type)
         return true;
 
       return false;

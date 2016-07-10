@@ -169,23 +169,24 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       CharacterInfo other = obj as CharacterInfo;
       if (obj == null) return false;
 
-      if (ActorTvdbId > 0 && other.ActorTvdbId > 0 && ActorTvdbId != other.ActorTvdbId)
+      if (ActorTvdbId > 0 && other.ActorTvdbId > 0)
+        return ActorTvdbId == other.ActorTvdbId;
+      if (ActorMovieDbId > 0 && other.ActorMovieDbId > 0)
+        return ActorMovieDbId == other.ActorMovieDbId;
+      if (ActorTvMazeId > 0 && other.ActorTvMazeId > 0)
+        return ActorTvMazeId == other.ActorTvMazeId;
+      if (ActorTvRageId > 0 && other.ActorTvRageId > 0)
+        return ActorTvRageId == other.ActorTvRageId;
+      if (!string.IsNullOrEmpty(ActorImdbId) && !string.IsNullOrEmpty(other.ActorImdbId))
+        return string.Equals(ActorImdbId, other.ActorImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) && !MatchNames(ActorName, other.ActorName))
         return false;
-      if (ActorMovieDbId > 0 && other.ActorMovieDbId > 0 && ActorMovieDbId != other.ActorMovieDbId)
-        return false;
-      if (ActorTvMazeId > 0 && other.ActorTvMazeId > 0 && ActorTvMazeId != other.ActorTvMazeId)
-        return false;
-      if (ActorTvRageId > 0 && other.ActorTvRageId > 0 && ActorTvRageId != other.ActorTvRageId)
-        return false;
-      if (!string.IsNullOrEmpty(ActorImdbId) && !string.IsNullOrEmpty(other.ActorImdbId) &&
-        !string.Equals(ActorImdbId, other.ActorImdbId, StringComparison.InvariantCultureIgnoreCase))
-        return false;
-      if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) && 
-        !MatchNames(ActorName, other.ActorName))
-        return false;
-      if (TvdbId > 0 && TvdbId == other.TvdbId) return true;
-      if (MovieDbId > 0 && MovieDbId == other.MovieDbId) return true;
-      if (TvMazeId > 0 && TvMazeId == other.TvMazeId) return true;
+      if (TvdbId > 0 && other.TvdbId > 0)
+        return TvdbId == other.TvdbId;
+      if (MovieDbId > 0 && other.MovieDbId > 0)
+        return MovieDbId == other.MovieDbId;
+      if (TvMazeId > 0 && other.TvMazeId > 0)
+        return TvMazeId == other.TvMazeId;
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name))
         return true;
       if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) &&

@@ -407,13 +407,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       SeriesInfo other = obj as SeriesInfo;
       if (obj == null) return false;
-      if (TvdbId > 0 && TvdbId == other.TvdbId) return true;
-      if (MovieDbId > 0 && MovieDbId == other.MovieDbId) return true;
-      if (TvMazeId > 0 && TvMazeId == other.TvMazeId) return true;
-      if (TvRageId > 0 && TvRageId == other.TvRageId) return true;
-      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId) &&
-        string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
+      if (TvdbId > 0 && other.TvdbId > 0)
+        return TvdbId == other.TvdbId;
+      if (MovieDbId > 0 && other.MovieDbId > 0)
+        return MovieDbId == other.MovieDbId;
+      if (TvMazeId > 0 && other.TvMazeId > 0)
+        return TvMazeId == other.TvMazeId;
+      if (TvRageId > 0 && other.TvRageId > 0)
+        return TvRageId == other.TvRageId;
+      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
+        return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
         MatchNames(SeriesName.Text, other.SeriesName.Text) && FirstAired.HasValue && other.FirstAired.HasValue &&
         FirstAired.Value == other.FirstAired.Value)

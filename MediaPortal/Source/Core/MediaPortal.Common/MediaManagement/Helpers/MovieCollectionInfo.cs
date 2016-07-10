@@ -85,7 +85,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else if (aspectData.ContainsKey(MovieAspect.ASPECT_ID))
       {
-        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out CollectionName);
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out tempString);
+        CollectionName = new LanguageText(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))

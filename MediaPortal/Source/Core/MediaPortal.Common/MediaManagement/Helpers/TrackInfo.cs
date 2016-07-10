@@ -284,13 +284,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       TrackInfo other = obj as TrackInfo;
       if (obj == null) return false;
-      if (AudioDbId > 0 && AudioDbId == other.AudioDbId) return true;
-      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) &&
-        string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
-      if (!string.IsNullOrEmpty(IsrcId) && !string.IsNullOrEmpty(other.IsrcId) &&
-        string.Equals(IsrcId, other.IsrcId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
+      if (AudioDbId > 0 && other.AudioDbId > 0)
+        return AudioDbId == other.AudioDbId;
+      if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
+        return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(IsrcId) && !string.IsNullOrEmpty(other.IsrcId))
+        return string.Equals(IsrcId, other.IsrcId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && Album == other.Album &&
         TrackNum > 0 && other.TrackNum > 0 && TrackNum == other.TrackNum)
         return true;
