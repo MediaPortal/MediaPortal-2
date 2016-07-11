@@ -27,7 +27,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
 {
   public class UserDataKeysKnown
   {
-    public const string USER_DATA_KEY_PLAY_COUNT = "PlayCount";
-    public const string USER_DATA_KEY_PLAY_PERCENTAGE = "PlayPercentage";
+    public const string KEY_PLAY_COUNT = "PlayCount";
+    public const string KEY_PLAY_PERCENTAGE = "PlayPercentage";
   }
 }

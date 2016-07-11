@@ -32,6 +32,7 @@ using MediaPortal.UI.Services.Players;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using System.Linq;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 {
@@ -115,7 +116,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       int currentPlayCount;
       MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out currentPlayCount);
 
-      if (mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
+      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+      {
+        PlayPercentage = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]);
+      }
+      else if (mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
       {
         IResumeState resumeState = ResumeStateBase.Deserialize(mediaItem.UserData[PlayerContext.KEY_RESUME_STATE]);
         PositionResumeState positionResume = resumeState as PositionResumeState;
@@ -157,9 +162,9 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
             PlayPercentage = 0;
         }
       }
-      if (mediaItem.UserData.ContainsKey(PlayerContext.KEY_PLAY_COUNT))
+      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
       {
-        PlayCount = Convert.ToInt32(mediaItem.UserData[PlayerContext.KEY_PLAY_COUNT]);
+        PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
       }
       else
       {

@@ -291,6 +291,12 @@ namespace MediaPortal.Backend.MediaLibrary
 
     #endregion
 
+    #region User data management
+
+    void UserDataUpdated(Guid userProfileId, Guid mediaItemId, string userDataKey);
+
+    #endregion
+
     #region Media item aspect schema management
 
     bool MediaItemAspectStorageExists(Guid aspectId);

@@ -197,7 +197,8 @@ namespace MediaPortal.Common.MediaManagement
           if(key != null && data != null)
             _userData.Add(key, data);
 
-          reader.ReadEndElement(); //UserData
+          reader.MoveToContent();
+          //reader.ReadEndElement(); //UserData
         }
         else
         {

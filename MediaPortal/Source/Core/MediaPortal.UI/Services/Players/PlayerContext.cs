@@ -40,7 +40,6 @@ namespace MediaPortal.UI.Services.Players
 
     public const string KEY_PLAYER_CONTEXT = "PlayerContext: Assigned PlayerContext";
     public const string KEY_RESUME_STATE = "PlayerContext: ResumeState";
-    public const string KEY_PLAY_COUNT = "PlayerContext: PlayCount";
 
     #endregion
 

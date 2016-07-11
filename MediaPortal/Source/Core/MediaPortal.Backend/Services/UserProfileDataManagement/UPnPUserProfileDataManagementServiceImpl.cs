@@ -31,6 +31,7 @@ using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
+using MediaPortal.Backend.MediaLibrary;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -334,6 +335,8 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       string key = (string) inParams[2];
       string data = (string) inParams[3];
       bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserMediaItemData(profileId, mediaItemId, key, data);
+      if(success)
+        ServiceRegistration.Get<IMediaLibrary>().UserDataUpdated(profileId, mediaItemId, key);
       outParams = new List<object> {success};
       return null;
     }

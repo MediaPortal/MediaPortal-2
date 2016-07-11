@@ -43,6 +43,7 @@ using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UI.Services.Players
 {
@@ -250,16 +251,13 @@ namespace MediaPortal.UI.Services.Players
         mediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
       mediaItem.UserData[PlayerContext.KEY_RESUME_STATE] = serialized;
 
-      bool watched = IsWatched(mediaItem, resumeState);
-      NotifyPlayback(mediaItem, watched);
+      int playPercentage = GetPlayPercentage(mediaItem, resumeState);
+      NotifyPlayback(mediaItem, playPercentage);
     }
 
-    protected static bool IsWatched(MediaItem mediaItem, IResumeState resumeState)
+    protected static int GetPlayPercentage(MediaItem mediaItem, IResumeState resumeState)
     {
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      PlayerContextManagerSettings settings = settingsManager.Load<PlayerContextManagerSettings>();
-
-      int iPlayPercentage = 100;
+      int playPercentage = 100;
       PositionResumeState positionResume = resumeState as PositionResumeState;
       if (positionResume != null)
       {
@@ -293,16 +291,23 @@ namespace MediaPortal.UI.Services.Players
         }
 
         if (duration.TotalSeconds > 0)
-          iPlayPercentage = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
+          playPercentage = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
         else
-          iPlayPercentage = 0;
+          playPercentage = 0;
       }
-
-      return iPlayPercentage >= settings.WatchedPlayPercentage;
+      if (playPercentage > 100)
+        playPercentage = 100;
+      return playPercentage;
     }
 
-    protected static void NotifyPlayback(MediaItem mediaItem, bool watched)
+    protected static void NotifyPlayback(MediaItem mediaItem, int playPercentage)
     {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      PlayerContextManagerSettings settings = settingsManager.Load<PlayerContextManagerSettings>();
+      bool watched = playPercentage >= settings.WatchedPlayPercentage;
+      if (watched)
+        playPercentage = 100;
+
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
       // Server will update the PlayCount of MediaAspect in ML, this does not affect loaded items.
@@ -319,17 +324,24 @@ namespace MediaPortal.UI.Services.Players
           ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
         }
 
-        if (!mediaItem.UserData.ContainsKey(PlayerContext.KEY_PLAY_COUNT))
-          mediaItem.UserData.Add(PlayerContext.KEY_PLAY_COUNT, "0");
-
-        currentPlayCount = Convert.ToInt32(mediaItem.UserData[PlayerContext.KEY_PLAY_COUNT]);
+        if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
+          mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_COUNT, "0");
+        currentPlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
         currentPlayCount++;
-        mediaItem.UserData[PlayerContext.KEY_PLAY_COUNT] = currentPlayCount.ToString();
+        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = currentPlayCount.ToString();
+
+        if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+          mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_PERCENTAGE, "0");
+        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
 
         IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
         if (userProfileDataManagement.IsValidUser)
-          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, PlayerContext.KEY_PLAY_COUNT, currentPlayCount.ToString());
-
+        {
+          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 
+            UserDataKeysKnown.KEY_PLAY_COUNT, currentPlayCount.ToString());
+          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 
+            UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
+        }
       }
     }
 

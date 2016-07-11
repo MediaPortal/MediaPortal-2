@@ -27,13 +27,12 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UI.Services.Players;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -52,10 +51,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         return new List<FilterValue>();
 
       IFilter unwatchedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-        new EmptyUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, PlayerContext.KEY_PLAY_COUNT),
-        new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, PlayerContext.KEY_PLAY_COUNT, RelationalOperator.EQ, "0"));
+        new EmptyUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT),
+        new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0"));
 
-      IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, PlayerContext.KEY_PLAY_COUNT, RelationalOperator.GT, "0");
+      IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.GT, "0");
 
       int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, unwatchedFilter, true);
       int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, watchedFilter, true);
