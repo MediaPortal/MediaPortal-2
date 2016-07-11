@@ -168,17 +168,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected class ShareWatcher : FileSystemWatcher
     {
-      private IEnumerable<string> _mediaCategories;
-      private bool _fileCheckAllowed;
-      private Thread _fileCheckThread;
-      private BlockingCollection<string> _fileQueue = new BlockingCollection<string>();
+      protected IEnumerable<string> _mediaCategories;
+      protected bool _fileCheckAllowed;
+      protected Thread _fileCheckThread;
+      protected BlockingCollection<string> _fileQueue = new BlockingCollection<string>();
+      protected MediaLibrary _parent;
+      protected Guid _resourceProviderId;
 
       public event FileSystemEventHandler OnShareChange;
 
-      public ShareWatcher(Share share)
+      public ShareWatcher(Share share, MediaLibrary parent)
         : base()
       {
         _mediaCategories = share.MediaCategories;
+        _parent = parent;
 
         IResourceAccessor resAccess = null;
         if (!share.BaseResourcePath.TryCreateLocalResourceAccessor(out resAccess))
@@ -195,6 +198,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (!string.IsNullOrEmpty(resAccess.ResourcePathName))
         {
+          _resourceProviderId = resAccess.ParentProvider.Metadata.ResourceProviderId;
+
           _fileCheckAllowed = true;
           _fileCheckThread = new Thread(CheckFiles) { Name = "FileChangeChecker", Priority = ThreadPriority.Lowest };
           _fileCheckThread.Start();
@@ -273,9 +278,41 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     continue;
                   }
                 }
-                ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(System.IO.Path.GetDirectoryName(file) + "\\");
+
+                //Get folder path and check if it is part of the share
+                ResourcePath resPath = ResourcePath.BuildBaseProviderPath(_resourceProviderId, 
+                  LocalFsResourceProviderBase.ToProviderPath(System.IO.Path.GetDirectoryName(file).Substring(1) + "\\"));
+                Guid? resGuid = null;
+                ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+                using (ITransaction transaction = database.BeginTransaction())
+                {
+                  resGuid = _parent.GetMediaItemId(transaction, _parent.LocalSystemId, resPath);
+
+                  if (!resGuid.HasValue)
+                    //Folder not part of share
+                    continue;
+
+                  //Check if path is a file
+                  if (!string.IsNullOrEmpty(System.IO.Path.GetExtension(file)))
+                  {
+                    resPath = ResourcePath.BuildBaseProviderPath(_resourceProviderId,
+                      LocalFsResourceProviderBase.ToProviderPath(file.Substring(1)));
+
+                    //Check if file is in media library
+                    resGuid = _parent.GetMediaItemId(transaction, _parent.LocalSystemId, resPath);
+                  }
+                }
+
+                if (!File.Exists(file) && !Directory.Exists(file))
+                {
+                  //Resource was deleted
+                  if (resGuid.HasValue)
+                    _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, resPath, true);
+                  continue;
+                }
+
                 IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
-                importerWorker.ScheduleRefresh(path, _mediaCategories, Directory.Exists(file));
+                importerWorker.ScheduleRefresh(resPath, _mediaCategories, Directory.Exists(file));
               }
             }
             catch (Exception e)
@@ -2323,7 +2360,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           TryScheduleLocalShareRefresh(share);
 
-          ShareWatcher watcher = new ShareWatcher(share);
+          ShareWatcher watcher = new ShareWatcher(share, this);
           watcher.OnShareChange += Watcher_OnShareChange;
           _shareWatchers.Add(share.ShareId, watcher);
         }
@@ -2387,7 +2424,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         TryScheduleLocalShareImport(share);
 
-        ShareWatcher watcher = new ShareWatcher(share);
+        ShareWatcher watcher = new ShareWatcher(share, this);
         watcher.OnShareChange += Watcher_OnShareChange;
         _shareWatchers.Add(share.ShareId, watcher);
       }
