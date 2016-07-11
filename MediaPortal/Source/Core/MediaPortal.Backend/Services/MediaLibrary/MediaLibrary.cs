@@ -70,11 +70,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public MediaItem LoadLocalItem(ResourcePath path,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
         {
-          return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
+          return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
         }
         catch (Exception)
         {
@@ -83,11 +83,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null, uint? offset = null, uint? limit = null)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, offset, limit);
+          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, offset, limit);
         }
         catch (Exception)
         {
@@ -924,7 +924,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public MediaItem LoadItem(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
     {
       lock (_syncObj)
       {
@@ -954,7 +954,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (removeProviderResourceAspect && result != null)
           result.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
 
-        LoadUserDataForMediaItem(userProfile, result);
+        LoadUserDataForMediaItem(userProfileId, result);
 
         return result;
       }
@@ -962,7 +962,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public IList<MediaItem> Browse(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
-        Guid? userProfile = null, uint? offset = null, uint? limit = null)
+        Guid? userProfileId = null, uint? offset = null, uint? limit = null)
     {
       lock (_syncObj)
       {
@@ -971,16 +971,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         browseQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         browseQuery.Limit = limit;
         browseQuery.Offset = offset;
-        return Search(browseQuery, false, userProfile);
+        return Search(browseQuery, false, userProfileId);
       }
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfile = null)
+    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId = null)
     {
-      return Search(null, null , query, filterOnlyOnline, userProfile);
+      return Search(null, null , query, filterOnlyOnline, userProfileId);
     }
 
-    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfile = null)
+    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId = null)
     {
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
       MediaItemQuery executeQuery = query;
@@ -1000,7 +1000,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IList<MediaItem> result = new List<MediaItem>(items.Count);
       foreach (MediaItem item in items)
       {
-        LoadUserDataForMediaItem(userProfile, item);
+        LoadUserDataForMediaItem(userProfileId, item);
       }
 
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
@@ -1086,9 +1086,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return cciq.Execute();
     }
 
-    private void LoadUserDataForMediaItem(Guid? userProfile, MediaItem mediaItem)
+    private void LoadUserDataForMediaItem(Guid? userProfileId, MediaItem mediaItem)
     {
-      if (userProfile.HasValue)
+      if (userProfileId.HasValue)
       {
         mediaItem.UserData.Clear();
 
@@ -1099,7 +1099,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           int dataKeyIndex;
           int dataIndex;
           using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectAllUserMediaItemDataCommand(transaction,
-            userProfile.Value, mediaItem.MediaItemId, out dataKeyIndex, out dataIndex))
+            userProfileId.Value, mediaItem.MediaItemId, out dataKeyIndex, out dataIndex))
           {
             using (IDataReader reader = command.ExecuteReader())
             {
