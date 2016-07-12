@@ -287,15 +287,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(" FROM ");
         resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
         resultParts.Add(" WHERE ");
-        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_PROFILE_ID_COL_NAME);
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME);
         resultParts.Add(" = @" + userIdVar.Name);
         resultBindVars.Add(userIdVar);
         resultParts.Add(" AND ");
-        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_DATA_KEY_COL_NAME);
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME);
         resultParts.Add(" = '");
         resultParts.Add(emptyUserDataFilter.UserDataKey);
         resultParts.Add("' AND ");
-        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_COL_NAME);
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
         resultParts.Add(" IS NOT NULL ");
         resultParts.Add(" AND ");
         resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
@@ -371,15 +371,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(" FROM ");
         resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
         resultParts.Add(" WHERE ");
-        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_PROFILE_ID_COL_NAME);
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME);
         resultParts.Add(" = @" + userIdVar.Name);
         resultBindVars.Add(userIdVar);
         resultParts.Add(" AND ");
-        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_DATA_KEY_COL_NAME);
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME);
         resultParts.Add(" = '");
         resultParts.Add(relationalUserDataFilter.UserDataKey);
         resultParts.Add("' AND ");
-        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_COL_NAME);
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
         switch (relationalUserDataFilter.Operator)
         {
           case RelationalOperator.EQ:
