@@ -54,7 +54,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <returns>Collection of media items.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
     IList<MediaItem> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null, uint? offset = null, uint? limit = null);
+        IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Loads the creation dates of all managed MIAs in the MediaLibrary

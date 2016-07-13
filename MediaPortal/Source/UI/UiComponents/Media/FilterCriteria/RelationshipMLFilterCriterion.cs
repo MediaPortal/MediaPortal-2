@@ -32,6 +32,8 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -60,15 +62,20 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
+
       Guid? userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
       IEnumerable <Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       MediaItemQuery query = new MediaItemQuery(mias, filter);
       if (_sortInformation != null)
         query.SortInformation = new List<SortInformation> { _sortInformation };
-      IList<MediaItem> items = cd.Search(query, true, userProfile);
+      IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
       {

@@ -84,11 +84,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null, uint? offset = null, uint? limit = null)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId, 
+          bool includeVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, offset, limit);
+          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
         }
         catch (Exception)
         {
@@ -998,7 +999,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public IList<MediaItem> Browse(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
-        Guid? userProfileId = null, uint? offset = null, uint? limit = null)
+        Guid? userProfileId, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
       lock (_syncObj)
       {
@@ -1007,16 +1008,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         browseQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         browseQuery.Limit = limit;
         browseQuery.Offset = offset;
-        return Search(browseQuery, false, userProfileId);
+        return Search(browseQuery, false, userProfileId, includeVirtual);
       }
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId = null)
+    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
     {
-      return Search(null, null , query, filterOnlyOnline, userProfileId);
+      return Search(null, null , query, filterOnlyOnline, userProfileId, includeVirtual);
     }
 
-    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId = null)
+    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
     {
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
       MediaItemQuery executeQuery = query;
@@ -1026,6 +1027,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         executeQuery.NecessaryRequestedMIATypeIDs.Add(ProviderResourceAspect.ASPECT_ID);
         executeQuery.Filter = AddOnlyOnlineFilter(query.Filter);
       }
+      if(executeQuery.Filter == null)
+        executeQuery.Filter = new VirtualFilter(includeVirtual);
+      else
+        executeQuery.Filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, query.Filter, new VirtualFilter(includeVirtual));
+
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
       IList<MediaItem> items = null;
       if(database == null || transaction == null)
@@ -1053,7 +1059,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
       SelectProjectionFunction selectProjectionFunctionImpl;
       Type projectionValueType;
@@ -1075,15 +1081,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IAttributeFilter saf = selectAttributeFilter as IAttributeFilter;
       if (saf == null && selectAttributeFilter != null)
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {filter, selectAttributeFilter});
+
+      if (filter == null)
+        filter = new VirtualFilter(includeVirtual);
+      else
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new VirtualFilter(includeVirtual));
+
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
-          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) :
-          necessaryMIATypeIDs, attributeType, saf, selectProjectionFunctionImpl, projectionValueType, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) : necessaryMIATypeIDs, 
+          attributeType, saf, selectProjectionFunctionImpl, projectionValueType, 
+          filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cdavq.Execute();
     }
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs,
-        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction)
+        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
     {
       IDictionary<object, MLQueryResultGroup> groups = new Dictionary<object, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
@@ -1097,7 +1110,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           break;
       }
       foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, selectAttributeFilter,
-          projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline))
+          projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline, includeVirtual))
       {
         object valueGroupKey = resultItem.Key;
         int resultGroupItemCount = (int) resultItem.Value;
@@ -1115,8 +1128,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
+    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
+      if (filter == null)
+        filter = new VirtualFilter(includeVirtual);
+      else
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new VirtualFilter(includeVirtual));
+
       CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
           necessaryMIATypeIDs, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cciq.Execute();
@@ -1298,7 +1316,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       query.Offset = offset;
       // Sort media items
       IDictionary<Guid, MediaItem> searchResult = new Dictionary<Guid, MediaItem>();
-      foreach (MediaItem item in Search(query, false))
+      foreach (MediaItem item in Search(query, false, null, false))
         searchResult[item.MediaItemId] = item;
       IList<MediaItem> result = new List<MediaItem>(searchResult.Count);
       foreach (Guid mediaItemId in mediaItemIds)
@@ -1641,7 +1659,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 });
           Logger.Info("Searching for existing items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", mergeHandler.MergeableAspects.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
 
-          IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects), filter), false);
+          IList<MediaItem> existingItems = Search(database, transaction, 
+            new MediaItemQuery(mergeHandler.MergeableAspects, GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects), filter), false, null, true);
           foreach (MediaItem existingItem in existingItems)
           {
             Logger.Info("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
@@ -1709,7 +1728,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
 
       Logger.Info("Updating relationships for {0}", mediaItemId);
-      MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
+      MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
       if (item == null)
       {
         // Item deleted on the main thread before the reconciler thread processes it - could happen?
@@ -1798,7 +1817,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 });
           //Logger.Info("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
           // Any potential linked item must contain all of LinkedRoleAspects
-          IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds), filter), false);
+          IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds), filter), false, null, true);
           foreach (MediaItem externalItem in externalItems)
           {
             //Logger.Info("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
@@ -2273,7 +2292,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.CommandText = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
                     ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
                     " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-                    " LEFT JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                    " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
                     " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
                     " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
                     " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
@@ -2384,7 +2403,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                       " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
                       " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
                       " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
-                      " LEFT JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                      " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
                       " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
                       " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
                       " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
@@ -2518,7 +2537,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void NotifyPlayback(Guid mediaItemId, bool watched)
     {
-      MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
+      MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
       if (item == null)
         return;
       SingleMediaItemAspect mediaAspect;

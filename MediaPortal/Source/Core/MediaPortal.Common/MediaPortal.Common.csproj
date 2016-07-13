@@ -94,6 +94,7 @@
     <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\VirtualFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />

@@ -78,11 +78,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, uint? offset = null, uint? limit = null)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, offset, limit);
+          return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, includVirtual, offset, limit);
         }
         catch (Exception)
         {

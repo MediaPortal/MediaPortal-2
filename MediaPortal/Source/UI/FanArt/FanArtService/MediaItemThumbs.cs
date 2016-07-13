@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         thumbGuids.Add(ImageAspect.ASPECT_ID);
 
       IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(thumbGuids, filter), false);
+      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(thumbGuids, filter), false, null, true);
       if (items == null || items.Count == 0)
         return false;
 

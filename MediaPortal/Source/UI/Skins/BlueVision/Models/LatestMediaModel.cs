@@ -169,7 +169,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      var items = contentDirectory.Search(query, false, userProfile);
+      var items = contentDirectory.Search(query, false, userProfile, false);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

@@ -113,6 +113,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlArrayItem("RelationalUserData", typeof(RelationalUserDataFilter))]
     [XmlArrayItem("EmptyUserData", typeof(EmptyUserDataFilter))]
     [XmlArrayItem("False", typeof(FalseFilter))]
+    [XmlArrayItem("Virtual", typeof(VirtualFilter))]
     [XmlArrayItem("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlArrayItem("Relationship", typeof(RelationshipFilter))]
     // Necessary to have an object ARRAY here, else the serialization algorithm cannot cope with polymorph values

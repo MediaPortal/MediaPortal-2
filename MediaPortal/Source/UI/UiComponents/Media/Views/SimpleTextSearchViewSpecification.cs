@@ -32,6 +32,8 @@ using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -105,10 +107,13 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
       try
       {
         mediaItems = cd.SimpleTextSearch(_searchText, _necessaryMIATypeIds, _optionalMIATypeIds,
-            _filter, _excludeCLOBs, _onlyOnline, false, userProfile);
+            _filter, _excludeCLOBs, _onlyOnline, false, userProfile, showVirtual);
       }
       catch (UPnPRemoteException e)
       {

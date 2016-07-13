@@ -312,7 +312,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _mediaBrowsingCallback.Browse(parentDirectoryId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
+          return _mediaBrowsingCallback.Browse(parentDirectoryId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds, null, false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)

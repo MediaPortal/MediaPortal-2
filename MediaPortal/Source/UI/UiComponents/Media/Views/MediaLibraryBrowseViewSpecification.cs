@@ -35,6 +35,8 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.DB;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -121,6 +123,10 @@ namespace MediaPortal.UiComponents.Media.Views
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<MediaItem>();
+
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
       MediaItemQuery query = new MediaItemQuery(
           _necessaryMIATypeIds,
           _optionalMIATypeIds,
@@ -136,7 +142,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      return cd.Search(query, false, userProfile);
+      return cd.Search(query, false, userProfile, showVirtual);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -152,10 +158,13 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
       try
       {
-        mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile));
-        ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile);
+        mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual));
+        ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual);
         subViewSpecifications = new List<ViewSpecification>(childDirectories.Count);
         foreach (MediaItem childDirectory in childDirectories)
         {

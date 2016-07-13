@@ -226,6 +226,32 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return;
       }
 
+      VirtualFilter virtualFilter = filter as VirtualFilter;
+      if (virtualFilter != null)
+      {
+        if(virtualFilter.IncludeVirtual == false)
+        {
+          resultParts.Add(outerMIIDJoinVariable);
+          resultParts.Add(" IN(");
+          resultParts.Add("SELECT ");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" FROM ");
+          resultParts.Add(miaManagement.GetMIATableName(MediaAspect.Metadata));
+          resultParts.Add(" WHERE ");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add("=" + outerMIIDJoinVariable);
+          resultParts.Add(" AND " + miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL));
+          resultParts.Add("=");
+          resultParts.Add(virtualFilter.IncludeVirtual ? "1" : "0");
+          resultParts.Add(")");
+        }
+        else
+        {
+          resultParts.Add("1 = 1");
+        }
+        return;
+      }
+
       // Must be done before checking IAttributeFilter - EmptyFilter is also an IAttributeFilter but must be
       // compiled in a different way
       EmptyFilter emptyFilter = filter as EmptyFilter;

@@ -32,6 +32,8 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -41,6 +43,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
@@ -63,10 +68,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IFilter mediumFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new NotFilter(simpleSmallFilter),
           new NotFilter(bigFilter));
-      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true);
-      int numSmallItems = cd.CountMediaItems(necessaryMIATypeIds, smallFilter, true);
-      int numMediumItems = cd.CountMediaItems(necessaryMIATypeIds, mediumFilter, true);
-      int numBigItems = cd.CountMediaItems(necessaryMIATypeIds, bigFilter, true);
+      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, showVirtual);
+      int numSmallItems = cd.CountMediaItems(necessaryMIATypeIds, smallFilter, true, showVirtual);
+      int numMediumItems = cd.CountMediaItems(necessaryMIATypeIds, mediumFilter, true, showVirtual);
+      int numBigItems = cd.CountMediaItems(necessaryMIATypeIds, bigFilter, true, showVirtual);
       return new List<FilterValue>(new FilterValue[]
         {
             new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),

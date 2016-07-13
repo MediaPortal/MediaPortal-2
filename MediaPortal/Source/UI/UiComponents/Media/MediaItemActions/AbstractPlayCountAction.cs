@@ -29,6 +29,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using System.Collections.Generic;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
@@ -39,9 +41,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
     public override bool IsAvailable(MediaItem mediaItem)
     {
-      int playCount;
-      if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out playCount))
-        return false;
+      int playCount = 0;
+      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
+        playCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
       if (!IsManagedByMediaLibrary(mediaItem) || !AppliesForPlayCount(playCount))
         return false;
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
@@ -61,13 +63,21 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
         return false;
 
-      Guid parentDirectoryId = pras[0].GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID);
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-	    MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, GetNewPlayCount());
+      int playCount = GetNewPlayCount();
+      if(playCount > 0)
+      {
+        cd.NotifyPlayback(mediaItem.MediaItemId, true);
+      }
 
-      cd.AddOrUpdateMediaItem(parentDirectoryId, rl.NativeSystemId, rl.NativeResourcePath, MediaItemAspect.GetAspects(mediaItem.Aspects));
+      if (userProfile.HasValue)
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, playCount.ToString());
 
-      changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
+        changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
       return true;
     }
   }

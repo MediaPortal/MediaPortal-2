@@ -38,6 +38,7 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -126,7 +127,10 @@ namespace MediaPortal.UiComponents.Media.Models
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      var items = contentDirectory.Search(query, false, userProfile);
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
+      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

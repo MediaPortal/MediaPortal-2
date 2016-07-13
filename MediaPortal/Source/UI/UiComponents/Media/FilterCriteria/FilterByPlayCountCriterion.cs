@@ -33,6 +33,8 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -46,6 +48,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (!userProfileDataManagement.IsValidUser)
         return new List<FilterValue>();
@@ -56,8 +61,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.GT, "0");
 
-      int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, unwatchedFilter, true);
-      int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, watchedFilter, true);
+      int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, unwatchedFilter, true, showVirtual);
+      int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, watchedFilter, true, showVirtual);
 
       return new List<FilterValue>(new FilterValue[]
         {

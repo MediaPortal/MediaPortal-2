@@ -95,7 +95,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         return false;
 
       IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter), false);
+      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter), false, null, true);
       if (items == null || items.Count == 0)
         return false;
 

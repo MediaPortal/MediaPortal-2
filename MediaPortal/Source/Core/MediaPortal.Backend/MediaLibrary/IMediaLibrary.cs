@@ -119,10 +119,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>Result collection of media items at the given location.</returns>
     IList<MediaItem> Browse(Guid parentDirectoryId,
       IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
-      Guid? userProfile = null, uint ? offset = null, uint? limit = null);
+      Guid? userProfile, bool includeVirtual, uint ? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items.
@@ -131,10 +132,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
     /// are currently online are returned.</param>
     /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>List of matching media items with the media item aspects of the given
     /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
     /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
-    IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfile = null);
+    IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfile, bool includeVirtual);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given
@@ -150,10 +152,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
     /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
     /// systems which are currently online.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>Mapping set of existing attribute values to their occurence count for the given
     /// <paramref name="attributeType"/> (long).</returns>
     HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline);
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual);
 
     /// <summary>
     /// Executes <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
@@ -168,10 +171,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
     /// systems which are currently online.</param>
     /// <param name="groupingFunction">Determines, how result values are grouped.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>List of value groups for the given query.</returns>
     IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs,
-        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction);
+        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction, bool includeVirtual);
 
     /// <summary>
     /// Counts the count of media items matching the given criteria.
@@ -181,8 +185,9 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="filter">Filter specifying the media items which will be counted.</param>
     /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only items hosted by systems which are currently online
     /// are counted.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>Number of matching media items.</returns>
-    int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline);
+    int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual);
 
     #endregion
 

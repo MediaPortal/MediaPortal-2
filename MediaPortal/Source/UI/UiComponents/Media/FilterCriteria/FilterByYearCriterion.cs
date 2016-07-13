@@ -32,6 +32,8 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -49,8 +51,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
+
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
       HomogenousMap valueGroups = cd.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, null, ProjectionFunction.DateToYear,
-          necessaryMIATypeIds, filter, true);
+          necessaryMIATypeIds, filter, true, showVirtual);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
