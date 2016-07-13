@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter, IFilter relationshipFilter)
     {
       // We'll do the grouping here at the client. We could also implement a grouping function for decades at the server,
       // but that seems to be not better since it increases the server code size, the server workload, it complicates the

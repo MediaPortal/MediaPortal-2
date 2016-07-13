@@ -42,20 +42,26 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     protected Guid _role;
     protected Guid _linkedRole;
+    protected Guid? _baseRole;
     protected IEnumerable<Guid> _necessaryMIATypeIds;
     protected SortInformation _sortInformation;
 
     public RelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, SortInformation sortInformation)
+    : this(role, linkedRole, null, necessaryMIATypeIds, sortInformation)
+    { }
+
+    public RelationshipMLFilterCriterion(Guid role, Guid linkedRole, Guid? baseRole, IEnumerable<Guid> necessaryMIATypeIds, SortInformation sortInformation)
     {
       _role = role;
       _linkedRole = linkedRole;
+      _baseRole = baseRole;
       _necessaryMIATypeIds = necessaryMIATypeIds;
       _sortInformation = sortInformation;
     }
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter, IFilter relationshipFilter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -65,7 +71,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
       IEnumerable <Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
-      MediaItemQuery query = new MediaItemQuery(mias, filter);
+      MediaItemQuery query = new MediaItemQuery(mias, relationshipFilter ?? filter);
       if (_sortInformation != null)
         query.SortInformation = new List<SortInformation> { _sortInformation };
       IList<MediaItem> items = cd.Search(query, true, userProfile);
@@ -74,8 +80,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       {
         string name;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
+        RelationshipFilter itemFilter = new RelationshipFilter(item.MediaItemId, _role, _linkedRole);
         result.Add(new FilterValue(name,
-          new RelationshipFilter(item.MediaItemId, _role, _linkedRole),
+          _baseRole.HasValue ? new RelationshipFilter(item.MediaItemId, _role, _baseRole.Value) : itemFilter,
+          itemFilter,
           null,
           item,
           this));
