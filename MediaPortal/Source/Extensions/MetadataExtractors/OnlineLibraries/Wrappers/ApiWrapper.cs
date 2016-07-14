@@ -104,6 +104,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       get { return _cachePath; }
     }
 
+    /// <summary>
+    /// Refreshes or deletes any outdated cache files.
+    /// </summary>
+    public virtual bool RefreshCache(DateTime lastRefresh)
+    {
+      return false;
+    }
+
     #region Movies
 
     /// <summary>

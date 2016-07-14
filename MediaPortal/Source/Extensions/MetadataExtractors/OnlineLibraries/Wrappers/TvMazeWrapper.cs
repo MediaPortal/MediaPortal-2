@@ -30,6 +30,8 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -539,6 +541,37 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return _tvMazeHandler.DownloadImage(ID, image, category);
       }
       return false;
+    }
+
+    #endregion
+
+    #region Cache
+
+    /// <summary>
+    /// Updates the local available information with updated ones from online source.
+    /// </summary>
+    /// <returns></returns>
+    public override bool RefreshCache(DateTime lastRefresh)
+    {
+      try
+      {
+        List<int> changedItems = new List<int>();
+        Dictionary<int, DateTime> seriesChangeDates = _tvMazeHandler.GetSeriesChangeDates();
+        foreach (var change in seriesChangeDates)
+        {
+          if(change.Value > lastRefresh)
+            changedItems.Add(change.Key);
+        }
+        foreach (int seriesId in changedItems)
+          _tvMazeHandler.DeleteSeriesCache(seriesId);
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("TvMazeWrapper: Error updating cache", ex);
+        return false;
+      }
     }
 
     #endregion

@@ -36,11 +36,18 @@ using System.Reflection;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Common.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public abstract class SeriesMatcher<TImg, TLang> : BaseMatcher<SeriesMatch, string>
   {
+    public class SeriresMatcherSettings
+    {
+      public string LastRefresh { get; set; }
+    }
+
     #region Init
 
     public SeriesMatcher(string cachePath, TimeSpan maxCacheDuration)
@@ -55,6 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _characterMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CharacterMatches.xml"));
       _companyMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CompanyMatches.xml"));
       _networkMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "NetworkMatches.xml"));
+      _configFile = Path.Combine(cachePath, "SeriesConfig.xml");
 
       Init();
     }
@@ -67,11 +75,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!base.Init())
         return false;
 
+      LoadConfig();
 
       return InitWrapper();
     }
 
     public abstract bool InitWrapper();
+
+    private void LoadConfig()
+    {
+      _config = Settings.Load<SeriresMatcherSettings>(_configFile);
+      if(_config == null)
+        _config = new SeriresMatcherSettings();
+    }
+
+    private void SaveConfig()
+    {
+      Settings.Save(_configFile, _config);
+    }
 
     #endregion
 
@@ -89,8 +110,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private DateTime _memoryCacheInvalidated = DateTime.MinValue;
     private ConcurrentDictionary<string, SeriesInfo> _memoryCache = new ConcurrentDictionary<string, SeriesInfo>(StringComparer.OrdinalIgnoreCase);
     private ConcurrentDictionary<string, EpisodeInfo> _memoryCacheEpisode = new ConcurrentDictionary<string, EpisodeInfo>(StringComparer.OrdinalIgnoreCase);
+    private SeriresMatcherSettings _config = new SeriresMatcherSettings();
     private string _cachePath;
     private string _matchesSettingsFile;
+    private string _configFile;
     private TimeSpan _maxCacheDuration;
     private SimpleNameMatcher _companyMatcher;
     private SimpleNameMatcher _networkMatcher;
@@ -1158,7 +1181,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual void RefreshCache()
     {
-      // TODO: when updating movie information is implemented, start here a job to do it
+      string dateFormat = "MMddyyyyHHmm";
+      if (string.IsNullOrEmpty(_config.LastRefresh))
+        _config.LastRefresh = DateTime.Now.ToString(dateFormat);
+
+      DateTime lastRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
+
+      if (DateTime.Now - lastRefresh <= _maxCacheDuration)
+        return;
+
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+      if (threadPool != null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Refreshing local cache");
+        threadPool.Add(() =>
+        {
+          if (_wrapper != null)
+            _wrapper.RefreshCache(lastRefresh);
+        });
+      }
+
+      _config.LastRefresh = DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
+      SaveConfig();
     }
 
     #endregion

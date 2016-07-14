@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
 using System.Linq;
+using System;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
 {
@@ -51,6 +52,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     private const string URL_GETEPISODE =  URL_API_BASE + "shows/{0}/episodebynumber?season={1}&number={2}";
     private const string URL_GETPERSON = URL_API_BASE + "people/{0}";
     private const string URL_GETCHARACTER =  URL_API_BASE + "characters/{0}";
+    private const string URL_GETSERIESCHANGES = URL_API_BASE + "updates/shows";
 
     #endregion
 
@@ -73,6 +75,53 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     #endregion
 
     #region Public members
+
+    /// <summary>
+    /// Return the last change date of all series.
+    /// </summary>
+    public Dictionary<int, DateTime> GetSeriesChangeDates()
+    {
+      string url = GetUrl(URL_GETSERIESCHANGES);
+      Dictionary<string, long> results = _downloader.Download<Dictionary<string, long>>(url);
+      if (results == null) return null;
+      return results.ToDictionary(entry => Convert.ToInt32(entry.Key), entry => FromUnixTime(entry.Value));
+    }
+
+    /// <summary>
+    /// Deletes all cache files for the specified series.
+    /// </summary>
+    /// <param name="id">TvMaze id of series</param>
+    /// <returns></returns>
+    public void DeleteSeriesCache(int id)
+    {
+      string folder = Path.Combine(_cachePath, id.ToString());
+      if (!Directory.Exists(folder))
+        return;
+
+      string cacheFileMask = Path.GetFileName(CreateAndGetCacheName(id, "Series*"));
+      string[] cacheFiles = Directory.GetFiles(folder, cacheFileMask);
+      foreach (string file in cacheFiles)
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch
+        { }
+      }
+
+      cacheFileMask = Path.GetFileName(CreateAndGetCacheName(id, "Season*"));
+      cacheFiles = Directory.GetFiles(folder, cacheFileMask);
+      foreach (string file in cacheFiles)
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch
+        { }
+      }
+    }
 
     /// <summary>
     /// Search for series by name given in <paramref name="title"/>.
@@ -282,6 +331,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
 
     #region Protected members
 
+    protected DateTime FromUnixTime(long unixTime)
+    {
+      var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+      return epoch.AddSeconds(unixTime);
+    }
+
     /// <summary>
     /// Builds and returns the full request url.
     /// </summary>
@@ -296,14 +351,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// <summary>
     /// Creates a local file name for loading and saving details for movie. It supports both TMDB id and IMDB id.
     /// </summary>
-    /// <param name="movieId"></param>
+    /// <param name="id"></param>
     /// <param name="prefix"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName<T>(T movieId, string prefix)
+    protected string CreateAndGetCacheName<T>(T id, string prefix)
     {
       try
       {
-        string folder = Path.Combine(_cachePath, movieId.ToString());
+        string folder = Path.Combine(_cachePath, id.ToString());
         if (!Directory.Exists(folder))
           Directory.CreateDirectory(folder);
         return Path.Combine(folder, string.Format("{0}.json", prefix));

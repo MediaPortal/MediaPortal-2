@@ -36,11 +36,18 @@ using System.Reflection;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public abstract class MusicMatcher<TImg, TLang> : BaseMatcher<TrackMatch, string>
   {
+    public class MusicMatcherSettings
+    {
+      public string LastRefresh { get; set; }
+    }
+
     #region Init
 
     public MusicMatcher(string cachePath, TimeSpan maxCacheDuration)
@@ -52,6 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _artistMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ArtistMatches.xml"));
       _composerMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ComposerMatches.xml"));
       _labelMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "LabelMatches.xml"));
+      _configFile = Path.Combine(cachePath, "MusicConfig.xml");
 
       Init();
     }
@@ -65,6 +73,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return false;
 
       return InitWrapper();
+    }
+
+    private void LoadConfig()
+    {
+      _config = Settings.Load<MusicMatcherSettings>(_configFile);
+      if (_config == null)
+        _config = new MusicMatcherSettings();
+    }
+
+    private void SaveConfig()
+    {
+      Settings.Save(_configFile, _config);
     }
 
     public abstract bool InitWrapper();
@@ -84,8 +104,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     private DateTime _memoryCacheInvalidated = DateTime.MinValue;
     private ConcurrentDictionary<string, TrackInfo> _memoryCache = new ConcurrentDictionary<string, TrackInfo>(StringComparer.OrdinalIgnoreCase);
+    private MusicMatcherSettings _config = new MusicMatcherSettings();
     private string _cachePath;
     private string _matchesSettingsFile;
+    private string _configFile;
     private TimeSpan _maxCacheDuration;
 
     private SimpleNameMatcher _artistMatcher;
@@ -798,7 +820,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     }
 
     protected virtual void RefreshCache()
-    { }
+    {
+      string dateFormat = "MMddyyyyHHmm";
+      if (string.IsNullOrEmpty(_config.LastRefresh))
+        _config.LastRefresh = DateTime.Now.ToString(dateFormat);
+
+      DateTime lastRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
+
+      if (DateTime.Now - lastRefresh <= _maxCacheDuration)
+        return;
+
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+      if (threadPool != null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Refreshing local cache");
+        threadPool.Add(() =>
+        {
+          if (_wrapper != null)
+            _wrapper.RefreshCache(lastRefresh);
+        });
+      }
+
+      _config.LastRefresh = DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
+      SaveConfig();
+    }
 
     #endregion
 

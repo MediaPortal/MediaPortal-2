@@ -57,7 +57,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
-    protected static TimeSpan MIN_REFRESH_INTERVAL = TimeSpan.FromHours(12);
 
     #endregion
 
@@ -170,28 +169,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return true;
       }
       return false;
-    }
-
-    #endregion
-
-    #region Caching
-
-    protected override void RefreshCache()
-    {
-      if (DateTime.Now - _lastRefresh <= MIN_REFRESH_INTERVAL)
-        return;
-
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
-      if (threadPool != null)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("SeriesTvDbMatcher: Refreshing local cache");
-        threadPool.Add(() =>
-          {
-            if (_wrapper != null)
-              ((TvDbWrapper)_wrapper).UpdateCache();
-          });
-      }
-      _lastRefresh = DateTime.Now;
     }
 
     #endregion

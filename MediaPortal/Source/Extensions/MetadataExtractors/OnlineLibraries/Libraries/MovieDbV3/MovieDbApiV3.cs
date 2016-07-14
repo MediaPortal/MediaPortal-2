@@ -28,6 +28,7 @@ using System.Web;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using Newtonsoft.Json;
+using System;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
 {
@@ -62,6 +63,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     private const string URL_COMPANYQUERY = URL_API_BASE + "search/company";
     private const string URL_PERSONQUERY = URL_API_BASE + "search/person";
     private const string URL_GETCONFIG = URL_API_BASE + "configuration";
+    private const string URL_GETSERIESCHANGES = URL_API_BASE + "tv/changes";
+    private const string URL_GETMOVIECHANGES = URL_API_BASE + "movie/changes";
+    private const string URL_GETPERSONCHANGES = URL_API_BASE + "person/changes";
 
     #endregion
 
@@ -111,6 +115,138 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     {
       string url = GetUrl(URL_GETCONFIG, null);
       return _downloader.Download<Configuration>(url);
+    }
+
+    /// <summary>
+    /// Returns a collection of changed movies.
+    /// </summary>
+    /// <returns></returns>
+    public ChangeCollection GetMovieChanges(int page, DateTime startTime)
+    {
+      string url = GetUrl(URL_GETMOVIECHANGES, null);
+      url += "&page=" + page;
+      url += "&start_date=" + startTime.ToString(@"yyyy\-MM\-dd");
+      return _downloader.Download<ChangeCollection>(url);
+    }
+
+    /// <summary>
+    /// Returns a collection of changed persons.
+    /// </summary>
+    /// <returns></returns>
+    public ChangeCollection GetPersonChanges(int page, DateTime startTime)
+    {
+      string url = GetUrl(URL_GETPERSONCHANGES, null);
+      url += "&page=" + page;
+      url += "&start_date=" + startTime.ToString(@"yyyy\-MM\-dd");
+      return _downloader.Download<ChangeCollection>(url);
+    }
+
+    /// <summary>
+    /// Returns a collection of changed series.
+    /// </summary>
+    /// <returns></returns>
+    public ChangeCollection GetSeriesChanges(int page, DateTime startTime)
+    {
+      string url = GetUrl(URL_GETSERIESCHANGES, null);
+      url += "&page=" + page;
+      url += "&start_date=" + startTime.ToString(@"yyyy\-MM\-dd");
+      return _downloader.Download<ChangeCollection>(url);
+    }
+
+    /// <summary>
+    /// Deletes all cache files for the specified movie.
+    /// </summary>
+    /// <param name="id">TMDB id of movie</param>
+    /// <returns></returns>
+    public void DeleteMovieCache(int id)
+    {
+      string folder = Path.Combine(_cachePath, id.ToString());
+      if (!Directory.Exists(folder))
+        return;
+
+      string cacheFileMask = Path.GetFileName(CreateAndGetCacheName(id, "*", "Movie"));
+      string[] cacheFiles = Directory.GetFiles(folder, cacheFileMask);
+      foreach(string file in cacheFiles)
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch
+        { }
+      }
+
+      cacheFileMask = Path.GetFileName(CreateAndGetCacheName(id, "*", "Crew"));
+      cacheFiles = Directory.GetFiles(folder, cacheFileMask);
+      foreach (string file in cacheFiles)
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch
+        { }
+      }
+    }
+
+    /// <summary>
+    /// Deletes all cache files for the specified person.
+    /// </summary>
+    /// <param name="id">TMDB id of person</param>
+    /// <returns></returns>
+    public void DeletePersonCache(int id)
+    {
+      string folder = Path.Combine(_cachePath, id.ToString());
+      if (!Directory.Exists(folder))
+        return;
+
+      string cacheFileMask = Path.GetFileName(CreateAndGetCacheName(id, "*", "Person"));
+      string[] cacheFiles = Directory.GetFiles(folder, cacheFileMask);
+      foreach (string file in cacheFiles)
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch
+        { }
+      }
+    }
+
+    /// <summary>
+    /// Deletes all cache files for the specified series.
+    /// </summary>
+    /// <param name="id">TMDB id of series</param>
+    /// <returns></returns>
+    public void DeleteSeriesCache(int id)
+    {
+      string folder = Path.Combine(_cachePath, id.ToString());
+      if (!Directory.Exists(folder))
+        return;
+
+      string cacheFileMask = Path.GetFileName(CreateAndGetCacheName(id, "*", "Series"));
+      string[] cacheFiles = Directory.GetFiles(folder, cacheFileMask);
+      foreach (string file in cacheFiles)
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch
+        { }
+      }
+
+      cacheFileMask = Path.GetFileName(CreateAndGetCacheName(id, "*", "Season*"));
+      cacheFiles = Directory.GetFiles(folder, cacheFileMask);
+      foreach (string file in cacheFiles)
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch
+        { }
+      }
     }
 
     /// <summary>

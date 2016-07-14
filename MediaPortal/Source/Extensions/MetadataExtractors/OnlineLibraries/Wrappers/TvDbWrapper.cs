@@ -555,7 +555,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// Updates the local available information with updated ones from online source.
     /// </summary>
     /// <returns></returns>
-    public bool UpdateCache()
+    public override bool RefreshCache(DateTime lastRefresh)
     {
       try
       {

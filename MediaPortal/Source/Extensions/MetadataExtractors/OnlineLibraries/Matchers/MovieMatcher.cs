@@ -36,11 +36,18 @@ using System.Reflection;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Common.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public abstract class MovieMatcher<TImg, TLang> : BaseMatcher<MovieMatch, string>
   {
+    public class MovieMatcherSettings
+    {
+      public string LastRefresh { get; set; }
+    }
+
     #region Init
 
     public MovieMatcher(string cachePath, TimeSpan maxCacheDuration)
@@ -54,6 +61,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _writerMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "WriterMatches.xml"));
       _characterMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CharacterMatches.xml"));
       _companyMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CompanyMatches.xml"));
+      _configFile = Path.Combine(cachePath, "MovieConfig.xml");
 
       Init();
     }
@@ -67,6 +75,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return false;
 
       return InitWrapper();
+    }
+
+    private void LoadConfig()
+    {
+      _config = Settings.Load<MovieMatcherSettings>(_configFile);
+      if (_config == null)
+        _config = new MovieMatcherSettings();
+    }
+
+    private void SaveConfig()
+    {
+      Settings.Save(_configFile, _config);
     }
 
     public abstract bool InitWrapper();
@@ -86,8 +106,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     private DateTime _memoryCacheInvalidated = DateTime.MinValue;
     private ConcurrentDictionary<string, MovieInfo> _memoryCache = new ConcurrentDictionary<string, MovieInfo>(StringComparer.OrdinalIgnoreCase);
+    private MovieMatcherSettings _config = new MovieMatcherSettings();
     private string _cachePath;
     private string _matchesSettingsFile;
+    private string _configFile;
     private TimeSpan _maxCacheDuration;
 
     private SimpleNameMatcher _companyMatcher;
@@ -771,7 +793,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     }
 
     protected virtual void RefreshCache()
-    { }
+    {
+      string dateFormat = "MMddyyyyHHmm";
+      if (string.IsNullOrEmpty(_config.LastRefresh))
+        _config.LastRefresh = DateTime.Now.ToString(dateFormat);
+
+      DateTime lastRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
+
+      if (DateTime.Now - lastRefresh <= _maxCacheDuration)
+        return;
+
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+      if (threadPool != null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Refreshing local cache");
+        threadPool.Add(() =>
+        {
+          if (_wrapper != null)
+            _wrapper.RefreshCache(lastRefresh);
+        });
+      }
+
+      _config.LastRefresh = DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
+      SaveConfig();
+    }
 
     #endregion
 

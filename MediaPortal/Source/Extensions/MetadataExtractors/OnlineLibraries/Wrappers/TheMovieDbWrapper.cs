@@ -30,12 +30,16 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
   class TheMovieDbWrapper : ApiWrapper<ImageItem, string>
   {
     protected MovieDbApiV3 _movieDbHandler;
+    protected DateTime _lastRefresh;
+    protected TimeSpan _cacheTimeout = TimeSpan.FromHours(12);
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -861,6 +865,81 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       string category = string.Format(@"S{0:00}E{1:00} {2}\{3}", seasonNo, episodeNo, scope, type);
       return _movieDbHandler.DownloadImage(id, image, category);
+    }
+
+    #endregion
+
+    #region Cache
+
+    /// <summary>
+    /// Updates the local available information with updated ones from online source.
+    /// </summary>
+    /// <returns></returns>
+    public override bool RefreshCache(DateTime lastRefresh)
+    {
+      //Avoid having both TV and Movie matcher updating the cache
+      if (DateTime.Now - _lastRefresh <= _cacheTimeout)
+        return false;
+
+      _lastRefresh = DateTime.Now;
+
+      try
+      {
+        //Refresh movies
+        int page = 1;
+        List<int> changedItems = new List<int>();
+        ChangeCollection changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
+        foreach (Change change in changes.Changes)
+          changedItems.Add(change.Id);
+        while(page < changes.TotalPages)
+        {
+          page++;
+          changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
+          foreach (Change change in changes.Changes)
+            changedItems.Add(change.Id);
+        }
+        foreach (int movieId in changedItems)
+          _movieDbHandler.DeleteMovieCache(movieId);
+
+        //Refresh persons
+        page = 1;
+        changedItems.Clear();
+        changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
+        foreach (Change change in changes.Changes)
+          changedItems.Add(change.Id);
+        while (page < changes.TotalPages)
+        {
+          page++;
+          changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
+          foreach (Change change in changes.Changes)
+            changedItems.Add(change.Id);
+        }
+        foreach (int movieId in changedItems)
+          _movieDbHandler.DeletePersonCache(movieId);
+
+        //Refresh series
+        page = 1;
+        changedItems.Clear();
+        changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
+        foreach (Change change in changes.Changes)
+          changedItems.Add(change.Id);
+        while (page < changes.TotalPages)
+        {
+          page++;
+          changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
+          foreach (Change change in changes.Changes)
+            changedItems.Add(change.Id);
+        }
+        foreach (int movieId in changedItems)
+          _movieDbHandler.DeleteSeriesCache(movieId);
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("TheMovieDbWrapper: Error updating cache", ex);
+        return false;
+      }
     }
 
     #endregion

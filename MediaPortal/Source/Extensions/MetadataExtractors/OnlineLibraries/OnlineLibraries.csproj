@@ -70,6 +70,8 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Libraries\MovieDbV3\Data\ChangeCollection.cs" />
+    <Compile Include="Libraries\MovieDbV3\Data\Change.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Network.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Company.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Credits.cs" />
