@@ -119,7 +119,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       }
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(_viewName, null, _necessaryMias, optionalMIATypeIDs, true)
+        new MediaLibraryQueryViewSpecification(_viewName, null, null, _necessaryMias, optionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
         };
