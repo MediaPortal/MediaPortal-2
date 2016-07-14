@@ -38,6 +38,10 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
 
         #region Public Methods
 
+        /// <summary>
+        /// Add logfile to watch
+        /// </summary>
+        /// <param name="logfile">logfile to watch</param>
         public void AddLog(string logfile)
         {
             string filename = new System.IO.FileInfo(logfile).Name;
@@ -54,5 +58,11 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
 
         #endregion Public Methods
 
+        private void FormLogMonitor_Load(object sender, EventArgs e)
+        {
+            this.Location = new System.Drawing.Point(1,1);
+            this.Height = Screen.FromControl(this).WorkingArea.Height;
+            this.Width = Screen.FromControl(this).WorkingArea.Width / 3;
+        }
     }
 }

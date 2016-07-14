@@ -48,6 +48,7 @@
             this.Controls.Add(this.tabControlContainer);
             this.Name = "FormLogMonitor";
             this.Text = "Logs";
+            this.Load += new System.EventHandler(this.FormLogMonitor_Load);
             this.ResumeLayout(false);
 
         }

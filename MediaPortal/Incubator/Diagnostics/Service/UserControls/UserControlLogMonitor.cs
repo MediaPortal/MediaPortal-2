@@ -55,13 +55,16 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
             this.Invoke(new Action(() =>
                                         {
                                             textBoxLog.SuspendLayout();
-                                            if (toolStripButtonScroll2End.CheckState == CheckState.Checked)
-                                                textBoxLog.AppendText(e.Logs);
-                                            else
-                                                textBoxLog.Text += e.Logs;
-
+                                            try
+                                            {
+                                                if (toolStripButtonScroll2End.CheckState == CheckState.Checked)
+                                                    textBoxLog.AppendText(e.Logs);
+                                                else
+                                                    textBoxLog.Text += e.Logs;
+                                                SetLastUpdate();
+                                            }
+                                            catch { }
                                             textBoxLog.ResumeLayout();
-                                            SetLastUpdate();
                                         }
                                         ));
         }
@@ -70,8 +73,12 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
         {
             this.Invoke(new Action(() =>
             {
-                textBoxLog.Text = string.Empty;
-                SetLastUpdate();
+                try
+                {
+                    textBoxLog.Text = string.Empty;
+                    SetLastUpdate();
+                }
+                catch { }
             }
             ));
         }
