@@ -35,7 +35,7 @@
             this.toolStripButtonScroll2End = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabelLastUpdate = new System.Windows.Forms.ToolStripLabel();
-            this.textBoxLog = new System.Windows.Forms.TextBox();
+            this.treeViewLog = new System.Windows.Forms.TreeView();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -85,24 +85,20 @@
             this.toolStripLabelLastUpdate.Size = new System.Drawing.Size(71, 22);
             this.toolStripLabelLastUpdate.Text = "Last update:";
             // 
-            // textBoxLog
+            // treeViewLog
             // 
-            this.textBoxLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxLog.Font = new System.Drawing.Font("MS Reference Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxLog.Location = new System.Drawing.Point(3, 28);
-            this.textBoxLog.Multiline = true;
-            this.textBoxLog.Name = "textBoxLog";
-            this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxLog.Size = new System.Drawing.Size(384, 303);
-            this.textBoxLog.TabIndex = 1;
+            this.treeViewLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeViewLog.Font = new System.Drawing.Font("MS Reference Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.treeViewLog.Location = new System.Drawing.Point(0, 25);
+            this.treeViewLog.Name = "treeViewLog";
+            this.treeViewLog.Size = new System.Drawing.Size(390, 326);
+            this.treeViewLog.TabIndex = 2;
             // 
             // UserControlLogMonitor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.textBoxLog);
+            this.Controls.Add(this.treeViewLog);
             this.Controls.Add(this.toolStrip1);
             this.Name = "UserControlLogMonitor";
             this.Size = new System.Drawing.Size(390, 351);
@@ -120,6 +116,6 @@
         private System.Windows.Forms.ToolStripButton toolStripButtonScroll2End;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripLabel toolStripLabelLastUpdate;
-        private System.Windows.Forms.TextBox textBoxLog;
+        private System.Windows.Forms.TreeView treeViewLog;
     }
 }

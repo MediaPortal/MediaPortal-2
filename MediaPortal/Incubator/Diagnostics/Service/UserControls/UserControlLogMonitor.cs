@@ -23,7 +23,7 @@ using System.Windows.Forms;
 
 namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
 {
-    public partial class UserControlLogMonitor : System.Windows.Forms.UserControl
+    public partial class UserControlLogMonitor : UserControl
     {
 
         #region Private Fields
@@ -44,6 +44,9 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
 
         #region Public Properties
 
+        /// <summary>
+        /// LogFile to watch
+        /// </summary>
         public string FileName { get; set; }
 
         #endregion Public Properties
@@ -53,19 +56,12 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
         private void _logMonitor_OnNewLogs(object sender, LogMonitor.NewLogsEventArgs e)
         {
             this.Invoke(new Action(() =>
-                                        {
-                                            textBoxLog.SuspendLayout();
-                                            try
-                                            {
-                                                if (toolStripButtonScroll2End.CheckState == CheckState.Checked)
-                                                    textBoxLog.AppendText(e.Logs);
-                                                else
-                                                    textBoxLog.Text += e.Logs;
-                                                SetLastUpdate();
-                                            }
-                                            catch { }
-                                            textBoxLog.ResumeLayout();
-                                        }
+            {
+                treeViewLog.SuspendLayout();
+                SetLogToGUI(e.Logs);
+                treeViewLog.ResumeLayout();
+                SetLastUpdateToGUI();
+            }
                                         ));
         }
 
@@ -75,17 +71,58 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
             {
                 try
                 {
-                    textBoxLog.Text = string.Empty;
-                    SetLastUpdate();
+                    treeViewLog.Nodes.Clear();
+                    SetLastUpdateToGUI();
                 }
                 catch { }
             }
             ));
         }
 
-        private void SetLastUpdate()
+        private void SetLastUpdateToGUI()
         {
-            toolStripLabelLastUpdate.Text = "Last update: " + DateTime.Now.TimeOfDay.ToString();
+            try
+            {
+                toolStripLabelLastUpdate.Text = "Last update: " + DateTime.Now.TimeOfDay.ToString();
+            }
+            catch { }
+        }
+
+        private void SetLogToGUI(string logs)
+        {
+            try
+            {
+                string[] tlines = logs.Split('\n');
+                int idx = 0;
+                string line = tlines[0];
+                TreeNode parentNode = null;
+                while (!string.IsNullOrEmpty(line) && idx < tlines.Length - 1)
+                {
+                    line = tlines[idx];
+
+                    if (line.Contains("["))
+                    {
+                        parentNode = treeViewLog.Nodes.Add(line);
+                        if (line.Contains("[ERROR")) parentNode.ForeColor = System.Drawing.Color.Red;
+                        else if (line.Contains("[WARN")) parentNode.ForeColor = System.Drawing.Color.Orange;
+                    }
+                    else if (parentNode != null)
+                    {
+                        TreeNode subNode = parentNode.Nodes.Add(line);
+                        subNode.ForeColor = parentNode.ForeColor;
+                    }
+                    idx++;
+                }
+                parentNode = null;
+
+                tlines = null;
+
+                if (toolStripButtonScroll2End.CheckState == CheckState.Checked)
+                    treeViewLog.Nodes[treeViewLog.Nodes.Count - 1].EnsureVisible();
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
         private void SetState()

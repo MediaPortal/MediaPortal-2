@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
         #region Public Methods
 
         /// <summary>
-        /// Add logfile to watch
+        /// Add logfile to watch: Create a new TAB with log watcher control
         /// </summary>
         /// <param name="logfile">logfile to watch</param>
         public void AddLog(string logfile)

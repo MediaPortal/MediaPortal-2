@@ -144,10 +144,10 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
             if (State != LogHandlerState.Stopped)
                 Stop();
 
+            _worker = null;
+
             if (!_disposedValue)
-            {
                 _disposedValue = true;
-            }
         }
 
         #endregion Protected Methods
