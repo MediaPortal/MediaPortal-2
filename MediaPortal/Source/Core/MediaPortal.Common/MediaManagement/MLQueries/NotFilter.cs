@@ -67,7 +67,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("RelationalUserData", typeof(RelationalUserDataFilter))]
     [XmlElement("EmptyUserData", typeof(EmptyUserDataFilter))]
     [XmlElement("False", typeof(FalseFilter))]
-    [XmlElement("Virtual", typeof(VirtualFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     public object XML_InnerFilter

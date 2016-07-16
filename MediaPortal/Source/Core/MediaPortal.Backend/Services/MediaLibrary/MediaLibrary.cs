@@ -1028,9 +1028,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         executeQuery.Filter = AddOnlyOnlineFilter(query.Filter);
       }
       if(executeQuery.Filter == null)
-        executeQuery.Filter = new VirtualFilter(includeVirtual);
+        executeQuery.Filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
       else
-        executeQuery.Filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, query.Filter, new VirtualFilter(includeVirtual));
+        executeQuery.Filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, query.Filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
 
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
       IList<MediaItem> items = null;
@@ -1083,9 +1083,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {filter, selectAttributeFilter});
 
       if (filter == null)
-        filter = new VirtualFilter(includeVirtual);
+        filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
       else
-        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new VirtualFilter(includeVirtual));
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
 
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
           filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) : necessaryMIATypeIDs, 
@@ -1131,9 +1131,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
       if (filter == null)
-        filter = new VirtualFilter(includeVirtual);
+        filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
       else
-        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new VirtualFilter(includeVirtual));
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
 
       CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
           necessaryMIATypeIDs, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
