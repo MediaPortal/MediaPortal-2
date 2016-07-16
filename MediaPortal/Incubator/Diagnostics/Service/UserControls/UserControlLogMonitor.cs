@@ -29,6 +29,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
         #region Private Fields
 
         private LogMonitor _logMonitor;
+        private bool _scrollToend = true;
 
         #endregion Private Fields
 
@@ -117,7 +118,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
 
                 tlines = null;
 
-                if (toolStripButtonScroll2End.CheckState == CheckState.Checked)
+                if (_scrollToend)
                     treeViewLog.Nodes[treeViewLog.Nodes.Count - 1].EnsureVisible();
             }
             catch (Exception ex)
@@ -132,9 +133,11 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
                 case LogMonitor.LogHandlerState.Stopped:
                 case LogMonitor.LogHandlerState.Pausing:
                     toolStripButtonToggleStart.Text = "Start";
+                    this.toolStripButtonToggleStart.Image = global::MediaPortal.UiComponents.Diagnostics.Properties.Resources.play;
                     break;
 
                 case LogMonitor.LogHandlerState.Started:
+                    this.toolStripButtonToggleStart.Image = global::MediaPortal.UiComponents.Diagnostics.Properties.Resources.pause;
                     toolStripButtonToggleStart.Text = "Pause";
                     break;
             }
@@ -168,5 +171,14 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
 
         #endregion Private Methods
 
+        private void toolStripButtonScroll2End_Click(object sender, EventArgs e)
+        {
+            _scrollToend = !_scrollToend;
+
+            if (_scrollToend)
+                this.toolStripButtonScroll2End.Image = global::MediaPortal.UiComponents.Diagnostics.Properties.Resources.scroll;
+            else
+                this.toolStripButtonScroll2End.Image = global::MediaPortal.UiComponents.Diagnostics.Properties.Resources.dontscroll;
+        }
     }
 }

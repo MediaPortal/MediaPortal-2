@@ -29,7 +29,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UserControlLogMonitor));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonToggleStart = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonScroll2End = new System.Windows.Forms.ToolStripButton();
@@ -54,11 +53,11 @@
             // 
             // toolStripButtonToggleStart
             // 
-            this.toolStripButtonToggleStart.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripButtonToggleStart.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonToggleStart.Image")));
+            this.toolStripButtonToggleStart.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonToggleStart.Image = global::MediaPortal.UiComponents.Diagnostics.Properties.Resources.play;
             this.toolStripButtonToggleStart.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonToggleStart.Name = "toolStripButtonToggleStart";
-            this.toolStripButtonToggleStart.Size = new System.Drawing.Size(35, 22);
+            this.toolStripButtonToggleStart.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonToggleStart.Text = "Start";
             this.toolStripButtonToggleStart.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
@@ -66,13 +65,14 @@
             // 
             this.toolStripButtonScroll2End.Checked = true;
             this.toolStripButtonScroll2End.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.toolStripButtonScroll2End.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripButtonScroll2End.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonScroll2End.Image")));
+            this.toolStripButtonScroll2End.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonScroll2End.Image = global::MediaPortal.UiComponents.Diagnostics.Properties.Resources.scroll;
             this.toolStripButtonScroll2End.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonScroll2End.Name = "toolStripButtonScroll2End";
-            this.toolStripButtonScroll2End.Size = new System.Drawing.Size(77, 22);
+            this.toolStripButtonScroll2End.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonScroll2End.Text = "Scroll to end";
             this.toolStripButtonScroll2End.ToolTipText = "Scroll to End";
+            this.toolStripButtonScroll2End.Click += new System.EventHandler(this.toolStripButtonScroll2End_Click);
             // 
             // toolStripSeparator1
             // 
@@ -89,6 +89,7 @@
             // 
             this.treeViewLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeViewLog.Font = new System.Drawing.Font("MS Reference Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.treeViewLog.FullRowSelect = true;
             this.treeViewLog.Location = new System.Drawing.Point(0, 25);
             this.treeViewLog.Name = "treeViewLog";
             this.treeViewLog.Size = new System.Drawing.Size(390, 326);

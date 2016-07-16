@@ -47,6 +47,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Service\FormLogMonitor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -79,6 +84,10 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Resources\dontscroll.png" />
+    <None Include="Resources\scroll.png" />
+    <None Include="Resources\pause1.png" />
+    <None Include="Resources\play1.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -95,6 +104,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Service\FormLogMonitor.resx">
       <DependentUpon>FormLogMonitor.cs</DependentUpon>
     </EmbeddedResource>
