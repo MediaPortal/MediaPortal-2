@@ -28,11 +28,11 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByMovieCollectionCriterion : RelationshipMLFilterCriterion
+  public class FilterBySeriesEpisodeCharacterCriterion : RelationshipMLFilterCriterion
   {
-    public FilterByMovieCollectionCriterion() :
-      base(MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieAspect.ROLE_MOVIE, Consts.NECESSARY_MOVIE_COLLECTION_MIAS,
-        new SortInformation(MovieCollectionAspect.ATTR_COLLECTION_NAME, SortDirection.Ascending))
+    public FilterBySeriesEpisodeCharacterCriterion() :
+      base(CharacterAspect.ROLE_CHARACTER, EpisodeAspect.ROLE_EPISODE, Consts.NECESSARY_CHARACTER_MIAS, 
+        new SortInformation(CharacterAspect.ATTR_CHARACTER_NAME, SortDirection.Ascending))
     {
     }
   }

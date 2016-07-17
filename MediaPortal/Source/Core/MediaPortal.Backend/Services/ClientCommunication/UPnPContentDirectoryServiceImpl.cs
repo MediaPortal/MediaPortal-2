@@ -1719,7 +1719,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid? userProfile = null;
       if (!string.IsNullOrEmpty((string)inParams[5]))
         userProfile = MarshallingHelper.DeserializeGuid((string)inParams[5]);
-      bool includeVirtual = (bool)inParams[5];
+      bool includeVirtual = (bool)inParams[6];
       IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes, userProfile, includeVirtual, offset, limit);
 
       outParams = new List<object> { result };

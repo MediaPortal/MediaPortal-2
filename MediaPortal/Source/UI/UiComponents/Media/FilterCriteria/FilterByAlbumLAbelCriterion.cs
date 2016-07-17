@@ -28,11 +28,12 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByMovieCollectionCriterion : RelationshipMLFilterCriterion
+  public class FilterByAlbumLabelCriterion : FilteredRelationshipMLFilterCriterion
   {
-    public FilterByMovieCollectionCriterion() :
-      base(MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieAspect.ROLE_MOVIE, Consts.NECESSARY_MOVIE_COLLECTION_MIAS,
-        new SortInformation(MovieCollectionAspect.ATTR_COLLECTION_NAME, SortDirection.Ascending))
+    public FilterByAlbumLabelCriterion() :
+      base(CompanyAspect.ROLE_COMPANY, AudioAlbumAspect.ROLE_ALBUM, Consts.NECESSARY_COMPANY_MIAS, 
+        new RelationalFilter(CompanyAspect.ATTR_COMPANY_TYPE, RelationalOperator.EQ, CompanyAspect.COMPANY_MUSIC_LABEL),
+        new SortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
     {
     }
   }

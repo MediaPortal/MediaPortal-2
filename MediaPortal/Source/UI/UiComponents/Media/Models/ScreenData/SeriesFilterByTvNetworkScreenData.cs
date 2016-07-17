@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -22,18 +22,23 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
-namespace MediaPortal.UiComponents.Media.FilterCriteria
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class FilterByMovieCollectionCriterion : RelationshipMLFilterCriterion
+  public class SeriesFilterByTvNetworkScreenData : AbstractVideosFilterScreenData
   {
-    public FilterByMovieCollectionCriterion() :
-      base(MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieAspect.ROLE_MOVIE, Consts.NECESSARY_MOVIE_COLLECTION_MIAS,
-        new SortInformation(MovieCollectionAspect.ATTR_COLLECTION_NAME, SortDirection.Ascending))
+    public SeriesFilterByTvNetworkScreenData() :
+        base(Consts.SCREEN_SERIES_FILTER_BY_NETWORK, Consts.RES_FILTER_BY_TV_NETWORK_MENU_ITEM,
+        Consts.RES_FILTER_TV_NETWORK_NAVBAR_DISPLAY_LABEL, new FilterBySeriesTvNetworkCriterion())
     {
+    }
+
+    public override AbstractFiltersScreenData<FilterItem> Derive()
+    {
+      return new SeriesFilterByTvNetworkScreenData();
     }
   }
 }

@@ -116,6 +116,94 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         };
         return true;
       }
+      ActorFilterItem actorItem = listItem as ActorFilterItem;
+      if (audioItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Actor,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = actorItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
+      DirectorFilterItem directorItem = listItem as DirectorFilterItem;
+      if (audioItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Director,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = directorItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
+      WriterFilterItem writerItem = listItem as WriterFilterItem;
+      if (audioItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Writer,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = writerItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
+      ArtistFilterItem artisitItem = listItem as ArtistFilterItem;
+      if (audioItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Artist,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = artisitItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
+      ComposerFilterItem composerItem = listItem as ComposerFilterItem;
+      if (audioItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Composer,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = composerItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
+      CharacterFilterItem characterItem = listItem as CharacterFilterItem;
+      if (audioItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Character,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = characterItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
+      CompanyFilterItem companyItem = listItem as CompanyFilterItem;
+      if (audioItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Company,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = companyItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
+      TVNetworkFilterItem tvNetworkItem = listItem as TVNetworkFilterItem;
+      if (audioItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.TVNetwork,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = tvNetworkItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
       fanartImageSource = null;
       return false;
     }

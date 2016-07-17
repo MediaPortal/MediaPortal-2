@@ -53,6 +53,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new VideosFilterByLanguageScreenData(),
           new VideosFilterByActorScreenData(),
+          new VideosFilterByCharacterScreenData(),
           new VideosFilterByDirectorScreenData(),
           new VideosFilterByWriterScreenData(),
           _defaultScreen,

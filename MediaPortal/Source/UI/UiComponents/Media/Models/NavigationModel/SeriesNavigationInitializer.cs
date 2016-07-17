@@ -59,6 +59,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),
         new SeriesFilterByActorScreenData(),
+        new SeriesFilterByCharacterScreenData(),
+        new SeriesFilterByCompanyScreenData(),
+        new SeriesFilterByTvNetworkScreenData(),
         new VideosFilterByGenreScreenData(),
         new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };

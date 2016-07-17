@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -22,18 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.General;
-
-namespace MediaPortal.UiComponents.Media.FilterCriteria
+namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
-  public class FilterByMovieCollectionCriterion : RelationshipMLFilterCriterion
+  /// <summary>
+  /// Holds a GUI item which represents a actor filter choice.
+  /// </summary>
+  public class ActorFilterItem : FilterItem
   {
-    public FilterByMovieCollectionCriterion() :
-      base(MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieAspect.ROLE_MOVIE, Consts.NECESSARY_MOVIE_COLLECTION_MIAS,
-        new SortInformation(MovieCollectionAspect.ATTR_COLLECTION_NAME, SortDirection.Ascending))
-    {
-    }
   }
 }

@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -32,8 +31,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class SeriesFilterByActorScreenData : AbstractVideosFilterScreenData
   {
     public SeriesFilterByActorScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_ACTOR, Consts.RES_FILTER_BY_ACTOR_MENU_ITEM,
-        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_ACTORS))
+        base(Consts.SCREEN_SERIES_FILTER_BY_ACTOR, Consts.RES_FILTER_BY_ACTOR_MENU_ITEM,
+        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new FilterBySeriesActorCriterion())
     {
     }
 
