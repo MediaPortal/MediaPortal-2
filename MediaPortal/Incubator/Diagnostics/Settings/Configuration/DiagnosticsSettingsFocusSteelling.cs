@@ -1,5 +1,4 @@
-﻿
-/*
+﻿/*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 

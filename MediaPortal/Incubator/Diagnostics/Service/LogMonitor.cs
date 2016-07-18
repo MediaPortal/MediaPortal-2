@@ -26,30 +26,6 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     public class LogMonitor : IDisposable
     {
 
-        #region Private Fields
-
-        private bool _disposedValue = false;
-
-        private long _lastFileSize;
-
-        private System.Threading.Thread _worker = null;
-
-        #endregion Private Fields
-
-        #region Private Delegates
-
-        private delegate void dVoidMethod();
-
-        #endregion Private Delegates
-
-        #region Public Events
-
-        public event EventHandler<NewLogsEventArgs> OnNewLogs;
-
-        public event EventHandler OnReseted;
-
-        #endregion Public Events
-
         #region Public Enums
 
         public enum LogHandlerState
@@ -60,6 +36,30 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
         }
 
         #endregion Public Enums
+
+        #region Private Delegates
+
+        private delegate void dVoidMethod();
+
+        #endregion Private Delegates
+
+        #region Private Fields
+
+        private bool _disposedValue = false;
+
+        private long _lastFileSize;
+
+        private System.Threading.Thread _worker = null;
+
+        #endregion Private Fields
+
+        #region Public Events
+
+        public event EventHandler<NewLogsEventArgs> OnNewLogs;
+
+        public event EventHandler OnReseted;
+
+        #endregion Public Events
 
         #region Public Properties
 
@@ -190,10 +190,10 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
                 _lastFileSize = newLength;
             }
 
-            if (reseted && OnReseted!=null)
+            if (reseted && OnReseted != null)
                 OnReseted.Invoke(this, EventArgs.Empty);
 
-            if (!string.IsNullOrEmpty(newFileLines) && OnNewLogs !=null)
+            if (!string.IsNullOrEmpty(newFileLines) && OnNewLogs != null)
                 OnNewLogs.Invoke(this, new NewLogsEventArgs(newFileLines));
         }
 
@@ -204,14 +204,14 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
         public class NewLogsEventArgs : EventArgs
         {
 
-            #region Internal Constructors
+            #region Internal Constructors + Destructors
 
             internal NewLogsEventArgs(string logs)
             {
                 this.Logs = logs;
             }
 
-            #endregion Internal Constructors
+            #endregion Internal Constructors + Destructors
 
             #region Public Properties
 

@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
 
         #endregion Private Fields
 
-        #region Public Constructors
+        #region Public Constructors + Destructors
 
         public UserControlLogMonitor()
         {
@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
             this.Load += UserControlLogMonitor_Load;
         }
 
-        #endregion Public Constructors
+        #endregion Public Constructors + Destructors
 
         #region Public Properties
 
@@ -162,15 +162,6 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
             SetState();
         }
 
-        private void UserControlLogMonitor_Load(object sender, EventArgs e)
-        {
-            _logMonitor = new LogMonitor();
-            _logMonitor.OnNewLogs += _logMonitor_OnNewLogs;
-            _logMonitor.OnReseted += _logMonitor_OnReseted;
-        }
-
-        #endregion Private Methods
-
         private void toolStripButtonScroll2End_Click(object sender, EventArgs e)
         {
             _scrollToend = !_scrollToend;
@@ -180,5 +171,14 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
             else
                 this.toolStripButtonScroll2End.Image = global::MediaPortal.UiComponents.Diagnostics.Properties.Resources.dontscroll;
         }
+
+        private void UserControlLogMonitor_Load(object sender, EventArgs e)
+        {
+            _logMonitor = new LogMonitor();
+            _logMonitor.OnNewLogs += _logMonitor_OnNewLogs;
+            _logMonitor.OnReseted += _logMonitor_OnReseted;
+        }
+
+        #endregion Private Methods
     }
 }

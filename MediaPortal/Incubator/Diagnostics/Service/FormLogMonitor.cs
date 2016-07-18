@@ -27,14 +27,14 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     public partial class FormLogMonitor : Form
     {
 
-        #region Public Constructors
+        #region Public Constructors + Destructors
 
         public FormLogMonitor()
         {
             InitializeComponent();
         }
 
-        #endregion Public Constructors
+        #endregion Public Constructors + Destructors
 
         #region Public Methods
 
@@ -58,11 +58,15 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
 
         #endregion Public Methods
 
+        #region Private Methods
+
         private void FormLogMonitor_Load(object sender, EventArgs e)
         {
-            this.Location = new System.Drawing.Point(1,1);
+            this.Location = new System.Drawing.Point(1, 1);
             this.Height = Screen.FromControl(this).WorkingArea.Height;
             this.Width = Screen.FromControl(this).WorkingArea.Width / 3;
         }
+
+        #endregion Private Methods
     }
 }

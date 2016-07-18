@@ -1,5 +1,4 @@
-﻿
-/*
+﻿/*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
@@ -36,7 +35,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 
         public override void Save()
         {
-            log4net.Core.Level desired = (_yes) ?  log4net.Core.Level.All : log4net.Core.Level.Info;
+            log4net.Core.Level desired = (_yes) ? log4net.Core.Level.All : log4net.Core.Level.Info;
             Diagnostics.Service.DiagnosticsHandler.SetLogLevel(desired);
         }
 
