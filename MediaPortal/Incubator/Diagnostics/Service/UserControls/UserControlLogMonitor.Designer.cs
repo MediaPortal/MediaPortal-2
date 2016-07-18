@@ -13,7 +13,7 @@
         /// <param name="disposing">true si les ressources managées doivent être supprimées ; sinon, false.</param>
         protected override void Dispose(bool disposing)
         {
-            _logMonitor?.Dispose();
+            if (_logMonitor!=null)_logMonitor.Dispose();
             if (disposing && (components != null))
             {
                 components.Dispose();

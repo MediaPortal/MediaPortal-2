@@ -190,11 +190,11 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
                 _lastFileSize = newLength;
             }
 
-            if (reseted)
-                OnReseted?.Invoke(this, EventArgs.Empty);
+            if (reseted && OnReseted!=null)
+                OnReseted.Invoke(this, EventArgs.Empty);
 
-            if (!string.IsNullOrEmpty(newFileLines))
-                OnNewLogs?.Invoke(this, new NewLogsEventArgs(newFileLines));
+            if (!string.IsNullOrEmpty(newFileLines) && OnNewLogs !=null)
+                OnNewLogs.Invoke(this, new NewLogsEventArgs(newFileLines));
         }
 
         #endregion Private Methods
