@@ -27,6 +27,11 @@
     <Service Id="DiagnosticsHandler" RegistrationClassName="MediaPortal.UiComponents.Diagnostics.Service.DiagnosticsHandler" ServiceClassName="MediaPortal.UiComponents.Diagnostics.Service.DiagnosticsHandler"/>
   </Register>
 
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="DiagnosticsLanguage" Directory="Language" Type="Language"/>
+  </Register>
+  
   <!-- Root Sections -->
   <Register Location="/Configuration/Settings/General">
     <ConfigGroup
@@ -39,29 +44,29 @@
   <Register Location="/Configuration/Settings/General/System">
     <ConfigSection
         Id="Diagnostics"
-        Text="Diagnostics"/>
+        Text="[Diagnostics.Settings.Diagnostics]"/>
   </Register>
 
   <Register Location="/Configuration/Settings/General/System/Diagnostics">
     <ConfigSetting
         Id="LogLevel"
-        Text="Enable DEBUG logging on Client"
-        HelpText="Switch to DEBUG to provide verbosity"
+        Text="[Diagnostics.Settings.Diagnostics.AllLogs]"
+        HelpText="[Diagnostics.Settings.Diagnostics.AllLogsHelpText]"
         ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsLogLevelConfiguration"/>
     <ConfigSetting
         Id="FocusSteeling"
-        Text="Enable logging of potential focus steeling"
-        HelpText="Enable logging of potential focus steeling"
+        Text="[Diagnostics.Settings.Image.FocusSteeling]"
+        HelpText="[Diagnostics.Settings.Image.FocusSteelingHelpText]"
         ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsFocusSteelling"/>
     <ConfigSetting
         Id="LogCollector"
-        Text="Collect log files"
-        HelpText="Provide log collection now"
+        Text="[Diagnostics.Settings.Collectlogs]"
+        HelpText="[Diagnostics.Settings.CollectlogsHelpText]"
         ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsCollectLog"/>
     <ConfigSetting
         Id="LogMonitor"
-        Text="Show logs"
-        HelpText="Watch logs files"
+        Text="[Diagnostics.Settings.ShowLogs]"
+        HelpText="[Diagnostics.Settings.ShowLogsHelpText]"
         ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsOutputWindows"/>
   </Register>
 
