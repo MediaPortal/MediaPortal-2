@@ -242,7 +242,33 @@
       </Setter.Value>
     </Setter>
   </Style>
- 
+
+  <!--Because of an opacity bug in skin engine the overlay darkens the button frame in listviews. To compensate a temporal control style with more opacity is used-->
+  <Style x:Key="ButtonListViewControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+            <Rectangle Name="ButtonFrame" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="3">
+              <Rectangle.Stroke>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+                  <GradientStop Color="#E6FFFFFF" Offset="0"/>
+                  <GradientStop Color="#E6FFFFFF" Offset="0.7"/>
+                  <GradientStop Color="#8CFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Stroke>
+            </Rectangle>
+            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="4.5" RadiusY="4.5" StrokeThickness="0" Margin="2">
+              <Rectangle.Fill>
+                <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill" Opacity="1.8"/>
+              </Rectangle.Fill>
+            </Rectangle>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="OSDButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -351,7 +377,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="100"/>
+            <Control Style="{ThemeResource ButtonListViewControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="100"/>
             <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
           </Grid>
