@@ -427,7 +427,9 @@
     <Content Include="Skin\default\screens\SeriesFilterBySeason.xaml" />
     <Content Include="Skin\default\screens\SeriesShowItems.xaml" />
     <Content Include="Skin\default\screens\VideoFilterByLanguage.xaml" />
-    <Content Include="Skin\default\screens\MoviesFilterByCollection.xaml" />
+    <Content Include="Skin\default\screens\MovieFilterByCollection.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\ImageFilterByCountry.xaml" />
     <Content Include="Skin\default\screens\ImageFilterByState.xaml" />
     <Content Include="Skin\default\screens\ImageFilterByCity.xaml" />
@@ -462,6 +464,86 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\AudioFilterByAlbumArtist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByActor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByCharacter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByCompany.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByTvNetwork.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByAlbumLabel.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\AudioFilterByComposer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByActor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByCharacter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByCompany.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByDirector.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesEpisodeFilterByDirector.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MovieFilterByWriter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesEpisodeFilterByActor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesEpisodeFilterByCharacter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesEpisodeFilterByWriter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\VideosFilterByCharacter.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
