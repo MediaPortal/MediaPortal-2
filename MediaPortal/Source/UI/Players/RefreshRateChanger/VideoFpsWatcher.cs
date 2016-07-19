@@ -176,7 +176,8 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       if (screenControl == null || screenControl.VideoPlayerSynchronizationStrategy == null)
         return;
 
-      _timer.Close();
+      if(_timer != null)
+        _timer.Close();
       _timer = null;
 
       screenControl.VideoPlayerSynchronizationStrategy.SynchronizeToVideoPlayerFramerate += SyncToPlayer;

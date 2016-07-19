@@ -253,14 +253,25 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override bool GetRecordingConfiguration(out List<string> recordingFolders, out string singlePattern, out string seriesPattern)
     {
-      TvBusinessLayer layer = new TvBusinessLayer();
-      IList<Card> allCards = Card.ListAll();
-      // Get all different recording folders
-      recordingFolders = allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+      try
+      {
+        TvBusinessLayer layer = new TvBusinessLayer();
+        IList<Card> allCards = Card.ListAll();
+        // Get all different recording folders
+        recordingFolders = allCards.Select(c => c.RecordingFolder).Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
-      singlePattern = layer.GetSetting("moviesformat", string.Empty).Value;
-      seriesPattern = layer.GetSetting("seriesformat", string.Empty).Value;
-      return recordingFolders.Count > 0;
+        singlePattern = layer.GetSetting("moviesformat", string.Empty).Value;
+        seriesPattern = layer.GetSetting("seriesformat", string.Empty).Value;
+        return recordingFolders.Count > 0;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Exception while getting recording folders", ex);
+      }
+      recordingFolders = null;
+      singlePattern = null;
+      seriesPattern = null;
+      return false;
     }
 
     #endregion
