@@ -75,6 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new HashSet<string>();
     protected static ICollection<string> SUBTITLE_FILE_EXTENSIONS = new HashSet<string>();
+    protected static ICollection<string> SUBTITLE_FOLDERS = new HashSet<string>();
     protected static Regex REGEXP_MULTIFILE = null;
     protected static Regex REGEXP_STEREOSCOPICFILE = null;
     protected static string GROUP_FILE = "file";
@@ -103,6 +104,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     {
       VIDEO_FILE_EXTENSIONS = new HashSet<string>(settings.VideoFileExtensions.Select(e => e.ToLowerInvariant()));
       SUBTITLE_FILE_EXTENSIONS = new HashSet<string>(settings.SubtitleFileExtensions.Select(e => e.ToLowerInvariant()));
+      SUBTITLE_FOLDERS = new HashSet<string>(settings.SubtitleFolders);
       REGEXP_MULTIFILE = settings.MultiPartVideoRegex.Regex;
       REGEXP_STEREOSCOPICFILE = settings.StereoscopicVideoRegex.Regex;
     }
@@ -890,8 +892,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (!HasVideoExtension(filePath))
           continue;
 
+        List<string> subs = new List<string>();
         int videoResouceIndex = (int)mmia.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
         string[] subFiles = Directory.GetFiles(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + "*.*");
+        if (subFiles != null)
+          subs.AddRange(subFiles);
+        foreach(string folder in SUBTITLE_FOLDERS)
+        {
+          if (string.IsNullOrEmpty(Path.GetPathRoot(folder)) && Directory.Exists(Path.Combine(Path.GetDirectoryName(filePath), folder))) //Is relative path
+            subFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(filePath), folder), Path.GetFileNameWithoutExtension(filePath) + "*.*");
+          else if(Directory.Exists(folder)) //Is absolute path
+            subFiles = Directory.GetFiles(folder, Path.GetFileNameWithoutExtension(filePath) + "*.*");
+
+          if (subFiles != null)
+            subs.AddRange(subFiles);
+        }
         foreach (string subFile in subFiles)
         {
           string subFormat = GetSubtitleFormat(subFile);

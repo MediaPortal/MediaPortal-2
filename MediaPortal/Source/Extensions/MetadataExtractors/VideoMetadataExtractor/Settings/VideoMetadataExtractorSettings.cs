@@ -62,10 +62,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
         ".vtt",
       };
 
+    protected readonly static List<string> DEFAULT_SUBTITLE_FOLDERS = new List<string>
+      {
+        "subtitles",
+        "subs",
+      };
+
     public VideoMetadataExtractorSettings()
     {
       VideoFileExtensions = new List<string>(DEFAULT_VIDEO_FILE_EXTENSIONS);
       SubtitleFileExtensions = new List<string>(DEFAULT_SUBTITLE_FILE_EXTENSIONS);
+      SubtitleFolders = new List<string>(DEFAULT_SUBTITLE_FOLDERS);
       MultiPartVideoRegex = new SerializableRegex(@"\\(?<file>[^\\|^\/]*)(\s|-|_)*(?<media>Disc|CD|DVD)\s*(?<disc>\d{1,2})", RegexOptions.IgnoreCase);
       StereoscopicVideoRegex = new SerializableRegex(@"\\[-. _](3d|.)?([-. _]*|3d)(?<stereo>(h[-. _]*|half[-. _]*|full[-. _]*)?sbs|(h[-. _]*|half[-. _]*|full[-. _]*)?tab|(h|half[-. _]*|full[-. _]*)?ou)[-. _]", RegexOptions.IgnoreCase);
     }
@@ -93,5 +100,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
     /// </summary>
     [Setting(SettingScope.Global)]
     public SerializableRegex StereoscopicVideoRegex { get; set; }
+
+    /// <summary>
+    /// Subtitle folders where subtitles for media can be found.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public List<string> SubtitleFolders { get; set; }
   }
 }
