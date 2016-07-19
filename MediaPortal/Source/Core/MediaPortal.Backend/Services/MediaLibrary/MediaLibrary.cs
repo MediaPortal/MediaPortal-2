@@ -225,7 +225,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           _fileQueue.Add(e.FullPath);
 
-          OnShareChange?.Invoke(this, e);
+          if(OnShareChange != null)
+            OnShareChange(this, e);
         }
         catch (Exception ex)
         {
@@ -242,7 +243,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           _fileQueue.Add(e.FullPath);
 
           FileSystemEventArgs args = new FileSystemEventArgs(WatcherChangeTypes.Renamed, e.FullPath, e.Name);
-          OnShareChange?.Invoke(this, args);
+          if (OnShareChange != null)
+            OnShareChange(this, args);
         }
         catch (Exception ex)
         {
