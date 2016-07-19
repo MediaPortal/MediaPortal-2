@@ -210,7 +210,6 @@ namespace MediaPortal.Common
       miatr.RegisterMediaItemAspectRoleHierarchy(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ImageCollectionAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);

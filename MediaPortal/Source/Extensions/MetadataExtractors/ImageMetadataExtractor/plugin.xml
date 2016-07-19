@@ -27,10 +27,4 @@
         Id="ImageMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ImageMetadataExtractor"/>
   </Register>
-
-  <Register Location="/Media/RelationshipExtractors">
-    <Instance
-        Id="ImageRelationshipExtractor"
-        ClassName="MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ImageRelationshipExtractor"/>
-  </Register>
 </Plugin>

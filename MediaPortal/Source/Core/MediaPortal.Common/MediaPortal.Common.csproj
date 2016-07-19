@@ -67,7 +67,6 @@
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\ImageCollectionAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieCollectionAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\CompanyAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\PersonAspect.cs" />
@@ -78,7 +77,6 @@
     <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
-    <Compile Include="MediaManagement\Helpers\ImageCollectionInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\LanguageString.cs" />
     <Compile Include="MediaManagement\Helpers\MovieCollectionInfo.cs" />
