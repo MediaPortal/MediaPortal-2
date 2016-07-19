@@ -151,7 +151,6 @@
     <Compile Include="Models\AspectWrappers\CompanyAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\EpisodeAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\ImageCollectionAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImporterAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MovieAspectWrapper.cs" />
