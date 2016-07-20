@@ -76,6 +76,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="310"/>
@@ -83,16 +84,16 @@
       </Grid.ColumnDefinitions>
 
       <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
-         <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
-          <media:SeriesAspectWrapper.Template>
+        <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:EpisodeAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                  <Label x:Name="FirstAired" 
-                    Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="FirstAired" 
+                       Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>
               </Grid>
             </ControlTemplate>
-          </media:SeriesAspectWrapper.Template>
-        </media:SeriesAspectWrapper> 
+          </media:EpisodeAspectWrapper.Template>
+        </media:EpisodeAspectWrapper>
       </Grid>
 
       <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -142,8 +143,8 @@
       </Grid>
 
       <Grid HorizontalAlignment="Left" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center">
-        <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-          <media:SeriesAspectWrapper.Template>
+        <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:EpisodeAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                 <StackPanel Orientation="Horizontal"  Margin="0,6,0,5">
@@ -159,10 +160,27 @@
                 </StackPanel>
               </Grid>
             </ControlTemplate>
-          </media:SeriesAspectWrapper.Template>
-         </media:SeriesAspectWrapper>
-        
+          </media:EpisodeAspectWrapper.Template>
+        </media:EpisodeAspectWrapper>
       </Grid>
+
+      <Grid Grid.Row="4" Grid.Column="0">
+        <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+          <media:UserDataWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Label Color="{ThemeResource TextColor}">
+                  <Label.Content>
+                    <Binding Path="PlayPercentage"/>
+                  </Label.Content>
+                </Label>
+              </Grid>
+            </ControlTemplate>
+          </media:UserDataWrapper.Template>
+        </media:UserDataWrapper>
+      </Grid>
+
+
     </Grid>
     
   </StackPanel>

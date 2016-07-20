@@ -172,6 +172,8 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Videos</string>
   <string name="Media.SeriesRootViewName">Series</string>
+  <string name="Media.SeasonRootViewName">Season</string>
+  <string name="Media.EpisodeRootViewName">Episode</string>
   <string name="Media.ImagesRootViewName">Images</string>
   <string name="Media.SimpleSearchViewName">Simple search</string>
 

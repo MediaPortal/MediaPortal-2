@@ -33,27 +33,20 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="-10,-15,0,0">
+          <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="-10,-5,0,0">
             <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
               <Label.Content>
-                <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+                <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} "/>
               </Label.Content>
             </Label>
-
-            <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}">
-              <Label.Content>
-                <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} - S{0} E"/>
-              </Label.Content>
-            </Label>
-
           </StackPanel>
 
-          <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" 
+          <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
                 Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" HorizontalAlignment="Stretch"
                 Content="{Binding Description}"
                 Color="{ThemeResource TextColor}" Margin="-10,0,5,25"/>
         </Grid>
-        </ControlTemplate>
+      </ControlTemplate>
     </media:SeasonAspectWrapper.Template>
   </media:SeasonAspectWrapper>
 
@@ -70,25 +63,32 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
+      <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center">
         <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
           <media:SeasonAspectWrapper.Template>
             <ControlTemplate>
-              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                  <Label x:Name="FirstAired" 
-                    Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" HorizontalAlignment="Left">
+                  <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" Content="[Media.SeasonRootViewName]"/>
+                  <Label x:Name="SeasonNumber" Color="{ThemeResource TextColor}">
+                    <Label.Content>
+                      <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} {0}"/>
+                    </Label.Content>
+                  </Label>
+
+                </StackPanel>
               </Grid>
             </ControlTemplate>
           </media:SeasonAspectWrapper.Template>
-        </media:SeasonAspectWrapper> 
+        </media:SeasonAspectWrapper>
       </Grid>
 
-      <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+      <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
         <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
           <media:MediaAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Margin="-5,0,15,0" >
+                <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Margin="0,10,0,0" >
                   <Image.Source>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                       <Binding Path="PlayCount"/>
@@ -103,8 +103,44 @@
         </media:MediaAspectWrapper>
       </Grid>
 
+      <Grid Grid.Row="2" Grid.Column="0">
+        <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+          <media:UserDataWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Label Color="{ThemeResource TextColor}">
+                  <Label.Content>
+                    <Binding Path="PlayPercentage"/>
+                  </Label.Content>
+                </Label>
+              </Grid>
+            </ControlTemplate>
+          </media:UserDataWrapper.Template>
+        </media:UserDataWrapper>
+      </Grid>
+
+      <Grid HorizontalAlignment="Left" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center">
+        <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:SeasonAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <StackPanel Orientation="Horizontal"  Margin="0,6,0,5">
+                  <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
+                                               Maximum="10"
+                                               Value="{Binding TotalRating}">
+                    <StarRatingPanel.LayoutTransform>
+                      <TransformGroup>
+                        <ScaleTransform ScaleX="1.7" ScaleY="1.5"/>
+                      </TransformGroup>
+                    </StarRatingPanel.LayoutTransform>
+                  </StarRatingPanel>
+                </StackPanel>
+              </Grid>
+            </ControlTemplate>
+          </media:SeasonAspectWrapper.Template>
+        </media:SeasonAspectWrapper>
+      </Grid>
+
     </Grid>
-    
   </StackPanel>
-  
 </Grid>
