@@ -292,7 +292,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.SaveUIState(state, prefix);
       state[prefix + "/ScrollOffsetX"] = _scrollOffsetX;
-      state[prefix + "/ScrollOffsetY"] = _scrollOffsetX;
+      state[prefix + "/ScrollOffsetY"] = _scrollOffsetY;
     }
 
     public override void RestoreUIState(IDictionary<string, object> state, string prefix)
