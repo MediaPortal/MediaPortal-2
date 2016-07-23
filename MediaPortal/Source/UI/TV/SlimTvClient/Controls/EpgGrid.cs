@@ -64,8 +64,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     protected AsynchronousMessageQueue _messageQueue = null;
     protected AbstractProperty _headerWidthProperty;
+    protected AbstractProperty _groupButtonWidthProperty;
     protected AbstractProperty _programTemplateProperty;
     protected AbstractProperty _headerTemplateProperty;
+    protected AbstractProperty _groupButtonTemplateProperty;
     protected AbstractProperty _timeIndicatorTemplateProperty;
     protected bool _childrenCreated = false;
     protected int _channelViewOffset;
@@ -91,8 +93,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       _perCellTime = _visibleHours * 60 / _numberOfColumns; // Time in minutes per grid cell.
 
       _headerWidthProperty = new SProperty(typeof(Double), 200d);
+      _groupButtonWidthProperty = new SProperty(typeof(Double), 60d);
       _programTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       _headerTemplateProperty = new SProperty(typeof(ControlTemplate), null);
+      _groupButtonTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       _timeIndicatorTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       Attach();
       SubscribeToMessages();
@@ -214,7 +218,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       base.DeepCopy(source, copyManager);
 
       EpgGrid c = (EpgGrid)source;
+      HeaderWidth = c.HeaderWidth;
+      GroupButtonWidth = c.GroupButtonWidth;
       HeaderTemplate = copyManager.GetCopy(c.HeaderTemplate);
+      GroupButtonTemplate = copyManager.GetCopy(c.GroupButtonTemplate);
       ProgramTemplate = copyManager.GetCopy(c.ProgramTemplate);
       TimeIndicatorTemplate = copyManager.GetCopy(c.TimeIndicatorTemplate);
 
@@ -228,6 +235,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       UnsubscribeFromMessages();
       MPF.TryCleanupAndDispose(HeaderTemplate);
       MPF.TryCleanupAndDispose(ProgramTemplate);
+      MPF.TryCleanupAndDispose(GroupButtonTemplate);
       base.Dispose();
     }
 
@@ -278,6 +286,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       set { _headerTemplateProperty.SetValue(value); }
     }
 
+    public AbstractProperty GroupButtonTemplateProperty
+    {
+      get { return _groupButtonTemplateProperty; }
+    }
+
+    public ControlTemplate GroupButtonTemplate
+    {
+      get { return (ControlTemplate)_groupButtonTemplateProperty.GetValue(); }
+      set { _groupButtonTemplateProperty.SetValue(value); }
+    }
+
     public AbstractProperty TimeIndicatorTemplateProperty
     {
       get { return _timeIndicatorTemplateProperty; }
@@ -298,6 +317,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       get { return (double)_headerWidthProperty.GetValue(); }
       set { _headerWidthProperty.SetValue(value); }
+    }
+
+    public AbstractProperty GroupButtonWidthProperty
+    {
+      get { return _groupButtonWidthProperty; }
+    }
+
+    public double GroupButtonWidth
+    {
+      get { return (double)_groupButtonWidthProperty.GetValue(); }
+      set { _groupButtonWidthProperty.SetValue(value); }
     }
 
     #endregion
@@ -349,12 +379,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       ColumnDefinitions.Clear();
       RowDefinitions.Clear();
 
+      // Only reserve space if a template is set
+      double headersOffset = 0d;
+      if (GroupButtonEnabled)
+      {
+        headersOffset = GroupButtonWidth;
+        ColumnDefinition groupButtonColumn = new ColumnDefinition { Width = new GridLength(GridUnitType.Pixel, headersOffset) };
+        ColumnDefinitions.Add(groupButtonColumn);
+      }
+
       double headerWidth = HeaderWidth;
+      headersOffset += headerWidth;
       ColumnDefinition rowHeaderColumn = new ColumnDefinition { Width = new GridLength(GridUnitType.Pixel, headerWidth) };
       ColumnDefinitions.Add(rowHeaderColumn);
 
       double rowHeight = ActualHeight / _numberOfRows;
-      double colWidth = (ActualWidth - headerWidth) / _numberOfColumns;
+      double colWidth = (ActualWidth - headersOffset) / _numberOfColumns;
       for (int c = 0; c < _numberOfColumns; c++)
       {
         ColumnDefinition cd = new ColumnDefinition { Width = new GridLength(GridUnitType.Pixel, colWidth) };
@@ -368,6 +408,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
       SetInitialViewOffset();
       RecreateAndArrangeChildren(true);
+    }
+
+    private bool GroupButtonEnabled
+    {
+      get { return GroupButtonTemplate != null; }
     }
 
     private void RecreateAndArrangeChildren(bool keepViewOffset = false)
@@ -416,6 +461,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         if (ChannelsPrograms == null)
           return;
 
+        if (GroupButtonEnabled)
+          CreateGroupButton();
+
         int rowIndex = 0;
         int channelIndex = _channelViewOffset;
         while (channelIndex < ChannelsPrograms.Count && rowIndex < _numberOfRows)
@@ -424,6 +472,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
             break;
         }
       }
+    }
+
+    private void CreateGroupButton()
+    {
+      Control btnGroup = CreateControl(null);
+      SetGrid(btnGroup, 0, 0, 1, _numberOfRows);
+
+      // Deep copy the styles to each program button.
+      btnGroup.Template = MpfCopyManager.DeepCopyCutLVPs(GroupButtonTemplate);
+      Children.Add(btnGroup);
     }
 
     private bool CreateOrUpdateRow(bool updateOnly, ref int channelIndex, int rowIndex)
@@ -438,7 +496,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       DateTime viewportStart = SlimTvMultiChannelGuideModel.GuideStartTime;
       DateTime viewportEnd = SlimTvMultiChannelGuideModel.GuideEndTime;
 
-      int colIndex = 0;
+      int colIndex = GroupButtonEnabled ? 1 : 0;
       if (!updateOnly)
       {
         Control btnHeader = CreateControl(channel);
@@ -472,7 +530,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         removeList.ForEach(Children.Remove);
       }
 
-      colIndex = 1; // After header
+      colIndex++; // After header (and optional GroupButton)
       int programIndex = 0;
       while (programIndex < channel.Programs.Count && colIndex < _numberOfColumns)
       {
@@ -494,7 +552,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         Control btnEpg = GetOrCreateControl(program, rowIndex);
         SetGrid(btnEpg, colIndex, rowIndex, colSpan);
 
-        if (ChannelContext.IsSameChannel(channel.Channel, ChannelContext.Instance.Channels.Current) && program.IsRunning)
+        if (ChannelContext.IsSameChannel(channel.Channel, ChannelContext.Instance.Channels.Current) && program.IsRunning && !updateOnly)
         {
           btnEpg.SetFocusPrio = SetFocusPriority.Highest;
         }
@@ -524,9 +582,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       DateTime programViewStart = program.Program.StartTime < viewportStart ? viewportStart : program.Program.StartTime;
 
       double minutesSinceStart = (programViewStart - viewportStart).TotalMinutes;
+      int headersOffset = GroupButtonEnabled ? 2 : 1;
       if (lastEndTime != null)
       {
-        int newColIndex = (int)Math.Round(minutesSinceStart / _perCellTime) + 1; // Header offset
+        int newColIndex = (int)Math.Round(minutesSinceStart / _perCellTime) + headersOffset; // Header offset
         if (lastEndTime != program.Program.StartTime)
           colIndex = Math.Max(colIndex, newColIndex); // colIndex is already set to new position. Calculation is only done to support gaps in programs.
 
@@ -535,8 +594,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
       colSpan = (int)Math.Round((program.Program.EndTime - programViewStart).TotalMinutes / _perCellTime);
 
-      if (colIndex + colSpan > _numberOfColumns + 1)
-        colSpan = _numberOfColumns - colIndex + 1;
+      if (colIndex + colSpan > _numberOfColumns + headersOffset)
+        colSpan = _numberOfColumns - colIndex + headersOffset;
 
       if (colSpan == 0)
         colSpan = 1;
@@ -641,11 +700,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     /// <param name="colIndex">"Grid.Column"</param>
     /// <param name="rowIndex">"Grid.Row"</param>
     /// <param name="colSpan">"Grid.ColumnSpan"</param>
-    private static void SetGrid(Control gridControl, int colIndex, int rowIndex, int colSpan)
+    /// <param name="rowSpan">Grid.RowSpan</param>
+    private static void SetGrid(Control gridControl, int colIndex, int rowIndex, int colSpan, int rowSpan = 1)
     {
       SetRow(gridControl, rowIndex);
       SetColumn(gridControl, colIndex);
       SetColumnSpan(gridControl, colSpan);
+      SetRowSpan(gridControl, rowSpan);
     }
 
     /// <summary>

@@ -23,6 +23,7 @@
               DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
 
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource GroupButtonWidth}"/>
           <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -32,8 +33,8 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Rectangle Grid.Column="0" Fill="#66000000" Grid.RowSpan="2" Margin="0,0,15,0" RadiusX="16" RadiusY="16" />
-        <Rectangle Grid.Column="1" Fill="#66000000" Grid.RowSpan="2" Margin="0,0,0,0" RadiusX="16" RadiusY="16"/>
+        <Rectangle Grid.Column="0" Grid.ColumnSpan="2" Fill="#66000000" Grid.RowSpan="2" Margin="0,0,15,0" RadiusX="16" RadiusY="16" />
+        <Rectangle Grid.Column="2" Fill="#66000000" Grid.RowSpan="2" Margin="0,0,0,0" RadiusX="16" RadiusY="16"/>
 
         <StackPanel x:Name="Groups" Margin="10,10,0,0" Grid.Column="0" Grid.Row="0"
             HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
@@ -50,7 +51,7 @@
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" VerticalAlignment="Center" 
                  FontSize="{ThemeResource SmallFontSize}" Content="{Binding GroupName}" Margin="7,0,0,0"/>
         </StackPanel>
-        <StackPanel x:Name="TimeControls" Margin="10,10,0,0" Grid.Column="1" Grid.Row="0"
+        <StackPanel x:Name="TimeControls" Margin="10,10,0,0" Grid.Column="2" Grid.Row="0"
                      HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="ScrollBackwardButton" Style="{StaticResource SmallButtonStyle}" Content=" - "
                   Command="{Command ScrollBackward}">
@@ -66,7 +67,7 @@
               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"  VerticalAlignment="Center" Margin="7,0,0,0"/>
         </StackPanel>
 
-        <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,5,0,20"
+        <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5,0,20"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
