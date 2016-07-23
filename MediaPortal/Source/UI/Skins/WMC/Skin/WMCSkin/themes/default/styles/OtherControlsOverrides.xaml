@@ -672,7 +672,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
