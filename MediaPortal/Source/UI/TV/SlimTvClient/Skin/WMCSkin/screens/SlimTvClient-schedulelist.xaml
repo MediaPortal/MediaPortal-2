@@ -80,7 +80,7 @@
             <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                  FontFamily="DefaultBold" Opacity="0.4">
               <Label.Content>
-                <Binding ElementName="ScheduleList" Path="ItemsSource.Count" />
+                <Binding ElementName="ScheduleList" Path="ItemsCount" />
               </Label.Content>
             </Label>
           </StackPanel>

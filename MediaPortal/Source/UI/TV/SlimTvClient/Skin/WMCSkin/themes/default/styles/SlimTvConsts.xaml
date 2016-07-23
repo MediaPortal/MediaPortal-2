@@ -12,6 +12,8 @@
   <ResourceWrapper x:Key="ChannelLogoLarge" Resource="180"/>
   <ResourceWrapper x:Key="ChannelLogoContainerLarge" Resource="68"/>
 
+  <ResourceWrapper x:Key="ChannelLogoWidth" Resource="130"/>
+
   <ResourceWrapper x:Key="MainListChannelNameLength" Resource="180"/>
   <ResourceWrapper x:Key="MainListTimeLength" Resource="80"/>
   <ResourceWrapper x:Key="TvGuideRowHeaderWidth" Resource="250"/>

@@ -4,7 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails"
+  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,30,20,-200"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   
@@ -24,7 +24,7 @@
                       <ColumnDefinition Width="450"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
+                    <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" FontFamily="SegoeUIBold"
                         Content="[Media.ImageTitleLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
                     <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
                         Content="{Binding Title}" Color="{ThemeResource TextColor}"/>

@@ -88,7 +88,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid>
       </Grid>
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-      <Control x:Name="ClientArea" DockPanel.Dock="Center"
+      <Control x:Name="ClientArea" DockPanel.Dock="Center" 
                Template="{DynamicResource ResourceKey=Client_Template}">
       </Control>
     </DockPanel>

@@ -1,4 +1,6 @@
-﻿using MediaPortal.UI.SkinEngine.Controls.Visuals;
+﻿using MediaPortal.Common;
+using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using SharpDX;
 
 namespace MediaPortal.UiComponents.WMCSkin.Controls
@@ -15,6 +17,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
 
     protected bool IsMouseOverElement(UIElement element)
     {
+      if (!ServiceRegistration.Get<IInputManager>().IsMouseUsed)
+        return false;
       FrameworkElement frameworkElement = element as FrameworkElement;
       return frameworkElement != null && frameworkElement.IsMouseOver;
     }

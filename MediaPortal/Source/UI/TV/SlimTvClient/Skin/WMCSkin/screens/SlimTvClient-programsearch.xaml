@@ -75,7 +75,7 @@
             <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                  FontFamily="DefaultBold" Opacity="0.4">
               <Label.Content>
-                <Binding ElementName="SearchResult" Path="ItemsSource.Count" />
+                <Binding ElementName="SearchResult" Path="ItemsCount"/>
               </Label.Content>
             </Label>
           </StackPanel>

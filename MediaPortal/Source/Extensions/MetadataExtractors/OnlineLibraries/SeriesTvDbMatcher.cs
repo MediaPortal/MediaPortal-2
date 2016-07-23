@@ -163,22 +163,29 @@ namespace MediaPortal.Extensions.OnlineLibraries
       if (episodes.Count == 1)
       {
         episode = episodes[0];
+        seriesInfo.ImdbId = seriesDetail.ImdbId;
+        seriesInfo.TvdbId = seriesDetail.Id;
+        seriesInfo.FirstAired = episode.FirstAired;
         seriesInfo.Episode = episode.EpisodeName;
         SetEpisodeDetails(seriesInfo, episode);
         return true;
       }
 
       // Multiple episodes
-      SetMultiEpisodeDetailsl(seriesInfo, episodes);
+      SetMultiEpisodeDetails(seriesInfo, episodes);
       return true;
     }
 
-    private static void SetMultiEpisodeDetailsl(SeriesInfo seriesInfo, List<TvdbEpisode> episodes)
+    private static void SetMultiEpisodeDetails(SeriesInfo seriesInfo, List<TvdbEpisode> episodes)
     {
       seriesInfo.TotalRating = episodes.Sum(e => e.Rating) / episodes.Count; // Average rating
       seriesInfo.Episode = string.Join("; ", episodes.OrderBy(e => e.EpisodeNumber).Select(e => e.EpisodeName).ToArray());
       seriesInfo.Summary = string.Join("\r\n\r\n", episodes.OrderBy(e => e.EpisodeNumber).
         Select(e => string.Format("{0,02}) {1}", e.EpisodeNumber, e.Overview)).ToArray());
+
+      seriesInfo.ImdbId = episodes.Min(e => e.ImdbId);
+      seriesInfo.TvdbId = episodes.Min(e => e.Id);
+      seriesInfo.FirstAired = episodes.Min(e => e.FirstAired);
 
       // Don't clear seriesInfo.Actors again. It's already been filled with actors from series details.
       var guestStars = episodes.SelectMany(e => e.GuestStars).Distinct().ToList();

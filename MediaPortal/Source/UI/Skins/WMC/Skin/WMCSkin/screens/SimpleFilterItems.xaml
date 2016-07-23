@@ -46,10 +46,23 @@
 
         <!---Space for Listview Details-->
         <Grid Grid.Column="1" Width="1000">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
           </Grid.IsVisible>
+
+          <!---Listview Details-->
+          <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\MultiListDetails.inc"/>
+            </Control.TemplateControl>
+          </Control>
         </Grid>
       </Grid>
     </ControlTemplate>
@@ -70,17 +83,6 @@
           <Control.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
-          </Control.IsVisible>
-        </Control>
-
-        <!---Listview Details-->
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-          <Control.TemplateControl>
-            <Include Source="screens\MultiListDetails.inc"/>
-          </Control.TemplateControl>
-          <Control.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
           </Control.IsVisible>
         </Control>
       </Grid>

@@ -55,6 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemsPanelProperty;
     protected AbstractProperty _dataStringProviderProperty;
     protected AbstractProperty _currentItemProperty;
+    protected AbstractProperty _itemsCountProperty;
     protected AbstractProperty _isEmptyProperty;
     protected AbstractProperty _groupingValueProviderProperty;
 
@@ -99,6 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
       _dataStringProviderProperty = new SProperty(typeof(DataStringProvider), null);
       _currentItemProperty = new SProperty(typeof(object), null);
+      _itemsCountProperty = new SProperty(typeof(int), 0);
       _isEmptyProperty = new SProperty(typeof(bool), false);
     }
 
@@ -289,8 +291,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected virtual void OnItemsChanged()
     {
+      SetCount();
       // Unlike WFP, we don't support the change of the Items collection directly, so no need to react to any
       // change of that collection. This method is only to be overridden.
+    }
+
+    protected void SetCount()
+    {
+      ItemsCount = ItemsSource != null ? ItemsSource.Cast<object>().Count() : _items != null ? _items.Count : 0;
     }
 
     #endregion
@@ -496,6 +504,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return (bool)_isEmptyProperty.GetValue(); }
       set { _isEmptyProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ItemsCountProperty
+    {
+      get { return _itemsCountProperty; }
+    }
+
+    public int ItemsCount
+    {
+      get { return (int)_itemsCountProperty.GetValue(); }
+      set { _itemsCountProperty.SetValue(value); }
     }
 
     public bool IsItemsPrepared
@@ -749,6 +768,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Shortcut in state Preparing - no render thread necessary here to do the UpdatePreparedItems work
         UpdatePreparedItems();
       InvalidateLayout(true, true);
+      SetCount();
     }
 
     protected void UpdatePreparedItems()

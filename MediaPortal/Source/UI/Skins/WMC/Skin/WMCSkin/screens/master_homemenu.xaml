@@ -35,6 +35,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Include.Resources>
 
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png">
+      </Image>
+    </ControlTemplate>
+
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
@@ -43,7 +48,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid x:Name="MainLayoutPanel" Margin="300,50,0,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Grid x:Name="MainLayoutPanel" Margin="300,50,0,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0">
 
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -56,23 +61,23 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Grid.Resources>
           <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
         </Grid.Resources>
+        <Grid.Triggers>
+          <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableMainMenuAnimations}" Value="True">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="BeginMainMenuFadeAnimation" Storyboard="{ThemeResource MainMenuFadeAnimation}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="BeginMainMenuFadeAnimation" />
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </Grid.Triggers>
 
         <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2"  Style="{ThemeResource MyMainMenuListViewStyle}"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" Opacity="0"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0"
                   ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=NestedMenuItems,Mode=OneTime}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
-          <ListView.Triggers>
-            <DataTrigger Binding="{Binding Source={StaticResource HomeMenuModel},Path=EnableMainMenuAnimations}" Value="True">
-              <DataTrigger.EnterActions>
-                <BeginStoryboard x:Name="BeginMainMenuFadeAnimation" Storyboard="{ThemeResource MainMenuFadeAnimation}"/>
-              </DataTrigger.EnterActions>
-              <DataTrigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="BeginMainMenuFadeAnimation" />
-              </DataTrigger.ExitActions>
-            </DataTrigger>
-          </ListView.Triggers>
         </ListView>
 
         <Grid x:Name="SubItemsFadeControl" Grid.Row="2" Grid.Column="0" Opacity="0" Panel.ZIndex="100"
@@ -140,8 +145,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid>
 
         <Grid Grid.Row="2" Grid.Column="0" Opacity="1" Panel.ZIndex="99">
+          <Grid.Resources>
+            <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+          </Grid.Resources>
           <Image x:Name="FocusFrame" Source="Focus.frame.png" 
-               Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="11,-1,0,18"/>
+                 IsVisible="{Binding Source={StaticResource MouseModel},Path=!IsMouseUsed}"
+                 Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="11,-1,0,18"/>
         </Grid>
         
         <!--<Rectangle x:Name="HoverGrid" Margin="0,200,8,120" RadiusX="25" RadiusY="25" HorizontalAlignment="Right" Width="440" Height="250" StrokeThickness="2"

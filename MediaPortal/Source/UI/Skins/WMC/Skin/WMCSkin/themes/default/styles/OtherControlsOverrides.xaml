@@ -7,15 +7,44 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
     xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
+    xmlns:wmcc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Converters;assembly=WMCSkin"
     DependsOnStyleResources="Colors,Buttons,Consts,OtherControls,Animations"
     >
 
   <!-- BackgroundManager model -->
   <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
   <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
+  <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
+  <wmcc:IncludeItemsListActionFilter x:Key="IncludeItemsListActionFilter"/>
+  <wmcc:ExcludeItemsListActionFilter x:Key="ExcludeItemsListActionFilter"/>
+
+  <!--
+  Workflow ActionIds that will be shown in MediaMenu by default. Other actions are excluded 
+  Format has to be a ";" delimited list of Guids
+  -->
+  <!--ResourceWrapper x:Key="ActionIdFilter">
+    03189090-a3c1-4346-9a84-4acd6725dde0;
+    f400fbea-6e32-4735-be52-15dfdbb64fcc;
+    b15ea757-905e-46fa-a71d-c132885c221e;
+    d205e9bc-a970-429d-88f8-bbb92cf3f19a;
+    377692F9-C2E5-4D30-BF27-24F12B2CD9C8;
+    09243059-ee44-460d-8412-2e994ccb5a98;
+    09eae702-d9ec-4325-82d9-4843502c966b
+  </-->
+
+  <ResourceWrapper x:Key="ActionIdFilter">
+    63935BB2-3434-482b-BE52-EBE787522EA7;
+    D5D980B9-EB3C-4f07-AB20-0684C35D2764;
+    652C8DEE-38F8-4479-BBB3-F25557641E60;
+    63935BB2-3434-482b-BE52-EBE787522EA7;
+    D83604C0-0936-4416-9DE8-7B6D7C50023C;
+    36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F;
+    9C3E6701-6856-49ec-A4CD-0CEB15F385F6;
+    985AD907-0EDB-4feb-AA99-2B52DDEADE6F
+  </ResourceWrapper>
 
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
@@ -58,6 +87,64 @@
                 </LinearGradientBrush>
               </wmc:HomeMenuContentPresenter.OpacityMask>
             </wmc:HomeMenuContentPresenter>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HorizontalMediaScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal" Margin="0,-50,0,-50"> 
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="50" Margin="0,50,0,50"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                <GradientStop Color="Transparent" Offset="0" />
+                <GradientStop Color="Black" Offset="0.1" />
+                <GradientStop Color="Black" Offset="0.9" />
+                <GradientStop Color="Transparent" Offset="1" />
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="VerticalMediaScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="Transparent" Offset="0" />
+                <GradientStop Color="Black" Offset="0.12" />
+                <GradientStop Color="Black" Offset="0.88" />
+                <GradientStop Color="Transparent" Offset="1" />
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -246,7 +333,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Control x:Name="MainMenuItemContainer">
             <Control.RenderTransform>
-              <TranslateTransform Y="0"/>
+              <TranslateTransform Y="0" X="0"/>
             </Control.RenderTransform>
             <Control.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -284,7 +371,11 @@
                          Path="BringIntoView"/>
                     </TriggerCommand.Command>
                   </TriggerCommand>
+                  <BeginStoryboard x:Name="BeginTranslateXAnimation" Storyboard="{ThemeResource SelectedMainItemAnimation}"/>
                 </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="BeginTranslateXAnimationReverse" Storyboard="{ThemeResource SelectedMainItemAnimationReverse}"/>
+                </DataTrigger.ExitActions>
               </DataTrigger>
             </Control.Triggers>
             <Control.TemplateControl>
@@ -315,9 +406,7 @@
   </DataTemplate>
 
   <Style x:Key="MyMainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <!--<EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}"/>-->
     <EventSetter Event="MouseWheel" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnMouseWheel}"/>
-    <!--<EventSetter Event="KeyPressed" Handler="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>-->
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -331,8 +420,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="False" Orientation="Vertical"
-                      KeyPress="{CommandStencil Source={StaticResource HomeMenuModel}, Path=OnKeyPress}"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -369,7 +457,7 @@
                 </Trigger>
               </Button.Triggers>
             </Button>
-            <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Right"
+            <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Right" TextTrimming="CharacterEllipsis"
                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Opacity="0.4"
                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </DockPanel>
@@ -389,6 +477,17 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource TopMenuItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource TopMenuItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="False" Margin="0" 
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <DataTemplate x:Key="SlideMenuItemDataTemplate">

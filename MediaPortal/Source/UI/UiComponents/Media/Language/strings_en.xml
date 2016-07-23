@@ -411,4 +411,19 @@
 
   <string name="Settings.Players.OpenPlayerStrategy">Open player strategy</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategy, how newly opened players will be positioned among already open players</string>
+
+  <!-- Secondary filters -->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
+  <string name="Filter.RemoteNumericAlphabet2">abc</string>
+  <string name="Filter.RemoteNumericAlphabet3">def</string>
+  <string name="Filter.RemoteNumericAlphabet4">ghi</string>
+  <string name="Filter.RemoteNumericAlphabet5">jkl</string>
+  <string name="Filter.RemoteNumericAlphabet6">mno</string>
+  <string name="Filter.RemoteNumericAlphabet7">pqrs</string>
+  <string name="Filter.RemoteNumericAlphabet8">tuv</string>
+  <string name="Filter.RemoteNumericAlphabet9">wxyz</string>
+
+  <string name="Filter.Filtered">Filtered</string>
+  <string name="Filter.StartsWith">Starts with: {0}</string>
 </resources>

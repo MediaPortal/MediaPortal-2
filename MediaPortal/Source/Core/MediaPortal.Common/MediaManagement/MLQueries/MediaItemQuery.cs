@@ -198,7 +198,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     public IList<SortInformation> SortInformation
     {
       get { return _sortInformation; }
-      set { _sortInformation = new List<SortInformation>(value); }
+      set { _sortInformation = value != null ? new List<SortInformation>(value) : null; }
     }
 
     /// <summary>

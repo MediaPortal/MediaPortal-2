@@ -48,6 +48,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Controls
@@ -365,7 +366,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         RowDefinitions.Add(cd);
       }
 
-      RecreateAndArrangeChildren();
+      SetInitialViewOffset();
+      RecreateAndArrangeChildren(true);
     }
 
     private void RecreateAndArrangeChildren(bool keepViewOffset = false)
@@ -374,6 +376,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         _channelViewOffset = 0;
       _childrenCreated = false;
       CreateVisibleChildren(false);
+    }
+
+    /// <summary>
+    /// Tries to find the current channel in the current group and makes sure it will be inside the visible area.
+    /// </summary>
+    private void SetInitialViewOffset()
+    {
+      int currentChannelIndex = 0;
+      foreach (var channelsProgram in ChannelsPrograms.OfType<ChannelProgramListItem>())
+      {
+        if (ChannelContext.IsSameChannel(channelsProgram.Channel, ChannelContext.Instance.Channels.Current))
+        {
+          if (currentChannelIndex >= _numberOfRows)
+            _channelViewOffset = currentChannelIndex - _numberOfRows + 1;
+          break;
+        }
+        currentChannelIndex++;
+      }
     }
 
     private void CreateVisibleChildren(bool updateOnly)
@@ -473,6 +493,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
         Control btnEpg = GetOrCreateControl(program, rowIndex);
         SetGrid(btnEpg, colIndex, rowIndex, colSpan);
+
+        if (ChannelContext.IsSameChannel(channel.Channel, ChannelContext.Instance.Channels.Current) && program.IsRunning)
+        {
+          btnEpg.SetFocusPrio = SetFocusPriority.Highest;
+        }
 
         programIndex++;
         colIndex += colSpan; // Skip spanned columns.
@@ -715,30 +740,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private bool OnDown()
     {
-      if (!MoveFocus1(MoveFocusDirection.Down))
-      {
-        if (IsViewPortAtBottom)
-          return false;
-
-        UpdateViewportVertical(-1);
-        MoveFocus1(MoveFocusDirection.Down); // After we created a new row, try to set focus again
-        return true;
-      }
-      return true;
+      return ScrollVertical(-1);
     }
 
     private bool OnUp()
     {
-      if (!MoveFocus1(MoveFocusDirection.Up))
-      {
-        if (IsViewPortAtTop)
-          return false;
-
-        UpdateViewportVertical(+1);
-        MoveFocus1(MoveFocusDirection.Up); // After we created a new row, try to set focus again
-        return true;
-      }
-      return true;
+      return ScrollVertical(+1);
     }
 
     private bool OnHome()
@@ -829,6 +836,156 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         UpdateViewportHorizontal();
       }
       return true;
+    }
+
+    private bool ScrollVertical(int scrollDirection)
+    {
+      int row;
+      ProgramListItem program;
+      FrameworkElement header;
+      if (!GetFocusedRowAndStartTime(out program, out header, out row))
+        return false;
+
+      if (scrollDirection < 0)
+      {
+        if (row == _numberOfRows - 1)
+        {
+          if (IsViewPortAtBottom)
+            return false;
+          // Scroll down
+          UpdateViewportVertical(scrollDirection);
+        }
+        else
+          row++;
+      }
+      else
+      {
+        if (row == 0)
+        {
+          if (IsViewPortAtTop)
+            return false;
+          // Scroll up
+          UpdateViewportVertical(scrollDirection);
+        }
+        else
+          row--;
+      }
+      // Focus was on channel header
+      if (header != null)
+      {
+        var nextHeader = Children.FirstOrDefault(c => GetRow(c) == row && GetColumn(c) == 0);
+        if (nextHeader != null)
+        {
+          return nextHeader.TrySetFocus(true);
+        }
+        return false;
+      }
+
+      // Focus was on program, first check if the program is the currently running, in this case we will also prefer currently running of next row
+      if (program.IsRunning)
+      {
+        return FocusNextRunningProgram(row);
+      }
+
+      // Then try to find "nearest" program in new row.
+      FrameworkElement control;
+      var startTime = program.Program.StartTime;
+      // If program is running already, compare with viewport start
+      if (startTime < SlimTvMultiChannelGuideModel.GuideStartTime)
+        startTime = SlimTvMultiChannelGuideModel.GuideStartTime;
+
+      if (FindNearestProgram(startTime, row, out control))
+      {
+        return control.TrySetFocus(true);
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Gets the currently focused program or header control and its Grid.Row.
+    /// </summary>
+    /// <param name="program">Focused program</param>
+    /// <param name="headerControl">Focused header</param>
+    /// <param name="row">The focused row</param>
+    /// <returns><c>true</c> if matching program could be found</returns>
+    private bool GetFocusedRowAndStartTime(out ProgramListItem program, out FrameworkElement headerControl, out int row)
+    {
+      program = null;
+      headerControl = null;
+      row = 0;
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+
+      while (currentElement != null)
+      {
+        if (currentElement.DataContext != null)
+        {
+          // Check for program
+          var item = currentElement.DataContext.Source as ProgramListItem;
+          if (item != null)
+          {
+            program = item;
+            row = GetRow(currentElement);
+            return true;
+          }
+          // Check for channel header
+          var channel = currentElement.DataContext.Source as ChannelProgramListItem;
+          if (channel != null)
+          {
+            headerControl = currentElement;
+            row = GetRow(currentElement);
+            return true;
+          }
+        }
+        currentElement = currentElement.LogicalParent as Control;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Perfers the running item of the next row.
+    /// </summary>
+    /// <param name="row">Row</param>
+    /// <returns><c>true</c> if matching program could be found</returns>
+    private bool FocusNextRunningProgram(int row)
+    {
+      var nextRowRunningItem = Children.FirstOrDefault(c => GetRow(c) == row && c.DataContext != null && c.DataContext.Source is ProgramListItem && ((ProgramListItem)c.DataContext.Source).IsRunning);
+      if (nextRowRunningItem != null)
+        return nextRowRunningItem.TrySetFocus(true);
+      return false;
+    }
+
+    /// <summary>
+    /// Finds the nearest program relative to given <paramref name="startTime"/>. The "nearest" one is checked by comparing program start times.
+    /// If the start time is before the current view port, the SlimTvMultiChannelGuideModel.GuideStartTime will be used.
+    /// </summary>
+    /// <param name="startTime">Start time of currently focused program</param>
+    /// <param name="row">New row to focus</param>
+    /// <param name="programControl">Returns the next program's control to focus</param>
+    /// <returns><c>true</c> if matching program could be found</returns>
+    private bool FindNearestProgram(DateTime startTime, int row, out FrameworkElement programControl)
+    {
+      var rowItems = Children.Where(c => GetRow(c) == row && c.DataContext != null).ToList();
+      double minDiff = Double.MaxValue;
+      FrameworkElement nearestStartItem = null;
+      foreach (var program in rowItems)
+      {
+        var pi = program.DataContext.Source as ProgramListItem;
+        if (pi == null)
+          continue;
+
+        var programStartTime = pi.Program.StartTime;
+        if (programStartTime < SlimTvMultiChannelGuideModel.GuideStartTime)
+          programStartTime = SlimTvMultiChannelGuideModel.GuideStartTime;
+
+        var diff = Math.Abs((startTime - programStartTime).TotalMinutes);
+        if (nearestStartItem == null || diff < minDiff)
+        {
+          minDiff = diff;
+          nearestStartItem = program;
+        }
+      }
+      programControl = nearestStartItem;
+      return programControl != null;
     }
 
     private void UpdateViewportHorizontal()

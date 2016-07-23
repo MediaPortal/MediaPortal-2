@@ -65,8 +65,10 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Argus\Recording.cs" />
     <Compile Include="Metadata\RecordingAspect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ArgusRecordingMetadataExtractor.cs" />
     <Compile Include="WTVRecordingMetadataExtractor.cs" />
     <Compile Include="Tve3RecordingMetadataExtractor.cs" />
     <Compile Include="WTV\MCRecMetadataEditor.cs" />

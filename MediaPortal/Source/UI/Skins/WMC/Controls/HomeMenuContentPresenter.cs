@@ -23,7 +23,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
       var lvi = element.FindParentOfType<ListViewItem>();
       if (lvi != null)
       {
-        var item = lvi.Context as NestedItem;
+        var item = lvi.Context as ListItem;
         return item != null && item.Selected;
       }
       return false;
