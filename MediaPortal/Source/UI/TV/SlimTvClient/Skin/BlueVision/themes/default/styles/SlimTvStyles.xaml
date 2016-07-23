@@ -486,7 +486,7 @@
     <Setter Property="GroupButtonTemplate">
       <Setter.Value>
         <ControlTemplate>
-          <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Binding Command}">
+          <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}">
             <Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="DefaultBold"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                    Content="Change group">
