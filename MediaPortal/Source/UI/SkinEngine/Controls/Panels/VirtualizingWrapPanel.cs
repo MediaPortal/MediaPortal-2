@@ -49,6 +49,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     // Assigned in ArrangeChildren
     protected FrameworkElement[] _arrangedItems = null;
+    protected IList<FrameworkElement> _visibleGroupItems = new List<FrameworkElement>();
+    protected bool _addOneMoreGroupHeader;
     protected int _firstArrangedLineIndex = -1;
     protected int _lastArrangedLineIndex = -1;
 
@@ -66,6 +68,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       _itemProvider = copyManager.GetCopy(p._itemProvider);
       _assumedLineExtendsInNonOrientationDirection = 0;
       _arrangedItems = null;
+      _visibleGroupItems.Clear();
       _firstArrangedLineIndex = -1;
       _lastArrangedLineIndex = -1;
     }
@@ -262,9 +265,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // calulate just one line to find number of items and required size of a line
         LineMeasurement exemplaryLine = _firstArrangedLineIndex < 0 ? CalculateLine(0, totalSize, false) : _arrangedLines[_firstArrangedLineIndex];
         _assumedLineExtendsInNonOrientationDirection = exemplaryLine.TotalExtendsInNonOrientationDirection;
+        var groupedItemProvider = ItemProvider as IGroupedItemProvider;
         var itemsPerLine = exemplaryLine.EndIndex - exemplaryLine.StartIndex + 1;
-        var estimatedExtendsInNonOrientationDirection = (float)Math.Ceiling((float)numItems / itemsPerLine) * _assumedLineExtendsInNonOrientationDirection;
+        float estimatedExtendsInNonOrientationDirection;
+        if (groupedItemProvider != null && groupedItemProvider.IsGroupingActive)
+        {
+          // meassure one header and use its size x number of groups
+          // then iterate throuh all groups and summ up the line size x lines per grpoup
+          var groupHeader = GetGroupHeader(0, true, groupedItemProvider, true);
+          estimatedExtendsInNonOrientationDirection = groupedItemProvider.GroupCount *
+            (Orientation == Orientation.Horizontal ? groupHeader.DesiredSize.Width : groupHeader.DesiredSize.Height);
 
+          for (int n = 0; n < groupedItemProvider.GroupCount; ++n)
+          {
+            estimatedExtendsInNonOrientationDirection += (float)Math.Ceiling((float)groupedItemProvider.GetGroupInfo(n).ItemCount / itemsPerLine) * _assumedLineExtendsInNonOrientationDirection;
+          }
+        }
+        else
+        {
+          estimatedExtendsInNonOrientationDirection = (float)Math.Ceiling((float)numItems / itemsPerLine) * _assumedLineExtendsInNonOrientationDirection;
+        }
         return Orientation == Orientation.Horizontal ? new SizeF(exemplaryLine.TotalExtendsInOrientationDirection, estimatedExtendsInNonOrientationDirection) :
             new SizeF(estimatedExtendsInNonOrientationDirection, exemplaryLine.TotalExtendsInOrientationDirection);
       }
@@ -284,6 +304,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item.SetElementState(ElementState.Preparing);
           if (_elementState == ElementState.Running)
             item.SetElementState(ElementState.Running);
+          if (Orientation == Orientation.Vertical)
+          {
+            SetVerticalScrollDistance(item, 0d);
+          }
+          else
+          {
+            SetHorizontalScrollDistance(item, 0d);
+          }
         }
         if (newlyCreated || forceMeasure)
         {
@@ -292,6 +320,42 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item.Measure(ref childSize);
         }
         return item;
+      }
+    }
+
+    protected FrameworkElement GetGroupHeader(int itemIndex, bool isFirstVisibleItem, IGroupedItemProvider groupingItemProvider, bool forceMeasure)
+    {
+      if (groupingItemProvider == null)
+        return null;
+
+      lock (Children.SyncRoot)
+      {
+        bool newlyCreated;
+        FrameworkElement headerItem = groupingItemProvider.GetOrCreateGroupHeader(itemIndex, isFirstVisibleItem, this, out newlyCreated);
+        if (headerItem == null)
+          return null;
+        if (newlyCreated)
+        {
+          // VisualParent and item.Screen were set by the item provider
+          headerItem.SetElementState(ElementState.Preparing);
+          if (_elementState == ElementState.Running)
+            headerItem.SetElementState(ElementState.Running);
+          if (Orientation == Orientation.Vertical)
+          {
+            SetVerticalScrollDistance(headerItem, 0d);
+          }
+          else
+          {
+            SetHorizontalScrollDistance(headerItem, 0d);
+          }
+        }
+        if (newlyCreated || forceMeasure)
+        {
+          SizeF childSize = Orientation == Orientation.Vertical ? new SizeF((float)ActualWidth, float.NaN) :
+              new SizeF(float.NaN, (float)ActualHeight);
+          headerItem.Measure(ref childSize);
+        }
+        return headerItem;
       }
     }
 
@@ -306,6 +370,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           return;
         }
 
+        var groupedItemProvider = ItemProvider as IGroupedItemProvider;
+        if (groupedItemProvider != null && !groupedItemProvider.IsGroupingActive)
+        {
+          groupedItemProvider = null;
+        }
         _totalHeight = 0;
         _totalWidth = 0;
         int numItems = ItemProvider.NumItems;
@@ -329,7 +398,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
           lock (_renderLock)
-              if (_pendingScrollIndex.HasValue)
+          {
+            if (_pendingScrollIndex.HasValue)
             {
               fireScrolled = true;
               int pendingSI = _pendingScrollIndex.Value;
@@ -346,6 +416,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               }
               _pendingScrollIndex = null;
             }
+          }
 
           int itemsPerLine = 0;
           // if we haven't arranged any lines previously - items per line can't be calculated yet, but is not needed
@@ -376,7 +447,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
           // 1) Calculate scroll indices
           if (_doScroll)
-          { // Calculate last visible child
+          {
+            // Calculate last visible child
             float spaceLeft = actualExtendsInNonOrientationDirection;
             //Allow space for partially visible items at top and bottom
             if (physicalOffset != 0)
@@ -470,8 +542,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           else
             _totalWidth = actualExtendsInOrientationDirection;
           PointF position = Orientation == Orientation.Vertical ?
-              new PointF(actualPosition.X + startPosition, actualPosition.Y) :
-              new PointF(actualPosition.X, actualPosition.Y + startPosition);
+            new PointF(actualPosition.X + startPosition, actualPosition.Y) :
+            new PointF(actualPosition.X, actualPosition.Y + startPosition);
           foreach (LineMeasurement line in _arrangedLines.Skip(_firstArrangedLineIndex).Take(_lastArrangedLineIndex - _firstArrangedLineIndex + 1))
           {
             LayoutLine(position, line);
@@ -587,7 +659,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return base.GetElement(index);
 
       lock (Children.SyncRoot)
-          return GetItem(index, itemProvider, true);
+        return GetItem(index, itemProvider, true);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)
@@ -600,7 +672,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       if (_arrangedItems != null)
         lock (Children.SyncRoot)
-            CollectionUtils.AddAll(childrenOut, _arrangedItems.Where(i => i != null));
+          CollectionUtils.AddAll(childrenOut, _arrangedItems.Where(i => i != null));
     }
 
     #endregion
