@@ -533,7 +533,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
       colIndex++; // After header (and optional GroupButton)
       int programIndex = 0;
-      while (programIndex < channel.Programs.Count && colIndex < _numberOfColumns)
+      while (programIndex < channel.Programs.Count && colIndex <= _numberOfColumns)
       {
         ProgramListItem program = channel.Programs[programIndex] as ProgramListItem;
         if (program == null || program.Program.StartTime > viewportEnd)
