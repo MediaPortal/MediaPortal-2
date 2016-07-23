@@ -31,7 +31,7 @@
           <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
+        <!--Grid x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -53,7 +53,7 @@
               <Setter TargetName="GroupNameLabel" Property="Opacity" Value="0.5"/>
             </MultiTrigger>
           </Grid.Triggers>
-        </Grid>
+        </-->
 
         <Grid Margin="20,-70,20,0" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom">
           <Grid.RowDefinitions>
