@@ -138,7 +138,7 @@
                         Color="{ThemeResource TextColor}"  Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
                     <ProgressBar x:Name="ProgressBar" Grid.Row="1" Grid.Column="2" Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15,5,15,0"
-                        Value="{Binding Path=PercentPlayed}" />
+                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="0,0,0,0"
                         Content="{Binding Duration}"  FontSize="{ThemeResource SmallFontSize}"
@@ -282,7 +282,7 @@
                         Color="{ThemeResource ProgressBarTextColor}"  Margin="0,0,20,0" HorizontalAlignment="Right"/>
 
                     <ProgressBar x:Name="ProgressBar" Grid.Row="1" Grid.Column="2" Height="22" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
-                        Value="{Binding Path=PercentPlayed}" />
+                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="20,0,0,0"
                         Content="{Binding Duration}" 
