@@ -489,7 +489,7 @@
           <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}">
             <Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="DefaultBold"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                   Content="Change group">
+                     Content="[SlimTvClient.ChannelGroupButton]">
               <Label.LayoutTransform>
                 <RotateTransform CenterX="0.5" CenterY="0.5" Angle="-90" />
               </Label.LayoutTransform>
