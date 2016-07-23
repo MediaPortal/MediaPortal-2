@@ -78,6 +78,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     protected Control _timeIndicatorControl;
     protected Timer _timer = null;
     protected long _updateInterval = 10000; // Update every 10 seconds
+    protected int? _lastFocusedRow;
 
     #endregion
 
@@ -710,13 +711,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     }
 
     /// <summary>
+    /// Returns the header control from Grid for row with index <paramref name="rowIndex"/>.
+    /// </summary>
+    /// <param name="rowIndex">RowIndex.</param>
+    /// <returns>Header Control.</returns>
+    private Control GetRowHeader(int rowIndex)
+    {
+      return Children.OfType<Control>().FirstOrDefault(el => GetRow(el) == rowIndex && el.Context is ChannelProgramListItem);
+    }
+
+    /// <summary>
     /// Returns all programs from Grid for row with index <paramref name="rowIndex"/>.
     /// </summary>
     /// <param name="rowIndex">RowIndex.</param>
     /// <returns>Controls.</returns>
     private IEnumerable<Control> GetRowItems(int rowIndex)
     {
-      return GetProgramItems().Where(el => GetRow(el) == rowIndex);
+      return GetProgramItems().Where(el => GetRow(el) == rowIndex).OrderBy(GetColumn);
     }
 
     /// <summary>
@@ -870,18 +881,36 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     private void FocusFirstProgramInRow(int rowIndex, bool pageIndexChanged)
     {
       var firstItem = GetRowItems(rowIndex).FirstOrDefault();
-      if (firstItem != null)
-      {
-        if (pageIndexChanged)
-          firstItem.SetFocus = true;
-        else
-          firstItem.TrySetFocus(true);
-      }
+      FocusControl(pageIndexChanged, firstItem);
+    }
+
+    private void FocusHeaderInRow(int rowIndex, bool pageIndexChanged)
+    {
+      var firstItem = GetRowHeader(rowIndex);
+      FocusControl(pageIndexChanged, firstItem);
+    }
+
+    private void FocusControl(bool pageIndexChanged, Control firstItem)
+    {
+      if (firstItem == null)
+        return;
+      if (pageIndexChanged)
+        firstItem.SetFocus = true;
+      else
+        firstItem.TrySetFocus(true);
     }
 
     private bool OnRight()
     {
-      if (!MoveFocus1(MoveFocusDirection.Right))
+      if (MoveFocus1(MoveFocusDirection.Right))
+      {
+        if (_lastFocusedRow.HasValue)
+        {
+          FocusHeaderInRow(_lastFocusedRow.Value, false);
+          _lastFocusedRow = null;
+        }
+      }
+      else
       {
         SlimTvMultiChannelGuideModel.Scroll(TimeSpan.FromMinutes(30));
         UpdateViewportHorizontal();
@@ -891,6 +920,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private bool OnLeft()
     {
+      // As the group button spans all rows, we remember the last row to restore it when moving back right
+      if (GroupButtonEnabled)
+      {
+        int row;
+        ProgramListItem program;
+        FrameworkElement header;
+        if (GetFocusedRowAndStartTime(out program, out header, out row) && header != null)
+        {
+          _lastFocusedRow = row;
+        }
+      }
       if (!MoveFocus1(MoveFocusDirection.Left))
       {
         SlimTvMultiChannelGuideModel.Scroll(TimeSpan.FromMinutes(-30));
