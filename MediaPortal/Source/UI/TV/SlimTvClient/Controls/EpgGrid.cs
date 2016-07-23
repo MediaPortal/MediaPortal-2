@@ -455,15 +455,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         {
           _timeIndicatorControl = null;
           Children.Clear();
+
+          if (GroupButtonEnabled)
+            CreateGroupButton();
         }
 
         SetTimeIndicator();
 
         if (ChannelsPrograms == null)
           return;
-
-        if (GroupButtonEnabled)
-          CreateGroupButton();
 
         int rowIndex = 0;
         int channelIndex = _channelViewOffset;
@@ -680,8 +680,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         Children.Add(timeIndicatorControl);
       }
       DateTime viewportStart = SlimTvMultiChannelGuideModel.GuideStartTime;
-      int currentTimeColumn = (int)Math.Round((DateTime.Now - viewportStart).TotalMinutes / _perCellTime) + 1; // Header offset
-      if (currentTimeColumn <= 1 || currentTimeColumn > _numberOfColumns + 1) // Outside viewport
+      var headerOffset = GroupButtonEnabled ? 2 : 1;
+      int currentTimeColumn = (int)Math.Round((DateTime.Now - viewportStart).TotalMinutes / _perCellTime) + headerOffset; // Header offset
+      if (currentTimeColumn <= headerOffset || currentTimeColumn > _numberOfColumns + headerOffset) // Outside viewport
       {
         timeIndicatorControl.IsVisible = false;
       }
@@ -1104,7 +1105,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         foreach (FrameworkElement element in Children)
         {
           // Indicator must not be removed, its position is fixed
-          if (element == _timeIndicatorControl)
+          if (ShouldKeepControl(element))
             continue;
           int row = GetRow(element);
           int targetRow = row + moveOffset;
@@ -1120,6 +1121,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         CreateOrUpdateRow(false, ref channelIndex, rowIndex);
       }
       ArrangeOverride();
+    }
+
+    /// <summary>
+    /// Indicates if a control should be kept during partial updates (scrolling through channels)
+    /// </summary>
+    private bool ShouldKeepControl(FrameworkElement element)
+    {
+      return element == _timeIndicatorControl || GroupButtonEnabled && GetColumn(element) == 0;
     }
 
     #endregion
