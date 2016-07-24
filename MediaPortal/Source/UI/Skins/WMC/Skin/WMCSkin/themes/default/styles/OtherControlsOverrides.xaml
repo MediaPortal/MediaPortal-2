@@ -607,7 +607,27 @@
 
   <!-- ****************************** PlayerControl ********************************** -->
 
-    <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+  <Style x:Key="CPPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StackPanel Orientation="Horizontal">
+              <Button x:Name="CurrentlyPlaying" Style="{ThemeResource CPButtonStyle}">
+                <Button.Triggers>
+                  <Trigger Property="HasFocus" Value="True">
+                    <Setter TargetName="image2" Property="Opacity" Value="1"/>
+                  </Trigger>
+                </Button.Triggers>
+              </Button>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">

@@ -31,6 +31,30 @@
           <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
         </Grid.RowDefinitions>
 
+        <Grid x:Name="TimeControls" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="ScrollBackwardButton" Grid.Column="0" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
+                  Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
+          <Label x:Name="GuideStartTimeLabel" Grid.Column="1" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="5,0,5,0" Opacity="1"/>
+          <Button x:Name="ScrollForwardButton" Grid.Column="2" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
+                  Command="{Command ScrollForward}" VerticalAlignment="Center"/>
+          <Grid.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="False"/>
+                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="GuideStartTimeLabel" Property="Opacity" Value="0.5"/>
+            </MultiTrigger>
+          </Grid.Triggers>
+        </Grid>
+
         <!--Grid x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
               HorizontalAlignment="Left" VerticalAlignment="Top">
           <Grid.ColumnDefinitions>
@@ -78,30 +102,6 @@
                   <Condition Property="IsKeyboardFocusWithin" Value="False"/>
                 </MultiTrigger.Conditions>
                 <Setter TargetName="SearchLabel" Property="Opacity" Value="0.5"/>
-              </MultiTrigger>
-            </Grid.Triggers>
-          </Grid>
-
-          <Grid x:Name="TimeControls" Margin="20,0,20,20" Grid.Column="0" Grid.Row="1"
-              HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="ScrollBackwardButton" Grid.Column="0" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
-                  Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
-            <Label x:Name="GuideStartTimeLabel" Grid.Column="1" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="5,0,5,0" Opacity="1"/>
-            <Button x:Name="ScrollForwardButton" Grid.Column="2" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
-                  Command="{Command ScrollForward}" VerticalAlignment="Center"/>
-            <Grid.Triggers>
-              <MultiTrigger>
-                <MultiTrigger.Conditions>
-                  <Condition Property="IsMouseOver" Value="False"/>
-                  <Condition Property="IsKeyboardFocusWithin" Value="False"/>
-                </MultiTrigger.Conditions>
-                <Setter TargetName="GuideStartTimeLabel" Property="Opacity" Value="0.5"/>
               </MultiTrigger>
             </Grid.Triggers>
           </Grid>

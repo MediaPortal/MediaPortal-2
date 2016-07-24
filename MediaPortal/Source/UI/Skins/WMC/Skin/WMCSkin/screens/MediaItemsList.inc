@@ -76,7 +76,7 @@
       <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
              Opacity="0.4"/>
       <Label Color="{ThemeResource TextColor}" Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}"
-             FontFamily="DefaultBold" Opacity="0.4"/>
+             Opacity="0.4"/>
       <StackPanel.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                  Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
