@@ -1234,7 +1234,7 @@
           <DockPanel>
             <Grid DockPanel.Dock="Left" Height="53" Width="53">
               <Image x:Name="image1" Source="CP_Background.png" Stretch="Fill"/>
-              <Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="17" Opacity="0.5"/>
+              <Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="16" Opacity="0.5"/>
               <Image x:Name="image3" Source="CP_Circle.png" Stretch="Fill"  RenderTransformOrigin="0.5,0.5"
                    HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Image.RenderTransform>
@@ -1253,8 +1253,8 @@
               </Image>
             </Grid>
             <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="10,0,10,0" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-              <Label x:Name="PrimaryPlayer" Content="Player1" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold"/>
-              <Label x:Name="SecondaryPlayer" Content="Player2" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold"/>
+              <Label x:Name="PrimaryPlayer" Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold"/>
+              <Label x:Name="SecondaryPlayer" Content="Player2" IsVisible="{Binding IsPip}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold"/>
             </StackPanel>
           </DockPanel>
         </ControlTemplate>
