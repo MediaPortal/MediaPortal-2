@@ -1257,14 +1257,6 @@
               <Label x:Name="SecondaryPlayer" Content="Player2" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold"/>
             </StackPanel>
           </DockPanel>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="image" Property="Source" Value="HOME.FOCUS.PNG"/>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Setter TargetName="image" Property="Source" Value="HOME.DISABLED.PNG"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
