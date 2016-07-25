@@ -106,17 +106,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-            <Control x:Name="AlternativeFooterControl" HorizontalAlignment="Stretch" Grid.Column="0" Grid.ColumnSpan="3"
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+            <Control x:Name="AlternativeFooterControl" HorizontalAlignment="Stretch" Grid.Column="0" 
                  Template="{DynamicResource ResourceKey=Alternative_Footer_Template}">
         </Control>
-             <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
-                  AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Column="2"/>
-             <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
-                  AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Left" VerticalAlignment="Bottom" Grid.Column="0"/>
+      <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
+                  AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+      <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
+                  AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
     </Grid>
     <!-- FooterPanel -->
     

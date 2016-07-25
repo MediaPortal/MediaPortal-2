@@ -17,6 +17,7 @@
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.15"/>
     
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
+  <StringFormatConverter x:Key="StringFormatConverter"/>
 
   <Storyboard x:Key="FocusedButtonWideStoryboard_Poster" FillBehavior="HoldEnd">
       <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
@@ -1232,13 +1233,25 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="PlayerName" Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold"
-                   IsVisible="{Binding ElementName=CurrentlyPlaying, Path=HasFocus}" Opacity="0.4">
-            </Label>
+            <StackPanel Orientation="Horizontal" IsVisible="{Binding ElementName=CurrentlyPlaying, Path=HasFocus}">
+              <Label x:Name="PlayerName" Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4"/>
+              <Label x:Name="PlayerState" Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" 
+                     FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4" Margin="10,0,10,0"/>
+              <Label x:Name="PercentagePlayed" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4">
+                <Label.Content>
+                  <Binding Path="PercentPlayed" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}"/>
+                </Label.Content>
+              </Label>
+              <Label x:Name="PercentageSign" Content="%" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4">
+              </Label>
+            </StackPanel> 
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">
               <Setter TargetName="PlayerName" Property="Opacity" Value="1"/>
+              <Setter TargetName="PlayerState" Property="Opacity" Value="1"/>
+              <Setter TargetName="PercentagePlayed" Property="Opacity" Value="1"/>
+              <Setter TargetName="PercentageSign" Property="Opacity" Value="1"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

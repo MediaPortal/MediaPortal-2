@@ -633,8 +633,8 @@
                 <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
                     <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                           IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Bottom">
-                        
-                            <Grid x:Name="MediaInfoPanel">
+
+            <Grid x:Name="MediaInfoPanel" IsVisible="{Binding IsCurrentPlayer}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
