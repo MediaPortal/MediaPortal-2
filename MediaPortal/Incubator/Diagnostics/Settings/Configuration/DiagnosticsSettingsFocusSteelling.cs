@@ -1,4 +1,6 @@
-﻿/*
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
@@ -18,35 +20,39 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#endregion
+
+using log4net.Core;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.UiComponents.Diagnostics.Service;
 
 namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 {
-    internal class DiagnosticsSettingsFocusSteelling : YesNo
+  internal class DiagnosticsSettingsFocusSteelling : YesNo
+  {
+
+    #region Public Methods
+
+    public override void Load()
     {
-
-        #region Public Methods
-
-        public override void Load()
-        {
-            _yes = Service.DiagnosticsHandler.FocusSteelingInstance.IsMonitoring;
-        }
-
-        public override void Save()
-        {
-            if (_yes)
-            {
-                Service.DiagnosticsHandler.SetLogLevel(log4net.Core.Level.Debug);
-                Service.DiagnosticsHandler.FocusSteelingInstance.SubscribeToMessages();
-            }
-            else
-            {
-                Service.DiagnosticsHandler.SetLogLevel(log4net.Core.Level.Info);
-                Service.DiagnosticsHandler.FocusSteelingInstance.UnsubscribeFromMessages();
-            }
-        }
-
-        #endregion Public Methods
-
+      _yes = DiagnosticsHandler.FocusSteelingInstance.IsMonitoring;
     }
+
+    public override void Save()
+    {
+      if (_yes)
+      {
+        DiagnosticsHandler.SetLogLevel(Level.Debug);
+        DiagnosticsHandler.FocusSteelingInstance.SubscribeToMessages();
+      }
+      else
+      {
+        DiagnosticsHandler.SetLogLevel(Level.Info);
+        DiagnosticsHandler.FocusSteelingInstance.UnsubscribeFromMessages();
+      }
+    }
+
+    #endregion Public Methods
+
+  }
 }

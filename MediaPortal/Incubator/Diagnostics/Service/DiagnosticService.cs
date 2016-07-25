@@ -1,3 +1,5 @@
+#region Copyright (C) 2007-2015 Team MediaPortal
+
 /*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
@@ -18,100 +20,93 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#endregion
+
+using System;
 using log4net;
 using log4net.Core;
+using log4net.Repository.Hierarchy;
 using MediaPortal.Common;
-using System;
+using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.UiComponents.Diagnostics.Service
 {
+  /// <summary>
+  /// Provide Diagnostics toolbox:
+  /// - Enable DEBUG logging in Client
+  /// - Enable logging of potential focus steeling
+  /// - Collect log files
+  /// </summary>
+  public class DiagnosticsHandler : IDisposable
+  {
+    #region Private Fields
+
+    private static FocusSteelingMonitor _focusSteelingInstance;
+    private static FormLogMonitor _logViewerInstance;
+
+    #endregion Private Fields
+
+    #region Internal Properties
+
     /// <summary>
-    /// Provide Diagnostics toolbox:
-    /// - Enable DEBUG logging in Client
-    /// - Enable logging of potential focus steeling
-    /// - Collect log files
+    /// Guaranteed unique access to focus steeling mechanism
     /// </summary>
-    public class DiagnosticsHandler : IDisposable
+    internal static FocusSteelingMonitor FocusSteelingInstance
     {
-
-        #region Private Fields
-
-        private static FocusSteelingMonitor _focusSteelingInstance = null;
-        private static FormLogMonitor _logViewerInstance = null;
-
-        #endregion Private Fields
-
-        #region Internal Properties
-
-        /// <summary>
-        /// Guaranteed unique access to focus steeling mechanism
-        /// </summary>
-        internal static FocusSteelingMonitor FocusSteelingInstance
-        {
-            get
-            {
-                if (_focusSteelingInstance == null)
-                {
-                    _focusSteelingInstance = new FocusSteelingMonitor();
-                }
-                return _focusSteelingInstance;
-            }
-        }
-
-        /// <summary>
-        /// Guaranteed unique access to log viewer
-        /// </summary>
-        internal static FormLogMonitor LogViewerInstance
-        {
-            get
-            {
-                if (_logViewerInstance == null || _logViewerInstance.IsDisposed)
-                {
-                    _logViewerInstance = new FormLogMonitor();
-                }
-                return _logViewerInstance;
-            }
-        }
-
-        #endregion Internal Properties
-
-        #region Public Methods
-
-        public void Dispose()
-        {
-            DiagnosticsHandler.FocusSteelingInstance.Dispose();
-            DiagnosticsHandler.LogViewerInstance.Dispose();
-        }
-
-        #endregion Public Methods
-
-        #region Internal Methods
-
-        /// <summary>
-        /// Retrieve log level
-        /// </summary>
-        /// <returns></returns>
-        internal static Level GetLogLevel()
-        {
-            Level returnValue = Level.Info;
-            var loggerRepository = (log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository();
-            returnValue = loggerRepository.Root.Level;
-            return returnValue;
-        }
-
-        /// <summary>
-        /// Set Log Level
-        /// </summary>
-        /// <param name="level">desired log level</param>
-        internal static void SetLogLevel(Level level)
-        {
-            var loggerRepository = (log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository();
-            loggerRepository.Root.Level = level;
-            loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
-            ServiceRegistration.Get<Common.Logging.ILogger>().Debug(string.Format("DiagnosticService: Switched LogLevel to {0}", level.ToString()));
-        }
-
-        #endregion Internal Methods
-
+      get { return _focusSteelingInstance ?? (_focusSteelingInstance = new FocusSteelingMonitor()); }
     }
+
+    /// <summary>
+    /// Guaranteed unique access to log viewer
+    /// </summary>
+    internal static FormLogMonitor LogViewerInstance
+    {
+      get
+      {
+        if (_logViewerInstance != null && !_logViewerInstance.IsDisposed)
+          return _logViewerInstance;
+        _logViewerInstance = new FormLogMonitor();
+        return _logViewerInstance;
+      }
+    }
+
+    #endregion Internal Properties
+
+    #region Public Methods
+
+    public void Dispose()
+    {
+      FocusSteelingInstance.Dispose();
+      LogViewerInstance.Dispose();
+    }
+
+    #endregion Public Methods
+
+    #region Internal Methods
+
+    /// <summary>
+    /// Retrieve log level
+    /// </summary>
+    /// <returns></returns>
+    internal static Level GetLogLevel()
+    {
+      var loggerRepository = (Hierarchy)LogManager.GetRepository();
+      var returnValue = loggerRepository.Root.Level;
+      return returnValue;
+    }
+
+    /// <summary>
+    /// Set Log Level
+    /// </summary>
+    /// <param name="level">desired log level</param>
+    internal static void SetLogLevel(Level level)
+    {
+      var loggerRepository = (Hierarchy)LogManager.GetRepository();
+      loggerRepository.Root.Level = level;
+      loggerRepository.RaiseConfigurationChanged(EventArgs.Empty);
+      ServiceRegistration.Get<ILogger>().Debug(string.Format("DiagnosticService: Switched LogLevel to {0}", level));
+    }
+
+    #endregion Internal Methods
+  }
 }

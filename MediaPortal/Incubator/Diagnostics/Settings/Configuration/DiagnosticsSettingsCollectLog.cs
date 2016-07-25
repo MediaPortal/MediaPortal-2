@@ -1,4 +1,6 @@
-﻿/*
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
@@ -18,40 +20,44 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#endregion
+
+using System.Diagnostics;
+using System.IO;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using Microsoft.Win32;
 
 namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 {
-    internal class DiagnosticsSettingsCollectLog : YesNo
+  internal class DiagnosticsSettingsCollectLog : YesNo
+  {
+
+    #region Public Methods
+
+    public override void Load()
     {
-
-        #region Public Methods
-
-        public override void Load()
-        {
-            _yes = false;
-        }
-
-        public override void Save()
-        {
-            if (!_yes) return;
-
-            using (RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Team Mediaportal\Mediaportal 2"))
-            {
-                if (registryKey != null)
-                {
-                    string logCollectorPath = (string)registryKey.GetValue("INSTALLDIR_LOG_COLLECTOR");
-                    string collectorPath = System.IO.Path.Combine(logCollectorPath, "MP2-LogCollector.exe");
-                    if (System.IO.File.Exists(collectorPath))
-                    {
-                        System.Diagnostics.Process.Start(collectorPath);
-                    }
-                }
-            }
-        }
-
-        #endregion Public Methods
-
+      _yes = false;
     }
+
+    public override void Save()
+    {
+      if (!_yes) return;
+
+      using (RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Team Mediaportal\Mediaportal 2"))
+      {
+        if (registryKey != null)
+        {
+          string logCollectorPath = (string)registryKey.GetValue("INSTALLDIR_LOG_COLLECTOR");
+          string collectorPath = Path.Combine(logCollectorPath, "MP2-LogCollector.exe");
+          if (File.Exists(collectorPath))
+          {
+            Process.Start(collectorPath);
+          }
+        }
+      }
+    }
+
+    #endregion Public Methods
+
+  }
 }

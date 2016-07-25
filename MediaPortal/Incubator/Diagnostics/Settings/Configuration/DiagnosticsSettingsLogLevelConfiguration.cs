@@ -1,4 +1,6 @@
-﻿/*
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
@@ -18,28 +20,32 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#endregion
+
+using log4net.Core;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.UiComponents.Diagnostics.Service;
 
 namespace MediaPortal.UiComponents.Diagnostics.Settings.Configuration
 {
-    public class DiagnosticsSettingsLogLevelConfiguration : YesNo
+  public class DiagnosticsSettingsLogLevelConfiguration : YesNo
+  {
+
+    #region Public Methods
+
+    public override void Load()
     {
-
-        #region Public Methods
-
-        public override void Load()
-        {
-            log4net.Core.Level activeLevel = Diagnostics.Service.DiagnosticsHandler.GetLogLevel();
-            _yes = (activeLevel == log4net.Core.Level.All) ? true : false;
-        }
-
-        public override void Save()
-        {
-            log4net.Core.Level desired = (_yes) ? log4net.Core.Level.All : log4net.Core.Level.Info;
-            Diagnostics.Service.DiagnosticsHandler.SetLogLevel(desired);
-        }
-
-        #endregion Public Methods
-
+      Level activeLevel = DiagnosticsHandler.GetLogLevel();
+      _yes = activeLevel == Level.All;
     }
+
+    public override void Save()
+    {
+      Level desired = _yes ? Level.All : Level.Info;
+      DiagnosticsHandler.SetLogLevel(desired);
+    }
+
+    #endregion Public Methods
+
+  }
 }

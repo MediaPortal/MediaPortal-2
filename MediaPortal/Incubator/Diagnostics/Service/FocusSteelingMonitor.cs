@@ -1,4 +1,6 @@
-﻿/*
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
@@ -18,97 +20,99 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-using MediaPortal.Common.Messaging;
-using MediaPortal.UI.General;
+#endregion
+
 using System;
 using System.Windows.Forms;
+using MediaPortal.Common.Messaging;
+using MediaPortal.UI.General;
 
 namespace MediaPortal.UiComponents.Diagnostics.Service
 {
-    internal class FocusSteelingMonitor : IDisposable
+  internal class FocusSteelingMonitor : IDisposable
+  {
+
+    #region Private Fields
+
+    private AsynchronousMessageQueue _messageQueue;
+
+    #endregion Private Fields
+
+    #region Internal Properties
+
+    /// <summary>
+    /// Gets a value indicating the execution status
+    /// </summary>
+    internal bool IsMonitoring { get; private set; }
+
+    #endregion Internal Properties
+
+    #region Public Methods
+
+    public void Dispose()
     {
-
-        #region Private Fields
-
-        private AsynchronousMessageQueue _messageQueue;
-
-        #endregion Private Fields
-
-        #region Internal Properties
-
-        /// <summary>
-        /// Gets a value indicating the execution status
-        /// </summary>
-        internal bool IsMonitoring { get; private set; }
-
-        #endregion Internal Properties
-
-        #region Public Methods
-
-        public void Dispose()
-        {
-            UnsubscribeFromMessages();
-        }
-
-        #endregion Public Methods
-
-        #region Internal Methods
-
-        /// <summary>
-        /// Subscribe to message & start focus steeling monitoring
-        /// </summary>
-        internal void SubscribeToMessages()
-        {
-            if (_messageQueue != null)
-                return;
-            _messageQueue = new AsynchronousMessageQueue(this, new[] { WindowsMessaging.CHANNEL, });
-            _messageQueue.PreviewMessage += OnPreviewMessage;
-            _messageQueue.Start();
-            IsMonitoring = true;
-        }
-
-        /// <summary>
-        /// Unsubscribe from message & stop focus steeling monitoring
-        /// </summary>
-        internal void UnsubscribeFromMessages()
-        {
-            if (_messageQueue == null)
-                return;
-            _messageQueue.Shutdown();
-            _messageQueue = null;
-            IsMonitoring = false;
-        }
-
-        #endregion Internal Methods
-
-        #region Protected Methods
-
-        protected virtual void HandleWindowsMessage(ref Message m)
-        {
-            ActivationMonitor.HandleMessage(ref m);
-        }
-
-        #endregion Protected Methods
-
-        #region Private Methods
-
-        private void OnPreviewMessage(AsynchronousMessageQueue queue, SystemMessage message)
-        {
-            if (message.ChannelName == WindowsMessaging.CHANNEL)
-            {
-                WindowsMessaging.MessageType messageType = (WindowsMessaging.MessageType)message.MessageType;
-                switch (messageType)
-                {
-                    case WindowsMessaging.MessageType.WindowsBroadcast:
-                        Message msg = (Message)message.MessageData[WindowsMessaging.MESSAGE];
-                        HandleWindowsMessage(ref msg);
-                        message.MessageData[WindowsMessaging.MESSAGE] = msg;
-                        break;
-                }
-            }
-        }
-
-        #endregion Private Methods
-
+      UnsubscribeFromMessages();
     }
+
+    #endregion Public Methods
+
+    #region Internal Methods
+
+    /// <summary>
+    /// Subscribe to message & start focus steeling monitoring
+    /// </summary>
+    internal void SubscribeToMessages()
+    {
+      if (_messageQueue != null)
+        return;
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { WindowsMessaging.CHANNEL });
+      _messageQueue.PreviewMessage += OnPreviewMessage;
+      _messageQueue.Start();
+      IsMonitoring = true;
+    }
+
+    /// <summary>
+    /// Unsubscribe from message & stop focus steeling monitoring
+    /// </summary>
+    internal void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+      IsMonitoring = false;
+    }
+
+    #endregion Internal Methods
+
+    #region Protected Methods
+
+    protected virtual void HandleWindowsMessage(ref Message m)
+    {
+      ActivationMonitor.HandleMessage(ref m);
+    }
+
+    #endregion Protected Methods
+
+    #region Private Methods
+
+    private void OnPreviewMessage(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == WindowsMessaging.CHANNEL)
+      {
+        WindowsMessaging.MessageType messageType = (WindowsMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case WindowsMessaging.MessageType.WindowsBroadcast:
+            Message msg = (Message)message.MessageData[WindowsMessaging.MESSAGE];
+            HandleWindowsMessage(ref msg);
+            message.MessageData[WindowsMessaging.MESSAGE] = msg;
+            break;
+        }
+      }
+    }
+
+    #endregion Private Methods
+
+  }
 }
