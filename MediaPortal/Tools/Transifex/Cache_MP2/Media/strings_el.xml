@@ -67,4 +67,7 @@
   <string name="Media.SwitchFilterMenuItem">Φίλτρο</string>
   <string name="Media.SwitchFilterDialogTitle">Φίλτρο</string>
   <string name="Settings.Players">Παίκτες</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

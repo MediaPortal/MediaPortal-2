@@ -7,10 +7,10 @@
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exklusiver Modus</string>
-  <string name="Settings.Players.Rendering">Renderung</string>
+  <string name="Settings.Players.Rendering">Rendering</string>
   <string name="Settings.Players.Rendering.CrossFading">Überblenden</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled">Überblenden aktiviert</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Legt fest ob MediaPortal Lieder überblenden soll, wenn möglich</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help">Legt fest, ob MediaPortal Songs überblenden soll, falls möglich</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Überblendungsdauer</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Dauer der Überblendung in Sekunden</string>
 </resources>

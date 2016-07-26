@@ -296,4 +296,7 @@
   <string name="Settings.Players.SkipStepList.Help">Inserisci skip steps in secondi separati da ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Strategia apertura player</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategia, come nuovi player saranno posizionati sopra quelli già aperti</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

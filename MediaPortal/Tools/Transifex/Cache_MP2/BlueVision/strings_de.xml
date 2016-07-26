@@ -23,7 +23,7 @@
   <string name="General.Title">Allgemein</string>
   <string name="CastCrew.Title">Besetzung + Team</string>
   <string name="MediaInfo.Title">Medieninfo</string>
-  <string name="Media.AudioAlbumArtistsLabel">Albumkünstler:</string>
+  <string name="Media.AudioAlbumArtistsLabel">Albuminterpreten:</string>
   <string name="Media.AudioTrackLabel">Titel:</string>
   <string name="Media.AudioBitRateLabel">Bitrate:</string>
   <string name="Media.AudioComposersLabel">Komponisten:</string>

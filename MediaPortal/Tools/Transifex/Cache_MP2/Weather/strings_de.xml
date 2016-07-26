@@ -13,7 +13,7 @@
   <string name="Weather.Weather">Wetter</string>
   <string name="Weather.NoData">Keine Daten</string>
   <string name="Weather.Temp">Temperatur</string>
-  <string name="Weather.TempFeel">Gefühlt wie</string>
+  <string name="Weather.TempFeel">Gefühlt</string>
   <string name="Weather.UVIndex">UV-Index</string>
   <string name="Weather.Wind">Wind</string>
   <string name="Weather.Humidity">Luftfeuchtigkeit</string>
