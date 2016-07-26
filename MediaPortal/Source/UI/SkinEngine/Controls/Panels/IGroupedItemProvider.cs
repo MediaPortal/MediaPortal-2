@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Security.Cryptography.X509Certificates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
@@ -48,5 +49,62 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// Returns the group header element or <c>null</c> if no heder is needed for this item
     /// </returns>
     FrameworkElement GetOrCreateGroupHeader(int itemIndex, bool isFirstVisibleItem, FrameworkElement lvParent, out bool newCreated);
+
+    /// <summary>
+    /// Gets if grouping is active
+    /// </summary>
+    bool IsGroupingActive { get; }
+
+    /// <summary>
+    /// Gets the number of groups
+    /// </summary>
+    int GroupCount { get; }
+
+    /// <summary>
+    /// Gets the group info
+    /// </summary>
+    /// <param name="groupIndex">Inedex of group</param>
+    /// <returns></returns>
+    GroupInfo GetGroupInfo(int groupIndex);
+
+    /// <summary>
+    /// Gets the group index from an item index
+    /// </summary>
+    /// <param name="itemIndex">Index of item</param>
+    /// <returns></returns>
+    int GetGroupIndex(int itemIndex);
+
+    /// <summary>
+    /// Gets the group info from an item index
+    /// </summary>
+    /// <param name="itemIndex">Index of item</param>
+    /// <returns></returns>
+    GroupInfo GetGroupInfoFromItem(int itemIndex);
+  }
+
+  /// <summary>
+  /// Contains item info for grouped items
+  /// </summary>
+  public struct GroupInfo
+  {
+    public GroupInfo(int firstItem, int lastItem)
+    {
+      FirstItem = firstItem;
+      LastItem = lastItem;
+    }
+    /// <summary>
+    /// Index of first item in group
+    /// </summary>
+    public int FirstItem;
+
+    /// <summary>
+    /// Index of last item in group
+    /// </summary>
+    public int LastItem;
+
+    /// <summary>
+    /// Gets the number of items in the group
+    /// </summary>
+    public int ItemCount {  get { return LastItem - FirstItem + 1; } }
   }
 }

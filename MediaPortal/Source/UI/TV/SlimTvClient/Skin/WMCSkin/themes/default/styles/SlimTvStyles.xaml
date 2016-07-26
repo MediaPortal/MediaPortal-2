@@ -383,6 +383,25 @@
     </Setter>
   </Style>
 
+  <Style x:Key="GroupButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle">
+            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" StrokeThickness="0">
+              <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                  <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="0"/>
+                  <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="ProgramGuideSingleButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -458,6 +477,37 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <!--Setter TargetName="ButtonHover" Property="Fill" Value="{ThemeResource FocusedButtonGradient3Color}"/-->
+              <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
+              <Setter TargetName="ButtonUpperShine" Property="IsVisible" Value="True"/>
+              <Trigger.EnterActions>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="GroupButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" Margin="0,2,0,2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Control Grid.Column="1" Style="{ThemeResource GroupButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
+            <ContentPresenter Grid.Column="1" x:Name="ButtonContentPresenter" Margin="3,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
+            <Control Grid.Column="1" Style="{ThemeResource ProgramGuideButtonOverlayControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="3"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
               <Setter TargetName="ButtonUpperShine" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
@@ -970,6 +1020,28 @@
 
   <!-- Style definition for EpgGrid defining header and program item styles -->
   <Style x:Key="EpgGridStyle" TargetType="{x:Type tv:EpgGrid}">
+    <Setter Property="GroupButtonWidth" Value="{ThemeResource GroupButtonWidth}" />
+    <Setter Property="GroupButtonTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <Button Style="{ThemeResource GroupButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" Margin="0,0,5,0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+              <Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Opacity="0.6" Content="[SlimTvClient.ChannelGroupButton]"/>
+              <Label VerticalAlignment="Center" HorizontalAlignment="Center"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Opacity="0.6" Content=": "/>
+              <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Opacity="0.6" Content="{Binding GroupName}" VerticalAlignment="Center"/>          
+              <StackPanel.LayoutTransform>
+                <RotateTransform CenterX="0.5" CenterY="0.5" Angle="-90" />
+              </StackPanel.LayoutTransform>
+            </StackPanel>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="HeaderWidth" Value="{ThemeResource MultiGuideHeaderWidth}" />
     <Setter Property="HeaderTemplate">
       <Setter.Value>

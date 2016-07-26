@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}">
+    Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}" Grid.ZIndex="-100">
+  <!-- ZIndex is required to place this dummy grid in background to avoid un-clickable controls -->
   <Grid.Resources>
     <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
     <Model x:Key="ChannelZapModel" Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375"/>

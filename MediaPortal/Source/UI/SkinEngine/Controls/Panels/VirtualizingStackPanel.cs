@@ -153,13 +153,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Layouting
 
-    protected bool IsGroupingEnabled
-    {
-      get
-      {
-        return ItemProvider is IGroupedItemProvider;
-      }
-    }
     /// <summary>
     /// Combines logical and physical scrolling, allows you to scroll to a partial index.
     /// e.g. If childIndex == 9.25 then the panel will scroll to child 9 plus a quarter of its size.

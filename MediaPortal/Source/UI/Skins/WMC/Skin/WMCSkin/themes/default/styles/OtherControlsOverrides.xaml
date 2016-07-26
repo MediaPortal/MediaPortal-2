@@ -42,7 +42,8 @@
     63935BB2-3434-482b-BE52-EBE787522EA7;
     D83604C0-0936-4416-9DE8-7B6D7C50023C;
     36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F;
-    9C3E6701-6856-49ec-A4CD-0CEB15F385F6
+    9C3E6701-6856-49ec-A4CD-0CEB15F385F6;
+    985AD907-0EDB-4feb-AA99-2B52DDEADE6F
   </ResourceWrapper>
 
   <!-- default brush used to paint the background of a page/window -->
@@ -456,7 +457,7 @@
                 </Trigger>
               </Button.Triggers>
             </Button>
-            <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Right"
+            <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Right" TextTrimming="CharacterEllipsis"
                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Opacity="0.4"
                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </DockPanel>
@@ -476,6 +477,17 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource TopMenuItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource TopMenuItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="False" Margin="0" 
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <DataTemplate x:Key="SlideMenuItemDataTemplate">
@@ -595,14 +607,34 @@
 
   <!-- ****************************** PlayerControl ********************************** -->
 
-    <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+  <Style x:Key="CPPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StackPanel Orientation="Horizontal">
+              <Button x:Name="CurrentlyPlaying" Style="{ThemeResource CPButtonStyle}">
+                <Button.Triggers>
+                  <Trigger Property="HasFocus" Value="True">
+                    <Setter TargetName="image2" Property="Opacity" Value="1"/>
+                  </Trigger>
+                </Button.Triggers>
+              </Button>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
                     <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                           IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Bottom">
-                        
-                            <Grid x:Name="MediaInfoPanel">
+
+            <Grid x:Name="MediaInfoPanel" IsVisible="{Binding IsCurrentPlayer}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -660,7 +692,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>

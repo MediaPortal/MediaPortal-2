@@ -17,8 +17,9 @@
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.15"/>
     
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
+  <StringFormatConverter x:Key="StringFormatConverter"/>
 
-    <Storyboard x:Key="FocusedButtonWideStoryboard_Poster" FillBehavior="HoldEnd">
+  <Storyboard x:Key="FocusedButtonWideStoryboard_Poster" FillBehavior="HoldEnd">
       <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
@@ -29,6 +30,15 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="{ThemeResource PosterButtonZoomCoefficientY}"/>
       </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+    <DoubleAnimation
+                                    Storyboard.TargetProperty="RenderTransform.Angle"
+                                    From="0"
+                                    To="360"
+                                    Duration="0:0:2"
+                                    RepeatBehavior="Forever" />
   </Storyboard>
 
   <Storyboard x:Key="PressedButtonWideStoryboard_Poster" FillBehavior="HoldEnd">
@@ -242,7 +252,33 @@
       </Setter.Value>
     </Setter>
   </Style>
- 
+
+  <!--Because of an opacity bug in skin engine the overlay darkens the button frame in listviews. To compensate a temporal control style with more opacity is used-->
+  <Style x:Key="ButtonListViewControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+            <Rectangle Name="ButtonFrame" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="3">
+              <Rectangle.Stroke>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+                  <GradientStop Color="#E6FFFFFF" Offset="0"/>
+                  <GradientStop Color="#E6FFFFFF" Offset="0.7"/>
+                  <GradientStop Color="#8CFFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Stroke>
+            </Rectangle>
+            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="4.5" RadiusY="4.5" StrokeThickness="0" Margin="2">
+              <Rectangle.Fill>
+                <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill" Opacity="1.8"/>
+              </Rectangle.Fill>
+            </Rectangle>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="OSDButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -351,7 +387,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="100"/>
+            <Control Style="{ThemeResource ButtonListViewControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="100"/>
             <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
           </Grid>
@@ -579,17 +615,6 @@
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
             <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
-            <!--Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Margin="3" StrokeThickness="0" 
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}" 
-                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0">
-              <Rectangle.Fill>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0.012,1.4">
-                  <GradientStop Color="#00000000" Offset="0"/>
-                  <GradientStop Color="#1A000000" Offset="0.7"/>
-                  <GradientStop Color="#40000000" Offset="1"/>
-                </LinearGradientBrush>
-              </Rectangle.Fill>
-            </-->
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -671,68 +696,6 @@
   </Style>
 
   <!-- ***************************** Radio buttons ******************************** -->
-
-  <!--Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type RadioButton}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid Margin="2">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
-                VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
-              <Control.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                </TransformGroup>
-              </Control.RenderTransform>
-            </Control>
-            <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
-            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="IsChecked" Value="True">
-              <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
-            </Trigger>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </-->
 
   <Style x:Key="DefaultRadioButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
@@ -1250,7 +1213,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="HOME.NOFOCUS.PNG" Stretch="Uniform" Height="55" Width="55" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="HOME.NOFOCUS.PNG" Stretch="Uniform" Height="60" Width="60" Margin="0,-3,0,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1260,6 +1223,74 @@
               <Setter TargetName="image" Property="Source" Value="HOME.DISABLED.PNG"/>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CPLabelControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StackPanel Orientation="Horizontal" IsVisible="{Binding ElementName=CurrentlyPlaying, Path=HasFocus}">
+              <Label x:Name="PlayerName" Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4"/>
+              <Label x:Name="PlayerState" Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" 
+                     FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4" Margin="10,0,10,0"/>
+              <Label x:Name="PercentagePlayed" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4">
+                <Label.Content>
+                  <Binding Path="PercentPlayed" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}"/>
+                </Label.Content>
+              </Label>
+              <Label x:Name="PercentageSign" Content="%" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4">
+              </Label>
+            </StackPanel> 
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsCurrentPlayer" Value="True">
+              <Setter TargetName="PlayerName" Property="Opacity" Value="1"/>
+              <Setter TargetName="PlayerState" Property="Opacity" Value="1"/>
+              <Setter TargetName="PercentagePlayed" Property="Opacity" Value="1"/>
+              <Setter TargetName="PercentageSign" Property="Opacity" Value="1"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CPButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel>
+            <Grid DockPanel.Dock="Left" Height="53" Width="53">
+              <Image x:Name="image1" Source="CP_Background.png" Stretch="Fill"/>
+              <Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="16" Opacity="0.5"/>
+              <Image x:Name="image3" Source="CP_Circle.png" Stretch="Fill"  RenderTransformOrigin="0.5,0.5"
+                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Image.RenderTransform>
+                  <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
+                </Image.RenderTransform>
+                <Image.Triggers>
+                  <Trigger Property="IsEnabled" Value="True">
+                    <Trigger.EnterActions>
+                      <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                      <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                    </Trigger.ExitActions>
+                  </Trigger>
+                </Image.Triggers>
+              </Image>
+            </Grid>
+            <StackPanel Orientation="Vertical" Margin="5,0,5,0" DockPanel.Dock="Right" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+              <mp_special_controls:PlayerControl Style="{ThemeResource CPLabelControlStyle}" 
+                  AutoVisibility="True" PlayerContext="PrimaryPlayer" />
+              <mp_special_controls:PlayerControl Style="{ThemeResource CPLabelControlStyle}"
+                  AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
+            </StackPanel>
+          </DockPanel>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

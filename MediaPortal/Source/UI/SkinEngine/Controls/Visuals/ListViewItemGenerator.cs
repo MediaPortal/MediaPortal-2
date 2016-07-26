@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       public void CleanupAndDispose()
       {
-        if(HeaderItem != null)
+        if (HeaderItem != null)
           HeaderItem.CleanupAndDispose();
       }
     }
@@ -141,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
       }
     }
-    
+
     public void Initialize(FrameworkElement parent, IEnumerable<object> itemsSource, Style itemContainerStyle, DataTemplate itemTemplate)
     {
       Initialize(parent, itemsSource, itemContainerStyle, itemTemplate, null, null, null, null);
@@ -157,6 +157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _materializedItems = new List<FrameworkElement>(_items.Count);
       for (int i = 0; i < _items.Count; i++)
         _materializedItems.Add(null);
+      _groupInfos = null;
 
       if ((groupingValueProvider != null && groupingValueProvider.IsGroupingActive) || groupPropertyBinding != null)
       {
@@ -335,7 +336,115 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       return result;
     }
-    
+
+    public FrameworkElement GetOrCreateGroupHeader(int itemIndex, bool isFirstVisibleItem, FrameworkElement lvParent, out bool newCreated)
+    {
+      if (_materializedGroupHeaders == null || itemIndex < 0 || itemIndex >= _materializedGroupHeaders.Length)
+      {
+        newCreated = false;
+        return null;
+      }
+
+      var headerWrapper = GetGroupHeader(itemIndex, isFirstVisibleItem);
+      if (headerWrapper != null)
+        return GetOrCreateGroupHeader(itemIndex, headerWrapper, lvParent, out newCreated);
+      newCreated = false;
+      return null;
+    }
+
+    public bool IsGroupingActive
+    {
+      get { return _materializedGroupHeaders != null; }
+    }
+
+    private List<GroupInfo> _groupInfos;
+
+    private void BuildGroupInfo()
+    {
+      if (_groupInfos != null)
+        return;
+      _groupInfos = new List<GroupInfo>();
+      if(_items == null || _items.Count > 0)
+        return;
+      int first = 0;
+      var firstHeaderWrapper = GetGroupHeader(0);
+      object firstValue = firstHeaderWrapper == null ? null : firstHeaderWrapper.GroupingValue;
+      for (int n = 1; n < _items.Count; ++n)
+      {
+        var thisHeaderWrapper = GetGroupHeader(n);
+        object thisValue = thisHeaderWrapper == null ? null : thisHeaderWrapper.GroupingValue;
+        if (!Equals(firstValue, thisValue))
+        {
+          _groupInfos.Add(new GroupInfo(first, n - 1));
+          firstValue = thisValue;
+          first = n;
+        }
+      }
+      _groupInfos.Add(new GroupInfo(first, _items.Count - 1));
+    }
+
+    public int GroupCount
+    {
+      get
+      {
+        BuildGroupInfo();
+        return _groupInfos.Count;
+      }
+    }
+
+    public GroupInfo GetGroupInfo(int groupIndex)
+    {
+      BuildGroupInfo();
+      if (groupIndex < 0 || groupIndex >= _groupInfos.Count)
+        return new GroupInfo(0, -1);
+      return _groupInfos[groupIndex];
+    }
+
+    public int GetGroupIndex(int itemIndex)
+    {
+      BuildGroupInfo();
+      // assuming that the items are equally distributed over the groups we guess in which group the item may be and search then from there
+      int groupIndex = itemIndex / (_items.Count / _groupInfos.Count);
+      while (groupIndex >= 0 && groupIndex < _groupInfos.Count)
+      {
+        if (itemIndex < _groupInfos[groupIndex].FirstItem)
+        {
+          if (groupIndex > 0)
+          {
+            --groupIndex;
+          }
+          else
+          {
+            break;
+          }
+        }
+        else if (itemIndex > _groupInfos[groupIndex].LastItem)
+        {
+          if (groupIndex < _groupInfos.Count - 1)
+          {
+            ++groupIndex;
+          }
+          else
+          {
+            break;
+          }
+        }
+        else
+        {
+          return groupIndex;
+        }
+      }
+      return -1;
+    }
+
+    public GroupInfo GetGroupInfoFromItem(int itemIndex)
+    {
+      var groupIndex = GetGroupIndex(itemIndex);
+      if (groupIndex < 0)
+        return new GroupInfo(0, -1);
+      return _groupInfos[groupIndex];
+    }
+
     protected FrameworkElement PrepareGroupHeader(GroupHeaderItem headerItem, FrameworkElement lvParent)
     {
       var result = new ListViewGroupHeader()
@@ -351,21 +460,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       result.Style = MpfCopyManager.DeepCopyCutLVPs(GroupHeaderContainerStyle);
       result.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(GroupHeaderTemplate);
       return result;
-    }
-
-    public FrameworkElement GetOrCreateGroupHeader(int itemIndex, bool isFirstVisibleItem, FrameworkElement lvParent, out bool newCreated)
-    {
-      if (_materializedGroupHeaders == null || itemIndex < 0 || itemIndex >= _materializedGroupHeaders.Length)
-      {
-        newCreated = false;
-        return null;
-      }
-
-      var headerWrapper = GetGroupHeader(itemIndex, isFirstVisibleItem);
-      if (headerWrapper != null)
-        return GetOrCreateGroupHeader(itemIndex, headerWrapper, lvParent, out newCreated);
-      newCreated = false;
-      return null;
     }
 
     private FrameworkElement GetOrCreateGroupHeader(int itemIndex, HeaderItemWrapper headerWrapper, FrameworkElement lvParent, out bool newCreated)

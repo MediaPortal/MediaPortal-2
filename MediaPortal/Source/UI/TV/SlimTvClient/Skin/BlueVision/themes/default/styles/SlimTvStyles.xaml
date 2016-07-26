@@ -482,6 +482,22 @@
 
   <!-- Style definition for EpgGrid defining header and program item styles -->
   <Style x:Key="EpgGridStyle" TargetType="{x:Type tv:EpgGrid}">
+    <Setter Property="GroupButtonWidth" Value="{ThemeResource GroupButtonWidth}" />
+    <Setter Property="GroupButtonTemplate">
+      <Setter.Value>
+        <ControlTemplate>
+          <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}">
+            <Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="DefaultBold"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Content="[SlimTvClient.ChannelGroupButton]">
+              <Label.LayoutTransform>
+                <RotateTransform CenterX="0.5" CenterY="0.5" Angle="-90" />
+              </Label.LayoutTransform>
+            </Label>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="HeaderWidth" Value="{ThemeResource MultiGuideHeaderWidth}" />
     <Setter Property="HeaderTemplate">
       <Setter.Value>
@@ -492,7 +508,7 @@
                 <!-- Channel Logo -->
                 <ColumnDefinition Width="Auto"/>
                 <!-- Channel Number -->
-                <ColumnDefinition Width="Auto"/>               
+                <ColumnDefinition Width="Auto"/>
                 <!-- Channel Name -->
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -829,7 +845,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>

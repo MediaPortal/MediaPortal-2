@@ -104,7 +104,7 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Path=PercentPlayed}"/>
+                    Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -247,7 +247,7 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Path=PercentPlayed}"/>
+                    Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
