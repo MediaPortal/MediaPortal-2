@@ -37,6 +37,8 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -99,7 +101,7 @@ namespace MediaPortal.UiComponents.Media.Models
       AllItems.Add(new TitledItem("[Media.MoviesMenuItem]", list));
 
       list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_SERIES_MIAS, list, item => new SeriesItem(item));
+      FillList(contentDirectory, Consts.NECESSARY_EPISODE_MIAS, list, item => new EpisodeItem(item));
       AllItems.Add(new TitledItem("[Media.SeriesMenuItem]", list));
 
       list = new ItemsList();
@@ -120,8 +122,15 @@ namespace MediaPortal.UiComponents.Media.Models
         Limit = QUERY_LIMIT, // Last 5 imported items
         SortInformation = new List<SortInformation> { new SortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      var items = contentDirectory.Search(query, false);
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
+      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

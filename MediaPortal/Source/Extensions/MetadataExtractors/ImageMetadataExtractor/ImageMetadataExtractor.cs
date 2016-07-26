@@ -128,14 +128,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       string fileName = mediaItemAccessor.ResourceName;
       if (!HasImageExtension(fileName))
         return false;
 
+      if (extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))
+        return true;
+
       MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
       MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.Metadata);
+      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
 
       try
       {
@@ -146,9 +152,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         using (Stream mediaStream = fsra.OpenRead())
         {
           string mimeType = MimeTypeDetector.GetMimeType(mediaStream) ?? DEFAULT_MIMETYPE;
-          mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType);
-          mediaAspect.SetAttribute(MediaAspect.ATTR_SIZE, fsra.Size);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
         }
+
         // Extract EXIF information from media item.
         using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))
         {

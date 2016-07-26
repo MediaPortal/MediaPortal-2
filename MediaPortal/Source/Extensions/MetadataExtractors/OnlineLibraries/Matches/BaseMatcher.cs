@@ -66,6 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     protected MatchStorage<TMatch, TId> _storage;
 
     private bool _disposed;
+    private bool _inited;
 
     #endregion
 
@@ -85,16 +86,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     protected BaseMatcher()
     {
-      // Use own thread to avoid delay during startup
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
-      if (threadPool != null)
-        threadPool.Add(ResumeDownloads, "ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
     }
 
     public virtual bool Init()
     {
       if (_storage == null)
         _storage = new MatchStorage<TMatch, TId>(MatchesSettingsFile);
+      if (!_inited)
+      {
+      // Use own thread to avoid delay during startup
+      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+      if (threadPool != null)
+        threadPool.Add(ResumeDownloads, "ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
+        _inited = true;
+    }
+
       if (!NetworkConnectionTracker.IsNetworkConnected)
         return false;
       return true;
@@ -142,7 +148,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       {
         // Load cache or create new list
         List<TMatch> matches = _storage.GetMatches();
-        foreach (TMatch match in matches.FindAll(m => m.Id.Equals(itemId)))
+        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(itemId)))
         {
           // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
           if (match.FanArtDownloadFinished.HasValue)
@@ -162,7 +168,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       {
         // Load cache or create new list
         List<TMatch> matches = _storage.GetMatches();
-        foreach (TMatch match in matches.FindAll(m => m.Id.Equals(itemId)))
+        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(itemId)))
           if (!match.FanArtDownloadFinished.HasValue)
             match.FanArtDownloadFinished = DateTime.Now;
 
@@ -172,15 +178,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     protected void ResumeDownloads()
     {
-      if (!Init())
-        return;
 
       var downloadsToBeStarted = new HashSet<TId>();
       lock (_syncObj)
       {
         var matches = _storage.GetMatches();
         foreach (TMatch match in matches.FindAll(m => m.FanArtDownloadStarted.HasValue && !m.FanArtDownloadFinished.HasValue ||
-                                                      !m.Id.Equals(default(TId)) && !m.FanArtDownloadStarted.HasValue))
+                                                      m.Id != null && !m.Id.Equals(default(TId)) && !m.FanArtDownloadStarted.HasValue))
         {
           if (!match.FanArtDownloadStarted.HasValue)
             match.FanArtDownloadStarted = DateTime.Now;

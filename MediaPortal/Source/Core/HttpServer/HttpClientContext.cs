@@ -411,11 +411,11 @@ namespace HttpServer
     /// </summary>
     /// <param name="buffer">buffer to send</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public void Send(byte[] buffer)
+    public bool Send(byte[] buffer)
     {
       if (buffer == null)
         throw new ArgumentNullException("buffer");
-      Send(buffer, 0, buffer.Length);
+      return Send(buffer, 0, buffer.Length);
     }
 
     /// <summary>
@@ -426,7 +426,7 @@ namespace HttpServer
     /// <param name="size">number of bytes to send</param>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public void Send(byte[] buffer, int offset, int size)
+    public bool Send(byte[] buffer, int offset, int size)
     {
       if (offset + size > buffer.Length)
         throw new ArgumentOutOfRangeException("offset", offset, "offset + size is beyond end of buffer.");
@@ -436,13 +436,23 @@ namespace HttpServer
         try
         {
           Stream.Write(buffer, offset, size);
+          return true;
         }
-        catch (IOException)
+        catch (IOException err)
         {
-
+          LogWriter.Write(this, LogPrio.Debug, "Failed to send: " + err.Message);
+          if (err.InnerException is SocketException)
+            Disconnect((SocketError)((SocketException)err.InnerException).ErrorCode);
+          else
+            Disconnect(SocketError.ConnectionReset);
         }
+        catch (ObjectDisposedException err)
+        {
+          LogWriter.Write(this, LogPrio.Debug, "Failed to send: " + err.Message);
+          Disconnect(SocketError.NotSocket);
       }
-
+      }
+      return false;
     }
 
     /// <summary>

@@ -154,12 +154,5 @@
   <Import Project="..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets" Condition="Exists('..\..\..\..\Packages\xy-VSFilter.3.0.0.211\build\xy-VSFilter.targets')" />
   <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.TsReader.4.1.0.15\build\MediaPortal.TsReader.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.1.0.15\build\MediaPortal.TsReader.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.1.0.15\build\MediaPortal.TsReader.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.TsReader.4.1.0.15\build\MediaPortal.TsReader.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets'))" />
-  </Target>
   <Import Project="..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets')" />
 </Project>

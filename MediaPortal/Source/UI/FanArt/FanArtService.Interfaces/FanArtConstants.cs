@@ -40,6 +40,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     public const string Album = "Album";
     public const string Audio = "Audio";
     public const string Image = "Image";
+    public const string Character = "Character";
+    public const string Director = "Director";
+    public const string Writer = "Writer";
+    public const string Composer = "Composer";
+    public const string Company = "Company";
+    public const string TVNetwork = "TVNetwork";
+    public const string MusicLabel = "MusicLabel";
   }
 
   public static class FanArtTypes
@@ -48,8 +55,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     public const string Poster = "Poster";
     public const string Banner = "Banner";
     public const string FanArt = "FanArt";
+    public const string Cover = "Cover";
     public const string Thumbnail = "Thumbnail";
     public const string ClearArt = "ClearArt";
     public const string DiscArt = "DiscArt";
+	public const string Logo = "Logo";
   }
 }

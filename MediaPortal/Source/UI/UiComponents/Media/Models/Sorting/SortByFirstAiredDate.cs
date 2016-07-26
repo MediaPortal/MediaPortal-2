@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
@@ -39,12 +41,12 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect seriesAspectX;
-      MediaItemAspect seriesAspectY;
-      if (x.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectX) && y.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectY))
+      SingleMediaItemAspect episodeAspectX;
+      SingleMediaItemAspect episodeAspectY;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, EpisodeAspect.Metadata, out episodeAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, EpisodeAspect.Metadata, out episodeAspectY))
       {
-        DateTime? firstAiredX = (DateTime?) seriesAspectX.GetAttributeValue(SeriesAspect.ATTR_FIRSTAIRED);
-        DateTime? firstAiredY = (DateTime?) seriesAspectY.GetAttributeValue(SeriesAspect.ATTR_FIRSTAIRED);
+        DateTime? firstAiredX = (DateTime?) episodeAspectX.GetAttributeValue(EpisodeAspect.ATTR_FIRSTAIRED);
+        DateTime? firstAiredY = (DateTime?) episodeAspectY.GetAttributeValue(EpisodeAspect.ATTR_FIRSTAIRED);
         return ObjectUtils.Compare(firstAiredX, firstAiredY);
       }
       return base.Compare(x, y);
@@ -57,10 +59,10 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override object GetGroupByValue(MediaItem item)
     {
-      MediaItemAspect seriesAspect;
-      if (item.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspect))
+      IList<MediaItemAspect> episodeAspect;
+      if (item.Aspects.TryGetValue(EpisodeAspect.ASPECT_ID, out episodeAspect))
       {
-        return seriesAspect.GetAttributeValue(SeriesAspect.ATTR_FIRSTAIRED);
+        return episodeAspect.First().GetAttributeValue(EpisodeAspect.ATTR_FIRSTAIRED);
       }
       return base.GetGroupByValue(item);
     }

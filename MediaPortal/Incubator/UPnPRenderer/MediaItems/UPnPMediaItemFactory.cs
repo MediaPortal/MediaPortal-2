@@ -38,11 +38,11 @@ namespace MediaPortal.UPnPRenderer.MediaItems
   {
     public static MediaItem CreateAudioItem(string resolvedPlaybackUrl)
     {
-      var item = new MediaItem(Guid.Empty, new Dictionary<Guid, MediaItemAspect>
+      var item = new MediaItem(Guid.Empty, new Dictionary<Guid, IList<MediaItemAspect>>
       {
-        { ProviderResourceAspect.ASPECT_ID, new MediaItemAspect(ProviderResourceAspect.Metadata) },
-        { MediaAspect.ASPECT_ID, new MediaItemAspect(MediaAspect.Metadata) },
-        { AudioAspect.ASPECT_ID, new MediaItemAspect(AudioAspect.Metadata) }
+        { ProviderResourceAspect.ASPECT_ID, new MediaItemAspect[] { new MultipleMediaItemAspect(ProviderResourceAspect.Metadata) }},
+        { MediaAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(MediaAspect.Metadata) }},
+        { AudioAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(AudioAspect.Metadata) }}
       });
 
       SetProviderResourceAspect(resolvedPlaybackUrl, item, UPnPRendererAudioPlayer.MIMETYPE);
@@ -51,11 +51,11 @@ namespace MediaPortal.UPnPRenderer.MediaItems
 
     public static MediaItem CreateVideoItem(string resolvedPlaybackUrl)
     {
-      var item = new MediaItem(Guid.Empty, new Dictionary<Guid, MediaItemAspect>
+      var item = new MediaItem(Guid.Empty, new Dictionary<Guid, IList<MediaItemAspect>>
       {
-        { ProviderResourceAspect.ASPECT_ID, new MediaItemAspect(ProviderResourceAspect.Metadata)},
-        { MediaAspect.ASPECT_ID, new MediaItemAspect(MediaAspect.Metadata) },
-        { VideoAspect.ASPECT_ID, new MediaItemAspect(VideoAspect.Metadata) }
+        { ProviderResourceAspect.ASPECT_ID, new MediaItemAspect[] { new MultipleMediaItemAspect(ProviderResourceAspect.Metadata) }},
+        { MediaAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(MediaAspect.Metadata) }},
+        { VideoAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(VideoAspect.Metadata) }}
       });
 
       SetProviderResourceAspect(resolvedPlaybackUrl, item, UPnPRendererVideoPlayer.MIMETYPE);
@@ -64,11 +64,11 @@ namespace MediaPortal.UPnPRenderer.MediaItems
 
     public static MediaItem CreateImageItem(string resolvedPlaybackUrl)
     {
-      var item = new MediaItem(Guid.Empty, new Dictionary<Guid, MediaItemAspect>
+      var item = new MediaItem(Guid.Empty, new Dictionary<Guid, IList<MediaItemAspect>>
       {
-        { ProviderResourceAspect.ASPECT_ID, new MediaItemAspect(ProviderResourceAspect.Metadata)},
-        { MediaAspect.ASPECT_ID, new MediaItemAspect(MediaAspect.Metadata) },
-        { ImageAspect.ASPECT_ID, new MediaItemAspect(ImageAspect.Metadata) }
+        { ProviderResourceAspect.ASPECT_ID, new MediaItemAspect[] { new MultipleMediaItemAspect(ProviderResourceAspect.Metadata) }},
+        { MediaAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(MediaAspect.Metadata) }},
+        { ImageAspect.ASPECT_ID, new MediaItemAspect[] { new SingleMediaItemAspect(ImageAspect.Metadata) }}
       });
 
       SetProviderResourceAspect(resolvedPlaybackUrl, item, UPnPRendererImagePlayer.MIMETYPE);
@@ -79,9 +79,10 @@ namespace MediaPortal.UPnPRenderer.MediaItems
 
     private static void SetProviderResourceAspect(string resolvedPlaybackUrl, MediaItem item, string mimeType)
     {
-      MediaItemAspect.SetAttribute(item.Aspects, ProviderResourceAspect.ATTR_SYSTEM_ID, ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
-      MediaItemAspect.SetAttribute(item.Aspects, ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RawUrlResourceProvider.ToProviderResourcePath(resolvedPlaybackUrl).Serialize());
-      MediaItemAspect.SetAttribute(item.Aspects, MediaAspect.ATTR_MIME_TYPE, mimeType);
+      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(item.Aspects, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RawUrlResourceProvider.ToProviderResourcePath(resolvedPlaybackUrl).Serialize());
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
     }
 
     public static void SetAudioMetaData(this MediaItem item, DmapData metaData)
@@ -97,9 +98,10 @@ namespace MediaPortal.UPnPRenderer.MediaItems
     public static void SetVideoMetaData(this MediaItem item, DmapData metaData)
     {
       MediaItemAspect.SetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, metaData.Title);
-      MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_ACTORS, metaData.Actors);
-      MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_GENRES, metaData.Genres);
-      MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_DIRECTORS, metaData.Directors);
+      // FIXME: Morpheus_xx, 2016-06-15: attributes are now moved, which ones to use? series, movie, recording?
+      //MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_ACTORS, metaData.Actors);
+      //MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_GENRES, metaData.Genres);
+      //MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_DIRECTORS, metaData.Directors);
     }
 
     public static void SetImageMetaData(this MediaItem item, DmapData metaData)

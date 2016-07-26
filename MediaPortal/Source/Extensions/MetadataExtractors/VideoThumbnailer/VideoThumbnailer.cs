@@ -102,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -123,11 +123,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       return false;
     }
 
-    private bool ExtractThumbnail(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool ExtractThumbnail(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // We can only work on files and make sure this file was detected by a lower MDE before (title is set then).
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+      if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
         return false;
 
       byte[] thumb;
@@ -138,22 +138,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       // Check for a reasonable time offset
       long defaultVideoOffset = 720;
       long videoDuration;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_DURATION, out videoDuration))
-      {
-        if (defaultVideoOffset > videoDuration * 1 / 3)
-          defaultVideoOffset = videoDuration * 1 / 3;
-      }
-
       string downscale = ",scale=iw/2:-1"; // Reduces the video frame size to a half of original
-
-      int videoWidth;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_WIDTH, out videoWidth))
+      IList<MultipleMediaItemAspect> videoAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoAspects))
       {
+        if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoStreamAspect.ATTR_DURATION)) > 0)
+        {
+          if (defaultVideoOffset > videoDuration * 1 / 3)
+            defaultVideoOffset = videoDuration * 1 / 3;
+        }
+
+        int videoWidth = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
         // Don't downscale SD video frames, quality is already quite low.
         if (videoWidth > 0 && videoWidth <= 720)
           downscale = "";
       }
-
       // ToDo: Move creation of temp file names to FileUtils class
       string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".jpg";
       string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");

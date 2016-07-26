@@ -12,7 +12,11 @@
       <PluginFiles Include="$(TargetDir)OneTrueError.Reporting*.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
-    
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
   </Target>
 

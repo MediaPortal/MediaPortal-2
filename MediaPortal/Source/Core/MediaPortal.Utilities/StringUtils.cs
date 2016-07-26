@@ -258,6 +258,8 @@ namespace MediaPortal.Utilities
     public static int GetLevenshteinDistance(string s, string t)
     {
       // Step 1
+      if (s == null) s = string.Empty;
+      if (t == null) t = string.Empty;
       if (s.Length == 0)
         return t.Length;
 

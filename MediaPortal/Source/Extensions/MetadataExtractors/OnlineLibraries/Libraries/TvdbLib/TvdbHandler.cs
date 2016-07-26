@@ -231,11 +231,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <para>Creates a new Tvdb handler</para>
     /// <para>The tvdb handler is used not only for downloading data from thetvdb but also to cache the downloaded data to a persistent storage,
     ///       handle user specific tasks and keep the downloaded data consistent with the online data (via the updates api)</para>
+    /// <para>An api key is used for downloading data from thetvdb -> see http://thetvdb.com/wiki/index.php/Programmers_API</para>
     /// </summary>
-    /// <param name="apiKey">The api key used for downloading data from thetvdb -> see http://thetvdb.com/wiki/index.php/Programmers_API</param>
-    public TvdbHandler(String apiKey)
+    public TvdbHandler()
     {
-      _apiKey = apiKey; //store api key
+      _apiKey = "9628A4332A8F3487"; //store api key
       _downloader = new TvdbDownloader(_apiKey);
       _cacheProvider = null;
     }
@@ -245,8 +245,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     /// <param name="cacheProvider">The cache provider used to store the information</param>
     /// <param name="apiKey">Api key to use for this project</param>
-    public TvdbHandler(ICacheProvider cacheProvider, String apiKey)
-      : this(apiKey)
+    public TvdbHandler(ICacheProvider cacheProvider) : this()
     {
       _cacheProvider = cacheProvider; //store given cache provider
     }
@@ -982,6 +981,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//changes occured in series
             TvdbSeries series;
             series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(s);
+            if (series == null)
+              break;
 
             int currProg = (int)(100.0 / countUpdatedSeries * countSeriesDone);
 
@@ -1025,6 +1026,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//changes occured in series
             TvdbSeries series;
             series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(ue.SeriesId);
+            if (series == null)
+              break;
 
             int progress = (int)(100.0 / countEpisodeUpdates * countEpisodesDone);
             String text = "";
@@ -1064,6 +1067,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           {//banner for this series has changed
             int currProg = (int)(100.0 / countUpdatedBanner * countBannerDone);
             TvdbSeries series = seriesToSave.ContainsKey(s) ? seriesToSave[s] : _cacheProvider.LoadSeriesFromCache(b.SeriesId);
+            if (series == null)
+              break;
             bool updated = UpdateBanner(series, b);
             if (updated)
             {

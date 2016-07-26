@@ -51,6 +51,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -60,12 +62,26 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="FanartProvider\SeriesFanartProvider.cs" />
+    <Compile Include="EpisodeMergeHandler.cs" />
+    <Compile Include="SeriesCharacterRelationshipExtractor.cs" />
+    <Compile Include="SeriesEpisodeRelationshipExtractor.cs" />
+    <Compile Include="SeriesProductionRelationshipExtractor.cs" />
+    <Compile Include="SeriesNetworkRelationshipExtractor.cs" />
+    <Compile Include="SeriesActorRelationshipExtractor.cs" />
+    <Compile Include="EpisodeCharacterRelationshipExtractor.cs" />
+    <Compile Include="EpisodeWriterRelationshipExtractor.cs" />
+    <Compile Include="EpisodeDirectorRelationshipExtractor.cs" />
+    <Compile Include="EpisodeActorRelationshipExtractor.cs" />
+    <Compile Include="EpisodeSeriesRelationshipExtractor.cs" />
+    <Compile Include="SeasonSeriesRelationshipExtractor.cs" />
+    <Compile Include="SeriesBaseTryExtractRelationships.cs" />
+    <Compile Include="SeriesRelationshipExtractor.cs" />
     <Compile Include="SeriesMetadataExtractorSettings.cs" />
     <Compile Include="NameMatchers\MatroskaMatcher.cs" />
     <Compile Include="NameMatchers\SeriesMatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeriesMetadataExtractor.cs" />
+    <Compile Include="EpisodeSeasonRelationshipExtractor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -80,10 +96,6 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
-      <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
-      <Name>FanArtService.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\MatroskaLib\MatroskaLib.csproj">
       <Project>{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4}</Project>

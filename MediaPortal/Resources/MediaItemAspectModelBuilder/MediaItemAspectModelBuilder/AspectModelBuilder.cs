@@ -91,7 +91,8 @@ namespace MediaItemAspectModelBuilder
     /// <returns>Source code of created class.</returns>
     public string BuildCodeTemplate(Type aspectType, string classNamespace, bool createAsControl, bool exposeNullable)
     {
-      MediaItemAspectMetadata metadata = GetMetadata(aspectType);
+      bool multiAspect = false;
+      MediaItemAspectMetadata metadata = GetMetadata(aspectType, out multiAspect);
       _createAsControl = createAsControl;
       _exposeNullable = exposeNullable;
       string baseClass = _createAsControl ? ": Control" : "";
@@ -180,7 +181,7 @@ namespace MediaItemAspectModelBuilder
   Init(MediaItem);
 }");
 
-      CreateMembers(aspectType, _members);
+      CreateMembers(aspectType, _members, multiAspect);
       AppendRegion(result, "Members", _members);
 
       result.AppendLine("}"); // End of class
@@ -191,12 +192,16 @@ namespace MediaItemAspectModelBuilder
 
     #region Members
 
-    private void CreateMembers(Type aspectType, IList<string> members)
+    private void CreateMembers(Type aspectType, IList<string> members, bool multiAspect)
     {
-      string methodStub = @"public void Init(MediaItem mediaItem)
+      string methodStub = null;
+      string emptyStub = null;
+      if (multiAspect == false)
+      {
+        methodStub = @"public void Init(MediaItem mediaItem)
 {{
-  MediaItemAspect aspect;
-  if (mediaItem == null ||!mediaItem.Aspects.TryGetValue({1}.ASPECT_ID, out aspect))
+  SingleMediaItemAspect aspect;
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspect(mediaItem.Aspects, {1}.Metadata, out aspect))
   {{
      SetEmpty();
      return;
@@ -204,11 +209,31 @@ namespace MediaItemAspectModelBuilder
 
   {0}
 }}";
-      string emptyStub = @"public void SetEmpty()
+        emptyStub = @"public void SetEmpty()
 {{
   {0}
 }}
 ";
+      }
+      else
+      {
+        methodStub = @"public void Init(MediaItem mediaItem)
+{{
+  IList<MultipleMediaItemAspect> aspects;
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspects(mediaItem.Aspects, {1}.Metadata, out aspects))
+  {{
+     SetEmpty();
+     return;
+  }}
+
+  {0}
+}}";
+        emptyStub = @"public void SetEmpty()
+{{
+  {0}
+}}
+";
+      }
       List<string> initCommands = new List<string>();
       List<string> emptyCommands = new List<string>();
       foreach (FieldInfo fieldInfo in aspectType.GetFields())
@@ -223,21 +248,27 @@ namespace MediaItemAspectModelBuilder
         if (_valueTypes.Contains(typeName) && !_exposeNullable)
         {
           string varName = FirstLower(spec.AttributeName);
-          initCommands.Add(string.Format("{0}? {1} = ({0}?) aspect[{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
+          if(multiAspect)
+            initCommands.Add(string.Format("{0}? {1} = ({0}?) aspects[0][{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
+          else
+            initCommands.Add(string.Format("{0}? {1} = ({0}?) aspect[{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
           initCommands.Add(string.Format("{0} = {1}.HasValue? {1}.Value : default({2});", attrName, varName, typeName));
         }
         else
         {
           string defaultValue = typeName == "IEnumerable<string>" ? " ?? EMPTY_STRING_COLLECTION" : "";
-          initCommands.Add(string.Format("{0} = ({1}) aspect[{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
+          if(multiAspect)
+            initCommands.Add(string.Format("{0} = ({1}) aspects[0][{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
+          else
+            initCommands.Add(string.Format("{0} = ({1}) aspect[{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
         }
 
         emptyCommands.Add(string.Format("{0} = {1};", attrName, GetEmptyValue(spec)));
       }
 
-      members.Add(string.Format(methodStub, string.Join("\r\n", initCommands.ToArray()), aspectType.Name));
+      members.Add(string.Format(methodStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
 
-      members.Add(string.Format(emptyStub, string.Join("\r\n", emptyCommands.ToArray())));
+      members.Add(string.Format(emptyStub, string.Join("\r\n  ", emptyCommands.ToArray())));
     }
 
     private string GetEmptyValue(MediaItemAspectMetadata.AttributeSpecification spec)
@@ -299,10 +330,16 @@ namespace MediaItemAspectModelBuilder
       return value[0].ToString().ToLowerInvariant() + value.Substring(1);
     }
 
-    public MediaItemAspectMetadata GetMetadata(Type type)
+    public MediaItemAspectMetadata GetMetadata(Type type, out bool multiAspect)
     {
+      multiAspect = false;
       FieldInfo field = type.GetField("Metadata");
-      return (MediaItemAspectMetadata) field.GetValue(null);
+      object metadata = field.GetValue(null);
+      if(metadata is MultipleMediaItemAspectMetadata)
+      {
+        multiAspect = true;
+      }
+      return (MediaItemAspectMetadata)metadata;
     }
 
     #endregion

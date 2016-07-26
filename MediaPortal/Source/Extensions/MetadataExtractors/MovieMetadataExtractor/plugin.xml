@@ -21,7 +21,6 @@
 
   <Runtime>
     <Assembly FileName="MovieMetadataExtractor.dll"/>
-    <Assembly FileName="FanArtService.Interfaces.dll"/>
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
@@ -30,4 +29,15 @@
         ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieMetadataExtractor"/>
   </Register>
 
+  <Register Location="/Media/RelationshipExtractors">
+    <Instance
+        Id="MovieRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieRelationshipExtractor"/>
+  </Register>
+
+  <Register Location="/Media/MergeHandlers">
+    <Instance
+        Id="MovieMergeHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieMergeHandler"/>
+  </Register>
 </Plugin>

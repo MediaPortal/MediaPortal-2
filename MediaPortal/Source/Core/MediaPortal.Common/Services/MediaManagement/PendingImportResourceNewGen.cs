@@ -60,8 +60,9 @@ namespace MediaPortal.Common.Services.MediaManagement
     private int _pendingImportResourceNumber;
     private ImportJobController _parentImportJobController;
     private bool _isValid;
-    private IDictionary<Guid, MediaItemAspect> _aspects;
-    
+    private IDictionary<Guid, IList<MediaItemAspect>> _aspects;
+    private IDictionary<Guid, IList<MediaItemAspect>> _existingAspects;
+
     // Resource data recreated after deserialization
     // The _resourceAccessor will after deserialization only be created from the _resourcePathString
     // on demand, i.e. if the ResourceAccessor property is accessed
@@ -188,10 +189,17 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     [XmlIgnore]
-    public IDictionary<Guid, MediaItemAspect> Aspects
+    public IDictionary<Guid, IList<MediaItemAspect>> Aspects
     {
       get { return _aspects; }
       set { _aspects = value; }
+    }
+
+    [XmlIgnore]
+    public IDictionary<Guid, IList<MediaItemAspect>> ExistingAspects
+    {
+      get { return _existingAspects; }
+      set { _existingAspects = value; }
     }
 
     [XmlIgnore]

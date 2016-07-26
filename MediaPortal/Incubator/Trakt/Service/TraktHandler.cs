@@ -154,7 +154,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
       {
         Movie = new TraktMovie
         {
-          Ids = new TraktMovieId { Imdb = GetMovieImdb(mediaItem), Tmdb = GetMovieTmdb(mediaItem) },
+          Ids = new TraktMovieId { Imdb = GetImdbId(mediaItem), Tmdb = GetTmdbId(mediaItem) },
           Title = GetMovieTitle(mediaItem),
           Year = GetVideoYear(mediaItem)
         },
@@ -172,8 +172,8 @@ namespace MediaPortal.UiComponents.Trakt.Service
         {
           Ids = new TraktEpisodeId
           {
-            Tvdb = GetSeriesTvdbId(mediaItem),
-            Imdb = GetSeriesImdbId(mediaItem)
+            Tvdb = GetTvdbId(mediaItem),
+            Imdb = GetImdbId(mediaItem)
           },
           Title = GetSeriesTitle(mediaItem),
           Season = GetSeasonIndex(mediaItem),
@@ -183,8 +183,8 @@ namespace MediaPortal.UiComponents.Trakt.Service
         {
           Ids = new TraktShowId
           {
-            Tvdb = GetSeriesTvdbId(mediaItem),
-            Imdb = GetSeriesImdbId(mediaItem)
+            Tvdb = GetTvdbId(mediaItem),
+            Imdb = GetImdbId(mediaItem)
           },
           Title = GetSeriesTitle(mediaItem),
           Year = GetVideoYear(mediaItem)
@@ -266,19 +266,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
 
       return true;
     }
-
-    private string GetMovieImdb(MediaItem currMediaItem)
-    {
-      string value;
-      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, MovieAspect.ATTR_IMDB_ID, out value) ? value : null;
-    }
-
-    private int GetMovieTmdb(MediaItem currMediaItem)
-    {
-      int iValue;
-      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out iValue) ? iValue : 0;
-    }
-
+    
     private int GetVideoYear(MediaItem currMediaItem)
     {
       DateTime dtValue;
@@ -288,40 +276,53 @@ namespace MediaPortal.UiComponents.Trakt.Service
       return 0;
     }
 
-    private string GetSeriesTitle(MediaItem currMediaItem)
+    internal static string GetSeriesTitle(MediaItem mediaItem)
     {
       string value;
-      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) ? value : null;
+      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SERIES_NAME, out value) ? value : null;
     }
 
-    private int GetSeriesTvdbId(MediaItem currMediaItem)
+    internal static int GetTvdbId(MediaItem mediaItem)
+    {
+      string id;
+      return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, out id) ?
+        Convert.ToInt32(id) :
+        0;
+    }
+
+    internal static int GetSeasonIndex(MediaItem mediaItem)
     {
       int value;
-      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_TVDB_ID, out value) ? value : 0;
+      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SEASON, out value) ? value : 0;
     }
 
-    private int GetSeasonIndex(MediaItem currMediaItem)
-    {
-      int value;
-      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_SEASON, out value) ? value : 0;
-    }
-
-    private int GetEpisodeIndex(MediaItem currMediaItem)
+    internal static int GetEpisodeIndex(MediaItem currMediaItem)
     {
       List<int> intList;
-      if (MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_EPISODE, out intList) && intList.Any())
+      if (MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, EpisodeAspect.ATTR_EPISODE, out intList) && intList.Any())
         return intList.First(); // TODO: multi episode files?!
 
       return intList.FirstOrDefault();
     }
 
-    private string GetSeriesImdbId(MediaItem currMediaItem)
+    internal static string GetImdbId(MediaItem mediaItem)
     {
-      string value;
-      return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, SeriesAspect.ATTR_IMDB_ID, out value) ? value : null;
+      string id;
+      return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out id) ?
+        id :
+        null;
     }
 
-    private string GetMovieTitle(MediaItem currMediaItem)
+    internal static int? GetTmdbId(MediaItem mediaItem)
+    {
+      string id;
+      int tmdbId;
+      return MediaItemAspect.TryGetExternalAttribute(mediaItem.Aspects, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id) && int.TryParse(id, out tmdbId) ?
+        (int?)tmdbId :
+        null;
+    }
+
+    internal static string GetMovieTitle(MediaItem currMediaItem)
     {
       string value;
       return MediaItemAspect.TryGetAttribute(currMediaItem.Aspects, MovieAspect.ATTR_MOVIE_NAME, out value) ? value : null;

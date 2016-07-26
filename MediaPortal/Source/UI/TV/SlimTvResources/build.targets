@@ -10,7 +10,12 @@
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
-  
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+      <PluginFiles Include="$(TargetDir)FanArtService.Interfaces.pdb" />
+    </ItemGroup>
+
     <ItemGroup>
       <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
       <References Include="$(TargetDir)MediaPortal.LogoManager.dll" />

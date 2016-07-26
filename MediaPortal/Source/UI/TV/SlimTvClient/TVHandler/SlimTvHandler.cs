@@ -23,6 +23,7 @@
 #endregion
 
 using System.Linq;
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -204,9 +205,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       int newSlotIndex = GetMatchingSlotIndex(slotIndex);
       MediaItem timeshiftMediaItem;
       bool result = TimeshiftControl.StartTimeshift(newSlotIndex, channel, out timeshiftMediaItem);
-      if (result && timeshiftMediaItem != null)
+      IList<MultipleMediaItemAspect> pras;
+      if (result && timeshiftMediaItem != null && MediaItemAspect.TryGetAspects(timeshiftMediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
       {
-        string newAccessorPath = (string)timeshiftMediaItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        string newAccessorPath = (string)pras[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
 
         // if slot was empty, start a new player
         if (_slotContexes[newSlotIndex].AccessorPath == null)
@@ -300,8 +302,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     /// <returns></returns>
     protected bool IsSameLiveTvItem(LiveTvMediaItem oldItem, LiveTvMediaItem newItem)
     {
-      string oldPath = oldItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString();
-      string newPath = newItem.Aspects[ProviderResourceAspect.ASPECT_ID].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString();
+      IList<MultipleMediaItemAspect> oldPras;
+      if (!MediaItemAspect.TryGetAspects(oldItem.Aspects, ProviderResourceAspect.Metadata, out oldPras))
+        return false;
+
+      IList<MultipleMediaItemAspect> newPras;
+      if (!MediaItemAspect.TryGetAspects(newItem.Aspects, ProviderResourceAspect.Metadata, out newPras))
+        return false;
+
+      string oldPath = oldPras[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString();
+      string newPath = newPras[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH).ToString();
       if (oldPath != newPath)
         return false;
 

@@ -45,8 +45,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       var filter = new BooleanCombinationFilter(BooleanOperator.Or,
         new IFilter[]
         {
-          new LikeFilter(SeriesAspect.ATTR_SERIESNAME, GetSearchTerm(), null),
-          new LikeFilter(SeriesAspect.ATTR_EPISODENAME, GetSearchTerm(), null)
+          new LikeFilter(EpisodeAspect.ATTR_SERIES_NAME, GetSearchTerm(), null),
+          new LikeFilter(EpisodeAspect.ATTR_EPISODE_NAME, GetSearchTerm(), null)
         });
       return filter;
     }

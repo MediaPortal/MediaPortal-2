@@ -35,7 +35,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -68,36 +68,61 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public WTVRecordingSeriesMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "WTV series recordings metadata extractor", MetadataExtractorPriority.Extended, false,
-          SERIES_MEDIA_CATEGORIES, new[] { SeriesAspect.Metadata });
+          SERIES_MEDIA_CATEGORIES, new[] { EpisodeAspect.Metadata });
     }
 
-    public SeriesInfo GetSeriesFromTags(IDictionary metadata)
+    public EpisodeInfo GetSeriesFromTags(IDictionary metadata)
     {
-      SeriesInfo seriesInfo = new SeriesInfo();
+      EpisodeInfo episodeInfo = new EpisodeInfo();
       string tmpString;
 
       if (TryGet(metadata, TAG_TITLE, out tmpString))
-        seriesInfo.Series = tmpString;
+        episodeInfo.SeriesName.Text = tmpString;
 
       if (TryGet(metadata, TAG_EPISODENAME, out tmpString))
-        seriesInfo.Episode = tmpString;
+        episodeInfo.EpisodeName.Text = tmpString;
 
-      return seriesInfo;
+      return episodeInfo;
     }
 
-    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (!CanExtract(lfsra, extractedAspectData) || forceQuickMode)
         return false;
 
-      using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
-      {
-        // Handle series information
-        IDictionary tags = rec.GetAttributes();
-        SeriesInfo seriesInfo = GetSeriesFromTags(tags);
+      bool refresh = false;
+      if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        refresh = true;
 
-        if (SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo))
-          seriesInfo.SetMetadata(extractedAspectData);
+      EpisodeInfo episodeInfo = null;
+      if (refresh)
+      {
+        episodeInfo = new EpisodeInfo();
+        episodeInfo.FromMetadata(extractedAspectData);
+      }
+      else
+      {
+        using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
+        {
+          // Handle series information
+          IDictionary tags = rec.GetAttributes();
+          episodeInfo = GetSeriesFromTags(tags);
+        }
+      }
+
+      // Handle series information
+      if (episodeInfo.AreReqiredFieldsFilled)
+      {
+        if (!forceQuickMode)
+        {
+          SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
+          SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
+          SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID and TVDBID
+          SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
+          SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        }
+
+        episodeInfo.SetMetadata(extractedAspectData);
       }
       return true;
     }
@@ -113,7 +138,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
     /// <summary>
     /// GUID string for the Tve3Recording metadata extractor.
     /// </summary>
-    private const string METADATAEXTRACTOR_ID_STR = "8FB55236-C567-4233-ABFF-754F5A0BBD1C";
+    public const string METADATAEXTRACTOR_ID_STR = "8FB55236-C567-4233-ABFF-754F5A0BBD1C";
 
     /// <summary>
     /// Tve3 metadata extractor GUID.
@@ -156,11 +181,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public WTVRecordingMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "WTV recordings metadata extractor", MetadataExtractorPriority.Extended, false,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
+                VideoStreamAspect.Metadata,
                 RecordingAspect.Metadata,
+                EpisodeAspect.Metadata
               });
     }
 
@@ -193,7 +219,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -212,7 +238,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (!CanExtract(lfsra, extractedAspectData))
         return false;
@@ -223,18 +249,28 @@ namespace MediaPortal.Extensions.MetadataExtractors
         IDictionary tags = rec.GetAttributes();
 
         // Force MimeType
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, "slimtv/wtv");
+        IList<MultipleMediaItemAspect> providerAspects;
+        MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerAspects);
+        foreach (MultipleMediaItemAspect aspect in providerAspects)
+        {
+          aspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/wtv");
+        }
+
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
 
         string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
+        {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
-
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
+        }
+        
         if (TryGet(tags, TAG_GENRE, out value))
-          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new List<String>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)));
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, RecordingAspect.ATTR_GENRES, new List<String>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)));
 
         if (TryGet(tags, TAG_PLOT, out value))
         {
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, value);
+          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STORYPLOT, value);
         }
 
         if (TryGet(tags, TAG_ORIGINAL_TIME, out value))
@@ -256,7 +292,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return true;
     }
 
-    protected static bool CanExtract(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    protected static bool CanExtract(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       if (lfsra == null || !lfsra.IsFile)
         return false;

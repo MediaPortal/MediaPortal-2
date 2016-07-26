@@ -100,7 +100,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         //ToDo: Replace this with a call to IsSingleResource once this method is implemented in the MetadataExtractors
-        if (!importResource.ResourceAccessor.IsFile && await ExtractMetadata(importResource.ResourceAccessor, true) == null)
+        if (!importResource.ResourceAccessor.IsFile && await ExtractMetadata(importResource.ResourceAccessor, null, true) == null)
           importResource.IsSingleResource = false;
 
         if (!importResource.IsSingleResource && ImportJobInformation.IncludeSubDirectories)
@@ -154,7 +154,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var directoryId = mediaItem.MediaItemId;
       
       // Get the subdirectories stored in the MediaLibrary for the currently procesed directory
-      var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
+	  // TODO: Rework this
+      var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID][0].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
       
       // If there are no subdirectories stored in the MediaLibrary, there is no need to delete anything
       if (!subDirectoryResourcePathsInMediaLibrary.Any())

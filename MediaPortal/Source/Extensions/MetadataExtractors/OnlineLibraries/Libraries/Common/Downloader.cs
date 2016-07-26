@@ -61,6 +61,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     public TE Download<TE>(string url, string saveCacheFile = null)
     {
       string json = DownloadJSON(url);
+      //Console.WriteLine("JSON: {0}", json);
       if (!string.IsNullOrEmpty(saveCacheFile))
         WriteCache(saveCacheFile, json);
       return JsonConvert.DeserializeObject<TE>(json);
@@ -72,6 +73,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <param name="url">Url to download</param>
     /// <returns>JSON result</returns>
     protected virtual string DownloadJSON(string url)
+    {
+      return DownloadString(url);
+    }
+
+    public string DownloadString(string url)
     {
       CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 };
       foreach (KeyValuePair<string, string> headerEntry in Headers)

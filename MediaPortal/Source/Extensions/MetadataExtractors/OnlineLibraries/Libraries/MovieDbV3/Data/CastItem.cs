@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
     public string Character { get; set; }
 
     [DataMember(Name = "order")]
-    public string Order { get; set; }
+    public int Order { get; set; }
 
     [DataMember(Name = "profile_path")]
     public string ProfilePath { get; set; }

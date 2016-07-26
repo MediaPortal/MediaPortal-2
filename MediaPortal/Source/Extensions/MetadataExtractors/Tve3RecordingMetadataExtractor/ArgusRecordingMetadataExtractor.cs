@@ -36,6 +36,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -71,7 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         SERIES_MEDIA_CATEGORIES, new[] { SeriesAspect.Metadata });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -86,13 +87,16 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         // Handle series information
-        SeriesInfo seriesInfo = GetSeriesFromTags(recording);
-        if (seriesInfo.IsCompleteMatch)
+        EpisodeInfo episodeInfo = GetSeriesFromTags(recording);
+        if (episodeInfo.AreReqiredFieldsFilled)
         {
-          if (!forceQuickMode)
-            SeriesTvDbMatcher.Instance.FindAndUpdateSeries(seriesInfo);
+          SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
+          SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
+          SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID and TVDBID
+          SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
+          SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
 
-          seriesInfo.SetMetadata(extractedAspectData);
+          episodeInfo.SetMetadata(extractedAspectData);
         }
         return true;
       }
@@ -167,17 +171,17 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(Argus.Recording)));
     }
 
-    public SeriesInfo GetSeriesFromTags(Argus.Recording recording)
+    public EpisodeInfo GetSeriesFromTags(Argus.Recording recording)
     {
-      SeriesInfo seriesInfo = new SeriesInfo { Series = recording.Title };
+      EpisodeInfo episodeInfo = new EpisodeInfo { SeriesName = recording.Title };
 
       if (recording.SeriesNumber.HasValue)
-        seriesInfo.SeasonNumber = recording.SeriesNumber.Value;
+        episodeInfo.SeasonNumber = recording.SeriesNumber.Value;
 
       if (recording.EpisodeNumber.HasValue)
-        seriesInfo.EpisodeNumbers.Add(recording.EpisodeNumber.Value);
+        episodeInfo.EpisodeNumbers.Add(recording.EpisodeNumber.Value);
 
-      if (!seriesInfo.IsCompleteMatch)
+      if (!episodeInfo.AreReqiredFieldsFilled)
       {
         // Check for formatted display value, i.e.:
         // <EpisodeNumberDisplay>1.4</EpisodeNumberDisplay>
@@ -188,13 +192,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
           {
             int val;
             if (int.TryParse(parts[0], out val))
-              seriesInfo.SeasonNumber = val;
+              episodeInfo.SeasonNumber = val;
             if (int.TryParse(parts[1], out val))
-              seriesInfo.EpisodeNumbers.Add(val);
+              episodeInfo.EpisodeNumbers.Add(val);
           }
         }
       }
-      return seriesInfo;
+      return episodeInfo;
     }
 
     #region IMetadataExtractor implementation
@@ -204,7 +208,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -252,7 +256,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, out IResourceAccessor metaFileAccessor)
+    protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, out IResourceAccessor metaFileAccessor)
     {
       metaFileAccessor = null;
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2014 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,124 +26,154 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.Extensions.MetadataExtractors.Aspects;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers
 {
-  /// <summary>
-  /// RecordingAspectWrapper wraps the contents of <see cref="RecordingAspect"/> into properties that can be bound from xaml controls.
-  /// Note: this code was automatically created by the MediaItemAspectModelBuilder helper tool under Resources folder.
-  /// </summary>
-  public class RecordingAspectWrapper : Control
+/// <summary>
+/// RecordingAspectWrapper wraps the contents of <see cref="RecordingAspect"/> into properties that can be bound from xaml controls.
+/// Note: this code was automatically created by the MediaItemAspectModelBuilder helper tool under Resources folder.
+/// </summary>
+public class RecordingAspectWrapper: Control
+{
+#region Constants
+
+public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
+
+#endregion
+
+#region Fields
+
+protected AbstractProperty _channelProperty;
+protected AbstractProperty _startTimeProperty;
+protected AbstractProperty _endTimeProperty;
+protected AbstractProperty _genresProperty;
+protected AbstractProperty _storyPlotProperty;
+protected AbstractProperty _mediaItemProperty;
+
+#endregion
+
+#region Properties
+
+public AbstractProperty ChannelProperty
+{
+  get{ return _channelProperty; }
+}
+
+public string Channel
+{
+  get { return (string) _channelProperty.GetValue(); }
+  set { _channelProperty.SetValue(value); }
+}
+
+public AbstractProperty StartTimeProperty
+{
+  get{ return _startTimeProperty; }
+}
+
+public DateTime? StartTime
+{
+  get { return (DateTime?) _startTimeProperty.GetValue(); }
+  set { _startTimeProperty.SetValue(value); }
+}
+
+public AbstractProperty EndTimeProperty
+{
+  get{ return _endTimeProperty; }
+}
+
+public DateTime? EndTime
+{
+  get { return (DateTime?) _endTimeProperty.GetValue(); }
+  set { _endTimeProperty.SetValue(value); }
+}
+
+public AbstractProperty GenresProperty
+{
+  get{ return _genresProperty; }
+}
+
+public IEnumerable<string> Genres
+{
+  get { return (IEnumerable<string>) _genresProperty.GetValue(); }
+  set { _genresProperty.SetValue(value); }
+}
+
+public AbstractProperty StoryPlotProperty
+{
+  get{ return _storyPlotProperty; }
+}
+
+public string StoryPlot
+{
+  get { return (string) _storyPlotProperty.GetValue(); }
+  set { _storyPlotProperty.SetValue(value); }
+}
+
+public AbstractProperty MediaItemProperty
+{
+  get{ return _mediaItemProperty; }
+}
+
+public MediaItem MediaItem
+{
+  get { return (MediaItem) _mediaItemProperty.GetValue(); }
+  set { _mediaItemProperty.SetValue(value); }
+}
+
+#endregion
+
+#region Constructor
+
+public RecordingAspectWrapper()
+{
+  _channelProperty = new SProperty(typeof(string));
+  _startTimeProperty = new SProperty(typeof(DateTime?));
+  _endTimeProperty = new SProperty(typeof(DateTime?));
+  _genresProperty = new SProperty(typeof(IEnumerable<string>));
+  _storyPlotProperty = new SProperty(typeof(string));
+  _mediaItemProperty = new SProperty(typeof(MediaItem));
+  _mediaItemProperty.Attach(MediaItemChanged);
+}
+
+#endregion
+
+#region Members
+
+private void MediaItemChanged(AbstractProperty property, object oldvalue)
+{
+  Init(MediaItem);
+}
+
+public void Init(MediaItem mediaItem)
+{
+  SingleMediaItemAspect aspect;
+  if (mediaItem == null ||!MediaItemAspect.TryGetAspect(mediaItem.Aspects, RecordingAspect.Metadata, out aspect))
   {
-    #region Constants
-
-    public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
-
-    #endregion
-
-    #region Fields
-
-    protected AbstractProperty _channelProperty;
-    protected AbstractProperty _startTimeProperty;
-    protected AbstractProperty _endTimeProperty;
-    protected AbstractProperty _mediaItemProperty;
-
-    #endregion
-
-    #region Properties
-
-    public AbstractProperty ChannelProperty
-    {
-      get { return _channelProperty; }
-    }
-
-    public string Channel
-    {
-      get { return (string)_channelProperty.GetValue(); }
-      set { _channelProperty.SetValue(value); }
-    }
-
-    public AbstractProperty StartTimeProperty
-    {
-      get { return _startTimeProperty; }
-    }
-
-    public DateTime? StartTime
-    {
-      get { return (DateTime?)_startTimeProperty.GetValue(); }
-      set { _startTimeProperty.SetValue(value); }
-    }
-
-    public AbstractProperty EndTimeProperty
-    {
-      get { return _endTimeProperty; }
-    }
-
-    public DateTime? EndTime
-    {
-      get { return (DateTime?)_endTimeProperty.GetValue(); }
-      set { _endTimeProperty.SetValue(value); }
-    }
-
-    public AbstractProperty MediaItemProperty
-    {
-      get { return _mediaItemProperty; }
-    }
-
-    public MediaItem MediaItem
-    {
-      get { return (MediaItem)_mediaItemProperty.GetValue(); }
-      set { _mediaItemProperty.SetValue(value); }
-    }
-
-    #endregion
-
-    #region Constructor
-
-    public RecordingAspectWrapper()
-    {
-      _channelProperty = new SProperty(typeof(string));
-      _startTimeProperty = new SProperty(typeof(DateTime?));
-      _endTimeProperty = new SProperty(typeof(DateTime?));
-      _mediaItemProperty = new SProperty(typeof(MediaItem));
-      _mediaItemProperty.Attach(MediaItemChanged);
-    }
-
-    #endregion
-
-    #region Members
-
-    private void MediaItemChanged(AbstractProperty property, object oldvalue)
-    {
-      Init(MediaItem);
-    }
-
-    public void Init(MediaItem mediaItem)
-    {
-      MediaItemAspect aspect;
-      if (mediaItem == null || !mediaItem.Aspects.TryGetValue(RecordingAspect.ASPECT_ID, out aspect))
-      {
-        SetEmpty();
-        return;
-      }
-
-      Channel = (string)aspect[RecordingAspect.ATTR_CHANNEL];
-      StartTime = (DateTime?)aspect[RecordingAspect.ATTR_STARTTIME];
-      EndTime = (DateTime?)aspect[RecordingAspect.ATTR_ENDTIME];
-    }
-
-    public void SetEmpty()
-    {
-      Channel = null;
-      StartTime = null;
-      EndTime = null;
-    }
-
-
-    #endregion
-
+     SetEmpty();
+     return;
   }
+
+  Channel = (string) aspect[RecordingAspect.ATTR_CHANNEL];
+  StartTime = (DateTime?) aspect[RecordingAspect.ATTR_STARTTIME];
+  EndTime = (DateTime?) aspect[RecordingAspect.ATTR_ENDTIME];
+  Genres = (IEnumerable<string>) aspect[RecordingAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+  StoryPlot = (string) aspect[RecordingAspect.ATTR_STORYPLOT];
+}
+
+public void SetEmpty()
+{
+  Channel = null;
+  StartTime = null;
+  EndTime = null;
+  Genres = EMPTY_STRING_COLLECTION;
+  StoryPlot = null;
+}
+
+
+#endregion
+
+}
 
 }

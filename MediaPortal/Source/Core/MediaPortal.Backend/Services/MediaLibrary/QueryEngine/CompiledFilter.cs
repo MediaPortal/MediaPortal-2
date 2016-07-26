@@ -28,9 +28,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Backend.Services.UserProfileDataManagement;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -59,7 +61,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _requiredAttributes = _statementParts.OfType<QueryAttribute>().ToList();
     }
 
-    protected void CompileStatementParts(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace,
+    protected virtual void CompileStatementParts(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace,
         ICollection<MediaItemAspectMetadata> requiredMIATypes, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins,
         IList<object> resultParts, IList<BindVar> resultBindVars)
     {
@@ -107,6 +109,74 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       BooleanCombinationFilter boolFilter = filter as BooleanCombinationFilter;
+      if (boolFilter != null && boolFilter.Operator == BooleanOperator.And && boolFilter.Operands.Count > 1 && boolFilter.Operands.ToList().All(x => x is IAttributeFilter))
+      {
+        ICollection<IFilter> remainingOperands = new List<IFilter>();
+
+        // Special case to do multiple MIA boolean logic first
+        IDictionary<Guid, ICollection<IAttributeFilter>> multiGroups = new Dictionary<Guid, ICollection<IAttributeFilter>>();
+        foreach (IAttributeFilter operand in boolFilter.Operands)
+        {
+          MultipleMediaItemAspectMetadata mmiam = operand.AttributeType.ParentMIAM as MultipleMediaItemAspectMetadata;
+          if (mmiam != null)
+          {
+            Guid key = operand.AttributeType.ParentMIAM.AspectId;
+            if (!multiGroups.ContainsKey(key))
+            {
+              multiGroups[key] = new List<IAttributeFilter>();
+            }
+            multiGroups[key].Add(operand);
+          }
+          else
+          {
+            remainingOperands.Add(operand);
+          }
+        }
+
+        if (multiGroups.Keys.Count > 0)
+        {
+          bool firstGroup = true;
+          foreach (ICollection<IAttributeFilter> filterGroup in multiGroups.Values)
+          {
+            if (firstGroup)
+              firstGroup = false;
+            else
+              resultParts.Add(" AND ");
+
+            bool firstItem = true;
+            foreach (IAttributeFilter filterItem in filterGroup)
+            {
+              MediaItemAspectMetadata.AttributeSpecification attributeType = filterItem.AttributeType;
+              if (firstItem)
+              {
+                resultParts.Add(outerMIIDJoinVariable);
+                resultParts.Add(" IN(");
+                resultParts.Add("SELECT ");
+                resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+                resultParts.Add(" FROM ");
+                resultParts.Add(miaManagement.GetMIATableName(attributeType.ParentMIAM));
+                resultParts.Add(" WHERE ");
+
+                firstItem = false;
+              }
+              else
+              {
+                resultParts.Add(" AND ");
+              }
+
+              BuildAttributeFilterExpression(filterItem, miaManagement.GetMIAAttributeColumnName(attributeType), bvNamespace, resultParts, resultBindVars);
+            }
+            resultParts.Add(")");
+          }
+
+          // Process remaining operands ?
+          if (remainingOperands.Count == 0)
+            return;
+
+          resultParts.Add(" AND ");
+          boolFilter.Operands = remainingOperands;
+        }
+      }
       if (boolFilter != null)
       {
         int numOperands = boolFilter.Operands.Count;
@@ -131,7 +201,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, ns, bvNamespace,
+          CompileStatementParts(miaManagement, (IFilter)enumOperands.Current, ns, bvNamespace,
               requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
         }
         if (numOperands > 1)
@@ -204,9 +274,161 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return;
       }
 
+      // Must be done before checking IAttributeFilter - EmptyFilter is also an IAttributeFilter but must be
+      // compiled in a different way
+      EmptyUserDataFilter emptyUserDataFilter = filter as EmptyUserDataFilter;
+      if (emptyUserDataFilter != null)
+      {
+        BindVar userIdVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), emptyUserDataFilter.UserProfileId, typeof(Guid));
+
+        resultParts.Add("NOT EXISTS(");
+        resultParts.Add("SELECT ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add(" FROM ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
+        resultParts.Add(" WHERE ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME);
+        resultParts.Add(" = @" + userIdVar.Name);
+        resultBindVars.Add(userIdVar);
+        resultParts.Add(" AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME);
+        resultParts.Add(" = '");
+        resultParts.Add(emptyUserDataFilter.UserDataKey);
+        resultParts.Add("' AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
+        resultParts.Add(" IS NOT NULL ");
+        resultParts.Add(" AND ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add("=");
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(")");
+
+        return;
+      }
+
+      RelationshipFilter relationshipFilter = filter as RelationshipFilter;
+      if (relationshipFilter != null)
+      {
+        BindVar itemIdVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.ItemId, typeof(Guid));
+        BindVar roleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.Role, typeof(Guid));
+        BindVar linkedRoleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.LinkedRole, typeof(Guid));
+        BindVar itemIdVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.ItemId, typeof(Guid));
+        BindVar roleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.Role, typeof(Guid));
+        BindVar linkedRoleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.LinkedRole, typeof(Guid));
+
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(" IN(");
+
+        resultParts.Add("SELECT V1.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
+        resultParts.Add(" FROM ");
+        resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
+        resultParts.Add(" V1 WHERE V1.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
+        resultParts.Add("=@" + roleVar1.Name);
+        resultBindVars.Add(roleVar1);
+        resultParts.Add(" AND ");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + linkedRoleVar1.Name);
+        resultBindVars.Add(linkedRoleVar1);
+        resultParts.Add(" AND ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add("=@" + itemIdVar1.Name);
+        resultBindVars.Add(itemIdVar1);
+
+        resultParts.Add(" UNION ");
+
+        resultParts.Add("SELECT V2.");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add(" FROM ");
+        resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
+        resultParts.Add(" V2 WHERE V2.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
+        resultParts.Add("=@" + linkedRoleVar2.Name);
+        resultBindVars.Add(linkedRoleVar2);
+        resultParts.Add(" AND ");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + roleVar2.Name);
+        resultBindVars.Add(roleVar2);
+        resultParts.Add(" AND ");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
+        resultParts.Add("=@" + itemIdVar2.Name);
+        resultBindVars.Add(itemIdVar2);
+        resultParts.Add(")");
+        return;
+      }
+
+      RelationalUserDataFilter relationalUserDataFilter = filter as RelationalUserDataFilter;
+      if (relationalUserDataFilter != null)
+      {
+        BindVar userIdVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalUserDataFilter.UserProfileId, typeof(Guid));
+        BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalUserDataFilter.FilterValue, typeof(string));
+
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(" IN(");
+        resultParts.Add("SELECT ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add(" FROM ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
+        resultParts.Add(" WHERE ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME);
+        resultParts.Add(" = @" + userIdVar.Name);
+        resultBindVars.Add(userIdVar);
+        resultParts.Add(" AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME);
+        resultParts.Add(" = '");
+        resultParts.Add(relationalUserDataFilter.UserDataKey);
+        resultParts.Add("' AND ");
+        resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
+        switch (relationalUserDataFilter.Operator)
+        {
+          case RelationalOperator.EQ:
+            resultParts.Add(" = ");
+            break;
+          case RelationalOperator.NEQ:
+            resultParts.Add(" <> ");
+            break;
+          case RelationalOperator.LT:
+            resultParts.Add(" < ");
+            break;
+          case RelationalOperator.LE:
+            resultParts.Add(" <= ");
+            break;
+          case RelationalOperator.GT:
+            resultParts.Add(" > ");
+            break;
+          case RelationalOperator.GE:
+            resultParts.Add(" >= ");
+            break;
+          default:
+            throw new NotImplementedException(string.Format(
+                "Relational user data filter operator '{0}' isn't supported by the media library", relationalUserDataFilter.Operator));
+        }
+        resultParts.Add("@" + bindVar.Name);
+        resultBindVars.Add(bindVar);
+        resultParts.Add(")");
+        return;
+      }
+
       IAttributeFilter attributeFilter = filter as IAttributeFilter;
       if (attributeFilter != null)
       {
+        MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
+        if(attributeType.ParentMIAM is MultipleMediaItemAspectMetadata)
+        {
+          resultParts.Add(outerMIIDJoinVariable);
+          resultParts.Add(" IN(");
+          resultParts.Add("SELECT ");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" FROM ");
+          resultParts.Add(miaManagement.GetMIATableName(attributeType.ParentMIAM));
+          resultParts.Add(" WHERE ");
+          BuildAttributeFilterExpression(attributeFilter, miaManagement.GetMIAAttributeColumnName(attributeType), bvNamespace, resultParts, resultBindVars);
+          resultParts.Add(")");
+          
+          return;
+        }
+
         // For attribute filters, we have to create different kinds of expressions, depending on the
         // cardinality of the attribute to be filtered.
         // For Inline and MTO attributes, we simply create
@@ -224,7 +446,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         // INNER JOIN [MTM-Value-Table] V ON NM.ID = V.ID
         // WHERE [...] AND V.VALUE [Operator] [Comparison-Value])
 
-        MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
         requiredMIATypes.Add(attributeType.ParentMIAM);
         Cardinality cardinality = attributeType.Cardinality;
         if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
@@ -371,9 +592,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add("1 = 2"); // No comparison values means filter is always false
           return;
         }
-        ICollection<string> clusterExpressions = new List<string>();
+        int clusterCount = 0;
         foreach (IList<object> valuesCluster in CollectionUtils.Cluster(inFilter.Values, MAX_IN_VALUES_SIZE))
         {
+          if (clusterCount > 0) resultParts.Add(" OR ");
+          resultParts.Add(attributeOperand);
           IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
           foreach (object value in valuesCluster)
           {
@@ -381,9 +604,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             bindVarRefs.Add("@" + bindVar.Name);
             resultBindVars.Add(bindVar);
           }
-          clusterExpressions.Add(" IN (" + StringUtils.Join(", ", bindVarRefs) + ")");
+          resultParts.Add(" IN (" + StringUtils.Join(", ", bindVarRefs) + ")");
+          clusterCount++;
         }
-        resultParts.Add(StringUtils.Join(" OR ", clusterExpressions));
         return;
       }
       throw new InvalidDataException("Filter type '{0}' isn't supported by the media library", filter.GetType().Name);
@@ -416,7 +639,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       foreach (object statementPart in _statementParts)
       {
         QueryAttribute qa = statementPart as QueryAttribute;
-        filterBuilder.Append(qa == null ? statementPart.ToString() : requestedAttributes[qa].GetQualifiedName(ns));
+        filterBuilder.Append(qa == null || !requestedAttributes.ContainsKey(qa) ? statementPart.ToString() : requestedAttributes[qa].GetQualifiedName(ns));
       }
       bindVars = _statementBindVars;
       return filterBuilder.ToString();

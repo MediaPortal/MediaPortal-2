@@ -56,8 +56,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (!_mediaItem.Equals(mediaItem))
         throw new ArgumentException("Update can only be done for the same MediaItem!", "mediaItem");
 
-      MediaItemAspect mediaAspect;
-      if (mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+      SingleMediaItemAspect mediaAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
       {
         Title = (string)mediaAspect[MediaAspect.ATTR_TITLE];
         Rating = (int?)mediaAspect[MediaAspect.ATTR_RATING] ?? 0;

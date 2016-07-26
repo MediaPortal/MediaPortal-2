@@ -596,8 +596,8 @@
           </media:MovieAspectWrapper.Template>
         </media:MovieAspectWrapper>
 
-        <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" HorizontalAlignment="Right">
-          <media:SeriesAspectWrapper.Template>
+        <media:EpisodeAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" HorizontalAlignment="Right">
+          <media:EpisodeAspectWrapper.Template>
             <ControlTemplate>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
 
@@ -612,8 +612,8 @@
                 </StarRatingPanel>
               </StackPanel>
             </ControlTemplate>
-          </media:SeriesAspectWrapper.Template>
-        </media:SeriesAspectWrapper>
+          </media:EpisodeAspectWrapper.Template>
+        </media:EpisodeAspectWrapper>
 
       </Grid>
     </Grid>

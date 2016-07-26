@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
 {
@@ -75,36 +76,37 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
     private static LiveTvMediaItem.LiveTvMediaItem CreateCommonMediaItem(int slotIndex, string path, bool isTv)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
-      MediaItemAspect providerResourceAspect;
-      MediaItemAspect mediaAspect;
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      var resourceAccessor = SlimTvResourceProvider.GetResourceAccessor(slotIndex, path);
-      aspects[ProviderResourceAspect.ASPECT_ID] = providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
-      aspects[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
+      SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
+
+      IList<MultipleMediaItemAspect> providerResourceAspects;
+      MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerResourceAspects);
+      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
       String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
+      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
 
       string title;
       string mimeType;
       if (isTv)
       {
         // VideoAspect needs to be included to associate VideoPlayer later!
-        aspects[VideoAspect.ASPECT_ID] = new MediaItemAspect(VideoAspect.Metadata);
+        MediaItemAspect.CreateAspect(aspects, VideoStreamAspect.Metadata);
         title = "Live TV";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_TV;
       }
       else
       {
         // AudioAspect needs to be included to associate an AudioPlayer later!
-        aspects[AudioAspect.ASPECT_ID] = new MediaItemAspect(AudioAspect.Metadata);
+        MediaItemAspect.SetAspect(aspects, new SingleMediaItemAspect(AudioAspect.Metadata));
         title = "Live Radio";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
       }
-      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
+      MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_TITLE, title);
+      MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
+      MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false);
+      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
       LiveTvMediaItem.LiveTvMediaItem tvStream = new LiveTvMediaItem.LiveTvMediaItem(new Guid(), aspects);
       return tvStream;
     }
@@ -116,6 +118,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
         var tvStream = CreateCommonMediaItem(slotIndex, path, true);
 
         MediaItemAspect.SetAttribute(tvStream.Aspects, MediaAspect.ATTR_TITLE, program.Title); // Override with real program name
+        MediaItemAspect.SetAttribute(tvStream.Aspects, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(program.Title));
+        MediaItemAspect.SetAttribute(tvStream.Aspects, MediaAspect.ATTR_ISVIRTUAL, false);
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.SLOT_INDEX] = slotIndex;
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.CHANNEL] = channel;
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.CURRENT_PROGRAM] = program;

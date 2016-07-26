@@ -33,8 +33,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
-using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Extensions.OnlineLibraries.TheMovieDB;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -81,10 +80,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public MovieMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Movies metadata extractor", MetadataExtractorPriority.External, true,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
                 MovieAspect.Metadata
               });
       _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>().OnlyFanArt;
@@ -94,69 +92,92 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     #region Private methods
 
-    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
       string title;
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
       if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
         return false;
+
+      bool refresh = false;
+      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+        refresh = true;
 
       MovieInfo movieInfo = new MovieInfo
         {
           MovieName = title,
         };
 
-      // Allow the online lookup to choose best matching language for metadata
-      ICollection<string> movieLanguages;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, VideoAspect.ATTR_AUDIOLANGUAGES, out movieLanguages) && movieLanguages.Count > 0)
-        movieInfo.Languages.AddRange(movieLanguages);
-
-      // Try to use an existing TMDB id for exact mapping
-      int tmdbId;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, out tmdbId) ||
-          MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
-        movieInfo.MovieDbId = tmdbId;
-
-      // Try to use an existing IMDB id for exact mapping
-      string imdbId;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MovieAspect.ATTR_IMDB_ID, out imdbId) ||
-          pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
-          MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
-        movieInfo.ImdbId = imdbId;
-
-      // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
-      foreach (string path in pathsToTest)
+      if (refresh)
       {
-        MovieInfo dummy = new MovieInfo { MovieName = path };
-        if (NamePreprocessor.MatchTitleYear(dummy))
+        movieInfo.FromMetadata(extractedAspectData);
+      }
+      else
+      {
+        // Try to use an existing TMDB id for exact mapping
+        string tmdbId;
+        if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out tmdbId) ||
+            MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+          movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+
+        // Try to use an existing IMDB id for exact mapping
+        string imdbId;
+        if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
+            pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
+            MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
+          movieInfo.ImdbId = imdbId;
+
+        // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
+        foreach (string path in pathsToTest)
         {
-          movieInfo.MovieName = dummy.MovieName;
-          movieInfo.Year = dummy.Year;
-          break;
+          MovieInfo dummy = new MovieInfo { MovieName = path };
+          if (MovieNameMatcher.MatchTitleYear(dummy))
+          {
+            movieInfo.MovieName = dummy.MovieName;
+            movieInfo.ReleaseDate = dummy.ReleaseDate;
+            break;
+          }
+        }
+
+        if (movieInfo.ReleaseDate.HasValue == false)
+        {
+          // When searching movie title, the year can be relevant for multiple titles with same name but different years
+          DateTime recordingDate;
+          if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+            movieInfo.ReleaseDate = recordingDate;
+        }
+
+        /* Clear the names from unwanted strings */
+        MovieNameMatcher.CleanupTitle(movieInfo);
+      }
+
+      // Allow the online lookup to choose best matching language for metadata
+      IList<MultipleMediaItemAspect> audioAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+      {
+        foreach (MultipleMediaItemAspect aspect in audioAspects)
+        {
+          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+          if (!string.IsNullOrEmpty(language))
+            movieInfo.Languages.Add(language);
         }
       }
 
-      // When searching movie title, the year can be relevant for multiple titles with same name but different years
-      DateTime recordingDate;
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-        movieInfo.Year = recordingDate.Year;
+      MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
+      MP4Matcher.ExtractFromTags(lfsra, movieInfo);
+      MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+      MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+      MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
 
-      if (MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo))
-      {
-        if (!_onlyFanArt)
-          movieInfo.SetMetadata(extractedAspectData);
-        if (_onlyFanArt && movieInfo.MovieDbId > 0)
-          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TMDB_ID, movieInfo.MovieDbId);
-        if (_onlyFanArt && movieInfo.CollectionMovieDbId > 0)
-          MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_ID, movieInfo.CollectionMovieDbId);
-        return true;
-      }
-      return false;
+      if (!_onlyFanArt)
+        return movieInfo.SetMetadata(extractedAspectData);
+
+      return true;
     }
 
     #endregion
@@ -168,7 +189,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -178,7 +199,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData);
+          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode);
       }
       catch (Exception e)
       {

@@ -25,7 +25,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Xml;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Xml;
 using UPnP.Infrastructure.Utils;
@@ -50,7 +53,7 @@ namespace MediaPortal.Common.MediaManagement
   /// internally, the value <c>null</c> is handled different than the <see cref="IGNORE"/> value. To get the information
   /// if a special value should be ignored, call <see cref="IsIgnore"/>.
   /// </remarks>
-  public class MediaItemAspect
+  public abstract class MediaItemAspect
   {
     #region Constants
 
@@ -68,6 +71,7 @@ namespace MediaPortal.Common.MediaManagement
     protected MediaItemAspectMetadata _metadata;
     protected IDictionary<MediaItemAspectMetadata.AttributeSpecification, object> _aspectData =
         new Dictionary<MediaItemAspectMetadata.AttributeSpecification, object>();
+    protected bool _deleted;
 
     #endregion
 
@@ -87,6 +91,16 @@ namespace MediaPortal.Common.MediaManagement
     public MediaItemAspectMetadata Metadata
     {
       get { return _metadata; }
+    }
+
+    /// <summary>
+    /// Returns the deleted state for this media item aspect.
+    /// This field is for serialising only, it is not persisted to storage
+    /// </summary>
+    public bool Deleted
+    {
+      get { return _deleted; }
+      set { _deleted = value; }
     }
 
     /// <summary>
@@ -134,7 +148,9 @@ namespace MediaPortal.Common.MediaManagement
       CheckSingleAttribute(attributeSpecification);
       if (IsIgnore(attributeSpecification))
         return default(T);
-      return (T) _aspectData[attributeSpecification];
+      if (_aspectData[attributeSpecification] == null)
+        return default(T);
+      return (T)_aspectData[attributeSpecification];
     }
 
     /// <summary>
@@ -282,10 +298,14 @@ namespace MediaPortal.Common.MediaManagement
       _aspectData[attributeSpecification] = value;
     }
 
+    protected abstract void WriteAttributes(XmlWriter writer);
+
     public void Serialize(XmlWriter writer)
     {
       writer.WriteStartElement("Aspect");
       writer.WriteAttributeString("Id", _metadata.AspectId.ToString());
+      writer.WriteAttributeString("Deleted", XmlConvert.ToString(_deleted));
+      WriteAttributes(writer);
       foreach (MediaItemAspectMetadata.AttributeSpecification spec in _aspectData.Keys)
       {
         if (IsIgnore(spec))
@@ -311,13 +331,26 @@ namespace MediaPortal.Common.MediaManagement
       if (!reader.MoveToAttribute("Id"))
         throw new ArgumentException("Media item aspect cannot be deserialized: 'Id' attribute missing");
       Guid aspectTypeId = new Guid(reader.ReadContentAsString());
+      bool deleted = false;
+      if (reader.MoveToAttribute("Deleted"))
+      {
+        deleted = reader.ReadContentAsBoolean();
+      }
       reader.MoveToElement();
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       MediaItemAspectMetadata miaType;
       if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(aspectTypeId, out miaType))
-        throw new ArgumentException(string.Format("Media item aspect cannot be deserialized: Unknown media item aspect type '{0}'",
-            aspectTypeId));
-      MediaItemAspect result = new MediaItemAspect(miaType);
+        throw new ArgumentException(string.Format("Media item aspect cannot be deserialized: Unknown media item aspect type '{0}' in [{1} / {2}]", aspectTypeId, string.Join(",", miatr.LocallyKnownMediaItemAspectTypes.Keys), string.Join(",", miatr.LocallyKnownMediaItemAspectTypes.Values.ToList().Select(x => x.Name))));
+      MediaItemAspect result = null;
+      if(miaType is SingleMediaItemAspectMetadata)
+      {
+        result = new SingleMediaItemAspect((SingleMediaItemAspectMetadata)miaType);
+      }
+      else if(miaType is MultipleMediaItemAspectMetadata)
+      {
+        result = new MultipleMediaItemAspect((MultipleMediaItemAspectMetadata)miaType);
+      }
+      result.Deleted = deleted;
       if (SoapHelper.ReadEmptyStartElement(reader, "Aspect"))
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)
@@ -377,7 +410,7 @@ namespace MediaPortal.Common.MediaManagement
     {
       if (!attributeSpecification.IsCollectionAttribute)
         throw new ArgumentException(string.Format(
-            "Media item aspect '{0}': Attribute '{1}' is not of a collection type, but a collection attribute is requrested",
+            "Media item aspect '{0}': Attribute '{1}' is not of a collection type, but a collection attribute is requested",
             _metadata.Name, attributeSpecification.AttributeName));
     }
 
@@ -411,23 +444,104 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Convenience method to set the <see cref="MediaItemAspect"/> from the given <paramref name="aspects"/> dictionary
+    /// </summary>
+    /// <param name="aspects">Dictionary of MediaItemAspects.</param>
+    /// <param name="mediaItemAspectMetadata">Definiton of metadata that is used for creation.</param>
+    /// <param name="value">Metadata values used for creation.</param>
+    public static void SetAspect(IDictionary<Guid, IList<MediaItemAspect>> aspects, SingleMediaItemAspect value)
+    {
+      Guid aspectId = value.Metadata.AspectId;
+      if (!aspects.ContainsKey(aspectId))
+      {
+        aspects[aspectId] = new List<MediaItemAspect>();
+        aspects[aspectId].Add(value);
+      }
+      else
+      {
+        aspects[aspectId][0] = value;
+      }
+    }
+
+    /// <summary>
+    /// Convenience method to add a <see cref="MediaItemAspect"/> from the given <paramref name="aspectData"/> dictionary
+    /// </summary>
+    /// <param name="aspectData">Dictionary of MediaItemAspects.</param>
+    /// <param name="value">Metadata values used for creation.</param>
+    public static void AddOrUpdateAspect(IDictionary<Guid, IList<MediaItemAspect>> aspectData, MultipleMediaItemAspect value)
+    {
+      Guid aspectId = value.Metadata.AspectId;
+      IList<MediaItemAspect> aspects;
+      if (!aspectData.ContainsKey(aspectId))
+      {
+        aspects = aspectData[aspectId] = new List<MediaItemAspect>();
+      }
+      else
+      {
+        aspects = aspectData[aspectId];
+      }
+
+      int index = GetMatchingAspect(aspects, value);
+      if (index >= 0)
+      {
+        aspects[index] = value;
+      }
+      else
+      {
+        aspects.Add(value);
+      }
+    }
+
+    private static int GetMatchingAspect(IList<MediaItemAspect> aspects, MultipleMediaItemAspect value)
+    {
+      for(int index = 0; index < aspects.Count; index++)
+      {
+        MediaItemAspect aspect = aspects[index];
+        if (value.Metadata.UniqueAttributeSpecifications.All(spec => aspect[spec].Equals(value[spec])))
+          return index;
+      }
+
+      return -1;
+    }
+
+    /// <summary>
+    /// Convenience method to get a <see cref="MediaItemAspect"/> from the given <paramref name="aspects"/> dictionary or add a new instance to the
+    /// dictionary and return it.
+    /// </summary>
+    /// <param name="aspects">Dictionary of MediaItemAspects.</param>
+    /// <param name="mediaItemAspectMetadata">Definiton of metadata that is used for creation.</param>
+    /// <param name="value">Metadata values used for creation.</param>
+    public static MultipleMediaItemAspect CreateAspect(IDictionary<Guid, IList<MediaItemAspect>> aspects, MultipleMediaItemAspectMetadata mediaItemAspectMetadata)
+    {
+      MultipleMediaItemAspect mediaAspect = new MultipleMediaItemAspect(mediaItemAspectMetadata);
+      AddOrUpdateAspect(aspects, mediaAspect);
+      return mediaAspect;
+    }
+
+    /// <summary>
     /// Convenience method to get a <see cref="MediaItemAspect"/> from the given <paramref name="aspects"/> dictionary or add a new instance to the
     /// dictionary and return it.
     /// </summary>
     /// <param name="aspects">Dictionary of MediaItemAspects.</param>
     /// <param name="mediaItemAspectMetadata">Definiton of metadata that is used for creation.</param>
     /// <returns>Existing or new <see cref="MediaItemAspect"/> instance.</returns>
-    public static MediaItemAspect GetOrCreateAspect(IDictionary<Guid, MediaItemAspect> aspects, MediaItemAspectMetadata mediaItemAspectMetadata)
+    public static SingleMediaItemAspect GetOrCreateAspect(IDictionary<Guid, IList<MediaItemAspect>> aspects, SingleMediaItemAspectMetadata mediaItemAspectMetadata)
     {
-      MediaItemAspect mediaAspect;
+      SingleMediaItemAspect mediaAspect;
       Guid aspectId = mediaItemAspectMetadata.AspectId;
-      if (!aspects.TryGetValue(aspectId, out mediaAspect))
-        aspects[aspectId] = mediaAspect = new MediaItemAspect(mediaItemAspectMetadata);
+      if (!TryGetAspect(aspects, mediaItemAspectMetadata, out mediaAspect))
+      {
+        if (!aspects.ContainsKey(aspectId))
+        {
+          aspects[aspectId] = new List<MediaItemAspect>();
+        }
+        aspects[aspectId].Add(mediaAspect = new SingleMediaItemAspect(mediaItemAspectMetadata));
+      }
       return mediaAspect;
     }
 
     /// <summary>
-    /// Convenience method to set a simple attribute in a dictionary of media item aspects. If the given <paramref name="aspectData"/>
+    /// Convenience method to set a simple attribute in a dictionary of media item aspectData. If the given <paramref name="aspectData"/>
     /// dictionary contains the media item aspect of the requested aspect type, that aspect instance is used to store the
     /// attribute corresponding to the given <paramref name="attributeSpecification"/>. If the corresponding aspect instance is not
     /// present in the dictionary yet, it is created and added to the dictionary before setting the value.
@@ -436,40 +550,74 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="aspectData">Dictionary of aspect data to be written to.</param>
     /// <param name="attributeSpecification">Type of the attribute to write.</param>
     /// <param name="value">Value to be set.</param>
-    public static void SetAttribute<TE>(IDictionary<Guid, MediaItemAspect> aspectData,
-        MediaItemAspectMetadata.AttributeSpecification attributeSpecification, TE value)
+    public static void SetAttribute<TE>(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+        MediaItemAspectMetadata.SingleAttributeSpecification attributeSpecification, TE value)
     {
-      MediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
+      SingleMediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
       aspect.SetAttribute(attributeSpecification, value);
     }
 
+    public static SingleMediaItemAspect GetAspect(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      SingleMediaItemAspectMetadata mediaItemAspectMetadata)
+    {
+      SingleMediaItemAspect value;
+      TryGetAspect(aspectData, mediaItemAspectMetadata, out value);
+      return value;
+    }
+
+    public static bool TryGetAspect(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+        SingleMediaItemAspectMetadata mediaItemAspectMetadata, out SingleMediaItemAspect value)
+    {
+      value = null;
+      IList<MediaItemAspect> mediaAspects;
+      if (!aspectData.TryGetValue(mediaItemAspectMetadata.AspectId, out mediaAspects) || mediaAspects.Count == 0)
+        return false;
+
+      value = (SingleMediaItemAspect)mediaAspects[0];
+      return true;
+    }
+
+    public static bool TryGetAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+        MultipleMediaItemAspectMetadata mediaItemAspectMetadata, out IList<MultipleMediaItemAspect> values)
+    {
+      values = null;
+      IList<MediaItemAspect> mediaAspects;
+      if (!aspectData.TryGetValue(mediaItemAspectMetadata.AspectId, out mediaAspects) || mediaAspects.Count == 0)
+        return false;
+
+      values = new List<MultipleMediaItemAspect>();
+      foreach (MediaItemAspect mediaAspect in mediaAspects)
+        values.Add((MultipleMediaItemAspect)mediaAspect);
+      return true;
+    }
+
     /// <summary>
-    /// Convenience method to get a simple attribute in a dictionary of media item aspects.
+    /// Convenience method to get a simple attribute in a dictionary of media item aspectData.
     /// </summary>
     /// <typeparam name="TE">Type parameter.</typeparam>
     /// <param name="aspectData">Dictionary of aspect data to be read from.</param>
     /// <param name="attributeSpecification">Type of the attribute to read.</param>
     /// <param name="value">Returns the value.</param>
-    /// <returns><c>true</c> if value exists and is not null.</returns>
-    public static bool TryGetAttribute<TE>(IDictionary<Guid, MediaItemAspect> aspectData,
-        MediaItemAspectMetadata.AttributeSpecification attributeSpecification, out TE value)
+    /// <returns><c>true</c> if value exists.</returns>
+    public static bool TryGetAttribute<TE>(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+        MediaItemAspectMetadata.SingleAttributeSpecification attributeSpecification, out TE value)
     {
       value = default(TE);
-      MediaItemAspect mediaAspect;
-      Guid aspectId = attributeSpecification.ParentMIAM.AspectId;
-      if (!aspectData.TryGetValue(aspectId, out mediaAspect))
+      SingleMediaItemAspect mediaAspect;
+      SingleMediaItemAspectMetadata metadata = attributeSpecification.ParentMIAM;
+      if (!TryGetAspect(aspectData, metadata, out mediaAspect))
         return false;
 
       object attribute = mediaAspect[attributeSpecification];
       if (attribute == null)
         return false;
 
-      value = (TE) attribute;
+      value = (TE)attribute;
       return true;
     }
 
     /// <summary>
-    /// Convenience method to get a simple attribute in a dictionary of media item aspects.
+    /// Convenience method to get a simple attribute in a dictionary of media item aspectData.
     /// </summary>
     /// <typeparam name="TE">Type parameter.</typeparam>
     /// <param name="aspectData">Dictionary of aspect data to be read from.</param>
@@ -477,13 +625,13 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="defaultValue">If the attribute is {null} this value will be returned.</param>
     /// <param name="value">Returns the value.</param>
     /// <returns><c>true</c> if value exists or a null value was substituted by <paramref name="defaultValue"/>.</returns>
-    public static bool TryGetAttribute<TE>(IDictionary<Guid, MediaItemAspect> aspectData,
-        MediaItemAspectMetadata.AttributeSpecification attributeSpecification, TE defaultValue, out TE value)
+    public static bool TryGetAttribute<TE>(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+        MediaItemAspectMetadata.SingleAttributeSpecification attributeSpecification, TE defaultValue, out TE value)
     {
       value = default(TE);
-      MediaItemAspect mediaAspect;
-      Guid aspectId = attributeSpecification.ParentMIAM.AspectId;
-      if (!aspectData.TryGetValue(aspectId, out mediaAspect))
+      SingleMediaItemAspect mediaAspect;
+      SingleMediaItemAspectMetadata metadata = attributeSpecification.ParentMIAM;
+      if (!TryGetAspect(aspectData, metadata, out mediaAspect))
         return false;
 
       object attribute = mediaAspect[attributeSpecification] ?? defaultValue;
@@ -493,7 +641,31 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Convenience method to set a collection attribute in a dictionary of media item aspects. If the given <paramref name="aspectData"/>
+    /// Convenience method to get a list of same attribute specification of a multi attribute.
+    /// </summary>
+    /// <typeparam name="TE">Type of aspect specification</typeparam>
+    /// <param name="aspectData">Aspects</param>
+    /// <param name="attributeSpecification">Requested aspect attribute</param>
+    /// <param name="values">List of values of all aspects</param>
+    /// <returns><c>true</c> if at least one aspect value was found.</returns>
+    public static bool TryGetAttribute<TE>(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      MediaItemAspectMetadata.MultipleAttributeSpecification attributeSpecification, out List<TE> values)
+    {
+      IList<MultipleMediaItemAspect> aspects;
+      values  = new List<TE>();
+      if (TryGetAspects(aspectData, attributeSpecification.ParentMIAM, out aspects))
+      {
+        foreach (MultipleMediaItemAspect aspect in aspects)
+        {
+          TE value = aspect.GetAttributeValue<TE>(attributeSpecification);
+          values.Add(value);
+        }
+      }
+      return values.Count > 0;
+    }
+
+    /// <summary>
+    /// Convenience method to set a collection attribute in a dictionary of media item aspectData. If the given <paramref name="aspectData"/>
     /// dictionary contains the media item aspect of the requested aspect type, that aspect instance is used to store the
     /// attribute corresponding to the given <paramref name="attributeSpecification"/>. If the corresponding aspect instance is not
     /// present in the dictionary yet, it is created and added to the dictionary before setting the value.
@@ -501,16 +673,161 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="aspectData">Dictionary of aspect data to be written to.</param>
     /// <param name="attributeSpecification">Type of the attribute to write.</param>
     /// <param name="value">Value to be set.</param>
-    public static void SetCollectionAttribute(IDictionary<Guid, MediaItemAspect> aspectData,
-        MediaItemAspectMetadata.AttributeSpecification attributeSpecification, IEnumerable value)
+    public static void SetCollectionAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+        MediaItemAspectMetadata.SingleAttributeSpecification attributeSpecification, IEnumerable value)
     {
-      MediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
+      SingleMediaItemAspect aspect = GetOrCreateAspect(aspectData, attributeSpecification.ParentMIAM);
       aspect.SetCollectionAttribute(attributeSpecification, value);
+    }
+
+    public static bool TryGetExternalAttribute(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      string source, string type, out string id)
+    {
+      id = null;
+      IList<MultipleMediaItemAspect> values;
+      if (!TryGetAspects(aspectData, ExternalIdentifierAspect.Metadata, out values))
+        return false;
+      foreach (MultipleMediaItemAspect value in values)
+      {
+        if (value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE) == source && value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE) == type)
+        {
+          id = value.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    public static void AddOrUpdateExternalIdentifier(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      string source, string type, string id)
+    {
+      MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(ExternalIdentifierAspect.Metadata);
+      aspect.SetAttribute(ExternalIdentifierAspect.ATTR_SOURCE, source);
+      aspect.SetAttribute(ExternalIdentifierAspect.ATTR_TYPE, type);
+      aspect.SetAttribute(ExternalIdentifierAspect.ATTR_ID, id);
+      AddOrUpdateAspect(aspectData, aspect);
+    }
+
+    public static void AddOrUpdateRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
+      Guid role, Guid linkedRole, Guid linkedId, int linkedIndex)
+    {
+      MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(RelationshipAspect.Metadata);
+      aspect.SetAttribute(RelationshipAspect.ATTR_ROLE, role);
+      aspect.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, linkedRole);
+      aspect.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, linkedId);
+      aspect.SetAttribute(RelationshipAspect.ATTR_RELATIONSHIP_INDEX, linkedIndex);
+      AddOrUpdateAspect(aspectData, aspect);
+    }
+
+    public static IList<MediaItemAspect> GetAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      IList<MediaItemAspect> aspects = new List<MediaItemAspect>();
+      foreach (IList<MediaItemAspect> values in aspectData.Values)
+        foreach (MediaItemAspect value in values)
+          aspects.Add(value);
+      return aspects;
     }
 
     public override string ToString()
     {
       return "MIA of type '" + _metadata + "'";
+    }
+
+    public static string GetInfo(IEnumerable<MediaItemAspect> aspects, IDictionary<Guid, MediaItemAspectMetadata> types)
+    {
+      IList<StringBuilder> infos = new List<StringBuilder>();
+
+      foreach (MediaItemAspect aspect in aspects)
+      {
+        StringBuilder info;
+        MediaItemAspectMetadata metadata;
+        if (!types.TryGetValue(aspect.Metadata.AspectId, out metadata))
+          continue;
+        infos.Add(info = new StringBuilder().AppendFormat(" {0}: ", metadata.Name));
+        Boolean first = true;
+        foreach (MediaItemAspectMetadata.AttributeSpecification spec in aspect.Metadata.AttributeSpecifications.Values)
+        {
+          string valueStr = null;
+          if (spec.IsCollectionAttribute)
+          {
+            IEnumerable values = aspect.GetCollectionAttribute(spec);
+            if (values != null)
+            {
+              IList<string> list = new List<string>();
+              foreach (object value in values)
+                if (value != null)
+                  list.Add(value.ToString());
+              valueStr = string.Format("[{0}]", string.Join(",", list));
+            }
+          }
+          else
+          {
+            object value = aspect.GetAttributeValue(spec);
+            if (value != null)
+              valueStr = value.ToString();
+          }
+          if (valueStr != null)
+          {
+            if (first)
+              first = false;
+            else
+              info.Append(",");
+            //sb += string.Format(" {0}{1}{2}({3}/{4})={5}", spec.AttributeName, aspect is MultipleMediaItemAspect ? "," : "", aspect is MultipleMediaItemAspect ? ((MultipleMediaItemAspect)aspect).Index.ToString() : "", spec.AttributeType.Name, spec.Cardinality, valueStr);
+            info.AppendFormat(" {0}={1}", spec.AttributeName, valueStr);
+          }
+        }
+      }
+      return string.Join("\n", infos);
+    }
+  }
+
+  public class SingleMediaItemAspect : MediaItemAspect
+  {
+    /// <summary>
+    /// Creates a new media item aspect instance for the specified media item aspect <paramref name="metadata"/>.
+    /// </summary>
+    /// <param name="metadata">Media item aspect specification.</param>
+    public SingleMediaItemAspect(SingleMediaItemAspectMetadata metadata) : base(metadata)
+    {
+    }
+
+    /// <summary>
+    /// Returns the metadata descriptor for this media item aspect.
+    /// </summary>
+    new public SingleMediaItemAspectMetadata Metadata
+    {
+      get { return (SingleMediaItemAspectMetadata)_metadata; }
+    }
+
+    protected override void WriteAttributes(XmlWriter writer)
+    {
+    }
+  }
+
+  public class MultipleMediaItemAspect : MediaItemAspect
+  {
+    #region Protected fields
+
+    #endregion
+
+    /// <summary>
+    /// Creates a new media item aspect instance for the specified media item aspect <paramref name="metadata"/>.
+    /// </summary>
+    /// <param name="metadata">Media item aspect specification.</param>
+    public MultipleMediaItemAspect(MultipleMediaItemAspectMetadata metadata) : base(metadata)
+    {
+    }
+
+    /// <summary>
+    /// Returns the metadata descriptor for this media item aspect.
+    /// </summary>
+    new public MultipleMediaItemAspectMetadata Metadata
+    {
+      get { return (MultipleMediaItemAspectMetadata)_metadata; }
+    }
+
+    protected override void WriteAttributes(XmlWriter writer)
+    {
     }
   }
 }

@@ -48,13 +48,13 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect aspectX;
-      MediaItemAspect aspectY;
+      SingleMediaItemAspect aspectX;
+      SingleMediaItemAspect aspectY;
 
       // Check audio
-      if (!x.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspectX))
+      if (!MediaItemAspect.TryGetAspect(x.Aspects, AudioAspect.Metadata, out aspectX))
         aspectX = null;
-      if (!y.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspectY))
+      if (!MediaItemAspect.TryGetAspect(y.Aspects, AudioAspect.Metadata, out aspectY))
         aspectY = null;
       if (aspectX != null && aspectY != null)
         // Both are audio items - compare to each other
@@ -65,9 +65,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       // None of them is an audio item
 
       // Check video
-      if (!x.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out aspectX))
+      if (!MediaItemAspect.TryGetAspect(x.Aspects, VideoAspect.Metadata, out aspectX))
         aspectX = null;
-      if (!y.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out aspectY))
+      if (!MediaItemAspect.TryGetAspect(y.Aspects, VideoAspect.Metadata, out aspectY))
         aspectY = null;
       if (aspectX != null && aspectY != null)
         // Both are vido items - compare to each other
@@ -78,9 +78,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       // None of them is a video item
 
       // Check image
-      if (!x.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out aspectX))
+      if (!MediaItemAspect.TryGetAspect(x.Aspects, ImageAspect.Metadata, out aspectX))
         aspectX = null;
-      if (!y.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out aspectY))
+      if (!MediaItemAspect.TryGetAspect(y.Aspects, ImageAspect.Metadata, out aspectY))
         aspectY = null;
       if (aspectX != null && aspectY != null)
         // Both are image items - compare to each other

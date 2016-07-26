@@ -91,10 +91,10 @@ namespace MediaPortal.Media.MetadataExtractors
     public BluRayMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "BluRay metadata extractor", MetadataExtractorPriority.Core, false,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
+                VideoStreamAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
     }
@@ -108,12 +108,15 @@ namespace MediaPortal.Media.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
+
+        if (extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+          return true;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
@@ -123,12 +126,22 @@ namespace MediaPortal.Media.MetadataExtractors
             IFileSystemResourceAccessor fsraBDMV = lfsra.GetResource("BDMV");
             if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
             {
+              IList<MultipleMediaItemAspect> providerResourceAspect;
+              if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspect))
+              {
+                // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+                providerResourceAspect[0].SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
+              }
+
               // This line is important to keep in, if no VideoAspect is created here, the MediaItems is not detected as Video! 
-              MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+              SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
+              videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, true);
+
+              MultipleMediaItemAspect videoStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+              videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+              videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, -1);
+
               MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
-
-              mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
-
               using (lfsra.EnsureLocalFileSystemAccess())
               {
                 BDInfoExt bdinfo = new BDInfoExt(lfsra.LocalFileSystemPath);

@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -93,7 +93,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data
       address.CountryRegion = CountryName;
       address.StateProvince = RegionName;
       address.City = City;
-      address.PostalCode = ZipCode.ToString();
+      if (ZipCode != null)
+        address.PostalCode = ZipCode.ToString();
 
       return address;
     }

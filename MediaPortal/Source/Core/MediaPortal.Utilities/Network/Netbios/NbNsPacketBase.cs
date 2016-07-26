@@ -196,8 +196,8 @@ namespace MediaPortal.Utilities.Network.Netbios
       }
 
       // ToDo: Parse Further Netbios Name Service packets
-      
-      return true;
+
+      return packet != null;
     }
 
     #endregion

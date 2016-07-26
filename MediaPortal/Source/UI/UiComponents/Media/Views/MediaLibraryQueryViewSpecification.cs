@@ -33,6 +33,9 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -44,6 +47,7 @@ namespace MediaPortal.UiComponents.Media.Views
     #region Protected fields
 
     protected IFilter _filter;
+    protected IFilter _relationshipFilter;
     protected MediaItemQuery _query;
     protected bool _onlyOnline;
     protected int? _maxNumItems;
@@ -53,12 +57,13 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Ctor
 
-    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilter filter,
+    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilter filter, IFilter relationshipFilter,
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
         base(viewDisplayName, necessaryMIATypeIDs, optionalMIATypeIDs)
     {
       _filter = filter;
-      _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, filter);
+      _relationshipFilter = relationshipFilter;
+      _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, filter ?? relationshipFilter);
       _onlyOnline = onlyOnline;
     }
 
@@ -72,6 +77,11 @@ namespace MediaPortal.UiComponents.Media.Views
     public IFilter Filter
     {
       get { return _filter; }
+    }
+
+    public IFilter RelationshipFilter
+    {
+      get { return _relationshipFilter; }
     }
 
     /// <summary>
@@ -100,10 +110,21 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter)
+    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter, IFilter relationshipFilter)
     {
-      IFilter combinedFilter = _filter == null ? filter : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {_filter, filter});
-      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
+      IFilter combinedFilter;
+      if (_filter == null)
+        combinedFilter = filter;
+      else
+      {
+        // Relationsships cannot be chained up, so the new filter needs to replace the former one.
+        // TODO: implement correct support for this scenario in backend
+        if (_filter is RelationshipFilter && filter is RelationshipFilter)
+          combinedFilter = filter;
+        else
+          combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { _filter, filter });
+      }
+      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, relationshipFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
         {
             MaxNumItems = _maxNumItems
         };
@@ -114,7 +135,16 @@ namespace MediaPortal.UiComponents.Media.Views
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<MediaItem>();
-      return cd.Search(_query, _onlyOnline);
+
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+      return cd.Search(_query, _onlyOnline, userProfile, showVirtual);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -124,6 +154,15 @@ namespace MediaPortal.UiComponents.Media.Views
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return;
+
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
       try
       {
         if (MaxNumItems.HasValue)
@@ -133,7 +172,7 @@ namespace MediaPortal.UiComponents.Media.Views
           // We request the groups first to make it faster for the many items case. In the case of few items, both groups and items
           // are requested which doesn't take so long because there are only few items.
           IList<MLQueryResultGroup> groups = cd.GroupValueGroups(MediaAspect.ATTR_TITLE, null, ProjectionFunction.None,
-              _query.NecessaryRequestedMIATypeIDs, _query.Filter, _onlyOnline, GroupingFunction.FirstCharacter);
+              _query.NecessaryRequestedMIATypeIDs, _query.Filter, _onlyOnline, GroupingFunction.FirstCharacter, showVirtual);
           long numItems = groups.Aggregate<MLQueryResultGroup, long>(0, (current, group) => current + group.NumItemsInGroup);
           if (numItems > MaxNumItems.Value)
           { // Group items
@@ -141,7 +180,7 @@ namespace MediaPortal.UiComponents.Media.Views
             subViewSpecifications = new List<ViewSpecification>(groups.Count);
             foreach (MLQueryResultGroup group in groups)
             {
-              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter);
+              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter, null);
               subViewSpecification.MaxNumItems = null;
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);
@@ -151,7 +190,7 @@ namespace MediaPortal.UiComponents.Media.Views
           // Else: No grouping
         }
         // Else: No grouping
-        mediaItems = cd.Search(_query, _onlyOnline);
+        mediaItems = cd.Search(_query, _onlyOnline, userProfile, showVirtual);
         subViewSpecifications = new List<ViewSpecification>(0);
       }
       catch (UPnPRemoteException e)

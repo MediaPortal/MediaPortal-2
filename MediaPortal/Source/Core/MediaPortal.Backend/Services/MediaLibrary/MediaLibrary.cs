@@ -23,11 +23,17 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Exceptions;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.Database;
+using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -35,17 +41,17 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Backend.Database;
-using MediaPortal.Backend.Exceptions;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
-using RelocationMode=MediaPortal.Backend.MediaLibrary.RelocationMode;
+using RelocationMode = MediaPortal.Backend.MediaLibrary.RelocationMode;
+using MediaPortal.Backend.Services.UserProfileDataManagement;
+using System.IO;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -65,11 +71,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public MediaItem LoadLocalItem(ResourcePath path,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
         {
-          return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+          return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
         }
         catch (Exception)
         {
@@ -78,11 +84,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId, 
+          bool includeVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, offset, limit);
+          return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
         }
         catch (Exception)
         {
@@ -95,6 +102,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           return _parent.GetManagedMediaItemAspectCreationDates();
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
+      {
+        try
+        {
+          return _parent.GetManagedMediaItemAspectMetadata().Keys;
         }
         catch (Exception)
         {
@@ -149,6 +168,236 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    protected class ShareWatcher : FileSystemWatcher
+    {
+      protected bool _fileCheckAllowed;
+      protected Thread _fileCheckThread;
+      protected BlockingCollection<string> _fileQueue = new BlockingCollection<string>();
+      protected MediaLibrary _parent;
+      protected Share _share;
+      protected Guid _resourceProviderId;
+
+      public event FileSystemEventHandler OnShareChange;
+
+      public ShareWatcher(Share share, MediaLibrary parent)
+        : base()
+      {
+        _share = share;
+        _parent = parent;
+
+        IResourceAccessor resAccess = null;
+        if (!share.BaseResourcePath.TryCreateLocalResourceAccessor(out resAccess))
+          return;
+
+        ILocalFsResourceAccessor fileAccess = resAccess as ILocalFsResourceAccessor;
+        if (fileAccess != null)
+        {
+          if (!fileAccess.Exists || fileAccess.IsFile)
+            return;
+        }
+        else
+          return;
+
+        if (!string.IsNullOrEmpty(resAccess.ResourcePathName))
+        {
+          _resourceProviderId = resAccess.ParentProvider.Metadata.ResourceProviderId;
+
+          _fileCheckAllowed = true;
+          _fileCheckThread = new Thread(CheckFiles) { Name = "FileChangeChecker", Priority = ThreadPriority.Lowest };
+          _fileCheckThread.Start();
+
+          Path = resAccess.ResourcePathName;
+          NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName;
+          Filter = "*.*";
+          IncludeSubdirectories = true;
+
+          // Add event handlers.
+          Created += new FileSystemEventHandler(OnChanged);
+          Deleted += new FileSystemEventHandler(OnChanged);
+          Renamed += new RenamedEventHandler(OnRenamed);
+          EnableRaisingEvents = true;
+        }
+      }
+
+      private void OnChanged(object source, FileSystemEventArgs e)
+      {
+        try
+        {
+          _fileQueue.Add(e.FullPath);
+
+          if(OnShareChange != null)
+            OnShareChange(this, e);
+        }
+        catch (Exception ex)
+        {
+          Logger.Error("MediaLibrary: Share watcher error", ex);
+          throw;
+        }
+      }
+
+      private void OnRenamed(object source, RenamedEventArgs e)
+      {
+        try
+        {
+          _fileQueue.Add(e.OldFullPath);
+          _fileQueue.Add(e.FullPath);
+
+          FileSystemEventArgs args = new FileSystemEventArgs(WatcherChangeTypes.Renamed, e.FullPath, e.Name);
+          if (OnShareChange != null)
+            OnShareChange(this, args);
+        }
+        catch (Exception ex)
+        {
+          Logger.Error("MediaLibrary: Share watcher error", ex);
+          throw;
+        }
+      }
+
+      private void CheckFiles()
+      {
+        while (_fileCheckAllowed)
+        {
+          foreach (string file in _fileQueue.GetConsumingEnumerable())
+          {
+            try
+            {
+              bool isFile = false;
+              ResourcePath resPath;
+              Guid? resGuid = null;
+
+              //Check if path is a file
+              if (!string.IsNullOrEmpty(System.IO.Path.GetExtension(file)))
+                isFile = true;
+
+              if (isFile)
+              {
+                //Check if file is valid
+                if (File.Exists(file))
+                {
+                  FileInfo fileInfo = new FileInfo(file);
+                  if ((fileInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
+                  {
+                    //Ignore hidden files
+                    continue;
+                  }
+                  if ((fileInfo.Attributes & FileAttributes.System) == FileAttributes.System)
+                  {
+                    //Ignore system files
+                    continue;
+                  }
+                }
+
+                //Wait for file copy
+                DateTime startCheck = DateTime.Now;
+                while (IsFileLocked(file) && (DateTime.Now - startCheck).TotalMinutes < 5 && _fileCheckAllowed)
+                {
+                  Thread.Sleep(100);
+                }
+                if (_fileCheckAllowed && !IsFileLocked(file))
+                {
+                  //Check if file should imported
+                  if (File.Exists(file))
+                  {
+                    FileInfo fileInfo = new FileInfo(file);
+                    if (fileInfo.Length < 10000)
+                    {
+                      //Ignore small files
+                      continue;
+                    }
+                  }
+                }
+                else
+                {
+                  //File locked bailout
+                  continue;
+                }
+
+                resPath = ResourcePath.BuildBaseProviderPath(_resourceProviderId,
+                  LocalFsResourceProviderBase.ToProviderPath(file.Substring(1)));
+              }
+              else
+              {
+                resPath = ResourcePath.BuildBaseProviderPath(_resourceProviderId,
+                  LocalFsResourceProviderBase.ToProviderPath(System.IO.Path.GetDirectoryName(file).Substring(1) + "\\"));
+              }
+
+              //Check if resource is part of share
+              if (!_share.BaseResourcePath.IsParentOf(resPath))
+              {
+                continue;
+              }
+
+              //Check if resource already in media library
+              ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+              using (ITransaction transaction = database.BeginTransaction())
+              {
+                resGuid = _parent.GetMediaItemId(transaction, _share.SystemId, resPath);
+              }
+
+              //Check if resource is deleted
+              if (!File.Exists(file) && !Directory.Exists(file))
+              {
+                //Resource was deleted
+                if (resGuid.HasValue)
+                  _parent.DeleteMediaItemOrPath(_share.SystemId, resPath, true);
+                continue;
+              }
+
+              //Refresh or import resource
+              IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+              if(resGuid.HasValue)
+                importerWorker.ScheduleRefresh(resPath, _share.MediaCategories, false);
+              else
+                importerWorker.ScheduleImport(resPath, _share.MediaCategories, false);
+            }
+            catch (Exception e)
+            {
+              Logger.Error("MediaLibrary: Error checking file {0}", e, file);
+            }
+          }
+        }
+      }
+
+      private bool IsFileLocked(string file)
+      {
+        FileStream stream = null;
+        if (!File.Exists(file))
+          return false;
+
+        try
+        {
+          stream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+        }
+        catch (IOException)
+        {
+          //the file is unavailable because it is:
+          //still being written to or being processed by another thread
+          return true;
+        }
+        finally
+        {
+          if (stream != null)
+            stream.Close();
+        }
+
+        //file is not locked
+        return false;
+      }
+
+      public new void Dispose()
+      {
+        _fileQueue.CompleteAdding();
+        _fileCheckAllowed = false;
+
+        if (!_fileCheckThread.Join(5000))
+          _fileCheckThread.Abort();
+
+        _fileCheckThread = null;
+
+        base.Dispose();
+      }
+    }
+
     #endregion
 
     #region Consts
@@ -169,6 +418,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IImportResultHandler _importResultHandler;
     protected AsynchronousMessageQueue _messageQueue;
 
+    protected volatile bool _mediaReconcilerAllowed = true;
+    protected Thread _mediaReconcilerThread;
+    protected BlockingCollection<Guid> _mediaReconcilerQueue = new BlockingCollection<Guid>();
+    protected Dictionary<Guid, List<Guid>> _virtualRoleHierarchy = new Dictionary<Guid, List<Guid>>();
+    protected Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
+    protected object opsSync = new object();
+
     #endregion
 
     #region Ctor & dtor
@@ -186,11 +442,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
+
+      _mediaReconcilerThread = new Thread(Reconcile) { Name = "MediaReconciler", Priority = ThreadPriority.Lowest };
+      _mediaReconcilerThread.Start();
     }
 
     public void Dispose()
     {
       _messageQueue.Shutdown();
+
+      lock(_syncObj)
+      {
+        _mediaReconcilerQueue.CompleteAdding();
+      }
+      _mediaReconcilerAllowed = false;
+
+      if (!_mediaReconcilerThread.Join(5000))
+        _mediaReconcilerThread.Abort();
+
+      _mediaReconcilerThread = null;
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -291,13 +561,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    protected Guid AddMediaItem(ISQLDatabase database, ITransaction transaction)
+    protected Guid AddMediaItem(ISQLDatabase database, ITransaction transaction, Guid? newMediaItemId)
     {
-      Guid mediaItemId;
-      using (IDbCommand command = MediaLibrary_SubSchema.InsertMediaItemCommand(transaction, out mediaItemId))
+      Guid mediaItemId = newMediaItemId.HasValue ? newMediaItemId.Value : NewMediaItemId();
+      Logger.Info("Creating media item {0}", mediaItemId);
+      using (IDbCommand command = MediaLibrary_SubSchema.InsertMediaItemCommand(transaction, mediaItemId))
         command.ExecuteNonQuery();
 
       return mediaItemId;
+    }
+
+    protected virtual Guid NewMediaItemId()
+    {
+      return Guid.NewGuid();
     }
 
     protected int RelocateMediaItems(ITransaction transaction,
@@ -329,18 +605,133 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    protected int DeleteMediaItemResourcePath(ITransaction transaction, string systemId, ResourcePath basePath)
+    {
+      MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
+      string providerAspectTable = _miaManagement.GetMIATableName(providerAspectMetadata);
+      string systemIdAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID);
+      string pathAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+      string primaryAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_PRIMARY);
+      string commandStr = "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + ", " + primaryAttribute + ", " + pathAttribute +
+              " FROM " + providerAspectTable + " WHERE " + systemIdAttribute + " = @SYSTEM_ID" +
+              " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+              // TODO: Replace this inner select statement by a select statement generated from an appropriate item query
+              "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
+              " WHERE " + systemIdAttribute + " = @SYSTEM_ID" +
+              " AND " + pathAttribute + " = @EXACT_PATH)";
+
+      int affectedRows = 0;
+      Guid? parentId = null;
+      bool hasMorePrimaryResources = false;
+      ISQLDatabase database = transaction.Database;
+      using (IDbCommand command = transaction.CreateCommand())
+      {
+        database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
+
+        //string path = StringUtils.RemoveSuffixIfPresent(basePath.Serialize(), "/");
+        string path = basePath.Serialize();
+        database.AddParameter(command, "EXACT_PATH", path, typeof(string));
+
+        command.CommandText = commandStr;
+        using (IDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            parentId = database.ReadDBValue<Guid?>(reader, 0);
+
+            bool? isPrimary = database.ReadDBValue<bool?>(reader, 1);
+            if (!isPrimary.HasValue) isPrimary = true;
+
+            string resPath = database.ReadDBValue<string>(reader, 2);
+            ResourcePath resourcePath = ResourcePath.Deserialize(resPath);
+            if (resourcePath != basePath && isPrimary.Value)
+            {
+              hasMorePrimaryResources = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (hasMorePrimaryResources)
+      {
+        //Only delete the resource
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          database.AddParameter(command, "SYSTEM_ID", systemId, typeof(string));
+
+          string path = StringUtils.RemoveSuffixIfPresent(basePath.Serialize(), "/");
+          database.AddParameter(command, "EXACT_PATH", path, typeof(string));
+
+          commandStr = "DELETE FROM " + providerAspectTable +
+            " WHERE " + systemIdAttribute + " = @SYSTEM_ID" +
+            " AND " + pathAttribute + " = @EXACT_PATH";
+          command.CommandText = commandStr;
+          affectedRows = command.ExecuteNonQuery();
+        }
+      }
+      else if(parentId.HasValue)
+      {
+        Logger.Info("MediaLibrary: Set media item {0} virtual", parentId.Value);
+
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
+
+          //Set virtual tag
+          commandStr = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
+            " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 1" +
+            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID";
+          command.CommandText = commandStr;
+          affectedRows = command.ExecuteNonQuery();
+
+          //Delete all remaining resources so foreign keys delete linked rows
+          commandStr = "DELETE FROM " + providerAspectTable +
+            " WHERE " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " = @ITEM_ID";
+          command.CommandText = commandStr;
+          affectedRows += command.ExecuteNonQuery();
+
+          //Insert virtual resource
+          database.AddParameter(command, "VIRT_PATH", VirtualResourceProvider.ToResourcePath(parentId.Value).Serialize(), typeof(string));
+          database.AddParameter(command, "PARENT_DIR", Guid.Empty, typeof(Guid));
+
+          commandStr = "INSERT INTO " + providerAspectTable + " (" +
+            MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + ", " +
+            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) + ", " +
+            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_PRIMARY) + ", " +
+            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_INDEX) + ", " +
+            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID) + ", " +
+            _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID) +
+            ") VALUES (@ITEM_ID, @VIRT_PATH, 1, 0, '" + _localSystemId + "', @PARENT_DIR)";
+          command.CommandText = commandStr;
+          affectedRows += command.ExecuteNonQuery();
+        }
+
+        //Check if new virtual media item should be deleted
+        if(DeleteVirtualParents(transaction.Database, transaction, parentId.Value) == false)
+        {
+          //Check if new virtual parent should be updated
+          UpdateVirtualParents(transaction.Database, transaction, parentId.Value);
+
+          //Check if new virtual parent user data should be updated
+          UpdateAllParentUserData(transaction.Database, transaction, parentId.Value);
+        }
+      }
+      return affectedRows;
+    }
+
     protected int DeleteAllMediaItemsUnderPath(ITransaction transaction, string systemId, ResourcePath basePath, bool inclusive)
     {
       MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
       string providerAspectTable = _miaManagement.GetMIATableName(providerAspectMetadata);
       string systemIdAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_SYSTEM_ID);
       string pathAttribute = _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-      string commandStr = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
-          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
-              // TODO: Replace this inner select statement by a select statement generated from an appropriate item query
-              "SELECT " + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTable +
-              " WHERE " + systemIdAttribute + " = @SYSTEM_ID";
+      string commandStr = 
+        // TODO: Replace this inner select statement by a select statement generated from an appropriate item query
+        "SELECT " + pathAttribute + " FROM " + providerAspectTable +
+        " WHERE " + systemIdAttribute + " = @SYSTEM_ID";
 
+      int affectedRows = 0;
       ISQLDatabase database = transaction.Database;
       using (IDbCommand command = transaction.CreateCommand())
       {
@@ -376,10 +767,39 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           database.AddParameter(command, "LIKE_ESCAPE2", ESCAPE_CHAR, typeof(char));
         }
 
-        commandStr = commandStr + ")";
+        command.CommandText = commandStr;
+
+        List<ResourcePath> childPaths = new List<ResourcePath>();
+        using (IDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            childPaths.Add(ResourcePath.Deserialize(database.ReadDBValue<string>(reader, 0)));
+            affectedRows++;
+          }
+        }
+
+        foreach (ResourcePath childPath in childPaths)
+        {
+          Logger.Info("MediaLibrary: Delete sub path {0}", childPath);
+
+          DeleteMediaItemResourcePath(transaction, systemId, childPath);
+        }
+      }
+      return affectedRows;
+    }
+
+    protected void DeleteDuplicateMediaItem(ITransaction transaction, Guid mediaItemId)
+    {
+      string commandStr = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
+
+      using (IDbCommand command = transaction.CreateCommand())
+      {
+        transaction.Database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
 
         command.CommandText = commandStr;
-        return command.ExecuteNonQuery();
+        command.ExecuteNonQuery();
       }
     }
 
@@ -460,6 +880,37 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
       _miaManagement = new MIA_Management();
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
+
+      InitPendingOperation();
+      InitShareWatchers();
+    }
+
+    private void InitPendingOperation()
+    {
+      try
+      {
+        //Load pending operations
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+        using (ITransaction transaction = database.BeginTransaction())
+        {
+          using (IDbCommand command = MediaLibrary_SubSchema.SelectMediaItemPendingOperationCommand(transaction, MediaLibrary_SubSchema.MEDIA_ITEM_RECONCILE_OP))
+          {
+            using (IDataReader reader = command.ExecuteReader())
+            {
+              while (reader.Read())
+              {
+                _mediaReconcilerQueue.Add(database.ReadDBValue<Guid>(reader, 0));
+              }
+              reader.Close();
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error initializing pending operations'", e);
+        throw;
+      }
     }
 
     public void ActivateImporterWorker()
@@ -473,6 +924,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       NotifySystemOffline(_localSystemId);
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Suspend();
+      DeInitShareWatchers();
     }
 
     #endregion
@@ -511,7 +963,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public MediaItem LoadItem(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
     {
       lock (_syncObj)
       {
@@ -536,17 +988,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
         var result = cmiq.QueryMediaItem();
-        
+
         // This is the second part of the rework as decribed above (remove ProviderResourceAspect if it wasn't requested)
         if (removeProviderResourceAspect && result != null)
           result.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
-        
+
+        LoadUserDataForMediaItem(userProfileId, result);
+
         return result;
       }
     }
 
     public IList<MediaItem> Browse(Guid parentDirectoryId,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, uint? offset = null, uint? limit = null)
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
+        Guid? userProfileId, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
       lock (_syncObj)
       {
@@ -555,22 +1010,47 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         browseQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
         browseQuery.Limit = limit;
         browseQuery.Offset = offset;
-        return Search(browseQuery, false);
+        return Search(browseQuery, false, userProfileId, includeVirtual);
       }
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline)
+    public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
+    {
+      return Search(null, null , query, filterOnlyOnline, userProfileId, includeVirtual);
+    }
+
+    public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
     {
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
-      MediaItemQuery executeQuery = filterOnlyOnline ? new MediaItemQuery(
-              query.NecessaryRequestedMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}),
-              query.OptionalRequestedMIATypeIDs, AddOnlyOnlineFilter(query.Filter)) : query;
-      executeQuery.SortInformation = query.SortInformation;
-      executeQuery.Limit = query.Limit;
-      executeQuery.Offset = query.Offset;
+      MediaItemQuery executeQuery = query;
+      if (filterOnlyOnline)
+      {
+        executeQuery = new MediaItemQuery(query); // Use constructor by other query to make sure all properties are copied (including sorting and limits)
+        executeQuery.NecessaryRequestedMIATypeIDs.Add(ProviderResourceAspect.ASPECT_ID);
+        executeQuery.Filter = AddOnlyOnlineFilter(query.Filter);
+      }
+
+      if (includeVirtual == false)
+      {
+        if (executeQuery.Filter == null)
+          executeQuery.Filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
+        else
+          executeQuery.Filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, query.Filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
+      }
+
       CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery);
-      IList<MediaItem> items = cmiq.QueryList();
+      IList<MediaItem> items = null;
+      if(database == null || transaction == null)
+        items = cmiq.QueryList();
+      else
+        items = cmiq.QueryList(database, transaction);
+      Logger.Debug("Found media items [{0}]", string.Join(",", items.Select(x => x.MediaItemId)));
       IList<MediaItem> result = new List<MediaItem>(items.Count);
+      foreach (MediaItem item in items)
+      {
+        LoadUserDataForMediaItem(userProfileId, item);
+      }
+
       if (filterOnlyOnline && !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID))
       { // The provider resource aspect was not requested and thus has to be removed from the result items
         foreach (MediaItem item in items)
@@ -585,7 +1065,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
       SelectProjectionFunction selectProjectionFunctionImpl;
       Type projectionValueType;
@@ -607,15 +1087,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IAttributeFilter saf = selectAttributeFilter as IAttributeFilter;
       if (saf == null && selectAttributeFilter != null)
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] {filter, selectAttributeFilter});
+
+      if (includeVirtual == false)
+      {
+        if (filter == null)
+          filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
+        else
+          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
+      }
+
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
-          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) :
-          necessaryMIATypeIDs, attributeType, saf, selectProjectionFunctionImpl, projectionValueType, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) : necessaryMIATypeIDs, 
+          attributeType, saf, selectProjectionFunctionImpl, projectionValueType, 
+          filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cdavq.Execute();
     }
 
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs,
-        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction)
+        IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
     {
       IDictionary<object, MLQueryResultGroup> groups = new Dictionary<object, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
@@ -629,7 +1119,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           break;
       }
       foreach (KeyValuePair<object, object> resultItem in GetValueGroups(attributeType, selectAttributeFilter,
-          projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline))
+          projectionFunction, necessaryMIATypeIDs, filter, filterOnlyOnline, includeVirtual))
       {
         object valueGroupKey = resultItem.Key;
         int resultGroupItemCount = (int) resultItem.Value;
@@ -647,11 +1137,50 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline)
+    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
+      if (includeVirtual == false)
+      {
+        if (filter == null)
+          filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
+        else
+          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
+      }
+
       CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
           necessaryMIATypeIDs, filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cciq.Execute();
+    }
+
+    private void LoadUserDataForMediaItem(Guid? userProfileId, MediaItem mediaItem)
+    {
+      if (userProfileId.HasValue)
+      {
+        mediaItem.UserData.Clear();
+
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        ITransaction transaction = database.BeginTransaction();
+        try
+        {
+          int dataKeyIndex;
+          int dataIndex;
+          using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectAllUserMediaItemDataCommand(transaction,
+            userProfileId.Value, mediaItem.MediaItemId, out dataKeyIndex, out dataIndex))
+          {
+            using (IDataReader reader = command.ExecuteReader())
+            {
+              while (reader.Read())
+              {
+                mediaItem.UserData.Add(database.ReadDBValue<string>(reader, dataKeyIndex), database.ReadDBValue<string>(reader, dataIndex));
+              }
+            }
+          }
+        }
+        finally
+        {
+          transaction.Dispose();
+        }
+      }
     }
 
     #endregion
@@ -716,7 +1245,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error adding playlist '{0}' (id '{1}')", e, playlistData.Name, playlistId);
+        Logger.Error("MediaLibrary: Error adding playlist '{0}' (id '{1}')", e, playlistData.Name, playlistId);
         transaction.Rollback();
         throw;
       }
@@ -750,7 +1279,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error deleting playlist '{0}'", e, playlistId);
+        Logger.Error("MediaLibrary: Error deleting playlist '{0}'", e, playlistId);
         transaction.Rollback();
         throw;
       }
@@ -799,7 +1328,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       query.Offset = offset;
       // Sort media items
       IDictionary<Guid, MediaItem> searchResult = new Dictionary<Guid, MediaItem>();
-      foreach (MediaItem item in Search(query, false))
+      foreach (MediaItem item in Search(query, false, null, false))
         searchResult[item.MediaItemId] = item;
       IList<MediaItem> result = new List<MediaItem>(searchResult.Count);
       foreach (Guid mediaItemId in mediaItemIds)
@@ -817,6 +1346,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects)
     {
+      return AddOrUpdateMediaItem(parentDirectoryId, systemId, path, null, mediaItemAspects, true);
+    }
+
+    private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile)
+    {
+#if DEBUG
+      Logger.Info("Adding to {0} on {1} in {2}:\n{3}", parentDirectoryId, systemId, path, MediaItemAspect.GetInfo(mediaItemAspects, _miaManagement.ManagedMediaItemAspectTypes));
+#endif
       // TODO: Avoid multiple write operations to the same media item
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -824,23 +1361,57 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         Guid? mediaItemId = GetMediaItemId(transaction, systemId, path);
         DateTime now = DateTime.Now;
+        MediaItemAspect pra;
         MediaItemAspect importerAspect;
         bool wasCreated = !mediaItemId.HasValue;
         if (wasCreated)
         {
-          mediaItemId = AddMediaItem(database, transaction);
-
-          MediaItemAspect pra = new MediaItemAspect(ProviderResourceAspect.Metadata);
+          pra = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
+          pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+          pra.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
           pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
           pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
           pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
 
-          importerAspect = new MediaItemAspect(ImporterAspect.Metadata);
+          importerAspect = new SingleMediaItemAspect(ImporterAspect.Metadata);
           importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
         }
         else
+        {
           importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ImporterAspect.ASPECT_ID);
+          pra = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ProviderResourceAspect.ASPECT_ID);
+        }
+
+        Guid? mergedMediaItem = MergeWithExisting(database, transaction, mediaItemAspects, pra);
+        if (mergedMediaItem != null)
+        {
+          if (mergedMediaItem == Guid.Empty)
+          {
+            transaction.Rollback();
+
+            Logger.Info("Media item cannot be saved. Needs to be merged");
+
+            return Guid.Empty;
+          }
+
+          Logger.Info("Merged into media item {0}", mergedMediaItem.Value);
+
+          if(mediaItemId.HasValue && mergedMediaItem.Value != mediaItemId.Value)
+          {
+            DeleteDuplicateMediaItem(transaction, mediaItemId.Value);
+          }
+
+          //Aspects were merged into an existing media item. Discard the remaining aspects
+          transaction.Commit();
+
+          return mergedMediaItem.Value;
+        }
+
+        if (wasCreated)
+        {
+          mediaItemId = AddMediaItem(database, transaction, newMediaItemId);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
+        }
         importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
         importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
 
@@ -852,29 +1423,135 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
             // Simply skip unknown MIA types. All types should have been added before import.
             continue;
-          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID ||
-              mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
-          { // Those aspects are managed by the MediaLibrary
-            ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
-            continue;
+          if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+          {
+            // Only allow certain attributes to be overridden
+            mia.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID));
+            string resourcePath = mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+            if (string.IsNullOrEmpty(resourcePath))
+              mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+            object resourcePrimary = mia.GetAttributeValue<object>(ProviderResourceAspect.ATTR_PRIMARY);
+            if (resourcePrimary == null)
+              mia.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, pra.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY));
+            mia.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, pra.GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
+
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
           }
-          if (wasCreated)
+          else if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+          { // Those aspects are managed by the MediaLibrary
+            Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update ImporterAspect");
+          }
+        }
+        foreach (MediaItemAspect mia in mediaItemAspects)
+        {
+          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+            // Simply skip unknown MIA types. All types should have been added before import.
+            continue;
+          if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+            //Already stored
+            continue;
+          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+            //Already stored
+            continue;
+          if (mia.Deleted)
+            _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia.Metadata.AspectId);
+          else if (wasCreated)
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
           else
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
         }
+
         transaction.Commit();
+
+        Logger.Info("Committed media item {0}", mediaItemId.Value);
+
+        if (reconcile)
+          Reconcile(mediaItemId.Value);
+
         return mediaItemId.Value;
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error adding or updating media item(s) in path '{0}'", e, path.Serialize());
+        Logger.Error("MediaLibrary: Error adding or updating media item(s) in path '{0}'", e, (path != null ? path.Serialize() : null));
         transaction.Rollback();
         throw;
       }
     }
 
+    private bool BeginOperation(int operationType, Guid mediaItemId)
+    {
+      lock (opsSync)
+      {
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        ITransaction transaction = database.BeginTransaction();
+        try
+        {
+          using (IDbCommand command = MediaLibrary_SubSchema.InsertMediaItemPendingOperationCommand(transaction, mediaItemId, operationType))
+            command.ExecuteNonQuery();
+          transaction.Commit();
+          return true;
+        }
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error queuing operation {0} for media item {1}", e, operationType, mediaItemId);
+          transaction.Rollback();
+        }
+      }
+      return false;
+    }
+
+    private bool BeginOperation(ITransaction transaction, int operationType, Guid mediaItemId)
+    {
+      lock (opsSync)
+      {
+        try
+        {
+          using (IDbCommand command = MediaLibrary_SubSchema.InsertMediaItemPendingOperationCommand(transaction, mediaItemId, operationType))
+            command.ExecuteNonQuery();
+          return true;
+        }
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error queuing operation {0} for media item {1}", e, operationType, mediaItemId);
+        }
+      }
+      return false;
+    }
+
+    private bool EndOperation(int operationType, Guid mediaItemId)
+    {
+      lock (opsSync)
+      {
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        ITransaction transaction = database.BeginTransaction();
+        try
+        {
+          using (IDbCommand command = MediaLibrary_SubSchema.DeleteMediaItemPendingOperationCommand(transaction, mediaItemId, operationType))
+            command.ExecuteNonQuery();
+          transaction.Commit();
+          return true;
+        }
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error unqueuing operation {0} for media item {1}", e, operationType, mediaItemId);
+          transaction.Rollback();
+        }
+      }
+      return false;
+    }
+
+    protected virtual void Reconcile(Guid mediaItemId)
+    {
+      BeginOperation(MediaLibrary_SubSchema.MEDIA_ITEM_RECONCILE_OP, mediaItemId);
+      _mediaReconcilerQueue.Add(mediaItemId);
+    }
+
     public void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      UpdateMediaItem(mediaItemId, mediaItemAspects, true);
+    }
+
+    private void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile)
     {
       // TODO: Avoid multiple write operations to the same media item
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
@@ -889,17 +1566,897 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID ||
               mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
           { // Those aspects are managed by the MediaLibrary
-            ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
+            Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
             continue;
           }
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, false);
+          // For multiple MIAs let MIA management decide if it's and add or update
+          if(mia is MultipleMediaItemAspect)
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
+          else
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, false);
         }
         transaction.Commit();
+
+        if(reconcile)
+          Reconcile(mediaItemId);
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error updating media item with id '{0}'", e, mediaItemId);
+        Logger.Error("MediaLibrary: Error updating media item with id '{0}'", e, mediaItemId);
         transaction.Rollback();
+        throw;
+      }
+    }
+
+    protected virtual Guid? MergeWithExisting(ISQLDatabase database, ITransaction transaction, IEnumerable<MediaItemAspect> extractedAspectList, MediaItemAspect extractedProviderResourceAspects)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      foreach(MediaItemAspect aspect in extractedAspectList)
+      {
+        if (!extractedAspects.ContainsKey(aspect.Metadata.AspectId))
+          extractedAspects.Add(aspect.Metadata.AspectId, new List<MediaItemAspect>());
+
+        extractedAspects[aspect.Metadata.AspectId].Add(aspect);
+      }
+
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      foreach (IMediaMergeHandler mergeHandler in mediaAccessor.LocalMergeHandlers.Values)
+      {
+        // Extracted aspects must contain all of mergeHandler.MergeableAspects
+        if (mergeHandler.MergeableAspects.All(g => extractedAspects.Keys.Contains(g)))
+        {
+          Guid existingMediaItemId = Guid.Empty;
+          IDictionary<Guid, IList<MediaItemAspect>> existingAspects = null;
+          bool found = MatchExistingItem(database, transaction, mergeHandler, extractedAspects, out existingMediaItemId, out existingAspects);
+          if (found)
+          {
+            Logger.Info("Found mergeable media item {0}", existingMediaItemId);
+
+            IList<MultipleMediaItemAspect> providerResourceAspects;
+            if (MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
+            {
+              foreach (MultipleMediaItemAspect aspect in providerResourceAspects)
+              {
+                aspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, extractedProviderResourceAspects.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID));
+                string resourcePath = aspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+                if (string.IsNullOrEmpty(resourcePath))
+                  aspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, extractedProviderResourceAspects.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+                object resourcePrimary = aspect.GetAttributeValue<object>(ProviderResourceAspect.ATTR_PRIMARY);
+                if (resourcePrimary == null)
+                  aspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, extractedProviderResourceAspects.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY));
+                aspect.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, extractedProviderResourceAspects.GetAttributeValue(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
+              }
+            }
+
+            if (mergeHandler.TryMerge(extractedAspects, existingAspects))
+            {
+              SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(existingAspects, ImporterAspect.Metadata);
+              importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
+              importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, DateTime.Now);
+
+              UpdateMergedMediaItem(database, transaction, existingMediaItemId, existingAspects.Values.SelectMany(x => x));
+              UpdateVirtualParents(database, transaction, existingMediaItemId);
+              UpdateAllParentUserData(database, transaction, existingMediaItemId);
+              return existingMediaItemId;
+            }
+          }
+          if(mergeHandler.RequiresMerge(extractedAspects))
+          {
+            return Guid.Empty;
+          }
+        }
+      }
+      return null;
+    }
+
+    private bool MatchExistingItem(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, out Guid existingMediaItemId, out IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
+    {
+      IList<MultipleMediaItemAspect> externalAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
+      {
+        foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+        {
+          string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+          string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+          string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+          if (type != mergeHandler.ExternalIdType)
+            continue;
+
+          // Search using external identifiers
+          BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new[]
+                {
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
+                });
+          Logger.Info("Searching for existing items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", mergeHandler.MergeableAspects.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+
+          IList<MediaItem> existingItems = Search(database, transaction, 
+            new MediaItemQuery(mergeHandler.MergeableAspects, GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects), filter), false, null, true);
+          foreach (MediaItem existingItem in existingItems)
+          {
+            Logger.Info("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+            if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
+            {
+              existingMediaItemId = existingItem.MediaItemId;
+              existingAspects = existingItem.Aspects;
+              return true;
+            }
+          }
+        }
+      }
+      existingMediaItemId = Guid.Empty;
+      existingAspects = null;
+      return false;
+    }
+
+    private void UpdateMergedMediaItem(ISQLDatabase database, ITransaction transaction, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      try
+      {
+        foreach (MediaItemAspect mia in mediaItemAspects)
+        {
+          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+            // Simply skip unknown MIA types. All types should have been added before update.
+            continue;
+          // For multiple MIAs let MIA management decide if it's and add or update
+          if (mia is MultipleMediaItemAspect)
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
+          else
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, false);
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error updating merged media item with id '{0}'", e, mediaItemId);
+        throw;
+      }
+    }
+
+    private void Reconcile()
+	  {
+	    while (_mediaReconcilerAllowed)
+	    {
+	      foreach (Guid mediaItemId in _mediaReconcilerQueue.GetConsumingEnumerable())
+	      {
+	        try
+	        {
+            if (!ServiceRegistration.IsRegistered<ISQLDatabase>())
+              return;
+            Logger.Debug("Reconciling media item {0}", mediaItemId);
+            UpdateRelationships(mediaItemId);
+            EndOperation(MediaLibrary_SubSchema.MEDIA_ITEM_RECONCILE_OP, mediaItemId);
+          }
+	        catch (Exception e)
+	        {
+	          Logger.Error("MediaLibrary: Cannot update relationships for {0}", e, mediaItemId);
+	        }
+	      }
+	    }
+	  }
+
+    protected virtual void UpdateRelationships(Guid mediaItemId)
+    {
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+
+      Logger.Info("Updating relationships for {0}", mediaItemId);
+      MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
+      if (item == null)
+      {
+        // Item deleted on the main thread before the reconciler thread processes it - could happen?
+        Logger.Warn("Cannot find {0}", mediaItemId);
+        return;
+      }
+      //Logger.Info("Found item {0} with [{1}]", item.MediaItemId, string.Join(",", item.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+
+      // TODO: What happens to MIAs that the reconciler automatically adds which have been removed manually by the user?
+
+      foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+      {
+        foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
+        {
+          UpdateRelationship(roleExtractor, mediaItemId, item.Aspects);
+        }
+      }
+
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      using (ITransaction transaction = database.BeginTransaction())
+      {
+        //Update parents
+        UpdateVirtualParents(database, transaction, mediaItemId);
+        UpdateAllParentUserData(database, transaction, mediaItemId);
+
+        transaction.Commit();
+      }
+    }
+
+    private void UpdateRelationship(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    {
+      IList<Guid> roleAspectIds = new List<Guid>(roleExtractor.RoleAspects);
+      roleAspectIds.Add(MediaAspect.ASPECT_ID);
+
+      IList<Guid> linkedRoleAspectIds = new List<Guid>(roleExtractor.LinkedRoleAspects);
+      linkedRoleAspectIds.Add(MediaAspect.ASPECT_ID);
+
+      // Any usable item must contain all of roleExtractor.RoleAspects
+      if (roleAspectIds.Except(aspects.Keys).Any())
+        return;
+
+      ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedItems;
+      if (!roleExtractor.TryExtractRelationships(aspects, out extractedItems, false))
+      {
+        Logger.Info("Extractor {0} extracted {1} media items", roleExtractor.GetType().Name, 0);
+        return;
+      }
+      Logger.Info("Extractor {0} extracted {1} media items", roleExtractor.GetType().Name, extractedItems == null ? 0: extractedItems.Count);
+
+      // Match the extracted aspect data to any items already in the library
+      foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedItem in extractedItems)
+      {
+        bool found = MatchExternalItem(roleExtractor, mediaItemId, aspects, extractedItem, linkedRoleAspectIds);
+        if (!found)
+        {
+          Logger.Info("Adding new media item for extracted item");
+
+          AddRelationship(roleExtractor, mediaItemId, aspects, extractedItem);
+
+          Guid newMediaItemId = NewMediaItemId();
+          AddOrUpdateMediaItem(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(newMediaItemId), newMediaItemId, extractedItem.Values.SelectMany(x => x), true);
+        }
+      }
+    }
+
+    private bool MatchExternalItem(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> extractedItem, IList<Guid> linkedRoleAspectIds)
+    {
+      IList<MultipleMediaItemAspect> externalAspects;
+
+      if (MediaItemAspect.TryGetAspects(extractedItem, ExternalIdentifierAspect.Metadata, out externalAspects))
+      {
+        foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+        {
+          string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+          string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+          string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+          if (type != roleExtractor.ExternalIdType)
+            continue;
+
+          // Search using external identifiers
+          BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new[]
+                {
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
+                });
+          //Logger.Info("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+          // Any potential linked item must contain all of LinkedRoleAspects
+          IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds), filter), false, null, true);
+          foreach (MediaItem externalItem in externalItems)
+          {
+            //Logger.Info("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+            if (roleExtractor.TryMatch(extractedItem, externalItem.Aspects))
+            {
+              //Logger.Info("Merging extracted item into external item {0}", externalItem.MediaItemId);
+
+              AddRelationship(roleExtractor, mediaItemId, aspects, extractedItem);
+
+              //Update virtual flag
+              extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue(MediaAspect.ATTR_ISVIRTUAL));
+
+              UpdateMediaItem(externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x), false);
+
+              return true;
+            }
+          }
+        }
+      }
+
+      return false;
+    }
+
+    private void AddRelationship(IRelationshipRoleExtractor roleExtractor, Guid itemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
+    {
+      int index;
+      if (!roleExtractor.TryGetRelationshipIndex(aspects, linkedAspects, out index))
+        index = 0;
+      //Logger.Info("Adding a {0} / {1} relationship linked to {2} at {3}", roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);
+      MediaItemAspect.AddOrUpdateRelationship(linkedAspects, roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);
+    }
+
+    private void DeleteMediaItemAndReleationships(ITransaction transaction, Guid mediaItemId)
+    {
+      ISQLDatabase database = transaction.Database;
+
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+
+          //Find relations
+          List<Guid> relations = new List<Guid>();
+          command.CommandText = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+          " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID";
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              Guid relationId = database.ReadDBValue<Guid>(reader, 0);
+              if(!relations.Contains(relationId))
+                relations.Add(relationId);
+            }
+          }
+          command.CommandText = "SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+          " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              Guid relationId = database.ReadDBValue<Guid>(reader, 0);
+              if (!relations.Contains(relationId))
+                relations.Add(relationId);
+            }
+          }
+          Logger.Info("MediaLibrary: Delete media item {0} and {1} relations", mediaItemId, relations.Count);
+          
+          //Delete item
+          command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
+          command.ExecuteNonQuery();
+
+          //Delete relations
+          command.CommandText = "DELETE FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+              " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID";
+          command.ExecuteNonQuery();
+
+          //Delete orphaned relations
+          foreach (Guid relationId in relations)
+            DeleteOrphan(database, transaction, relationId);
+
+          //Delete all virtual items with no relation
+          //command.Parameters.Clear();
+
+          //command.CommandText = "DELETE " +
+          //" FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+          //" WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+
+          //"SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " +
+          //_miaManagement.GetMIATableName(MediaAspect.Metadata) +
+          //" WHERE " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 1" +
+
+          //") AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " NOT IN (" +
+
+          //"SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " +
+          //_miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+
+          //") AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " NOT IN (" +
+
+          //"SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " FROM " +
+          //_miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+
+          //")";
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error deleting media item {0}", e, mediaItemId);
+        throw;
+      }
+    }
+
+    private bool TryFindParent(ISQLDatabase database, ITransaction transaction, Guid mediaItemId, Guid childRole, Guid parentRole, out Guid? parentId, 
+      out string childIdColumn, out string childRoleColumn, out string parentIdColumn, out string parentRoleColumn)
+    {
+      parentId = null;
+      parentIdColumn = null;
+      parentRoleColumn = null;
+      childIdColumn = null;
+      childRoleColumn = null;
+
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          command.Parameters.Clear();
+          database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+          database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
+          database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+
+          command.CommandText = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+            " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+            " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @PARENT_ROLE_ID" +
+            " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
+            " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID";
+          using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
+          {
+            if (reader.Read())
+              parentId = database.ReadDBValue<Guid>(reader, 0);
+          }
+          parentIdColumn = MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME;
+          parentRoleColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE);
+          childIdColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID);
+          childRoleColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE);
+
+          if (!parentId.HasValue)
+          {
+            //Try reverse lookup
+            command.CommandText = "SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+            " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+            " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE_ID" +
+            " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
+            " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
+            using (IDataReader reader = command.ExecuteReader(CommandBehavior.SingleRow))
+            {
+              if (reader.Read())
+                parentId = database.ReadDBValue<Guid>(reader, 0);
+            }
+            parentIdColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID);
+            parentRoleColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE);
+            childIdColumn = MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME;
+            childRoleColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE);
+          }
+        }
+
+        return parentId.HasValue;
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error finding parent for media item {0}", e, mediaItemId);
+        throw;
+      }
+    }
+
+    private bool DeleteVirtualParents(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    {
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          //Find parent if possible
+          Guid? parentId;
+          string parentIdColumn = null;
+          string parentRoleColumn = null;
+          string childIdColumn = null;
+          string childRoleColumn = null;
+          bool hasParent = false;
+          bool allParentsDeleted = true;
+          List<Guid> parentsToDelete = new List<Guid>();
+          List<Guid> childsToDelete = new List<Guid>();
+          foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+          {
+            foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+            {
+              parentId = null;
+              parentIdColumn = null;
+              parentRoleColumn = null;
+              childIdColumn = null;
+              childRoleColumn = null;
+
+              if (TryFindParent(database, transaction, mediaItemId, childRole, parentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+              {
+                hasParent = true;
+
+                command.Parameters.Clear();
+                database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
+                database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+
+                //Find all childs
+                List<Guid> childs = new List<Guid>();
+                bool? allChildsAreVirtual = null;
+                command.CommandText = "SELECT R." + childIdColumn +
+                    ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
+                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                    " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                    " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                    " WHERE R." + childRoleColumn + " = @ROLE_ID" +
+                    " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
+                    " AND R." + parentIdColumn + " = @ITEM_ID";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                  while (reader.Read())
+                  {
+                    if (allChildsAreVirtual == null)
+                      allChildsAreVirtual = true;
+
+                    Guid childId = database.ReadDBValue<Guid>(reader, 0);
+                    bool? childVirtual = database.ReadDBValue<bool?>(reader, 1);
+                    childs.Add(childId);
+                    if (childVirtual == false)
+                    {
+                      allChildsAreVirtual = false;
+                      break;
+                    }
+                  }
+                }
+
+                if (allChildsAreVirtual == true)
+                {
+                  Logger.Info("MediaLibrary: All {0} children with role {1} of parent media item {2} with role {3} are virtual", childs.Count, childRole, parentId.Value, parentRole);
+
+                  foreach (Guid childId in childs)
+                  {
+                    if (!childsToDelete.Contains(childId))
+                      childsToDelete.Add(childId);
+                  }
+
+                  if (!parentsToDelete.Contains(parentId.Value))
+                    parentsToDelete.Add(parentId.Value);
+                }
+                else
+                {
+                  allParentsDeleted = false;
+                }
+              }
+            }
+          }
+
+          foreach (Guid childId in childsToDelete)
+          {
+            Logger.Info("MediaLibrary: Delete virtual child media item {0}", mediaItemId);
+
+            DeleteMediaItemAndReleationships(transaction, childId);
+          }
+
+          foreach (Guid childParentId in parentsToDelete)
+          {
+            Logger.Info("MediaLibrary: Delete virtual parent media item {0}", childParentId);
+
+            DeleteMediaItemAndReleationships(transaction, childParentId);
+          }
+
+          if (!hasParent)
+            DeleteOrphan(database, transaction, mediaItemId);
+
+          return allParentsDeleted;
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error deleting virtual parent for child media item {0}", e, mediaItemId);
+        throw;
+      }
+    }
+
+    private void DeleteOrphan(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    {
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+
+          command.CommandText = "SELECT COUNT(*) FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+            " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+            " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+            " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
+            " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+            " AND " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 1" +
+            " AND NOT EXISTS (" +
+            "SELECT "+ MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + 
+            " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+            " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+            " OR " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
+            "))";
+          if (Convert.ToInt32(command.ExecuteScalar()) > 0)
+          {
+            Logger.Info("MediaLibrary: Deleted orphaned media item {0}", mediaItemId);
+            DeleteMediaItemAndReleationships(transaction, mediaItemId);
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error deleting orphaned media item {0}", e, mediaItemId);
+        throw;
+      }
+    }
+
+    private void UpdateVirtualParents(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    {
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          //Find parent if possible
+          Guid? parentId;
+          string parentIdColumn = null;
+          string parentRoleColumn = null;
+          string childIdColumn = null;
+          string childRoleColumn = null;
+          List<Guid> parentsToDelete = new List<Guid>();
+          List<Guid> childsToDelete = new List<Guid>();
+          foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+          {
+            foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+            {
+              parentId = null;
+              parentId = null;
+              parentIdColumn = null;
+              parentRoleColumn = null;
+              childIdColumn = null;
+              childRoleColumn = null;
+
+              if (TryFindParent(database, transaction, mediaItemId, childRole, parentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+              {
+                command.Parameters.Clear();
+                database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
+                database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+
+                //Find all childs
+                List<Guid> childs = new List<Guid>();
+                bool? allChildsAreVirtual = null;
+                command.CommandText = "SELECT R." + childIdColumn +
+                    ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
+                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                    " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                    " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                    " WHERE R." + childRoleColumn + " = @ROLE_ID" +
+                    " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
+                    " AND R." + parentIdColumn + " = @ITEM_ID";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                  while (reader.Read())
+                  {
+                    if (allChildsAreVirtual == null)
+                      allChildsAreVirtual = true;
+                    Guid childId = database.ReadDBValue<Guid>(reader, 0);
+                    bool? childVirtual = database.ReadDBValue<bool?>(reader, 1);
+                    childs.Add(childId);
+                    if (childVirtual == false)
+                    {
+                      allChildsAreVirtual = false;
+                      break;
+                    }
+                  }
+                }
+
+                int isVirtual = 0;
+                if (allChildsAreVirtual == true)
+                {
+                  Logger.Info("MediaLibrary: All children with role {0} of parent media item {1} with role {2} are virtual", childRole, parentId.Value, parentRole);
+                  isVirtual = 1;
+                }
+                else
+                {
+                  Logger.Info("MediaLibrary: Not all children with role {0} of parent media item {1} with role {2} are virtual", childRole, parentId.Value, parentRole);
+                }
+
+                command.Parameters.Clear();
+                database.AddParameter(command, "PARENT_ITEM", parentId.Value, typeof(Guid));
+
+                //Set parent virtual flag
+                command.CommandText = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
+                " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = " + isVirtual +
+                " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
+                command.ExecuteNonQuery();
+
+                Logger.Info("MediaLibrary: Set parent media item {0} with role {1} to virtual = {2}", parentId.Value, parentRole, isVirtual);
+              }
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error updating parent media item {0} virtual flag", e, mediaItemId);
+        throw;
+      }
+    }
+
+    private void UpdateAllParentUserData(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    {
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+          {
+            foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+            {
+              command.Parameters.Clear();
+              database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+              database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+              database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
+
+              //Find parents
+              Dictionary<Guid, Guid> userDataParent = new Dictionary<Guid, Guid>();
+              command.CommandText = "SELECT DISTINCT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                ", " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME +
+                " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
+                " WHERE " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = '" + UserDataKeysKnown.KEY_PLAY_PERCENTAGE + "'" +
+                " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+                " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+                " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @PARENT_ROLE_ID" +
+                " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
+                " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
+                " UNION " +
+                " SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+                " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE_ID" +
+                " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
+                " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                ")";
+              using (IDataReader reader = command.ExecuteReader())
+              {
+                while (reader.Read())
+                {
+                  userDataParent.Add(database.ReadDBValue<Guid>(reader, 0), database.ReadDBValue<Guid>(reader, 1));
+                }
+              }
+
+              //Update parents
+              foreach (var key in userDataParent)
+              {
+                //Find children
+                command.Parameters.Clear();
+                database.AddParameter(command, "ITEM_ID", key.Key, typeof(Guid));
+                database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
+                database.AddParameter(command, "USER_PROFILE_ID", key.Value, typeof(Guid));
+                database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
+
+                float nonVirtualChildCount = 0;
+                float watchedCount = 0;
+                command.CommandText = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
+                    ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                    " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                    " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                    " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                    " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                    " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
+                    " WHERE M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+                    " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+                    " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
+                    " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE_ID" +
+                    " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
+                    " UNION " +
+                    " SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+                    " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
+                    " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @PARENT_ROLE_ID" +
+                    " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                    ")";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                  while (reader.Read())
+                  {
+                    bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
+                    if (childVirtual == false)
+                    {
+                      nonVirtualChildCount++;
+                    }
+                    int playCount = 0;
+                    if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount) && playCount > 0)
+                    {
+                      watchedCount++;
+                    }
+                  }
+                }
+
+                //Update parent
+                command.Parameters.Clear();
+                database.AddParameter(command, "ITEM_ID", key.Key, typeof(Guid));
+                database.AddParameter(command, "USER_PROFILE_ID", key.Value, typeof(Guid));
+                database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_PERCENTAGE, typeof(string));
+
+                int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
+                if (watchPercentage >= 100)
+                  watchPercentage = 100;
+                command.CommandText = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
+                  " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = " + watchPercentage +
+                  " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                  " AND " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                  " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
+                if (command.ExecuteNonQuery() > 0)
+                {
+                  Logger.Info("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", key.Key, parentRole, watchPercentage);
+                }
+              }
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error updating media item {0} parents user data", e, mediaItemId);
+        throw;
+      }
+    }
+
+    private void UpdateParentUserData(Guid userProfileId, Guid mediaItemId)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+      
+      try
+      {
+        Dictionary<Guid, int> parentPercentages = new Dictionary<Guid, int>();
+        using (ITransaction transaction = database.BeginTransaction())
+        {
+          using (IDbCommand command = transaction.CreateCommand())
+          {
+            //Find parent if possible
+            Guid? parentId;
+            string parentIdColumn = null;
+            string parentRoleColumn = null;
+            string childIdColumn = null;
+            string childRoleColumn = null;
+            List<Guid> parentsToDelete = new List<Guid>();
+            List<Guid> childsToDelete = new List<Guid>();
+            foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+            {
+              foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+              {
+                parentId = null;
+                parentId = null;
+                parentIdColumn = null;
+                parentRoleColumn = null;
+                childIdColumn = null;
+                childRoleColumn = null;
+
+                if (TryFindParent(database, transaction, mediaItemId, childRole, parentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+                {
+                  command.Parameters.Clear();
+                  database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
+                  database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
+                  database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+                  database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
+                  database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
+
+                  //Find all childs
+                  float nonVirtualChildCount = 0;
+                  float watchedCount = 0;
+                  command.CommandText = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
+                      ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                      " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                      " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                      " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                      " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                      " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                      " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                      " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
+                      " WHERE R." + childRoleColumn + " = @ROLE_ID" +
+                      " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
+                      " AND R." + parentIdColumn + " = @ITEM_ID";
+                  using (IDataReader reader = command.ExecuteReader())
+                  {
+                    while (reader.Read())
+                    {
+                      bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
+                      if (childVirtual == false)
+                      {
+                        nonVirtualChildCount++;
+                      }
+                      int playCount = 0;
+                      if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount) && playCount > 0)
+                      {
+                        watchedCount++;
+                      }
+                    }
+                  }
+
+                  int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
+                  if (watchPercentage >= 100)
+                    watchPercentage = 100;
+                  parentPercentages.Add(parentId.Value, watchPercentage);
+                  Logger.Info("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", parentId.Value, parentRole, watchPercentage);
+                }
+              }
+            }
+          }
+        }
+
+        IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
+        foreach (var key in parentPercentages)
+          userManager.SetUserMediaItemData(userProfileId, key.Key, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, key.Value.ToString());
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error updating parent media item {0} user data", e, mediaItemId);
         throw;
       }
     }
@@ -915,7 +2472,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error deleting media item(s) of system '{0}' in path '{1}'",
+        Logger.Error("MediaLibrary: Error deleting media item(s) of system '{0}' in path '{1}'",
             e, systemId, path.Serialize());
         transaction.Rollback();
         throw;
@@ -927,7 +2484,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       Share share = GetShare(shareId);
       if (share == null)
       {
-        ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.ClientStartedShareImport: Unknown share id {0}", shareId);
+        Logger.Warn("MediaLibrary.ClientStartedShareImport: Unknown share id {0}", shareId);
         return;
       }
       IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
@@ -950,7 +2507,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       Share share = GetShare(shareId);
       if (share == null)
       {
-        ServiceRegistration.Get<ILogger>().Warn("MediaLibrary.ClientCompletedShareImport: Unknown share id {0}", shareId);
+        Logger.Warn("MediaLibrary.ClientCompletedShareImport: Unknown share id {0}", shareId);
         return;
       }
       IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
@@ -990,16 +2547,31 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Playback
 
-    public void NotifyPlayback(Guid mediaItemId)
+    public void NotifyPlayback(Guid mediaItemId, bool watched)
     {
-      MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false).FirstOrDefault();
+      MediaItem item = Search(new MediaItemQuery(new Guid[] {MediaAspect.ASPECT_ID}, null, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
       if (item == null)
         return;
-      MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
+      SingleMediaItemAspect mediaAspect;
+	    MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out mediaAspect);
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
-      int playCount = (int) (mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);
+      if (watched)
+      {
+        int playCount = (int)(mediaAspect.GetAttributeValue(MediaAspect.ATTR_PLAYCOUNT) ?? 0);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount + 1);
+      }
       UpdateMediaItem(mediaItemId, new MediaItemAspect[] {mediaAspect});
+    }
+
+    #endregion
+
+    #region User data management
+
+    public void UserDataUpdated(Guid userProfileId, Guid mediaItemId, string userDataKey)
+    {
+      if (userDataKey != UserDataKeysKnown.KEY_PLAY_COUNT)
+        return;
+      UpdateParentUserData(userProfileId, mediaItemId);
     }
 
     #endregion
@@ -1020,8 +2592,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       if (_miaManagement.AddMediaItemAspectStorage(miam))
       {
-        ServiceRegistration.Get<ILogger>().Info(
+        Logger.Info(
             "MediaLibrary: Media item aspect storage for MIA type '{0}' (name '{1}') was added", miam.AspectId, miam.Name);
+        ContentDirectoryMessaging.SendMIATypesChangedMessage();
+      }
+    }
+
+    public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refMiam, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
+    {
+      if (_miaManagement.AddMediaItemAspectStorage(miam, fkSpecs, refMiam, refSpecs))
+      {
+        Logger.Info(
+            "MediaLibrary: Media item aspect storage for MIA type '{0}' (name '{1}') with dependency on MIA type '{2}' (name '{3}') was added", miam.AspectId, miam.Name, refMiam.AspectId, refMiam.Name);
         ContentDirectoryMessaging.SendMIATypesChangedMessage();
       }
     }
@@ -1030,7 +2612,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       if (_miaManagement.RemoveMediaItemAspectStorage(aspectId))
       {
-        ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Media item aspect storage for MIA type '{0}' was removed", aspectId);
+        Logger.Info("MediaLibrary: Media item aspect storage for MIA type '{0}' was removed", aspectId);
         ContentDirectoryMessaging.SendMIATypesChangedMessage();
       }
     }
@@ -1050,13 +2632,63 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return _miaManagement.GetMediaItemAspectMetadata(aspectId);
     }
 
+    public void RegisterMediaItemAspectRoleHierarchy(Guid childRole, Guid parentRole)
+    {
+      if(!_virtualRoleHierarchy.ContainsKey(childRole))
+        _virtualRoleHierarchy.Add(childRole, new List<Guid>());
+      _virtualRoleHierarchy[childRole].Add(parentRole);
+    }
+
     #endregion
 
     #region Shares management
 
+    private void InitShareWatchers()
+    {
+      try
+      {
+        IDictionary<Guid, Share> shares = GetShares(_localSystemId);
+        foreach(Share share in shares.Values)
+        {
+          TryScheduleLocalShareRefresh(share);
+
+          ShareWatcher watcher = new ShareWatcher(share, this);
+          watcher.OnShareChange += Watcher_OnShareChange;
+          _shareWatchers.Add(share.ShareId, watcher);
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error initializing shares", e);
+        throw;
+      }
+    }
+
+    private void DeInitShareWatchers()
+    {
+      try
+      {
+        foreach (Guid shareId in _shareWatchers.Keys)
+        {
+          _shareWatchers[shareId].Dispose();
+        }
+        _shareWatchers.Clear();
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error initializing shares", e);
+        throw;
+      }
+    }
+
+    private void Watcher_OnShareChange(object sender, FileSystemEventArgs e)
+    {
+      Logger.Debug("MediaLibrary: Share watcher " + e.FullPath + " " + e.ChangeType);
+    }
+
     public void RegisterShare(Share share)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Registering share '{0}' at system {1}: Setting name '{2}', base resource path '{3}' and media categories '{4}'",
+      Logger.Info("MediaLibrary: Registering share '{0}' at system {1}: Setting name '{2}', base resource path '{3}' and media categories '{4}'",
           share.ShareId, share.SystemId, share.Name, share.BaseResourcePath, StringUtils.Join(", ", share.MediaCategories));
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -1083,10 +2715,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
 
         TryScheduleLocalShareImport(share);
+
+        ShareWatcher watcher = new ShareWatcher(share, this);
+        watcher.OnShareChange += Watcher_OnShareChange;
+        _shareWatchers.Add(share.ShareId, watcher);
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error registering share '{0}'", e, share.ShareId);
+        Logger.Error("MediaLibrary: Error registering share '{0}'", e, share.ShareId);
         transaction.Rollback();
         throw;
       }
@@ -1096,7 +2732,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IEnumerable<string> mediaCategories)
     {
       Guid shareId = Guid.NewGuid();
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Creating new share '{0}'", shareId);
+      Logger.Info("MediaLibrary: Creating new share '{0}'", shareId);
       Share share = new Share(shareId, systemId, baseResourcePath, shareName, mediaCategories);
       RegisterShare(share);
       return shareId;
@@ -1104,7 +2740,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RemoveShare(Guid shareId)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Removing share '{0}'", shareId);
+      Logger.Info("MediaLibrary: Removing share '{0}'", shareId);
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
 
@@ -1116,13 +2752,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           command.ExecuteNonQuery();
 
         DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath, true);
+
         transaction.Commit();
+
+        _shareWatchers[shareId].Dispose();
+        _shareWatchers.Remove(shareId);
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error removing share '{0}'", e, shareId);
+        Logger.Error("MediaLibrary: Error removing share '{0}'", e, shareId);
         transaction.Rollback();
         throw;
       }
@@ -1130,7 +2770,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RemoveSharesOfSystem(string systemId)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Removing all shares of system '{0}'", systemId);
+      Logger.Info("MediaLibrary: Removing all shares of system '{0}'", systemId);
       IDictionary<Guid, Share> shares = GetShares(systemId);
       foreach (Share share in shares.Values)
         TryCancelLocalImportJobs(share);
@@ -1146,11 +2786,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         transaction.Commit();
 
+        if(systemId == _localSystemId)
+        {
+          foreach (Guid shareId in _shareWatchers.Keys)
+          {
+            _shareWatchers[shareId].Dispose();
+          }
+          _shareWatchers.Clear();
+        }
+        
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error removing shares of system '{0}'", e, systemId);
+        Logger.Error("MediaLibrary: Error removing shares of system '{0}'", e, systemId);
         transaction.Rollback();
         throw;
       }
@@ -1159,7 +2808,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Updating share '{0}': Setting name '{1}', base resource path '{2}' and media categories '{3}'",
+      Logger.Info("MediaLibrary: Updating share '{0}': Setting name '{1}', base resource path '{2}' and media categories '{3}'",
           shareId, shareName, baseResourcePath, StringUtils.Join(", ", mediaCategories));
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
@@ -1194,11 +2843,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           case RelocationMode.Relocate:
             numAffected = RelocateMediaItems(transaction, originalShare.SystemId, originalShare.BaseResourcePath, baseResourcePath);
-            ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Relocated {0} media items during share update", numAffected);
+            Logger.Info("MediaLibrary: Relocated {0} media items during share update", numAffected);
             break;
           case RelocationMode.Remove:
             numAffected = DeleteAllMediaItemsUnderPath(transaction, originalShare.SystemId, originalShare.BaseResourcePath, true);
-            ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Deleted {0} media items during share update (will be re-imported)", numAffected);
+            Logger.Info("MediaLibrary: Deleted {0} media items during share update (will be re-imported)", numAffected);
             Share updatedShare = GetShare(transaction, shareId);
             TryScheduleLocalShareImport(updatedShare);
             break;
@@ -1211,7 +2860,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("MediaLibrary: Error updating share '{0}'", e, shareId);
+        Logger.Error("MediaLibrary: Error updating share '{0}'", e, shareId);
         transaction.Rollback();
         throw;
       }
@@ -1302,14 +2951,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void NotifySystemOnline(string systemId, SystemName currentSystemName)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Client '{0}' is online at system '{1}'", systemId, currentSystemName);
+      Logger.Info("MediaLibrary: Client '{0}' is online at system '{1}'", systemId, currentSystemName);
       lock (_syncObj)
         _systemsOnline[systemId] = currentSystemName;
     }
 
     public void NotifySystemOffline(string systemId)
     {
-      ServiceRegistration.Get<ILogger>().Info("MediaLibrary: Client '{0}' is offline", systemId);
+      Logger.Info("MediaLibrary: Client '{0}' is offline", systemId);
       lock (_syncObj)
         _systemsOnline.Remove(systemId);
     }
@@ -1317,5 +2966,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     #endregion
 
     #endregion
+
+    internal static ILogger Logger
+    {
+      get { return ServiceRegistration.Get<ILogger>(); }
+    }
   }
 }

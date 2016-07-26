@@ -47,101 +47,101 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Width of the image in pixels.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_WIDTH =
-      MediaItemAspectMetadata.CreateAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_WIDTH =
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Height of the image in pixels.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_HEIGHT =
-      MediaItemAspectMetadata.CreateAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_HEIGHT =
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the manufacturer of the equipment used to record the image.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_MAKE =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("EquipmentMake", 100, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MAKE =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("EquipmentMake", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the model name or model number of the equipment used to record the image.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_MODEL =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("EquipmentModel", 100, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MODEL =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("EquipmentModel", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the exposure bias.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EXPOSURE_BIAS =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("ExposureBias", 20, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_EXPOSURE_BIAS =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("ExposureBias", 20, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the exposure time.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EXPOSURE_TIME =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("ExposureTime", 20, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_EXPOSURE_TIME =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("ExposureTime", 20, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the flash mode info as string.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FLASH_MODE =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("FlashMode", 50, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_FLASH_MODE =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("FlashMode", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the FNumber.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FNUMBER =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("FNumber", 10, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_FNUMBER =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("FNumber", 10, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the EXIF info about ISO speed and ISO latitude of the camera or input device as specified in ISO 12232.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ISO_SPEED =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISO_SPEED =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("ISOSpeedRating", 10, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the EXIF orientation info. Use <see cref="OrientationToRotation"/>, <see cref="OrientationToFlip"/>
     /// or <see cref="GetOrientationMetadata"/> to translate the orientation information into degrees and flipX/flipY values.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ORIENTATION =
-      MediaItemAspectMetadata.CreateAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ORIENTATION =
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Orientation", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the metering mode.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_METERING_MODE =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("MeteringMode", 50, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_METERING_MODE =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MeteringMode", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the latitude of the location (GPS, WGS84).
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_LATITUDE =
-      MediaItemAspectMetadata.CreateAttributeSpecification("Latitude", typeof(double), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LATITUDE =
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Latitude", typeof(double), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the longitude of the location (GPS, WGS84).
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_LONGITUDE =
-      MediaItemAspectMetadata.CreateAttributeSpecification("Longitude", typeof(double), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LONGITUDE =
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Longitude", typeof(double), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the city.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CITY =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("City", 100, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CITY =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("City", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the state.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_STATE =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("State", 100, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STATE =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("State", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the country.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_COUNTRY =
-      MediaItemAspectMetadata.CreateStringAttributeSpecification("Country", 100, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COUNTRY =
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Country", 100, Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
       // TODO: Localize name
       ASPECT_ID, "ImageItem", new[]
       {
@@ -162,6 +162,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         ATTR_STATE,
         ATTR_COUNTRY
       });
+
+    public static readonly Guid ROLE_IMAGE = new Guid("EEE7B780-EDB0-434F-9624-F07446D5B63E");
 
     /// <summary>
     /// Translates the EXIF orientation info to a rotation. The value should be used to apply a rotation
@@ -260,8 +262,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
       rotation = ImageRotation.Rot_0;
       flipX = false;
       flipY = false;
-      MediaItemAspect imageAspect;
-      if (mediaItem != null && mediaItem.Aspects.TryGetValue(ASPECT_ID, out imageAspect))
+      SingleMediaItemAspect imageAspect;
+      if (mediaItem != null && MediaItemAspect.TryGetAspect(mediaItem.Aspects, Metadata, out imageAspect))
       {
         int orientationInfo = (int) imageAspect[ATTR_ORIENTATION];
         return (OrientationToRotation(orientationInfo, out rotation) &&

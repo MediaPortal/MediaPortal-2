@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public MetadataExtractorMetadata Metadata { get { return _metadata; } }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null || !fsra.IsFile)
@@ -91,8 +91,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
             return false;
           string fileName = ProviderPathHelper.GetFileNameWithoutExtension(fsra.Path) ?? string.Empty;
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, fileName);
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SIZE, fsra.Size);
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_MIME_TYPE, "slimtv/radio");
+          MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/radio");
 
           var audioBitrate = mediaInfo.GetAudioBitrate(0);
           if (audioBitrate.HasValue)
@@ -102,7 +103,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
           // MediaInfo returns milliseconds, we need seconds
           long? time = mediaInfo.GetPlaytime(0);
           if (time.HasValue && time > 1000)
-            MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_DURATION, time.Value / 1000);
+            MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_DURATION, time.Value / 1000);
         }
         return true;
       }

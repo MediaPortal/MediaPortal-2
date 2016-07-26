@@ -44,10 +44,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public const string SUBSCHEMA_NAME = "MediaLibrary";
 
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
-    public const int EXPECTED_SCHEMA_VERSION_MINOR = 1;
+    public const int EXPECTED_SCHEMA_VERSION_MINOR = 2;
 
     internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
+
+    internal const int MEDIA_ITEM_RECONCILE_OP = 1;
 
     #endregion
 
@@ -269,10 +271,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public static IDbCommand InsertMediaItemCommand(ITransaction transaction, out Guid mediaItemId)
     {
+      mediaItemId = Guid.NewGuid();
+      return InsertMediaItemCommand(transaction, mediaItemId);
+    }
+
+    public static IDbCommand InsertMediaItemCommand(ITransaction transaction, Guid mediaItemId)
+    {
       IDbCommand result = transaction.CreateCommand();
 
       result.CommandText = "INSERT INTO " + MEDIA_ITEMS_TABLE_NAME + " (" + MEDIA_ITEMS_ITEM_ID_COL_NAME + ") VALUES (@ITEM_ID)";
-      mediaItemId = Guid.NewGuid();
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -363,6 +370,41 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       database.AddParameter(result, "PLAYLIST_ID", playlistId, typeof(Guid));
 
       mediaItemIdIndex = 0;
+      return result;
+    }
+
+    public static IDbCommand InsertMediaItemPendingOperationCommand(ITransaction transaction, Guid mediaItemId, int operationType)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      result.CommandText = "INSERT INTO MEDIA_ITEM_PENDING_OPERATIONS (MEDIA_ITEM_ID,OPERATION_TYPE) VALUES (@ITEM_ID,@OP_TYPE)";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "ITEM_ID", mediaItemId, typeof(Guid));
+      database.AddParameter(result, "OP_TYPE", operationType, typeof(int));
+
+      return result;
+    }
+
+    public static IDbCommand DeleteMediaItemPendingOperationCommand(ITransaction transaction, Guid mediaItemId, int operationType)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      result.CommandText = "DELETE FROM MEDIA_ITEM_PENDING_OPERATIONS WHERE MEDIA_ITEM_ID=@ITEM_ID AND OPERATION_TYPE=@OP_TYPE";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "ITEM_ID", mediaItemId, typeof(Guid));
+      database.AddParameter(result, "OP_TYPE", operationType, typeof(int));
+
+      return result;
+    }
+
+    public static IDbCommand SelectMediaItemPendingOperationCommand(ITransaction transaction, int operationType)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      result.CommandText = "SELECT MEDIA_ITEM_ID FROM MEDIA_ITEM_PENDING_OPERATIONS WHERE OPERATION_TYPE=@OP_TYPE";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "OP_TYPE", operationType, typeof(int));
+
       return result;
     }
   }

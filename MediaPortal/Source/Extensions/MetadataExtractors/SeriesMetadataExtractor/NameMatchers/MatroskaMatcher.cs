@@ -26,14 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -46,19 +45,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// Tries to match series by reading matroska tags from <paramref name="folderOrFileLfsra"/>.
     /// </summary>
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file or folder</param>
-    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <param name="extractedAspectData">Dictionary containing a mapping of media item aspect ids to
     /// already present media item aspects, this metadata extractor should edit. If a media item aspect is not present
     /// in this dictionary but found by this metadata extractor, it will add it to the dictionary.</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo, ref IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, EpisodeInfo episodeInfo)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
 
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
       {
-        seriesInfo = null;
+        episodeInfo = null;
         return false;
       }
 
@@ -67,80 +66,62 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
       mkvReader.ReadTags(tagsToExtract);
 
-      string title = string.Empty;
-      IList<string> tags = tagsToExtract[MatroskaConsts.TAG_SIMPLE_TITLE];
-      if (tags != null)
-        title = tags.FirstOrDefault();
-
-      if (!string.IsNullOrEmpty(title))
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-
-      string yearCandidate = null;
-      tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_YEAR] ?? tagsToExtract[MatroskaConsts.TAG_SEASON_YEAR];
-      if (tags != null)
-        yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
-
-      int year;
-      if (int.TryParse(yearCandidate, out year))
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
-
-      tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
+      IList<string> tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
       string plot = tags != null ? tags.FirstOrDefault() : string.Empty;
       if (!string.IsNullOrEmpty(plot))
-        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, plot);
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, plot, true);
 
       // Series and episode handling. Prefer information from tags.
-      seriesInfo = GetSeriesFromTags(tagsToExtract);
+      if (tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE] != null)
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault(), true);
 
-      return true;
-    }
+      if (tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE] != null)
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault(), true);
 
-    protected SeriesInfo GetSeriesFromTags(IDictionary<string, IList<string>> extractedTags)
-    {
-      SeriesInfo seriesInfo = new SeriesInfo();
-      if (extractedTags[MatroskaConsts.TAG_EPISODE_TITLE] != null)
-        seriesInfo.Episode = extractedTags[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault();
-
-      if (extractedTags[MatroskaConsts.TAG_SERIES_TITLE] != null)
-        seriesInfo.Series = extractedTags[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault();
-
-      if (extractedTags[MatroskaConsts.TAG_SERIES_IMDB_ID] != null)
+      if (tagsToExtract[MatroskaConsts.TAG_SERIES_IMDB_ID] != null)
       {
         string imdbId;
-        foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_IMDB_ID])
+        foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_SERIES_IMDB_ID])
           if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
-          { 
-            seriesInfo.ImdbId = imdbId; 
+          {
+            MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, imdbId);
             break;
           }
       }
 
+      if (tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS] != null)
+      {
+        MetadataUpdater.SetOrUpdateList(episodeInfo.Actors,
+          tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS].Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
+      }
+
       // On Series, the counting tag is "TVDB"
-      if (extractedTags[MatroskaConsts.TAG_SERIES_TVDB_ID] != null)
+      if (tagsToExtract[MatroskaConsts.TAG_SERIES_TVDB_ID] != null)
       {
         int tmp;
-        foreach (string candidate in extractedTags[MatroskaConsts.TAG_SERIES_TVDB_ID])
-          if(int.TryParse(candidate, out tmp) == true)
+        foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_SERIES_TVDB_ID])
+          if (int.TryParse(candidate, out tmp) == true)
           {
-            seriesInfo.TvdbId = tmp;
+            MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, tmp);
             break;
           }
       }
 
       int tmpInt;
-      if (extractedTags[MatroskaConsts.TAG_SEASON_NUMBER] != null && int.TryParse(extractedTags[MatroskaConsts.TAG_SEASON_NUMBER].FirstOrDefault(), out tmpInt))
-        seriesInfo.SeasonNumber = tmpInt; 
+      if (tagsToExtract[MatroskaConsts.TAG_SEASON_NUMBER] != null && int.TryParse(tagsToExtract[MatroskaConsts.TAG_SEASON_NUMBER].FirstOrDefault(), out tmpInt))
+        MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, tmpInt);
 
-      if (extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER] != null)
+      if (tagsToExtract[MatroskaConsts.TAG_EPISODE_NUMBER] != null)
       {
         int episodeNum;
 
-        foreach (string s in extractedTags[MatroskaConsts.TAG_EPISODE_NUMBER])
+        foreach (string s in tagsToExtract[MatroskaConsts.TAG_EPISODE_NUMBER])
           if (int.TryParse(s, out episodeNum))
-            if (!seriesInfo.EpisodeNumbers.Contains(episodeNum))
-              seriesInfo.EpisodeNumbers.Add(episodeNum);
+            if (!episodeInfo.EpisodeNumbers.Contains(episodeNum))
+              episodeInfo.EpisodeNumbers.Add(episodeNum);
       }
-      return seriesInfo;
+
+      return true;
     }
   }
 }

@@ -11,7 +11,7 @@
     <MsBuild Targets="_DownloadDokanInstaller" Projects="$(MSBuildThisFileFullPath)" Properties="Configuration=NOT_IMPORTANT" />
 
     <HeatDirectory
-      Directory="$(SolutionDir)..\Bin\MP2-Client\bin\x86\Release"
+      Directory="$(SolutionDir)..\Bin\MP2-Client\bin\x86\$(Configuration)"
       PreprocessorVariable="var.MediaPortal.Client.TargetDir"
       ComponentGroupName="Client.Heat"
       DirectoryRefId="INSTALLDIR_CLIENT"
@@ -20,7 +20,7 @@
       GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
 
     <HeatDirectory
-      Directory="$(SolutionDir)..\Bin\MP2-Server\bin\x86\Release"
+      Directory="$(SolutionDir)..\Bin\MP2-Server\bin\x86\$(Configuration)"
       PreprocessorVariable="var.MediaPortal.Server.TargetDir"
       ComponentGroupName="Server.Heat"
       DirectoryRefId="INSTALLDIR_SERVER"
@@ -29,7 +29,7 @@
       GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
 
     <HeatDirectory
-      Directory="$(SolutionDir)..\Bin\MP2-ServiceMonitor\bin\x86\Release"
+      Directory="$(SolutionDir)..\Bin\MP2-ServiceMonitor\bin\x86\$(Configuration)"
       PreprocessorVariable="var.MediaPortal.ServiceMonitor.TargetDir"
       ComponentGroupName="ServiceMonitor.Heat"
       DirectoryRefId="INSTALLDIR_SERVICE_MONITOR"
@@ -38,7 +38,7 @@
       GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
 
     <HeatDirectory
-      Directory="$(SolutionDir)..\Bin\MP2-LogCollector\bin\x86\Release"
+      Directory="$(SolutionDir)..\Bin\MP2-LogCollector\bin\x86\$(Configuration)"
       PreprocessorVariable="var.MediaPortal.LogCollector.TargetDir"
       ComponentGroupName="LogCollector.Heat"
       DirectoryRefId="INSTALLDIR_LOG_COLLECTOR"

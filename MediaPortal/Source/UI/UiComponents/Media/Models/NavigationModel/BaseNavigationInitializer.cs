@@ -52,6 +52,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected string _mediaNavigationMode;
     protected Guid _mediaNavigationRootState;
     protected Guid[] _necessaryMias;
+    protected Guid[] _optionalMias;
     protected AbstractScreenData _defaultScreen;
     protected ICollection<AbstractScreenData> _availableScreens;
     protected Sorting.Sorting _defaultSorting;
@@ -72,8 +73,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       // Create a generic delegate that knows all kind of our inbuilt media item types.
       _genericPlayableItemCreatorDelegate = mi =>
       {
-        if (mi.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
-          return new SeriesItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+        if (mi.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+          return new EpisodeItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
           return new MovieItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
         if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
@@ -125,10 +126,14 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
       }
 
-      IEnumerable<Guid> skinDependentOptionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
+      IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
+      if(_optionalMias != null)
+      {
+        optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
+      }
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(_viewName, _filter, _necessaryMias, skinDependentOptionalMIATypeIDs, true)
+        new MediaLibraryQueryViewSpecification(_viewName, _filter, null, _necessaryMias, optionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
         };

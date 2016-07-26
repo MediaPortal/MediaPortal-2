@@ -111,8 +111,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("NotFilter", typeof(NotFilter))]
     [XmlElement("RelationalFilter", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
+    [XmlElement("RelationalUserDataFilter", typeof(RelationalUserDataFilter))]
+    [XmlElement("EmptyUserData", typeof(EmptyUserDataFilter))]
     [XmlElement("False", typeof(FalseFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
+    [XmlElement("Relationship", typeof(RelationshipFilter))]
     public object XML_Filter
     {
       get { return _filter; }
@@ -329,8 +332,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("NotFilter", typeof(NotFilter))]
     [XmlElement("RelationalFilter", typeof(RelationalFilter))]
     [XmlElement("Empty", typeof(EmptyFilter))]
+    [XmlElement("RelationalUserDataFilter", typeof(RelationalUserDataFilter))]
+    [XmlElement("EmptyUserData", typeof(EmptyUserDataFilter))]
     [XmlElement("False", typeof(FalseFilter))]
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
+    [XmlElement("Relationship", typeof(RelationshipFilter))]
     // Necessary to have an object here, else the serialization algorithm cannot cope with polymorph values
     public object XML_Filter
     {

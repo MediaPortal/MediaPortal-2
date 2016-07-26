@@ -39,18 +39,18 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem item1, MediaItem item2)
     {
-      MediaItemAspect seriesAspectX;
-      MediaItemAspect seriesAspectY;
-      if (item1.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectX) && item2.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspectY))
+      SingleMediaItemAspect episodeAspectX;
+      SingleMediaItemAspect episodeAspectY;
+      if (MediaItemAspect.TryGetAspect(item1.Aspects, EpisodeAspect.Metadata, out episodeAspectX) && MediaItemAspect.TryGetAspect(item2.Aspects, EpisodeAspect.Metadata, out episodeAspectY))
       {
-        int seasonX = (int) (seriesAspectX.GetAttributeValue(SeriesAspect.ATTR_SEASON) ?? 0);
-        int seasonY = (int) (seriesAspectY.GetAttributeValue(SeriesAspect.ATTR_SEASON) ?? 0);
+        int seasonX = (int) (episodeAspectX.GetAttributeValue(EpisodeAspect.ATTR_SEASON) ?? 0);
+        int seasonY = (int) (episodeAspectY.GetAttributeValue(EpisodeAspect.ATTR_SEASON) ?? 0);
         int seasonRes = seasonX.CompareTo(seasonY);
         if (seasonRes != 0)
           return seasonRes;
 
-        IEnumerable<int> episodesX = seriesAspectX.GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODE);
-        IEnumerable<int> episodesY = seriesAspectY.GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODE);
+        IEnumerable<int> episodesX = episodeAspectX.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+        IEnumerable<int> episodesY = episodeAspectY.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
         
         int episodeX = 0;
         int episodeY = 0;
@@ -73,10 +73,10 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override object GetGroupByValue(MediaItem item)
     {
-      MediaItemAspect seriesAspect;
-      if (item.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out seriesAspect))
+      IList<MediaItemAspect> episodeAspect;
+      if (item.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out episodeAspect))
       {
-        IEnumerable<int> episodes = seriesAspect.GetCollectionAttribute<int>(SeriesAspect.ATTR_EPISODE);
+        IEnumerable<int> episodes = episodeAspect.First().GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
 
         return episodes.FirstOrDefault();
       }

@@ -141,7 +141,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           
           if (fv == null || fv.Count <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
-            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentVS.Filter);
+            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentVS.Filter, currentVS.RelationshipFilter);
             grouping = false;
           }
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
@@ -163,9 +163,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             {
               string filterTitle = filterValue.Title;
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
-              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter);
+              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter, filterValue.RelationshipFilter);
               T filterValueItem = new T
               {
+                // Support non-playable MediaItems (i.e. Series, Seasons)
+                MediaItem = filterValue.Item,
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
                 Command = grouping ? 

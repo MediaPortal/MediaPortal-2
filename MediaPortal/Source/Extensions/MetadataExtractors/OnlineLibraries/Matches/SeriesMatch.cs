@@ -27,16 +27,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <summary>
   /// SeriesMatch stores name matches for Series.
   /// </summary>
-  public class SeriesMatch : BaseMatch<int>
+  public class SeriesMatch : BaseMatch<string>
   {
     /// <summary>
     /// Contains the name found in online library.
     /// </summary>
-    public string TvDBName;
+    public string OnlineName;
+    public int Year;
 
     public override string ToString()
     {
-      return string.Format("{0}: {1} [{2}]", ItemName, TvDBName, Id);
+      return string.Format("{0}: {1} ({2}) [{3}]", ItemName, OnlineName, Year, Id);
     }
   }
 }

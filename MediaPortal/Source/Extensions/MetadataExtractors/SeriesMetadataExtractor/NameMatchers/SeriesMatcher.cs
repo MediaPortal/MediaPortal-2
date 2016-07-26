@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
@@ -41,27 +42,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     private const string GROUP_SEASONNUM = "seasonnum";
     private const string GROUP_EPISODENUM = "episodenum";
     private const string GROUP_EPISODE = "episode";
+    private const string GROUP_YEAR = "year";
 
     /// <summary>
-    /// Tries to match series by checking the <paramref name="folderOrFileLfsra"/> for known patterns. The match is only successful,
-    /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
+    /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
+    /// if the <see cref="EpisodeInfo.AreReqiredFieldsFilled"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file</param>
-    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo episodeInfo)
     {
-      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out seriesInfo);
+      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out episodeInfo);
     }
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
-    /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
+    /// if the <see cref="EpisodeInfo.AreReqiredFieldsFilled"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileName">Full path to file</param>
-    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
+    public bool MatchSeries(string folderOrFileName, out EpisodeInfo episodeInfo)
     {
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>();
 
@@ -78,38 +80,47 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         if (pattern.GetRegex(out matcher))
         {
           Match ma = matcher.Match(folderOrFileName);
-          seriesInfo = ParseSeries(ma);
-          if (seriesInfo.IsCompleteMatch)
+          episodeInfo = ParseSeries(ma);
+          if (episodeInfo.AreReqiredFieldsFilled)
           {
             // Do replacements after successful match
             foreach (var replacement in settings.Replacements.Where(r => !r.BeforeMatch))
             {
-              string tmp = seriesInfo.Series;
+              string tmp = episodeInfo.SeriesName.Text;
               replacement.Replace(ref tmp);
-              seriesInfo.Series = tmp;
+              episodeInfo.SeriesName.Text = tmp;
 
-              tmp = seriesInfo.Episode;
+              tmp = episodeInfo.EpisodeName.Text;
               replacement.Replace(ref tmp);
-              seriesInfo.Episode = tmp;
+              episodeInfo.EpisodeName.Text = tmp;
+            }
+            if (!episodeInfo.SeriesName.IsEmpty)
+            {
+              Match yearMa = settings.SeriesYearRegex.Regex.Match(episodeInfo.SeriesName.Text);
+              if (yearMa.Success)
+              {
+                episodeInfo.SeriesName = EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value);
+                episodeInfo.SeriesFirstAired = new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1);
+              }
             }
             return true;
           }
         }
       }
-      seriesInfo = null;
+      episodeInfo = null;
       return false;
     }
 
-    static SeriesInfo ParseSeries(Match ma)
+    static EpisodeInfo ParseSeries(Match ma)
     {
-      SeriesInfo info = new SeriesInfo();
+      EpisodeInfo info = new EpisodeInfo();
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
-        info.Series = SeriesInfo.CleanupWhiteSpaces(group.Value);
+        info.SeriesName = EpisodeInfo.CleanupWhiteSpaces(group.Value);
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)
-        info.Episode = SeriesInfo.CleanupWhiteSpaces(group.Value);
+        info.EpisodeName = EpisodeInfo.CleanupWhiteSpaces(group.Value);
 
       group = ma.Groups[GROUP_SEASONNUM];
       int tmpInt;

@@ -39,6 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT;
       _viewName = Consts.RES_VIDEOS_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_VIDEO_MIAS;
+      _optionalMias = Consts.OPTIONAL_VIDEO_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
@@ -49,9 +50,10 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _defaultScreen = new VideosFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
-          new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
+        new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new VideosFilterByLanguageScreenData(),
           new VideosFilterByActorScreenData(),
+          new VideosFilterByCharacterScreenData(),
           new VideosFilterByDirectorScreenData(),
           new VideosFilterByWriterScreenData(),
           _defaultScreen,

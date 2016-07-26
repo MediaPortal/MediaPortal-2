@@ -22,6 +22,7 @@
 
 #endregion
 
+using HttpServer;
 using System.Globalization;
 using System.Net;
 using System.Xml;
@@ -75,12 +76,13 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// <summary>
   /// Delegate which is called during the device description generation. Implementors can add additional XML elements.
   /// </summary>
+  /// <param name="request">The request for the device description.</param>
   /// <param name="writer">The writer used to create the XML document.</param>
   /// <param name="device">The device which is being written.</param>
   /// <param name="pos">The current description XML position.</param>
   /// <param name="config">The endpoint configuration which requested the description.</param>
   /// <param name="culture">The culture of the client which requested the description.</param>
-  public delegate void GenerateDescriptionDlgt(XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
+  public delegate void GenerateDescriptionDlgt(IHttpRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
 
   /// <summary>
   /// Delegate which can return a URL which is available over the specified <paramref name="endPointIPAddress"/>.
@@ -96,4 +98,12 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// <param name="culture">The culture to localize the returned URL.</param>
   /// <returns>URL to an external resource. The URL/resource is not managed by the UPnP subsystem.</returns>
   public delegate string GetURLForEndpointDlgt(IPAddress endPointIPAddress, CultureInfo culture);
+
+  /// <summary>
+  /// Delegate which is called during the device information generation. Implementors can override device information properties.
+  /// </summary>
+  /// <param name="request">The request for the device information.</param>
+  /// <param name="deviceInfo">The device information that will be sent if not overridden.</param>
+  /// <param name="overrideDeviceInfo">The overriden device information to send.</param>
+  public delegate void GetDeviceInfoForEndpointDlgt(IHttpRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overrideDeviceInfo);
 }

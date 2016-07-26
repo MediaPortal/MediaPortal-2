@@ -21,7 +21,6 @@
 
   <Runtime>
     <Assembly FileName="SeriesMetadataExtractor.dll"/>
-    <Assembly FileName="FanArtService.Interfaces.dll"/>
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
@@ -30,10 +29,15 @@
         ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.SeriesMetadataExtractor"/>
   </Register>
 
-  <!-- We use our own local name here to avoid circular references to FanArtService -->
-  <Builder Name="SeriesFanartProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers.FanartProviderBuilder"/>
-  <Register Location="/Fanart/Providers">
-    <SeriesFanartProviderBuilder Id="{73520BB9-112F-4208-90A8-C406E00AC192}" MediaTypes="Series" ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.FanartProvider.SeriesFanartProvider"/>
+  <Register Location="/Media/RelationshipExtractors">
+    <Instance
+        Id="SeriesRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.SeriesRelationshipExtractor"/>
   </Register>
 
+  <Register Location="/Media/MergeHandlers">
+    <Instance
+        Id="EpisodeMergeHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.EpisodeMergeHandler"/>
+  </Register>
 </Plugin>

@@ -28,7 +28,7 @@
             <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
-                Content="{Binding Title}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding Trackname}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
       </media:MediaAspectWrapper.Template>

@@ -40,22 +40,22 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Date and time of the last import of the media item.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_LAST_IMPORT_DATE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("LastImportDate", typeof(DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LAST_IMPORT_DATE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("LastImportDate", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
     /// If set to <c>true</c>, the media item must be re-imported.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_DIRTY =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Dirty", typeof(bool), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DIRTY =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Dirty", typeof(bool), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the date when the media item was added to the media library.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_DATEADDED =
-        MediaItemAspectMetadata.CreateAttributeSpecification("DateAdded", typeof(DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DATEADDED =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("DateAdded", typeof(DateTime), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ImportedItem", new[] {
             ATTR_LAST_IMPORT_DATE,

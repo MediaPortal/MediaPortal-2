@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Runtime;
@@ -573,20 +574,32 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
         MediaItem item;
         for (int i = 0; (item = playlist[i]) != null; i++)
         {
-          MediaItemAspect aspect;
-          if (item.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspect))
+          IList<MediaItemAspect> aspects;
+          if (item.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspects))
           {
+            var aspect = aspects.First();
             long? dur = aspect == null ? null : (long?)aspect[AudioAspect.ATTR_DURATION];
             TimeSpan miDur = dur.HasValue ? TimeSpan.FromSeconds(dur.Value) : TimeSpan.FromSeconds(0);
             playlistDuration = playlistDuration.Add(miDur);
           }
-          else
-            if (item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out aspect))
+          else if (item.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out aspects))
+          {
+            var aspect = aspects.First();
+            int? part = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART];
+            int? partSet = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
+            long? dur = null;
+            if (!part.HasValue || part < 0)
             {
-              long? dur = aspect == null ? null : (long?)aspect[VideoAspect.ATTR_DURATION];
-              TimeSpan miDur = dur.HasValue ? TimeSpan.FromSeconds(dur.Value) : TimeSpan.FromSeconds(0);
-              playlistDuration = playlistDuration.Add(miDur);
+              dur = (long?)aspect[VideoStreamAspect.ATTR_DURATION];
             }
+            else if(partSet.HasValue)
+            {
+              dur = aspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet && 
+              aspect[VideoStreamAspect.ATTR_DURATION] != null).Sum(a => (long)a[VideoStreamAspect.ATTR_DURATION]);
+            }
+            TimeSpan miDur = dur.HasValue ? TimeSpan.FromSeconds(dur.Value) : TimeSpan.FromSeconds(0);
+            playlistDuration = playlistDuration.Add(miDur);
+          }
         }
 
         // currentTime

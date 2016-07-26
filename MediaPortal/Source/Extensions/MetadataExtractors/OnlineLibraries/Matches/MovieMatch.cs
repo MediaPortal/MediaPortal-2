@@ -27,16 +27,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <summary>
   /// MovieMatch stores name matches for Movies.
   /// </summary>
-  public class MovieMatch : BaseMatch<int>
+  public class MovieMatch : BaseMatch<string>
   {
     /// <summary>
     /// Contains the name found in online library.
     /// </summary>
-    public string MovieDBName;
+    public string OnlineName;
+    public int Year;
 
     public override string ToString()
     {
-      return string.Format("{0}: {1} [{2}]", ItemName, MovieDBName, Id);
+      return string.Format("{0}: {1} ({2}) [{3}]", ItemName, OnlineName, Year, Id);
     }
   }
 }

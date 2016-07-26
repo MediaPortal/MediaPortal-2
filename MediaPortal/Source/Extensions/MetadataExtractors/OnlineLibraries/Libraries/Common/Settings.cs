@@ -34,6 +34,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     {
       try
       {
+        if(!File.Exists(fileName))
+          return default(TE);
         XmlSerializer serializer = new XmlSerializer(typeof(TE));
         using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
           return (TE)serializer.Deserialize(fileStream);

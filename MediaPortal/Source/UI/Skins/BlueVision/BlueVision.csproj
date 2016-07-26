@@ -576,6 +576,8 @@
     <Content Include="Skin\BlueVision\screens\CP_MovieCastCrew.inc" />
     <Content Include="Skin\BlueVision\screens\CP_MovieGeneral.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemAudioDetails.inc" />
+    <Content Include="Skin\BlueVision\screens\MediaItemSeasonDetails.inc" />
+    <Content Include="Skin\BlueVision\screens\MediaItemEpisodeDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemImageDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemMovieDetails.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemFanArt.inc" />

@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.Aspects
 {
   /// <summary>
   /// Contains the metadata specification of the "Recording" media item aspect which is assigned to all recording media items.
-  /// Recordings here are meant as TV video recordings, so common video related metadata are available in <seealso cref="VideoAspect"/>.
+  /// Recordings here are meant as TV video recordings, so common video related metadata are available in <seealso cref="VideoStreamAspect"/>.
   /// </summary>
   public class RecordingAspect
   {
@@ -42,26 +42,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.Aspects
     /// <summary>
     /// Channel name where the program was recorded.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_CHANNEL =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Channel", 50, Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CHANNEL =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Channel", 50, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the recording start date and time.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_STARTTIME =
-        MediaItemAspectMetadata.CreateAttributeSpecification("StartTime", typeof(DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STARTTIME =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("StartTime", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the recording start date and time.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ENDTIME =
-        MediaItemAspectMetadata.CreateAttributeSpecification("EndTime", typeof(DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ENDTIME =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("EndTime", typeof(DateTime), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    /// <summary>
+    /// Genre string.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
+    /// String describing the story plot of the video.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STORYPLOT =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("StoryPlot", 10000, Cardinality.Inline, false);
+
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "RecordingItem", new[] {
             ATTR_CHANNEL,
             ATTR_STARTTIME,
-            ATTR_ENDTIME
+            ATTR_ENDTIME,
+            ATTR_GENRES,
+            ATTR_STORYPLOT
         });
   }
 }

@@ -73,14 +73,14 @@
                     </media:MovieAspectWrapper.Template>
                   </media:MovieAspectWrapper>
 
-                  <media:SeriesAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Margin="5">
-                    <media:SeriesAspectWrapper.IsVisible>
+                  <media:EpisodeAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Margin="5">
+                    <media:EpisodeAspectWrapper.IsVisible>
                       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                         <Binding Path="MediaItem" />
-                        <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+                        <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
                       </MultiBinding>
-                    </media:SeriesAspectWrapper.IsVisible>
-                    <media:SeriesAspectWrapper.Template>
+                    </media:EpisodeAspectWrapper.IsVisible>
+                    <media:EpisodeAspectWrapper.Template>
                       <ControlTemplate>
                         <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
                                FallbackSource="VideoLarge.png">
@@ -91,8 +91,8 @@
                           </Image.Source>
                         </Image>
                       </ControlTemplate>
-                    </media:SeriesAspectWrapper.Template>
-                  </media:SeriesAspectWrapper>
+                    </media:EpisodeAspectWrapper.Template>
+                  </media:EpisodeAspectWrapper>
 
                   <DockPanel Grid.Column="1" Grid.Row="0" LastChildFill="true" Margin="3">
                     <Grid DockPanel.Dock="Center">

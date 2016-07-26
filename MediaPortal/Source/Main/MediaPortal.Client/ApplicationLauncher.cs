@@ -157,7 +157,7 @@ namespace MediaPortal.Client
         try
         {
           // Check if user wants to override the default Application Data location.
-          ApplicationCore.RegisterVitalCoreServices(mpOptions.DataDirectory);
+          ApplicationCore.RegisterVitalCoreServices(true, mpOptions.DataDirectory);
 
 #if !DEBUG
           splashScreen = CreateSplashScreen();

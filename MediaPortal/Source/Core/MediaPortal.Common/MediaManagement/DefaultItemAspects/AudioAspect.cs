@@ -34,87 +34,127 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the audio aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("493F2B3B-8025-4DB1-80DC-C3CD39683C9F");
+    public static readonly Guid ASPECT_ID = new Guid("DEC5DED7-31EA-4C2F-AE81-8185ED689A8B");
+
+    /// <summary>
+    /// Track name.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TRACKNAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("TrackName", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Enumeration of artist names.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ARTISTS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ARTISTS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Album name.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ALBUM =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Album", 100, Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ALBUM =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Album", 100, Cardinality.Inline, true);
+
+    /// <summary>
+    /// If set to <c>true</c>, the track is part of a compilation of music from various artists.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPILATION =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsCompilation", typeof(bool), Cardinality.Inline, true);
 
     /// <summary>
     /// Enumeration of genre names.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_GENRES =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Duration in seconds.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_DURATION =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DURATION =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Track lyrics.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LYRICS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Lyrics", 5000, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Set to <c>true</c> if this track item represents a CD track.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISCD =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsCD", typeof(bool), Cardinality.Inline, false);
 
     /// <summary>
     /// Track number.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TRACK =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Track", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TRACK =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Track", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Number of tracks on the CD.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_NUMTRACKS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("NumTracks", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUMTRACKS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumTracks", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Enumeration of album artist name strings.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ALBUMARTISTS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ALBUMARTISTS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Enumeration of composer name strings.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_COMPOSERS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPOSERS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Encoding as string. TODO: Describe format.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_ENCODING =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Encoding", 50, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ENCODING =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Encoding", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Bitrate in kbits/second.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_BITRATE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("BitRate", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_BITRATE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("BitRate", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
-    /// ID of the disc. TODO: Specification.
+    /// ID of the disc in the collection.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_DISCID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("DiscId", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DISCID =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("DiscId", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Number of discs in the collection.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_NUMDISCS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("NumDiscs", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUMDISCS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumDiscs", typeof(int), Cardinality.Inline, false);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    /// <summary>
+    /// Contains the overall rating of the track. Value ranges from 0 (very bad) to 10 (very good).
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TOTAL_RATING =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the overall number ratings of the track.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "AudioItem", new[] {
+            ATTR_TRACKNAME,
             ATTR_ARTISTS,
             ATTR_ALBUM,
+            ATTR_COMPILATION,
             ATTR_GENRES,
             ATTR_DURATION,
+            ATTR_LYRICS,
+            ATTR_ISCD,
             ATTR_TRACK,
             ATTR_NUMTRACKS,
             ATTR_ALBUMARTISTS,
@@ -123,6 +163,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_BITRATE,
             ATTR_DISCID,
             ATTR_NUMDISCS,
+            ATTR_TOTAL_RATING,
+            ATTR_RATING_COUNT
         });
+
+      public static readonly Guid ROLE_TRACK = new Guid("10C134B1-4E35-4750-836D-76F3AB58D40A");
   }
 }

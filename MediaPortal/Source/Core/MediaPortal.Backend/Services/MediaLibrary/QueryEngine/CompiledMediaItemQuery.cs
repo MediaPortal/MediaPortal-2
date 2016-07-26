@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -34,6 +35,8 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -161,55 +164,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         query.Filter, query.SortInformation, query.Limit, query.Offset);
     }
 
-    public IList<MediaItem> QueryList()
+    private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, bool singleMode, IEnumerable<MediaItemAspectMetadata> selectedMIAs, out IList<Guid> mediaItemIds, out IDictionary<Guid, IList<Guid>> complexMediaItems)
     {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
-      try
-      {
         string statementStr;
         IList<BindVar> bindVars;
 
-        // 1. Request all complex attributes
-        IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues =
-            new Dictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>>();
-        foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
-        {
-          ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
-              _miaManagement, attr, null, _necessaryRequestedMIAs, _filter);
-          using (IDbCommand command = transaction.CreateCommand())
-          {
-            string mediaItemIdAlias;
-            string valueAlias;
-            complexAttributeQueryBuilder.GenerateSqlStatement(out mediaItemIdAlias, out valueAlias,
-                out statementStr, out bindVars);
-            command.CommandText = statementStr;
-            foreach (BindVar bindVar in bindVars)
-              database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
-
-            Type valueType = attr.AttributeType;
-            using (IDataReader reader = command.ExecuteReader())
-            {
-              while (reader.Read())
-              {
-                Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias));
-                object value = database.ReadDBValue(valueType, reader, reader.GetOrdinal(valueAlias));
-                IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
-                if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
-                  attributeValues = complexAttributeValues[mediaItemId] =
-                      new Dictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>();
-                ICollection<object> attrValues;
-                if (!attributeValues.TryGetValue(attr, out attrValues))
-                  attrValues = attributeValues[attr] = new HashSet<object>();
-                attrValues.Add(value);
-              }
-            }
-          }
-        }
-
-        // 2. Main query
-        MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement,
-            _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation, _limit, _offset);
+        SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(_miaManagement,
+            _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
 
         using (IDbCommand command = transaction.CreateCommand())
         {
@@ -217,7 +178,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           IDictionary<MediaItemAspectMetadata, string> miamAliases;
           // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
           IDictionary<QueryAttribute, string> qa2a;
-          mainQueryBuilder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a,
+          builder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a,
               out statementStr, out bindVars);
 
           // Try to use SQL side paging, which gives best performance if supported
@@ -226,16 +187,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             paging.Process(ref statementStr, ref bindVars, ref _offset, ref _limit);
 
           command.CommandText = statementStr;
-
           foreach (BindVar bindVar in bindVars)
             database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
 
-          IEnumerable<MediaItemAspectMetadata> selectedMIAs = _necessaryRequestedMIAs.Union(_optionalRequestedMIAs);
-
-          ICollection<Guid> mediaItems = new HashSet<Guid>();
           using (IDataReader fullReader = command.ExecuteReader())
           {
             IList<MediaItem> result = new List<MediaItem>();
+            mediaItemIds = new List<Guid>();
+            complexMediaItems = new Dictionary<Guid, IList<Guid>>();
 
             var records = fullReader.AsEnumerable();
             if (_offset.HasValue)
@@ -245,20 +204,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             foreach (var reader in records)
             {
               Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));
-              if (mediaItems.Contains(mediaItemId))
+              if (mediaItemIds.Contains(mediaItemId))
                 // Media item was already added to result - query results are not always unique because of JOINs used for filtering
                 continue;
-              mediaItems.Add(mediaItemId);
-              IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
-              if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
-                attributeValues = null;
+              mediaItemIds.Add(mediaItemId);
               MediaItem mediaItem = new MediaItem(mediaItemId);
-              foreach (MediaItemAspectMetadata miam in selectedMIAs)
+              foreach (SingleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is SingleMediaItemAspectMetadata))
               {
-                if (reader.IsDBNull(reader.GetOrdinal(miamAliases[miam])))
+                string name;
+                if (!miamAliases.TryGetValue(miam, out name) || reader.IsDBNull(reader.GetOrdinal(name)))
                   // MIAM is not available for current media item
                   continue;
-                MediaItemAspect mia = new MediaItemAspect(miam);
+                IList<Guid> complexIds;
+                if(!complexMediaItems.TryGetValue(miam.AspectId, out complexIds))
+                  complexMediaItems[miam.AspectId] = complexIds = new List<Guid>();
+                complexIds.Add(mediaItemId);
+                SingleMediaItemAspect mia = new SingleMediaItemAspect(miam);
                 foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
                   if (attr.Cardinality == Cardinality.Inline)
                   {
@@ -266,19 +227,174 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                     string alias = qa2a[qa];
                     mia.SetAttribute(attr, database.ReadDBValue(attr.AttributeType, reader, reader.GetOrdinal(alias)));
                   }
-                  else
-                  {
-                    ICollection<object> attrValues;
-                    if (attributeValues != null && attributeValues.TryGetValue(attr, out attrValues))
-                      mia.SetCollectionAttribute(attr, attrValues);
-                  }
-                mediaItem.Aspects[miam.AspectId] = mia;
+                MediaItemAspect.SetAspect(mediaItem.Aspects, mia);
               }
               result.Add(mediaItem);
+              if (singleMode)
+              {
+                  break;
+              }
             }
+
             return result;
           }
         }
+    }
+
+    private void AddComplexAttributes(ISQLDatabase database, ITransaction transaction, IEnumerable<Guid> ids, IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues, IDictionary<Guid, IList<Guid>> complexMediaItemIds)
+    {
+        string statementStr;
+        IList<BindVar> bindVars;
+
+        foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
+        {
+            // Skip this attribute if no media items were found for the aspect
+            if (!complexMediaItemIds.ContainsKey(attr.ParentMIAM.AspectId))
+                continue;
+
+            ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(
+                _miaManagement, attr, null, _necessaryRequestedMIAs, new MediaItemIdFilter(ids));
+            using (IDbCommand command = transaction.CreateCommand())
+            {
+                string mediaItemIdAlias;
+                string valueAlias;
+                builder.GenerateSqlStatement(out mediaItemIdAlias, out valueAlias,
+                    out statementStr, out bindVars);
+                command.CommandText = statementStr;
+                foreach (BindVar bindVar in bindVars)
+                    database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
+
+                Type valueType = attr.AttributeType;
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias));
+                        object value = database.ReadDBValue(valueType, reader, reader.GetOrdinal(valueAlias));
+                        IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
+                        if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
+                            attributeValues = complexAttributeValues[mediaItemId] =
+                                new Dictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>();
+                        ICollection<object> attrValues;
+                        if (!attributeValues.TryGetValue(attr, out attrValues))
+                            attrValues = attributeValues[attr] = new HashSet<object>();
+                        attrValues.Add(value);
+                    }
+                }
+            }
+        }
+    }
+
+    private void AddMultipleMIAs(ISQLDatabase database, ITransaction transaction, IEnumerable<MediaItemAspectMetadata> selectedMIAs, IList<Guid> ids, IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>();
+
+      foreach (MultipleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is MultipleMediaItemAspectMetadata))
+      {
+        logger.Debug("Getting {0} rows for {1}", ids.Count, miam.Name);
+        AddMultipleMIAResults(database, transaction, miam, new MultipleMIAQueryBuilder(_miaManagement, _mainSelectAttributes.Values, miam, ids.ToArray()), multipleMiaValues);
+        if (miam.AspectId == RelationshipAspect.ASPECT_ID)
+        {
+          // Special case for relationships where the IDs being processed could be at the linked end
+          IList<QueryAttribute> attributes = new List<QueryAttribute>();
+          foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
+          {
+            if (attr.Cardinality == Cardinality.Inline || attr.Cardinality == Cardinality.ManyToOne)
+              attributes.Add(new QueryAttribute(attr));
+          }
+          AddMultipleMIAResults(database, transaction, miam, new InverseRelationshipQueryBuilder(_miaManagement, attributes, ids.ToArray()), multipleMiaValues);
+        }
+      }
+    }
+
+    private void AddMultipleMIAResults(ISQLDatabase database, ITransaction transaction, MultipleMediaItemAspectMetadata miam, MainQueryBuilder builder, IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues)
+    {
+      using (IDbCommand command = transaction.CreateCommand())
+      {
+        string mediaItemIdAlias;
+        IDictionary<MediaItemAspectMetadata, string> miamAliases;
+        // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
+        IDictionary<QueryAttribute, string> qa2a;
+        string statementStr;
+        IList<BindVar> bindVars;
+        builder.GenerateSqlStatement(out mediaItemIdAlias, out miamAliases, out qa2a, out statementStr, out bindVars);
+        command.CommandText = statementStr;
+        foreach (BindVar bindVar in bindVars)
+          database.AddParameter(command, bindVar.Name, bindVar.Value, bindVar.VariableType);
+
+        //logger.Debug("Get multiple MIAs for {0}", string.Join(",", ids));
+        using (IDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            Guid itemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias));
+            //logger.Debug("Read record for {0}", itemId);
+            MultipleMediaItemAspect mia = new MultipleMediaItemAspect(miam);
+            foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
+            {
+              if (attr.Cardinality == Cardinality.Inline)
+              {
+                QueryAttribute qa = _mainSelectAttributes[attr];
+                try
+                {
+                  string alias = qa2a[qa];
+                  //logger.Debug("Reading multiple MIA attibute " + attr.AttributeName + " #" + index + " from column " + alias);
+                  mia.SetAttribute(attr, database.ReadDBValue(attr.AttributeType, reader, reader.GetOrdinal(alias)));
+                }
+                catch (KeyNotFoundException)
+                {
+                  ILogger logger = ServiceRegistration.Get<ILogger>();
+                  logger.Error("No attribute {0} in [{1}]", qa, string.Join(",", qa2a.Keys));
+                  throw;
+                }
+              }
+            }
+
+            if (builder is InverseRelationshipQueryBuilder)
+            {
+              /*
+               * Swap the ID / role <--> linked role / linked ID
+               * "A is a movie starting actor B"
+               * becomes
+               * "B is an actor starting in movie A"
+               */
+              Guid id = itemId;
+              Guid role = mia.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE);
+              itemId = mia.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ID);
+              mia.SetAttribute(RelationshipAspect.ATTR_ROLE, mia.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE));
+              mia.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, role);
+              mia.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, id);
+            }
+
+            ICollection<MultipleMediaItemAspect> values;
+            if (!multipleMiaValues.TryGetValue(itemId, out values))
+            {
+              values = new List<MultipleMediaItemAspect>();
+              multipleMiaValues[itemId] = values;
+            }
+            values.Add(mia);
+          }
+        }
+      }
+    }
+
+    public IList<MediaItem> QueryList()
+    {
+        return Query(false);
+    }
+
+    public IList<MediaItem> QueryList(ISQLDatabase database, ITransaction transaction)
+    {
+      return Query(database, transaction, false);
+    }
+
+    public IList<MediaItem> Query(bool singleMode)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        return Query(database, transaction, singleMode);
       }
       finally
       {
@@ -286,105 +402,88 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
     }
 
-    public MediaItem QueryMediaItem()
+    public IList<MediaItem> Query(ISQLDatabase database, ITransaction transaction, bool singleMode)
     {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ILogger logger = ServiceRegistration.Get<ILogger>();
+      
       try
       {
-        MediaItem result = null;
+          IList<MediaItemAspectMetadata> selectedMIAs = new List<MediaItemAspectMetadata>(_necessaryRequestedMIAs.Union(_optionalRequestedMIAs));
 
-        // 1. Main query
-        MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement,
-            _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
+          IList<Guid> mediaItemIds;
+          IDictionary<Guid, IList<Guid>> complexMediaItemIds;
+          IList<MediaItem> mediaItems = GetMediaItems(database, transaction, singleMode, selectedMIAs, out mediaItemIds, out complexMediaItemIds);
 
-        using (IDbCommand mainQueryCommand = transaction.CreateCommand())
-        {
-          string mediaItemIdAlias2;
-          IDictionary<MediaItemAspectMetadata, string> miamAliases;
-          // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
-          IDictionary<QueryAttribute, string> qa2a;
-          string statementStr;
-          IList<BindVar> bindVars;
-          mainQueryBuilder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a,
-              out statementStr, out bindVars);
-          mainQueryCommand.CommandText = statementStr;
-          foreach (BindVar bindVar in bindVars)
-            database.AddParameter(mainQueryCommand, bindVar.Name, bindVar.Value, bindVar.VariableType);
+          //logger.Debug("CompiledMediaItemQuery::Query got media items IDs [{0}]", string.Join(",", mediaItemIds));
 
-          IEnumerable<MediaItemAspectMetadata> selectedMIAs = _necessaryRequestedMIAs.Union(_optionalRequestedMIAs);
+          // TODO: Why bother looking for complex attributes on MIAs we don't have?
+          IDictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues =
+              new Dictionary<Guid, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>>();
 
-          using (IDataReader mainReader = mainQueryCommand.ExecuteReader())
-          {
-            if (mainReader.Read())
+          ICollection<IList<Guid>> mediaItemIdsClusters = CollectionUtils.Cluster(mediaItemIds, CompiledFilter.MAX_IN_VALUES_SIZE);
+
+          foreach (IList<Guid> mediaItemIdsCluster in mediaItemIdsClusters.Where(x => x.Count > 0))
+            AddComplexAttributes(database, transaction, mediaItemIdsCluster, complexAttributeValues, complexMediaItemIds);
+
+          foreach (MediaItem mediaItem in mediaItems)
             {
-              Guid mediaItemId = database.ReadDBValue<Guid>(mainReader, mainReader.GetOrdinal(mediaItemIdAlias2));
-              result = new MediaItem(mediaItemId);
-
-              // Request complex attributes using media item ID
-              IFilter modifiedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filter, new MediaItemIdFilter(mediaItemId));
-              IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> complexAttributeValues =
-                  new Dictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>();
-              foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
-              {
-                ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
-                    _miaManagement, attr, null, null, modifiedFilter);
-                using (IDbCommand complexQueryCommand = transaction.CreateCommand())
+                foreach (SingleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is SingleMediaItemAspectMetadata))
                 {
-                  string mediaItemIdAlias;
-                  string valueAlias;
-                  complexAttributeQueryBuilder.GenerateSqlStatement(out mediaItemIdAlias, out valueAlias,
-                      out statementStr, out bindVars);
-                  complexQueryCommand.CommandText = statementStr;
-                  foreach (BindVar bindVar in bindVars)
-                    database.AddParameter(complexQueryCommand, bindVar.Name, bindVar.Value, bindVar.VariableType);
-
-                  Type valueType = attr.AttributeType;
-                  using (IDataReader reader = complexQueryCommand.ExecuteReader())
-                  {
-                    if (reader.Read())
-                    {
-                      object value = database.ReadDBValue(valueType, reader, reader.GetOrdinal(valueAlias));
-                      ICollection<object> attrValues;
-                      if (!complexAttributeValues.TryGetValue(attr, out attrValues))
-                        attrValues = complexAttributeValues[attr] = new List<object>();
-                      attrValues.Add(value);
-                    }
-                  }
+                    // Skip complex attributes for this MIA if it's not already in the media item
+                    if(!mediaItem.Aspects.ContainsKey(miam.AspectId))
+                        continue;
+                    IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
+                    if (!complexAttributeValues.TryGetValue(mediaItem.MediaItemId, out attributeValues))
+                        continue;
+                    SingleMediaItemAspect mia = MediaItemAspect.GetOrCreateAspect(mediaItem.Aspects, miam);
+                    foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
+                        if (attr.Cardinality != Cardinality.Inline)
+                        {
+                            ICollection<object> attrValues;
+                            if (attributeValues != null && attributeValues.TryGetValue(attr, out attrValues))
+                                mia.SetCollectionAttribute(attr, attrValues);
+                        }
                 }
-              }
-
-              // Put together all attributes
-              foreach (MediaItemAspectMetadata miam in selectedMIAs)
-              {
-                if (mainReader.IsDBNull(mainReader.GetOrdinal(miamAliases[miam])))
-                  // MIAM is not available for current media item
-                  continue;
-                MediaItemAspect mia = new MediaItemAspect(miam);
-                foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
-                  if (attr.Cardinality == Cardinality.Inline)
-                  {
-                    QueryAttribute qa = _mainSelectAttributes[attr];
-                    string alias = qa2a[qa];
-                    mia.SetAttribute(attr, database.ReadDBValue(attr.AttributeType, mainReader, mainReader.GetOrdinal(alias)));
-                  }
-                  else
-                  {
-                    ICollection<object> attrValues;
-                    if (complexAttributeValues.TryGetValue(attr, out attrValues))
-                      mia.SetCollectionAttribute(attr, attrValues);
-                  }
-                result.Aspects[miam.AspectId] = mia;
-              }
             }
-            return result;
+
+          IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues =
+            new Dictionary<Guid, ICollection<MultipleMediaItemAspect>>();
+          foreach (IList<Guid> mediaItemIdsCluster in mediaItemIdsClusters.Where(x => x.Count > 0))
+              AddMultipleMIAs(database, transaction, selectedMIAs, mediaItemIdsCluster, multipleMiaValues);
+
+          if (multipleMiaValues.Count > 0)
+          {
+              //logger.Debug("Got multiple MIAs [{0}]", string.Join(",", multipleMiaValues.Keys));
+              foreach (MediaItem mediaItem in mediaItems)
+              {
+                  ICollection<MultipleMediaItemAspect> values;
+                  if (!multipleMiaValues.TryGetValue(mediaItem.MediaItemId, out values))
+                      continue;
+                  foreach (MultipleMediaItemAspect value in values)
+                  {
+                      //logger.Debug("Adding MIA {0} #{1}", value.Metadata.Name, value.Index);
+                      MediaItemAspect.AddOrUpdateAspect(mediaItem.Aspects, value);
+                  }
+              }
           }
-        }
+
+          return mediaItems;
       }
-      finally
+      catch(Exception e)
       {
-        transaction.Dispose();
+        logger.Error("Unable to query", e);
+        throw e;
       }
+    }
+
+    public MediaItem QueryMediaItem()
+    {
+        IList<MediaItem> mediaItems = Query(true);
+        if(mediaItems.Count == 1)
+        {
+            return mediaItems[0];
+        }
+        return null;
     }
 
     public override string ToString()
@@ -400,13 +499,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(".");
         result.Append(attr.AttributeName);
         result.Append(":\r\n");
-        result.Append(complexAttributeQueryBuilder);
+        result.Append(complexAttributeQueryBuilder.ToString());
         result.Append("\r\n\r\n");
       }
       result.Append("Main query:\r\n");
-      MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement,
-          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation, _limit, _offset);
-      result.Append(mainQueryBuilder);
+      SingleMIAQueryBuilder mainQueryBuilder = new SingleMIAQueryBuilder(_miaManagement,
+          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
+      result.Append(mainQueryBuilder.ToString());
       return result.ToString();
     }
   }
@@ -415,9 +514,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   {
     public static IEnumerable<IDataReader> AsEnumerable(this IDataReader reader)
     {
-      while (reader.Read())
+      while(reader.Read())
         yield return reader;
     }
   }
 }
-

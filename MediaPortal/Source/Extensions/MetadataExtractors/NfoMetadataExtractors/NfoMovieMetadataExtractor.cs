@@ -136,10 +136,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         metadataExtractorPriority: MetadataExtractorPriority.Extended,
         processesNonFiles: true,
         shareCategories: MEDIA_CATEGORIES,
-        extractedAspectTypes: new[]
+        extractedAspectTypes: new MediaItemAspectMetadata[]
         {
           MediaAspect.Metadata,
-          VideoAspect.Metadata,
           MovieAspect.Metadata,
           ThumbnailLargeAspect.Metadata
         });
@@ -181,7 +180,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
     /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
     /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    private async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    private async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -193,7 +192,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
         // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
         // has identified this MediaItem as a video and therefore added a VideoAspect.
-        if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+        if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
         {
           _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
           return false;
@@ -396,8 +395,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
+      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+        return true;
+
       // The following is bad practice as it wastes one ThreadPool thread.
       // ToDo: Once the IMetadataExtractor interface is updated to support async operations, call TryExtractMetadataAsync directly
       return TryExtractMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode).Result;

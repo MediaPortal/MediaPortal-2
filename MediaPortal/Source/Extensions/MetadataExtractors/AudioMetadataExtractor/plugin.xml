@@ -27,4 +27,16 @@
         Id="AudioMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.AudioMetadataExtractor"/>
   </Register>
+
+  <Register Location="/Media/RelationshipExtractors">
+    <Instance
+        Id="AudioRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.AudioRelationshipExtractor"/>
+  </Register>
+
+<Register Location="/Media/MergeHandlers">
+    <Instance
+        Id="TrackMergeHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.TrackMergeHandler"/>
+  </Register>
 </Plugin>

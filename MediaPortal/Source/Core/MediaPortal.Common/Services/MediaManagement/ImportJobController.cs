@@ -354,6 +354,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new DirectorySaveBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new FileUnfoldBlock(_cts.Token, _importJobInformation, this));
+          _dataflowBlocks.Add(new MediaItemLoadBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new MetadataExtractorBlock(_cts.Token, _importJobInformation, this, false));
           _dataflowBlocks.Add(new MediaItemSaveBlock(_cts.Token, _importJobInformation, this));
 

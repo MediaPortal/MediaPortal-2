@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 
     public StackingViewSpecification(string viewDisplayName, IFilter filter,
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
-      base(viewDisplayName, filter, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline)
+      base(viewDisplayName, filter, null, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline)
     {
       SortedSubViews = true; // Stacking view has special sorting included.
     }
@@ -87,7 +87,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       string name;
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_MOVIE_NAME, out name))
         return name;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out name))
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SERIES_NAME, out name))
         return name;
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_TITLE, out name))
         return name;

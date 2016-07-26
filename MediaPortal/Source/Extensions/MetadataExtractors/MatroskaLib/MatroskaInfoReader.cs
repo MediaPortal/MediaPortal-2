@@ -321,7 +321,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       if (targetTypeValue.HasValue)
         return from simpleTag in doc.Descendants("Tags").Descendants("Tag")
                let targetsElement = simpleTag.Element("Targets")
-               where targetsElement != null && targetsElement.HasElements 
+               where targetsElement != null && targetsElement.HasElements
                let targetTypeValueElement = targetsElement.Element("TargetTypeValue")
                where targetTypeValueElement != null && Convert.ToInt32(targetTypeValueElement.Value) == targetTypeValue.Value
                select simpleTag;

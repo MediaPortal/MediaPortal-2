@@ -34,6 +34,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
@@ -68,12 +69,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false);
+      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, true);
       if (items == null || items.Count == 0)
         return false;
 
       MediaItem mediaItem = items.First();
       var mediaIteamLocator = mediaItem.GetResourceLocator();
+      // Virtual resources won't have any local fanart
+      if (mediaIteamLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        return false;
       var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
       // File based access

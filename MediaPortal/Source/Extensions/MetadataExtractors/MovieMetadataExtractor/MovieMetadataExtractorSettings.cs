@@ -40,6 +40,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     [Setting(SettingScope.Global, false)]
     public bool OnlyFanArt { get; set; }
 
+    /// <summary>
+    /// If <c>true</c>, the MovieMetadataExtractor does not fetch any information for missing movies in a collection.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool OnlyLocalMedia { get; set; }
+
     #endregion
   }
 }

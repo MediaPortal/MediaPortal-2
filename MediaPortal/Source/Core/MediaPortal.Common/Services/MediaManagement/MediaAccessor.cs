@@ -60,9 +60,13 @@ namespace MediaPortal.Common.Services.MediaManagement
     // Constants will be moved to some constants class
     protected const string RESOURCE_PROVIDERS_PLUGIN_LOCATION = "/ResourceProviders";
     protected const string METADATA_EXTRACTORS_PLUGIN_LOCATION = "/Media/MetadataExtractors";
+    protected const string RELATIONSHIP_EXTRACTORS_PLUGIN_LOCATION = "/Media/RelationshipExtractors";
+    protected const string MERGE_HANDLERS_PLUGIN_LOCATION = "/Media/MergeHandlers";
 
     protected const string METADATA_EXTRACTORS_USE_COMPONENT_NAME = "MediaAccessor: MetadataExtractors";
     protected const string RESOURCE_PROVIDERS_USE_COMPONENT_NAME = "MediaAccessor: ResourceProviders";
+    protected const string RELATIONSHIP_EXTRACTORS_USE_COMPONENT_NAME = "MediaAccessor: RelationshipExtractors";
+    protected const string MERGE_HANDLERS_USE_COMPONENT_NAME = "MediaAccessor: MergeHandlers";
 
     #endregion
 
@@ -134,6 +138,72 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    protected class RelationshipExtractorPluginItemChangeListener : IItemRegistrationChangeListener
+    {
+      protected MediaAccessor _parent;
+
+      internal RelationshipExtractorPluginItemChangeListener(MediaAccessor parent)
+      {
+        _parent = parent;
+      }
+
+      public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
+      {
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+        foreach (PluginItemMetadata itemMetadata in items)
+        {
+          try
+          {
+            IRelationshipExtractor relationshipExtractor = pluginManager.RequestPluginItem<IRelationshipExtractor>(
+                itemMetadata.RegistrationLocation, itemMetadata.Id, new FixedItemStateTracker(RELATIONSHIP_EXTRACTORS_USE_COMPONENT_NAME));
+            _parent.RegisterRelationshipExtractor(relationshipExtractor);
+          }
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add relationship extractor for {0}", e, itemMetadata);
+          }
+        }
+      }
+
+      public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
+      {
+        // TODO: Make RelationshipExtractors removable?
+      }
+    }
+
+    protected class MergeHandlerPluginItemChangeListener : IItemRegistrationChangeListener
+    {
+      protected MediaAccessor _parent;
+
+      internal MergeHandlerPluginItemChangeListener(MediaAccessor parent)
+      {
+        _parent = parent;
+      }
+
+      public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
+      {
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+        foreach (PluginItemMetadata itemMetadata in items)
+        {
+          try
+          {
+            IMediaMergeHandler mergeHandler = pluginManager.RequestPluginItem<IMediaMergeHandler>(
+                itemMetadata.RegistrationLocation, itemMetadata.Id, new FixedItemStateTracker(MERGE_HANDLERS_USE_COMPONENT_NAME));
+            _parent.RegisterMergeHandler(mergeHandler);
+          }
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add merge handler for {0}", e, itemMetadata);
+          }
+        }
+      }
+
+      public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
+      {
+        // TODO: Make MergeHandlers removable?
+      }
+    }
+
     #endregion
 
     #region Protected fields
@@ -141,8 +211,12 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected object _syncObj = new object();
     protected ResourceProviderPluginItemChangeListener _resourceProvidersPluginItemChangeListener;
     protected MetadataExtractorPluginItemChangeListener _metadataExtractorsPluginItemChangeListener;
+    protected RelationshipExtractorPluginItemChangeListener _relationshipExtractorPluginItemChangeListener;
+    protected MergeHandlerPluginItemChangeListener _mergeHandlerPluginItemChangeListener;
     protected IDictionary<Guid, IResourceProvider> _providers = null;
     protected IDictionary<Guid, IMetadataExtractor> _metadataExtractors = null;
+    protected IDictionary<Guid, IRelationshipExtractor> _relationshipExtractors = null;
+    protected IDictionary<Guid, IMediaMergeHandler> _mergeHandlers = null;
     protected IDictionary<string, MediaCategory> _mediaCategories;
 
     #endregion
@@ -176,7 +250,21 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       lock (_syncObj)
         _metadataExtractors.Add(metadataExtractor.Metadata.MetadataExtractorId, metadataExtractor);
-      MediaAccessorMessaging.SendResourceProviderMessage(MediaAccessorMessaging.MessageType.MetadataExtractorAdded, metadataExtractor.Metadata.MetadataExtractorId);
+      MediaAccessorMessaging.SendMetadataExtractorMessage(MediaAccessorMessaging.MessageType.MetadataExtractorAdded, metadataExtractor.Metadata.MetadataExtractorId);
+    }
+
+    protected void RegisterRelationshipExtractor(IRelationshipExtractor relationshipExtractor)
+    {
+      lock (_syncObj)
+        _relationshipExtractors.Add(relationshipExtractor.Metadata.RelationshipExtractorId, relationshipExtractor);
+      MediaAccessorMessaging.SendRelationshipExtractorMessage(MediaAccessorMessaging.MessageType.RelationshipExtractorAdded, relationshipExtractor.Metadata.RelationshipExtractorId);
+    }
+
+    protected void RegisterMergeHandler(IMediaMergeHandler mergeHandler)
+    {
+      lock (_syncObj)
+        _mergeHandlers.Add(mergeHandler.Metadata.MergeHandlerId, mergeHandler);
+      MediaAccessorMessaging.SendMergeHandlerMessage(MediaAccessorMessaging.MessageType.MergeHandlerAdded, mergeHandler.Metadata.MergeHandlerId);
     }
 
     protected void RegisterCoreProviders()
@@ -202,6 +290,24 @@ namespace MediaPortal.Common.Services.MediaManagement
       foreach (IDisposable d in _metadataExtractors.Values.OfType<IDisposable>())
         d.Dispose();
       _metadataExtractors = null;
+    }
+
+    protected void DisposeRelationshipExtractors()
+    {
+      if (_relationshipExtractors == null)
+        return;
+      foreach (IDisposable d in _relationshipExtractors.Values.OfType<IDisposable>())
+        d.Dispose();
+      _relationshipExtractors = null;
+    }
+
+    protected void DisposeMergeHandlers()
+    {
+      if (_mergeHandlers == null)
+        return;
+      foreach (IDisposable d in _mergeHandlers.Values.OfType<IDisposable>())
+        d.Dispose();
+      _mergeHandlers = null;
     }
 
     /// <summary>
@@ -237,6 +343,38 @@ namespace MediaPortal.Common.Services.MediaManagement
         RegisterMetadataExtractor(metadataExtractor);
     }
 
+    /// <summary>
+    /// Checks that the RelationshipExtractor plugins are loaded.
+    /// </summary>
+    protected void CheckRelationshipExtractorsLoaded()
+    {
+      lock (_syncObj)
+      {
+        if (_relationshipExtractors != null)
+          return;
+        _relationshipExtractors = new Dictionary<Guid, IRelationshipExtractor>();
+      }
+      foreach (IRelationshipExtractor relationshipExtractor in ServiceRegistration.Get<IPluginManager>().RequestAllPluginItems<IRelationshipExtractor>(
+          RELATIONSHIP_EXTRACTORS_PLUGIN_LOCATION, new FixedItemStateTracker(RELATIONSHIP_EXTRACTORS_USE_COMPONENT_NAME))) // TODO: Make relationship extractors removable
+        RegisterRelationshipExtractor(relationshipExtractor);
+    }
+
+    /// <summary>
+    /// Checks that the MergeHandler plugins are loaded.
+    /// </summary>
+    protected void CheckMergeHandlersLoaded()
+    {
+      lock (_syncObj)
+      {
+        if (_mergeHandlers != null)
+          return;
+        _mergeHandlers = new Dictionary<Guid, IMediaMergeHandler>();
+      }
+      foreach (IMediaMergeHandler mergeHandler in ServiceRegistration.Get<IPluginManager>().RequestAllPluginItems<IMediaMergeHandler>(
+          MERGE_HANDLERS_PLUGIN_LOCATION, new FixedItemStateTracker(MERGE_HANDLERS_USE_COMPONENT_NAME))) // TODO: Make merge handlers removable
+        RegisterMergeHandler(mergeHandler);
+    }
+
     protected void RegisterPluginItemListeners()
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
@@ -244,6 +382,10 @@ namespace MediaPortal.Common.Services.MediaManagement
           _resourceProvidersPluginItemChangeListener);
       pluginManager.AddItemRegistrationChangeListener(METADATA_EXTRACTORS_PLUGIN_LOCATION,
           _metadataExtractorsPluginItemChangeListener);
+      pluginManager.AddItemRegistrationChangeListener(RELATIONSHIP_EXTRACTORS_PLUGIN_LOCATION,
+          _relationshipExtractorPluginItemChangeListener);
+      pluginManager.AddItemRegistrationChangeListener(MERGE_HANDLERS_PLUGIN_LOCATION,
+          _mergeHandlerPluginItemChangeListener);
     }
 
     protected void UnregisterPluginItemListeners()
@@ -253,6 +395,10 @@ namespace MediaPortal.Common.Services.MediaManagement
           _resourceProvidersPluginItemChangeListener);
       pluginManager.RemoveItemRegistrationChangeListener(METADATA_EXTRACTORS_PLUGIN_LOCATION,
           _metadataExtractorsPluginItemChangeListener);
+      pluginManager.RemoveItemRegistrationChangeListener(RELATIONSHIP_EXTRACTORS_PLUGIN_LOCATION,
+          _relationshipExtractorPluginItemChangeListener);
+      pluginManager.RemoveItemRegistrationChangeListener(MERGE_HANDLERS_PLUGIN_LOCATION,
+          _mergeHandlerPluginItemChangeListener);
     }
 
     #endregion
@@ -300,15 +446,37 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    public IDictionary<Guid, IRelationshipExtractor> LocalRelationshipExtractors
+    {
+      get
+      {
+        CheckRelationshipExtractorsLoaded();
+        lock (_syncObj)
+          return new Dictionary<Guid, IRelationshipExtractor>(_relationshipExtractors);
+      }
+    }
+
+    public IDictionary<Guid, IMediaMergeHandler> LocalMergeHandlers
+    {
+      get
+      {
+        CheckMergeHandlersLoaded();
+        lock (_syncObj)
+          return new Dictionary<Guid, IMediaMergeHandler>(_mergeHandlers);
+      }
+    }
+
     public virtual void Initialize()
     {
       RegisterPluginItemListeners();
-      
+
       // This is a workaround that defeats lazy initialization of the ResourceProviders and MetadataExtractors,
       // but it is necessary because this class (in particular the following methods) is currently not entirely threadsafe.
       // ToDo: Make this class threadsafe
       CheckProvidersLoaded();
       CheckMetadataExtractorsLoaded();
+      CheckRelationshipExtractorsLoaded();
+      CheckMergeHandlersLoaded();
     }
 
     public virtual void Shutdown()
@@ -316,6 +484,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       UnregisterPluginItemListeners();
       DisposeProviders();
       DisposeMetadataExtractors();
+      DisposeRelationshipExtractors();
+      DisposeMergeHandlers();
     }
 
     public ICollection<Share> CreateDefaultShares()
@@ -328,7 +498,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (WindowsAPI.GetSpecialFolder(Environment.SpecialFolder.MyMusic, out folderPath))
         {
           folderPath = LocalFsResourceProviderBase.ToProviderPath(folderPath);
-          string[] mediaCategories = new[] {DefaultMediaCategories.Audio.ToString()};
+          string[] mediaCategories = new[] { DefaultMediaCategories.Audio.ToString() };
           Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsResourceProviderId, folderPath),
               MY_MUSIC_SHARE_NAME_RESOURE, mediaCategories);
           result.Add(sd);
@@ -364,7 +534,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public ICollection<MediaCategory> GetAllMediaCategoriesInHierarchy(MediaCategory mediaCategory)
     {
-      ICollection<MediaCategory> result = new HashSet<MediaCategory> {mediaCategory};
+      ICollection<MediaCategory> result = new HashSet<MediaCategory> { mediaCategory };
       foreach (MediaCategory parentCategory in mediaCategory.ParentCategories)
         CollectionUtils.AddAll(result, GetAllMediaCategoriesInHierarchy(parentCategory));
       return result;
@@ -390,7 +560,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           kvp => kvp.Key).ToList();
     }
 
-    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
@@ -403,10 +573,32 @@ namespace MediaPortal.Common.Services.MediaManagement
       return ExtractMetadata(mediaItemAccessor, extractors, forceQuickMode);
     }
 
-    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+        IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
+    {
+      ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
+      foreach (Guid extractorId in metadataExtractorIds)
+      {
+        IMetadataExtractor extractor;
+        if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
+          extractors.Add(extractor);
+      }
+      return ExtractMetadata(mediaItemAccessor, extractors, existingAspects, forceQuickMode);
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode)
     {
-      IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
+      return ExtractMetadata(mediaItemAccessor, metadataExtractors, new Dictionary<Guid, IList<MediaItemAspect>>(), forceQuickMode);
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+        IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> result = existingAspects;
+      if(result == null)
+        result = new Dictionary<Guid, IList<MediaItemAspect>>();
+
       bool success = false;
       // Execute all metadata extractors in order of their priority
       foreach (IMetadataExtractor extractor in metadataExtractors.OrderBy(m => m.Metadata.Priority))
@@ -431,10 +623,12 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       const bool forceQuickMode = true;
-      IDictionary<Guid, MediaItemAspect> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, forceQuickMode);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, forceQuickMode);
       if (aspects == null)
         return null;
-      MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.Metadata);
+      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.CanonicalLocalResourcePath.Serialize());
       return new MediaItem(Guid.Empty, aspects);

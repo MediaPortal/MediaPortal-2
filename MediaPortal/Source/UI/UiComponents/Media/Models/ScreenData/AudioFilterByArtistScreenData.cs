@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public AudioFilterByArtistScreenData() :
         base(Consts.SCREEN_AUDIO_FILTER_BY_ARTIST, Consts.RES_FILTER_BY_ARTIST_MENU_ITEM,
-        Consts.RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(AudioAspect.ATTR_ARTISTS))
+        Consts.RES_FILTER_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByAudioArtistCriterion())
     {
     }
 

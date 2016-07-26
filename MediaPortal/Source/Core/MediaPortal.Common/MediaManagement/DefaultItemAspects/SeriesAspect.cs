@@ -27,97 +27,131 @@ using System;
 namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
 {
   /// <summary>
-  /// Contains the metadata specification of the "Series" media item aspect which is assigned to series media items (i.e. videos, recordings).
+  /// Contains the metadata specification of the "Series" media item aspect which is assigned to series media items.
   /// </summary>
   public static class SeriesAspect
   {
     /// <summary>
     /// Media item aspect id of the series aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("287A2809-D38D-4F98-B613-E9C09904392D");
-
-    /// <summary>
-    /// Contains the TMDB ID of the series.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TVDB_ID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("TVDBID", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the IMDB ID of the series.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_IMDB_ID =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("IMDBID", 20, Cardinality.Inline, false);
+    public static readonly Guid ASPECT_ID = new Guid("2C3D5A0C-B7E5-45B3-85C6-40FFE6766FC0");
 
     /// <summary>
     /// Series name.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SERIESNAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIES_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the number of the season, usually starting at 1. A value of 0 is also valid for specials.
+    /// Contains the original name of the series.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SEASON =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Season", typeof(int), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ORIG_SERIES_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("OrigName", 100, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains a combination of <see cref="ATTR_SERIESNAME"/> and the <see cref="ATTR_SEASON"/> to allow filtering and retrieval of season banners.
-    /// This name must be built in form "{0} S{1}", using SeriesName and Season.
+    /// Album description
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SERIES_SEASON =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("SeriesSeasonName", 200, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DESCRIPTION =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Description", 5000, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the number(s) of the episode(s). If a file contains multiple episodes, all episode numbers are added separately.
-    /// The numbers start at 1.
+    /// Contains list of awards.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EPISODE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Episode", typeof(int), Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Awards", 20, Cardinality.ManyToMany, true);
 
     /// <summary>
-    /// Contains the number(s) of the episode(s) as they are published on DVD. The number can be different to <see cref="ATTR_EPISODE"/>.
-    /// If a file contains multiple episodes, all episode numbers are added separately. The numbers start at 1.
+    /// List of TV networks involved in making the series.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_DVDEPISODE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("DvdEpisode", typeof(double), Cardinality.ManyToMany, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NETWORKS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Networks", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
-    /// Name of the episode. We only store the first episode name (or combined name) if the file contains multiple episodes.
+    /// List of production company's involved in making the series.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_EPISODENAME =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("EpisodeName", 300, Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPANIES =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Companies", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
-    /// First aired date of episode.
+    /// Contains the certification.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_FIRSTAIRED =
-        MediaItemAspectMetadata.CreateAttributeSpecification("FirstAired", typeof (DateTime), Cardinality.Inline, false);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CERTIFICATION =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the overall rating of the episode. Value ranges from 0 (very bad) to 10 (very good).
+    /// If set to <c>true</c>, the series is cancelled/ended.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_TOTAL_RATING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ENDED =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsEnded", typeof(bool), Cardinality.Inline, true);
 
     /// <summary>
-    /// Contains the overall number ratings of the episode.
+    /// Contains the number of the season for the next episode.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RATING_COUNT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NEXT_SEASON =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextSeason", typeof(int), Cardinality.Inline, true);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    /// <summary>
+    /// Contains the number(s) for the next episode(s). The numbers start at 1.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NEXT_EPISODE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextEpisode", typeof(int), Cardinality.ManyToMany, true);
+
+    /// <summary>
+    /// Name of the next episode. We only store the first episode name.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NEXT_EPISODE_NAME =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("NextEpisodeName", 300, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains the air date for the upcoming episode.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NEXT_AIR_DATE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextAirDate", typeof(DateTime), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains a popularity of series, based on user votings.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_POPULARITY =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Popularity", typeof(float), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains the score of the series.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SCORE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Score", typeof(float), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains the overall rating of the series. Value ranges from 0 (very bad) to 10 (very good).
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TOTAL_RATING =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TotalRating", typeof(double), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the overall number ratings of the series.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
+
+    public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "SeriesItem", new[] {
-            ATTR_IMDB_ID,
-            ATTR_TVDB_ID,
-            ATTR_SERIESNAME,
-            ATTR_SEASON,
-            ATTR_SERIES_SEASON,
-            ATTR_EPISODE,
-            ATTR_DVDEPISODE,
-            ATTR_EPISODENAME,
-            ATTR_FIRSTAIRED,
+            ATTR_SERIES_NAME,
+            ATTR_ORIG_SERIES_NAME,
+            ATTR_DESCRIPTION,
+            ATTR_AWARDS,
+            ATTR_NETWORKS,
+            ATTR_COMPANIES,
+            ATTR_CERTIFICATION,
+            ATTR_ENDED,
+            ATTR_NEXT_SEASON,
+            ATTR_NEXT_EPISODE,
+            ATTR_NEXT_EPISODE_NAME,
+            ATTR_NEXT_AIR_DATE,
+            ATTR_POPULARITY,
+            ATTR_SCORE,
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT
         });
+
+    public static readonly Guid ROLE_SERIES = new Guid("13FDBDAF-F5D0-46C8-952F-F22647812C50");
   }
 }

@@ -22,7 +22,7 @@
   <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:SeriesAspectWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="0" Grid.Column="0">
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="0" Grid.Column="0" Margin="-10,0,0,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -33,42 +33,18 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="-10,-15,0,0">
-            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
-              <Label.Content>
-                <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-              </Label.Content>
-            </Label>
+          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Grid.Column="0" Grid.Row="0"
+                 Content="{Binding SeriesName}" />
 
-            <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}">
-              <Label.Content>
-                <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} - S{0} E"/>
-              </Label.Content>
-            </Label>
-
-            <Label x:Name="EpisodeLabel" Color="{ThemeResource TextColor}">
-              <Label.Content>
-                <Binding Path="Episode"/>
-              </Label.Content>
-            </Label>
-
-            <Label x:Name="EpisodeNameLabel" Color="{ThemeResource TextColor}">
-              <Label.Content>
-                <Binding Path="EpisodeName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}: {0}"/>
-              </Label.Content>
-            </Label>
-
-          </StackPanel>
-
-          <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" 
+          <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
                 Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" HorizontalAlignment="Stretch"
-                Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
+                Content="{Binding Description}"
                 Color="{ThemeResource TextColor}" Margin="-10,0,5,25"/>
         </Grid>
-        </ControlTemplate>
+      </ControlTemplate>
     </media:SeriesAspectWrapper.Template>
   </media:SeriesAspectWrapper>
-          
+
   <StackPanel Grid.Column="1" Grid.Row="0"  Margin="15,24,-20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <Grid>
       <Grid.RowDefinitions>
@@ -83,16 +59,16 @@
       </Grid.ColumnDefinitions>
 
       <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
-         <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+        <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
           <media:SeriesAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                  <Label x:Name="FirstAired" 
-                    Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="FirstAired"
+                  Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>
               </Grid>
             </ControlTemplate>
           </media:SeriesAspectWrapper.Template>
-        </media:SeriesAspectWrapper> 
+        </media:SeriesAspectWrapper>
       </Grid>
 
       <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -133,7 +109,7 @@
           <media:VideoAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Label x:Name="Duration" 
+                <Label x:Name="Duration"
                        Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm\:ss}" Color="{ThemeResource TextColor}"/>
               </Grid>
             </ControlTemplate>
@@ -160,11 +136,10 @@
               </Grid>
             </ControlTemplate>
           </media:SeriesAspectWrapper.Template>
-         </media:SeriesAspectWrapper>
-        
+        </media:SeriesAspectWrapper>
       </Grid>
     </Grid>
-    
+
   </StackPanel>
-  
+
 </Grid>

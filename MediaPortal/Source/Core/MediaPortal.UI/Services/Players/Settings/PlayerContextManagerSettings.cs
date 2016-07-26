@@ -31,6 +31,7 @@ namespace MediaPortal.UI.Services.Players.Settings
     #region Protected properties
 
     protected string _openPlayerStrategyTypeName = null;
+    protected int _watchedPlayPercentage = 90;
 
     #endregion
 
@@ -39,6 +40,13 @@ namespace MediaPortal.UI.Services.Players.Settings
     {
       get { return _openPlayerStrategyTypeName; }
       set { _openPlayerStrategyTypeName = value; }
+    }
+
+    [Setting(SettingScope.User)]
+    public int WatchedPlayPercentage
+    {
+      get { return _watchedPlayPercentage; }
+      set { _watchedPlayPercentage = value; }
     }
   }
 }

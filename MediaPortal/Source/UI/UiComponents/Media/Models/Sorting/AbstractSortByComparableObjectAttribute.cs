@@ -25,6 +25,8 @@
 using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Utilities;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
@@ -32,13 +34,21 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
   {
     protected string _displayName;
     protected string _groupByDisplayName;
-    protected MediaItemAspectMetadata.AttributeSpecification _sortAttr;
+    protected MediaItemAspectMetadata.SingleAttributeSpecification _sortAttr;
+    protected MediaItemAspectMetadata.MultipleAttributeSpecification _sortMultiAttr;
 
-    protected AbstractSortByComparableObjectAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.AttributeSpecification sortAttr)
+    protected AbstractSortByComparableObjectAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.SingleAttributeSpecification sortAttr)
     {
       _displayName = displayName;
       _groupByDisplayName = groupByDisplayName;
       _sortAttr = sortAttr;
+    }
+
+    protected AbstractSortByComparableObjectAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.MultipleAttributeSpecification sortAttr)
+    {
+      _displayName = displayName;
+      _groupByDisplayName = groupByDisplayName;
+      _sortMultiAttr = sortAttr;
     }
 
     public override string DisplayName
@@ -48,14 +58,29 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      MediaItemAspect aspectX;
-      MediaItemAspect aspectY;
-      Guid aspectId = _sortAttr.ParentMIAM.AspectId;
-      if (x.Aspects.TryGetValue(aspectId, out aspectX) && y.Aspects.TryGetValue(aspectId, out aspectY))
+      if (_sortAttr != null)
       {
-        T valX = (T) aspectX.GetAttributeValue(_sortAttr);
-        T valY = (T) aspectY.GetAttributeValue(_sortAttr);
-        return ObjectUtils.Compare(valX, valY);
+        SingleMediaItemAspect aspectX;
+        SingleMediaItemAspect aspectY;
+        SingleMediaItemAspectMetadata metadata = _sortAttr.ParentMIAM;
+        if (MediaItemAspect.TryGetAspect(x.Aspects, metadata, out aspectX) && MediaItemAspect.TryGetAspect(y.Aspects, metadata, out aspectY))
+        {
+          T valX = (T)aspectX.GetAttributeValue(_sortAttr);
+          T valY = (T)aspectY.GetAttributeValue(_sortAttr);
+          return ObjectUtils.Compare(valX, valY);
+        }
+      }
+      else if (_sortMultiAttr != null)
+      {
+        IList<MultipleMediaItemAspect> aspectsX;
+        IList<MultipleMediaItemAspect> aspectsY;
+        MultipleMediaItemAspectMetadata metadata = _sortMultiAttr.ParentMIAM;
+        if (MediaItemAspect.TryGetAspects(x.Aspects, metadata, out aspectsX) && MediaItemAspect.TryGetAspects(y.Aspects, metadata, out aspectsY))
+        {
+          T valX = (T)aspectsX[0].GetAttributeValue(_sortMultiAttr);
+          T valY = (T)aspectsY[0].GetAttributeValue(_sortMultiAttr);
+          return ObjectUtils.Compare(valX, valY);
+        }
       }
       return 0;
     }
@@ -67,11 +92,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 
     public override object GetGroupByValue(MediaItem item)
     {
-      MediaItemAspect aspect;
+      IList<MediaItemAspect> aspect;
       Guid aspectId = _sortAttr.ParentMIAM.AspectId;
       if (item.Aspects.TryGetValue(aspectId, out aspect))
       {
-        return aspect.GetAttributeValue(_sortAttr);
+        return aspect.First().GetAttributeValue(_sortAttr);
       }
       return null;
     }

@@ -18,6 +18,7 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,6 +41,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DuoVia.FuzzyStrings, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\Packages\DuoVia.FuzzyStrings.1.0.1\lib\net40\DuoVia.FuzzyStrings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\log4net.dll</HintPath>
@@ -61,12 +66,43 @@
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\MovieCollectionAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\CompanyAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\PersonAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\ExternalIdentifierAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeasonAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\CharacterAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
+    <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\LanguageString.cs" />
+    <Compile Include="MediaManagement\Helpers\MovieCollectionInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\CompanyInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\SeasonInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\CharacterInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\PersonInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\AlbumInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
+    <Compile Include="MediaManagement\IMediaMergeHandler.cs" />
+    <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
+    <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
+    <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
+    <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
+    <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ImporterWorkerDataflowBlockBase.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemLoadBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemSaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MetadataExtractorBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportJobNewGen.cs" />
@@ -91,6 +127,8 @@
     <Compile Include="Services\ResourceAccess\ImpersonationService\TokenWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsIdentityWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsImpersonationContextWrapper.cs" />
+    <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceAccessor.cs" />
+    <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
     <Compile Include="Services\ResourceAccess\Settings\AvailableDriveLettersSettings.cs" />
@@ -167,15 +205,16 @@
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\DirectoryAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\EpisodeAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailLargeAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImageAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\RelationshipAspect.cs" />
     <Compile Include="MediaManagement\Helpers\MovieInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\EpisodeInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SharesHelper.cs" />
     <Compile Include="MediaManagement\MLQueries\FalseFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\MediaItemIdFilter.cs" />
@@ -394,6 +433,7 @@
     <Compile Include="UPnP\UPnPDtUserProfile.cs" />
     <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
     <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
+    <Compile Include="UserProfileDataManagement\UserDataKeysKnown.cs" />
     <Compile Include="UserProfileDataManagement\UserProfile.cs" />
     <Compile Include="VersionInfo\VersionInfo.cs" />
   </ItemGroup>

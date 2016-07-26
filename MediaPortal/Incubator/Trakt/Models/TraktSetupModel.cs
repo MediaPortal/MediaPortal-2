@@ -42,7 +42,9 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Enums;
+using MediaPortal.UiComponents.Trakt.Service;
 using MediaPortal.UiComponents.Trakt.Settings;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Trakt.Models
 {
@@ -52,7 +54,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
     public const string TRAKT_SETUP_MODEL_ID_STR = "65E4F7CA-3C9C-4538-966D-2A896BFEF4D3";
     public static readonly Guid TRAKT_SETUP_MODEL_ID = new Guid(TRAKT_SETUP_MODEL_ID_STR);
-    
+
     #endregion
 
     #region Protected fields
@@ -210,7 +212,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
       TestStatus = "[Trakt.LoggedIn]";
       settings.TraktOAuthToken = response.RefreshToken;
       settingsManager.Save(settings);
-      
+
       TraktLogger.Info("Successfully logged in!");
 
       return true;
@@ -317,9 +319,14 @@ namespace MediaPortal.UiComponents.Trakt.Models
           return false;
         }
 
+        Guid? userProfile = null;
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+          userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
         #region Get local database info
 
-        var collectedMovies = contentDirectory.Search(new MediaItemQuery(types, null, null), true);
+        var collectedMovies = contentDirectory.Search(new MediaItemQuery(types, null, null), true, userProfile, false);
 
         TraktLogger.Info("Found {0} movies available to sync in local database", collectedMovies.Count);
 
@@ -339,7 +346,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                                where !traktWatchedMovies.ToList().Exists(c => MovieMatch(movie, c.Movie))
                                select new TraktSyncMovieWatched
                                {
-                                 Ids = new TraktMovieId { Imdb = GetMovieImdbId(movie), Tmdb = GetMovieTmdbId(movie) },
+                                 Ids = new TraktMovieId { Imdb = TraktHandler.GetImdbId(movie), Tmdb = TraktHandler.GetTmdbId(movie) },
                                  Title = GetMovieTitle(movie),
                                  Year = GetMovieYear(movie),
                                  WatchedAt = GetLastPlayedDate(movie),
@@ -392,7 +399,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                                  where !traktCollectedMovies.ToList().Exists(c => MovieMatch(movie, c.Movie))
                                  select new TraktSyncMovieCollected
                                  {
-                                   Ids = new TraktMovieId { Imdb = GetMovieImdbId(movie), Tmdb = GetMovieTmdbId(movie) },
+                                   Ids = new TraktMovieId { Imdb = TraktHandler.GetImdbId(movie), Tmdb = TraktHandler.GetTmdbId(movie) },
                                    Title = GetMovieTitle(movie),
                                    Year = GetMovieYear(movie),
                                    CollectedAt = GetDateAddedToDb(movie),
@@ -605,7 +612,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
         try
         {
           TestStatus = "[Trakt.SyncSeries]";
-          Guid[] types = { MediaAspect.ASPECT_ID, SeriesAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ImporterAspect.ASPECT_ID};
+          Guid[] types = { MediaAspect.ASPECT_ID, SeriesAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ImporterAspect.ASPECT_ID };
           MediaItemQuery mediaItemQuery = new MediaItemQuery(types, null, null);
           var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
           if (contentDirectory == null)
@@ -614,9 +621,14 @@ namespace MediaPortal.UiComponents.Trakt.Models
             return false;
           }
 
+          Guid? userProfile = null;
+          IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+          if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+            userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
           #region Get data from local database
 
-          var localEpisodes = contentDirectory.Search(mediaItemQuery, true);
+          var localEpisodes = contentDirectory.Search(mediaItemQuery, true, userProfile, false);
           int episodeCount = localEpisodes.Count;
 
           TraktLogger.Info("Found {0} total episodes in local database", episodeCount);
@@ -738,11 +750,11 @@ namespace MediaPortal.UiComponents.Trakt.Models
         if (traktEpisode == null)
         {
           // check if we already have the show added to our sync object
-          var syncShow = syncCollectedEpisodes.Shows.FirstOrDefault(sce => sce.Ids != null && sce.Ids.Tvdb == GetSeriesTvdbId(episode));
+          var syncShow = syncCollectedEpisodes.Shows.FirstOrDefault(sce => sce.Ids != null && sce.Ids.Tvdb == TraktHandler.GetTvdbId(episode));
           if (syncShow == null)
           {
             // get show data from episode
-            var show = GetSeriesTvdbId(episode);
+            var show = TraktHandler.GetTvdbId(episode);
             if (show == 0) continue;
 
             // create new show
@@ -750,11 +762,11 @@ namespace MediaPortal.UiComponents.Trakt.Models
             {
               Ids = new TraktShowId
               {
-                Tvdb = GetSeriesTvdbId(episode),
-                Imdb = GetSeriesImdbId(episode)
+                Tvdb = TraktHandler.GetTvdbId(episode),
+                Imdb = TraktHandler.GetImdbId(episode)
               },
-              Title = GetSeriesTitle(episode),
-             // Year = GetSeriesTitleAndYear(episode, )
+              Title = TraktHandler.GetSeriesTitle(episode),
+              // Year = GetSeriesTitleAndYear(episode, )
             };
 
             // add a new season collection to show object
@@ -765,13 +777,13 @@ namespace MediaPortal.UiComponents.Trakt.Models
           }
 
           // check if season exists in show sync object
-          var syncSeason = syncShow.Seasons.FirstOrDefault(ss => ss.Number == GetSeasonIndex(episode));
+          var syncSeason = syncShow.Seasons.FirstOrDefault(ss => ss.Number == TraktHandler.GetSeasonIndex(episode));
           if (syncSeason == null)
           {
             // create new season
             syncSeason = new TraktSyncShowCollectedEx.Season
             {
-              Number = GetSeasonIndex(episode)
+              Number = TraktHandler.GetSeasonIndex(episode)
             };
 
             // add a new episode collection to season object
@@ -784,8 +796,8 @@ namespace MediaPortal.UiComponents.Trakt.Models
           // add episode to season
           syncSeason.Episodes.Add(new TraktSyncShowCollectedEx.Season.Episode
           {
-            Number = GetEpisodeIndex(episode),
-            CollectedAt =  GetDateAddedToDb(episode),
+            Number = TraktHandler.GetEpisodeIndex(episode),
+            CollectedAt = GetDateAddedToDb(episode),
             MediaType = GetVideoMediaType(episode),
             Resolution = GetVideoResolution(episode),
             AudioCodec = GetVideoAudioCodec(episode),
@@ -821,11 +833,11 @@ namespace MediaPortal.UiComponents.Trakt.Models
         if (traktEpisode == null)
         {
           // check if we already have the show added to our sync object
-          var syncShow = syncWatchedEpisodes.Shows.FirstOrDefault(swe => swe.Ids != null && swe.Ids.Tvdb == GetSeriesTvdbId(episode));
+          var syncShow = syncWatchedEpisodes.Shows.FirstOrDefault(swe => swe.Ids != null && swe.Ids.Tvdb == TraktHandler.GetTvdbId(episode));
           if (syncShow == null)
           {
             // get show data from episode
-            var show = GetSeriesTvdbId(episode);
+            var show = TraktHandler.GetTvdbId(episode);
             if (show == 0) continue;
 
             // create new show
@@ -833,10 +845,10 @@ namespace MediaPortal.UiComponents.Trakt.Models
             {
               Ids = new TraktShowId
               {
-                Tvdb = GetSeriesTvdbId(episode),
-                Imdb = GetSeriesImdbId(episode)
+                Tvdb = TraktHandler.GetTvdbId(episode),
+                Imdb = TraktHandler.GetImdbId(episode)
               },
-              Title = GetSeriesTitle(episode),
+              Title = TraktHandler.GetSeriesTitle(episode),
               //Year = show.Year.ToNullableInt32()
             };
 
@@ -848,13 +860,13 @@ namespace MediaPortal.UiComponents.Trakt.Models
           }
 
           // check if season exists in show sync object
-          var syncSeason = syncShow.Seasons.FirstOrDefault(ss => ss.Number == GetSeasonIndex(episode));
+          var syncSeason = syncShow.Seasons.FirstOrDefault(ss => ss.Number == TraktHandler.GetSeasonIndex(episode));
           if (syncSeason == null)
           {
             // create new season
             syncSeason = new TraktSyncShowWatchedEx.Season
             {
-              Number = GetSeasonIndex(episode)
+              Number = TraktHandler.GetSeasonIndex(episode)
             };
 
             // add a new episode collection to season object
@@ -867,7 +879,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
           // add episode to season
           syncSeason.Episodes.Add(new TraktSyncShowWatchedEx.Season.Episode
           {
-            Number = GetEpisodeIndex(episode),
+            Number = TraktHandler.GetEpisodeIndex(episode),
             WatchedAt = GetLastPlayedDate(episode)
           });
         }
@@ -882,27 +894,11 @@ namespace MediaPortal.UiComponents.Trakt.Models
       return (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out playCount) && playCount > 0);
     }
 
-    private string GetMovieImdbId(MediaItem mediaItem)
-    {
-      string imdb;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_IMDB_ID, out imdb) && !string.IsNullOrWhiteSpace(imdb))
-        return imdb;
-      return "";
-    }
-
-    private int GetMovieTmdbId(MediaItem mediaItem)
-    {
-      int tmdb;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_TMDB_ID, out tmdb) && tmdb > 0)
-        return tmdb;
-      return 0;
-    }
-
     private int GetMovieYear(MediaItem mediaItem)
     {
       DateTime dtValue;
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out dtValue))
-       return dtValue.Year;
+        return dtValue.Year;
 
       return 0;
     }
@@ -937,9 +933,10 @@ namespace MediaPortal.UiComponents.Trakt.Models
     /// </summary>
     private string GetVideoAudioCodec(MediaItem mediaItem)
     {
+      List<string> audioCodecs;
       string audioCodec;
 
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_AUDIOENCODING, out audioCodec) && !string.IsNullOrWhiteSpace(audioCodec))
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAudioStreamAspect.ATTR_AUDIOENCODING, out audioCodecs) && !string.IsNullOrWhiteSpace(audioCodec = audioCodecs.First()))
       {
         switch (audioCodec.ToLowerInvariant())
         {
@@ -975,11 +972,11 @@ namespace MediaPortal.UiComponents.Trakt.Models
     /// </summary>
     private string GetVideoMediaType(MediaItem mediaItem)
     {
-      bool isDvd;
+      List<bool> isDvd;
 
       MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_ISDVD, out isDvd);
 
-      if (isDvd)
+      if (isDvd.First())
         return TraktMediaType.dvd.ToString();
 
       return TraktMediaType.digital.ToString();
@@ -991,15 +988,15 @@ namespace MediaPortal.UiComponents.Trakt.Models
     private bool MovieMatch(MediaItem localMovie, TraktMovie traktMovie)
     {
       // IMDb comparison
-      if (!string.IsNullOrEmpty(traktMovie.Ids.Imdb) && !string.IsNullOrEmpty(GetMovieImdbId(localMovie)))
+      if (!string.IsNullOrEmpty(traktMovie.Ids.Imdb) && !string.IsNullOrEmpty(TraktHandler.GetImdbId(localMovie)))
       {
-        return String.Compare(GetMovieImdbId(localMovie), traktMovie.Ids.Imdb, StringComparison.OrdinalIgnoreCase) == 0;
+        return String.Compare(TraktHandler.GetImdbId(localMovie), traktMovie.Ids.Imdb, StringComparison.OrdinalIgnoreCase) == 0;
       }
 
       // TMDb comparison
-      if ((GetMovieTmdbId(localMovie) != 0) && traktMovie.Ids.Tmdb.HasValue)
+      if ((TraktHandler.GetTmdbId(localMovie) != 0) && traktMovie.Ids.Tmdb.HasValue)
       {
-        return GetMovieTmdbId(localMovie) == traktMovie.Ids.Tmdb.Value;
+        return TraktHandler.GetTmdbId(localMovie) == traktMovie.Ids.Tmdb.Value;
       }
 
       // Title & Year comparison
@@ -1013,9 +1010,10 @@ namespace MediaPortal.UiComponents.Trakt.Models
     /// </summary>
     private string GetVideoResolution(MediaItem mediaItem)
     {
+      List<int> widths;
       int width;
 
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoAspect.ATTR_WIDTH, out width) && width > 0)
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, VideoStreamAspect.ATTR_WIDTH, out widths) && (width = widths.First()) > 0)
 
         switch (width)
         {
@@ -1036,44 +1034,11 @@ namespace MediaPortal.UiComponents.Trakt.Models
       return null;
     }
 
-    private string GetSeriesTitle(MediaItem mediaItem)
-    {
-      string value;
-      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIESNAME, out value) ? value : null;
-    }
-
-    private int GetSeriesTvdbId(MediaItem mediaItem)
-    {
-      int value;
-      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_TVDB_ID, out value) ? value : 0;
-    }
-
-    private int GetSeasonIndex(MediaItem mediaItem)
-    {
-      int value;
-      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SEASON, out value) ? value : 0;
-    }
-
-    private int GetEpisodeIndex(MediaItem mediaItem)
-    {
-      List<int> intList;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_EPISODE, out intList) && intList.Any())
-        return intList.First(); // TODO: multi episode files?!
-
-      return intList.FirstOrDefault();
-    }
-
-    private string GetSeriesImdbId(MediaItem mediaItem)
-    {
-      string value;
-      return MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_IMDB_ID, out value) ? value : null;
-    }
-
     private string CreateLookupKey(MediaItem episode)
     {
-      var tvdid = GetSeriesTvdbId(episode);
-      var seasonIndex = GetSeasonIndex(episode);
-      var episodeIndex = GetEpisodeIndex(episode);
+      var tvdid = TraktHandler.GetTvdbId(episode);
+      var seasonIndex = TraktHandler.GetSeasonIndex(episode);
+      var episodeIndex = TraktHandler.GetEpisodeIndex(episode);
       return string.Format("{0}_{1}_{2}", tvdid, seasonIndex, episodeIndex);
 
     }
@@ -1114,7 +1079,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
     {
       return true;
     }
-   
+
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
@@ -1122,7 +1087,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
       IsEnabled = settings.EnableTrakt;
       IsAuthorized = settings.IsAuthorized;
-      
+
       //Clear the PIN Code textbox
       PinCode = string.Empty;
 
@@ -1132,7 +1097,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-     // settingsManager.Save(TRAKT_SETTINGS);
+      // settingsManager.Save(TRAKT_SETTINGS);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

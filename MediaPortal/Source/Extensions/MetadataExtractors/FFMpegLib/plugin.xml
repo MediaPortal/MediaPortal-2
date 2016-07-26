@@ -1,0 +1,23 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="FFMpegLib"
+    PluginId="{8B61C331-DBE8-4E56-8A1D-11C32D8C850D}"
+    Author="FreakyJ"
+    Copyright="GPL"
+    Description="Library plugin providing the FFMpeg functionality needed for some default metadata extractors">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2015-09-14 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="FFMpegLib.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+</Plugin>
