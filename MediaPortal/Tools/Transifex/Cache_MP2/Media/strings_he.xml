@@ -327,4 +327,5 @@
   <string name="Settings.Players.SkipStepList.Help">הכנס צעדי דילוג מופרדים בפסיק</string>
   <string name="Settings.Players.OpenPlayerStrategy">פתח אסטרטגית נגן</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">אסטרטגיה, איך נגנים חדשים ימוקמו בד בבד עם נגנים אחרים</string>
+  <!--Secondary filters-->
 </resources>

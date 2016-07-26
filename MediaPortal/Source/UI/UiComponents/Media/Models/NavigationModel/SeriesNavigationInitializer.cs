@@ -63,12 +63,22 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesFilterByCompanyScreenData(),
         new SeriesFilterByTvNetworkScreenData(),
         new VideosFilterByGenreScreenData(),
-        new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
+        new SeriesSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };
       _defaultSorting = new SeriesSortByEpisode();
       _availableSortings = new List<Sorting.Sorting>
       {
         _defaultSorting,
+        new SortByTitle(),
+        new SortByFirstAiredDate(),
+        new SortByDate(),
+        new SortBySystem(),
+      };
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+      {
+        //_defaultGrouping,
+        new SeriesSortByEpisode(),
         new SortByTitle(),
         new SortByFirstAiredDate(),
         new SortByDate(),

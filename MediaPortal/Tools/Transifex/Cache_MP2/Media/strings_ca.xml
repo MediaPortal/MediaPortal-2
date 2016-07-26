@@ -323,4 +323,5 @@
   <string name="Settings.Players.SkipStepList.Help">Introduïu</string>
   <string name="Settings.Players.OpenPlayerStrategy">Obre l\'estrategia del reproductor</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, referent a la posició dels reproductors que s\'obrin respecte als que ja ho estiguin</string>
+  <!--Secondary filters-->
 </resources>

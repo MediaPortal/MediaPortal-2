@@ -329,4 +329,5 @@
   <string name="Settings.Players.SkipStepList.Help">Zadajte skoky v sekundách oddelené čiarkou</string>
   <string name="Settings.Players.OpenPlayerStrategy">Stratégia otvárania prehrávača</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Stratégia, podľa ktorej bude novo otvorený prehrávač zaradený k existujúcim prehrávačom</string>
+  <!--Secondary filters-->
 </resources>

@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
@@ -50,6 +52,23 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         return smallestX - smallestY;
       }
       return base.Compare(item1, item2);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_SIZE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> imageAspect;
+      if (item.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
+      {
+        int? x = (int?)imageAspect.First().GetAttributeValue(ImageAspect.ATTR_WIDTH);
+        int? y = (int?)imageAspect.First().GetAttributeValue(ImageAspect.ATTR_HEIGHT);
+        return x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
+      }
+      return base.GetGroupByValue(item);
     }
   }
 }

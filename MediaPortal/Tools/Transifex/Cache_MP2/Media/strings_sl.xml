@@ -332,4 +332,5 @@
   <string name="Settings.Players.SkipStepList.Help">Vnesi čase preskoka v sekundah, ločene z \",\"</string>
   <string name="Settings.Players.OpenPlayerStrategy">Strategija odpiranja predvajalnikov</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Kako se bodo novi predvajalniki odpirali poleg že odprtih predvajalnikov</string>
+  <!--Secondary filters-->
 </resources>

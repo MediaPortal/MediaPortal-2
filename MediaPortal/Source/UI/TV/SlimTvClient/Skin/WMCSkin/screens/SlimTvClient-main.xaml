@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Title]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,0,30,-180"
+            DataContext="{Binding Source={StaticResource SlimTvClient}}">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="PrevGroupButton" Grid.Column="0" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
+              Command="{Command PrevGroup}" VerticalAlignment="Center"/>
+          <Label x:Name="CurrentGroupNameLabel" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 Content="{Binding CurrentGroupName}" VerticalAlignment="Center" Margin="5,0,5,0" Opacity="1"/>
+          <Button x:Name="NextGroupButton" Grid.Column="2" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
+              Command="{Command NextGroup}" VerticalAlignment="Center"/>
+          <Grid.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="False"/>
+                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="CurrentGroupNameLabel" Property="Opacity" Value="0.5"/>
+            </MultiTrigger>
+          </Grid.Triggers>
+        </Grid>
+
+        <Control Template="{ThemeResource PiPControlTemplate}" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
+                 HorizontalAlignment="Left"/>
+
+        <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
+              ItemsSource="{Binding Path=CurrentGroupChannels}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <Label x:Name="Time" Grid.Column="1" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right" Margin="0,-20,0,0"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource ProgramLabelNoFocus}"/>
+
+        <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfoMain.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </GroupBox>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

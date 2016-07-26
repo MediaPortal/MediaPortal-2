@@ -332,4 +332,5 @@
   <string name="Settings.Players.SkipStepList.Help">Zadejte kroky přeskočení v sekundách oddělené \',\'</string>
   <string name="Settings.Players.OpenPlayerStrategy">Strategie otevírání přehrávače</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategie, jak budou nově otevřené přehrávače umístěny mezi již otevřené přehrávače</string>
+  <!--Secondary filters-->
 </resources>

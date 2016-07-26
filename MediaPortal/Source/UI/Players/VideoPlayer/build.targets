@@ -21,6 +21,7 @@
       <References Include="$(TargetDir)TsReader.ax" />
       <References Include="$(TargetDir)DVBSub3.ax" />
       <References Include="$(TargetDir)VSFilter.dll" />
+      <References Include="$(TargetDir)cccp.ax" />
       <References Include="$(SolutionDir)\Ui\Players\EVRPresenter\Release\EVRPresenter.dll" />
     </ItemGroup>
   

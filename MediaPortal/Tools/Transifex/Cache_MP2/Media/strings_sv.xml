@@ -5,7 +5,7 @@
   <string name="Media.BrowseMediaMenuItem.Help">Utforska mediabiblioteket för alla typer av media. Här kan du även komma åt flyttbara medier.</string>
   <string name="Media.LocalMediaMenuItem">Lokal media</string>
   <string name="Media.AudioMenuItem">Ljud</string>
-  <string name="Media.AudioMenuItem.Help">Spela upp musik eller ljudböcker från ljudbiblioteket och se mer information om media. Dy kan också skapa spellistor med din favoritmusik.</string>
+  <string name="Media.AudioMenuItem.Help">Spela upp musik eller ljudböcker från ljudbiblioteket och se mer information om media. Du kan också skapa spellistor med din favoritmusik.</string>
   <string name="Media.VideosMenuItem">Videor</string>
   <string name="Media.VideosMenuItem.Help">Utforska mediabiblioteket för video. På den här sidan kan du lista all video, inklusive filmer, TV-avsnitt och övriga videor. Du kan skapa filter enligt dina egna önskemål för att begränsa vilka videor som listas </string>
   <string name="Media.SeriesMenuItem">TV-serier</string>
@@ -26,7 +26,7 @@
   <string name="Media.FilterByWriterMenuItem">Filtrera på författare</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filtrera på genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filtrera på år</string>
-  <string name="Media.FilterByVideoPlayCountMenuItem">Filtrera på (o-)sedda</string>
+  <string name="Media.FilterByVideoPlayCountMenuItem">Filtrera på (o)sedda</string>
   <string name="Media.FilterByAudioLanguageMenuItem">Filtrera på språk</string>
   <string name="Media.FilterByImageSizeMenuItem">Filtrera på storlek</string>
   <string name="Media.FilterByImageYearMenuItem">Filtrera på år</string>
@@ -336,6 +336,26 @@
   <string name="Media.SortByDate">Sortera på inspelningsdatum</string>
   <string name="Media.SortByEpisode">Sortera på avsnitt</string>
   <string name="Media.SortingBrowseDefault">Standardsortering</string>
+  <string name="Media.SwitchGroupingMenuItem">Gruppering</string>
+  <string name="Media.SwitchGroupingDialogTitle">Gruppering</string>
+  <string name="Media.NoGrouping">Ingen gruppering</string>
+  <string name="Media.GroupByTitle">Gruppera på titel</string>
+  <string name="Media.GroupByAlbumTrack">Gruppera på album och spår</string>
+  <string name="Media.GroupByGenre">Gruppera på genre</string>
+  <string name="Media.GroupByAlbum">Gruppera på album och titel</string>
+  <string name="Media.GroupByTrack">Gruppera på spår</string>
+  <string name="Media.GroupByArtist">Gruppera på artist</string>
+  <string name="Media.GroupByYear">Gruppera på år</string>
+  <string name="Media.GroupBySize">Gruppera på storlek</string>
+  <string name="Media.GroupBySystem">Gruppera på system</string>
+  <string name="Media.GroupByActor">Gruppera på skådespelare</string>
+  <string name="Media.GroupByDirector">Gruppera på regissör</string>
+  <string name="Media.GroupByWriter">Gruppera på författare</string>
+  <string name="Media.GroupByDuration">Gruppera på speltid</string>
+  <string name="Media.GroupByAspectRatio">Gruppera på bildformat</string>
+  <string name="Media.GroupByFirstAiredDate">Gruppera på sändningsdatum</string>
+  <string name="Media.GroupByDate">Gruppera på inspelningsdatum</string>
+  <string name="Media.GroupByEpisode">Gruppera på avsnitt</string>
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter</string>
   <string name="Settings.Players">Spelare</string>
@@ -349,4 +369,15 @@
   <string name="Settings.Players.SkipStepList.Help">Skriv in hoppsteg i sekunder separerade med ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Öppningsstrategi för spelare</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, hur nya spelare ska positioneras bland redan öppna spelare</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet2">abc</string>
+  <string name="Filter.RemoteNumericAlphabet3">def</string>
+  <string name="Filter.RemoteNumericAlphabet4">ghi</string>
+  <string name="Filter.RemoteNumericAlphabet5">jkl</string>
+  <string name="Filter.RemoteNumericAlphabet6">mno</string>
+  <string name="Filter.RemoteNumericAlphabet7">pqrs</string>
+  <string name="Filter.RemoteNumericAlphabet8">tuv</string>
+  <string name="Filter.RemoteNumericAlphabet9">wxyz</string>
+  <string name="Filter.Filtered">Filtrerad</string>
+  <string name="Filter.StartsWith">Börjar med: {0}</string>
 </resources>

@@ -2,21 +2,33 @@
 <resources>
   <!-- Menu items for the five Media navigation parts -->
   <string name="Media.BrowseMediaMenuItem">Browse media</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Browse the media library for all kind of media by media sources structure. Here you have also access to removable drives.</string>
   <string name="Media.LocalMediaMenuItem">Local media</string>
   <string name="Media.AudioMenuItem">Audio</string>
+  <string name="Media.AudioMenuItem.Help">Play your music or audiobooks from audio library and see additional media information. You can also create playlists for your favourite songs.</string>
   <string name="Media.VideosMenuItem">Videos</string>
+  <string name="Media.VideosMenuItem.Help">Browse the media library for videos. In this view you can see all videos incl. movies, episodes and non-categorized. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.SeriesMenuItem">Series</string>
+  <string name="Media.SeriesMenuItem.Help">Browse the media library for series. Get additional information also for seasons and episodes as ratings, genre, actors, poster, fanart and much more. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.MoviesMenuItem">Movies</string>
+  <string name="Media.MoviesMenuItem.Help">Browse the media library for movies. Get additional information as ratings, genre, actors, poster, fanart and much more. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.ImagesMenuItem">Images</string>
+  <string name="Media.ImagesMenuItem.Help">Browse the media library for images. Get additional information as locations, year and image details. You may set filters to narrow the view exactly to your needs.</string>
   <string name="Media.LatestMediaMenuItem">Latest media</string>
 
   <!-- Filter titles -->
   <string name="Media.FilterByArtistMenuItem">Filter by artist</string>
+  <string name="Media.FilterByComposerMenuItem">Filter by composer</string>
+  <string name="Media.FilterByAlbumArtistMenuItem">Filter by album artist</string>
+  <string name="Media.FilterByAlbumLabelMenuItem">Filter by music label</string>
   <string name="Media.FilterByAlbumMenuItem">Filter by album</string>
   <string name="Media.FilterByAudioGenreMenuItem">Filter by genre</string>
   <string name="Media.FilterByDecadeMenuItem">Filter by decade</string>
   <string name="Media.FilterByActorMenuItem">Filter by actor</string>
+  <string name="Media.FilterByCharacterMenuItem">Filter by character</string>
   <string name="Media.FilterByDirectorMenuItem">Filter by director</string>
+  <string name="Media.FilterByCompanyMenuItem">Filter by production studio</string>
+  <string name="Media.FilterByTvNetworkMenuItem">Filter by tv network</string>
   <string name="Media.FilterByWriterMenuItem">Filter by writer</string>
   <string name="Media.FilterByVideoGenreMenuItem">Filter by genre</string>
   <string name="Media.FilterByVideoYearMenuItem">Filter by year</string>
@@ -53,12 +65,18 @@
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string> <!-- For example: "R.E.M." -->
   <string name="Media.LocalMediaNavigationNavbarDisplayLabel">{0}</string> <!-- For example: "R.E.M." -->
   <string name="Media.FilterArtistNavbarDisplayLabel">Artist: {0}</string> <!-- For example: "Artist: R.E.M." -->
+  <string name="Media.FilterComposerNavbarDisplayLabel">Composer: {0}</string>
+  <string name="Media.FilterAlbumArtistNavbarDisplayLabel">Album Artist: {0}</string>
+  <string name="Media.FilterAlbumLabelNavbarDisplayLabel">Music Label: {0}</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">Album: {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Decade: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Actor: {0}</string>
+  <string name="Media.FilterCharacterNavbarDisplayLabel">Character: {0}</string>
   <string name="Media.FilterDirectorNavbarDisplayLabel">Director: {0}</string>
   <string name="Media.FilterWriterNavbarDisplayLabel">Writer: {0}</string>
+  <string name="Media.FilterCompanyNavbarDisplayLabel">Production Studio: {0}</string>
+  <string name="Media.FilterTvNetworkNavbarDisplayLabel">TV Network: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Year: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Language: {0}</string>
@@ -109,7 +127,7 @@
   <string name="Media.MediaItemsHeader">Media items</string>
   <string name="Media.VideoItemsHeader">Videos</string>
   <string name="Media.AudioItemsHeader">Audio items</string>
-  <string name="Media.SeriesItemsHeader">Episodes</string>
+  <string name="Media.EpisodeItemsHeader">Episodes</string>
   <string name="Media.MoviesItemsHeader">Movies</string>
   <string name="Media.ImageItemsHeader">Images</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
@@ -121,9 +139,15 @@
   <string name="Media.ChooseVideoYearHeader">Choose a year</string>
   <string name="Media.ChooseSeriesHeader">Choose a series</string>
   <string name="Media.ChooseSeasonHeader">Choose a season</string>
+  <string name="Media.ChooseCharacterHeader">Choose a character</string>
+  <string name="Media.ChooseCompanyHeader">Choose a production studio</string>
+  <string name="Media.ChooseTvNetworkHeader">Choose a tv network</string>
   <string name="Media.ChooseAudioDecadeHeader">Choose a decade</string>
   <string name="Media.ChooseAlbumHeader">Choose an album</string>
   <string name="Media.ChooseArtistHeader">Choose an artist</string>
+  <string name="Media.ChooseComposerHeader">Choose a composer</string>
+  <string name="Media.ChooseAlbumArtistHeader">Choose an album artist</string>
+  <string name="Media.ChooseAlbumLabelHeader">Choose a music label</string>
   <string name="Media.ChooseAudioGenreHeader">Choose a genre</string>
   <string name="Media.ChooseImageYearHeader">Choose a year</string>
   <string name="Media.ChooseImageSizeHeader">Choose a size</string>
@@ -153,6 +177,8 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Videos</string>
   <string name="Media.SeriesRootViewName">Series</string>
+  <string name="Media.SeasonRootViewName">Season</string>
+  <string name="Media.EpisodeRootViewName">Episode</string>
   <string name="Media.ImagesRootViewName">Images</string>
   <string name="Media.SimpleSearchViewName">Simple search</string>
 
@@ -249,6 +275,7 @@
   <string name="Media.SeriesTitleLabel">Series: </string>
   <string name="Media.SeriesSeasonLabel">Season: </string>
   <string name="Media.SeriesEpisodeLabel">Episode(s): </string>
+  <string name="Media.FirstAiredLabel">First aired: </string>
   <string name="Media.SeriesEpisodeNameLabel">Episode title: </string>
 
   <!-- Image currently playing -->
@@ -361,6 +388,27 @@
   <string name="Media.SortByEpisode">Sort by episode</string>
   <string name="Media.SortingBrowseDefault">Default sorting</string>
 
+  <string name="Media.SwitchGroupingMenuItem">Grouping</string>
+  <string name="Media.SwitchGroupingDialogTitle">Grouping</string>
+  <string name="Media.NoGrouping">No grouping</string>
+  <string name="Media.GroupByTitle">Group by title</string>
+  <string name="Media.GroupByAlbumTrack">Group by album and track</string>
+  <string name="Media.GroupByGenre">Group by genre</string>
+  <string name="Media.GroupByAlbum">Group by album and title</string>
+  <string name="Media.GroupByTrack">Group by track</string>
+  <string name="Media.GroupByArtist">Group by artist</string>
+  <string name="Media.GroupByYear">Group by year</string>
+  <string name="Media.GroupBySize">Group by size</string>
+  <string name="Media.GroupBySystem">Group by system</string>
+  <string name="Media.GroupByActor">Group by actor</string>
+  <string name="Media.GroupByDirector">Group by director</string>
+  <string name="Media.GroupByWriter">Group by writer</string>
+  <string name="Media.GroupByDuration">Group by duration</string>
+  <string name="Media.GroupByAspectRatio">Group by aspect ratio</string>
+  <string name="Media.GroupByFirstAiredDate">Group by aired date</string>
+  <string name="Media.GroupByDate">Group by recording date</string>
+  <string name="Media.GroupByEpisode">Group by episode</string>
+
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter</string>
 
@@ -380,4 +428,19 @@
 
   <string name="Settings.Players.OpenPlayerStrategy">Open player strategy</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategy, how newly opened players will be positioned among already open players</string>
+
+  <!-- Secondary filters -->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
+  <string name="Filter.RemoteNumericAlphabet2">abc</string>
+  <string name="Filter.RemoteNumericAlphabet3">def</string>
+  <string name="Filter.RemoteNumericAlphabet4">ghi</string>
+  <string name="Filter.RemoteNumericAlphabet5">jkl</string>
+  <string name="Filter.RemoteNumericAlphabet6">mno</string>
+  <string name="Filter.RemoteNumericAlphabet7">pqrs</string>
+  <string name="Filter.RemoteNumericAlphabet8">tuv</string>
+  <string name="Filter.RemoteNumericAlphabet9">wxyz</string>
+
+  <string name="Filter.Filtered">Filtered</string>
+  <string name="Filter.StartsWith">Starts with: {0}</string>
 </resources>

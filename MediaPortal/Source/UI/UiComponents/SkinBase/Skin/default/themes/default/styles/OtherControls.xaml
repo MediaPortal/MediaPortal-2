@@ -68,7 +68,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -232,6 +232,20 @@
     <Setter Property="CornerRadius" Value="{ThemeResource ContentGroupBoxCornerRadius}"/>
   </Style>
 
+  <!-- ************************* ListView group header container styles ************************** -->
+  
+  <!-- An item list base container style which sets the selected item's ZIndex to the top.
+       This base style simly shows the content of the ListViewItem. -->
+  <Style x:Key="DefaultGroupHeaderContainerStyle" TargetType="{x:Type ListViewGroupHeader}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewGroupHeader}">
+          <ContentPresenter/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
   <!-- ************************* ListView item container styles ************************** -->
 
   <!-- An item list base container style which sets the selected item's ZIndex to the top.

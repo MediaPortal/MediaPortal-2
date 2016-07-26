@@ -8,9 +8,9 @@
   <string name="MainForm.Connected">Verbunden</string>
   <string name="MainForm.Disconnected">Getrennt</string>
   <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal-2-Server</string>
-  <string name="UPnPBackendServer.Manufacturer">Team Mediaportal</string>
+  <string name="UPnPBackendServer.Manufacturer">Team MediaPortal</string>
   <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
-  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 Server - verwaltet Audio-, Video- und Bilddateien und bietet eine gemeinsame Medien-Datenbank an</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2 Server - verwaltet Audio-, Video- und Bilddateien in einer zentralen Medien-Datenbank</string>
   <string name="UPnPBackendServer.ModelName">MediaPortal-2-Server</string>
   <string name="UPnPBackendServer.ModelNumber">1</string>
   <string name="UPnPBackendServer.ModelUrl">...</string>

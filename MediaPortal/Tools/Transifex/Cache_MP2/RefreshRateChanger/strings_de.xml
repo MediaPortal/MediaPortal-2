@@ -1,11 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="RefreshRateChanger.IsEnabled">Änderung der Bildwiederholrate aktivieren</string>
-  <string name="RefreshRateChanger.IsEnabled.Help">Wenn diese Option aktiviert ist, wird eine Anpassung der Bildschirmaktualisierungsrate an die Videorate vorgenommen.</string>
-  <string name="RefreshRateChanger.NoChangeForRate">Bildraten ausschließen</string>
-  <string name="RefreshRateChanger.NoChangeForRate.Help">Schließt bestimmte Videoraten von Änderungen aus. Geben Sie Ganzzahlen getrennt durch Kommas ein (z.B. 23,25,50).</string>
+  <string name="RefreshRateChanger.IsEnabled">Bildwiederholratenänderung aktivieren</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Anpassen der Bildwiederholrate an die Videofrequenz </string>
+  <string name="RefreshRateChanger.NoChangeForRate">Bildwiederholraten ausschließen</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Schließt bestimmte Videoraten von Änderungen aus. Geben Sie die Werte als durch Komma getrennte Ganzzahlen ein (z. B. 23,25,50).</string>
   <string name="RefreshRateChanger.RateMappings">Bildwiederholraten anpassen</string>
   <string name="RefreshRateChanger.RateMappings.Help">Erlaubt die Anpassung der Bildwiederholrate.
-Format: fps:Hz; fps:Hz (z.B. \"23:24\": für Video FPS=23.976 Bildwiederholrate auf 24Hz ändern).
-</string>
+Format: fps:Hz; fps:Hz (z. B. \"23:24\": für Video fps=23.976 Bildwiederholrate auf 24Hz ändern).</string>
 </resources>

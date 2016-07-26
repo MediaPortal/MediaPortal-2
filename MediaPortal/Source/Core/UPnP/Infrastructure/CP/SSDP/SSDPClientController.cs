@@ -721,8 +721,29 @@ namespace UPnP.Infrastructure.CP.SSDP
         // SERVER: Linux/2.x.x, UPnP/1.0, pvConnect UPnP SDK/1.0  => tokens separated by ','
         // SERVER: Windows 2003, UPnP/1.0 DLNADOC/1.50, Serviio/0.5.2  => tokens separated by ',' and additional info in UPnP version token
         // SERVER: 3Com-ADSL-11g/1.0 UPnP/1.0  => only two tokens
-        string[] versionInfos = server.Contains(", ") ? server.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries) :
-            server.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        // SERVER: DOTS 2.0 UPnP/1.0 ATI TV Wonder OpenCable Receiver (37F0)/1.19.12.09050155, May  1 2009  => tokens separated by space, but contains an incidental comma
+        int versionIndex = server.IndexOf(UPnPVersion.VERSION_PREFIX);
+        if (versionIndex == -1)
+          // Invalid message (UPnP version not in SERVER header)
+          return false;
+
+        string separator;
+        if (versionIndex == 0)
+          separator = server.Contains(',') ? ", " : " ";
+        else
+        {
+          separator = " ";
+          for (int c = versionIndex - 1; c >= 0; c--)
+          {
+            if (server[c] != ' ')
+            {
+              if (server[c] == ',')
+                separator = ", ";
+              break;
+            }
+          }
+        }
+        string[] versionInfos = server.Split(new string[] { separator }, StringSplitOptions.RemoveEmptyEntries);
         string upnpVersionInfo = versionInfos.FirstOrDefault(v => v.StartsWith(UPnPVersion.VERSION_PREFIX));
         if (upnpVersionInfo == null)
           // Invalid message

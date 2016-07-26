@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Déconnexion du serveur</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Serveur local</string>
   <string name="ServerConnection.AttachedText.Before">Ce client MediaPortal 2 est connecté au serveur local</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Ce client MediaPortal 2 est déconnecté du serveur local</string>
   <string name="ServerConnection.HomeServerIsConnected">Le serveur local est ouvert</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Le serveur local est fermé</string>
@@ -101,6 +100,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Mode de zoom</string>
   <string name="Players.ChoosePlayerEffect">Effet</string>
+  <string name="Players.ChoosePlayerSubtitle">Sous-titre</string>
   <string name="Settings.Appearance">Apparence</string>
   <string name="Settings.Appearance.Skin">Thème</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format de la date</string>

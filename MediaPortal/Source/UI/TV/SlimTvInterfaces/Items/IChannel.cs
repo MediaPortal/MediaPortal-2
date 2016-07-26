@@ -42,12 +42,18 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
   {
     /// <summary>
     /// Gets or Sets the Channel ID.
-    /// </summary>    
+    /// </summary>
     int ChannelId { get; set; }
 
     /// <summary>
+    /// Gets or Sets the Channel number. This can be either a logical channel number or 
+    /// the index inside the current group (depending on user choice for zapping).
+    /// </summary>
+    int ChannelNumber { get; set; }
+
+    /// <summary>
     /// Gets or Sets the Name.
-    /// </summary>      
+    /// </summary>
     String Name { get; set; }
 
     /// <summary>

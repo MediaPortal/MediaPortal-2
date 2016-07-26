@@ -327,4 +327,5 @@
   <string name="Settings.Players.SkipStepList.Help">Entre os pulos em segundos separados por ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Abrir estratégia de reprodutor</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estratégia, como novos leitores serão posicionados entre leitores já abertos</string>
+  <!--Secondary filters-->
 </resources>

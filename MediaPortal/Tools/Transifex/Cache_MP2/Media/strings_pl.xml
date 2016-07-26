@@ -198,4 +198,5 @@
   <string name="Media.SwitchFilterMenuItem">Filtr</string>
   <string name="Media.SwitchFilterDialogTitle">Filtr</string>
   <string name="Settings.Players">Odtwarzacze</string>
+  <!--Secondary filters-->
 </resources>

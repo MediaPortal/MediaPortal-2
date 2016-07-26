@@ -40,13 +40,12 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Vom Server abkoppeln</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">MediaPortal Server</string>
   <string name="ServerConnection.AttachedText.Before">Dieser MediaPortal-2-Client ist einem Heimserver zugewiesen.</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Dieser MediaPortal-2-Client ist momentan keinem Heimserver zugewiesen.</string>
   <string name="ServerConnection.HomeServerIsConnected">Der Heimserver ist derzeit verbunden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Der Heimserver ist derzeit getrennt.</string>
   <string name="ServerConnection.DetachMenu">Abkoppeln</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Vom Heimserver abkoppeln</string>
-  <string name="ServerConnection.DetachConfirmDialogText">Beim Abkoppeln vom Server werden alle Informationen über die lokalen Medienquellen und deren Mediendateien vom Heimserver entfernt. Ein erneutes Anbinden ist möglich. Soll wirklich vom Server \'{0}\' ({1}) abgekoppelt werden?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Beim Abkoppeln vom Server werden alle Informationen zu lokalen Medienquellen und -dateien vom Server gelöscht. Ein erneutes Anbinden ist möglich. Soll wirklich vom Server \'{0}\' ({1}) abgekoppelt werden?</string>
   <string name="ServerConnection.SearchForServers">Nach Servern suchen</string>
   <string name="ServerConnection.DetachFromServer">Vom Server abkoppeln</string>
   <string name="ServerConnection.AttachToServerHeader">An den Server anbinden</string>
@@ -69,18 +68,18 @@
   <string name="ImporterMessages.ImportCompletedText">Der Import \'{0}\' wurde abgeschlossen.</string>
   <string name="LocalFsResourceProvider.Name">Lokales Dateisystem</string>
   <string name="LocalFsResourceProvider.Description">Zugriff auf das lokale Dateisystem</string>
-  <string name="RemoteResourceProvider.Name">Fernressourcen</string>
+  <string name="RemoteResourceProvider.Name">Entfernte Ressourcen</string>
   <string name="RemoteResourceProvider.Description">Zugriff auf Ressourcen, die auf anderen MediaPortal-2-Systemen gespeichert sind</string>
-  <string name="RawUrlResourceProvider.Name">Url-Ressourcen</string>
-  <string name="RawUrlResourceProvider.Description">Zugriff auf Url-Quellen</string>
+  <string name="RawUrlResourceProvider.Name">URL-Ressourcen</string>
+  <string name="RawUrlResourceProvider.Description">Zugriff auf URL-Quellen</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Kein Abspieler</string>
-  <string name="Players.NoPlayerAvailableNotificationText">Es ist kein Player registriert, um das Medien-Objekt \'{0}\' wiedergeben zu können.</string>
+  <string name="Players.NoPlayerAvailableNotificationText">Es ist kein Player für die Wiedergabe des Medien-Objekt \'{0}\' registriert.</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Wiedergabefehler</string>
   <string name="Players.UnableToPlayMediaItemText">Wiedergabe von Medien-Objekt \'{0}\' nicht möglich.</string>
   <string name="Players.ResourceNotFoundText">Ressource \'{0}\' nicht gefunden</string>
-  <string name="Players.PlayerConfiguration">Abspielerkonfiguration</string>
+  <string name="Players.PlayerConfiguration">Player-Konfiguration</string>
   <string name="Players.CurrentMediaInfo">Aktuelle Medieninfo</string>
   <string name="Players.FullscreenVideo">Vollbild {0}</string>
   <!--for example "Fullscreen TV"-->
@@ -101,6 +100,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Zoom-Modus</string>
   <string name="Players.ChoosePlayerEffect">Effekt</string>
+  <string name="Players.ChoosePlayerSubtitle">Untertitel</string>
   <string name="Settings.Appearance">Erscheinungsbild</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datumsformat</string>
@@ -112,7 +112,7 @@
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Starte MediaPortal automatisch beim Windows-Start</string>
   <string name="Settings.General.System.ClientDOKANDrive">Laufwerksbuchstabe für Quelle</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Ordnet auf diesen Client der Remote-Quelle einen Laufwerksbuchstaben zu</string>
+  <string name="Settings.General.System.ClientDOKANDrive.Help">Konfiguriert den Laufwerksbuchstaben für das Einhängen entfernter Ressourcen auf diesem Client.</string>
   <string name="Settings.General.Connectivity">Verbindungen</string>
   <string name="Settings.General.Connectivity.HomeServer">Heimserver</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informationen zum Heimserver, Verbinden und Trennen</string>

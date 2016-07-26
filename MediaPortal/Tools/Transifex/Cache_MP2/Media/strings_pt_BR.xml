@@ -222,4 +222,5 @@
   <string name="Media.SortByDate">Ordenar pela data de gravação</string>
   <string name="Media.SortByEpisode">Ordenar por eposódio</string>
   <string name="Settings.Players">Reprodutores</string>
+  <!--Secondary filters-->
 </resources>

@@ -34,7 +34,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     #region Protected fields
 
     protected AbstractProperty _conditionsProperty;
-    protected bool _isTriggered;
 
     #endregion
 
@@ -119,19 +118,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     protected void TriggerIfConditionsMet()
     {
-      bool isTriggered = false;
+      bool triggerState = false;
       foreach (Condition condition in Conditions)
       {
-        isTriggered = condition.Triggered;
-        if (!isTriggered)
+        triggerState = condition.Triggered;
+        if (!triggerState)
           break;
       }
 
-      if (isTriggered == _isTriggered)
-        return;
-      _isTriggered = isTriggered;
-
-      if (isTriggered)
+      if (triggerState)
         ExecuteTriggerStartActions();
       else
         ExecuteTriggerEndActions();

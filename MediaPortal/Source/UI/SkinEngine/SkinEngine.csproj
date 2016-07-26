@@ -131,8 +131,14 @@
     <Compile Include="Controls\ImageSources\ImageSource.cs" />
     <Compile Include="Controls\ImageSources\BinaryTextureImageSource.cs" />
     <Compile Include="Controls\ImageSources\MultiImageSource.cs" />
+    <Compile Include="Controls\Panels\AnimatedStackPanel.cs" />
+    <Compile Include="Controls\Panels\AnimatedWrapPanel.cs" />
+    <Compile Include="Controls\Panels\IGroupingValueProvider.cs" />
+    <Compile Include="Controls\Visuals\GroupHeaderItem.cs" />
+    <Compile Include="Controls\Panels\IGroupedItemProvider.cs" />
     <Compile Include="Controls\Panels\IVirtualizingPanel.cs" />
     <Compile Include="Controls\Panels\VirtualizingWrapPanel.cs" />
+    <Compile Include="Controls\Visuals\AnimatedScrollContentPresenter.cs" />
     <Compile Include="Controls\Visuals\BackgroundEffect.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\IItemProvider.cs" />
@@ -146,6 +152,7 @@
     <Compile Include="Controls\Visuals\Effects\ShaderEffect.cs" />
     <Compile Include="Controls\Visuals\ISelectableItemContainer.cs" />
     <Compile Include="Controls\Panels\StarRatingPanel.cs" />
+    <Compile Include="Controls\Visuals\ListViewGroupHeader.cs" />
     <Compile Include="Controls\Visuals\Star.cs" />
     <Compile Include="Controls\Visuals\Styles\EventSetter.cs" />
     <Compile Include="Controls\Visuals\Styles\SetterBaseCollection.cs" />

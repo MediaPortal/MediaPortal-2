@@ -309,4 +309,5 @@
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Virkið þessa stillingu til að MediaPortal lokið óvirkum spilurum sjálfvirkt</string>
   <string name="Settings.Players.InstantSkipPercent">Stökk í %</string>
   <string name="Settings.Players.SkipStepTimeout">Tímamörk í sekúndum fyrir stökk</string>
+  <!--Secondary filters-->
 </resources>

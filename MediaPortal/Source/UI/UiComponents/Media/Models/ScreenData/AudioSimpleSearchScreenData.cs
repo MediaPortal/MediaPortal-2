@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -36,6 +38,19 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override AbstractItemsScreenData Derive()
     {
       return new AudioShowItemsScreenData(PlayableItemCreator);
+    }
+
+    protected override IFilter BuildTextSearchFilter()
+    {
+      // Search in both Artists and Title names
+      var filter = new BooleanCombinationFilter(BooleanOperator.Or,
+        new IFilter[]
+        {
+          new LikeFilter(AudioAspect.ATTR_ALBUMARTISTS, GetSearchTerm(), null),
+          new LikeFilter(AudioAspect.ATTR_ARTISTS, GetSearchTerm(), null),
+          new LikeFilter(MediaAspect.ATTR_TITLE, GetSearchTerm(), null)
+        });
+      return filter;
     }
   }
 }

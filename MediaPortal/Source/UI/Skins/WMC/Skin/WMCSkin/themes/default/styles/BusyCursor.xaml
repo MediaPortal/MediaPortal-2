@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors"
+    >
+
+  <!-- Particle Styling -->
+  <SolidColorBrush x:Key="ParticleStroke" Color="Transparent"/>
+  <SolidColorBrush x:Key="ParticleFill" Color="{ThemeResource WindowHeaderColor}"/>
+  <SolidColorBrush x:Key="ParticleBackgroundColor" Color="Transparent"/>
+  <ResourceWrapper x:Key="ParticleOpacity">1</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleRadius">5</ResourceWrapper>
+
+  <ResourceWrapper x:Key="StartingPointX">0</ResourceWrapper>
+  <ResourceWrapper x:Key="StartingPointY">-20</ResourceWrapper>
+
+  <ResourceWrapper x:Key="RotationPointX">0.5</ResourceWrapper>
+  <ResourceWrapper x:Key="RotationPointY">0.5</ResourceWrapper>
+
+  <!-- StoryBoard -->
+  <ResourceWrapper x:Key="StoryBoardBeginTimeP0">00:00:00.000</ResourceWrapper>
+  <ResourceWrapper x:Key="StoryBoardBeginTimeP1">00:00:00.100</ResourceWrapper>
+  <ResourceWrapper x:Key="StoryBoardBeginTimeP2">00:00:00.200</ResourceWrapper>
+  <ResourceWrapper x:Key="StoryBoardBeginTimeP3">00:00:00.300</ResourceWrapper>
+  <ResourceWrapper x:Key="StoryBoardBeginTimeP4">00:00:00.400</ResourceWrapper>
+  <ResourceWrapper x:Key="StoryBoardDuration">00:00:01.800</ResourceWrapper>
+
+  <!-- Particle Origin Angles -->
+  <ResourceWrapper x:Key="ParticleOriginAngleP0">0</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleOriginAngleP1">-10</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleOriginAngleP2">-20</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleOriginAngleP3">-30</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleOriginAngleP4">-40</ResourceWrapper>
+
+  <!-- Particle Position & Timing 1 -->
+  <ResourceWrapper x:Key="ParticleBeginAngle1">0</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleEndAngle1">90</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleBeginTime1">00:00:00.000</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleDuration1">00:00:00.750</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleEndTime1">00:00:00.750</ResourceWrapper>
+
+  <!-- Particle Position & Timing 2 -->
+  <ResourceWrapper x:Key="ParticleBeginAngle2">90</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleEndAngle2">270</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleBeginTime2">00:00:00.751</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleDuration2">00:00:00.300</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleEndTime2">00:00:01.051</ResourceWrapper>
+
+  <!-- Particle Position & Timing 3 -->
+  <ResourceWrapper x:Key="ParticleBeginAngle3">270</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleEndAngle3">360</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleBeginTime3">00:00:01.052</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleDuration3">00:00:00.750</ResourceWrapper>
+  <ResourceWrapper x:Key="ParticleEndTime3">00:00:01.802</ResourceWrapper>
+
+  <Style x:Key="EllipseStyle" TargetType="Ellipse">
+    <Setter Property="Width" Value="{StaticResource ParticleRadius}"/>
+    <Setter Property="Height" Value="{StaticResource ParticleRadius}"/>
+    <Setter Property="Stroke" Value="{StaticResource ParticleStroke}"/>
+    <Setter Property="StrokeThickness" Value="0"/>
+    <Setter Property="Fill" Value="{StaticResource ParticleFill}"/>
+    <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+    <Setter Property="Opacity" Value="{StaticResource ParticleOpacity}"/>
+  </Style>
+
+  <Style x:Key="MetroAnimationControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <ControlTemplate.Resources>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP0"
+                BeginTime="{StaticResource StoryBoardBeginTimeP0}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p0" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP1"
+                BeginTime="{StaticResource StoryBoardBeginTimeP1}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p1" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP2"
+                BeginTime="{StaticResource StoryBoardBeginTimeP2}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p2" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP3"
+                BeginTime="{StaticResource StoryBoardBeginTimeP3}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p3" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP4"
+                BeginTime="{StaticResource StoryBoardBeginTimeP4}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p4" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+          </ControlTemplate.Resources>
+
+          <Grid RenderTransformOrigin="0.5,0.5">
+            <Grid.LayoutTransform>
+              <ScaleTransform ScaleX="8" ScaleY="8" />
+            </Grid.LayoutTransform>
+
+            <Canvas x:Name="CursorBusy" Width="50" Height="50" RenderTransformOrigin="0.5,0.5">
+              <Border x:Name="p0" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP0}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+              <Border x:Name="p1" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP1}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+              <Border x:Name="p2" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP2}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+              <Border x:Name="p3" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP3}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+              <Border x:Name="p4" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP4}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+            </Canvas>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsVisible" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP0" Storyboard="{StaticResource MetroLoadingAnimationP0}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP1" Storyboard="{StaticResource MetroLoadingAnimationP1}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP2" Storyboard="{StaticResource MetroLoadingAnimationP2}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP3" Storyboard="{StaticResource MetroLoadingAnimationP3}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP4" Storyboard="{StaticResource MetroLoadingAnimationP4}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP0"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP1"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP2"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP3"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP4"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="BusyCursorControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <ControlTemplate.Resources>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP0"
+                BeginTime="{StaticResource StoryBoardBeginTimeP0}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p0" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP1"
+                BeginTime="{StaticResource StoryBoardBeginTimeP1}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p1" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP2"
+                BeginTime="{StaticResource StoryBoardBeginTimeP2}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p2" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP3"
+                BeginTime="{StaticResource StoryBoardBeginTimeP3}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p3" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard
+                x:Key="MetroLoadingAnimationP4"
+                BeginTime="{StaticResource StoryBoardBeginTimeP4}"
+                Duration="{StaticResource StoryBoardDuration}"
+                RepeatBehavior="Forever">
+              <DoubleAnimationUsingKeyFrames Storyboard.TargetName="p4" Storyboard.TargetProperty="RenderTransform.Angle">
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime1}" Value="{StaticResource ParticleBeginAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime1}" Value="{StaticResource ParticleEndAngle1}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime2}" Value="{StaticResource ParticleBeginAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime2}" Value="{StaticResource ParticleEndAngle2}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleBeginTime3}" Value="{StaticResource ParticleBeginAngle3}"/>
+                <SplineDoubleKeyFrame KeyTime="{StaticResource ParticleEndTime3}" Value="{StaticResource ParticleEndAngle3}"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+          </ControlTemplate.Resources>
+
+          <Grid RenderTransformOrigin="0.5,0.5">
+            <Grid.LayoutTransform>
+              <ScaleTransform ScaleX="2.5" ScaleY="2.5" />
+            </Grid.LayoutTransform>
+
+            <Canvas x:Name="CursorBusy" Width="50" Height="50" RenderTransformOrigin="0.5,0.5">
+              <Border x:Name="p0" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP0}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+              <Border x:Name="p1" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP1}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+              <Border x:Name="p2" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP2}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+              <Border x:Name="p3" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP3}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+              <Border x:Name="p4" Background="{StaticResource ParticleBackgroundColor}" Opacity="{StaticResource ParticleOpacity}">
+                <Border.RenderTransform>
+                  <RotateTransform/>
+                </Border.RenderTransform>
+                <Border.RenderTransformOrigin>
+                  <Point X="{StaticResource RotationPointX}" Y="{StaticResource RotationPointY}"/>
+                </Border.RenderTransformOrigin>
+                <Ellipse Style="{StaticResource EllipseStyle}">
+                  <Ellipse.RenderTransform>
+                    <TransformGroup>
+                      <TranslateTransform X="{StaticResource StartingPointX}" Y="{StaticResource StartingPointY}"/>
+                      <RotateTransform Angle="{StaticResource ParticleOriginAngleP4}"/>
+                    </TransformGroup>
+                  </Ellipse.RenderTransform>
+                </Ellipse>
+              </Border>
+            </Canvas>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsVisible" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP0" Storyboard="{StaticResource MetroLoadingAnimationP0}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP1" Storyboard="{StaticResource MetroLoadingAnimationP1}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP2" Storyboard="{StaticResource MetroLoadingAnimationP2}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP3" Storyboard="{StaticResource MetroLoadingAnimationP3}"/>
+                <BeginStoryboard x:Name="VisibleStoryboard_BeginStoryboardP4" Storyboard="{StaticResource MetroLoadingAnimationP4}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP0"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP1"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP2"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP3"/>
+                <StopStoryboard BeginStoryboardName="VisibleStoryboard_BeginStoryboardP4"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>

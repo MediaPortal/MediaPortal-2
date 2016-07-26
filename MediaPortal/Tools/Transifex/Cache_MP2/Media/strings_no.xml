@@ -324,4 +324,5 @@
   <string name="Settings.Players.SkipStepList.Help">Legg inn skippsteg i sekunder separert med ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Åpne spiller strategi</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, hvor nylig åpnede avspillere vil bli posisjonert blant allerede åpne avspillere</string>
+  <!--Secondary filters-->
 </resources>

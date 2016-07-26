@@ -78,4 +78,5 @@
   <string name="Media.LargeGrid">Сітка</string>
   <string name="Media.SwitchSortingMenuItem">Сортування</string>
   <string name="Media.SwitchSortingDialogTitle">Сортування</string>
+  <!--Secondary filters-->
 </resources>

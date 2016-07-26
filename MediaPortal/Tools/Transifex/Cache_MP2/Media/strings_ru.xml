@@ -267,4 +267,5 @@
   <string name="Settings.Players.SkipStepTimeout.Help">Установите паузу между выбором величины пропуска и срабатыванием пропуска</string>
   <string name="Settings.Players.SkipStepList">Шаги пропуска</string>
   <string name="Settings.Players.SkipStepList.Help">Введите шаги пропуска в секундах, разделяя их ,</string>
+  <!--Secondary filters-->
 </resources>

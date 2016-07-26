@@ -133,10 +133,6 @@
 
   <Register Location="/Configuration/Settings/Players/">
     <ConfigSection
-        Id="DVDPlayer"
-        Redundant="true"
-        Text="[Settings.Players.DVDPlayer]"/>
-    <ConfigSection
         Id="VideoPlayer"
         Redundant="true"
         Text="[Settings.Players.VideoPlayer]"/>
@@ -148,9 +144,6 @@
         Text="[Settings.Players.VideoPlayer.PreferMultiChannelAudio]"
         HelpText="[Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioPreferMultiChannel"/>
-  </Register>
-  
-  <Register Location="/Configuration/Settings/Players/DVDPlayer">
     <ConfigSetting
         Id="EnableClosedCaptions"
         Text="[Settings.Players.DVDPlayer.EnableClosedCaption]"

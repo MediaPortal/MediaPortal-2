@@ -36,4 +36,5 @@
   <!--Video Player time units-->
   <string name="Media.SwitchFilterMenuItem">Филтър</string>
   <string name="Media.SwitchFilterDialogTitle">Филтър</string>
+  <!--Secondary filters-->
 </resources>

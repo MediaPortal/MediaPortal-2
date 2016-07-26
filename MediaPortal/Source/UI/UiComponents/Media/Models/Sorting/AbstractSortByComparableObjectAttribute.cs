@@ -26,24 +26,28 @@ using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Utilities;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public abstract class AbstractSortByComparableObjectAttribute<T> : Sorting where T : class, IComparable<T>
   {
     protected string _displayName;
+    protected string _groupByDisplayName;
     protected MediaItemAspectMetadata.SingleAttributeSpecification _sortAttr;
     protected MediaItemAspectMetadata.MultipleAttributeSpecification _sortMultiAttr;
 
-    protected AbstractSortByComparableObjectAttribute(string displayName, MediaItemAspectMetadata.SingleAttributeSpecification sortAttr)
+    protected AbstractSortByComparableObjectAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.SingleAttributeSpecification sortAttr)
     {
       _displayName = displayName;
+      _groupByDisplayName = groupByDisplayName;
       _sortAttr = sortAttr;
     }
 
-    protected AbstractSortByComparableObjectAttribute(string displayName, MediaItemAspectMetadata.MultipleAttributeSpecification sortAttr)
+    protected AbstractSortByComparableObjectAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.MultipleAttributeSpecification sortAttr)
     {
       _displayName = displayName;
+      _groupByDisplayName = groupByDisplayName;
       _sortMultiAttr = sortAttr;
     }
 
@@ -79,6 +83,22 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         }
       }
       return 0;
+    }
+
+    public override string GroupByDisplayName
+    {
+      get {  return _groupByDisplayName; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> aspect;
+      Guid aspectId = _sortAttr.ParentMIAM.AspectId;
+      if (item.Aspects.TryGetValue(aspectId, out aspect))
+      {
+        return aspect.First().GetAttributeValue(_sortAttr);
+      }
+      return null;
     }
   }
 }

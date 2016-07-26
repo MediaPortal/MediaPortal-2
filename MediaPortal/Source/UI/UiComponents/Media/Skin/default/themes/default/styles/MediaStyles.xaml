@@ -104,7 +104,7 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Path=PercentPlayed}"/>
+                    Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -247,7 +247,7 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Path=PercentPlayed}"/>
+                    Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -301,6 +301,9 @@
                   <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0" 
                       IsVisible="{Binding SubtitlesAvailable}"
                       Command="{Command OpenChooseSubtitleDialog}"/>
+                  <Button x:Name="SelectTitleButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="5,0,5,0" 
+                      IsVisible="{Binding TitlesAvailable}"
+                      Command="{Command OpenChooseTitleDialog}"/>
                 </StackPanel> <!-- DvdButtons -->
               </StackPanel> <!-- PlayControlsPanel -->
               <!-- PlayControlsPanel -->

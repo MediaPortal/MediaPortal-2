@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
@@ -48,6 +50,21 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         return ObjectUtils.Compare(recordingTimeX, recordingTimeY);
       }
       return base.Compare(x, y);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_SORT_BY_DATE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> mediaAspect;
+      if (item.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+      {
+        return mediaAspect.First().GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+      }
+      return base.GetGroupByValue(item);
     }
   }
 }

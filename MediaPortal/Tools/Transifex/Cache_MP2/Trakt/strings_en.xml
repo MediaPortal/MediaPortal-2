@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="Trakt.Enable">Enable scrobbling</string>
+  <string name="Trakt.Close">Close</string>
   <string name="Trakt.UsernamePasswordGroup">Account details</string>
   <string name="Trakt.Username">Username</string>
-  <string name="Trakt.Password">Password</string>
-  <string name="Trakt.TestAccount">Test account</string>
+  <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
+  <string name="Trakt.PinCode">Received pincode</string>
+  <string name="Trakt.Authorize">Authorize</string>
   <string name="Trakt.SyncMovies">Synchronizing movies...</string>
   <string name="Trakt.SyncSeries">Synchronizing series...</string>
   <string name="Trakt.SyncFinished">Synchronization complete!</string>
   <string name="Trakt.MediaLibraryNotConnected">Server is currently not connected, could not synchronize!</string>
+  <string name="Trakt.WrongToken">Token not available</string>
+  <string name="Trakt.EmptyUsername">Please enter your username</string>
+  <string name="Trakt.NotAuthorized">Authorize first!</string>
+  <string name="Trakt.CheckPin">Unable to login to trakt, wrong pin?</string>
+  <string name="Trakt.LoggedIn">Successfully logged in!</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Setup Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Configure account details for Trakt.tv service</string>

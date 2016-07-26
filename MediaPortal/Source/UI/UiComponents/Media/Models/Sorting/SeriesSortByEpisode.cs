@@ -65,5 +65,22 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       }
       return base.Compare(item1, item2);
     }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_EPISODE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> episodeAspect;
+      if (item.Aspects.TryGetValue(SeriesAspect.ASPECT_ID, out episodeAspect))
+      {
+        IEnumerable<int> episodes = episodeAspect.First().GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+
+        return episodes.FirstOrDefault();
+      }
+      return base.GetGroupByValue(item);
+    }
   }
 }

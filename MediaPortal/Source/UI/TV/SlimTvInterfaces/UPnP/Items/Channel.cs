@@ -39,6 +39,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 
     public int ChannelId { get; set; }
 
+    public int ChannelNumber { get; set; }
+
     public string Name { get; set; }
 
     public MediaType MediaType { get; set; }

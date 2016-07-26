@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
@@ -48,6 +50,21 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         return ObjectUtils.Compare(firstAiredX, firstAiredY);
       }
       return base.Compare(x, y);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_FIRST_AIRED_DATE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> episodeAspect;
+      if (item.Aspects.TryGetValue(EpisodeAspect.ASPECT_ID, out episodeAspect))
+      {
+        return episodeAspect.First().GetAttributeValue(EpisodeAspect.ATTR_FIRSTAIRED);
+      }
+      return base.GetGroupByValue(item);
     }
   }
 }

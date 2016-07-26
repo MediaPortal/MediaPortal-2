@@ -349,4 +349,5 @@
   <string name="Settings.Players.SkipStepList.Help">Introduce los salto em segundos separados por ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Estrategia para abrir reproductores</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, cómo los reproductores recién abiertos se posicionarán entre los reproductores que ya están abiertos</string>
+  <!--Secondary filters-->
 </resources>

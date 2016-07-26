@@ -315,4 +315,5 @@
   <string name="Settings.Players.SkipStepList.Help">Masukkan langkah lewat dalam detik dipisahkan dengan ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Strategi pemutar terbuka</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, bagaimana pemutar yang baru dibuka akan diposisikan di antara pemutar yang sudah dibuka</string>
+  <!--Secondary filters-->
 </resources>

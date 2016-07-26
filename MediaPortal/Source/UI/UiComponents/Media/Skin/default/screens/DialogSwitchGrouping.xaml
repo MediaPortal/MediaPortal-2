@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_menu.xaml"
+    >
+  <Include.Resources>
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.SwitchGroupingDialogTitle]"/>
+
+    <Model x:Key="MediaGroupingModel" Id="68A966B6-6EAC-415E-89A4-7C486F9B5A3B"/>
+
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource MediaGroupingModel},Path=GroupingItemsList,Mode=OneTime}"/>
+
+    <!-- Menu_Command -->
+    <CommandList x:Key="Menu_Command">
+      <CommandBridge Command="{Binding Command}"/>
+      <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+    </CommandList>
+  </Include.Resources>
+</Include>

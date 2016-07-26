@@ -39,7 +39,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Frigør fra server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">HjemmeServer</string>
   <string name="ServerConnection.AttachedText.Before">Denne MediaPortal 2 klient er pt tilknyttet hjemmeserver</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Denne MediaPortal 2 klient er pt ikke tilknyttet hjemmeserver</string>
   <string name="ServerConnection.HomeServerIsConnected">Hjemmeserver er pt tilknyttet.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Hjemmeserver er pt ikke tilknyttet.</string>
@@ -95,6 +94,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Zoom mode</string>
   <string name="Players.ChoosePlayerEffect">Effekt</string>
+  <string name="Players.ChoosePlayerSubtitle">Undertekst</string>
   <string name="Settings.Appearance">Udseende</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datoformat</string>

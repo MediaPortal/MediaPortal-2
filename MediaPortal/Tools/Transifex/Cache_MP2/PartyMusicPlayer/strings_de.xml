@@ -13,12 +13,12 @@
   <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Wiedergabeliste auswählen</string>
   <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Passwort zum Verlassen</string>
   <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Bitte das Exit-Passwort zum Verlassen des Party-Modus eingeben</string>
-  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Falsches ExitPasswort</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Falsches Exit-Passwort</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Entschuldigung, aber das ist das falsche Exit-Passwort!</string>
   <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Server nicht verbunden</string>
-  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Für diese Aktion muss der Heimserver verbunden sein</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Für diese Aktion ist eine Verbindung mit dem Server erforderlich</string>
   <string name="PartyMusicPlayer.PlayerContextName">Party-Musikabspieler</string>
-  <string name="PartyMusicPlayer.AudioArtistLabel">Künstler</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Interpret</string>
   <string name="PartyMusicPlayer.AudioTitleLabel">Titel</string>
   <string name="PartyMusicPlayer.ShowPlaylist">Wiedergabeliste anzeigen</string>
 </resources>

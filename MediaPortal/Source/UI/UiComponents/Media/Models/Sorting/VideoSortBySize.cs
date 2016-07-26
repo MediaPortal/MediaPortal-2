@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
@@ -63,6 +64,23 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         return smallestX - smallestY;
       }
       return base.Compare(item1, item2);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_SIZE; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> videoAspect;
+      if (item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+      {
+        int? x = (int?)videoAspect.First().GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
+        int? y = (int?)videoAspect.First().GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT);
+        return x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
+      }
+      return base.GetGroupByValue(item);
     }
   }
 }

@@ -89,4 +89,5 @@
   <string name="Media.SwitchSortingMenuItem">Sortiranje</string>
   <string name="Media.SwitchSortingDialogTitle">Sortiranje</string>
   <string name="Settings.Players">Reproduktori</string>
+  <!--Secondary filters-->
 </resources>

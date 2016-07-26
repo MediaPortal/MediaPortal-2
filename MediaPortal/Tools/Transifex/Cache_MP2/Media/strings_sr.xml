@@ -323,4 +323,5 @@
   <string name="Settings.Players.SkipStepList.Help">Унесите кораке за прескакање одвојене зарезом</string>
   <string name="Settings.Players.OpenPlayerStrategy">Понашање плејера приликом отварања</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Понашање плејера приликом отварања када су други плрејери већ отворени</string>
+  <!--Secondary filters-->
 </resources>

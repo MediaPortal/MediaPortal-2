@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Koppla från servern</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Hemmaserver</string>
   <string name="ServerConnection.AttachedText.Before">Denna MediaPortal 2-klient är ansluten till en hemmaserver</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Denna MediaPortal 2-klient är inte ansluten till en hemmaserver</string>
   <string name="ServerConnection.HomeServerIsConnected">Hemmaservern är uppkopplad. </string>
   <string name="ServerConnection.HomeServerIsNotConnected">Hemmaservern är frånkopplad. </string>
@@ -101,6 +100,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Zoomläge</string>
   <string name="Players.ChoosePlayerEffect">Effekt</string>
+  <string name="Players.ChoosePlayerSubtitle">Undertext</string>
   <string name="Settings.Appearance">Utseende</string>
   <string name="Settings.Appearance.Skin">Skinn</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datumformat</string>

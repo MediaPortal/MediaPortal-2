@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="Screen"
+    >
+  
+  <DockPanel LastChildFill="False">
+    <DockPanel.Background>
+      <ImageBrush ImageSource="Background.png"/>
+    </DockPanel.Background>
+    <DockPanel.Resources>
+      <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+    </DockPanel.Resources>
+
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="1920" Height="1080" DockPanel.Dock="Center">
+      <Grid.Resources>
+        <Storyboard
+                x:Key="AnimationL1"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+          <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L1" Storyboard.TargetProperty="Opacity">
+            <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:03.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="1"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+          </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard
+                x:Key="AnimationL2"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+          <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L2" Storyboard.TargetProperty="Opacity">
+            <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="1"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+          </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard
+                x:Key="AnimationL3"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+          <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L3" Storyboard.TargetProperty="Opacity">
+            <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="1"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+          </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard
+                x:Key="AnimationL4"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+          <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L4" Storyboard.TargetProperty="Opacity">
+            <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="1"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+          </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard
+                x:Key="AnimationL5"
+                BeginTime="00:00:00.000"
+                Duration="00:00:21.000"
+                RepeatBehavior="Forever">
+          <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L5" Storyboard.TargetProperty="Opacity">
+            <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="1"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
+          </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+      </Grid.Resources>
+
+      <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill"/>
+      <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill"/>
+      <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill"/>
+      <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill"/>
+      <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill"/>
+      <!--Image x:Name="L6" Source="Effects\Layer6.png" Opacity="0" Stretch="Fill"/-->
+
+      <Grid.Triggers>
+        <Trigger Property="IsVisible" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="BeginStoryboardL1" Storyboard="{StaticResource AnimationL1}"/>
+            <BeginStoryboard x:Name="BeginStoryboardL2" Storyboard="{StaticResource AnimationL2}"/>
+            <BeginStoryboard x:Name="BeginStoryboardL3" Storyboard="{StaticResource AnimationL3}"/>
+            <BeginStoryboard x:Name="BeginStoryboardL4" Storyboard="{StaticResource AnimationL4}"/>
+            <BeginStoryboard x:Name="BeginStoryboardL5" Storyboard="{StaticResource AnimationL5}"/>
+            <!--BeginStoryboard x:Name="BeginStoryboardL6" Storyboard="{StaticResource AnimationL6}"/-->
+          </Trigger.EnterActions>
+          <Trigger.ExitActions>
+            <StopStoryboard BeginStoryboardName="BeginStoryboardL1"/>
+            <StopStoryboard BeginStoryboardName="BeginStoryboardL2"/>
+            <StopStoryboard BeginStoryboardName="BeginStoryboardL3"/>
+            <StopStoryboard BeginStoryboardName="BeginStoryboardL4"/>
+            <StopStoryboard BeginStoryboardName="BeginStoryboardL5"/>
+            <!--StopStoryboard BeginStoryboardName="BeginStoryboardL6"/-->
+          </Trigger.ExitActions>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+    <Image Source="Clock.Background.png" DockPanel.Dock="Center" Opacity="0.1" Width="380" Stretch="Uniform" Margin="-25,-25,0,0"/>
+    <Control Style="{ThemeResource AnalogClockStyle}" DockPanel.Dock="Center"/>
+    <Control Style="{ThemeResource MetroAnimationControlStyle}" DockPanel.Dock="Center" Margin="318,318,0,0"/>
+    
+    <!--StackPanel Orientation="Vertical" DockPanel.Dock="Center"
+      HorizontalAlignment="Stretch" VerticalAlignment="Center">
+      <Control x:Name="AnalogClock" Style="{ThemeResource AnalogClockStyle}" HorizontalAlignment="Center"/>
+      <Label x:Name="Date" FontSize="{ThemeResource DateTimeFontSize}"
+        HorizontalAlignment="Center"
+        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}"
+        HorizontalAlignment="Center"
+        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}"/>
+    </-->
+
+  </DockPanel>
+</Screen>

@@ -348,4 +348,5 @@
   <string name="Settings.Players.SkipStepList.Help">Définir le délai d\'attente en seconde avant d\'effectuer un saut de lecture</string>
   <string name="Settings.Players.OpenPlayerStrategy">Gestion concernant  l\'ouverture d\'un lecteur</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Gestion de la place du lecteur nouvellement ouvert, parmi les lecteurs déjà ouverts</string>
+  <!--Secondary filters-->
 </resources>

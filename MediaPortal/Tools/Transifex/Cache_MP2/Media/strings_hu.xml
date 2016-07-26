@@ -246,4 +246,5 @@
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Engedélyezze ezt a beállítást, hogy a MediaPortal automatikusan bezárja a lejátszókat amikor befejeződött</string>
   <string name="Settings.Players.InstantSkipPercent">Azonnali ugrás százaléka</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Válassza ki, hogy a videó időtartamának hány százalékát kívánja átugrani azonnal</string>
+  <!--Secondary filters-->
 </resources>

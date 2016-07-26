@@ -5,7 +5,7 @@
   <string name="Settings.ServerSettings.ServerDOKANDrive.Help">Konfiguriert die Laufwerksbuchstaben für das Einhängen entfernter Ressourcen auf dem Server.</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Netzwerk-Anmeldedaten</string>
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Hier wird der Benutzername und das Passwort für den Zugriff auf die Server-Quellen verwaltet</string>
-  <string name="Settings.ServerSettings.UseCredentials">Benutzername und Passwort zum Zugriff auf das Netzwerk verwenden</string>
+  <string name="Settings.ServerSettings.UseCredentials">Benutzername/Passwort für Netzwerk-Zugriff verwenden</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Benutzername und Passwort</string>
   <string name="Settings.ServerSettings.Username">Benutzername:</string>
   <string name="Settings.ServerSettings.Password">Passwort:</string>

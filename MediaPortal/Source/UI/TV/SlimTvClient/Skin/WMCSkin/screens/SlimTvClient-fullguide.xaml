@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}" Margin="30,0,30,-180">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="TimeControls" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="ScrollBackwardButton" Grid.Column="0" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
+                  Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
+          <Label x:Name="GuideStartTimeLabel" Grid.Column="1" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="5,0,5,0" Opacity="1"/>
+          <Button x:Name="ScrollForwardButton" Grid.Column="2" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
+                  Command="{Command ScrollForward}" VerticalAlignment="Center"/>
+          <Grid.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="False"/>
+                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="GuideStartTimeLabel" Property="Opacity" Value="0.5"/>
+            </MultiTrigger>
+          </Grid.Triggers>
+        </Grid>
+
+        <!--Grid x:Name="Groups" Margin="20,0,20,20" Grid.Column="0" Grid.Row="0"
+              HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="PrevGroupButton" Grid.Column="0" Style="{StaticResource PreviousButtonStyle}" Margin="1,0,1,0"
+              Command="{Command PrevGroup}" VerticalAlignment="Center"/>
+          <Label x:Name="GroupNameLabel" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 Content="{Binding GroupName}" VerticalAlignment="Center" Margin="5,0,5,0" Opacity="1"/>
+          <Button x:Name="NextGroupButton" Grid.Column="2" Style="{StaticResource NextButtonStyle}" Margin="1,0,1,0"
+              Command="{Command NextGroup}" VerticalAlignment="Center"/>
+          <Grid.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="False"/>
+                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="GroupNameLabel" Property="Opacity" Value="0.5"/>
+            </MultiTrigger>
+          </Grid.Triggers>
+        </-->
+
+        <Grid Margin="20,-70,20,0" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <Grid Margin="20,0,20,10" Grid.Column="0" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="SearchButton" Grid.Column="0" Style="{ThemeResource SearchButtonStyle}" Margin="1,0,1,0" 
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}"
+                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="IsMouseOver" Value="False"/>
+                  <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="SearchLabel" Property="Opacity" Value="0.5"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+          </Grid>
+        </Grid>
+
+        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Style="{ThemeResource EpgGridStyle}" Margin="0,0,0,20"/>
+
+        <Label x:Name="Time" Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right" Margin="0,-20,0,0"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource ProgramLabelNoFocus}"/>
+
+        <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,0,-5">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfoSlim.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </GroupBox>
+        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

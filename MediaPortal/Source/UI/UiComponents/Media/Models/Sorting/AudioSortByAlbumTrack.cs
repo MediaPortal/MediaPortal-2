@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
@@ -53,6 +55,21 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       }
       // Fallback if the items to be compared are no audio items: Compare by title
       return base.Compare(x, y);
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_ALBUM_TRACK; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      IList<MediaItemAspect> audioAspect;
+      if (item.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+      {
+        return audioAspect.First().GetAttributeValue(AudioAspect.ATTR_TRACK);
+      }
+      return base.GetGroupByValue(item);
     }
   }
 }

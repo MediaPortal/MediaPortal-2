@@ -97,6 +97,7 @@
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\SeriesAction.cs" />
     <Compile Include="Actions\SwitchFilterAction.cs" />
+    <Compile Include="Actions\SwitchGroupingAction.cs" />
     <Compile Include="Actions\SwitchSortingAction.cs" />
     <Compile Include="Actions\RemovePlaylistsAction.cs" />
     <Compile Include="Actions\SwitchViewModeAction.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
+    <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesEpisodeCharacterCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesCharacterCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByMovieCharacterCriterion.cs" />
@@ -166,6 +168,7 @@
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
+    <Compile Include="Models\MediaGroupingModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
     <Compile Include="Models\DefaultVideoPlayerUIContributor.cs" />
@@ -204,6 +207,7 @@
     <Compile Include="Models\ScreenData\ImagesFilterByCityScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByStateScreenData.cs" />
     <Compile Include="Models\ScreenData\ImagesFilterByCountryScreenData.cs" />
+    <Compile Include="Models\ScreenData\MoviesSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesEpisodeFilterByDirectorScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesEpisodeFilterByWriterScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesEpisodeFilterByActorScreenData.cs" />
@@ -228,6 +232,7 @@
     <Compile Include="Models\ScreenData\SeriesShowItemsScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterBySeasonScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesSimpleSearchScreenData.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbumTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbum.cs" />
     <Compile Include="Models\Sorting\AudioSortByTrack.cs" />
@@ -307,6 +312,8 @@
     <Compile Include="FilterCriteria\MLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
     <Compile Include="General\Utils.cs" />
+    <Compile Include="SecondaryFilter\IItemsFilter.cs" />
+    <Compile Include="SecondaryFilter\RemoteNumpadFilter.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
     <Compile Include="Settings\Configuration\OpenPlayerStrategy.cs" />
     <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
@@ -354,6 +361,7 @@
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
+    <Content Include="Skin\default\screens\MediaItemsFilterKeyBindings.inc" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MediaItemsList.inc">
@@ -407,6 +415,7 @@
     <Content Include="Skin\default\themes\default\styles\MediaConsts.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\workflow\filter-actions.xml" />
+    <Content Include="Skin\default\workflow\grouping-actions.xml" />
     <Content Include="Skin\default\workflow\sorting-actions.xml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
@@ -470,6 +479,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSwitchGrouping.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\SeriesFilterByActor.xaml">
       <SubType>Designer</SubType>
     </Content>
