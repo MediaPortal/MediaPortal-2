@@ -350,6 +350,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Estrategia para abrir reproductores</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, cómo los reproductores recién abiertos se posicionarán entre los reproductores que ya están abiertos</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -4,4 +4,7 @@
   <string name="RefreshRateChanger.IsEnabled.Help">If enabled the screen refresh rate is tried to be changed to match video fps.</string>
   <string name="RefreshRateChanger.NoChangeForRate">Exclude refresh rates</string>
   <string name="RefreshRateChanger.NoChangeForRate.Help">Exclude list of refresh rates from changes. Enter values as integers separated by commas (i.e. 23,25,50).</string>
+  <string name="RefreshRateChanger.RateMappings">Refresh rate mappings</string>
+  <string name="RefreshRateChanger.RateMappings.Help">Override the default mappings.
+Format: fps:Hz; fps:Hz (i.e. "23:24": for video fps=23.976 change screen refresh rate to 24Hz).</string>
 </resources>

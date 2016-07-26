@@ -328,6 +328,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Abrir estratégia de reprodutor</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estratégia, como novos leitores serão posicionados entre leitores já abertos</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

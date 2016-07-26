@@ -79,6 +79,4 @@
   <string name="Media.SwitchSortingMenuItem">Сортування</string>
   <string name="Media.SwitchSortingDialogTitle">Сортування</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

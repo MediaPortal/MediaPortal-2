@@ -370,8 +370,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">Öppningsstrategi för spelare</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, hur nya spelare ska positioneras bland redan öppna spelare</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

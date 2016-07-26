@@ -316,6 +316,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Strategi pemutar terbuka</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategi, bagaimana pemutar yang baru dibuka akan diposisikan di antara pemutar yang sudah dibuka</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

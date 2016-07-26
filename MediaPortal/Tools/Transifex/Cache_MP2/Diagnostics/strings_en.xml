@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">Diagnostics</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Enable DEBUG logging on Client</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Increase logs verbosity</string>
+    <string name="Diagnostics.Settings.Image.FocusSteeling">Enable logging of potential focus steeling</string>
+    <string name="Diagnostics.Settings.Image.FocusSteelingHelpText">Enable logging of potential focus steeling</string>
+    <string name="Diagnostics.Settings.Collectlogs">Collect log files</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Provide log collection now</string>
+    <string name="Diagnostics.Settings.ShowLogs">Show logs</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Show logs on a separate windows</string>
+</resources>

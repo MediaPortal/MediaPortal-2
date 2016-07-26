@@ -61,6 +61,4 @@
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

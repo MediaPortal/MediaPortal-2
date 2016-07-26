@@ -90,6 +90,4 @@
   <string name="Media.SwitchSortingDialogTitle">Sortiranje</string>
   <string name="Settings.Players">Reproduktori</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>
