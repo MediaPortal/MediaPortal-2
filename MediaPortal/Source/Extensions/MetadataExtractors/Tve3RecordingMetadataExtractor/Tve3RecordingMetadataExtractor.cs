@@ -75,10 +75,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
     {
       try
       {
-        bool refresh = false;
-        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-          refresh = true;
-
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
 
@@ -90,23 +86,23 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         // Handle series information
-        EpisodeInfo episodeInfo = null;
-        if (refresh)
+        EpisodeInfo episodeInfo = new EpisodeInfo();
+        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         {
-          episodeInfo = new EpisodeInfo();
           episodeInfo.FromMetadata(extractedAspectData);
         }
         else
         {
           episodeInfo = GetSeriesFromTags(tags);
         }
-        if (episodeInfo.AreReqiredFieldsFilled)
+        if (episodeInfo.IsBaseInfoPresent)
         {
+          SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false); //Provides IMDBID and TVDBID
           SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
           SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
-          SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID and TVDBID
           SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
-          SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+          SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
+
           episodeInfo.SetMetadata(extractedAspectData);
         }
         return true;

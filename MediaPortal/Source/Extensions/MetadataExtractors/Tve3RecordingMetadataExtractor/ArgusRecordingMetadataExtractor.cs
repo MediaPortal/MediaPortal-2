@@ -79,22 +79,30 @@ namespace MediaPortal.Extensions.MetadataExtractors
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
 
-        Argus.Recording recording;
-        using (metaFileAccessor)
+        // Handle series information
+        EpisodeInfo episodeInfo = new EpisodeInfo();
+        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         {
-          using (Stream metaStream = ((IFileSystemResourceAccessor)metaFileAccessor).OpenRead())
-            recording = (Argus.Recording)GetTagsXmlSerializer().Deserialize(metaStream);
+          episodeInfo.FromMetadata(extractedAspectData);
+        }
+        else
+        {
+          Argus.Recording recording;
+          using (metaFileAccessor)
+          {
+            using (Stream metaStream = ((IFileSystemResourceAccessor)metaFileAccessor).OpenRead())
+              recording = (Argus.Recording)GetTagsXmlSerializer().Deserialize(metaStream);
+          }
+          episodeInfo = GetSeriesFromTags(recording);
         }
 
-        // Handle series information
-        EpisodeInfo episodeInfo = GetSeriesFromTags(recording);
-        if (episodeInfo.AreReqiredFieldsFilled)
+        if (episodeInfo.IsBaseInfoPresent)
         {
+          SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false); //Provides IMDBID and TVDBID
           SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
           SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
-          SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID and TVDBID
           SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
-          SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+          SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
 
           episodeInfo.SetMetadata(extractedAspectData);
         }
@@ -181,7 +189,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (recording.EpisodeNumber.HasValue)
         episodeInfo.EpisodeNumbers.Add(recording.EpisodeNumber.Value);
 
-      if (!episodeInfo.AreReqiredFieldsFilled)
+      if (!episodeInfo.IsBaseInfoPresent)
       {
         // Check for formatted display value, i.e.:
         // <EpisodeNumberDisplay>1.4</EpisodeNumberDisplay>

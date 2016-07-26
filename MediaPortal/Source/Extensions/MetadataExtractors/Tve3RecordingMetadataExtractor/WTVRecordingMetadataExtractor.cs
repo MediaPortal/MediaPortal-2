@@ -87,9 +87,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
-      if (!CanExtract(lfsra, extractedAspectData) || forceQuickMode)
+      if (!CanExtract(lfsra, extractedAspectData))
         return false;
 
+      // Handle series information
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
       {
@@ -99,26 +100,21 @@ namespace MediaPortal.Extensions.MetadataExtractors
       {
         using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
         {
-          // Handle series information
           IDictionary tags = rec.GetAttributes();
           episodeInfo = GetSeriesFromTags(tags);
         }
       }
 
-      // Handle series information
-      bool forceQuickModePrimary = forceQuickMode;
-      if (!episodeInfo.IsBaseInfoPresent)
+      if (episodeInfo.IsBaseInfoPresent)
       {
-        forceQuickModePrimary = false;
+        SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false); //Provides IMDBID and TVDBID
+        SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
+        SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
+        SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
+        SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
+
+        episodeInfo.SetMetadata(extractedAspectData);
       }
-
-      SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickModePrimary); //Provides IMDBID and TVDBID
-      SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
-      SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
-      SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
-      SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickModePrimary);
-
-      episodeInfo.SetMetadata(extractedAspectData);
       return episodeInfo.IsBaseInfoPresent;
     }
   }
