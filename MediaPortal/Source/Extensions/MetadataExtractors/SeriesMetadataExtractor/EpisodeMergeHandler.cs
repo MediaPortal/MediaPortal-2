@@ -73,14 +73,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public string ExternalIdType
-    {
-      get
-      {
-        return ExternalIdentifierAspect.TYPE_EPISODE;
-      }
-    }
-
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       if (!existingAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
@@ -110,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         ResourcePath resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
         if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
-          return true; //Return that it was merged so it gets ignored
+          return false;
 
         IList<MultipleMediaItemAspect> subtitleAspects;
         MediaItemAspect.TryGetAspects(extractedAspects, SubtitleAspect.Metadata, out subtitleAspects);
@@ -124,6 +116,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
         if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
         {
+          //Don't allow merge of subtitles into virtual item
+          if (extractedAspects.ContainsKey(SubtitleAspect.ASPECT_ID) && !extractedAspects.ContainsKey(VideoStreamAspect.ASPECT_ID))
+            return false;
+
           existingAspects[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
           existingAspects.Remove(ProviderResourceAspect.ASPECT_ID);
           foreach (Guid aspect in extractedAspects.Keys)
@@ -156,16 +152,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           if (existingProviderResourceAspects != null)
           {
             accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-            resourcePath = ResourcePath.Deserialize(accessorPath);
-            string extractedPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
 
             foreach (MultipleMediaItemAspect exisitingProviderResourceAspect in existingProviderResourceAspects)
             {
-              accessorPath = (string)exisitingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-              resourcePath = ResourcePath.Deserialize(accessorPath);
-              string existingPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
-
-              if(extractedPath.Equals(existingPath, StringComparison.InvariantCultureIgnoreCase))
+              string existingAccessorPath = (string)exisitingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+              if (accessorPath.Equals(existingAccessorPath, StringComparison.InvariantCultureIgnoreCase))
               {
                 resourceExists = true;
                 break;
@@ -191,6 +182,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           newPra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID));
 
           //External subtitles
+          ResourcePath existingResourcePath;
           if (subtitleAspects != null)
           {
             foreach (MultipleMediaItemAspect subAspect in subtitleAspects)
@@ -207,13 +199,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 {
                   accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
                   resourcePath = ResourcePath.Deserialize(accessorPath);
-                  string subPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
 
                   accessorPath = (string)existingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                  resourcePath = ResourcePath.Deserialize(accessorPath);
-                  string videoPath = LocalFsResourceProviderBase.ToDosPath(resourcePath);
+                  existingResourcePath = ResourcePath.Deserialize(accessorPath);
 
-                  if (Path.GetFileNameWithoutExtension(subPath).StartsWith(Path.GetFileNameWithoutExtension(videoPath), StringComparison.InvariantCultureIgnoreCase))
+                  if (ResourcePath.GetFileNameWithoutExtension(resourcePath).StartsWith(ResourcePath.GetFileNameWithoutExtension(existingResourcePath), StringComparison.InvariantCultureIgnoreCase))
                   {
                     bool resPrimary = existingProviderResourceAspect.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY);
                     if (resPrimary == true)

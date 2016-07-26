@@ -372,7 +372,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (aspects == null)
         // No metadata could be extracted
         return false;
-      resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects));
+      resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), false);
       resultHandler.DeleteUnderPath(path);
       return true;
     }
@@ -433,7 +433,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               mia,
               da,
           });
-        return resultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects);
+        return resultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects, false);
       }
       return directoryItem.MediaItemId;
     }

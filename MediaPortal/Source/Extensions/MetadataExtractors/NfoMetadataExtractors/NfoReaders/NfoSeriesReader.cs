@@ -236,7 +236,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       // Example of a valid element:
       // <title>Castle</title>
-      return ((_currentStub.Title = ParseSimpleString(element)) != null);
+      _currentStub.Title = ParseSimpleString(element);
+      if (_currentStub.Title != null)
+        _currentStub.ShowTitle = _currentStub.Title;
+      return (_currentStub.Title != null);
     }
 
     /// <summary>

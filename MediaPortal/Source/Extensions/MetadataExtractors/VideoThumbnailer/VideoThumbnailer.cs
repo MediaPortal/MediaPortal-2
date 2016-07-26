@@ -86,7 +86,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       // Creating thumbs with this MetadataExtractor takes much longer than downloading them from the internet.
       // This MetadataExtractor only creates thumbs if the ThumbnailLargeAspect has not been filled before.
       // ToDo: Correct this once we have a better priority system
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Video thumbnail extractor", MetadataExtractorPriority.External, true,
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Video thumbnail extractor", MetadataExtractorPriority.FallBack, true,
           MEDIA_CATEGORIES, new[]
               {
                 ThumbnailLargeAspect.Metadata
@@ -135,6 +135,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb) && thumb != null)
         return true;
 
+      bool isPrimaryResource = false;
+      IList<MultipleMediaItemAspect> resourceAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out resourceAspects))
+      {
+        foreach(MultipleMediaItemAspect pra in resourceAspects)
+        {
+          string accessorPath = (string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
+          if (resourcePath.Equals(lfsra.CanonicalLocalResourcePath))
+          {
+            if(pra.GetAttributeValue<bool?>(ProviderResourceAspect.ATTR_PRIMARY) == true)
+            {
+              isPrimaryResource = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!isPrimaryResource) //Ignore subtitles
+        return false;
+
       // Check for a reasonable time offset
       long defaultVideoOffset = 720;
       long videoDuration;
@@ -153,6 +175,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         if (videoWidth > 0 && videoWidth <= 720)
           downscale = "";
       }
+
       // ToDo: Move creation of temp file names to FileUtils class
       string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".jpg";
       string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");

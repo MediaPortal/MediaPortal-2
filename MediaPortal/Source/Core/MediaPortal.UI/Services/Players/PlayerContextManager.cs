@@ -314,6 +314,18 @@ namespace MediaPortal.UI.Services.Players
       if (cd != null)
         cd.NotifyPlayback(mediaItem.MediaItemId, watched);
 
+      // Update loaded item also, so changes will be visible in GUI without reloading
+      if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+        mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_PERCENTAGE, "0");
+      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
+
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement.IsValidUser)
+      {
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId,
+          UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
+      }
+
       if (watched)
       {
         // Update loaded item also, so changes will be visible in GUI without reloading
@@ -321,7 +333,6 @@ namespace MediaPortal.UI.Services.Players
         if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out currentPlayCount))
         {
           MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, ++currentPlayCount);
-          ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
         }
 
         if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
@@ -330,19 +341,13 @@ namespace MediaPortal.UI.Services.Players
         currentPlayCount++;
         mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = currentPlayCount.ToString();
 
-        if (!mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
-          mediaItem.UserData.Add(UserDataKeysKnown.KEY_PLAY_PERCENTAGE, "0");
-        mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
-
-        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
         if (userProfileDataManagement.IsValidUser)
         {
           userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 
             UserDataKeysKnown.KEY_PLAY_COUNT, currentPlayCount.ToString());
-          userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 
-            UserDataKeysKnown.KEY_PLAY_PERCENTAGE, playPercentage.ToString());
         }
       }
+      ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, ContentDirectoryMessaging.MediaItemChangeType.Updated);
     }
 
     protected void HandlePlayerEnded(IPlayerSlotController psc)

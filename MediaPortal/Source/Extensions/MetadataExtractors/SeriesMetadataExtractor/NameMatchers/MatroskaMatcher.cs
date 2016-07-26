@@ -33,6 +33,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
+using System.Globalization;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -57,7 +58,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
 
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
       {
-        episodeInfo = null;
         return false;
       }
 
@@ -73,10 +73,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
 
       // Series and episode handling. Prefer information from tags.
       if (tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE] != null)
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault(), true);
+      {
+        string title = tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault();
+        if (!string.IsNullOrEmpty(title))
+        {
+          title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title);
+          MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, title, true);
+        }
+      }
 
       if (tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE] != null)
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault(), true);
+      {
+        string title = tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault();
+        if (!string.IsNullOrEmpty(title))
+        {
+          title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title);
+          MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, title, true);
+        }
+      }
 
       if (tagsToExtract[MatroskaConsts.TAG_SERIES_IMDB_ID] != null)
       {

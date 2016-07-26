@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -38,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
+    private CheckedItemCache<EpisodeInfo> _checkCache = new CheckedItemCache<EpisodeInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -59,26 +61,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string ExternalIdType
-    {
-      get
-      {
-        return ExternalIdentifierAspect.TYPE_CHARACTER;
-      }
-    }
-
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
-      // Build the character MI
+      if (forceQuickMode)
+        return false;
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      SeriesTheMovieDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
+      if (_checkCache.IsItemChecked(episodeInfo))
+        return false;
+
       SeriesTvDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
+      SeriesTheMovieDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
       SeriesTvMazeMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
 
       if (episodeInfo.Characters.Count == 0)
@@ -92,7 +90,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         character.SetMetadata(characterAspects);
 
         if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        extractedLinkedAspects.Add(characterAspects);
+          extractedLinkedAspects.Add(characterAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }

@@ -84,7 +84,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       string url = GetUrl(URL_GETSERIESCHANGES);
       Dictionary<string, long> results = _downloader.Download<Dictionary<string, long>>(url);
       if (results == null) return null;
-      return results.ToDictionary(entry => Convert.ToInt32(entry.Key), entry => FromUnixTime(entry.Value));
+      return results.ToDictionary(entry => Convert.ToInt32(entry.Key), entry => Util.UnixToDotNet(entry.Value.ToString()));
     }
 
     /// <summary>
@@ -241,6 +241,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// <returns>Episode information</returns>
     public TvMazeEpisode GetSeriesEpisode(int id, int season, int episode, bool cacheOnly)
     {
+      if (season == 0) //Does not support special episode requests
+        return null;
+
       string cache = CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
       TvMazeEpisode returnValue = null;
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
@@ -330,12 +333,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     #endregion
 
     #region Protected members
-
-    protected DateTime FromUnixTime(long unixTime)
-    {
-      var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-      return epoch.AddSeconds(unixTime);
-    }
 
     /// <summary>
     /// Builds and returns the full request url.

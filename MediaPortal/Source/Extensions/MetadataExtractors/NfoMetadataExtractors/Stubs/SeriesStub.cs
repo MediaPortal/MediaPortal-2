@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public string Title { get; set; }
 
     /// <summary>
-    /// Title of the series as a whole (same as <see cref="Title"/>
+    /// Title of the series as a whole (same as <see cref="Title"/>)
     /// </summary>
     /// <example>"Castle"</example>
     public string ShowTitle { get; set; }

@@ -392,7 +392,7 @@ namespace Test.Backend
         "WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ROLE = @ROLE AND LINKEDROLE = @LINKEDROLE AND LINKEDID = @LINKEDID",
         "MEDIA_ITEM_ID");
 
-      MockCore.Library.AddOrUpdateMediaItem(parentDirectoryId, systemId, path, episodeAspects.Values.SelectMany(x => x));
+      MockCore.Library.AddOrUpdateMediaItem(parentDirectoryId, systemId, path, episodeAspects.Values.SelectMany(x => x), true);
 
       MockCore.ShutdownLibrary();
     }

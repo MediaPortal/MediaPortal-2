@@ -81,7 +81,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Gets or sets the series title.
     /// </summary>
-    public LanguageText SeriesName = null;
+    public SimpleTitle SeriesName = null;
     /// <summary>
     /// Gets or sets the season number. A "0" value will be treated as valid season number.
     /// </summary>
@@ -93,7 +93,50 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Gets or sets the season description.
     /// </summary>
-    public LanguageText Description = null;
+    public SimpleTitle Description = null;
+
+    public override bool IsBaseInfoPresent
+    {
+      get
+      {
+        if (SeriesName.IsEmpty)
+          return false;
+        if (!SeasonNumber.HasValue)
+          return false;
+
+        return true;
+      }
+    }
+
+    public override bool HasExternalId
+    {
+      get
+      {
+        if (TvdbId > 0)
+          return true;
+        if (MovieDbId > 0)
+          return true;
+        if (TvMazeId > 0)
+          return true;
+        if (TvRageId > 0)
+          return true;
+        if (!string.IsNullOrEmpty(ImdbId))
+          return true;
+
+        if (SeriesTvdbId > 0)
+          return true;
+        if (SeriesMovieDbId > 0)
+          return true;
+        if (SeriesTvMazeId > 0)
+          return true;
+        if (SeriesTvRageId > 0)
+          return true;
+        if (!string.IsNullOrEmpty(SeriesImdbId))
+          return true;
+
+        return false;
+      }
+    }
 
     #region Members
 
@@ -101,7 +144,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained series information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (SeriesName.IsEmpty || !SeasonNumber.HasValue) return false;
 
@@ -133,7 +176,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (aspectData.ContainsKey(SeasonAspect.ASPECT_ID))
       {
@@ -142,9 +185,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, out tempString);
-        SeriesName = new LanguageText(tempString, false);
+        SeriesName = new SimpleTitle(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, out tempString);
-        Description = new LanguageText(tempString, false);
+        Description = new SimpleTitle(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SEASON, out id))
@@ -179,7 +222,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, out tempString);
-        SeriesName = new LanguageText(tempString, false);
+        SeriesName = new SimpleTitle(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id))
@@ -202,7 +245,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return string.Format(SHORT_FORMAT_STR, SeriesName, SeasonNumber ?? 0);
     }
 
-    public bool FromString(string name)
+    public override bool FromString(string name)
     {
       Match match = _fromName.Match(name);
       if (match.Success)
@@ -214,53 +257,65 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
-    public bool CopyIdsFrom(SeriesInfo seasonSeries)
+    public override bool CopyIdsFrom<T>(T otherInstance)
     {
-      SeriesImdbId = seasonSeries.ImdbId;
-      SeriesMovieDbId = seasonSeries.MovieDbId;
-      SeriesTvdbId = seasonSeries.TvdbId;
-      SeriesTvMazeId = seasonSeries.TvMazeId;
-      SeriesTvRageId = seasonSeries.TvRageId;
-      return true;
+      if (otherInstance == null)
+        return false;
+
+      if (otherInstance is SeriesInfo)
+      {
+        SeriesInfo seasonSeries = otherInstance as SeriesInfo;
+        SeriesImdbId = seasonSeries.ImdbId;
+        SeriesMovieDbId = seasonSeries.MovieDbId;
+        SeriesTvdbId = seasonSeries.TvdbId;
+        SeriesTvMazeId = seasonSeries.TvMazeId;
+        SeriesTvRageId = seasonSeries.TvRageId;
+        return true;
+      }
+      else if (otherInstance is SeasonInfo)
+      {
+        SeasonInfo otherSeason = otherInstance as SeasonInfo;
+        MovieDbId = otherSeason.MovieDbId;
+        ImdbId = otherSeason.ImdbId;
+        TvdbId = otherSeason.TvdbId;
+        TvMazeId = otherSeason.TvMazeId;
+        TvRageId = otherSeason.TvRageId;
+
+        SeriesImdbId = otherSeason.SeriesImdbId;
+        SeriesMovieDbId = otherSeason.SeriesMovieDbId;
+        SeriesTvdbId = otherSeason.SeriesTvdbId;
+        SeriesTvMazeId = otherSeason.SeriesTvMazeId;
+        SeriesTvRageId = otherSeason.SeriesTvRageId;
+        return true;
+      }
+      else if (otherInstance is EpisodeInfo)
+      {
+        EpisodeInfo seasonEpisode = otherInstance as EpisodeInfo;
+        SeriesImdbId = seasonEpisode.SeriesImdbId;
+        SeriesMovieDbId = seasonEpisode.SeriesMovieDbId;
+        SeriesTvdbId = seasonEpisode.SeriesTvdbId;
+        SeriesTvMazeId = seasonEpisode.SeriesTvMazeId;
+        SeriesTvRageId = seasonEpisode.SeriesTvRageId;
+        return true;
+      }
+      return false;
     }
 
-    public bool CopyIdsFrom(SeasonInfo otherSeason)
+    public override T CloneBasicInstance<T>()
     {
-      MovieDbId = otherSeason.MovieDbId;
-      ImdbId = otherSeason.ImdbId;
-      TvdbId = otherSeason.TvdbId;
-      TvMazeId = otherSeason.TvMazeId;
-      TvRageId = otherSeason.TvRageId;
+      if (typeof(T) == typeof(SeriesInfo))
+      {
+        SeriesInfo info = new SeriesInfo();
+        info.ImdbId = SeriesImdbId;
+        info.MovieDbId = SeriesMovieDbId;
+        info.TvdbId = SeriesTvdbId;
+        info.TvMazeId = SeriesTvMazeId;
+        info.TvRageId = SeriesTvRageId;
 
-      SeriesImdbId = otherSeason.SeriesImdbId;
-      SeriesMovieDbId = otherSeason.SeriesMovieDbId;
-      SeriesTvdbId = otherSeason.SeriesTvdbId;
-      SeriesTvMazeId = otherSeason.SeriesTvMazeId;
-      SeriesTvRageId = otherSeason.SeriesTvRageId;
-      return true;
-    }
-
-    public bool CopyIdsFrom(EpisodeInfo seasonEpisode)
-    {
-      SeriesImdbId = seasonEpisode.SeriesImdbId;
-      SeriesMovieDbId = seasonEpisode.SeriesMovieDbId;
-      SeriesTvdbId = seasonEpisode.SeriesTvdbId;
-      SeriesTvMazeId = seasonEpisode.SeriesTvMazeId;
-      SeriesTvRageId = seasonEpisode.SeriesTvRageId;
-      return true;
-    }
-
-    public SeriesInfo CloneBasicSeries()
-    {
-      SeriesInfo info = new SeriesInfo();
-      info.ImdbId = SeriesImdbId;
-      info.MovieDbId = SeriesMovieDbId;
-      info.TvdbId = SeriesTvdbId;
-      info.TvMazeId = SeriesTvMazeId;
-      info.TvRageId = SeriesTvRageId;
-
-      SeriesName = new LanguageText(SeriesName.Text, SeriesName.DefaultLanguage);
-      return info;
+        SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
+        return (T)(object)info;
+      }
+      return default(T);
     }
 
     #endregion
@@ -272,6 +327,34 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return string.Format(SEASON_FORMAT_STR,
         SeriesName, 
         SeasonNumber ?? 0);
+    }
+
+    public override bool Equals(object obj)
+    {
+      SeasonInfo other = obj as SeasonInfo;
+      if (other == null) return false;
+
+      if (TvdbId > 0 && other.TvdbId > 0)
+        return TvdbId == other.TvdbId;
+      if (MovieDbId > 0 && other.MovieDbId > 0)
+        return MovieDbId == other.MovieDbId;
+      if (TvMazeId > 0 && other.TvMazeId > 0)
+        return TvMazeId == other.TvMazeId;
+      if (TvRageId > 0 && other.TvRageId > 0)
+        return TvRageId == other.TvRageId;
+      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
+        return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
+        SeasonNumber.HasValue && SeasonNumber == other.SeasonNumber)
+        return true;
+
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      //TODO: Check if this is functional
+      return (SeriesName.IsEmpty ? "Unnamed Season" : ToString()).GetHashCode();
     }
 
     #endregion

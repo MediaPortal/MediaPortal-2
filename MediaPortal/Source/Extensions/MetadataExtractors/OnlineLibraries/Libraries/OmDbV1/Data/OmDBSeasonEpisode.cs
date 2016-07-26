@@ -41,6 +41,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
     public string Title { get; set; }
 
     [DataMember(Name = "Released")]
+    public string ReleasedStr
+    {
+      get
+      {
+        if (Released.HasValue)
+          return Released.ToString();
+        return null;
+      }
+      set
+      {
+        DateTime releaseDate;
+        if (DateTime.TryParse(value, out releaseDate))
+          Released = releaseDate;
+        Released = null;
+      }
+    }
+
     public DateTime? Released { get; set; }
 
     [DataMember(Name = "Episode")]

@@ -158,7 +158,7 @@
     <Compile Include="Models\AspectWrappers\PersonAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\SeasonAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\SeriesAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\UserDataWapper.cs" />
+    <Compile Include="Models\AspectWrappers\UserDataWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoAudioStreamAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
@@ -342,7 +342,9 @@
     <Compile Include="Views\ViewSpecification.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="plugin.xml" />
     <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />

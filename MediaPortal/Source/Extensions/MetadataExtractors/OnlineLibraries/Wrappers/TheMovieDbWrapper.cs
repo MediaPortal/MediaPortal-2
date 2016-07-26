@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       movies = foundMovies.Select(m => new MovieInfo()
       {
         MovieDbId = m.Id,
-        MovieName = m.Title,
+        MovieName = new SimpleTitle(m.Title, false),
         OriginalName = m.OriginalTitle,
         ReleaseDate = m.ReleaseDate,
       }).ToList();
@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         movies = foundMovies.Select(m => new MovieInfo()
         {
           MovieDbId = m.Id,
-          MovieName = m.Title,
+          MovieName = new SimpleTitle(m.Title, false),
           OriginalName = m.OriginalTitle,
           ReleaseDate = m.ReleaseDate,
         }).ToList();
@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       SeriesInfo seriesSearch = null;
       if (episodeSearch.SeriesMovieDbId <= 0)
       {
-        seriesSearch = episodeSearch.CloneBasicSeries();
+        seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
       }
@@ -112,7 +112,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               {
                 SeriesName = seriesSearch.SeriesName,
                 SeasonNumber = episode.SeasonNumber,
-                EpisodeName = new LanguageText(episode.Name, false),
+                EpisodeName = new SimpleTitle(episode.Name, false),
               };
               info.EpisodeNumbers.Add(episode.EpisodeNumber);
               info.CopyIdsFrom(seriesSearch);
@@ -231,16 +231,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       movie.CollectionMovieDbId = movieDetail.Collection != null ? movieDetail.Collection.Id : 0;
       movie.CollectionName = movieDetail.Collection != null ? movieDetail.Collection.Name : null;
       movie.Genres = movieDetail.Genres.Select(g => g.Name).ToList();
-      movie.MovieName = movieDetail.Title;
+      movie.MovieName = new SimpleTitle(movieDetail.Title, false);
       movie.OriginalName = movieDetail.OriginalTitle;
       movie.Summary = movieDetail.Overview;
       movie.Popularity = movieDetail.Popularity ?? 0;
       movie.ProductionCompanies = ConvertToCompanies(movieDetail.ProductionCompanies, CompanyAspect.COMPANY_PRODUCTION);
-      movie.TotalRating = movieDetail.Rating ?? 0;
-      movie.RatingCount = movieDetail.RatingCount ?? 0;
+      movie.Rating = new SimpleRating(movieDetail.Rating, movieDetail.RatingCount);
       movie.ReleaseDate = movieDetail.ReleaseDate;
       movie.Revenue = movieDetail.Revenue ?? 0;
       movie.Tagline = movieDetail.Tagline;
+      movie.Runtime = movieDetail.Runtime ?? 0;
 
       MovieCasts movieCasts = _movieDbHandler.GetMovieCastCrew(movieDetail.Id, language, cacheOnly);
       if (cacheOnly && movieCasts == null)
@@ -266,8 +266,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (collectionDetail == null) return false;
 
       collection.MovieDbId = collectionDetail.Id;
-      collection.CollectionName = new LanguageText(collectionDetail.Name, false);
-      collection.Movies = ConvertToMovies(collectionDetail.Movies);
+      collection.CollectionName = new SimpleTitle(collectionDetail.Name, false);
+      collection.Movies = ConvertToMovies(collectionDetail, collectionDetail.Movies);
 
       return true;
     }
@@ -381,13 +381,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series.TvRageId = seriesDetail.ExternalId.TvRageId ?? 0;
       series.ImdbId = seriesDetail.ExternalId.ImDbId;
 
-      series.SeriesName = new LanguageText(seriesDetail.Name, false);
+      series.SeriesName = new SimpleTitle(seriesDetail.Name, false);
       series.OriginalName = seriesDetail.OriginalName;
       series.FirstAired = seriesDetail.FirstAirDate;
-      series.Description = new LanguageText(seriesDetail.Overview, false);
+      series.Description = new SimpleTitle(seriesDetail.Overview, false);
       series.Popularity = seriesDetail.Popularity ?? 0;
-      series.TotalRating = seriesDetail.Rating ?? 0;
-      series.RatingCount = seriesDetail.RatingCount ?? 0;
+      series.Rating = new SimpleRating(seriesDetail.Rating, seriesDetail.RatingCount);
       series.Genres = seriesDetail.Genres.Select(g => g.Name).ToList();
       series.Networks = ConvertToCompanies(seriesDetail.Networks, CompanyAspect.COMPANY_TV_NETWORK);
       series.ProductionCompanies = ConvertToCompanies(seriesDetail.ProductionCompanies, CompanyAspect.COMPANY_PRODUCTION);
@@ -427,16 +426,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               SeriesImdbId = seriesDetail.ExternalId.ImDbId,
               SeriesTvdbId = seriesDetail.ExternalId.TvDbId ?? 0,
               SeriesTvRageId = seriesDetail.ExternalId.TvRageId ?? 0,
-              SeriesName = new LanguageText(seriesDetail.Name, false),
+              SeriesName = new SimpleTitle(seriesDetail.Name, false),
               SeriesFirstAired = seriesDetail.FirstAirDate,
 
               SeasonNumber = episodeDetail.SeasonNumber,
               EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
               FirstAired = episodeDetail.AirDate,
-              TotalRating = episodeDetail.Rating ?? 0,
-              RatingCount = episodeDetail.RatingCount ?? 0,
-              EpisodeName = new LanguageText(episodeDetail.Name, false),
-              Summary = new LanguageText(episodeDetail.Overview, false),
+              Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
+              EpisodeName = new SimpleTitle(episodeDetail.Name, false),
+              Summary = new SimpleTitle(episodeDetail.Overview, false),
               Genres = seriesDetail.Genres.Select(g => g.Name).ToList(),
             };
 
@@ -447,8 +445,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               info.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR));
               info.Characters.AddRange(ConvertToCharacters(seriesCast.Cast));
             }
-            info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
-            info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
+            //info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
+            //info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
             info.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
             info.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER);
 
@@ -466,7 +464,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
           if (nextEpisode != null)
           {
-            series.NextEpisodeName = new LanguageText(nextEpisode.Name, false);
+            series.NextEpisodeName = new SimpleTitle(nextEpisode.Name, false);
             series.NextEpisodeAirDate = nextEpisode.AirDate;
             series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
             series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
@@ -500,9 +498,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       season.SeriesTvdbId = seriesDetail.ExternalId.TvDbId ?? 0;
       season.SeriesTvRageId = seriesDetail.ExternalId.TvRageId ?? 0;
 
-      season.SeriesName = new LanguageText(seriesDetail.Name, false);
+      season.SeriesName = new SimpleTitle(seriesDetail.Name, false);
       season.FirstAired = seasonDetail.AirDate;
-      season.Description = new LanguageText(seasonDetail.Overview, false);
+      season.Description = new SimpleTitle(seasonDetail.Overview, false);
       season.SeasonNumber = seasonDetail.SeasonNumber;
 
       return true;
@@ -542,16 +540,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             SeriesImdbId = seriesDetail.ExternalId.ImDbId,
             SeriesTvdbId = seriesDetail.ExternalId.TvDbId ?? 0,
             SeriesTvRageId = seriesDetail.ExternalId.TvRageId ?? 0,
-            SeriesName = new LanguageText(seriesDetail.Name, false),
+            SeriesName = new SimpleTitle(seriesDetail.Name, false),
             SeriesFirstAired = seriesDetail.FirstAirDate,
 
             SeasonNumber = episodeDetail.SeasonNumber,
             EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
             FirstAired = episodeDetail.AirDate,
-            TotalRating = episodeDetail.Rating ?? 0,
-            RatingCount = episodeDetail.RatingCount ?? 0,
-            EpisodeName = new LanguageText(episodeDetail.Name, false),
-            Summary = new LanguageText(episodeDetail.Overview, false),
+            Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
+            EpisodeName = new SimpleTitle(episodeDetail.Name, false),
+            Summary = new SimpleTitle(episodeDetail.Overview, false),
             Genres = seriesDetail.Genres.Select(g => g.Name).ToList(),
           };
 
@@ -562,8 +559,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             info.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR));
             info.Characters.AddRange(ConvertToCharacters(seriesCast.Cast));
           }
-          info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
-          info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
+          //info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
+          //info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
           info.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
           info.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER);
 
@@ -647,14 +644,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineSeriesCharacter(episodeInfo.CloneBasicSeries(), character, language, cacheOnly);
+      return UpdateFromOnlineSeriesCharacter(episodeInfo.CloneBasicInstance<SeriesInfo>(), character, language, cacheOnly);
     }
 
     #endregion
 
     #region Convert
 
-    private List<MovieInfo> ConvertToMovies(List<MovieSearchResult> movies)
+    private List<MovieInfo> ConvertToMovies(MovieCollection movieCollection, List<MovieSearchResult> movies)
     {
       if (movies == null || movies.Count == 0)
         return new List<MovieInfo>();
@@ -664,8 +661,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         retValue.Add(new MovieInfo()
         {
+          CollectionMovieDbId = movieCollection.Id,
+          CollectionName = new SimpleTitle(movieCollection.Name, false),
+
           MovieDbId = movie.Id,
-          MovieName = new LanguageText(movie.Title, false),
+          MovieName = new SimpleTitle(movie.Title, false),
           OriginalName = movie.OriginalTitle,
           ReleaseDate = movie.ReleaseDate,
           Order = retValue.Count
@@ -763,7 +763,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         MovieCollectionInfo collection = infoObject as MovieCollectionInfo;
         if(collection == null && movie != null)
         {
-          collection = movie.CloneBasicMovieCollection();
+          collection = movie.CloneBasicInstance<MovieCollectionInfo>();
         }
         if (collection != null && collection.MovieDbId > 0)
         {
@@ -787,11 +787,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         SeriesInfo series = infoObject as SeriesInfo;
         if (series == null && season != null)
         {
-          series = season.CloneBasicSeries();
+          series = season.CloneBasicInstance<SeriesInfo>();
         }
         if (series == null && episode != null)
         {
-          series = episode.CloneBasicSeries();
+          series = episode.CloneBasicInstance<SeriesInfo>();
         }
         if (series != null && series.MovieDbId > 0)
         {
@@ -805,7 +805,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         SeasonInfo season = infoObject as SeasonInfo;
         if (season == null && episode != null)
         {
-          season = episode.CloneBasicSeason();
+          season = episode.CloneBasicInstance<SeasonInfo>();
         }
         if (season != null && season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
         {

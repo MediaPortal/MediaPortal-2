@@ -215,7 +215,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalTracks, trackMatch.TotalTracks);
           MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, trackMatch.TrackNum);
 
-          MetadataUpdater.SetOrUpdateRatings(ref trackInfo.TotalRating, ref trackInfo.RatingCount, trackMatch.TotalRating, trackMatch.RatingCount);
+          MetadataUpdater.SetOrUpdateRatings(ref trackInfo.Rating, trackMatch.Rating);
 
           MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists, true);
           MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists, true);
@@ -296,17 +296,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (_artistMatcher.GetNameMatch(person.Name, out id))
-              SetPersonId(person, id);
+            {
+              if (SetPersonId(person, id))
+                updated = true;
+            }
           }
         }
         else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
         {
           persons = trackMatch.Composers;
-        foreach (PersonInfo person in persons)
-        {
+          foreach (PersonInfo person in persons)
+          {
             string id;
             if (_composerMatcher.GetNameMatch(person.Name, out id))
-              SetPersonId(person, id);
+            {
+              if (SetPersonId(person, id))
+                updated = true;
+            }
           }
         }
         foreach (PersonInfo person in persons)
@@ -337,6 +343,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             updated = true;
           }
+        }
+
+        if (updated == false && occupation == PersonAspect.OCCUPATION_ARTIST)
+        {
+          //Try to update artist based on album information
+          AlbumInfo album = trackMatch.CloneBasicInstance<AlbumInfo>();
+          album.Artists = trackMatch.Artists;
+          if (UpdateAlbumPersons(album, occupation, forceQuickMode))
+            updated = true;
         }
 
         if (updated)
@@ -405,11 +420,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (occupation == PersonAspect.OCCUPATION_ARTIST)
         {
           persons = albumMatch.Artists;
-        foreach (PersonInfo person in persons)
-        {
+          foreach (PersonInfo person in persons)
+          {
             string id;
             if (_artistMatcher.GetNameMatch(person.Name, out id))
-              SetPersonId(person, id);
+            {
+              if (SetPersonId(person, id))
+                updated = true;
+            }
           }
         }
         foreach (PersonInfo person in persons)
@@ -490,11 +508,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (companyType == CompanyAspect.COMPANY_MUSIC_LABEL)
         {
           companies = albumMatch.MusicLabels;
-        foreach (CompanyInfo company in companies)
-        {
+          foreach (CompanyInfo company in companies)
+          {
             string id;
             if (_labelMatcher.GetNameMatch(company.Name, out id))
-              SetCompanyId(company, id);
+            {
+              if (SetCompanyId(company, id))
+                updated = true;
+            }
           }
         }
         foreach (CompanyInfo company in companies)
@@ -617,7 +638,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalDiscs, albumMatch.TotalDiscs);
           MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalTracks, albumMatch.TotalTracks);
 
-          MetadataUpdater.SetOrUpdateRatings(ref albumInfo.TotalRating, ref albumInfo.RatingCount, albumMatch.TotalRating, albumMatch.RatingCount);
+          MetadataUpdater.SetOrUpdateRatings(ref albumInfo.Rating, albumMatch.Rating);
 
           MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
@@ -704,7 +725,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     private void StoreTrackMatch(TrackInfo trackSearch, TrackInfo trackMatch)
     {
-      if (trackMatch == null)
+      if (!trackSearch.IsBaseInfoPresent)
+        return;
+
+      if (trackMatch == null || !trackMatch.IsBaseInfoPresent)
       {
         _storage.TryAddMatch(new TrackMatch()
         {
@@ -860,7 +884,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         AlbumInfo album = infoObject as AlbumInfo;
         if (album == null && track != null)
         {
-          album = track.CloneBasicAlbum();
+          album = track.CloneBasicInstance<AlbumInfo>();
         }
         if (album != null && GetTrackAlbumId(album, out id))
         {
@@ -1048,22 +1072,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string scope, string type)
     {
-      if (images == null)
-        return 0;
-
-      int idx = 0;
-      foreach (TImg img in images)
+      try
       {
-        if (!VerifyFanArtImage(img))
-          continue;
-        if (idx >= MAX_FANART_IMAGES)
-          break;
-        if (_wrapper.DownloadFanArt(id, img, scope, type))
-          idx++;
-      }
-      ServiceRegistration.Get<ILogger>().Debug(GetType().Name + @" Download: Saved {0} {1}\{2}", idx, scope, type);
-      return idx;
+        if (images == null)
+          return 0;
 
+        int idx = 0;
+        foreach (TImg img in images)
+        {
+          if (!VerifyFanArtImage(img))
+            continue;
+          if (idx >= MAX_FANART_IMAGES)
+            break;
+          if (_wrapper.DownloadFanArt(id, img, scope, type))
+            idx++;
+        }
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + @" Download: Saved {0} {1}\{2}", idx, scope, type);
+        return idx;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
+        return 0;
+      }
     }
 
     #endregion

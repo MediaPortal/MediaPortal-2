@@ -43,6 +43,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers;
+using System.Globalization;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -63,15 +64,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
-    /// <summary>
-    /// Maximum cover image width. Larger images will be scaled down to fit this dimension.
-    /// </summary>
-    public const int MAX_COVER_WIDTH = 512;
-
-    /// <summary>
-    /// Maximum cover image height. Larger images will be scaled down to fit this dimension.
-    /// </summary>
-    public const int MAX_COVER_HEIGHT = 512;
+    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 1;
 
     #endregion
 
@@ -343,18 +336,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!HasAudioExtension(fileName))
         return false;
 
-      bool refresh = false;
-      if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
-        refresh = true;
-
       try
       {
         TrackInfo trackInfo = new TrackInfo();
-        if (refresh)
+        if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
         {
           trackInfo.FromMetadata(extractedAspectData);
         }
-        else
+        if(!trackInfo.IsBaseInfoPresent)
         {
           File tag;
           try
@@ -380,6 +369,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           string artist;
           uint? trackNo;
           GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
+          if(!string.IsNullOrEmpty(title))
+            title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title.ToLowerInvariant());
+          if (!string.IsNullOrEmpty(artist))
+            artist = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(artist.ToLowerInvariant());
+
           if (!string.IsNullOrEmpty(tag.Tag.Title))
             title = tag.Tag.Title;
           IEnumerable<string> artists;
@@ -443,14 +437,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             artistId = tag.Tag.MusicBrainzArtistId;
 
           trackInfo.Artists = new List<PersonInfo>();
-          foreach (string artistName in ApplyAdditionalSeparator(artists))
+          if (artist != null)
           {
-            trackInfo.Artists.Add(new PersonInfo()
+            foreach (string artistName in ApplyAdditionalSeparator(artists))
             {
-              MusicBrainzId = artists.Count() == 1 ? artistId : null,
-              Name = artistName,
-              Occupation = PersonAspect.OCCUPATION_ARTIST
-            });
+              trackInfo.Artists.Add(new PersonInfo()
+              {
+                MusicBrainzId = artists.Count() == 1 ? artistId : null,
+                Name = artistName,
+                Occupation = PersonAspect.OCCUPATION_ARTIST
+              });
+            }
           }
 
           if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseArtistId))
@@ -460,27 +457,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if ((tag.TagTypes & TagTypes.Id3v2) != 0)
             albumArtists = PatchID3v23Enumeration(albumArtists);
           trackInfo.AlbumArtists = new List<PersonInfo>();
-          foreach (string artistName in ApplyAdditionalSeparator(albumArtists))
+          if (albumArtists != null)
           {
-            trackInfo.AlbumArtists.Add(new PersonInfo()
+            foreach (string artistName in ApplyAdditionalSeparator(albumArtists))
             {
-              MusicBrainzId = artists.Count() == 1 ? artistId : null,
-              Name = artistName,
-              Occupation = PersonAspect.OCCUPATION_ARTIST
-            });
+              trackInfo.AlbumArtists.Add(new PersonInfo()
+              {
+                MusicBrainzId = albumArtists.Count() == 1 ? artistId : null,
+                Name = artistName,
+                Occupation = PersonAspect.OCCUPATION_ARTIST
+              });
+            }
           }
 
           IEnumerable<string> composers = tag.Tag.Composers;
           if ((tag.TagTypes & TagTypes.Id3v2) != 0)
             composers = PatchID3v23Enumeration(composers);
           trackInfo.Composers = new List<PersonInfo>();
-          foreach (string artistName in ApplyAdditionalSeparator(composers))
+          if (composers != null)
           {
-            trackInfo.Composers.Add(new PersonInfo()
+            foreach (string composerName in ApplyAdditionalSeparator(composers))
             {
-              Name = artistName,
-              Occupation = PersonAspect.OCCUPATION_COMPOSER
-            });
+              trackInfo.Composers.Add(new PersonInfo()
+              {
+                Name = composerName,
+                Occupation = PersonAspect.OCCUPATION_COMPOSER
+              });
+            }
           }
 
           if (tag.Tag.Genres.Length > 0)
@@ -504,9 +507,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             try
             {
               using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
-              using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
               {
-                trackInfo.Thumbnail = resized.ToArray();
+                trackInfo.Thumbnail = stream.ToArray();
               }
             }
             // Decoding of invalid image data can fail, but main MediaItem is correct.
@@ -528,41 +530,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
           if (string.IsNullOrEmpty(trackInfo.Album) || trackInfo.Artists.Count == 0)
           {
-            TrackInfo dummy = new TrackInfo();
-            dummy.TrackName = fileName;
-            if (MusicNameMatcher.MatchTrack(dummy))
-            {
-              if (string.IsNullOrEmpty(trackInfo.Album)) trackInfo.Album = dummy.TrackName;
-              if (trackInfo.Artists.Count == 0)
-              {
-                trackInfo.Artists = new List<PersonInfo>(dummy.Artists);
-              }
-              if (trackInfo.AlbumArtists.Count == 0)
-              {
-                trackInfo.AlbumArtists = new List<PersonInfo>(dummy.Artists);
-              }
-              if (trackInfo.TrackNum == 0) trackInfo.TrackNum = dummy.TrackNum;
-            }
+            MusicNameMatcher.MatchTrack(fileName, trackInfo);
           }
         }
 
-        bool success = false;
         if(_onlyFanArt)
-          success = trackInfo.SetMetadata(extractedAspectData);
+          trackInfo.SetMetadata(extractedAspectData);
 
         if (AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo))
         {
-          CDFreeDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+          CDFreeDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
         }
 
-        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
-        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
-        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
+        //MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
 
         if (!_onlyFanArt)
-          return trackInfo.SetMetadata(extractedAspectData);
+          trackInfo.SetMetadata(extractedAspectData);
 
-        return success;
+        return trackInfo.IsBaseInfoPresent;
       }
       catch (UnsupportedFormatException)
       {

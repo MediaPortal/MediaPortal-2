@@ -30,6 +30,8 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -311,7 +313,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineMusicTrackAlbumPerson(trackInfo.CloneBasicAlbum(), person, language, cacheOnly);
+      return UpdateFromOnlineMusicTrackAlbumPerson(trackInfo.CloneBasicInstance<AlbumInfo>(), person, language, cacheOnly);
     }
 
     public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
@@ -358,8 +360,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       track.TrackNum = trackDetail.TrackNum;
       track.TotalTracks = trackDetail.TotalTracks;
       track.DiscNum = trackDetail.DiscId;
-      track.TotalRating = trackDetail.RatingValue;
-      track.RatingCount = trackDetail.RatingVotes;
+      track.Rating = new SimpleRating(trackDetail.RatingValue, trackDetail.RatingVotes);
 
       track.Artists = ConvertToPersons(trackDetail.TrackArtists, PersonAspect.OCCUPATION_ARTIST);
       track.Composers = ConvertToPersons(trackDetail.Composers, PersonAspect.OCCUPATION_COMPOSER);
@@ -464,29 +465,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       images = new ApiWrapperImageCollection<TrackImage>();
 
-      if (scope == FanArtMediaTypes.Album)
+      try
       {
-        TrackInfo track = infoObject as TrackInfo;
-        AlbumInfo album = infoObject as AlbumInfo;
-        if (album == null && track != null)
+        if (scope == FanArtMediaTypes.Album)
         {
-          album = track.CloneBasicAlbum();
-        }
-        if (album != null && !string.IsNullOrEmpty(album.MusicBrainzId))
-        {
-          // Download all image information, filter later!
-          TrackImageCollection albumImages = _musicBrainzHandler.GetImages(album.MusicBrainzId);
-          if (albumImages != null)
+          TrackInfo track = infoObject as TrackInfo;
+          AlbumInfo album = infoObject as AlbumInfo;
+          if (album == null && track != null)
           {
-            images.Id = album.MusicBrainzId;
-            images.Covers.AddRange(albumImages.Images);
-            return true;
+            album = track.CloneBasicInstance<AlbumInfo>();
+          }
+          if (album != null && !string.IsNullOrEmpty(album.MusicBrainzId))
+          {
+            // Download all image information, filter later!
+            TrackImageCollection albumImages = _musicBrainzHandler.GetImages(album.MusicBrainzId);
+            if (albumImages != null)
+            {
+              images.Id = album.MusicBrainzId;
+              images.Covers.AddRange(albumImages.Images);
+              return true;
+            }
           }
         }
+        else
+        {
+          return true;
+        }
       }
-      else
+      catch (Exception ex)
       {
-        return true;
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception downloading images", ex);
       }
       return false;
     }

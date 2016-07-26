@@ -24,24 +24,28 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
   class SeriesBaseTryExtractRelationships
   {
+    private CheckedItemCache<SeriesInfo> _checkCache = new CheckedItemCache<SeriesInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
-
-      // Build the series MI
 
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
+      if (_checkCache.IsItemChecked(seriesInfo))
+        return false;
+
+      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
       SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
       SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
-      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
       SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
       SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
 

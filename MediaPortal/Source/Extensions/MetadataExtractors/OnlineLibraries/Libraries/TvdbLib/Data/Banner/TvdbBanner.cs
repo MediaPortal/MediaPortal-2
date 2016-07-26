@@ -24,6 +24,7 @@ using System.Net;
 using System.IO;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
+using System.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
@@ -59,6 +60,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     #region private/protected fields
 
     private readonly object _bannerLoadingLock = new object();
+    private const int _bannerLoadTimeout = 2000;
 
     public TvdbBanner ()
     {
@@ -198,9 +200,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     public bool UnloadBanner(bool saveToCache)
     {
       if (BannerLoading)
-      {//banner is currently loading
-        Log.Warn("Can't remove banner while it's loading");
-        return false;
+      {
+        if (!SpinWait.SpinUntil(BannerIsLoading, _bannerLoadTimeout))
+        {
+          //banner is currently loading
+          Log.Warn("Can't remove banner while it's loading");
+          return false;
+        }
       }
       try
       {
@@ -222,6 +228,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
         Log.Warn("Error while unloading banner", ex);
       }
       return true;
+    }
+
+    private bool BannerIsLoading()
+    {
+      return BannerLoading;
     }
 
     /// <summary>

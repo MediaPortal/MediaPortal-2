@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -38,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
+    private CheckedItemCache<AlbumInfo> _checkCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -59,25 +61,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string ExternalIdType
-    {
-      get
-      {
-        return ExternalIdentifierAspect.TYPE_COMPANY;
-      }
-    }
-
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
-      // Build the person MI
+      if (forceQuickMode)
+        return false;
 
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      MusicBrainzMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
+      if (_checkCache.IsItemChecked(albumInfo))
+        return false;
+
+      //MusicBrainzMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
       MusicFanArtTvMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
 
       if (albumInfo.MusicLabels.Count == 0)
@@ -91,7 +89,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         company.SetMetadata(companyAspects);
 
         if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        extractedLinkedAspects.Add(companyAspects);
+          extractedLinkedAspects.Add(companyAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }

@@ -58,13 +58,52 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int ActorTvRageId = 0;
     public string ActorName = null;
 
+    public override bool IsBaseInfoPresent
+    {
+      get
+      {
+        if (string.IsNullOrEmpty(Name))
+          return false;
+        if (string.IsNullOrEmpty(ActorName))
+          return false;
+
+        return true;
+      }
+    }
+
+    public override bool HasExternalId
+    {
+      get
+      {
+        if (ActorTvdbId > 0)
+          return true;
+        if (ActorMovieDbId > 0)
+          return true;
+        if (ActorTvMazeId > 0)
+          return true;
+        if (ActorTvRageId > 0)
+          return true;
+        if (!string.IsNullOrEmpty(ActorImdbId))
+          return true;
+
+        if (TvdbId > 0)
+          return true;
+        if (MovieDbId > 0)
+          return true;
+        if (TvMazeId > 0)
+          return true;
+
+        return false;
+      }
+    }
+
     #region Members
 
     /// <summary>
     /// Copies the contained character information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (string.IsNullOrEmpty(Name)) return false;
 
@@ -89,7 +128,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (!aspectData.ContainsKey(CharacterAspect.ASPECT_ID))
         return false;
@@ -122,37 +161,51 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public bool FromString(string name)
+    public override bool FromString(string name)
     {
       Name = name;
       return true;
     }
 
-    public bool CopyIdsFrom(CharacterInfo otherCharacter)
+    public override bool CopyIdsFrom<T>(T otherInstance)
     {
-      ActorImdbId = otherCharacter.ActorImdbId;
-      ActorMovieDbId = otherCharacter.ActorMovieDbId;
-      ActorTvdbId = otherCharacter.ActorTvdbId;
-      ActorTvMazeId = otherCharacter.ActorTvMazeId;
+      if (otherInstance == null)
+        return false;
 
-      MovieDbId = otherCharacter.MovieDbId;
-      TvdbId = otherCharacter.TvdbId;
-      TvMazeId = otherCharacter.TvMazeId;
-      return true;
+      if (otherInstance is CharacterInfo)
+      {
+        CharacterInfo otherCharacter = otherInstance as CharacterInfo;
+
+        ActorImdbId = otherCharacter.ActorImdbId;
+        ActorMovieDbId = otherCharacter.ActorMovieDbId;
+        ActorTvdbId = otherCharacter.ActorTvdbId;
+        ActorTvMazeId = otherCharacter.ActorTvMazeId;
+
+        MovieDbId = otherCharacter.MovieDbId;
+        TvdbId = otherCharacter.TvdbId;
+        TvMazeId = otherCharacter.TvMazeId;
+
+        return true;
+      }
+      return false;
     }
 
-    public PersonInfo CloneBasicActor()
+    public override T CloneBasicInstance<T>()
     {
-      PersonInfo info = new PersonInfo();
-      info.ImdbId = ActorImdbId;
-      info.MovieDbId = ActorMovieDbId;
-      info.TvdbId = ActorTvdbId;
-      info.TvMazeId = ActorTvMazeId;
-      info.TvRageId = ActorTvRageId;
+      if (typeof(T) == typeof(PersonInfo))
+      {
+        PersonInfo info = new PersonInfo();
+        info.ImdbId = ActorImdbId;
+        info.MovieDbId = ActorMovieDbId;
+        info.TvdbId = ActorTvdbId;
+        info.TvMazeId = ActorTvMazeId;
+        info.TvRageId = ActorTvRageId;
 
-      info.Name = ActorName;
-      info.Occupation = PersonAspect.OCCUPATION_ACTOR;
-      return info;
+        info.Name = ActorName;
+        info.Occupation = PersonAspect.OCCUPATION_ACTOR;
+        return (T)(object)info;
+      }
+      return default(T);
     }
 
     #endregion
@@ -161,13 +214,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return Name;
+      return Name ?? "?";
     }
 
     public override bool Equals(object obj)
     {
       CharacterInfo other = obj as CharacterInfo;
-      if (obj == null) return false;
+      if (other == null) return false;
 
       if (ActorTvdbId > 0 && other.ActorTvdbId > 0)
         return ActorTvdbId == other.ActorTvdbId;
@@ -179,6 +232,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return ActorTvRageId == other.ActorTvRageId;
       if (!string.IsNullOrEmpty(ActorImdbId) && !string.IsNullOrEmpty(other.ActorImdbId))
         return string.Equals(ActorImdbId, other.ActorImdbId, StringComparison.InvariantCultureIgnoreCase);
+
       if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) && !MatchNames(ActorName, other.ActorName))
         return false;
       if (TvdbId > 0 && other.TvdbId > 0)
@@ -200,7 +254,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override int GetHashCode()
     {
       //TODO: Check if this is functional
-      return Name.GetHashCode();
+      return (string.IsNullOrEmpty(Name) ? "Unnamed Character" : Name).GetHashCode();
     }
 
     public int CompareTo(CharacterInfo other)

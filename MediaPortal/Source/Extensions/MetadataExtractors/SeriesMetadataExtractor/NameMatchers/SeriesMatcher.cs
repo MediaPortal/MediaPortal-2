@@ -29,6 +29,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -51,9 +54,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file</param>
     /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out EpisodeInfo episodeInfo)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, EpisodeInfo episodeInfo)
     {
-      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out episodeInfo);
+      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, episodeInfo);
     }
 
     /// <summary>
@@ -63,7 +66,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// <param name="folderOrFileName">Full path to file</param>
     /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(string folderOrFileName, out EpisodeInfo episodeInfo)
+    public bool MatchSeries(string folderOrFileName, EpisodeInfo episodeInfo)
     {
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>();
 
@@ -73,72 +76,90 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         replacement.Replace(ref folderOrFileName);
       }
 
-      foreach (var pattern in settings.Patterns)
+      foreach (var pattern in settings.SeriesPatterns)
       {
         // Calling EnsureLocalFileSystemAccess not necessary; only string operation
         Regex matcher;
         if (pattern.GetRegex(out matcher))
         {
           Match ma = matcher.Match(folderOrFileName);
-          episodeInfo = ParseSeries(ma);
-          if (episodeInfo.AreReqiredFieldsFilled)
+          ParseSeries(ma, episodeInfo);
+          if (episodeInfo.IsBaseInfoPresent)
           {
             // Do replacements after successful match
             foreach (var replacement in settings.Replacements.Where(r => !r.BeforeMatch))
             {
-              string tmp = episodeInfo.SeriesName.Text;
-              replacement.Replace(ref tmp);
-              episodeInfo.SeriesName.Text = tmp;
+              string tmp;
+              if (!episodeInfo.SeriesName.IsEmpty)
+              {
+                tmp = episodeInfo.SeriesName.Text;
+                replacement.Replace(ref tmp);
+                episodeInfo.SeriesName.Text = tmp;
+              }
 
-              tmp = episodeInfo.EpisodeName.Text;
-              replacement.Replace(ref tmp);
-              episodeInfo.EpisodeName.Text = tmp;
+              if (!episodeInfo.EpisodeName.IsEmpty)
+              {
+                tmp = episodeInfo.EpisodeName.Text;
+                replacement.Replace(ref tmp);
+                episodeInfo.EpisodeName.Text = tmp;
+              }
             }
             if (!episodeInfo.SeriesName.IsEmpty)
             {
-              Match yearMa = settings.SeriesYearRegex.Regex.Match(episodeInfo.SeriesName.Text);
+              Match yearMa = settings.SeriesYearPattern.Regex.Match(episodeInfo.SeriesName.Text);
               if (yearMa.Success)
               {
-                episodeInfo.SeriesName = EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value);
-                episodeInfo.SeriesFirstAired = new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1);
+                //episodeInfo.SeriesName = new SimpleTitle(EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value), episodeInfo.SeriesName.DefaultLanguage);
+                MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
               }
+            }
+            if (!episodeInfo.SeriesName.IsEmpty)
+            {
+              episodeInfo.SeriesName.Text = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(episodeInfo.SeriesName.Text);
+            }
+            if (!episodeInfo.EpisodeName.IsEmpty)
+            {
+              episodeInfo.EpisodeName.Text = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(episodeInfo.EpisodeName.Text);
             }
             return true;
           }
         }
       }
-      episodeInfo = null;
       return false;
     }
 
-    static EpisodeInfo ParseSeries(Match ma)
+    static bool ParseSeries(Match ma, EpisodeInfo episodeInfo)
     {
-      EpisodeInfo info = new EpisodeInfo();
+      if (!ma.Success)
+        return false;
+
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
-        info.SeriesName = EpisodeInfo.CleanupWhiteSpaces(group.Value);
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, EpisodeInfo.CleanupWhiteSpaces(group.Value), true);
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)
-        info.EpisodeName = EpisodeInfo.CleanupWhiteSpaces(group.Value);
+        MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, EpisodeInfo.CleanupWhiteSpaces(group.Value), true);
 
       group = ma.Groups[GROUP_SEASONNUM];
       int tmpInt;
       if (group.Length > 0 && int.TryParse(group.Value, out tmpInt))
-        info.SeasonNumber = tmpInt;
+        episodeInfo.SeasonNumber = tmpInt;
 
-      // There can be multipe episode numbers in one file
+      // There can be multiple episode numbers in one file
       group = ma.Groups[GROUP_EPISODENUM];
       if (group.Length > 0)
       {
+        List<int> episodeNums = new List<int>();
         foreach (Capture capture in group.Captures)
         {
           int episodeNum;
           if (int.TryParse(capture.Value, out episodeNum))
-            info.EpisodeNumbers.Add(episodeNum);
+            episodeNums.Add(episodeNum);
         }
+        MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeNums, true);
       }
-      return info;
+      return true;
     }
   }
 }

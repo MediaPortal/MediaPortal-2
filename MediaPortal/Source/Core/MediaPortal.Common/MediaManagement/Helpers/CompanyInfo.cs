@@ -50,9 +50,41 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the company name.
     /// </summary>
     public string Name = null;
-    public LanguageText Description = null;
+    public SimpleTitle Description = null;
     public string Type = null;
     public int? Order = null;
+
+    public override bool IsBaseInfoPresent
+    {
+      get
+      {
+        if (string.IsNullOrEmpty(Name))
+          return false;
+        if (string.IsNullOrEmpty(Type))
+          return false;
+
+        return true;
+      }
+    }
+
+    public override bool HasExternalId
+    {
+      get
+      {
+        if (TvdbId > 0)
+          return true;
+        if (MovieDbId > 0)
+          return true;
+        if (TvMazeId > 0)
+          return true;
+        if (AudioDbId > 0)
+          return true;
+        if (!string.IsNullOrEmpty(MusicBrainzId))
+          return true;
+
+        return false;
+      }
+    }
 
     #region Members
 
@@ -60,7 +92,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained company information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (string.IsNullOrEmpty(Name)) return false;
       if (string.IsNullOrEmpty(Type)) return false;
@@ -96,7 +128,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (!aspectData.ContainsKey(CompanyAspect.ASPECT_ID))
         return false;
@@ -106,7 +138,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       string tempString;
       MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, out tempString);
-      Description = new LanguageText(tempString, false);
+      Description = new SimpleTitle(tempString, false);
 
       if (Type == CompanyAspect.COMPANY_TV_NETWORK)
       {
@@ -144,21 +176,30 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public bool FromString(string name)
+    public override bool FromString(string name)
     {
       Name = name;
       return true;
     }
 
-    public bool CopyIdsFrom(CompanyInfo otherCompany)
+    public override bool CopyIdsFrom<T>(T otherInstance)
     {
-      AudioDbId = otherCompany.AudioDbId;
-      ImdbId = otherCompany.ImdbId;
-      MovieDbId = otherCompany.MovieDbId;
-      MusicBrainzId = otherCompany.MusicBrainzId;
-      TvdbId = otherCompany.TvdbId;
-      TvMazeId = otherCompany.TvMazeId;
-      return true;
+      if (otherInstance == null)
+        return false;
+
+      if (otherInstance is CompanyInfo)
+      {
+        CompanyInfo otherCompany = otherInstance as CompanyInfo;
+
+        AudioDbId = otherCompany.AudioDbId;
+        ImdbId = otherCompany.ImdbId;
+        MovieDbId = otherCompany.MovieDbId;
+        MusicBrainzId = otherCompany.MusicBrainzId;
+        TvdbId = otherCompany.TvdbId;
+        TvMazeId = otherCompany.TvMazeId;
+        return true;
+      }
+      return false;
     }
 
     #endregion
@@ -167,13 +208,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return Name;
+      return Name ?? "?";
     }
 
     public override bool Equals(object obj)
     {
       CompanyInfo other = obj as CompanyInfo;
-      if (obj == null) return false;
+      if (other == null) return false;
+
       if (TvdbId > 0 && other.TvdbId > 0 && Type == other.Type)
         return TvdbId == other.TvdbId;
       if (MovieDbId > 0 && other.MovieDbId > 0 && Type == other.Type)
@@ -191,7 +233,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override int GetHashCode()
     {
       //TODO: Check if this is functional
-      return Name.GetHashCode();
+      return (string.IsNullOrEmpty(Name) ? "Unnamed Company" : Name).GetHashCode();
     }
 
     public int CompareTo(CompanyInfo other)

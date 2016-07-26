@@ -38,7 +38,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// <summary>
   /// <see cref="BaseInfo"/> contains metadata information about a thumbnail item.
   /// </summary>
-  public class BaseInfo
+  public abstract class BaseInfo
   {
     /// <summary>
     /// Maximum cover image width. Larger images will be scaled down to fit this dimension.
@@ -55,6 +55,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public byte[] Thumbnail = null;
 
+    public abstract bool IsBaseInfoPresent { get; }
+
+    public abstract bool HasExternalId { get; }
+
+
+    /// <summary>
+    /// Used to replace all "." and "_" that are not followed by a word character.
+    /// <example>Replaces <c>"Once.Upon.A.Time.S01E13"</c> to <c>"Once Upon A Time S01E13"</c>, but keeps the <c>"."</c> inside
+    /// <c>"Dr. House"</c>.</example>
+    /// </summary>
+    private const string CLEAN_WHITESPACE_REGEX = @"[\.|_](\S|$)";
     private const string SORT_REGEX = @"(^The\s+)|(^An?\s+)|(^De[rsmn]\s+)|(^Die\s+)|(^Das\s+)|(^Ein(e[srmn]?)?\s+)";
     private const string CLEAN_REGEX = @"<[^>]+>|&nbsp;";
 
@@ -64,7 +75,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained series information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetThumbnailMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public virtual bool SetThumbnailMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (Thumbnail == null)
         return false;
@@ -98,10 +109,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public static bool MatchNames(string name1, string name2, double threshold = 0.62)
     {
-      double dice = name1.DiceCoefficient(name2);
+      double dice = name1.ToLowerInvariant().DiceCoefficient(name2.ToLowerInvariant());
       return dice > threshold;
 
       //return name1.FuzzyEquals(name2);
+    }
+
+    /// <summary>
+    /// Cleans up strings by replacing unwanted characters (<c>'.'</c>, <c>'_'</c>) by spaces.
+    /// </summary>
+    public static string CleanupWhiteSpaces(string str)
+    {
+      return str == null ? null : Regex.Replace(str, CLEAN_WHITESPACE_REGEX, " $1").Trim(' ', '-');
     }
 
     public static bool IsVirtualResource(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
@@ -119,6 +138,25 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         }
       }
       return true;
+    }
+
+    public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+
+    public abstract bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+
+    public virtual bool FromString(string name)
+    {
+      return false;
+    }
+
+    public virtual bool CopyIdsFrom<T>(T otherInstance)
+    {
+      return false;
+    }
+
+    public virtual T CloneBasicInstance<T>()
+    {
+      return default(T);
     }
 
     #endregion

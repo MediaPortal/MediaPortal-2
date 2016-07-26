@@ -56,10 +56,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public override bool SearchSeriesEpisode(EpisodeInfo episodeSearch, string language, out List<EpisodeInfo> episodes)
     {
       episodes = null;
-      SeriesInfo seriesSearch = null;
+      SeriesInfo seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
       if (episodeSearch.SeriesTvMazeId <= 0)
       {
-        seriesSearch = episodeSearch.CloneBasicSeries();
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
       }
@@ -83,7 +82,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               TvMazeId = episode.Id,
               SeriesName = seriesSearch.SeriesName,
               SeasonNumber = episode.SeasonNumber,
-              EpisodeName = new LanguageText(episode.Name, true),
+              EpisodeName = new SimpleTitle(episode.Name, true),
             };
             info.EpisodeNumbers.Add(episode.EpisodeNumber);
             info.CopyIdsFrom(seriesSearch);
@@ -121,7 +120,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ImdbId = s.Externals.ImDbId,
         TvdbId = s.Externals.TvDbId ?? 0,
         TvRageId = s.Externals.TvRageId ?? 0,
-        SeriesName = new LanguageText(s.Name, true),
+        SeriesName = new SimpleTitle(s.Name, true),
         FirstAired = s.Premiered,
       }).ToList();
 
@@ -135,7 +134,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ImdbId = s.Externals.ImDbId,
           TvdbId = s.Externals.TvDbId ?? 0,
           TvRageId = s.Externals.TvRageId ?? 0,
-          SeriesName = new LanguageText(s.Name, true),
+          SeriesName = new SimpleTitle(s.Name, true),
           FirstAired = s.Premiered,
         }).ToList();
       }
@@ -175,11 +174,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series.TvRageId = seriesDetail.Externals.TvRageId ?? 0;
       series.ImdbId = seriesDetail.Externals.ImDbId;
 
-      series.SeriesName = new LanguageText(seriesDetail.Name, true);
+      series.SeriesName = new SimpleTitle(seriesDetail.Name, true);
       series.FirstAired = seriesDetail.Premiered;
-      series.Description = new LanguageText(seriesDetail.Summary, true);
-      series.TotalRating = seriesDetail.Rating != null && seriesDetail.Rating.Rating.HasValue ? seriesDetail.Rating.Rating.Value : 0;
-      series.RatingCount = 1;
+      series.Description = new SimpleTitle(seriesDetail.Summary, true);
+      series.Rating = new SimpleRating(seriesDetail.Rating != null && seriesDetail.Rating.Rating.HasValue ? seriesDetail.Rating.Rating.Value : 0);
       series.Genres = seriesDetail.Genres;
       series.Networks = ConvertToCompanies(seriesDetail.Network ?? seriesDetail.WebNetwork, CompanyAspect.COMPANY_TV_NETWORK);
       if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
@@ -197,6 +195,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           foreach(TvMazeEpisode episodeDetail in seriesDetail.Embedded.Episodes)
           {
+            if (episodeDetail.EpisodeNumber <= 0)
+              continue;
+
             EpisodeInfo info = new EpisodeInfo()
             {
               TvMazeId = episodeDetail.Id,
@@ -205,14 +206,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               SeriesImdbId = seriesDetail.Externals.ImDbId,
               SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
               SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
-              SeriesName = new LanguageText(seriesDetail.Name, true),
+              SeriesName = new SimpleTitle(seriesDetail.Name, true),
               SeriesFirstAired = seriesDetail.Premiered,
 
               SeasonNumber = episodeDetail.SeasonNumber,
               EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
               FirstAired = episodeDetail.AirDate,
-              EpisodeName = new LanguageText(episodeDetail.Name, true),
-              Summary = new LanguageText(episodeDetail.Summary, true),
+              EpisodeName = new SimpleTitle(episodeDetail.Name, true),
+              Summary = new SimpleTitle(episodeDetail.Summary, true),
               Genres = seriesDetail.Genres,
             };
 
@@ -253,12 +254,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       season.TvMazeId = seasonDetail.Id;
 
-      season.SeriesMovieDbId = seriesDetail.Id;
+      season.SeriesTvMazeId = seriesDetail.Id;
       season.SeriesImdbId = seriesDetail.Externals.ImDbId;
       season.SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0;
       season.SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0;
 
-      season.SeriesName = new LanguageText(seriesDetail.Name, true);
+      season.SeriesName = new SimpleTitle(seriesDetail.Name, true);
       season.FirstAired = seasonDetail.PremiereDate;
       season.SeasonNumber = seasonDetail.SeasonNumber;
 
@@ -284,6 +285,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episodeNumber, cacheOnly);
           if (episodeDetail == null) return false;
+          if (episodeDetail.EpisodeNumber <= 0) return false;
 
           EpisodeInfo info = new EpisodeInfo()
           {
@@ -293,14 +295,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             SeriesImdbId = seriesDetail.Externals.ImDbId,
             SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
             SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
-            SeriesName = new LanguageText(seriesDetail.Name, true),
+            SeriesName = new SimpleTitle(seriesDetail.Name, true),
             SeriesFirstAired = seriesDetail.Premiered,
 
             SeasonNumber = episodeDetail.SeasonNumber,
             EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
             FirstAired = episodeDetail.AirDate,
-            EpisodeName = new LanguageText(episodeDetail.Name, true),
-            Summary = new LanguageText(episodeDetail.Summary, true),
+            EpisodeName = new SimpleTitle(episodeDetail.Name, true),
+            Summary = new SimpleTitle(episodeDetail.Summary, true),
             Genres = seriesDetail.Genres,
           };
 
@@ -341,7 +343,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineSeriesPerson(episodeInfo.CloneBasicSeries(), person, language, cacheOnly);
+      return UpdateFromOnlineSeriesPerson(episodeInfo.CloneBasicInstance<SeriesInfo>(), person, language, cacheOnly);
     }
 
     public override bool UpdateFromOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, string language, bool cacheOnly)
@@ -358,7 +360,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           int index = characters.IndexOf(character);
           if (index >= 0)
           {
-            character.ActorMovieDbId = characters[index].ActorMovieDbId;
+            character.ActorTvMazeId = characters[index].ActorTvMazeId;
             character.ActorName = characters[index].ActorName;
             character.Name = characters[index].Name;
             character.Order = characters[index].Order;
@@ -373,7 +375,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineSeriesCharacter(episodeInfo.CloneBasicSeries(), character, language, cacheOnly);
+      return UpdateFromOnlineSeriesCharacter(episodeInfo.CloneBasicInstance<SeriesInfo>(), character, language, cacheOnly);
     }
 
     #endregion
@@ -433,79 +435,86 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       images = new ApiWrapperImageCollection<TvMazeImageCollection>();
 
-      if (scope == FanArtMediaTypes.Series)
+      try
       {
-        EpisodeInfo episode = infoObject as EpisodeInfo;
-        SeasonInfo season = infoObject as SeasonInfo;
-        SeriesInfo series = infoObject as SeriesInfo;
-        if (series == null && season != null)
+        if (scope == FanArtMediaTypes.Series)
         {
-          series = season.CloneBasicSeries();
-        }
-        if (series == null && episode != null)
-        {
-          series = episode.CloneBasicSeries();
-        }
-        if (series != null && series.TvMazeId > 0)
-        {
-          // Download all image information, filter later!
-          TvMazeSeries seriesDetail = _tvMazeHandler.GetSeries(series.TvMazeId, false);
-          if(seriesDetail != null)
+          EpisodeInfo episode = infoObject as EpisodeInfo;
+          SeasonInfo season = infoObject as SeasonInfo;
+          SeriesInfo series = infoObject as SeriesInfo;
+          if (series == null && season != null)
           {
-            images.Id = series.TvMazeId.ToString();
-            images.Posters.Add(seriesDetail.Images);
-            return true;
+            series = season.CloneBasicInstance<SeriesInfo>();
+          }
+          if (series == null && episode != null)
+          {
+            series = episode.CloneBasicInstance<SeriesInfo>();
+          }
+          if (series != null && series.TvMazeId > 0)
+          {
+            // Download all image information, filter later!
+            TvMazeSeries seriesDetail = _tvMazeHandler.GetSeries(series.TvMazeId, false);
+            if (seriesDetail != null)
+            {
+              images.Id = series.TvMazeId.ToString();
+              images.Posters.Add(seriesDetail.Images);
+              return true;
+            }
           }
         }
-      }
-      else if (scope == FanArtMediaTypes.Episode)
-      {
-        EpisodeInfo episode = infoObject as EpisodeInfo;
-        if (episode != null && episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+        else if (scope == FanArtMediaTypes.Episode)
         {
-          // Download all image information, filter later!
-          TvMazeEpisode episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0], false);
-          if (episodeDetail != null)
+          EpisodeInfo episode = infoObject as EpisodeInfo;
+          if (episode != null && episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
           {
-            images.Id = episode.SeriesTvMazeId.ToString();
-            images.Thumbnails.Add(episodeDetail.Images);
-            return true;
+            // Download all image information, filter later!
+            TvMazeEpisode episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0], false);
+            if (episodeDetail != null)
+            {
+              images.Id = episode.SeriesTvMazeId.ToString();
+              images.Thumbnails.Add(episodeDetail.Images);
+              return true;
+            }
           }
         }
-      }
-      else if (scope == FanArtMediaTypes.Actor)
-      {
-        PersonInfo person = infoObject as PersonInfo;
-        if (person != null && person.TvMazeId > 0)
+        else if (scope == FanArtMediaTypes.Actor)
         {
-          // Download all image information, filter later!
-          TvMazePerson personDetail = _tvMazeHandler.GetPerson(person.TvMazeId, false);
-          if (personDetail != null)
+          PersonInfo person = infoObject as PersonInfo;
+          if (person != null && person.TvMazeId > 0)
           {
-            images.Id = person.TvMazeId.ToString();
-            images.Thumbnails.Add(personDetail.Images);
-            return true;
+            // Download all image information, filter later!
+            TvMazePerson personDetail = _tvMazeHandler.GetPerson(person.TvMazeId, false);
+            if (personDetail != null)
+            {
+              images.Id = person.TvMazeId.ToString();
+              images.Thumbnails.Add(personDetail.Images);
+              return true;
+            }
           }
         }
-      }
-      else if (scope == FanArtMediaTypes.Character)
-      {
-        CharacterInfo character = infoObject as CharacterInfo;
-        if (character != null && character.TvMazeId > 0)
+        else if (scope == FanArtMediaTypes.Character)
         {
-          // Download all image information, filter later!
-          TvMazePerson personDetail = _tvMazeHandler.GetCharacter(character.TvMazeId, false);
-          if (personDetail != null)
+          CharacterInfo character = infoObject as CharacterInfo;
+          if (character != null && character.TvMazeId > 0)
           {
-            images.Id = character.TvMazeId.ToString();
-            images.Thumbnails.Add(personDetail.Images);
-            return true;
+            // Download all image information, filter later!
+            TvMazePerson personDetail = _tvMazeHandler.GetCharacter(character.TvMazeId, false);
+            if (personDetail != null)
+            {
+              images.Id = character.TvMazeId.ToString();
+              images.Thumbnails.Add(personDetail.Images);
+              return true;
+            }
           }
         }
+        else
+        {
+          return true;
+        }
       }
-      else
+      catch (Exception ex)
       {
-        return true;
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception downloading images", ex);
       }
       return false;
     }

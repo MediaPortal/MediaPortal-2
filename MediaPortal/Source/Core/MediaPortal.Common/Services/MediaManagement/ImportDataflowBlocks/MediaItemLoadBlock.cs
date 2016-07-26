@@ -30,6 +30,7 @@ using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
@@ -68,7 +69,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 100 },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       BLOCK_NAME, false, parentImportJobController)
     {
     }
@@ -93,12 +94,19 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           // Load Aspects if MI was changed or is more than a day old
           if (importResource.DateOfLastImport < importResource.ResourceAccessor.LastChanged ||
-                (DateTime.Now - importResource.DateOfLastImport).TotalHours > 23)
+                (DateTime.Now - importResource.DateOfLastImport).TotalHours > MINIMUM_IMPORT_AGE)
           {
             ICollection<Guid> aspects = await GetAllManagedMediaItemAspectTypes();
 
+            List<Guid> optionalAspects = new List<Guid>(aspects);
+            if (optionalAspects.Contains(ProviderResourceAspect.ASPECT_ID))
+              optionalAspects.Remove(ProviderResourceAspect.ASPECT_ID);
+
+            List<Guid> requiredAspects = new List<Guid>();
+            requiredAspects.Add(ProviderResourceAspect.ASPECT_ID);
+
             // ReSharper disable once PossibleInvalidOperationException
-            MediaItem mediaItem = await LoadLocalItem(importResource.PendingResourcePath, null, aspects.AsEnumerable());
+            MediaItem mediaItem = await LoadLocalItem(importResource.PendingResourcePath, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable());
             if(mediaItem != null)
             {
               importResource.ExistingAspects = mediaItem.Aspects;

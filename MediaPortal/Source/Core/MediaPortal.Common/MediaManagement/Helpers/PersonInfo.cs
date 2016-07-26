@@ -51,7 +51,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the person name.
     /// </summary>
     public string Name = null;
-    public LanguageText Biography = null;
+    public SimpleTitle Biography = null;
     public string Orign = null;
     public DateTime? DateOfBirth = null;
     public DateTime? DateOfDeath = null;
@@ -59,13 +59,49 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public bool IsGroup = false;
     public int? Order = null;
 
+    public override bool IsBaseInfoPresent
+    {
+      get
+      {
+        if (string.IsNullOrEmpty(Name))
+          return false;
+        if (string.IsNullOrEmpty(Occupation))
+          return false;
+
+        return true;
+      }
+    }
+
+    public override bool HasExternalId
+    {
+      get
+      {
+        if (TvdbId > 0)
+          return true;
+        if (MovieDbId > 0)
+          return true;
+        if (AudioDbId > 0)
+          return true;
+        if (TvMazeId > 0)
+          return true;
+        if (TvRageId > 0)
+          return true;
+        if (!string.IsNullOrEmpty(MusicBrainzId))
+          return true;
+        if (!string.IsNullOrEmpty(ImdbId))
+          return true;
+
+        return false;
+      }
+    }
+
     #region Members
 
     /// <summary>
     /// Copies the contained person information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (string.IsNullOrEmpty(Name)) return false;
       if (string.IsNullOrEmpty(Occupation)) return false;
@@ -95,7 +131,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (!aspectData.ContainsKey(PersonAspect.ASPECT_ID))
         return false;
@@ -110,7 +146,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       string tempString;
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_BIOGRAPHY, out tempString);
-      Biography = new LanguageText(tempString, false);
+      Biography = new SimpleTitle(tempString, false);
 
       string id;
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_PERSON, out id))
@@ -133,22 +169,30 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public bool FromString(string name)
+    public override bool FromString(string name)
     {
       Name = name;
       return true;
     }
 
-    public bool CopyIdsFrom(PersonInfo otherPerson)
+    public override bool CopyIdsFrom<T>(T otherInstance)
     {
-      MovieDbId = otherPerson.MovieDbId;
-      ImdbId = otherPerson.ImdbId;
-      AudioDbId = otherPerson.AudioDbId;
-      MusicBrainzId = otherPerson.MusicBrainzId;
-      TvdbId = otherPerson.TvdbId;
-      TvMazeId = otherPerson.TvMazeId;
-      TvRageId = otherPerson.TvRageId;
-      return true;
+      if (otherInstance == null)
+        return false;
+
+      if (otherInstance is PersonInfo)
+      {
+        PersonInfo otherPerson = otherInstance as PersonInfo;
+        MovieDbId = otherPerson.MovieDbId;
+        ImdbId = otherPerson.ImdbId;
+        AudioDbId = otherPerson.AudioDbId;
+        MusicBrainzId = otherPerson.MusicBrainzId;
+        TvdbId = otherPerson.TvdbId;
+        TvMazeId = otherPerson.TvMazeId;
+        TvRageId = otherPerson.TvRageId;
+        return true;
+      }
+      return false;
     }
 
     #endregion
@@ -157,13 +201,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return Name;
+      return Name ?? "?";
     }
 
     public override bool Equals(object obj)
     {
       PersonInfo other = obj as PersonInfo;
-      if (obj == null) return false;
+      if (other == null) return false;
+
       if (TvdbId > 0 && other.TvdbId > 0 && Occupation == other.Occupation)
         return TvdbId == other.TvdbId;
       if (MovieDbId > 0 && other.MovieDbId > 0 && Occupation == other.Occupation)
@@ -187,7 +232,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override int GetHashCode()
     {
       //TODO: Check if this is functional
-      return Name.GetHashCode();
+      return (string.IsNullOrEmpty(Name) ? "Unnamed Person" : Name).GetHashCode();
     }
 
     public int CompareTo(PersonInfo other)

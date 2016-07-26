@@ -218,7 +218,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateValue(ref movieInfo.Popularity, movieMatch.Popularity);
           MetadataUpdater.SetOrUpdateValue(ref movieInfo.Score, movieMatch.Score);
 
-          MetadataUpdater.SetOrUpdateRatings(ref movieInfo.TotalRating, ref movieInfo.RatingCount, movieMatch.TotalRating, movieMatch.RatingCount);
+          MetadataUpdater.SetOrUpdateRatings(ref movieInfo.Rating, movieMatch.Rating);
 
           MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards, true);
           MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors, true);
@@ -309,7 +309,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
-              SetPersonId(person, id);
+            {
+              if (SetPersonId(person, id))
+                updated = true;
+            }
           }
         }
         else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
@@ -319,17 +322,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (_directorMatcher.GetNameMatch(person.Name, out id))
-              SetPersonId(person, id);
+            {
+              if (SetPersonId(person, id))
+                updated = true;
+            }
           }
         }
         else if (occupation == PersonAspect.OCCUPATION_WRITER)
         {
           persons = movieMatch.Writers;
-        foreach (PersonInfo person in persons)
-        {
+          foreach (PersonInfo person in persons)
+          {
             string id;
             if (_writerMatcher.GetNameMatch(person.Name, out id))
-              SetPersonId(person, id);
+            {
+              if (SetPersonId(person, id))
+                updated = true;
+            }
           }
         }
         foreach (PersonInfo person in persons)
@@ -446,7 +455,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           string id;
           if (_characterMatcher.GetNameMatch(character.Name, out id))
-            SetCharacterId(character, id);
+          {
+            if (SetCharacterId(character, id))
+              updated = true;
+          }
 
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineMovieCharacter(movieMatch, character, language, true))
@@ -522,7 +534,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
             string id;
             if (_companyMatcher.GetNameMatch(company.Name, out id))
-              SetCompanyId(company, id);
+            {
+              if (SetCompanyId(company, id))
+                updated = true;
+            }
           }
         }
         foreach (CompanyInfo company in companies)
@@ -686,7 +701,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     private void StoreMovieMatch(MovieInfo movieSearch, MovieInfo movieMatch)
     {
-      if (movieMatch == null)
+      if (!movieSearch.IsBaseInfoPresent)
+        return;
+
+      if (movieMatch == null || !movieMatch.IsBaseInfoPresent)
       {
         _storage.TryAddMatch(new MovieMatch()
         {
@@ -1080,22 +1098,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string scope, string type)
     {
-      if (images == null)
-        return 0;
-
-      int idx = 0;
-      foreach (TImg img in images)
+      try
       {
-        if (!VerifyFanArtImage(img))
-          continue;
-        if (idx >= MAX_FANART_IMAGES)
-          break;
-        if (_wrapper.DownloadFanArt(id, img, scope, type))
-          idx++;
-      }
-      ServiceRegistration.Get<ILogger>().Debug(GetType().Name + @" Download: Saved {0} {1}\{2}", idx, scope, type);
-      return idx;
+        if (images == null)
+          return 0;
 
+        int idx = 0;
+        foreach (TImg img in images)
+        {
+          if (!VerifyFanArtImage(img))
+            continue;
+          if (idx >= MAX_FANART_IMAGES)
+            break;
+          if (_wrapper.DownloadFanArt(id, img, scope, type))
+            idx++;
+        }
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + @" Download: Saved {0} {1}\{2}", idx, scope, type);
+        return idx;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
+        return 0;
+      }
     }
 
     #endregion

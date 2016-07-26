@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers
 {
@@ -61,16 +62,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
     protected static Regex _cleanUpWhiteSpaces = new Regex(@"[\.|_](\S|$)");
     protected static Regex _trimWhiteSpaces = new Regex(@"\s{2,}");
 
-    public static bool MatchTrack(TrackInfo trackInfo)
+    public static bool MatchTrack(string filename, TrackInfo trackInfo)
     {
       foreach (Regex regex in REGEXP_TRACK)
       {
         Match match = regex.Match(trackInfo.TrackName);
         if (match.Groups[GROUP_ARTIST].Length > 0 && match.Groups[GROUP_ALBUM].Length > 0 && match.Groups[GROUP_TRACK].Length > 0)
         {
-          trackInfo.TrackName = match.Groups[GROUP_TRACK].Value.Trim(new[] { ' ', '-' });
-          trackInfo.Album = match.Groups[GROUP_ALBUM].Value.Trim(new[] { ' ', '-' });
-          trackInfo.Artists = new List<PersonInfo>()
+          MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, match.Groups[GROUP_TRACK].Value.Trim(new[] { ' ', '-' }));
+          MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, match.Groups[GROUP_ALBUM].Value.Trim(new[] { ' ', '-' }));
+          List<PersonInfo> artists = new List<PersonInfo>()
           {
             new PersonInfo()
             {
@@ -78,8 +79,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
               Occupation = PersonAspect.OCCUPATION_ARTIST,
             }
           };
+          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, artists, true);
+
           if (match.Groups[GROUP_TRACK_NUM].Length > 0)
-            trackInfo.TrackNum = Convert.ToInt32(match.Groups[GROUP_TRACK_NUM].Value);
+            MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, Convert.ToInt32(match.Groups[GROUP_TRACK_NUM].Value));
           return true;
         }
       }

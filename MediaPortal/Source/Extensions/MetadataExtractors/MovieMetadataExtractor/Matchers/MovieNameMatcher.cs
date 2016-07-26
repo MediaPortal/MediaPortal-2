@@ -26,6 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries;
+using System.Globalization;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -57,30 +62,52 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
     protected static Regex _cleanUpWhiteSpaces = new Regex(@"[\.|_](\S|$)");
     protected static Regex _trimWhiteSpaces = new Regex(@"\s{2,}");
 
-    public static bool MatchTitleYear(MovieInfo movieInfo)
+    public static bool MatchTitleYear(string path, MovieInfo movieInfo)
     {
-      foreach (Regex regex in REGEXP_TITLE_YEAR)
+      try
       {
-        Match match = regex.Match(movieInfo.MovieName.Text);
-        if (match.Groups[GROUP_TITLE].Length > 0 || match.Groups[GROUP_YEAR].Length > 0)
+        if (string.IsNullOrEmpty(path))
+          return false;
+
+        var settings = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>();
+
+        foreach (SerializableRegex regex in settings.MovieYearPatterns)
         {
-          movieInfo.MovieName = match.Groups[GROUP_TITLE].Value.Trim(new[] { ' ', '-' });
-          movieInfo.ReleaseDate = new DateTime(int.Parse(match.Groups[GROUP_YEAR].Value), 1, 1);
-          return true;
+          Match match = regex.Regex.Match(path);
+          if (match.Groups[GROUP_TITLE].Length > 0 || match.Groups[GROUP_YEAR].Length > 0)
+          {
+            string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(match.Groups[GROUP_TITLE].Value.Trim(new[] { ' ', '-' }));
+            MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, title, true);
+            MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, new DateTime(int.Parse(match.Groups[GROUP_YEAR].Value), 1, 1));
+            return true;
+          }
         }
+      }
+      catch(Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("MovieNameMatcher: Exception matching title year for title '{0}' (Text: '{1}')", movieInfo.MovieName, e.Message);
       }
       return false;
     }
 
     public static bool CleanupTitle(MovieInfo movieInfo)
     {
-      if (movieInfo.MovieName.IsEmpty)
-        return false;
-      string originalTitle = movieInfo.MovieName.Text;
-      foreach (Regex regex in REGEXP_CLEANUPS)
-        movieInfo.MovieName.Text = regex.Replace(movieInfo.MovieName.Text, "");
-      movieInfo.MovieName.Text = CleanupWhiteSpaces(movieInfo.MovieName.Text);
-      return originalTitle != movieInfo.MovieName.Text;
+      try
+      {
+        if (movieInfo.MovieName.IsEmpty)
+          return false;
+
+        string originalTitle = movieInfo.MovieName.Text;
+        foreach (Regex regex in REGEXP_CLEANUPS)
+          movieInfo.MovieName.Text = regex.Replace(movieInfo.MovieName.Text, "");
+        movieInfo.MovieName.Text = CleanupWhiteSpaces(movieInfo.MovieName.Text);
+        return originalTitle != movieInfo.MovieName.Text;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("MovieNameMatcher: Exception cleaning title '{0}' (Text: '{1}')", movieInfo.MovieName, e.Message);
+      }
+      return false;
     }
 
     /// <summary>

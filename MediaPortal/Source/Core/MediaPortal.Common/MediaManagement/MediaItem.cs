@@ -141,9 +141,16 @@ namespace MediaPortal.Common.MediaManagement
       IList<MultipleMediaItemAspect> resourceAspects = null;
       if (!MediaItemAspect.TryGetAspects(this.Aspects, ProviderResourceAspect.Metadata, out resourceAspects))
         return false;
-      mimeType = (string)resourceAspects[0][ProviderResourceAspect.ATTR_MIME_TYPE];
-      mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];
-      return true;
+      foreach (MultipleMediaItemAspect pra in resourceAspects)
+      {
+        if (pra.GetAttributeValue<bool?>(ProviderResourceAspect.ATTR_PRIMARY) == true)
+        {
+          mimeType = (string)pra[ProviderResourceAspect.ATTR_MIME_TYPE];
+          mediaItemTitle = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+          return true;
+        }
+      }
+      return false;
     }
 
     XmlSchema IXmlSerializable.GetSchema()

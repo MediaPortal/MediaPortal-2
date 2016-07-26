@@ -73,14 +73,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return _metadata; }
     }
 
-    public string ExternalIdType
-    {
-      get
-      {
-        return ExternalIdentifierAspect.TYPE_TRACK;
-      }
-    }
-
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       if (!existingAspects.ContainsKey(AudioAspect.ASPECT_ID))
@@ -110,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
         ResourcePath resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
         if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
-          return true; //Return that it was merged so it gets ignored
+          return false;
 
         //Existing aspects
         IList<MultipleMediaItemAspect> existingProviderResourceAspects;

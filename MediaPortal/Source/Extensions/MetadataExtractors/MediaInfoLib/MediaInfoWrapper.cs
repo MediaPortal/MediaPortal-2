@@ -355,6 +355,21 @@ namespace MediaInfoLib
         CultureInfo cultureInfo = new CultureInfo(lang2);
         return cultureInfo.TwoLetterISOLanguageName;
       }
+      catch(CultureNotFoundException)
+      {
+        try
+        {
+          if (lang2.Contains("/"))
+            lang2 = lang2.Substring(0, lang2.IndexOf("/")).Trim();
+
+          CultureInfo cultureInfo = new CultureInfo(lang2);
+          return cultureInfo.TwoLetterISOLanguageName;
+        }
+        catch
+        {
+          return null;
+        }
+      }
       catch (ArgumentException)
       {
         return null;

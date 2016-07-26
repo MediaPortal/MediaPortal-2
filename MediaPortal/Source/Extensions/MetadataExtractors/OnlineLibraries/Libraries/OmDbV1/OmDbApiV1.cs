@@ -59,6 +59,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
 
     private readonly string _cachePath;
     private readonly Downloader _downloader;
+    private object _movieSync = new object();
+    private object _seriesSync = new object();
+    private object _seasonSync = new object();
+    private object _episodeSync = new object();
 
     #endregion
 
@@ -111,22 +115,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// <returns>Movie information</returns>
     public OmDbMovie GetMovie(string id, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, "Movie");
-      OmDbMovie returnValue = null;
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      lock (_movieSync)
       {
-        string json = File.ReadAllText(cache);
-        returnValue = JsonConvert.DeserializeObject<OmDbMovie>(json);
+        string cache = CreateAndGetCacheName(id, "Movie");
+        OmDbMovie returnValue = null;
+        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+        {
+          string json = File.ReadAllText(cache);
+          returnValue = JsonConvert.DeserializeObject<OmDbMovie>(json);
+        }
+        else
+        {
+          if (cacheOnly) return null;
+          string url = GetUrl(URL_GETIMDBIDMOVIE, 0, true, true, id);
+          returnValue = _downloader.Download<OmDbMovie>(url, cache);
+        }
+        if (returnValue == null) return null;
+        if (returnValue.ResponseValid == false) return null;
+        if (returnValue != null) returnValue.AssignProperties();
+        return returnValue;
       }
-      else
-      {
-        if (cacheOnly) return null;
-        string url = GetUrl(URL_GETIMDBIDMOVIE, 0, true, true, id);
-        returnValue = _downloader.Download<OmDbMovie>(url, cache);
-      }
-      if (returnValue.ResponseValid == false) return null;
-      if (returnValue != null) returnValue.AssignProperties();
-      return returnValue;
     }
 
     /// <summary>
@@ -137,22 +145,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// <returns>Series information</returns>
     public OmDbSeries GetSeries(string id, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, "Series");
-      OmDbSeries returnValue = null;
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      lock (_seriesSync)
       {
-        string json = File.ReadAllText(cache);
-        returnValue = JsonConvert.DeserializeObject<OmDbSeries>(json);
+        string cache = CreateAndGetCacheName(id, "Series");
+        OmDbSeries returnValue = null;
+        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+        {
+          string json = File.ReadAllText(cache);
+          returnValue = JsonConvert.DeserializeObject<OmDbSeries>(json);
+        }
+        else
+        {
+          if (cacheOnly) return null;
+          string url = GetUrl(URL_GETIMDBIDSERIES, 0, true, true, id);
+          returnValue = _downloader.Download<OmDbSeries>(url, cache);
+        }
+        if (returnValue == null) return null;
+        if (returnValue.ResponseValid == false) return null;
+        if (returnValue != null) returnValue.AssignProperties();
+        return returnValue;
       }
-      else
-      {
-        if (cacheOnly) return null;
-        string url = GetUrl(URL_GETIMDBIDSERIES, 0, true, true, id);
-        returnValue = _downloader.Download<OmDbSeries>(url, cache);
-      }
-      if (returnValue.ResponseValid == false) return null;
-      if (returnValue != null) returnValue.AssignProperties();
-      return returnValue;
     }
 
     /// <summary>
@@ -164,22 +176,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// <returns>Season information</returns>
     public OmDbSeason GetSeriesSeason(string id, int season, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, string.Format("Season{0}", season));
-      OmDbSeason returnValue = null;
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      lock (_seasonSync)
       {
-        string json = File.ReadAllText(cache);
-        returnValue = JsonConvert.DeserializeObject<OmDbSeason>(json);
+        string cache = CreateAndGetCacheName(id, string.Format("Season{0}", season));
+        OmDbSeason returnValue = null;
+        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+        {
+          string json = File.ReadAllText(cache);
+          returnValue = JsonConvert.DeserializeObject<OmDbSeason>(json);
+        }
+        else
+        {
+          if (cacheOnly) return null;
+          string url = GetUrl(URL_GETIMDBIDSEASON, 0, true, true, id, season);
+          returnValue = _downloader.Download<OmDbSeason>(url, cache);
+        }
+        if (returnValue == null) return null;
+        if (returnValue.ResponseValid == false) return null;
+        if (returnValue != null) returnValue.InitEpisodes();
+        return returnValue;
       }
-      else
-      {
-        if (cacheOnly) return null;
-        string url = GetUrl(URL_GETIMDBIDSEASON, 0, true, true, id, season);
-        returnValue = _downloader.Download<OmDbSeason>(url, cache);
-      }
-      if (returnValue.ResponseValid == false) return null;
-      if (returnValue != null) returnValue.InitEpisodes();
-      return returnValue;
     }
 
     /// <summary>
@@ -192,22 +208,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// <returns>Episode information</returns>
     public OmDbEpisode GetSeriesEpisode(string id, int season, int episode, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
-      OmDbEpisode returnValue = null;
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+      lock (_episodeSync)
       {
-        string json = File.ReadAllText(cache);
-        returnValue = JsonConvert.DeserializeObject<OmDbEpisode>(json);
+        string cache = CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
+        OmDbEpisode returnValue = null;
+        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
+        {
+          string json = File.ReadAllText(cache);
+          returnValue = JsonConvert.DeserializeObject<OmDbEpisode>(json);
+        }
+        else
+        {
+          if (cacheOnly) return null;
+          string url = GetUrl(URL_GETIMDBIDEPISODE, 0, true, true, id, season, episode);
+          returnValue = _downloader.Download<OmDbEpisode>(url, cache);
+        }
+        if (returnValue == null) return null;
+        if (returnValue.ResponseValid == false) return null;
+        if (returnValue != null) returnValue.AssignProperties();
+        return returnValue;
       }
-      else
-      {
-        if (cacheOnly) return null;
-        string url = GetUrl(URL_GETIMDBIDEPISODE, 0, true, true, id, season, episode);
-        returnValue = _downloader.Download<OmDbEpisode>(url, cache);
-      }
-      if (returnValue.ResponseValid == false) return null;
-      if (returnValue != null) returnValue.AssignProperties();
-      return returnValue;
     }
 
     #endregion

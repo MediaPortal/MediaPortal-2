@@ -31,7 +31,6 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
@@ -218,6 +217,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               fanartFiles.AddRange(Directory.GetFiles(path, string.Format("img_seasons_{0}-{1}*.jpg", season.SeriesTvdbId, season.SeasonNumber.Value)));
             }
+            else if (type == FanArtTypes.FanArt)
+            {
+              fanartFiles.AddRange(Directory.GetFiles(path, "img_fan-*.jpg"));
+            }
           }
         }
       }
@@ -234,6 +237,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               string file = Path.Combine(path, string.Format("img_episodes_{0}-{1}.jpg", episode.SeriesTvdbId, episode.TvdbId));
               if (File.Exists(file))
                 fanartFiles.Add(file);
+            }
+            else if (type == FanArtTypes.FanArt)
+            {
+              fanartFiles.AddRange(Directory.GetFiles(path, "img_fan-*.jpg"));
             }
           }
         }

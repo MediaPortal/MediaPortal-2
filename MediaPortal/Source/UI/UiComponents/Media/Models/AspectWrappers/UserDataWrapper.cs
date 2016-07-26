@@ -162,6 +162,10 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
             PlayPercentage = 0;
         }
       }
+      else
+      {
+        PlayPercentage = 0;
+      }
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
       {
         PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);

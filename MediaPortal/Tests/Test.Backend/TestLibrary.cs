@@ -335,7 +335,7 @@ namespace Test.Backend
 
         string pathStr = "c:\\item.mp3";
         ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
-        MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects);
+        MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, false);
 
       MockCore.ShutdownLibrary();
     }
@@ -382,7 +382,7 @@ namespace Test.Backend
       MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_STRING");
 
       ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
-      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects);
+      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, true);
 
       MockCore.ShutdownLibrary();
     }
@@ -463,7 +463,7 @@ namespace Test.Backend
         MockDBUtils.AddReader(8, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
         
         ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
-        MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects);
+        MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, true);
 
         MockCore.ShutdownLibrary();
     }
@@ -494,7 +494,7 @@ namespace Test.Backend
 
       string pathStr = "c:\\item.mp3";
       ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
-      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects.Values.SelectMany(x => x));
+      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects.Values.SelectMany(x => x), false);
 
       MockCore.ShutdownLibrary();
     }

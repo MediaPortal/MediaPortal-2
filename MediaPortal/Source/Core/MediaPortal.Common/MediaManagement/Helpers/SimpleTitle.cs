@@ -24,26 +24,26 @@
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
-  public struct LanguageText
+  public struct SimpleTitle
   {
     public bool DefaultLanguage;
     public string Text;
 
-    public LanguageText(string value)
+    public SimpleTitle(string value)
     {
       Text = value;
       DefaultLanguage = true;
     }
 
-    public LanguageText(string value, bool defaultLanguage)
+    public SimpleTitle(string value, bool defaultLanguage)
     {
       Text = value;
       DefaultLanguage = defaultLanguage;
     }
 
-    public static implicit operator LanguageText(string value)
+    public static implicit operator SimpleTitle(string value)
     {
-      return new LanguageText(value, true);
+      return new SimpleTitle(value, true);
     }
 
     public bool IsEmpty

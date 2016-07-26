@@ -44,15 +44,15 @@ namespace MediaPortal.Mock
 
     public bool UpdateRelationshipsEnabled { get; set; }
 
-    protected override void Reconcile(Guid mediaItemId)
+    protected override void Reconcile(Guid mediaItemId, bool isRefresh)
     {
-      UpdateRelationships(mediaItemId);
+      UpdateRelationships(mediaItemId, true);
     }
 
-    protected override void UpdateRelationships(Guid mediaItemId)
+    protected override void UpdateRelationships(Guid mediaItemId, bool isRefresh)
     {
       if (UpdateRelationshipsEnabled)
-        base.UpdateRelationships(mediaItemId);
+        base.UpdateRelationships(mediaItemId, isRefresh);
       else
         ServiceRegistration.Get<ILogger>().Debug("Update relationships is disabled");
     }

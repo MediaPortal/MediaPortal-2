@@ -409,7 +409,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
         watch.Stop();
         loadedAdditionalInfo = true;
-        Log.Info("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
+        Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
         series.IsFavorite = _userInfo != null && CheckIfSeriesFavorite(seriesId, _userInfo.UserFavorites);
       }
       else
@@ -479,7 +479,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
 
         watch.Stop();
-        Log.Info("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
+        Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
       }
 
       if (_cacheProvider != null)

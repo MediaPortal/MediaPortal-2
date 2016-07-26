@@ -48,6 +48,10 @@ namespace MediaPortal.Common.MediaManagement
     /// use all metadata that were extracted before to do a successful online lookup.
     /// </summary>
     External,
+    /// <summary>
+    /// Fall back extractors provide information that could not be retrieved from any other source as a last resort.
+    /// </summary>
+    FallBack,
   }
 
   /// <summary>

@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -38,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
+    private CheckedItemCache<AlbumInfo> _checkCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -59,14 +61,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string ExternalIdType
-    {
-      get
-      {
-        return ExternalIdentifierAspect.TYPE_TRACK;
-      }
-    }
-
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
@@ -75,8 +69,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
-      MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+      if (_checkCache.IsItemChecked(albumInfo))
+        return false;
+
+      MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, false);
+      //MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+      MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, false);
 
       if (albumInfo.Tracks.Count == 0)
         return false;
@@ -86,9 +84,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       for (int i = 0; i < albumInfo.Tracks.Count; i++)
       {
         TrackInfo trackInfo = albumInfo.Tracks[i];
-        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
-        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
-        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+
+        //MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        //MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        //MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
 
         IDictionary<Guid, IList<MediaItemAspect>> trackAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         trackInfo.SetMetadata(trackAspects);

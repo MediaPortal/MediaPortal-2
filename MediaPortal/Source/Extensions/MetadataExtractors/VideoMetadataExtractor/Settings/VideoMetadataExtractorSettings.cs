@@ -75,6 +75,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
       SubtitleFolders = new List<string>(DEFAULT_SUBTITLE_FOLDERS);
       MultiPartVideoRegex = new SerializableRegex(@"\\(?<file>[^\\|^\/]*)(\s|-|_)*(?<media>Disc|CD|DVD)\s*(?<disc>\d{1,2})", RegexOptions.IgnoreCase);
       StereoscopicVideoRegex = new SerializableRegex(@"\\[-. _](3d|.)?([-. _]*|3d)(?<stereo>(h[-. _]*|half[-. _]*|full[-. _]*)?sbs|(h[-. _]*|half[-. _]*|full[-. _]*)?tab|(h|half[-. _]*|full[-. _]*)?ou)[-. _]", RegexOptions.IgnoreCase);
+      MaxSampleSize = 150;
+      SampleVideoRegex = new SerializableRegex(@"(sample)|(trailer)", RegexOptions.IgnoreCase);
     }
 
     /// <summary>
@@ -96,15 +98,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
     public SerializableRegex MultiPartVideoRegex { get; set; }
 
     /// <summary>
-    /// Regular expression used to find a year in the series name
+    /// Regular expression used to detect stereoscopic videos
     /// </summary>
     [Setting(SettingScope.Global)]
     public SerializableRegex StereoscopicVideoRegex { get; set; }
 
     /// <summary>
-    /// Subtitle folders where subtitles for media can be found.
+    /// Subtitle folders where subtitles for media can be found
     /// </summary>
     [Setting(SettingScope.Global)]
     public List<string> SubtitleFolders { get; set; }
+
+    /// <summary>
+    /// Maximum size (in MB) of a video before it is detected as a possible sample file
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public long MaxSampleSize { get; set; }
+
+    /// <summary>
+    /// Regular expression used to detect sample files
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public SerializableRegex SampleVideoRegex { get; set; }
   }
 }

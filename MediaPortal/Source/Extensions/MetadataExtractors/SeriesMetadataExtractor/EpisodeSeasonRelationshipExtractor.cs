@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -38,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
+    private CheckedItemCache<SeasonInfo> _checkCache = new CheckedItemCache<SeasonInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -59,26 +61,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string ExternalIdType
-    {
-      get
-      {
-        return ExternalIdentifierAspect.TYPE_SEASON;
-      }
-    }
-
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
-
-      // Build the season MI
 
       SeasonInfo seasonInfo = new SeasonInfo();
       if (!seasonInfo.FromMetadata(aspects))
         return false;
 
-      SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+      if (_checkCache.IsItemChecked(seasonInfo))
+        return false;
+
       SeriesTvDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+      SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
       SeriesOmDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
       SeriesFanArtTvMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
 

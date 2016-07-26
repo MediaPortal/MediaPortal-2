@@ -247,15 +247,17 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="systemId">The Id of the system where the media item to be updated is located.</param>
     /// <param name="path">The path at the given system of the media item to be updated.</param>
     /// <param name="mediaItemAspects">Media item aspects to be updated.</param>
+    /// <param name="isRefresh">Is the media item being added/updated because of a refresh cycle.</param>
     /// <returns>Id of the media item which has been added or updated.</returns>
-    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects);
+    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh);
 
     /// <summary>
     /// Writes some media item aspects of an existing media item to the media library.
     /// </summary>
     /// <param name="mediaItemId">Id of the media item to be updated.</param>
     /// <param name="mediaItemAspects">Media item aspects to be written.</param>
-    void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects);
+    /// <param name="isRefresh">Is the media item being added/updated because of a refresh cycle.</param>
+    void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh);
 
     /// <summary>
     /// Deletes all media items and directories from the media library which are located at the client with the given

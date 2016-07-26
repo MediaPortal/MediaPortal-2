@@ -94,7 +94,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the number(s) for the next episode(s). The numbers start at 1.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NEXT_EPISODE =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextEpisode", typeof(int), Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextEpisode", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Name of the next episode. We only store the first episode name.

@@ -159,9 +159,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
         if (!TestMovieMatch(movieSearch, ref movies) && movieSearch.MovieName.Text.Contains("-"))
         {
-          LanguageText originalName = movieSearch.MovieName;
+          SimpleTitle originalName = movieSearch.MovieName;
           string namePart = movieSearch.MovieName.Text.Split(new [] { '-' })[0].Trim();
-          movieSearch.MovieName = new LanguageText(namePart);
+          movieSearch.MovieName = new SimpleTitle(namePart);
           if(SearchMovieUniqueAndUpdate(movieSearch, language))
             return true;
           movieSearch.MovieName = originalName;
@@ -190,6 +190,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (movies.Count == 1)
       {
         if (movieSearch.MovieName.IsEmpty || GetLevenshteinDistance(movies[0], movieSearch) <= MAX_LEVENSHTEIN_DIST)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
+          return true;
+        }
+        if(NamesAreMostlyEqual(movies[0], movieSearch))
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
           return true;
@@ -226,7 +231,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
+        exactMatches = movies.FindAll(s => NamesAreMostlyEqual(s, movieSearch));
+        if (exactMatches.Count == 1)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
+          movies = exactMatches;
+          return true;
+        }
+
+        if (exactMatches.Count > 1)
+        {
+          // Try to match the year, if available
+          if (movieSearch.ReleaseDate.HasValue)
+          {
+            var yearFiltered = exactMatches.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == movieSearch.ReleaseDate.Value.Year);
+            if (yearFiltered.Count == 1)
+            {
+              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
+              movies = yearFiltered;
+              return true;
+            }
+          }
+        }
+
         movies = movies.Where(s => GetLevenshteinDistance(s, movieSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
+        if(movies.Count == 0)
+          movies.Where(s => NamesAreMostlyEqual(s, movieSearch)).ToList();
 
         if (movies.Count > 1)
         {
@@ -299,9 +329,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
         if (!TestSeriesEpisodeMatch(episodeSearch, ref episodes) && episodeSearch.SeriesName.Text.Contains("-"))
         {
-          LanguageText originalName = episodeSearch.SeriesName;
+          SimpleTitle originalName = episodeSearch.SeriesName;
           string namePart = episodeSearch.SeriesName.Text.Split(new[] { '-' })[0].Trim();
-          episodeSearch.SeriesName = new LanguageText(namePart);
+          episodeSearch.SeriesName = new SimpleTitle(namePart);
           if (SearchSeriesEpisodeUniqueAndUpdate(episodeSearch, language))
             return true;
           episodeSearch.SeriesName = originalName;
@@ -329,7 +359,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (episodes.Count == 1)
       {
+        if(episodes[0].EpisodeNumbers.Count > 0 && episodeSearch.EpisodeNumbers.Count > 0 && 
+          episodes[0].EpisodeNumbers[0] == episodeSearch.EpisodeNumbers[0] && 
+          episodes[0].SeasonNumber.HasValue && episodeSearch.SeasonNumber.HasValue &&
+          episodes[0].SeasonNumber.Value == episodeSearch.SeasonNumber.Value)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
+          return true;
+        }
         if (episodeSearch.EpisodeName.IsEmpty || GetLevenshteinDistance(episodes[0], episodeSearch) <= MAX_LEVENSHTEIN_DIST)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
+          return true;
+        }
+        if (NamesAreMostlyEqual(episodes[0], episodeSearch))
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
           return true;
@@ -341,7 +384,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (episodeSearch.EpisodeNumbers.Count > 0)
       {
-        var episodeFiltered = episodes.FindAll(e => episodeSearch.EpisodeNumbers.All(i => e.EpisodeNumbers.Contains(i)));
+        var episodeFiltered = episodes.FindAll(e => episodeSearch.EpisodeNumbers.All(i => e.EpisodeNumbers.Contains(i)) && e.SeasonNumber == episodeSearch.SeasonNumber);
         if (episodeFiltered.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
@@ -361,8 +404,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           episodes = exactMatches;
           return true;
         }
+        exactMatches = episodes.FindAll(e => NamesAreMostlyEqual(e, episodeSearch));
+        if (exactMatches.Count == 1)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
+          episodes = exactMatches;
+          return true;
+        }
 
         episodes = episodes.Where(e => GetLevenshteinDistance(e, episodeSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
+        if(episodes.Count == 0)
+          episodes = episodes.Where(e => NamesAreMostlyEqual(e, episodeSearch)).ToList();
+
         if (episodes.Count > 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", episodeSearch, episodes.Count, PreferredLanguage);
@@ -418,9 +471,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
         if (!TestSeriesMatch(seriesSearch, ref series) && seriesSearch.SeriesName.Text.Contains("-"))
         {
-          LanguageText originalName = seriesSearch.SeriesName;
+          SimpleTitle originalName = seriesSearch.SeriesName;
           string namePart = seriesSearch.SeriesName.Text.Split(new[] { '-' })[0].Trim();
-          seriesSearch.SeriesName = new LanguageText(namePart);
+          seriesSearch.SeriesName = new SimpleTitle(namePart);
           if (SearchSeriesUniqueAndUpdate(seriesSearch, language))
             return true;
           seriesSearch.SeriesName = originalName;
@@ -449,6 +502,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (series.Count == 1)
       {
         if (seriesSearch.SeriesName.IsEmpty || GetLevenshteinDistance(series[0], seriesSearch) <= MAX_LEVENSHTEIN_DIST)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
+          return true;
+        }
+        if (NamesAreMostlyEqual(series[0], seriesSearch))
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
           return true;
@@ -485,7 +543,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
+        exactMatches = series.FindAll(s => NamesAreMostlyEqual(s, seriesSearch));
+        if (exactMatches.Count == 1)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
+          series = exactMatches;
+          return true;
+        }
+
+        if (exactMatches.Count > 1)
+        {
+          // Try to match the year, if available
+          if (seriesSearch.FirstAired.HasValue)
+          {
+            var yearFiltered = exactMatches.FindAll(s => s.FirstAired.HasValue && s.FirstAired.Value.Year == seriesSearch.FirstAired.Value.Year);
+            if (yearFiltered.Count == 1)
+            {
+              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
+              series = yearFiltered;
+              return true;
+            }
+          }
+        }
+
         series = series.Where(s => GetLevenshteinDistance(s, seriesSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
+        if(series.Count == 0)
+          series = series.Where(s => NamesAreMostlyEqual(s, seriesSearch)).ToList();
 
         if (series.Count > 1)
         {
@@ -535,8 +618,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.EpisodeNumbers = episodeMatches.SelectMany(x => x.EpisodeNumbers).ToList();
       episodeInfo.DvdEpisodeNumbers = episodeMatches.SelectMany(x => x.DvdEpisodeNumbers).ToList();
       episodeInfo.FirstAired = episodeMatches.First().FirstAired;
-      episodeInfo.TotalRating = episodeMatches.Sum(e => e.TotalRating) / episodeMatches.Count; // Average rating
-      episodeInfo.RatingCount = episodeMatches.Sum(e => e.RatingCount) / episodeMatches.Count; // Average rating count
+      episodeInfo.Rating = new SimpleRating(episodeMatches.Where(e => !e.Rating.IsEmpty).Sum(e => e.Rating.RatingValue.Value) / episodeMatches.Count); // Average rating
+      episodeInfo.Rating.VoteCount = episodeMatches.Where(e => !e.Rating.IsEmpty && e.Rating.VoteCount.HasValue).Sum(e => e.Rating.VoteCount.Value) / episodeMatches.Count; // Average rating count
       episodeInfo.EpisodeName = string.Join("; ", episodeMatches.OrderBy(e => e.EpisodeNumbers[0]).Select(e => e.EpisodeName.Text).ToArray());
       episodeInfo.EpisodeName.DefaultLanguage = episodeMatches.First().EpisodeName.DefaultLanguage;
       episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.EpisodeNumbers[0]).
@@ -570,8 +653,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.EpisodeNumbers = episodeMatch.EpisodeNumbers;
       episodeInfo.DvdEpisodeNumbers = episodeMatch.DvdEpisodeNumbers;
       episodeInfo.FirstAired = episodeMatch.FirstAired;
-      episodeInfo.TotalRating = episodeMatch.TotalRating;
-      episodeInfo.RatingCount = episodeMatch.RatingCount;
+      episodeInfo.Rating = episodeMatch.Rating;
       episodeInfo.EpisodeName = episodeMatch.EpisodeName;
       episodeInfo.Summary = episodeMatch.Summary;
 
@@ -652,6 +734,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", personSearch);
           return true;
         }
+        if (NamesAreMostlyEqual(persons[0], personSearch))
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", personSearch);
+          return true;
+        }
         // No valid match, clear list to allow further detection ways
         persons.Clear();
         return false;
@@ -668,8 +755,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           persons = exactMatches;
           return true;
         }
+        exactMatches = persons.FindAll(p => NamesAreMostlyEqual(p, personSearch));
+        if (exactMatches.Count == 1)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", personSearch);
+          persons = exactMatches;
+          return true;
+        }
 
         persons = persons.Where(p => GetLevenshteinDistance(p, personSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
+        if(persons.Count == 0)
+          persons = persons.Where(p => NamesAreMostlyEqual(p, personSearch)).ToList();
+
         if (persons.Count > 1)
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", personSearch, persons.Count);
 
@@ -772,6 +869,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", characterSearch);
           return true;
         }
+        if (NamesAreMostlyEqual(characters[0], characterSearch))
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", characterSearch);
+          return true;
+        }
         // No valid match, clear list to allow further detection ways
         characters.Clear();
         return false;
@@ -788,8 +890,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           characters = exactMatches;
           return true;
         }
+        exactMatches = characters.FindAll(p => NamesAreMostlyEqual(p, characterSearch));
+        if (exactMatches.Count == 1)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", characterSearch);
+          characters = exactMatches;
+          return true;
+        }
 
         characters = characters.Where(p => GetLevenshteinDistance(p, characterSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
+        if(characters.Count == 0)
+          characters = characters.Where(p => NamesAreMostlyEqual(p, characterSearch)).ToList();
+
         if (characters.Count > 1)
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", characterSearch, characters.Count);
 
@@ -883,6 +995,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", companySearch);
           return true;
         }
+        if (NamesAreMostlyEqual(companies[0], companySearch))
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", companySearch);
+          return true;
+        }
         // No valid match, clear list to allow further detection ways
         companies.Clear();
         return false;
@@ -899,8 +1016,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           companies = exactMatches;
           return true;
         }
+        exactMatches = companies.FindAll(c => NamesAreMostlyEqual(c, companySearch));
+        if (exactMatches.Count == 1)
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", companySearch);
+          companies = exactMatches;
+          return true;
+        }
 
         companies = companies.Where(c => GetLevenshteinDistance(c, companySearch) <= MAX_LEVENSHTEIN_DIST).ToList();
+        if(companies.Count == 0)
+          companies = companies.Where(c => NamesAreMostlyEqual(c, companySearch)).ToList();
+
         if (companies.Count > 1)
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", companySearch, companies.Count);
 
@@ -968,6 +1095,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name +  ": Unique match found \"{0}\"!", trackSearch);
           return true;
         }
+        if (NamesAreMostlyEqual(tracks[0], trackSearch))
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
+          return true;
+        }
         // No valid match, clear list to allow further detection ways
         tracks.Clear();
         return false;
@@ -984,6 +1116,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           tracks = exactMatches;
           return true;
         }
+        if (exactMatches.Count == 0)
+        {
+          exactMatches = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
+          if (exactMatches.Count == 1)
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
+            tracks = exactMatches;
+            return true;
+          }
+        }
 
         if (exactMatches.Count > 1)
         {
@@ -994,13 +1136,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               exactMatches = exactMatches.FindAll(t => CompareArtists(t.Artists, trackSearch.Artists, false));
 
             if (checkValue == AudioValueToCheck.AlbumLax && !string.IsNullOrEmpty(trackSearch.Album))
-              exactMatches = exactMatches.FindAll(t => GetLevenshteinDistance(t.CloneBasicAlbum(), trackSearch.CloneBasicAlbum()) <= MAX_LEVENSHTEIN_DIST);
+              exactMatches = exactMatches.FindAll(t => GetLevenshteinDistance(t.CloneBasicInstance<AlbumInfo>(), trackSearch.CloneBasicInstance<AlbumInfo>()) <= MAX_LEVENSHTEIN_DIST);
 
             if (checkValue == AudioValueToCheck.ArtistStrict && trackSearch.Artists != null && trackSearch.Artists.Count > 0)
               exactMatches = exactMatches.FindAll(t => CompareArtists(t.Artists, trackSearch.Artists, true));
 
             if (checkValue == AudioValueToCheck.AlbumStrict && !string.IsNullOrEmpty(trackSearch.Album))
-              exactMatches = exactMatches.FindAll(t => t.Album == trackSearch.Album || GetLevenshteinDistance(t.CloneBasicAlbum(), trackSearch.CloneBasicAlbum()) == 0);
+              exactMatches = exactMatches.FindAll(t => t.Album == trackSearch.Album || GetLevenshteinDistance(t.CloneBasicInstance<AlbumInfo>(), trackSearch.CloneBasicInstance<AlbumInfo>()) == 0);
 
             if (checkValue == AudioValueToCheck.Year && trackSearch.ReleaseDate.HasValue)
               exactMatches = exactMatches.FindAll(t => t.ReleaseDate.HasValue && t.ReleaseDate.Value.Year == trackSearch.ReleaseDate.Value.Year);
@@ -1083,6 +1225,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
           return true;
         }
+        if (NamesAreMostlyEqual(albums[0], albumSearch))
+        {
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
+          return true;
+        }
         // No valid match, clear list to allow further detection ways
         albums.Clear();
         return false;
@@ -1098,6 +1245,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
           albums = exactMatches;
           return true;
+        }
+        if(exactMatches.Count == 0)
+        {
+          exactMatches = albums.FindAll(t => NamesAreMostlyEqual(t, albumSearch));
+          if (exactMatches.Count == 1)
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
+            albums = exactMatches;
+            return true;
+          }
         }
 
         if (exactMatches.Count > 1)
@@ -1242,13 +1399,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2)) || StringUtils.GetLevenshteinDistance(name1, name2) <= MAX_LEVENSHTEIN_DIST;
     }
 
-    /// <summary>
-    /// Returns the Levenshtein distance for a <see cref="MovieSearchResult"/> and a given <paramref name="movieName"/>.
-    /// It considers both <see cref="OnlineMovieMatch.MovieName"/> and <see cref="OnlineMovieMatch.MovieOriginalName"/>
-    /// </summary>
-    /// <param name="movieOnline">Movie search result</param>
-    /// <param name="movieSearch">Movie search parameters</param>
-    /// <returns>Levenshtein distance</returns>
     protected int GetLevenshteinDistance(MovieInfo movieOnline, MovieInfo movieSearch)
     {
       if(movieOnline.MovieName.IsEmpty || movieSearch.MovieName.IsEmpty)
@@ -1292,6 +1442,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (string.IsNullOrEmpty(personOnline.Name) || string.IsNullOrEmpty(personSearch.Name))
         return MAX_LEVENSHTEIN_DIST + 1;
+      if (personOnline.Occupation != personSearch.Occupation)
+        return MAX_LEVENSHTEIN_DIST + 1;
 
       string cleanedName = RemoveCharacters(personSearch.Name);
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(personOnline.Name), cleanedName);
@@ -1309,6 +1461,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     protected int GetLevenshteinDistance(CompanyInfo companyOnline, CompanyInfo companySearch)
     {
       if (string.IsNullOrEmpty(companyOnline.Name) || string.IsNullOrEmpty(companySearch.Name))
+        return MAX_LEVENSHTEIN_DIST + 1;
+      if (companyOnline.Type != companySearch.Type)
         return MAX_LEVENSHTEIN_DIST + 1;
 
       string cleanedName = RemoveCharacters(companySearch.Name);
@@ -1331,6 +1485,92 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       string cleanedName = RemoveCharacters(albumSearch.Album);
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(albumOnline.Album), cleanedName);
+    }
+
+    protected bool NamesAreMostlyEqual(MovieInfo movieOnline, MovieInfo movieSearch)
+    {
+      if (movieOnline.MovieName.IsEmpty || movieSearch.MovieName.IsEmpty)
+        return false;
+
+      if (string.IsNullOrEmpty(movieOnline.OriginalName))
+        return BaseInfo.MatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text);
+      else
+      {
+        if (BaseInfo.MatchNames(movieOnline.MovieName.Text, movieSearch.MovieName.Text))
+          return true;
+        if (BaseInfo.MatchNames(movieOnline.OriginalName, movieSearch.MovieName.Text))
+          return true;
+      }
+      return false;
+    }
+
+    protected bool NamesAreMostlyEqual(EpisodeInfo episodeOnline, EpisodeInfo episodeSearch)
+    {
+      if (episodeOnline.EpisodeName.IsEmpty || episodeSearch.EpisodeName.IsEmpty)
+        return false;
+
+      return BaseInfo.MatchNames(episodeOnline.EpisodeName.Text, episodeSearch.EpisodeName.Text);
+    }
+
+    protected bool NamesAreMostlyEqual(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
+    {
+      if (seriesOnline.SeriesName.IsEmpty || seriesSearch.SeriesName.IsEmpty)
+        return false;
+
+      if (string.IsNullOrEmpty(seriesOnline.OriginalName))
+        return BaseInfo.MatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text);
+      else
+      {
+        if (BaseInfo.MatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
+          return true;
+        if (BaseInfo.MatchNames(seriesOnline.OriginalName, seriesSearch.SeriesName.Text))
+          return true;
+      }
+      return false;
+    }
+
+    protected bool NamesAreMostlyEqual(PersonInfo personOnline, PersonInfo personSearch)
+    {
+      if (string.IsNullOrEmpty(personOnline.Name) || string.IsNullOrEmpty(personSearch.Name))
+        return false;
+      if (personOnline.Occupation != personSearch.Occupation)
+        return false;
+
+      return BaseInfo.MatchNames(personOnline.Name, personSearch.Name);
+    }
+
+    protected bool NamesAreMostlyEqual(CharacterInfo characterOnline, CharacterInfo characterSearch)
+    {
+      if (string.IsNullOrEmpty(characterOnline.Name) || string.IsNullOrEmpty(characterSearch.Name))
+        return false;
+
+      return BaseInfo.MatchNames(characterOnline.Name, characterSearch.Name);
+    }
+
+    protected bool NamesAreMostlyEqual(CompanyInfo companyOnline, CompanyInfo companySearch)
+    {
+      if (string.IsNullOrEmpty(companyOnline.Name) || string.IsNullOrEmpty(companySearch.Name))
+        return false;
+      if (companyOnline.Type != companySearch.Type)
+        return false;
+
+      return BaseInfo.MatchNames(companyOnline.Name, companySearch.Name);
+    }
+
+    protected bool NamesAreMostlyEqual(TrackInfo trackOnline, TrackInfo trackSearch)
+    {
+      if (string.IsNullOrEmpty(trackOnline.TrackName) || string.IsNullOrEmpty(trackSearch.TrackName))
+        return false;
+
+      return BaseInfo.MatchNames(trackOnline.TrackName, trackSearch.TrackName);
+    }
+
+    protected bool NamesAreMostlyEqual(AlbumInfo albumOnline, AlbumInfo albumSearch)
+    {
+      if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album))
+        return false;
+
+      return BaseInfo.MatchNames(albumOnline.Album, albumSearch.Album);
     }
 
     /// <summary>

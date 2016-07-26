@@ -55,6 +55,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    public const  double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 1;
 
     #endregion
 
@@ -101,24 +102,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
-        return false;
-
-      bool refresh = false;
+      MovieInfo movieInfo = new MovieInfo();
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
-        refresh = true;
-
-      MovieInfo movieInfo = new MovieInfo
-        {
-          MovieName = title,
-        };
-
-      if (refresh)
       {
         movieInfo.FromMetadata(extractedAspectData);
       }
-      else
+      if(!movieInfo.IsBaseInfoPresent)
       {
+        //Try to get title
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) && 
+          !string.IsNullOrEmpty(title) && !lfsra.ResourceName.StartsWith(title, StringComparison.InvariantCultureIgnoreCase))
+          movieInfo.MovieName = title;
+
         // Try to use an existing TMDB id for exact mapping
         string tmdbId;
         if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out tmdbId) ||
@@ -132,15 +127,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
           movieInfo.ImdbId = imdbId;
 
-        // Also test the full path year, using a dummy. This is useful if the path contains the real name and year.
-        foreach (string path in pathsToTest)
+        if (!movieInfo.IsBaseInfoPresent || movieInfo.ReleaseDate.HasValue == false)
         {
-          MovieInfo dummy = new MovieInfo { MovieName = path };
-          if (MovieNameMatcher.MatchTitleYear(dummy))
+          // Also test the full path year. This is useful if the path contains the real name and year.
+          foreach (string path in pathsToTest)
           {
-            movieInfo.MovieName = dummy.MovieName;
-            movieInfo.ReleaseDate = dummy.ReleaseDate;
-            break;
+            if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
+              break;
           }
         }
 
@@ -168,16 +161,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
+      if (!movieInfo.IsBaseInfoPresent || !movieInfo.HasExternalId)
+      {
+        //Reset string to prefer online texts
+        movieInfo.CollectionName.DefaultLanguage = true;
+        movieInfo.MovieName.DefaultLanguage = true;
+        movieInfo.Summary.DefaultLanguage = true;
+      }
+
       MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
       MP4Matcher.ExtractFromTags(lfsra, movieInfo);
-      MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+
+      MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, false);
       MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
-      MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+      MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, false);
 
       if (!_onlyFanArt)
-        return movieInfo.SetMetadata(extractedAspectData);
+        movieInfo.SetMetadata(extractedAspectData);
 
-      return true;
+      return movieInfo.IsBaseInfoPresent;
     }
 
     #endregion
@@ -193,9 +195,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       try
       {
-        if (forceQuickMode)
-          return false;
-
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))

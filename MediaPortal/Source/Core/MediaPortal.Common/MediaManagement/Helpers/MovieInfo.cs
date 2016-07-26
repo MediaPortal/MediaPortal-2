@@ -59,23 +59,22 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int MovieDbId = 0;
     public string ImdbId = null;
 
-    public LanguageText MovieName = null;
+    public SimpleTitle MovieName = null;
     public string OriginalName = null;
     public DateTime? ReleaseDate = null;
     public int Runtime = 0;
     public string Certification = null;
     public string Tagline = null;
-    public LanguageText Summary = null;
+    public SimpleTitle Summary = null;
 
-    public LanguageText CollectionName = null;
+    public SimpleTitle CollectionName = null;
     public int CollectionMovieDbId = 0;
 
     public float Popularity = 0;
     public long Budget = 0;
     public long Revenue = 0;
     public double Score = 0;
-    public double TotalRating = 0;
-    public int RatingCount = 0;
+    public SimpleRating Rating = new SimpleRating();
     public int Order = int.MaxValue;
 
     /// <summary>
@@ -91,13 +90,41 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<string> Genres = new List<string>();
     public List<string> Awards = new List<string>();
 
+    public override bool IsBaseInfoPresent
+    {
+      get
+      {
+        if (MovieName.IsEmpty)
+          return false;
+        if (Runtime == 0)
+          return false;
+        if (!ReleaseDate.HasValue)
+          return false;
+
+        return true;
+      }
+    }
+
+    public override bool HasExternalId
+    {
+      get
+      {
+        if (MovieDbId > 0)
+          return true;
+        if (!string.IsNullOrEmpty(ImdbId))
+          return true;
+
+        return false;
+      }
+    }
+
     #region Members
 
     /// <summary>
     /// Copies the contained movie information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (MovieName.IsEmpty) return false;
 
@@ -121,26 +148,30 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (Popularity > 0f) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_POPULARITY, Popularity);
       if (Score > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_SCORE, Score);
-      if (TotalRating > 0d) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TOTAL_RATING, TotalRating);
-      if (RatingCount > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, RatingCount);
+
+      if (!Rating.IsEmpty)
+      {
+        MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TOTAL_RATING, Rating.RatingValue.Value);
+        if (Rating.VoteCount.HasValue) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, Rating.VoteCount.Value);
+      }
 
       MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_ISDVD, false);
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Select(p => p.Name).ToList<object>());
-      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Select(p => p.Name).ToList<object>());
-      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Select(p => p.Name).ToList<object>());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Select(p => p.Name).ToList<object>());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
+      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres.ToList<object>());
-      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_AWARDS, Awards.ToList<object>());
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
+      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList<object>());
 
-      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_COMPANIES, ProductionCompanies.Select(c => c.Name).ToList<object>());
+      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_COMPANIES, ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
 
       SetThumbnailMetadata(aspectData);
 
       return true;
     }
 
-    public bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (aspectData.ContainsKey(MovieAspect.ASPECT_ID))
       {
@@ -153,16 +184,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_REVENUE, out Revenue);
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_POPULARITY, out Popularity);
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_SCORE, out Score);
-        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_TOTAL_RATING, out TotalRating);
-        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, out RatingCount);
+
+        double? rating;
+        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_TOTAL_RATING, out rating);
+        int? voteCount;
+        MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, out voteCount);
+        Rating = new SimpleRating(rating, voteCount);
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, out tempString);
-        MovieName = new LanguageText(tempString, false);
+        MovieName = new SimpleTitle(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
-        Summary = new LanguageText(tempString, false);
+        Summary = new SimpleTitle(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out tempString);
-        CollectionName = new LanguageText(tempString, false);
+        CollectionName = new SimpleTitle(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id))
@@ -232,7 +267,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_TITLE, out tempString);
-        MovieName = new LanguageText(tempString, false);
+        MovieName = new SimpleTitle(tempString, false);
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id))
@@ -273,7 +308,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return string.Format(SHORT_FORMAT_STR, MovieName);
     }
 
-    public bool FromString(string name)
+    public override bool FromString(string name)
     {
       if (name.Contains("("))
       {
@@ -292,20 +327,32 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public bool CopyIdsFrom(MovieInfo otherMovie)
+    public override bool CopyIdsFrom<T>(T otherInstance)
     {
-      MovieDbId = otherMovie.MovieDbId;
-      ImdbId = otherMovie.ImdbId;
-      CollectionMovieDbId = otherMovie.CollectionMovieDbId;
-      return true;
+      if (otherInstance == null)
+        return false;
+
+      if (otherInstance is MovieInfo)
+      {
+        MovieInfo otherMovie = otherInstance as MovieInfo;
+        MovieDbId = otherMovie.MovieDbId;
+        ImdbId = otherMovie.ImdbId;
+        CollectionMovieDbId = otherMovie.CollectionMovieDbId;
+        return true;
+      }
+      return false;
     }
 
-    public MovieCollectionInfo CloneBasicMovieCollection()
+    public override T CloneBasicInstance<T>()
     {
-      MovieCollectionInfo info = new MovieCollectionInfo();
-      info.MovieDbId = CollectionMovieDbId;
-      info.CollectionName = new LanguageText(CollectionName.Text, CollectionName.DefaultLanguage);
-      return info;
+      if (typeof(T) == typeof(MovieCollectionInfo))
+      {
+        MovieCollectionInfo info = new MovieCollectionInfo();
+        info.MovieDbId = CollectionMovieDbId;
+        info.CollectionName = new SimpleTitle(CollectionName.Text, CollectionName.DefaultLanguage);
+        return (T)(object)info;
+      }
+      return default(T);
     }
 
     #endregion
@@ -322,7 +369,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override bool Equals(object obj)
     {
       MovieInfo other = obj as MovieInfo;
-      if (obj == null) return false;
+      if (other == null) return false;
+
       if (MovieDbId > 0 && other.MovieDbId > 0)
         return MovieDbId == other.MovieDbId;
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
@@ -336,7 +384,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override int GetHashCode()
     {
       //TODO: Check if this is functional
-      return MovieName.Text.GetHashCode();
+      return (MovieName.IsEmpty ? "Unnamed Movie" : MovieName.Text).GetHashCode();
     }
 
     public int CompareTo(MovieInfo other)

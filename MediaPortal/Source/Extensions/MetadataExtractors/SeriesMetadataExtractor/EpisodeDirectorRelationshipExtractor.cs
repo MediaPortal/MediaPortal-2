@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -38,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
+    private CheckedItemCache<EpisodeInfo> _checkCache = new CheckedItemCache<EpisodeInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -59,27 +61,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string ExternalIdType
-    {
-      get
-      {
-        return ExternalIdentifierAspect.TYPE_PERSON;
-      }
-    }
-
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
-      // Build the person MI
+      if (forceQuickMode)
+        return false;
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      SeriesTvMazeMatcher.Instance.UpdateEpisodePersons(episodeInfo, PersonAspect.OCCUPATION_DIRECTOR, forceQuickMode);
+      if (_checkCache.IsItemChecked(episodeInfo))
+        return false;
+
       SeriesTvDbMatcher.Instance.UpdateEpisodePersons(episodeInfo, PersonAspect.OCCUPATION_DIRECTOR, forceQuickMode);
       SeriesTheMovieDbMatcher.Instance.UpdateEpisodePersons(episodeInfo, PersonAspect.OCCUPATION_DIRECTOR, forceQuickMode);
+      SeriesTvMazeMatcher.Instance.UpdateEpisodePersons(episodeInfo, PersonAspect.OCCUPATION_DIRECTOR, forceQuickMode);
 
       if (episodeInfo.Directors.Count == 0)
         return false;
@@ -92,7 +90,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         person.SetMetadata(personAspects);
 
         if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        extractedLinkedAspects.Add(personAspects);
+         extractedLinkedAspects.Add(personAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }

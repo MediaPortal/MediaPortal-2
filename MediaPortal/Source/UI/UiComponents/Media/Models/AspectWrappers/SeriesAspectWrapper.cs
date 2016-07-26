@@ -171,9 +171,9 @@ public AbstractProperty NextEpisodeProperty
   get{ return _nextEpisodeProperty; }
 }
 
-public IEnumerable<int> NextEpisode
+public int? NextEpisode
 {
-  get { return (IEnumerable<int>) _nextEpisodeProperty.GetValue(); }
+  get { return (int?) _nextEpisodeProperty.GetValue(); }
   set { _nextEpisodeProperty.SetValue(value); }
 }
 
@@ -269,7 +269,7 @@ public SeriesAspectWrapper()
   _certificationProperty = new SProperty(typeof(string));
   _isEndedProperty = new SProperty(typeof(bool?));
   _nextSeasonProperty = new SProperty(typeof(int?));
-  _nextEpisodeProperty = new SProperty(typeof(IEnumerable<int>));
+  _nextEpisodeProperty = new SProperty(typeof(int?));
   _nextEpisodeNameProperty = new SProperty(typeof(string));
   _nextAirDateProperty = new SProperty(typeof(DateTime?));
   _popularityProperty = new SProperty(typeof(float?));
@@ -307,7 +307,7 @@ public void Init(MediaItem mediaItem)
   Certification = (string) aspect[SeriesAspect.ATTR_CERTIFICATION];
   IsEnded = (bool?) aspect[SeriesAspect.ATTR_ENDED];
   NextSeason = (int?) aspect[SeriesAspect.ATTR_NEXT_SEASON];
-  NextEpisode = (IEnumerable<int>) aspect[SeriesAspect.ATTR_NEXT_EPISODE];
+  NextEpisode = (int?) aspect[SeriesAspect.ATTR_NEXT_EPISODE];
   NextEpisodeName = (string) aspect[SeriesAspect.ATTR_NEXT_EPISODE_NAME];
   NextAirDate = (DateTime?) aspect[SeriesAspect.ATTR_NEXT_AIR_DATE];
   Popularity = (float?) aspect[SeriesAspect.ATTR_POPULARITY];
@@ -327,7 +327,7 @@ public void SetEmpty()
   Certification = null;
   IsEnded = null;
   NextSeason = null;
-  NextEpisode = new List<Int32>();
+  NextEpisode = null;
   NextEpisodeName = null;
   NextAirDate = null;
   Popularity = null;

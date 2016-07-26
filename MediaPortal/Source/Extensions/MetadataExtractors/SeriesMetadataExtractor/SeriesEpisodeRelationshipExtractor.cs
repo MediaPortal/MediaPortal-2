@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -38,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
+    private CheckedItemCache<SeriesInfo> _checkCache = new CheckedItemCache<SeriesInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -59,14 +61,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string ExternalIdType
-    {
-      get
-      {
-        return ExternalIdentifierAspect.TYPE_EPISODE;
-      }
-    }
-
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
@@ -75,11 +69,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
+      if (_checkCache.IsItemChecked(seriesInfo))
+        return false;
+
+      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false);
       SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
       SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
-      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
       SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
-      SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+      SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, false);
 
       if (seriesInfo.Episodes.Count == 0)
         return false;
@@ -89,10 +86,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       for (int i = 0; i < seriesInfo.Episodes.Count; i++)
       {
         EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
-        SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
-        SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
-        SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
-        SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+
+        //Gives more detail to the missing episodes but will be very slow
+        //SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        //SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        //SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        //SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
         SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
 
         IDictionary<Guid, IList<MediaItemAspect>> episodeAspects = new Dictionary<Guid, IList<MediaItemAspect>>();

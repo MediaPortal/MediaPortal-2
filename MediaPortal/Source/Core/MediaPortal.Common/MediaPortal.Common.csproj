@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="General\CheckedItemCache.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieCollectionAspect.cs" />
@@ -78,7 +79,8 @@
     <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\LanguageString.cs" />
+    <Compile Include="MediaManagement\Helpers\SimpleRating.cs" />
+    <Compile Include="MediaManagement\Helpers\SimpleTitle.cs" />
     <Compile Include="MediaManagement\Helpers\MovieCollectionInfo.cs" />
     <Compile Include="MediaManagement\Helpers\CompanyInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SeasonInfo.cs" />

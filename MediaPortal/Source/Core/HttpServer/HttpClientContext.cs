@@ -244,6 +244,11 @@ namespace HttpServer
     {
       try
       {
+        if (Stream == null)
+        {
+          Disconnect(SocketError.ConnectionReset);
+          return;
+        }
         int bytesRead = Stream.EndRead(ar);
         if (bytesRead == 0)
         {

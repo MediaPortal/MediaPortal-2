@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data
     public DateTime? AirStamp { get; set; }
 
     [DataMember(Name = "runtime")]
-    public int Runtime { get; set; }
+    public int? Runtime { get; set; }
 
     [DataMember(Name = "image")]
     public TvMazeImageCollection Images { get; set; }

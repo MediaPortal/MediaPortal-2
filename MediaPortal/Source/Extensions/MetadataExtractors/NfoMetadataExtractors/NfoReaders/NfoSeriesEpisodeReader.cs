@@ -37,6 +37,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Utilities;
+using System.Globalization;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -926,16 +927,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMediaAspectTitle(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
-      var seriesName = _stubs[0].ShowTitle;
-      if (seriesName == null && _useSeriesStubs)
-        seriesName = _seriesStubs[0].ShowTitle;
+      string seriesName = _stubs[0].ShowTitle;
+      if (seriesName == null && _useSeriesStubs && _seriesStubs[0].ShowTitle != null)
+        seriesName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_seriesStubs[0].ShowTitle);
 
       var season = _stubs[0].Season;
       if (!season.HasValue)
         season = _stubs[0].DisplaySeason;
 
       var episode = _stubs[0].Episode;
-      var episodeName = _stubs[0].Title;
+      string episodeName = null;
+      if(_stubs[0].Title != null)
+        episodeName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
 
       if (seriesName != null && season.HasValue && episode.HasValue && episodeName != null)
       {
@@ -1135,13 +1138,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       //priority 1:
       if (_stubs[0].ShowTitle != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME, _stubs[0].ShowTitle);
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME,
+          CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].ShowTitle));
         return true;
       }
       //priority 2:
       if (_useSeriesStubs && _seriesStubs[0].ShowTitle != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME, _seriesStubs[0].ShowTitle);
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME,
+          CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_seriesStubs[0].ShowTitle));
         return true;
       }
       return false;
@@ -1199,8 +1204,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private bool TryWriteSeriesAspectSeriesSeason(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       var series = _stubs[0].ShowTitle;
-      if (_useSeriesStubs && series == null)
-        series = _seriesStubs[0].ShowTitle;
+      if (_useSeriesStubs && series == null && _seriesStubs[0].ShowTitle != null)
+        series = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_seriesStubs[0].ShowTitle);
 
       var season = _stubs[0].Season;
       if (!season.HasValue)
@@ -1255,7 +1260,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODE_NAME, string.Join("; ", _stubs.OrderBy(e => e.Episode).Select(e => e.Title).ToArray()));
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODE_NAME, string.Join("; ", _stubs.OrderBy(e => e.Episode).
+          Select(e => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(e.Title)).ToArray()));
         return true;
       }
       return false;

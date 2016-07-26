@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data
     public string Status { get; set; }
 
     [DataMember(Name = "runtime")]
-    public int Runtime { get; set; }
+    public int? Runtime { get; set; }
 
     [DataMember(Name = "premiered")]
     public DateTime? Premiered { get; set; }

@@ -29,6 +29,8 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -104,7 +106,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MusicBrainzGroupId = album.MusicBrainzID,
           
           Album = album.Album,
-          ReleaseDate = album.Year != null ? new DateTime(album.Year.Value, 1, 1) : default(DateTime?),
+          ReleaseDate = album.Year != null && album.Year.Value > 1900 ? new DateTime(album.Year.Value, 1, 1) : default(DateTime?),
           Artists = ConvertToPersons(album.ArtistId ?? 0, album.MusicBrainzArtistID, album.Artist, PersonAspect.OCCUPATION_ARTIST),
           MusicLabels = ConvertToCompanies(album.LabelId ?? 0, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL),
         };
@@ -216,9 +218,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       int? year = artistDetail.BornYear == null ? artistDetail.FormedYear : artistDetail.BornYear;
       DateTime? born = null;
-      if (year.HasValue) born = new DateTime(year.Value, 1, 1);
+      if (year.HasValue && year.Value > 1900)
+        born = new DateTime(year.Value, 1, 1);
       DateTime? died = null;
-      if (artistDetail.DiedYear.HasValue) died = new DateTime(artistDetail.DiedYear.Value, 1, 1);
+      if (artistDetail.DiedYear.HasValue && artistDetail.DiedYear.Value > 1900)
+        died = new DateTime(artistDetail.DiedYear.Value, 1, 1);
 
       person.MusicBrainzId = artistDetail.MusicBrainzID;
       person.Name = artistDetail.Artist;
@@ -234,7 +238,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineMusicTrackAlbumPerson(trackInfo.CloneBasicAlbum(), person, language, cacheOnly);
+      return UpdateFromOnlineMusicTrackAlbumPerson(trackInfo.CloneBasicInstance<AlbumInfo>(), person, language, cacheOnly);
     }
 
     public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
@@ -267,8 +271,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       track.Album = trackDetail.Album;
       track.TrackNum = trackDetail.TrackNumber;
       track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 0;
-      track.TotalRating = trackDetail.Rating ?? 0;
-      track.RatingCount = trackDetail.RatingCount ?? 0;
+      track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
       track.TrackLyrics = trackDetail.TrackLyrics;
       track.Duration = trackDetail.Duration ?? 0;
 
@@ -316,12 +319,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       album.MusicBrainzGroupId = albumDetail.MusicBrainzID;
 
       album.Album = albumDetail.Album;
-      album.Description = new LanguageText(albumDetail.Description, !languageSet);
+      album.Description = new SimpleTitle(albumDetail.Description, !languageSet);
       album.Genres = new List<string>(new string[] { albumDetail.Genre });
       album.Sales = albumDetail.Sales ?? 0;
-      album.ReleaseDate = albumDetail.Year.HasValue ? new DateTime(albumDetail.Year.Value, 1, 1) : default(DateTime?);
-      album.TotalRating = albumDetail.Rating ?? 0;
-      album.RatingCount = albumDetail.RatingCount ?? 0;
+      album.ReleaseDate = albumDetail.Year.HasValue && albumDetail.Year.Value > 1900 ? new DateTime(albumDetail.Year.Value, 1, 1) : default(DateTime?);
+      album.Rating = new SimpleRating(albumDetail.Rating, albumDetail.RatingCount);
 
       if (albumDetail.ArtistId.HasValue)
         album.Artists = ConvertToPersons(albumDetail.ArtistId.Value, albumDetail.MusicBrainzArtistID, albumDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
@@ -350,8 +352,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           track.Album = albumDetail.Album;
           track.TrackNum = trackDetail.TrackNumber;
           track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 0;
-          track.TotalRating = trackDetail.Rating ?? 0;
-          track.RatingCount = trackDetail.RatingCount ?? 0;
+          track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
           track.TrackLyrics = trackDetail.TrackLyrics;
           track.Duration = trackDetail.Duration ?? 0;
 
@@ -379,48 +380,55 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       images = new ApiWrapperImageCollection<string>();
 
-      if (scope == FanArtMediaTypes.Album)
+      try
       {
-        TrackInfo track = infoObject as TrackInfo;
-        AlbumInfo album = infoObject as AlbumInfo;
-        if (album == null && track != null)
+        if (scope == FanArtMediaTypes.Album)
         {
-          album = track.CloneBasicAlbum();
-        }
-        if (album != null && album.AudioDbId > 0)
-        {
-          AudioDbAlbum albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, false);
-          if (albumDetail != null)
+          TrackInfo track = infoObject as TrackInfo;
+          AlbumInfo album = infoObject as AlbumInfo;
+          if (album == null && track != null)
           {
-            images.Id = album.AudioDbId.ToString();
-            if (!string.IsNullOrEmpty(albumDetail.AlbumThumb)) images.Covers.Add(albumDetail.AlbumThumb);
-            if (!string.IsNullOrEmpty(albumDetail.AlbumCDart)) images.DiscArt.Add(albumDetail.AlbumCDart);
-            return true;
+            album = track.CloneBasicInstance<AlbumInfo>();
+          }
+          if (album != null && album.AudioDbId > 0)
+          {
+            AudioDbAlbum albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, false);
+            if (albumDetail != null)
+            {
+              images.Id = album.AudioDbId.ToString();
+              if (!string.IsNullOrEmpty(albumDetail.AlbumThumb)) images.Covers.Add(albumDetail.AlbumThumb);
+              if (!string.IsNullOrEmpty(albumDetail.AlbumCDart)) images.DiscArt.Add(albumDetail.AlbumCDart);
+              return true;
+            }
           }
         }
-      }
-      else if (scope == FanArtMediaTypes.Artist)
-      {
-        PersonInfo person = infoObject as PersonInfo;
-        if (person != null && person.AudioDbId > 0)
+        else if (scope == FanArtMediaTypes.Artist)
         {
-          AudioDbArtist artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, false);
-          if (artistDetail != null)
+          PersonInfo person = infoObject as PersonInfo;
+          if (person != null && person.AudioDbId > 0)
           {
-            images.Id = person.AudioDbId.ToString();
-            if (!string.IsNullOrEmpty(artistDetail.ArtistBanner)) images.Banners.Add(artistDetail.ArtistBanner);
-            if (!string.IsNullOrEmpty(artistDetail.ArtistFanart)) images.Backdrops.Add(artistDetail.ArtistFanart);
-            if (!string.IsNullOrEmpty(artistDetail.ArtistFanart2)) images.Backdrops.Add(artistDetail.ArtistFanart2);
-            if (!string.IsNullOrEmpty(artistDetail.ArtistFanart3)) images.Backdrops.Add(artistDetail.ArtistFanart3);
-            if (!string.IsNullOrEmpty(artistDetail.ArtistLogo)) images.Logos.Add(artistDetail.ArtistLogo);
-            if (!string.IsNullOrEmpty(artistDetail.ArtistThumb)) images.Thumbnails.Add(artistDetail.ArtistThumb);
-            return true;
+            AudioDbArtist artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, false);
+            if (artistDetail != null)
+            {
+              images.Id = person.AudioDbId.ToString();
+              if (!string.IsNullOrEmpty(artistDetail.ArtistBanner)) images.Banners.Add(artistDetail.ArtistBanner);
+              if (!string.IsNullOrEmpty(artistDetail.ArtistFanart)) images.Backdrops.Add(artistDetail.ArtistFanart);
+              if (!string.IsNullOrEmpty(artistDetail.ArtistFanart2)) images.Backdrops.Add(artistDetail.ArtistFanart2);
+              if (!string.IsNullOrEmpty(artistDetail.ArtistFanart3)) images.Backdrops.Add(artistDetail.ArtistFanart3);
+              if (!string.IsNullOrEmpty(artistDetail.ArtistLogo)) images.Logos.Add(artistDetail.ArtistLogo);
+              if (!string.IsNullOrEmpty(artistDetail.ArtistThumb)) images.Thumbnails.Add(artistDetail.ArtistThumb);
+              return true;
+            }
           }
         }
+        else
+        {
+          return true;
+        }
       }
-      else
+      catch (Exception ex)
       {
-        return true;
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception downloading images", ex);
       }
       return false;
     }

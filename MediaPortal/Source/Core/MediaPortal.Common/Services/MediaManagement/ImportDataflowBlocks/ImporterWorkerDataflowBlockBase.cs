@@ -95,6 +95,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
   {
     #region Constants
 
+    protected static double MINIMUM_IMPORT_AGE = 1;
+
     protected static readonly IEnumerable<Guid> EMPTY_MIA_ID_ENUMERATION = new Guid[] { };
 
     protected static readonly IEnumerable<Guid> DIRECTORY_MIA_ID_ENUMERATION = new[]
@@ -357,7 +359,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
-    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
+    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, ImportJobType jobType)
     {
       while (true)
       {
@@ -365,7 +367,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _importResultHandler.UpdateMediaItem(parentDirectoryId, path, updatedAspects);
+          return _importResultHandler.UpdateMediaItem(parentDirectoryId, path, updatedAspects, jobType == ImportJobType.Refresh);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
