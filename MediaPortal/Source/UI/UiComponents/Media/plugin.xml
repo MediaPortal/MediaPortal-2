@@ -242,10 +242,10 @@
   <Builder Name="MediaNavigationFilterBuilder" ClassName="MediaPortal.UiComponents.Media.Extensions.MediaNavigationFilterBuilder"/>
   <Register Location="/Media/Filters">
     <MediaNavigationFilterBuilder Id="{58B4F0AB-D57B-46DD-BDF2-4FBDA83B03E8}" ClassName="VideosNavigationInitializer"
-                                  Filter="{FilterWrapper}{Empty}{AttributeType}287a2809-d38d-4f98-b613-e9c09904392d:SeriesName{/AttributeType}{/Empty}{/FilterWrapper}"
+                                  Filter="{FilterWrapper}{Empty}{AttributeType}CC158CBA-4C9D-497E-8171-D0531E2D27D7:SeriesName{/AttributeType}{/Empty}{/FilterWrapper}"
                                   />
     <MediaNavigationFilterBuilder Id="{774CD13B-0572-4A8D-ABE6-CDD552FA9F1D}" ClassName="VideosNavigationInitializer"
-                                  Filter="{FilterWrapper}{Empty}{AttributeType}2ad64410-5ba3-4163-af03-f8cbbd0ec252:MovieName{/AttributeType}{/Empty}{/FilterWrapper}"
+                                  Filter="{FilterWrapper}{Empty}{AttributeType}4A061571-5EDA-4D57-9A07-F7533C22EB23:MovieName{/AttributeType}{/Empty}{/FilterWrapper}"
                                   />
   </Register>
 
