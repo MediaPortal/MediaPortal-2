@@ -15,6 +15,8 @@
   <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
   <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
   <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
+  <Model x:Key="GeneralPlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
+ 
   <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
@@ -611,9 +613,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}">
             <StackPanel Orientation="Horizontal">
-              <Button x:Name="CurrentlyPlaying" Style="{ThemeResource CPButtonStyle}">
+              <Button x:Name="CurrentlyPlaying" Style="{ThemeResource CPButtonStyle}" Command="{Command Source={StaticResource GeneralPlayerModel},Path=ToggleCurrentPlayer}">
                 <Button.Triggers>
                   <Trigger Property="HasFocus" Value="True">
                     <Setter TargetName="image2" Property="Opacity" Value="1"/>
@@ -628,22 +630,22 @@
   </Style>
 
   <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-                    <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                           IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Bottom">
 
             <Grid x:Name="MediaInfoPanel" IsVisible="{Binding IsCurrentPlayer}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
 
-                            <!--Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+              <!--Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                                             Content="{Binding MediaItemTitle}" HorizontalAlignment="Center" VerticalAlignment="Center" Scroll="Auto">
                                     <Label.Triggers>
                                         <DataTrigger Binding="{Binding IsPlayerPresent}" Value="False">
@@ -651,42 +653,44 @@
                                         </DataTrigger>
                                     </Label.Triggers>
                             </Label-->
-                                <StackPanel Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0">
-                                    <!-- Workaround to avoid layouting problems with LayoutTransform -->
-                                    <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal">
-                                        <StackPanel.LayoutTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
-                                            </TransformGroup>
-                                        </StackPanel.LayoutTransform>
-                                        <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
+              <StackPanel Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0">
+                <!-- Workaround to avoid layouting problems with LayoutTransform -->
+                <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal">
+                  <StackPanel.LayoutTransform>
+                    <TransformGroup>
+                      <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
+                    </TransformGroup>
+                  </StackPanel.LayoutTransform>
+                  <Button x:Name="ToogleFullScreen" Style="{ThemeResource ToogleFullscreenButtonStyle}" Margin="5,0,5,0" 
+                                                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
+                  <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
                                                 Command="{Command Stop}"/>
-                                        <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center"/>                                        
-                                        <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}"
+                  <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center"/>
+                  <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}"
                                                 Command="{Command Previous}"/>
-                                        <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="0" IsVisible="{Binding CanSeekBackward}"
+                  <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="0" IsVisible="{Binding CanSeekBackward}"
                                                 Command="{Command SeekBackward}"/>
-                                        <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
                                                 Command="{Command Play}"/>
-                                        <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
                                                 Command="{Command Pause}"/>
-                                        <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSeekForward}"
+                  <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSeekForward}"
                                                 Command="{Command SeekForward}"/>
-                                        <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}"
+                  <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}"
                                                 Command="{Command Next}"/>
-                                        <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center"/>
-                                        <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0"
+                  <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center"/>
+                  <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0"
                                                 IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}"/>
-                                        <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="0"/>
-                                        <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="0"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Grid>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+                  <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="0"/>
+                  <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="0"/>
+                </StackPanel>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <Style x:Key="PlayerControlsProgressBarStyle" TargetType="{x:Type ProgressBar}">
     <Setter Property="Template">
