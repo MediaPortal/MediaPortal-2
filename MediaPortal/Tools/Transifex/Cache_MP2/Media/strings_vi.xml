@@ -14,6 +14,7 @@
   <!--Display labels for workflow navigation contexts-->
   <!--Screen headers-->
   <!--View names (names for the view instances)-->
+  <string name="Media.EpisodeRootViewName">Episode</string>
   <!--General strings used in views-->
   <!--Shown in the header of an items list-->
   <!--Shown in the header of an items list-->

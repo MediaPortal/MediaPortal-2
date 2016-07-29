@@ -99,7 +99,7 @@
   <string name="Media.MediaItemsHeader">Mediaelementer</string>
   <string name="Media.VideoItemsHeader">Videoer</string>
   <string name="Media.AudioItemsHeader">Lydelementer</string>
-  <string name="Media.SeriesItemsHeader">Episoder</string>
+  <string name="Media.EpisodeItemsHeader">Episoder</string>
   <string name="Media.MoviesItemsHeader">Filmer</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
   <string name="Media.SimpleSearchHeader">Enkelt søk</string>
@@ -139,6 +139,8 @@
   <string name="Media.AudioRootViewName">Lyd</string>
   <string name="Media.VideosRootViewName">Videoer</string>
   <string name="Media.SeriesRootViewName">Serier</string>
+  <string name="Media.SeasonRootViewName">Sesong</string>
+  <string name="Media.EpisodeRootViewName">Episode</string>
   <string name="Media.ImagesRootViewName">Bilder</string>
   <string name="Media.SimpleSearchViewName">Enkelt søk</string>
   <!--General strings used in views-->

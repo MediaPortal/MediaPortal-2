@@ -99,7 +99,7 @@
   <string name="Media.MediaItemsHeader">Медија ставке</string>
   <string name="Media.VideoItemsHeader">Видео</string>
   <string name="Media.AudioItemsHeader">Аудио ставке</string>
-  <string name="Media.SeriesItemsHeader">Епизоде</string>
+  <string name="Media.EpisodeItemsHeader">Епизоде</string>
   <string name="Media.MoviesItemsHeader">Филмови</string>
   <string name="Media.ImageItemsHeader">Слике</string>
   <string name="Media.SimpleSearchHeader">Једноставно претраживање</string>
@@ -139,6 +139,7 @@
   <string name="Media.AudioRootViewName">Аудио</string>
   <string name="Media.VideosRootViewName">Видео</string>
   <string name="Media.SeriesRootViewName">Серије</string>
+  <string name="Media.EpisodeRootViewName">Епизода</string>
   <string name="Media.ImagesRootViewName">Слике</string>
   <string name="Media.SimpleSearchViewName">Једноставно претраживање</string>
   <!--General strings used in views-->

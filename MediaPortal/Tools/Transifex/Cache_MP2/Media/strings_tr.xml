@@ -101,7 +101,7 @@
   <string name="Media.MediaItemsHeader">Medya öğeleri</string>
   <string name="Media.VideoItemsHeader">Videolar</string>
   <string name="Media.AudioItemsHeader">Ses öğeleri</string>
-  <string name="Media.SeriesItemsHeader">Bölümler</string>
+  <string name="Media.EpisodeItemsHeader">Bölümler</string>
   <string name="Media.MoviesItemsHeader">Filmler</string>
   <string name="Media.ImageItemsHeader">Resimler</string>
   <string name="Media.SimpleSearchHeader">Basit arama</string>
@@ -141,6 +141,7 @@
   <string name="Media.AudioRootViewName">Ses</string>
   <string name="Media.VideosRootViewName">Videolar</string>
   <string name="Media.SeriesRootViewName">Dizi</string>
+  <string name="Media.EpisodeRootViewName">Bölüm</string>
   <string name="Media.ImagesRootViewName">Resimler</string>
   <string name="Media.SimpleSearchViewName">Basit arama</string>
   <!--General strings used in views-->

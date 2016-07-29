@@ -101,7 +101,7 @@
   <string name="Media.MediaItemsHeader">Položky médií</string>
   <string name="Media.VideoItemsHeader">Videá</string>
   <string name="Media.AudioItemsHeader">Audio položky</string>
-  <string name="Media.SeriesItemsHeader">Epizódy</string>
+  <string name="Media.EpisodeItemsHeader">Epizódy</string>
   <string name="Media.MoviesItemsHeader">Filmy</string>
   <string name="Media.ImageItemsHeader">Fotky</string>
   <string name="Media.SimpleSearchHeader">Jednoduché hľadanie</string>
@@ -141,6 +141,7 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Videá</string>
   <string name="Media.SeriesRootViewName">Seriály</string>
+  <string name="Media.EpisodeRootViewName">Epizóda</string>
   <string name="Media.ImagesRootViewName">Fotky</string>
   <string name="Media.SimpleSearchViewName">Jednoduché hľadanie</string>
   <!--General strings used in views-->

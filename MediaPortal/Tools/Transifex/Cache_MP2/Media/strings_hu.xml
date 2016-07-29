@@ -88,7 +88,7 @@
   <string name="Media.MediaItemsHeader">Média elemek</string>
   <string name="Media.VideoItemsHeader">Videók</string>
   <string name="Media.AudioItemsHeader">Audió elemek</string>
-  <string name="Media.SeriesItemsHeader">Epizódok</string>
+  <string name="Media.EpisodeItemsHeader">Epizódok</string>
   <string name="Media.MoviesItemsHeader">Filmek</string>
   <string name="Media.ImageItemsHeader">Képek</string>
   <string name="Media.SimpleSearchHeader">Egyszerű keresés</string>
@@ -121,6 +121,7 @@
   <string name="Media.AudioRootViewName">Audió</string>
   <string name="Media.VideosRootViewName">Videók</string>
   <string name="Media.SeriesRootViewName">Sorozatok</string>
+  <string name="Media.EpisodeRootViewName">Epizód</string>
   <string name="Media.ImagesRootViewName">Képek</string>
   <string name="Media.SimpleSearchViewName">Egyszerű keresés</string>
   <!--General strings used in views-->

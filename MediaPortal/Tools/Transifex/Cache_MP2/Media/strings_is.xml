@@ -97,7 +97,7 @@
   <string name="Media.MediaItemsHeader">Miðlun</string>
   <string name="Media.VideoItemsHeader">Myndbönd</string>
   <string name="Media.AudioItemsHeader">Hljóðaskrár</string>
-  <string name="Media.SeriesItemsHeader">Þættir</string>
+  <string name="Media.EpisodeItemsHeader">Þættir</string>
   <string name="Media.MoviesItemsHeader">Kvikmyndir</string>
   <string name="Media.ImageItemsHeader">Ljósmyndir</string>
   <string name="Media.SimpleSearchHeader">Einföld leit</string>
@@ -136,6 +136,7 @@
   <string name="Media.AudioRootViewName">Hljóð</string>
   <string name="Media.VideosRootViewName">Myndbönd</string>
   <string name="Media.SeriesRootViewName">Þættir</string>
+  <string name="Media.EpisodeRootViewName">Þáttur</string>
   <string name="Media.ImagesRootViewName">Ljósmyndir</string>
   <string name="Media.SimpleSearchViewName">Einföld leit</string>
   <!--General strings used in views-->

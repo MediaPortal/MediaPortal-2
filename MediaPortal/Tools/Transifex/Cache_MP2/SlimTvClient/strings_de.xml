@@ -21,6 +21,7 @@
   <string name="SlimTvClient.NoProgram">Keine Programminformationen</string>
   <string name="SlimTvClient.ChooseProgramAction">Programmaktion auswählen...</string>
   <string name="SlimTvClient.ChooseChannelGroup">Kanalgruppe auswählen...</string>
+  <string name="SlimTvClient.ChannelGroupButton">Kanalgruppe</string>
   <string name="SlimTvClient.ProgramOver">Sendung ist bereits beendet</string>
   <string name="SlimTvClient.WatchNow">Sendung jetzt ansehen</string>
   <string name="SlimTvClient.WatchFromBeginning">Aufnahme von Anfang an wiedergeben</string>

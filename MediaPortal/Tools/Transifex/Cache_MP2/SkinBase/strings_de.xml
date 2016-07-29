@@ -184,7 +184,7 @@
   <string name="SharesConfig.EditShare">Medienquelle bearbeiten</string>
   <string name="SharesConfig.ChooseSystem">System auswählen</string>
   <string name="SharesConfig.ChooseSharesToBeRemoved">Wähle Medienquellen zum Entfernen</string>
-  <string name="SharesConfig.ChooseSystemForShare">Wähle eine Medienquelle</string>
+  <string name="SharesConfig.ChooseSystemForShare">Medienquelle auswählen</string>
   <string name="SharesConfig.LocalShare">Client-Medienquelle</string>
   <string name="SharesConfig.LocalShares">Client-Medienquellen</string>
   <string name="SharesConfig.GlobalShare">Server-Medienquelle</string>
@@ -194,9 +194,9 @@
   <string name="SharesConfig.ChooseResourceProviderForShare">Wähle einen Ressourcen-Provider für die Medienquelle</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Setze den Pfad zur Medienquelle</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Gib einen Pfad ein, der für den gewählten Ressourcen-Provider gültig ist. Dies kann ein einfacher Pfad sein, der vom Provider verstanden wird. Es können auch komplexe Pfade in folgendem Format angegeben werden: {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Wähle den Pfad der Medienquelle</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Wählen Sie den Pfad der Medienquelle aus</string>
   <string name="SharesConfig.EditShareName">Setze den Anzeigenamen der Medienquelle</string>
-  <string name="SharesConfig.ChooseShareCategories">Wähle die Medienquellen-Kategorien der Elemente in der Freigabe</string>
+  <string name="SharesConfig.ChooseShareCategories">Wählen Sie die Kategorien der in der Medienquelle enthaltenen Medieninhalte aus</string>
   <string name="SharesConfig.SharePathExists">Eine Medienquelle mit diesem Pfad besteht bereits</string>
   <string name="SharesConfig.ShareNameExists">Eine Medienquelle mit diesem Namen besteht bereits</string>
   <string name="SharesConfig.ShareNameEmpty">Gib einen Namen für die Medienquelle ein</string>

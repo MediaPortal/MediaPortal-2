@@ -89,7 +89,7 @@
   <string name="Media.MediaItemsHeader">Meedia failid</string>
   <string name="Media.VideoItemsHeader">Videod</string>
   <string name="Media.AudioItemsHeader">Helindid</string>
-  <string name="Media.SeriesItemsHeader">Episoodid</string>
+  <string name="Media.EpisodeItemsHeader">Episoodid</string>
   <string name="Media.MoviesItemsHeader">Filmid</string>
   <string name="Media.ImageItemsHeader">Pildid</string>
   <string name="Media.SimpleSearchHeader">Lihtne otsing</string>
@@ -124,6 +124,7 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Videod</string>
   <string name="Media.SeriesRootViewName">Seeriad</string>
+  <string name="Media.EpisodeRootViewName">Episood</string>
   <string name="Media.ImagesRootViewName">Pildid</string>
   <string name="Media.SimpleSearchViewName">Lihtne otsing</string>
   <!--General strings used in views-->

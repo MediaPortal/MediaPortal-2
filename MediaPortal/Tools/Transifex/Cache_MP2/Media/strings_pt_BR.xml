@@ -81,7 +81,7 @@
   <string name="Media.MediaItemsHeader">Itens da mídia</string>
   <string name="Media.VideoItemsHeader">Vídeos</string>
   <string name="Media.AudioItemsHeader">Itens de áudio</string>
-  <string name="Media.SeriesItemsHeader">Episódio</string>
+  <string name="Media.EpisodeItemsHeader">Episódio</string>
   <string name="Media.MoviesItemsHeader">Filmes</string>
   <string name="Media.ImageItemsHeader">Imagens</string>
   <string name="Media.SimpleSearchHeader">Pesquisa simples</string>
