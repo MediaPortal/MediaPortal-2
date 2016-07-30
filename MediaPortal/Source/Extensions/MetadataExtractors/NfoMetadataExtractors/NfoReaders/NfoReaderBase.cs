@@ -424,7 +424,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         _debugLogger.Warn("[#{0}]: The following element was supposed to contain a simple value, but it contains child elements: {1}", _miNumber, element);
         return null;
       }
-      var result = element.Value.Trim(new char[] { ' ', '|' });
+      var result = element.Value.Trim().Trim(new char[] { '|' });
       if (_settings.IgnoreStrings != null && _settings.IgnoreStrings.Contains(result, StringComparer.OrdinalIgnoreCase))
         return null;
       return String.IsNullOrEmpty(result) ? null : result;

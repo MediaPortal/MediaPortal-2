@@ -1011,22 +1011,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/> and <see cref="VideoAspect.ATTR_CHARACTERS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteVideoAspectActors(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       List<string> actors = null;
+      List<string> characters = null;
       if (_stubs[0].Actors != null)
+      {
         actors = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Select(actor => actor.Name).Distinct().ToList();
+        characters = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Select(actor => actor.Role).Distinct().ToList();
+      }
       if (_useSeriesStubs && _seriesStubs[0].Actors != null)
+      {
         actors = actors != null ?
           actors.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name)).ToList() :
           _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList();
+        characters = characters != null ?
+          characters.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Role)).ToList() :
+          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Role).ToList();
+      }
       if (actors != null && actors.Any())
       {
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
+        if (characters != null && characters.Any())
+        {
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_CHARACTERS, characters);
+        }
         return true;
       }
       return false;

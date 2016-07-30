@@ -255,10 +255,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteVideoAspectWriters);
       _supportedAttributes.Add(TryWriteVideoAspectStoryPlot);
 
+      _supportedAttributes.Add(TryWriteMovieAspectCompanies);
       _supportedAttributes.Add(TryWriteMovieAspectMovieName);
       _supportedAttributes.Add(TryWriteMovieAspectOrigName);
       _supportedAttributes.Add(TryWriteMovieAspectTmdbId);
       _supportedAttributes.Add(TryWriteMovieAspectImdbId);
+      _supportedAttributes.Add(TryWriteMovieAspectAllocineId);
+      _supportedAttributes.Add(TryWriteMovieAspectCinePassionId);
       _supportedAttributes.Add(TryWriteMovieAspectCollectionName);
       _supportedAttributes.Add(TryWriteMovieAspectRuntime);
       _supportedAttributes.Add(TryWriteMovieAspectCertification);
@@ -575,8 +578,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // Examples of valid elements:
       // <studio>Warner Bros. Pictures</studio>
       // <studio>Happy Madison Productions / Columbia Pictures</studio>
-      // <studios>Warner Bros. Pictures</studios>
-      // <studios>Happy Madison Productions / Columbia Pictures</studios>
       return ((_currentStub.Studios = ParseCharacterSeparatedStrings(element, _currentStub.Studios)) != null);
     }
 
@@ -1372,7 +1373,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/> and <see cref="VideoAspect.ATTR_CHARACTERS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
@@ -1381,6 +1382,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_stubs[0].Actors != null && _stubs[0].Actors.Any())
       {
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_CHARACTERS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Role).ToList());
         return true;
       }
       return false;
@@ -1441,6 +1443,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #endregion
 
     #region MovieAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MovieAspect.ATTR_COMPANIES"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectCompanies(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      // priority 1:
+      if (_stubs[0].Companies != null && _stubs[0].Companies.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_COMPANIES, _stubs[0].Companies.ToList());
+        return true;
+      }
+      // priority 2:
+      if (_stubs[0].Studios != null && _stubs[0].Studios.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, MovieAspect.ATTR_COMPANIES, _stubs[0].Studios.ToList());
+        return true;
+      }
+      return false;
+    }
 
     /// <summary>
     /// Tries to write metadata into <see cref="MovieAspect.ATTR_MOVIE_NAME"/>
@@ -1523,7 +1547,37 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       //priority 3:
       if (_stubs[0].IdsImdbId != null)
       {
-        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].Imdb);
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].IdsImdbId);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="ExternalIdentifierAspect"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectAllocineId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Allocine.HasValue)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_ALLOCINE, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].Allocine.ToString());
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="ExternalIdentifierAspect"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMovieAspectCinePassionId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Cinepassion.HasValue)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_CINEPASSION, ExternalIdentifierAspect.TYPE_MOVIE, _stubs[0].Cinepassion.ToString());
         return true;
       }
       return false;
