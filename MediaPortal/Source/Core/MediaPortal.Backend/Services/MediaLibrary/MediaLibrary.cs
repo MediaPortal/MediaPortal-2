@@ -168,16 +168,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    protected class ShareWatcher : FileSystemWatcher
+    protected class ShareWatcher : IDisposable
     {
-      protected bool _fileCheckAllowed;
-      protected Thread _fileCheckThread;
-      protected BlockingCollection<string> _fileQueue = new BlockingCollection<string>();
       protected MediaLibrary _parent;
       protected Share _share;
-      protected Guid _resourceProviderId;
-
-      public event FileSystemEventHandler OnShareChange;
+      protected IResourceChangeNotifier _fileChangeNotifier;
+      protected bool _fileCheckAllowed;
 
       public ShareWatcher(Share share, MediaLibrary parent)
         : base()
@@ -196,165 +192,135 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             return;
         }
         else
+        {
+          return;
+        }
+
+        _fileChangeNotifier = resAccess as IResourceChangeNotifier;
+        if (fileAccess == null)
           return;
 
         if (!string.IsNullOrEmpty(resAccess.ResourcePathName))
         {
-          _resourceProviderId = resAccess.ParentProvider.Metadata.ResourceProviderId;
-
           _fileCheckAllowed = true;
-          _fileCheckThread = new Thread(CheckFiles) { Name = "FileChangeChecker", Priority = ThreadPriority.Lowest };
-          _fileCheckThread.Start();
 
-          Path = resAccess.ResourcePathName;
-          NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName;
-          Filter = "*.*";
-          IncludeSubdirectories = true;
+          List<MediaSourceChangeType> changeTypes = new List<MediaSourceChangeType>();
+          changeTypes.Add(MediaSourceChangeType.Created);
+          changeTypes.Add(MediaSourceChangeType.Deleted);
+          changeTypes.Add(MediaSourceChangeType.DirectoryDeleted);
+          changeTypes.Add(MediaSourceChangeType.Renamed);
+          _fileChangeNotifier.RegisterChangeTracker(ShareWatcherPathChanged, null, changeTypes);
 
-          // Add event handlers.
-          Created += new FileSystemEventHandler(OnChanged);
-          Deleted += new FileSystemEventHandler(OnChanged);
-          Renamed += new RenamedEventHandler(OnRenamed);
-          EnableRaisingEvents = true;
+          Logger.Info("MediaLibrary: Registered share watcher for path {0}", share.BaseResourcePath);
         }
       }
 
-      private void OnChanged(object source, FileSystemEventArgs e)
+      private void ShareWatcherPathChanged(IResourceAccessor resourceAccessor, IResourceAccessor oldResourceAccessor, MediaSourceChangeType changeType)
       {
+        if (!_fileCheckAllowed)
+          return;
+
+        string path = "?";
+
         try
         {
-          _fileQueue.Add(e.FullPath);
-
-          if(OnShareChange != null)
-            OnShareChange(this, e);
-        }
-        catch (Exception ex)
-        {
-          Logger.Error("MediaLibrary: Share watcher error", ex);
-          throw;
-        }
-      }
-
-      private void OnRenamed(object source, RenamedEventArgs e)
-      {
-        try
-        {
-          _fileQueue.Add(e.OldFullPath);
-          _fileQueue.Add(e.FullPath);
-
-          FileSystemEventArgs args = new FileSystemEventArgs(WatcherChangeTypes.Renamed, e.FullPath, e.Name);
-          if (OnShareChange != null)
-            OnShareChange(this, args);
-        }
-        catch (Exception ex)
-        {
-          Logger.Error("MediaLibrary: Share watcher error", ex);
-          throw;
-        }
-      }
-
-      private void CheckFiles()
-      {
-        while (_fileCheckAllowed)
-        {
-          foreach (string file in _fileQueue.GetConsumingEnumerable())
+          ResourcePath resPath;
+          Guid? resGuid = null;
+          ILocalFsResourceAccessor fileAccess = resourceAccessor as ILocalFsResourceAccessor;
+          using (fileAccess.EnsureLocalFileSystemAccess())
           {
-            try
+            path = fileAccess.LocalFileSystemPath;
+
+            //Check if path is a file
+            if (fileAccess.IsFile)
             {
-              bool isFile = false;
-              ResourcePath resPath;
-              Guid? resGuid = null;
-
-              //Check if path is a file
-              if (!string.IsNullOrEmpty(System.IO.Path.GetExtension(file)))
-                isFile = true;
-
-              if (isFile)
+              //Check if file is valid
+              if (fileAccess.Exists)
               {
-                //Check if file is valid
-                if (File.Exists(file))
+                FileInfo fileInfo = new FileInfo(fileAccess.LocalFileSystemPath);
+                if ((fileInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
                 {
-                  FileInfo fileInfo = new FileInfo(file);
-                  if ((fileInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
-                  {
-                    //Ignore hidden files
-                    continue;
-                  }
-                  if ((fileInfo.Attributes & FileAttributes.System) == FileAttributes.System)
-                  {
-                    //Ignore system files
-                    continue;
-                  }
+                  //Ignore hidden files
+                  return;
                 }
+                if ((fileInfo.Attributes & FileAttributes.System) == FileAttributes.System)
+                {
+                  //Ignore system files
+                  return;
+                }
+              }
 
-                //Wait for file copy
-                DateTime startCheck = DateTime.Now;
-                while (IsFileLocked(file) && (DateTime.Now - startCheck).TotalMinutes < 5 && _fileCheckAllowed)
+              //Wait for file copy
+              DateTime startCheck = DateTime.Now;
+              while (IsFileLocked(fileAccess.LocalFileSystemPath) && (DateTime.Now - startCheck).TotalMinutes < 5 && _fileCheckAllowed)
+              {
+                Thread.Sleep(100);
+              }
+              if (_fileCheckAllowed && !IsFileLocked(fileAccess.LocalFileSystemPath))
+              {
+                //Check if file should imported
+                if (fileAccess.Exists)
                 {
-                  Thread.Sleep(100);
-                }
-                if (_fileCheckAllowed && !IsFileLocked(file))
-                {
-                  //Check if file should imported
-                  if (File.Exists(file))
+                  if (fileAccess.Size < 10000)
                   {
-                    FileInfo fileInfo = new FileInfo(file);
-                    if (fileInfo.Length < 10000)
-                    {
-                      //Ignore small files
-                      continue;
-                    }
+                    //Ignore small files
+                    return;
                   }
                 }
-                else
-                {
-                  //File locked bailout
-                  continue;
-                }
-
-                resPath = ResourcePath.BuildBaseProviderPath(_resourceProviderId,
-                  LocalFsResourceProviderBase.ToProviderPath(file.Substring(1)));
               }
               else
               {
-                resPath = ResourcePath.BuildBaseProviderPath(_resourceProviderId,
-                  LocalFsResourceProviderBase.ToProviderPath(System.IO.Path.GetDirectoryName(file).Substring(1) + "\\"));
+                //File locked bailout
+                return;
               }
 
-              //Check if resource is part of share
-              if (!_share.BaseResourcePath.IsParentOf(resPath))
-              {
-                continue;
-              }
-
-              //Check if resource already in media library
-              ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-              using (ITransaction transaction = database.BeginTransaction())
-              {
-                resGuid = _parent.GetMediaItemId(transaction, _share.SystemId, resPath);
-              }
-
-              //Check if resource is deleted
-              if (!File.Exists(file) && !Directory.Exists(file))
-              {
-                //Resource was deleted
-                if (resGuid.HasValue)
-                  _parent.DeleteMediaItemOrPath(_share.SystemId, resPath, true);
-                continue;
-              }
-
-              //Refresh or import resource
-              IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
-              if(resGuid.HasValue)
-                importerWorker.ScheduleRefresh(resPath, _share.MediaCategories, false);
-              else
-                importerWorker.ScheduleImport(resPath, _share.MediaCategories, false);
+              resPath = fileAccess.CanonicalLocalResourcePath;
             }
-            catch (Exception e)
+            else
             {
-              Logger.Error("MediaLibrary: Error checking file {0}", e, file);
+              resPath = fileAccess.CanonicalLocalResourcePath;
+            }
+           
+            //Check if resource is part of share
+            if (!_share.BaseResourcePath.IsParentOf(resPath))
+            {
+              return;
+            }
+
+            //Check if resource already in media library
+            ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+            using (ITransaction transaction = database.BeginTransaction())
+            {
+              resGuid = _parent.GetMediaItemId(transaction, _share.SystemId, resPath);
+            }
+
+            //Check if resource is deleted
+            if (changeType == MediaSourceChangeType.Deleted || changeType == MediaSourceChangeType.DirectoryDeleted)
+            {
+              //Resource was deleted
+              if (resGuid.HasValue)
+                _parent.DeleteMediaItemOrPath(_share.SystemId, resPath, true);
+              return;
+            }
+            else if (changeType == MediaSourceChangeType.Renamed)
+            {
+              //Resource was renamed
+              _parent.DeleteMediaItemOrPath(_share.SystemId, oldResourceAccessor.CanonicalLocalResourcePath, true);
             }
           }
+
+          //Refresh or import resource
+          IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+          if (resGuid.HasValue)
+            importerWorker.ScheduleRefresh(resPath, _share.MediaCategories, false);
+          else
+            importerWorker.ScheduleImport(resPath, _share.MediaCategories, false);
+
+          Logger.Debug("MediaLibrary: Share watcher {0} {1}", path, changeType);
+        }
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error checking path {0}", e, path);
         }
       }
 
@@ -384,17 +350,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         return false;
       }
 
-      public new void Dispose()
+      public void Dispose()
       {
-        _fileQueue.CompleteAdding();
         _fileCheckAllowed = false;
-
-        if (!_fileCheckThread.Join(5000))
-          _fileCheckThread.Abort();
-
-        _fileCheckThread = null;
-
-        base.Dispose();
+        if(_fileChangeNotifier != null)
+          _fileChangeNotifier.UnregisterChangeTracker(ShareWatcherPathChanged);
       }
     }
 
@@ -865,12 +825,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
       _miaManagement = new MIA_Management();
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
-
-      InitShareWatchers();
     }
 
     public void ActivateImporterWorker()
     {
+      InitShareWatchers();
+
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Activate(_mediaBrowsingCallback, _importResultHandler);
     }
@@ -1338,7 +1298,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             break;
           }
         }
-        Logger.Debug("Adding media item {0} with name {1}", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]");
+        Logger.Debug("Adding media item {0} with name {1} ({2})", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName));
         
         DateTime now = DateTime.Now;
         MediaItemAspect pra;
@@ -1369,7 +1329,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             transaction.Rollback();
 
-            Logger.Info("Media item {0} with name {1} cannot be saved. Needs to be merged", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]");
+            Logger.Info("Media item {0} with name {1} ({2}) cannot be saved. Needs to be merged", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName));
 
             return Guid.Empty;
           }
@@ -1382,7 +1342,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           //Aspects were merged into an existing media item. Discard the remaining aspects
           transaction.Commit();
 
-          Logger.Info("Media item {0} with name {1} was merged into {2}. Needs to be merged", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", mergedMediaItem.Value);
+          Logger.Info("Media item {0} with name {1} ({2}) was merged into {3}", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName), mergedMediaItem.Value);
           return mergedMediaItem.Value;
         }
 
@@ -1443,7 +1403,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         transaction.Commit();
 
-        Logger.Info("Committed media item {0} with name '{1}'", mediaItemId.Value, name ?? "[null]");
+        Logger.Info("Committed media item {0} with name {1} ({2})", mediaItemId.Value, name ?? "[null]", Path.GetFileName(path.FileName));
 
         if (reconcile)
           Reconcile(mediaItemId.Value, isRefresh);
@@ -2523,20 +2483,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void InitShareWatchers()
     {
-      try
+      IDictionary<Guid, Share> shares = GetShares(_localSystemId);
+      foreach (Share share in shares.Values)
       {
-        IDictionary<Guid, Share> shares = GetShares(_localSystemId);
-        foreach(Share share in shares.Values)
+        try
         {
           ShareWatcher watcher = new ShareWatcher(share, this);
-          watcher.OnShareChange += Watcher_OnShareChange;
           _shareWatchers.Add(share.ShareId, watcher);
         }
-      }
-      catch (Exception e)
-      {
-        Logger.Error("MediaLibrary: Error initializing shares", e);
-        throw;
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
+        }
       }
     }
 
@@ -2555,11 +2513,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         Logger.Error("MediaLibrary: Error initializing shares", e);
         throw;
       }
-    }
-
-    private void Watcher_OnShareChange(object sender, FileSystemEventArgs e)
-    {
-      Logger.Debug("MediaLibrary: Share watcher " + e.FullPath + " " + e.ChangeType);
     }
 
     public void RegisterShare(Share share)
@@ -2593,7 +2546,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         TryScheduleLocalShareImport(share);
 
         ShareWatcher watcher = new ShareWatcher(share, this);
-        watcher.OnShareChange += Watcher_OnShareChange;
         _shareWatchers.Add(share.ShareId, watcher);
       }
       catch (Exception e)

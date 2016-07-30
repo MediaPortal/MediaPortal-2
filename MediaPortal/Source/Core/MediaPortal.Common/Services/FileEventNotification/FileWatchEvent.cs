@@ -246,19 +246,20 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <returns></returns>
     private static long GetFileSize(string path)
     {
-      long fileSize;
       try
       {
-        fileSize = (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory
-                     ? 0  // Don't try to get the size of a directory.
-                     : new FileInfo(path).Length;
+        if (Directory.Exists(path))
+          return 0; // Don't try to get the size of a directory.
+        FileInfo info = new FileInfo(path);
+        if(info.Exists == false)
+          return 0;
+        return info.Length;
       }
       // Catch all exceptions.
       catch
       {
         return 0;
       }
-      return fileSize;
     }
 
     #endregion
