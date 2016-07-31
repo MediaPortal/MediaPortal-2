@@ -1021,17 +1021,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       List<string> characters = null;
       if (_stubs[0].Actors != null)
       {
-        actors = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Select(actor => actor.Name).Distinct().ToList();
-        characters = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Select(actor => actor.Role).Distinct().ToList();
+        actors = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
+          Select(actor => actor.Name).Distinct().ToList();
+        characters = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Role)).
+          Select(actor => actor.Role).Distinct().ToList();
       }
       if (_useSeriesStubs && _seriesStubs[0].Actors != null)
       {
         actors = actors != null ?
-          actors.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name)).ToList() :
-          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList();
+          actors.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
+          Select(actor => actor.Name)).ToList() :
+          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
+          Select(actor => actor.Name).ToList();
         characters = characters != null ?
-          characters.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Role)).ToList() :
-          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Role).ToList();
+          characters.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Role)).
+          Select(actor => actor.Role)).ToList() :
+          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Role)).
+          Select(actor => actor.Role).ToList();
       }
       if (actors != null && actors.Any())
       {
