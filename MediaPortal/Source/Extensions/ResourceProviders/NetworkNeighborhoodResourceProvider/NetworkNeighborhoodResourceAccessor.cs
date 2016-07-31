@@ -71,7 +71,9 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     protected ICollection<IFileSystemResourceAccessor> WrapLocalFsResourceAccessors(ICollection<IFileSystemResourceAccessor> localFsResourceAccessors)
     {
       ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
-      CollectionUtils.AddAll(result, localFsResourceAccessors.Select(resourceAccessor => new NetworkNeighborhoodResourceAccessor(_parent, resourceAccessor.Path.Substring(1))));
+      if(localFsResourceAccessors != null && localFsResourceAccessors.Count > 0)
+        CollectionUtils.AddAll(result, localFsResourceAccessors.Where(resourceAccessor => resourceAccessor != null && resourceAccessor.Path != null).
+          Select(resourceAccessor => new NetworkNeighborhoodResourceAccessor(_parent, resourceAccessor.Path.Substring(1))));
       return result;
     }
 
