@@ -432,7 +432,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzDiscId))
             trackInfo.AlbumMusicBrainzDiscId = tag.Tag.MusicBrainzDiscId;
           if (!string.IsNullOrEmpty(tag.Tag.AmazonId))
-            trackInfo.AmazonId = tag.Tag.AmazonId;
+            trackInfo.AlbumAmazonId = tag.Tag.AmazonId;
           if (!string.IsNullOrEmpty(tag.Tag.MusicIpId))
             trackInfo.MusicIpId = tag.Tag.MusicIpId;
 
