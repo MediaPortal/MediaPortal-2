@@ -59,6 +59,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       _linkedRole = linkedRole;
       _baseRole = baseRole;
       _necessaryMIATypeIds = necessaryMIATypeIds;
+      _filter = filter;
       _sortInformation = sortInformation;
     }
 
