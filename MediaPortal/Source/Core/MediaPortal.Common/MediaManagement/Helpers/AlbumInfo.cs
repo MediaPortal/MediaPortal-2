@@ -63,6 +63,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string CdDdId = null;
     public string UpcEanId = null;
     public string AmazonId = null;
+    public string ItunesId = null;
 
     public string Album = null;
     public SimpleTitle Description = null;

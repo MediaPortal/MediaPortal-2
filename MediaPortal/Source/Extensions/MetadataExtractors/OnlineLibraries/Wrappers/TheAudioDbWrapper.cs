@@ -69,14 +69,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         TrackInfo info = new TrackInfo()
         {
-          AudioDbId = track.TrackId,
-          AlbumAudioDbId = track.AlbumId ?? 0,
+          AudioDbId = track.TrackID,
+          AlbumAudioDbId = track.AlbumID ?? 0,
           MusicBrainzId = track.MusicBrainzID,
           AlbumMusicBrainzGroupId = track.MusicBrainzAlbumID,
           
           TrackName = track.Track,
           TrackNum = track.TrackNumber,
-          Artists = ConvertToPersons(track.ArtistId ?? 0, track.MusicBrainzArtistID, track.Artist, PersonAspect.OCCUPATION_ARTIST),
+          Artists = ConvertToPersons(track.ArtistID ?? 0, track.MusicBrainzArtistID, track.Artist, PersonAspect.OCCUPATION_ARTIST),
           Album = track.Album,
         };
         tracks.Add(info);
@@ -255,16 +255,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (foundTrack != null)
         {
           //Get the track into the cache
-          trackDetail = _audioDbHandler.GetTrack(foundTrack.TrackId, cacheOnly);
+          trackDetail = _audioDbHandler.GetTrack(foundTrack.TrackID, cacheOnly);
         }
       }
       if (trackDetail == null) return false;
 
       trackDetail.SetLanguage(language);
 
-      track.AudioDbId = trackDetail.TrackId;
+      track.AudioDbId = trackDetail.TrackID;
+      track.LyricId = trackDetail.LyricID.HasValue ? trackDetail.LyricID.Value : 0;
+      track.MvDbId = trackDetail.MvDbID.HasValue ? trackDetail.MvDbID.Value : 0;
       track.MusicBrainzId = trackDetail.MusicBrainzID;
-      track.AlbumAudioDbId = trackDetail.AlbumId.HasValue ? trackDetail.AlbumId.Value : 0;
+      track.AlbumAudioDbId = trackDetail.AlbumID.HasValue ? trackDetail.AlbumID.Value : 0;
       track.AlbumMusicBrainzGroupId = trackDetail.MusicBrainzAlbumID;
 
       track.TrackName = trackDetail.Track;
@@ -275,16 +277,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       track.TrackLyrics = trackDetail.TrackLyrics;
       track.Duration = trackDetail.Duration ?? 0;
 
-      if (trackDetail.ArtistId.HasValue)
+      if (trackDetail.ArtistID.HasValue)
       {
-        track.Artists = ConvertToPersons(trackDetail.ArtistId.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
-        track.AlbumArtists = ConvertToPersons(trackDetail.ArtistId.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+        track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+        track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
       }
       track.Genres = new List<string>(new string[] { trackDetail.Genre });
 
-      if (trackDetail.AlbumId.HasValue)
+      if (trackDetail.AlbumID.HasValue)
       {
-        AudioDbAlbum album = _audioDbHandler.GetAlbum(trackDetail.AlbumId.Value, cacheOnly);
+        AudioDbAlbum album = _audioDbHandler.GetAlbum(trackDetail.AlbumID.Value, cacheOnly);
         if (cacheOnly && album == null)
           cacheIncomplete = true;
         if (album != null && album.LabelId.HasValue)
@@ -317,6 +319,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       album.AudioDbId = albumDetail.AlbumId;
       album.MusicBrainzGroupId = albumDetail.MusicBrainzID;
+      album.AmazonId = albumDetail.AmazonID;
+      album.ItunesId = albumDetail.ItunesID;
 
       album.Album = albumDetail.Album;
       album.Description = new SimpleTitle(albumDetail.Description, !languageSet);
@@ -343,10 +347,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           trackDetail.SetLanguage(language);
 
           TrackInfo track = new TrackInfo();
-          track.AudioDbId = trackDetail.TrackId;
+          track.AudioDbId = trackDetail.TrackID;
+          track.LyricId = trackDetail.LyricID.HasValue ? trackDetail.LyricID.Value : 0;
+          track.MvDbId = trackDetail.MvDbID.HasValue ? trackDetail.MvDbID.Value : 0;
           track.MusicBrainzId = trackDetail.MusicBrainzID;
-          track.AlbumAudioDbId = trackDetail.AlbumId.HasValue ? trackDetail.AlbumId.Value : 0;
+          track.AlbumAudioDbId = trackDetail.AlbumID.HasValue ? trackDetail.AlbumID.Value : 0;
           track.AlbumMusicBrainzGroupId = trackDetail.MusicBrainzAlbumID;
+          track.AlbumAmazonId = albumDetail.AmazonID;
+          track.AlbumItunesId = albumDetail.ItunesID;
 
           track.TrackName = trackDetail.Track;
           track.Album = albumDetail.Album;
@@ -356,9 +364,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           track.TrackLyrics = trackDetail.TrackLyrics;
           track.Duration = trackDetail.Duration ?? 0;
 
-          if (trackDetail.ArtistId.HasValue)
+          if (trackDetail.ArtistID.HasValue)
           {
-            track.Artists = ConvertToPersons(trackDetail.ArtistId.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
+            track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
           }
           track.Genres = new List<string>(new string[] { trackDetail.Genre });
 

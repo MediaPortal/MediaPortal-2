@@ -65,6 +65,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public long AudioDbId = 0;
     public string IsrcId = null;
     public string MusicIpId = null;
+    public long LyricId = 0;
+    public long MvDbId = 0;
 
     public string Album = null;
     public string AlbumMusicBrainzId = null;
@@ -74,6 +76,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string AlbumUpcEanId = null;
     public long AlbumAudioDbId = 0;
     public string AlbumAmazonId = null;
+    public string AlbumItunesId = null;
 
     public string TrackName = null;
     public string TrackLyrics = null;
@@ -112,6 +115,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       get
       {
         if (AudioDbId > 0)
+          return true;
+        if (LyricId > 0)
+          return true;
+        if (MvDbId > 0)
           return true;
         if (!string.IsNullOrEmpty(MusicBrainzId))
           return true;
@@ -163,6 +170,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(IsrcId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_ISRC, ExternalIdentifierAspect.TYPE_TRACK, IsrcId);
       if (!string.IsNullOrEmpty(MusicIpId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSIC_IP, ExternalIdentifierAspect.TYPE_TRACK, MusicIpId);
       if (AudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_TRACK, AudioDbId.ToString());
+      if (LyricId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_LYRIC, ExternalIdentifierAspect.TYPE_TRACK, LyricId.ToString());
+      if (MvDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MVDB, ExternalIdentifierAspect.TYPE_TRACK, MvDbId.ToString());
 
       if (!string.IsNullOrEmpty(Album)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ALBUM, Album);
       if (DiscNum > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_DISCID, DiscNum);
@@ -181,6 +190,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(AlbumMusicBrainzGroupId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ_GROUP, ExternalIdentifierAspect.TYPE_ALBUM, AlbumMusicBrainzGroupId);
       if (AlbumAudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_ALBUM, AlbumAudioDbId.ToString());
       if (!string.IsNullOrEmpty(AlbumAmazonId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AMAZON, ExternalIdentifierAspect.TYPE_ALBUM, AlbumAmazonId);
+      if (!string.IsNullOrEmpty(AlbumItunesId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_ITUNES, ExternalIdentifierAspect.TYPE_ALBUM, AlbumItunesId);
 
       if (Artists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ARTISTS, Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
       if (AlbumArtists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
@@ -218,18 +228,23 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       string id;
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_TRACK, out id))
-        AudioDbId = Convert.ToInt32(id);
+        AudioDbId = Convert.ToInt64(id);
+      if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_LYRIC, ExternalIdentifierAspect.TYPE_TRACK, out id))
+        LyricId = Convert.ToInt64(id);
+      if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MVDB, ExternalIdentifierAspect.TYPE_TRACK, out id))
+        MvDbId = Convert.ToInt64(id);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_TRACK, out MusicBrainzId);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_ISRC, ExternalIdentifierAspect.TYPE_TRACK, out IsrcId);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSIC_IP, ExternalIdentifierAspect.TYPE_TRACK, out MusicIpId);
 
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_ALBUM, out id))
-        AlbumAudioDbId = Convert.ToInt32(id);
+        AlbumAudioDbId = Convert.ToInt64(id);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumMusicBrainzId);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ_GROUP, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumMusicBrainzGroupId);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumCdDdId);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_UPCEAN, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumUpcEanId);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AMAZON, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumAmazonId);
+      MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_ITUNES, ExternalIdentifierAspect.TYPE_ALBUM, out AlbumItunesId);
 
       //Brownard 17.06.2016
       //The returned type of the collection differs on the server and client.
@@ -302,10 +317,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         AlbumMusicBrainzGroupId = otherTrack.AlbumMusicBrainzGroupId;
         AlbumMusicBrainzId = otherTrack.AlbumMusicBrainzId;
         AlbumAmazonId = otherTrack.AlbumAmazonId;
+        AlbumItunesId = otherTrack.AlbumItunesId;
 
         AudioDbId = otherTrack.AudioDbId;
         MusicBrainzId = otherTrack.MusicBrainzId;
         MusicIpId = otherTrack.MusicIpId;
+        MvDbId = otherTrack.MvDbId;
+        LyricId = otherTrack.LyricId;
         return true;
       }
       return false;
@@ -322,6 +340,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.MusicBrainzGroupId = AlbumMusicBrainzGroupId;
         info.MusicBrainzId = AlbumMusicBrainzId;
         info.AmazonId = AlbumAmazonId;
+        info.ItunesId = AlbumItunesId;
 
         info.Album = Album;
         info.DiscNum = DiscNum;
@@ -356,6 +375,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (AudioDbId > 0 && other.AudioDbId > 0)
         return AudioDbId == other.AudioDbId;
+      if (MvDbId > 0 && other.MvDbId > 0)
+        return MvDbId == other.MvDbId;
+      if (LyricId > 0 && other.LyricId > 0)
+        return LyricId == other.LyricId;
       if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId))
         return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(MusicIpId) && !string.IsNullOrEmpty(other.MusicIpId))
@@ -377,6 +400,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return string.Equals(AlbumCdDdId, other.AlbumCdDdId, StringComparison.InvariantCultureIgnoreCase);
         if (!string.IsNullOrEmpty(AlbumAmazonId) && !string.IsNullOrEmpty(other.AlbumAmazonId))
           return string.Equals(AlbumAmazonId, other.AlbumAmazonId, StringComparison.InvariantCultureIgnoreCase);
+        if (!string.IsNullOrEmpty(AlbumItunesId) && !string.IsNullOrEmpty(other.AlbumItunesId))
+          return string.Equals(AlbumItunesId, other.AlbumItunesId, StringComparison.InvariantCultureIgnoreCase);
         if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && Album == other.Album && 
           ReleaseDate.HasValue && other.ReleaseDate.HasValue && ReleaseDate.Value == other.ReleaseDate.Value)
           return true;
