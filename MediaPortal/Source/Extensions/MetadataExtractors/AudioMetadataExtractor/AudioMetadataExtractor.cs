@@ -431,10 +431,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             trackInfo.AlbumMusicBrainzId = tag.Tag.MusicBrainzReleaseId;
           if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzDiscId))
             trackInfo.AlbumMusicBrainzDiscId = tag.Tag.MusicBrainzDiscId;
-
-          string artistId = null;
-          if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzArtistId))
-            artistId = tag.Tag.MusicBrainzArtistId;
+          if (!string.IsNullOrEmpty(tag.Tag.AmazonId))
+            trackInfo.AmazonId = tag.Tag.AmazonId;
+          if (!string.IsNullOrEmpty(tag.Tag.MusicIpId))
+            trackInfo.MusicIpId = tag.Tag.MusicIpId;
 
           trackInfo.Artists = new List<PersonInfo>();
           if (artist != null)
@@ -443,15 +443,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             {
               trackInfo.Artists.Add(new PersonInfo()
               {
-                MusicBrainzId = artists.Count() == 1 ? artistId : null,
                 Name = artistName,
                 Occupation = PersonAspect.OCCUPATION_ARTIST
               });
             }
           }
-
-          if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseArtistId))
-            artistId = tag.Tag.MusicBrainzReleaseArtistId;
 
           IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
           if ((tag.TagTypes & TagTypes.Id3v2) != 0)
@@ -463,7 +459,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             {
               trackInfo.AlbumArtists.Add(new PersonInfo()
               {
-                MusicBrainzId = albumArtists.Count() == 1 ? artistId : null,
                 Name = artistName,
                 Occupation = PersonAspect.OCCUPATION_ARTIST
               });
