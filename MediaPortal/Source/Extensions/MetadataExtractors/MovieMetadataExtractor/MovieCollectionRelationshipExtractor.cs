@@ -38,7 +38,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
-    private CheckedItemCache<MovieCollectionInfo> _checkCache = new CheckedItemCache<MovieCollectionInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private CheckedItemCache<MovieInfo> _checkCache = new CheckedItemCache<MovieInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private CheckedItemCache<MovieCollectionInfo> _collectionCache = new CheckedItemCache<MovieCollectionInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -64,14 +65,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      MovieCollectionInfo collectionInfo = new MovieCollectionInfo();
-      if (!collectionInfo.FromMetadata(aspects))
+      MovieInfo movieInfo = new MovieInfo();
+      if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(collectionInfo))
+      if (_checkCache.IsItemChecked(movieInfo))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, forceQuickMode);
+      MovieCollectionInfo collectionInfo;
+      if (!_collectionCache.TryGetCheckedItem(movieInfo.CloneBasicInstance<MovieCollectionInfo>(), out collectionInfo))
+      {
+        collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+        MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, forceQuickMode);
+
+        _collectionCache.TryAddCheckedItem(collectionInfo);
+      }
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();

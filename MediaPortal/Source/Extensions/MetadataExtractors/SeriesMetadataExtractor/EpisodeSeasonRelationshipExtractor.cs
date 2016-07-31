@@ -39,7 +39,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
-    private CheckedItemCache<SeasonInfo> _checkCache = new CheckedItemCache<SeasonInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private CheckedItemCache<EpisodeInfo> _checkCache = new CheckedItemCache<EpisodeInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private CheckedItemCache<SeasonInfo> _seasonCache = new CheckedItemCache<SeasonInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -65,17 +66,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      SeasonInfo seasonInfo = new SeasonInfo();
-      if (!seasonInfo.FromMetadata(aspects))
+      EpisodeInfo episodeInfo = new EpisodeInfo();
+      if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(seasonInfo))
+      if (_checkCache.IsItemChecked(episodeInfo))
         return false;
 
-      SeriesTvDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
-      SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
-      SeriesOmDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
-      SeriesFanArtTvMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+      SeasonInfo seasonInfo;
+      if (!_seasonCache.TryGetCheckedItem(episodeInfo.CloneBasicInstance<SeasonInfo>(), out seasonInfo))
+      {
+        seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
+        SeriesTvDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+        SeriesTheMovieDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+        SeriesOmDbMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+        SeriesFanArtTvMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+
+        _seasonCache.TryAddCheckedItem(seasonInfo);
+      }
 
       if (seasonInfo.SeriesName.IsEmpty)
         return false;

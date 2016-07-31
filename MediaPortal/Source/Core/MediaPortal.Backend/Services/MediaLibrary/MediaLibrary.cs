@@ -1718,6 +1718,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void AddRelationship(IRelationshipRoleExtractor roleExtractor, Guid itemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
     {
+      if (roleExtractor.Role == Guid.Empty || roleExtractor.LinkedRole == Guid.Empty)
+        return;
+
       int index;
       if (!roleExtractor.TryGetRelationshipIndex(aspects, linkedAspects, out index))
         index = 0;

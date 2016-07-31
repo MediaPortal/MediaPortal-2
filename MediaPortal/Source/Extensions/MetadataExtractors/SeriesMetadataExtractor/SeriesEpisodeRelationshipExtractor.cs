@@ -43,7 +43,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public Guid Role
     {
-      get { return SeriesAspect.ROLE_SERIES; }
+      //We don't want to build series -> episode relation because there already is a episode -> series relation
+      get { return Guid.Empty; }
     }
 
     public Guid[] RoleAspects
@@ -53,7 +54,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return EpisodeAspect.ROLE_EPISODE; }
+      //We don't want to build series -> episode relation because there already is a episode -> series relation
+      get { return Guid.Empty; }
     }
 
     public Guid[] LinkedRoleAspects
@@ -92,7 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         //SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
         //SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
         //SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
-        SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
 
         IDictionary<Guid, IList<MediaItemAspect>> episodeAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         episodeInfo.SetMetadata(episodeAspects);

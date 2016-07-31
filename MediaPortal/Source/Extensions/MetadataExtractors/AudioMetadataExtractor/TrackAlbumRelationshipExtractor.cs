@@ -36,7 +36,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
-    private CheckedItemCache<AlbumInfo> _checkCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private CheckedItemCache<TrackInfo> _checkCache = new CheckedItemCache<TrackInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private CheckedItemCache<AlbumInfo> _albumCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -62,16 +63,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      AlbumInfo albumInfo = new AlbumInfo();
-      if (!albumInfo.FromMetadata(aspects))
+      TrackInfo trackInfo = new TrackInfo();
+      if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(albumInfo))
+      if (_checkCache.IsItemChecked(trackInfo))
         return false;
 
-      MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
-      //MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
-      MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+      AlbumInfo albumInfo;
+      if (!_albumCache.TryGetCheckedItem(trackInfo.CloneBasicInstance<AlbumInfo>(), out albumInfo))
+      {
+        albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
+        MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+        //MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+        MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+
+        _albumCache.TryAddCheckedItem(albumInfo);
+      }
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();

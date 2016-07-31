@@ -29,7 +29,7 @@ namespace MediaPortal.Common.General
 {
   public class CheckedItemCache<T>
   {
-    private ConcurrentDictionary<T, DateTime> _checkedSeries = new ConcurrentDictionary<T, DateTime>();
+    private ConcurrentDictionary<T, T> _checkedItems = new ConcurrentDictionary<T, T>();
     private DateTime _lastCacheRefresh = DateTime.Now;
     private double _expirationAgeInHours = 1;
 
@@ -41,14 +41,39 @@ namespace MediaPortal.Common.General
     public bool IsItemChecked(T item)
     {
       if ((DateTime.Now - _lastCacheRefresh).TotalHours > _expirationAgeInHours)
-        _checkedSeries.Clear();
-
-      if (!_checkedSeries.ContainsKey(item))
       {
-        _checkedSeries.TryAdd(item, DateTime.Now);
+        _lastCacheRefresh = DateTime.Now;
+        _checkedItems.Clear();
+      }
+
+      if (!_checkedItems.ContainsKey(item))
+      {
+        _checkedItems.TryAdd(item, item);
         return false;
       }
       return true;
+    }
+
+    public bool TryGetCheckedItem(T item, out T checkedItem)
+    {
+      if ((DateTime.Now - _lastCacheRefresh).TotalHours > _expirationAgeInHours)
+      {
+        _lastCacheRefresh = DateTime.Now;
+        _checkedItems.Clear();
+      }
+
+      checkedItem = default(T);
+      if (!_checkedItems.ContainsKey(item))
+      {
+        return false;
+      }
+      checkedItem = _checkedItems[item];
+      return true;
+    }
+
+    public bool TryAddCheckedItem(T checkedItem)
+    {
+      return _checkedItems.TryAdd(checkedItem, checkedItem);
     }
   }
 }

@@ -43,7 +43,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public Guid Role
     {
-      get { return AudioAlbumAspect.ROLE_ALBUM; }
+      //We don't want to build album -> track relation because there already is a track -> album relation
+      get { return Guid.Empty; }
     }
 
     public Guid[] RoleAspects
@@ -53,7 +54,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return AudioAspect.ROLE_TRACK; }
+      //We don't want to build album -> track relation because there already is a track -> album relation
+      get { return Guid.Empty; }
     }
 
     public Guid[] LinkedRoleAspects
