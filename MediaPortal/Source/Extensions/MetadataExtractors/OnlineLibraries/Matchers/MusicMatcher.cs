@@ -121,6 +121,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #endregion
 
+    #region External match storage
+
+    public void StoreArtistMatch(PersonInfo person)
+    {
+      string id;
+      if (GetPersonId(person, out id))
+        _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
+    }
+
+    public void StoreComposerMatch(PersonInfo person)
+    {
+      string id;
+      if (GetPersonId(person, out id))
+        _composerMatcher.StoreNameMatch(id, person.Name, person.Name);
+    }
+
+    public void StoreMusicLabelMatch(CompanyInfo company)
+    {
+      string id;
+      if (GetCompanyId(company, out id))
+        _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
+    }
+
+    #endregion
+
     #region Metadata updaters
 
     /// <summary>

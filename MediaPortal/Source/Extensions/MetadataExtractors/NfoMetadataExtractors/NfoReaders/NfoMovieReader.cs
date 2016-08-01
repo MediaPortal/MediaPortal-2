@@ -1381,8 +1381,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Actors != null && _stubs[0].Actors.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList());
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_CHARACTERS, _stubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Role).ToList());
+        foreach(PersonStub person in _stubs[0].Actors)
+        {
+          if (!string.IsNullOrEmpty(person.ImdbId) && !string.IsNullOrEmpty(person.Name))
+          {
+            PersonInfo info = new PersonInfo()
+            {
+              ImdbId = person.ImdbId,
+              Name = person.Name,
+              Biography = person.Biography,
+              DateOfBirth = person.Birthdate,
+              DateOfDeath = person.Deathdate,
+              Orign = person.Birthplace,
+              Occupation = PersonAspect.OCCUPATION_ACTOR,
+              Thumbnail = person.Thumb,
+              Order = person.Order
+            };
+            MovieTheMovieDbMatcher.Instance.StoreActorMatch(info);
+            MovieOmDbMatcher.Instance.StoreActorMatch(info);
+          }
+        }
+
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, _stubs[0].Actors.OrderBy(actor => actor.Order).
+          Where(actor => !string.IsNullOrEmpty(actor.Name)).Select(actor => actor.Name).ToList());
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_CHARACTERS, _stubs[0].Actors.OrderBy(actor => actor.Order).
+          Where(actor => !string.IsNullOrEmpty(actor.Name) && !string.IsNullOrEmpty(actor.Role)).Select(actor => actor.Role).ToList());
         return true;
       }
       return false;
@@ -1397,6 +1420,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Director != null)
       {
+        if (!string.IsNullOrEmpty(_stubs[0].DirectorImdb))
+        {
+          PersonInfo info = new PersonInfo()
+          {
+            ImdbId = _stubs[0].DirectorImdb,
+            Name = _stubs[0].Director,
+            Occupation = PersonAspect.OCCUPATION_DIRECTOR,
+          };
+          MovieTheMovieDbMatcher.Instance.StoreDirectorMatch(info);
+          MovieOmDbMatcher.Instance.StoreDirectorMatch(info);
+        }
+
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
         return true;
       }

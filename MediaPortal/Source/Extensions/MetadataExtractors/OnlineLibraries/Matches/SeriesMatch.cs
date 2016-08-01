@@ -27,7 +27,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <summary>
   /// SeriesMatch stores name matches for Series.
   /// </summary>
-  public class SeriesMatch : BaseMatch<string>
+  public class SeriesMatch : BaseFanArtMatch<string>
   {
     /// <summary>
     /// Contains the name found in online library.

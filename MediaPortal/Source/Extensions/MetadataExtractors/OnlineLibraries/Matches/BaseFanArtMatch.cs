@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -22,24 +22,28 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
   /// <summary>
-  /// TrackMatch stores name matches for Tracks.
+  /// Base class for matches of Series or Movies. It contains required fields for the <see cref="BaseMatcher{TMatch,TId}"/> download management feature.
   /// </summary>
-  public class TrackMatch : BaseFanArtMatch<string>
+  /// <typeparam name="T"></typeparam>
+  public abstract class BaseFanArtMatch<T> : BaseMatch
   {
     /// <summary>
-    /// Contains the name found in online library.
+    /// ID of the online library, type is specified by <typeparamref name="T"/>.
     /// </summary>
-    public string TrackName;
-    public string ArtistName;
-    public string AlbumName;
-    public int TrackNum;
-
-    public override string ToString()
-    {
-      return string.Format("{0}: {1} - {2} ({3}: {4}) [{5}]", ItemName, TrackNum, TrackName, ArtistName, AlbumName, Id);
-    }
+    public T Id;
+    /// <summary>
+    /// Contains the start time of download. If it is not <c>null</c> and <see cref="FanArtDownloadFinished"/> is <c>null</c>, download should be still
+    /// in progress.
+    /// </summary>
+    public DateTime? FanArtDownloadStarted;
+    /// <summary>
+    /// Contains the end time of download. If it is not <c>null</c>, download has been completed.
+    /// </summary>
+    public DateTime? FanArtDownloadFinished;
   }
 }

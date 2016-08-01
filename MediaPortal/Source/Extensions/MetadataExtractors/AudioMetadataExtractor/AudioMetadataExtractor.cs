@@ -449,6 +449,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             }
           }
 
+          if(trackInfo.Artists.Count == 1 && !string.IsNullOrEmpty(tag.Tag.MusicBrainzArtistId))
+          {
+            trackInfo.Artists[0].MusicBrainzId = tag.Tag.MusicBrainzArtistId;
+
+            MusicTheAudioDbMatcher.Instance.StoreArtistMatch(trackInfo.Artists[0]);
+            MusicBrainzMatcher.Instance.StoreArtistMatch(trackInfo.Artists[0]);
+          }
+
           IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
           if ((tag.TagTypes & TagTypes.Id3v2) != 0)
             albumArtists = PatchID3v23Enumeration(albumArtists);
@@ -463,6 +471,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 Occupation = PersonAspect.OCCUPATION_ARTIST
               });
             }
+          }
+
+          if (trackInfo.AlbumArtists.Count == 1 && !string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseArtistId))
+          {
+            trackInfo.AlbumArtists[0].MusicBrainzId = tag.Tag.MusicBrainzReleaseArtistId;
+
+            MusicTheAudioDbMatcher.Instance.StoreArtistMatch(trackInfo.AlbumArtists[0]);
+            MusicBrainzMatcher.Instance.StoreArtistMatch(trackInfo.AlbumArtists[0]);
           }
 
           IEnumerable<string> composers = tag.Tag.Composers;
