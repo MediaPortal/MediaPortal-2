@@ -99,7 +99,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Name));
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true);
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, false); //Always based on physical media
       MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_NAME, Name);
       if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
       MediaItemAspect.SetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_TYPE, Type);

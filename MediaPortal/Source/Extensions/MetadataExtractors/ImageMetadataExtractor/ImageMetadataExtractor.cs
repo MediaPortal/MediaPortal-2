@@ -156,6 +156,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         }
 
         MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
+
         MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.Metadata);
 
         // Extract EXIF information from media item.
