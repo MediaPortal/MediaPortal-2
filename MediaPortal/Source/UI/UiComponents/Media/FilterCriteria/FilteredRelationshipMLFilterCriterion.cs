@@ -34,6 +34,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.Common.Settings;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -47,10 +48,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     protected Guid? _baseRole;
     protected IFilter _filter;
     protected IEnumerable<Guid> _necessaryMIATypeIds;
+    protected IEnumerable<Guid> _optionalMIATypeIds;
     protected SortInformation _sortInformation;
 
     public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, SortInformation sortInformation)
-    : this(role, linkedRole, null, necessaryMIATypeIds, filter, sortInformation)
+    : this(role, linkedRole, null, necessaryMIATypeIds, null, filter, sortInformation)
+    { }
+
+    public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, IFilter filter, SortInformation sortInformation)
+    : this(role, linkedRole, null, necessaryMIATypeIds, optionalMIATypeIds, filter, sortInformation)
     { }
 
     public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, Guid? baseRole, IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, SortInformation sortInformation)
@@ -59,6 +65,18 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       _linkedRole = linkedRole;
       _baseRole = baseRole;
       _necessaryMIATypeIds = necessaryMIATypeIds;
+      _optionalMIATypeIds = null;
+      _filter = filter;
+      _sortInformation = sortInformation;
+    }
+
+    public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, Guid? baseRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, IFilter filter, SortInformation sortInformation)
+    {
+      _role = role;
+      _linkedRole = linkedRole;
+      _baseRole = baseRole;
+      _necessaryMIATypeIds = necessaryMIATypeIds;
+      _optionalMIATypeIds = optionalMIATypeIds;
       _filter = filter;
       _sortInformation = sortInformation;
     }
@@ -83,7 +101,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if(combinedFilter != null && _filter != null)
         combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, combinedFilter, _filter);
       IEnumerable <Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
-      MediaItemQuery query = new MediaItemQuery(mias, combinedFilter);
+      IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
+      MediaItemQuery query = new MediaItemQuery(mias, optMias, combinedFilter);
       if (_sortInformation != null)
         query.SortInformation = new List<SortInformation> { _sortInformation };
       IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual);

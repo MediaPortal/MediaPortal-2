@@ -567,6 +567,7 @@ namespace MediaPortal.UiComponents.Media.General
       {
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
+          ThumbnailLargeAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_SERIES_MIAS = new Guid[]
@@ -574,6 +575,12 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           SeriesAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_SERIES_MIAS = new Guid[]
+      {
+          ThumbnailLargeAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_SEASON_MIAS = new Guid[]
@@ -581,6 +588,11 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           SeasonAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_SEASON_MIAS = new Guid[]
+      {
+          ThumbnailLargeAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_EPISODE_MIAS = new Guid[]
@@ -595,6 +607,7 @@ namespace MediaPortal.UiComponents.Media.General
       {
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
+          ThumbnailLargeAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_MOVIE_COLLECTION_MIAS = new Guid[]
@@ -616,6 +629,7 @@ namespace MediaPortal.UiComponents.Media.General
       {
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
+          ThumbnailLargeAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_ALBUM_MIAS = new Guid[]
@@ -625,11 +639,21 @@ namespace MediaPortal.UiComponents.Media.General
           AudioAlbumAspect.ASPECT_ID
       };
 
+    public static readonly Guid[] OPTIONAL_ALBUM_MIAS = new Guid[]
+      {
+          ThumbnailLargeAspect.ASPECT_ID,
+      };
+
     public static readonly Guid[] NECESSARY_AUDIO_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           AudioAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_AUDIO_MIAS = new Guid[]
+      {
+          ThumbnailLargeAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_IMAGE_MIAS = new Guid[]
@@ -639,11 +663,21 @@ namespace MediaPortal.UiComponents.Media.General
           ImageAspect.ASPECT_ID,
       };
 
+    public static readonly Guid[] OPTIONAL_IMAGE_MIAS = new Guid[]
+      {
+          ThumbnailLargeAspect.ASPECT_ID,
+      };
+
     public static readonly Guid[] NECESSARY_PERSON_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           PersonAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_PERSON_MIAS = new Guid[]
+      {
+          ThumbnailLargeAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_CHARACTER_MIAS = new Guid[]
@@ -653,11 +687,21 @@ namespace MediaPortal.UiComponents.Media.General
           CharacterAspect.ASPECT_ID,
       };
 
+    public static readonly Guid[] OPTIONAL_CHARACTER_MIAS = new Guid[]
+      {
+          ThumbnailLargeAspect.ASPECT_ID,
+      };
+
     public static readonly Guid[] NECESSARY_COMPANY_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           CompanyAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_COMPANY_MIAS = new Guid[]
+      {
+          ThumbnailLargeAspect.ASPECT_ID,
       };
 
     public static readonly string MEDIA_SKIN_SETTINGS_REGISTRATION_PATH = "/Media/SkinSettings";

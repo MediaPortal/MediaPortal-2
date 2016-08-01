@@ -130,6 +130,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       if(_optionalMias != null)
       {
         optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
+        optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
       }
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??

@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class FilterByAlbumLabelCriterion : FilteredRelationshipMLFilterCriterion
   {
     public FilterByAlbumLabelCriterion() :
-      base(CompanyAspect.ROLE_COMPANY, AudioAlbumAspect.ROLE_ALBUM, Consts.NECESSARY_COMPANY_MIAS, 
+      base(CompanyAspect.ROLE_COMPANY, AudioAlbumAspect.ROLE_ALBUM, Consts.NECESSARY_COMPANY_MIAS, Consts.OPTIONAL_COMPANY_MIAS,
         new RelationalFilter(CompanyAspect.ATTR_COMPANY_TYPE, RelationalOperator.EQ, CompanyAspect.COMPANY_MUSIC_LABEL),
         new SortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
     {

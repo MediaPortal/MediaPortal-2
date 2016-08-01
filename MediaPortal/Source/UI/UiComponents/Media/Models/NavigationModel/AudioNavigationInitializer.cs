@@ -39,6 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT;
       _viewName = Consts.RES_AUDIO_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
+      _optionalMias = Consts.OPTIONAL_AUDIO_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
