@@ -91,7 +91,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       _subItems = new ItemsList();
       _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
       _delayedMenuUpdateEvent.OnEventHandler += OnUpdateMenu;
-      _delayedAnimationEnableEvent = new DelayedEvent(500);
+      _delayedAnimationEnableEvent = new DelayedEvent(200);
       _delayedAnimationEnableEvent.OnEventHandler += OnEnableAnimations;
       _navigationList.OnCurrentChanged += OnNavigationListCurrentChanged;
       SubscribeToMessages();
@@ -274,7 +274,6 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       try
       {
         AttachToMenuItems();
-        DisableAnimations();
         UpdateList(true);
         EnableAnimations();
       }
@@ -312,7 +311,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
           _navigationList.CurrentIndex = 0;
         }
         else
+        {
           forceSubItemUpdate = false;
+          recreateList = false;
+        }
       }
 
       bool afterSelected = false;

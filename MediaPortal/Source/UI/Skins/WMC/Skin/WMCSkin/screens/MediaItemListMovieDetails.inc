@@ -41,13 +41,54 @@
 
   <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-    <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" TextTrimming="WordEllipsis"
-            HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-            Color="{ThemeResource TextColor}"/>
+    <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center">
+      <media:MovieAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" TextTrimming="WordEllipsis"
+                    HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                    Content="{Binding MovieName}"
+                    Color="{ThemeResource TextColor}"/>
+          </Grid>
+        </ControlTemplate>
+      </media:MovieAspectWrapper.Template>
+    </media:MovieAspectWrapper>
     
     <StackPanel Orientation="Horizontal">
-      <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+      <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center">
+        <media:MovieAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
+                          Margin="0,2,0,1">
+                <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
+                                             Maximum="5" VerticalAlignment="Center" IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <StarRatingPanel.Value>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
+                      <Binding Path="TotalRating"/>
+                    </MultiBinding>  
+                  </StarRatingPanel.Value>
+                  <StarRatingPanel.LayoutTransform>
+                    <TransformGroup>
+                      <ScaleTransform ScaleX="1.6" ScaleY="1.5"/>
+                    </TransformGroup>
+                  </StarRatingPanel.LayoutTransform>
+                </StarRatingPanel>
+                <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}"  Margin="15,2,5,1" VerticalAlignment="Center"
+                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                       IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Label.Content>
+                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
+                  </Label.Content>
+                </Label>
+              </StackPanel>
+            </Grid>
+          </ControlTemplate>
+        </media:MovieAspectWrapper.Template>
+      </media:MovieAspectWrapper>      
+    </StackPanel>
+
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -64,38 +105,6 @@
         </media:MediaAspectWrapper.Template>
       </media:MediaAspectWrapper>
 
-      <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center">
-        <media:MovieAspectWrapper.Template>
-          <ControlTemplate>
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                          Margin="15,0,0,0">
-                <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                                             Maximum="5" VerticalAlignment="Center">
-                  <StarRatingPanel.Value>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
-                      <Binding Path="TotalRating"/>
-                    </MultiBinding>  
-                  </StarRatingPanel.Value>
-                  <StarRatingPanel.LayoutTransform>
-                    <TransformGroup>
-                      <ScaleTransform ScaleX="1.6" ScaleY="1.5"/>
-                    </TransformGroup>
-                  </StarRatingPanel.LayoutTransform>
-                </StarRatingPanel>
-                <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}"  Margin="15,0,5,0" VerticalAlignment="Center"
-                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5">
-                  <Label.Content>
-                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
-                  </Label.Content>
-                </Label>
-              </StackPanel>
-            </Grid>
-          </ControlTemplate>
-        </media:MovieAspectWrapper.Template>
-      </media:MovieAspectWrapper>      
-    </StackPanel>
-    
     <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
@@ -115,7 +124,8 @@
               <StackPanel Orientation="Horizontal">
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
                        Content="{Binding Path=Runtime}" Color="{ThemeResource TextColor}"/>
-                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"/>                
+                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}" 
+                       IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"/>
               </StackPanel>
             </Grid>
           </ControlTemplate>

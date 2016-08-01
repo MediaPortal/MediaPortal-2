@@ -187,16 +187,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
                  FontSize="{ThemeResource NormalFontSize}"
                  Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
         </Grid>
-        <!-- HeaderTextPanel -->
-        <StackPanel x:Name="PlayerControls" Grid.Column="2" Grid.Row="0" Orientation="Horizontal"
-          HorizontalAlignment="Right" VerticalAlignment="Top">
-          <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="350"
-            HorizontalAlignment="Left" VerticalAlignment="Top"
-            AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
-          <mp_special_controls:PlayerControl Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="350"
-            HorizontalAlignment="Left" VerticalAlignment="Top"
-            AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
-        </StackPanel>
       </Grid>
       <!-- HeaderPanel -->
       <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">
@@ -209,6 +199,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.ColumnDefinitions>
         <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <StackPanel x:Name="PlayerControls" Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+          <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
+                  AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+          <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
+                  AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        </StackPanel>
       </Grid>
       <!-- FooterPanel -->
 

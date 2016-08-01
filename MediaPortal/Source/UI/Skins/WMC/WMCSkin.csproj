@@ -19,6 +19,8 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -248,6 +250,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemAudioAlbumDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListAudioAlbumDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListEpisodeDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListSeasonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemSeasonDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListImageDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioDetails.inc">
       <SubType>Designer</SubType>
@@ -267,6 +280,7 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemListSeriesDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemEpisodeDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc">
       <SubType>Designer</SubType>
@@ -479,4 +493,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets'))" />
   </Target>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>
