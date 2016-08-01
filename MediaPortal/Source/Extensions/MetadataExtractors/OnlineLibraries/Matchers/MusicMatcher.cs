@@ -912,7 +912,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       List<string> fanartFiles = new List<string>();
       string path = null;
       string id;
-      if (scope == FanArtMediaTypes.Album)
+      if (scope == FanArtMediaTypes.Album || scope == FanArtMediaTypes.Audio)
       {
         TrackInfo track = infoObject as TrackInfo;
         AlbumInfo album = infoObject as AlbumInfo;
