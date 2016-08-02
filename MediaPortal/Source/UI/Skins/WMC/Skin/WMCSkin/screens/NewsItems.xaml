@@ -23,7 +23,7 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="20,30,20,-160" DataContext="{Binding Source={StaticResource Model}}">
+      <DockPanel LastChildFill="True" Margin="20,10,20,-160" DataContext="{Binding Source={StaticResource Model}}">
 
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
