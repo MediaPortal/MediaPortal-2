@@ -235,7 +235,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
       if (_isDisposed)
         return;
       _isDisposed = true;
-      string path = _watchedPath.Path.FullName;
+      string path = _watchedPath != null ? _watchedPath.Path.FullName : null;
       if (_notifyTimer != null)
         _notifyTimer.Dispose();
       if (_watchedPath != null)
@@ -245,7 +245,8 @@ namespace MediaPortal.Common.Services.FileEventNotification
       if (_events != null)
         _events.Clear();
       _watching = false;
-      RaiseSingleEvent(path, FileWatchChangeType.Disposed);
+      if (path != null)
+        RaiseSingleEvent(path, FileWatchChangeType.Disposed);
       if (Disposed != null)
         Disposed(this, new EventArgs());
     }
