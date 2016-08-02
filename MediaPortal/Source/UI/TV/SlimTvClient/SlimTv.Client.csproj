@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="Controls\EpgGrid.cs" />
     <Compile Include="Controls\SlimTvDateFormatConverter.cs" />
+    <Compile Include="Controls\SlimTvGuideTimeFormatConverter.cs" />
     <Compile Include="Extensions\ExtendedSchedule.cs" />
     <Compile Include="Extensions\ProgramExample.cs" />
     <Compile Include="Helpers\ChannelContext.cs" />

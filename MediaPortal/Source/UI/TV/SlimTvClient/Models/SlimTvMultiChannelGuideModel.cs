@@ -76,6 +76,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected DateTime _bufferEndTime;
     protected int _bufferGroupIndex;
 
+    public double VisibleHours
+    {
+      get { return _visibleHours; }
+    }
+
     public DateTime GuideEndTime
     {
       get { return GuideStartTime.AddHours(_visibleHours); }
