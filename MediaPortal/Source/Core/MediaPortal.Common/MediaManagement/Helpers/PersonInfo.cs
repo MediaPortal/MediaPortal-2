@@ -51,6 +51,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the person name.
     /// </summary>
     public string Name = null;
+    public string AlternateName = null;
     public SimpleTitle Biography = null;
     public string Orign = null;
     public DateTime? DateOfBirth = null;

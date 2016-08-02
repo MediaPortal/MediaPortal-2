@@ -73,7 +73,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       MusicTheAudioDbMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);
-      //MusicBrainzMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);
+      MusicBrainzMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST, true); //Always force quick mode because online queries mostly timeout
       MusicFanArtTvMatcher.Instance.UpdateAlbumPersons(albumInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);
 
       if (albumInfo.Artists.Count == 0)

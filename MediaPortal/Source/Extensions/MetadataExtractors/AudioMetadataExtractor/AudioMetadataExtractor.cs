@@ -76,6 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     protected static bool USE_ADDITIONAL_SEPARATOR;
     protected static char ADDITIONAL_SEPARATOR;
     protected static ICollection<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
+    protected static Regex SPLIT_MULTIPLE_ARTISTS_REGEX = new Regex(@"(?<artist>.+)(?:ft\.|feat\.|&|featuring)(?<artist2>.+)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Audio file accessor class needed for our tag library implementation. This class maps
@@ -437,7 +438,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             trackInfo.MusicIpId = tag.Tag.MusicIpId;
 
           trackInfo.Artists = new List<PersonInfo>();
-          if (artist != null)
+          if (artists != null)
           {
             foreach (string artistName in ApplyAdditionalSeparator(artists))
             {
@@ -553,8 +554,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           CDFreeDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
         }
 
+        //Try to find correct artist names
+        trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
+        trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
+
         MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
-        //MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, true); //Always force quick mode because online queries mostly timeout
         MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
 
         if (!_onlyFanArt)
@@ -574,6 +579,71 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", fsra.CanonicalLocalResourcePath, e.Message);
       }
       return false;
+    }
+
+    protected List<PersonInfo> GetCorrectedArtistsList(TrackInfo trackInfo, List<PersonInfo> persons)
+    {
+      List<PersonInfo> resolvedList = new List<PersonInfo>();
+
+      //Try to find correct artist names
+      foreach (PersonInfo person in persons)
+      {
+        PersonInfo tempPerson = new PersonInfo()
+        {
+          Name = person.Name,
+          Occupation = person.Occupation
+        };
+        tempPerson.CopyIdsFrom(person);
+
+        bool splitFound = false;
+        if (MusicTheAudioDbMatcher.Instance.FindAndUpdateTrackPerson(trackInfo, tempPerson, false))
+        {
+          resolvedList.Add(tempPerson);
+        }
+        else
+        {
+          Match match = SPLIT_MULTIPLE_ARTISTS_REGEX.Match(person.Name);
+          if (match.Success)
+          {
+            if (!string.IsNullOrEmpty(match.Groups["artist"].Value.Trim()) && !string.IsNullOrEmpty(match.Groups["artist2"].Value.Trim()))
+            {
+              bool firstFound = false;
+              PersonInfo tempPerson1 = new PersonInfo()
+              {
+                Name = match.Groups["artist"].Value.Trim(),
+                Occupation = PersonAspect.OCCUPATION_ARTIST
+              };
+              if (MusicTheAudioDbMatcher.Instance.FindAndUpdateTrackPerson(trackInfo, tempPerson1, false))
+              {
+                splitFound = true;
+                firstFound = true;
+                resolvedList.Add(tempPerson1);
+              }
+              PersonInfo tempPerson2 = new PersonInfo()
+              {
+                Name = match.Groups["artist2"].Value.Trim(),
+                Occupation = PersonAspect.OCCUPATION_ARTIST
+              };
+              if (MusicTheAudioDbMatcher.Instance.FindAndUpdateTrackPerson(trackInfo, tempPerson2, false))
+              {
+                splitFound = true;
+                if (firstFound == false)
+                  resolvedList.Add(tempPerson1);
+                resolvedList.Add(tempPerson2);
+              }
+              else if (firstFound)
+              {
+                resolvedList.Add(tempPerson2);
+              }
+            }
+          }
+
+          if (!splitFound)
+            resolvedList.Add(tempPerson);
+        }
+      }
+
+      return resolvedList;
     }
 
     #endregion

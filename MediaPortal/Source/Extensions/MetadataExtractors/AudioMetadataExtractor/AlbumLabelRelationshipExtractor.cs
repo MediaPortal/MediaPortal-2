@@ -75,8 +75,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (_checkCache.IsItemChecked(albumInfo))
         return false;
 
-      //MusicBrainzMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
-      MusicFanArtTvMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
+      MusicTheAudioDbMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, false);
+      MusicBrainzMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, true); //Always force quick mode because online queries mostly timeout
+      MusicFanArtTvMatcher.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, false);
 
       if (albumInfo.MusicLabels.Count == 0)
         return false;

@@ -61,6 +61,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       List<TrackResult> foundTracks = _musicBrainzHandler.SearchTrack(trackSearch.TrackName, trackSearch.Artists.Select(a => a.Name).ToList(), 
         trackSearch.Album, trackSearch.ReleaseDate.HasValue ? trackSearch.ReleaseDate.Value.Year : default(int?),
         trackSearch.TrackNum > 0 ? trackSearch.TrackNum : default(int?));
+      if(foundTracks == null)
+      {
+        foundTracks = _musicBrainzHandler.SearchTrack(trackSearch.TrackName, trackSearch.AlbumArtists.Select(a => a.Name).ToList(),
+          trackSearch.Album, trackSearch.ReleaseDate.HasValue ? trackSearch.ReleaseDate.Value.Year : default(int?),
+          trackSearch.TrackNum > 0 ? trackSearch.TrackNum : default(int?));
+      }
       if (foundTracks == null) return false;
 
       //Prefer the once with a language
