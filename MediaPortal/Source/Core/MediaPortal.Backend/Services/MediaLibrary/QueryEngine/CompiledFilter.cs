@@ -274,7 +274,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return;
       }
 
-      // Must be done before checking IAttributeFilter - EmptyFilter is also an IAttributeFilter but must be
+      // Must be done before checking IAttributeFilter - EmptyUserDataFilter is also an IAttributeFilter but must be
       // compiled in a different way
       EmptyUserDataFilter emptyUserDataFilter = filter as EmptyUserDataFilter;
       if (emptyUserDataFilter != null)
@@ -309,10 +309,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       RelationshipFilter relationshipFilter = filter as RelationshipFilter;
       if (relationshipFilter != null)
       {
-        BindVar itemIdVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.ItemId, typeof(Guid));
         BindVar roleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.Role, typeof(Guid));
         BindVar linkedRoleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.LinkedRole, typeof(Guid));
-        BindVar itemIdVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.ItemId, typeof(Guid));
         BindVar roleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.Role, typeof(Guid));
         BindVar linkedRoleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.LinkedRole, typeof(Guid));
 
@@ -327,14 +325,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
         resultParts.Add("=@" + roleVar1.Name);
         resultBindVars.Add(roleVar1);
-        resultParts.Add(" AND ");
+        resultParts.Add(" AND V1.");
         resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
         resultParts.Add("=@" + linkedRoleVar1.Name);
         resultBindVars.Add(linkedRoleVar1);
         resultParts.Add(" AND ");
-        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-        resultParts.Add("=@" + itemIdVar1.Name);
-        resultBindVars.Add(itemIdVar1);
+        CompileStatementParts(miaManagement, relationshipFilter.Filter, ns, bvNamespace,
+          requiredMIATypes, "V1." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME, tableJoins, resultParts, resultBindVars);
 
         resultParts.Add(" UNION ");
 
@@ -346,14 +343,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
         resultParts.Add("=@" + linkedRoleVar2.Name);
         resultBindVars.Add(linkedRoleVar2);
-        resultParts.Add(" AND ");
+        resultParts.Add(" AND V2.");
         resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
         resultParts.Add("=@" + roleVar2.Name);
         resultBindVars.Add(roleVar2);
         resultParts.Add(" AND ");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
-        resultParts.Add("=@" + itemIdVar2.Name);
-        resultBindVars.Add(itemIdVar2);
+        CompileStatementParts(miaManagement, relationshipFilter.Filter, ns, bvNamespace,
+          requiredMIATypes, "V2." + miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID), 
+          tableJoins, resultParts, resultBindVars);
         resultParts.Add(")");
         return;
       }

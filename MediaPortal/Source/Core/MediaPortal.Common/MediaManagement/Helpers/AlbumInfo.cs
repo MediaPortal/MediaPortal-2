@@ -62,6 +62,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public long AudioDbId = 0;
     public string CdDdId = null;
     public string UpcEanId = null;
+    public string AmazonId = null;
+    public string ItunesId = null;
 
     public string Album = null;
     public SimpleTitle Description = null;
@@ -107,6 +109,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return true;
         if (!string.IsNullOrEmpty(UpcEanId))
           return true;
+        if (!string.IsNullOrEmpty(AmazonId))
+          return true;
 
         return false;
       }
@@ -124,7 +128,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true);
+      //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, Album);
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_COMPILATION, Compilation);
       if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_DESCRIPTION, Description.Text);
@@ -138,6 +142,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (AudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_ALBUM, AudioDbId.ToString());
       if (!string.IsNullOrEmpty(CdDdId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, CdDdId);
       if (!string.IsNullOrEmpty(UpcEanId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_UPCEAN, ExternalIdentifierAspect.TYPE_ALBUM, UpcEanId);
+      if (!string.IsNullOrEmpty(AmazonId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AMAZON, ExternalIdentifierAspect.TYPE_ALBUM, AmazonId);
 
       if (!Rating.IsEmpty)
       {
@@ -179,6 +184,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ_GROUP, ExternalIdentifierAspect.TYPE_ALBUM, out MusicBrainzGroupId);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, out CdDdId);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_UPCEAN, ExternalIdentifierAspect.TYPE_ALBUM, out UpcEanId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AMAZON, ExternalIdentifierAspect.TYPE_ALBUM, out AmazonId);
 
         double? rating;
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_TOTAL_RATING, out rating);
@@ -228,6 +234,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ_GROUP, ExternalIdentifierAspect.TYPE_ALBUM, out MusicBrainzGroupId);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, out CdDdId);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_UPCEAN, ExternalIdentifierAspect.TYPE_ALBUM, out UpcEanId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AMAZON, ExternalIdentifierAspect.TYPE_ALBUM, out AmazonId);
 
         IEnumerable collection;
         Artists.Clear();
@@ -247,6 +254,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ_GROUP, ExternalIdentifierAspect.TYPE_ALBUM, out MusicBrainzGroupId);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, out CdDdId);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_UPCEAN, ExternalIdentifierAspect.TYPE_ALBUM, out UpcEanId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_AMAZON, ExternalIdentifierAspect.TYPE_ALBUM, out AmazonId);
 
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
@@ -292,6 +300,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MusicBrainzDiscId = otherAlbum.MusicBrainzDiscId;
         MusicBrainzGroupId = otherAlbum.MusicBrainzGroupId;
         MusicBrainzId = otherAlbum.MusicBrainzId;
+        AmazonId = otherAlbum.AmazonId;
         return true;
       }
       else if (otherInstance is TrackInfo)
@@ -302,6 +311,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MusicBrainzDiscId = albumTrack.AlbumMusicBrainzDiscId;
         MusicBrainzGroupId = albumTrack.AlbumMusicBrainzGroupId;
         MusicBrainzId = albumTrack.AlbumMusicBrainzId;
+        AmazonId = albumTrack.AlbumAmazonId;
         return true;
       }
       return false;
@@ -331,9 +341,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(CdDdId, other.CdDdId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(UpcEanId) && !string.IsNullOrEmpty(other.UpcEanId))
         return string.Equals(UpcEanId, other.UpcEanId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) &&
-        MatchNames(Album, other.Album) && ReleaseDate.HasValue && other.ReleaseDate.HasValue &&
-        ReleaseDate.Value == other.ReleaseDate.Value)
+      if (!string.IsNullOrEmpty(AmazonId) && !string.IsNullOrEmpty(other.AmazonId))
+        return string.Equals(AmazonId, other.AmazonId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && MatchNames(Album, other.Album) && 
+        ReleaseDate.HasValue && other.ReleaseDate.HasValue && ReleaseDate.Value == other.ReleaseDate.Value)
         return true;
       if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) &&
         MatchNames(Album, other.Album))

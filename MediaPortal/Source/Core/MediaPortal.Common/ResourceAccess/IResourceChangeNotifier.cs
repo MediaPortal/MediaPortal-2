@@ -76,7 +76,7 @@ namespace MediaPortal.Common.ResourceAccess
   /// this parameter contains the old file path.</param>
   /// <param name="changeType">Type of the change.</param>
   public delegate void PathChangeDelegate(
-      IResourceAccessor resourceAccessor, string oldPath, MediaSourceChangeType changeType);
+      IResourceAccessor resourceAccessor, IResourceAccessor oldResourceAccessor, MediaSourceChangeType changeType);
 
   /// <summary>
   /// Additional interface which can be implemented by resource accessors if they are capable of detecting

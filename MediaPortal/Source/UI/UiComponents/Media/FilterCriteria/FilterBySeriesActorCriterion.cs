@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class FilterBySeriesActorCriterion : FilteredRelationshipMLFilterCriterion
   {
     public FilterBySeriesActorCriterion() :
-      base(PersonAspect.ROLE_PERSON, SeriesAspect.ROLE_SERIES, Consts.NECESSARY_PERSON_MIAS, 
+      base(PersonAspect.ROLE_PERSON, SeriesAspect.ROLE_SERIES, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
         new RelationalFilter(PersonAspect.ATTR_OCCUPATION, RelationalOperator.EQ, PersonAspect.OCCUPATION_ACTOR),
         new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
     {

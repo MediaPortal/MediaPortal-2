@@ -43,7 +43,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public Guid Role
     {
-      get { return MovieCollectionAspect.ROLE_MOVIE_COLLECTION; }
+      //We don't want to build collection -> movie relation because there already is a movie -> collection relation
+      get { return Guid.Empty; }
     }
 
     public Guid[] RoleAspects
@@ -53,7 +54,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public Guid LinkedRole
     {
-      get { return MovieAspect.ROLE_MOVIE; }
+      //We don't want to build collection -> movie relation because there already is a movie -> collection relation
+      get { return Guid.Empty; }
     }
 
     public Guid[] LinkedRoleAspects

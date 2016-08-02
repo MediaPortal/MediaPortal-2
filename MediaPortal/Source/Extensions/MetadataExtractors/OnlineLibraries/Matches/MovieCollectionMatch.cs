@@ -29,7 +29,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <summary>
   /// MovieCollectionMatch stores name matches for <see cref="MovieCollection"/>s.
   /// </summary>
-  public class MovieCollectionMatch : BaseMatch<int>
+  public class MovieCollectionMatch : BaseFanArtMatch<int>
   {
     public override string ToString()
     {

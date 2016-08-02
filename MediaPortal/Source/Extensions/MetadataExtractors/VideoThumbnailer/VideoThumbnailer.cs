@@ -78,11 +78,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 
     public VideoThumbnailer()
     {
-      // The metadataExtractorPriority is intentionally set wrong to "External" although
-      // this MetadataExtractor does not download anything from the internet (and should therefore be
-      // "Extended"). This is a temporary workaround for performance purposes. It ensures that this 
-      // MetadataExtractor is applied after in particular the NfoMetadataExtractors (which are
-      // intentionally set to "Extended" although they may download images from the internet).
       // Creating thumbs with this MetadataExtractor takes much longer than downloading them from the internet.
       // This MetadataExtractor only creates thumbs if the ThumbnailLargeAspect has not been filled before.
       // ToDo: Correct this once we have a better priority system

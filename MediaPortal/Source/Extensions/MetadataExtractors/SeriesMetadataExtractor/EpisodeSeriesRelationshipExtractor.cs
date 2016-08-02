@@ -25,13 +25,18 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.Linq;
+using MediaPortal.Common.General;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class EpisodeSeriesRelationshipExtractor : SeriesBaseTryExtractRelationships, IRelationshipRoleExtractor
+  class EpisodeSeriesRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
+    private CheckedItemCache<EpisodeInfo> _checkCache = new CheckedItemCache<EpisodeInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private CheckedItemCache<SeriesInfo> _seriesCache = new CheckedItemCache<SeriesInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public Guid Role
     {
@@ -53,7 +58,49 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    // TryExtractRelationships is in SeriesBaseTryExtractRelationships
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    {
+      extractedLinkedAspects = null;
+
+      EpisodeInfo episodeInfo = new EpisodeInfo();
+      if (!episodeInfo.FromMetadata(aspects))
+        return false;
+
+      if (_checkCache.IsItemChecked(episodeInfo))
+        return false;
+
+      SeriesInfo seriesInfo;
+      if (!_seriesCache.TryGetCheckedItem(episodeInfo.CloneBasicInstance<SeriesInfo>(), out seriesInfo))
+      {
+        seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
+        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+        SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+        SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+        SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+        SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+
+        _seriesCache.TryAddCheckedItem(seriesInfo);
+      }
+
+      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      seriesInfo.SetMetadata(seriesAspects);
+
+      if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+      {
+        bool episodeVirtual = true;
+        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out episodeVirtual))
+        {
+          MediaItemAspect.SetAttribute(seriesAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
+        }
+      }
+
+      if (!seriesAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        return false;
+
+      extractedLinkedAspects.Add(seriesAspects);
+      return true;
+    }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {

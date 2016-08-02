@@ -53,17 +53,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       {
         return webClient.DownloadString(url);
       }
-      catch (WebException ex)
-      {
-        if(((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.ServiceUnavailable)
-        {
-          //Rate limiting
-          LIMITER.RequestDone();
-          LIMITER.RateLimit().Wait();
-          return webClient.DownloadString(url);
-        }
-        throw;
-      }
+      //catch (WebException ex)
+      //{
+      //  if(((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.ServiceUnavailable)
+      //  {
+      //    //Rate limiting
+      //    LIMITER.RequestDone();
+      //    LIMITER.RateLimit().Wait();
+      //    return webClient.DownloadString(url);
+      //  }
+      //  throw;
+      //}
       finally
       {
         LIMITER.RequestDone();

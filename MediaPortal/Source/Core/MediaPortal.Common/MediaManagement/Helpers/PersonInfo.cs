@@ -108,7 +108,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Name));
-      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true);
+      MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, false); //Always based on physical media
       MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_PERSON_NAME, Name);
       if (!Biography.IsEmpty) MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_BIOGRAPHY, CleanString(Biography.Text));
       if (!string.IsNullOrEmpty(Orign)) MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_ORIGIN, Orign);

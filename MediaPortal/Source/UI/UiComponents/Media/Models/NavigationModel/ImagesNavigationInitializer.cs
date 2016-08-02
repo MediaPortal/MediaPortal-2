@@ -39,6 +39,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT;
       _viewName = Consts.RES_IMAGES_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_IMAGE_MIAS;
+      _optionalMias = Consts.OPTIONAL_IMAGE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 

@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class FilterBySeriesTvNetworkCriterion : FilteredRelationshipMLFilterCriterion
   {
     public FilterBySeriesTvNetworkCriterion() :
-      base(CompanyAspect.ROLE_COMPANY, SeriesAspect.ROLE_SERIES, Consts.NECESSARY_COMPANY_MIAS, 
+      base(CompanyAspect.ROLE_COMPANY, SeriesAspect.ROLE_SERIES, Consts.NECESSARY_COMPANY_MIAS, Consts.OPTIONAL_COMPANY_MIAS,
         new RelationalFilter(CompanyAspect.ATTR_COMPANY_TYPE, RelationalOperator.EQ, CompanyAspect.COMPANY_TV_NETWORK),
         new SortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
     {

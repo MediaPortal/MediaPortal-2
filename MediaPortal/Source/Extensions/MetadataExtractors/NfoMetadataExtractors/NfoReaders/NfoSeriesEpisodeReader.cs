@@ -38,6 +38,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Utilities;
 using System.Globalization;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -1011,22 +1012,87 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/>
+    /// Tries to write metadata into <see cref="VideoAspect.ATTR_ACTORS"/> and <see cref="VideoAspect.ATTR_CHARACTERS"/>
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteVideoAspectActors(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       List<string> actors = null;
+      List<string> characters = null;
       if (_stubs[0].Actors != null)
-        actors = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Select(actor => actor.Name).Distinct().ToList();
+      {
+        foreach (PersonStub person in _stubs[0].Actors)
+        {
+          if (!string.IsNullOrEmpty(person.ImdbId) && !string.IsNullOrEmpty(person.Name))
+          {
+            PersonInfo info = new PersonInfo()
+            {
+              ImdbId = person.ImdbId,
+              Name = person.Name,
+              Biography = person.Biography,
+              DateOfBirth = person.Birthdate,
+              DateOfDeath = person.Deathdate,
+              Orign = person.Birthplace,
+              Occupation = PersonAspect.OCCUPATION_ACTOR,
+              Thumbnail = person.Thumb,
+              Order = person.Order
+            };
+            SeriesTvDbMatcher.Instance.StoreActorMatch(info);
+            SeriesTheMovieDbMatcher.Instance.StoreActorMatch(info);
+            SeriesTvMazeMatcher.Instance.StoreActorMatch(info);
+            SeriesOmDbMatcher.Instance.StoreActorMatch(info);
+          }
+        }
+
+        actors = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
+          Select(actor => actor.Name).Distinct().ToList();
+        characters = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Role)).
+          Select(actor => actor.Role).Distinct().ToList();
+      }
       if (_useSeriesStubs && _seriesStubs[0].Actors != null)
+      {
+        foreach (PersonStub person in _seriesStubs[0].Actors)
+        {
+          if (!string.IsNullOrEmpty(person.ImdbId) && !string.IsNullOrEmpty(person.Name))
+          {
+            PersonInfo info = new PersonInfo()
+            {
+              ImdbId = person.ImdbId,
+              Name = person.Name,
+              Biography = person.Biography,
+              DateOfBirth = person.Birthdate,
+              DateOfDeath = person.Deathdate,
+              Orign = person.Birthplace,
+              Occupation = PersonAspect.OCCUPATION_ACTOR,
+              Thumbnail = person.Thumb,
+              Order = person.Order
+            };
+            SeriesTvDbMatcher.Instance.StoreActorMatch(info);
+            SeriesTheMovieDbMatcher.Instance.StoreActorMatch(info);
+            SeriesTvMazeMatcher.Instance.StoreActorMatch(info);
+            SeriesOmDbMatcher.Instance.StoreActorMatch(info);
+          }
+        }
+
         actors = actors != null ?
-          actors.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name)).ToList() :
-          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Select(actor => actor.Name).ToList();
+          actors.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
+          Select(actor => actor.Name)).ToList() :
+          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
+          Select(actor => actor.Name).ToList();
+        characters = characters != null ?
+          characters.Union(_seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Role)).
+          Select(actor => actor.Role)).ToList() :
+          _seriesStubs[0].Actors.OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Role)).
+          Select(actor => actor.Role).ToList();
+      }
       if (actors != null && actors.Any())
       {
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_ACTORS, actors);
+        if (characters != null && characters.Any())
+        {
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_CHARACTERS, characters);
+        }
         return true;
       }
       return false;

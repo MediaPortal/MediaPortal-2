@@ -46,6 +46,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string SOURCE_AUDIODB = "AUDIODB";
     public static readonly string SOURCE_TVMAZE = "TVMAZE";
     public static readonly string SOURCE_TVRAGE = "TVRAGE";
+    public static readonly string SOURCE_ALLOCINE = "ALLOCINE";
+    public static readonly string SOURCE_CINEPASSION = "CINEPASSION";
+    public static readonly string SOURCE_AMAZON = "AMAZON";
+    public static readonly string SOURCE_MUSIC_IP = "MUSIC_IP";
+    public static readonly string SOURCE_MVDB = "MVDB";
+    public static readonly string SOURCE_LYRIC = "LYRIC";
+    public static readonly string SOURCE_ITUNES = "ITUNES";
 
     public static readonly string TYPE_CHARACTER = "CHARACTER"; // Someone in a movie / series
     public static readonly string TYPE_COLLECTION = "COLLECTION";
@@ -68,13 +75,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Source of the identifier
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_SOURCE =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Source", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Source", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// The type of identifier
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_TYPE =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Type", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Type", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Source type's unique id

@@ -259,12 +259,16 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
     public void RegisterChangeTracker(PathChangeDelegate changeDelegate, IEnumerable<string> fileNameFilters,
         IEnumerable<MediaSourceChangeType> changeTypes)
     {
-      _provider.RegisterChangeTracker(changeDelegate, _path, fileNameFilters, changeTypes);
+      string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
+      if(!string.IsNullOrEmpty(dosPath) && (File.Exists(dosPath) || Directory.Exists(dosPath)))
+        _provider.RegisterChangeTracker(changeDelegate, dosPath, fileNameFilters, changeTypes);
     }
 
     public void UnregisterChangeTracker(PathChangeDelegate changeDelegate)
     {
-      _provider.UnregisterAll(changeDelegate);
+      string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
+      if (!string.IsNullOrEmpty(dosPath) && (File.Exists(dosPath) || Directory.Exists(dosPath)))
+        _provider.UnregisterChangeTracker(changeDelegate, dosPath);
     }
 
     public void UnregisterAll(PathChangeDelegate changeDelegate)

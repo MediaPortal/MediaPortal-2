@@ -121,6 +121,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #endregion
 
+    #region External match storage
+
+    public void StoreArtistMatch(PersonInfo person)
+    {
+      string id;
+      if (GetPersonId(person, out id))
+        _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
+    }
+
+    public void StoreComposerMatch(PersonInfo person)
+    {
+      string id;
+      if (GetPersonId(person, out id))
+        _composerMatcher.StoreNameMatch(id, person.Name, person.Name);
+    }
+
+    public void StoreMusicLabelMatch(CompanyInfo company)
+    {
+      string id;
+      if (GetCompanyId(company, out id))
+        _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
+    }
+
+    #endregion
+
     #region Metadata updaters
 
     /// <summary>
@@ -199,12 +224,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateId(ref trackInfo.AudioDbId, trackMatch.AudioDbId);
           MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackMatch.MusicBrainzId);
           MetadataUpdater.SetOrUpdateId(ref trackInfo.IsrcId, trackMatch.IsrcId);
+          MetadataUpdater.SetOrUpdateId(ref trackInfo.LyricId, trackMatch.LyricId);
+          MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicIpId, trackMatch.MusicIpId);
+          MetadataUpdater.SetOrUpdateId(ref trackInfo.MvDbId, trackMatch.MvDbId);
           MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAudioDbId, trackMatch.AlbumAudioDbId);
           MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumCdDdId, trackMatch.AlbumCdDdId);
           MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzDiscId, trackMatch.AlbumMusicBrainzDiscId);
           MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzGroupId, trackMatch.AlbumMusicBrainzGroupId);
           MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzId, trackMatch.AlbumMusicBrainzId);
-          
+          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAmazonId, trackMatch.AlbumAmazonId);
+          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumItunesId, trackMatch.AlbumItunesId);
+          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumUpcEanId, trackMatch.AlbumUpcEanId);
+
           MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackMatch.TrackName);
           MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackLyrics, trackMatch.TrackLyrics);
           MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackMatch.Album);
@@ -627,6 +658,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzDiscId, albumMatch.MusicBrainzDiscId);
           MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzGroupId, albumMatch.MusicBrainzGroupId);
           MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzId, albumMatch.MusicBrainzId);
+          MetadataUpdater.SetOrUpdateId(ref albumInfo.AmazonId, albumMatch.AmazonId);
+          MetadataUpdater.SetOrUpdateId(ref albumInfo.ItunesId, albumMatch.ItunesId);
+          MetadataUpdater.SetOrUpdateId(ref albumInfo.UpcEanId, albumMatch.UpcEanId);
 
           MetadataUpdater.SetOrUpdateString(ref albumInfo.Album, albumMatch.Album);
           MetadataUpdater.SetOrUpdateString(ref albumInfo.Description, albumMatch.Description);
@@ -878,7 +912,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       List<string> fanartFiles = new List<string>();
       string path = null;
       string id;
-      if (scope == FanArtMediaTypes.Album)
+      if (scope == FanArtMediaTypes.Album || scope == FanArtMediaTypes.Audio)
       {
         TrackInfo track = infoObject as TrackInfo;
         AlbumInfo album = infoObject as AlbumInfo;

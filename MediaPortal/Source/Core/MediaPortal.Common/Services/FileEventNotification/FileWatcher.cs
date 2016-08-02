@@ -475,7 +475,9 @@ namespace MediaPortal.Common.Services.FileEventNotification
     private void FileSystemEventHandler(object sender, FileSystemEventArgs e)
     {
       lock (_events)
+      {
         _events.Add(new FileWatchEvent(e));
+      }
     }
 
     /// <summary>

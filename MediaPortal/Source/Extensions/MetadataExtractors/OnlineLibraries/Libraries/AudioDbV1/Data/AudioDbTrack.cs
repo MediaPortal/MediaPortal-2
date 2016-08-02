@@ -72,13 +72,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
   public class AudioDbTrack
   {
     [DataMember(Name = "idTrack")]
-    public long TrackId { get; set; }
+    public long TrackID { get; set; }
 
     [DataMember(Name = "idAlbum")]
-    public long? AlbumId { get; set; }
+    public long? AlbumID { get; set; }
+
+    [DataMember(Name = "idLyric")]
+    public long? LyricID { get; set; }
+
+    [DataMember(Name = "idIMVDB")]
+    public long? MvDbID { get; set; }
 
     [DataMember(Name = "idArtist")]
-    public long? ArtistId { get; set; }
+    public long? ArtistID { get; set; }
 
     [DataMember(Name = "strTrack")]
     public string Track { get; set; }

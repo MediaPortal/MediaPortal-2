@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class FilterBySeriesSeasonCriterion : RelationshipMLFilterCriterion
   {
     public FilterBySeriesSeasonCriterion() :
-      base(SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE, Consts.NECESSARY_SEASON_MIAS,
+      base(SeasonAspect.ROLE_SEASON, EpisodeAspect.ROLE_EPISODE, Consts.NECESSARY_SEASON_MIAS, Consts.OPTIONAL_SEASON_MIAS,
         new SortInformation(SeasonAspect.ATTR_SEASON, SortDirection.Ascending))
     {
     }

@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         return true;
       }
       ActorFilterItem actorItem = listItem as ActorFilterItem;
-      if (audioItem != null)
+      if (actorItem != null)
       {
         fanartImageSource = new FanArtImageSource
         {
@@ -128,7 +128,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         return true;
       }
       DirectorFilterItem directorItem = listItem as DirectorFilterItem;
-      if (audioItem != null)
+      if (directorItem != null)
       {
         fanartImageSource = new FanArtImageSource
         {
@@ -139,7 +139,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         return true;
       }
       WriterFilterItem writerItem = listItem as WriterFilterItem;
-      if (audioItem != null)
+      if (writerItem != null)
       {
         fanartImageSource = new FanArtImageSource
         {
@@ -150,7 +150,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         return true;
       }
       ArtistFilterItem artisitItem = listItem as ArtistFilterItem;
-      if (audioItem != null)
+      if (artisitItem != null)
       {
         fanartImageSource = new FanArtImageSource
         {
@@ -161,7 +161,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         return true;
       }
       ComposerFilterItem composerItem = listItem as ComposerFilterItem;
-      if (audioItem != null)
+      if (composerItem != null)
       {
         fanartImageSource = new FanArtImageSource
         {
@@ -172,7 +172,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         return true;
       }
       CharacterFilterItem characterItem = listItem as CharacterFilterItem;
-      if (audioItem != null)
+      if (characterItem != null)
       {
         fanartImageSource = new FanArtImageSource
         {
@@ -183,7 +183,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         return true;
       }
       CompanyFilterItem companyItem = listItem as CompanyFilterItem;
-      if (audioItem != null)
+      if (companyItem != null)
       {
         fanartImageSource = new FanArtImageSource
         {
@@ -194,7 +194,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         return true;
       }
       TVNetworkFilterItem tvNetworkItem = listItem as TVNetworkFilterItem;
-      if (audioItem != null)
+      if (tvNetworkItem != null)
       {
         fanartImageSource = new FanArtImageSource
         {

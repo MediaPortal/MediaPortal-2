@@ -29,7 +29,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.NeighborhoodBrowser;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider.Settings;
@@ -61,7 +60,6 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     #region Protected fields
 
     protected ResourceProviderMetadata _metadata;
-    protected LocalFsResourceProvider _localFsProvider;
     protected readonly INeighborhoodBrowserSerivce _browserService;
     protected readonly SettingsChangeWatcher<NetworkNeighborhoodResourceProviderSettings> _settings;
     protected readonly ConcurrentBag<ResourcePath> _registeredPaths;

@@ -34,10 +34,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <summary>
   /// Base class for online matchers (Series, Movies) that provides common features like loading and saving match lists, download queue management.
   /// </summary>
-  /// <typeparam name="TMatch">Type of match, must be derived from <see cref="BaseMatch{T}"/>.</typeparam>
+  /// <typeparam name="TMatch">Type of match, must be derived from <see cref="BaseFanArtMatch{T}"/>.</typeparam>
   /// <typeparam name="TId">Type of internal ID of the match.</typeparam>
   public abstract class BaseMatcher<TMatch, TId> : IDisposable
-    where TMatch : BaseMatch<TId>
+    where TMatch : BaseFanArtMatch<TId>
   {
     #region Constants
 

@@ -47,6 +47,8 @@ using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.FileEventNotification;
+using MediaPortal.Common.Services.FileEventNotification;
 
 namespace MediaPortal.Common
 {
@@ -131,6 +133,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Registering IMediaAccessor service");
       ServiceRegistration.Set<IMediaAccessor>(new MediaAccessor());
+
+      logger.Debug("ApplicationCore: Registering IFileEventNotifier service");
+      ServiceRegistration.Set<IFileEventNotifier>(new FileEventNotifier());
 
       // ToDo: Remove the old ImporterWorker and this setting once the NewGen ImporterWorker actually works
       var importerWorkerSettings = ServiceRegistration.Get<ISettingsManager>().Load<ImporterWorkerSettings>();
@@ -253,6 +258,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Removing IMediaAccessor service");
       ServiceRegistration.RemoveAndDispose<IMediaAccessor>();
+
+      logger.Debug("ApplicationCore: Removing IFileEventNotifier service");
+      ServiceRegistration.RemoveAndDispose<IFileEventNotifier>();
 
       logger.Debug("ApplicationCore: Removing ITaskScheduler service");
       ServiceRegistration.RemoveAndDispose<ITaskScheduler>();

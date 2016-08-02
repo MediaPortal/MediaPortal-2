@@ -125,6 +125,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #endregion
 
+    #region External match storage
+
+    public void StoreActorMatch(PersonInfo person)
+    {
+      string id;
+      if (GetPersonId(person, out id))
+        _actorMatcher.StoreNameMatch(id, person.Name, person.Name);
+    }
+
+    public void StoreDirectorMatch(PersonInfo person)
+    {
+      string id;
+      if (GetPersonId(person, out id))
+        _directorMatcher.StoreNameMatch(id, person.Name, person.Name);
+    }
+
+    public void StoreWriterMatch(PersonInfo person)
+    {
+      string id;
+      if (GetPersonId(person, out id))
+        _writerMatcher.StoreNameMatch(id, person.Name, person.Name);
+    }
+
+    public void StoreCharacterMatch(CharacterInfo character)
+    {
+      string id;
+      if (GetCharacterId(character, out id))
+        _characterMatcher.StoreNameMatch(id, character.Name, character.Name);
+    }
+
+    public void StoreCompanyMatch(CompanyInfo company)
+    {
+      string id;
+      if (GetCompanyId(company, out id))
+        _companyMatcher.StoreNameMatch(id, company.Name, company.Name);
+    }
+
+    #endregion
+
     #region Metadata updaters
 
     /// <summary>

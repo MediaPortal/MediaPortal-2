@@ -114,12 +114,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       IEnumerable<ChangeTrackerRegistrationKey> ctrks = GetAllChangeTrackerRegistrationsByPath(sender.Path);
       MediaSourceChangeType changeType = TranslateChangeType(args.ChangeType);
       foreach (ChangeTrackerRegistrationKey key in ctrks)
-        key.PathChangeDelegate(new LocalFsResourceAccessor(this, args.Path), args.OldPath, changeType);
+        key.PathChangeDelegate(new LocalFsResourceAccessor(this, LocalFsResourceProvider.ToProviderPath(args.Path)),
+          new LocalFsResourceAccessor(this, LocalFsResourceProvider.ToProviderPath(args.OldPath)), changeType);
     }
 
     protected ICollection<ChangeTrackerRegistrationKey> GetAllChangeTrackerRegistrationsByPath(string path)
     {
-      return _changeTrackers.Keys.Where(key => key.Path == path).ToList();
+      return _changeTrackers.Keys.Where(key => string.Equals(key.Path, path, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
     protected static MediaSourceChangeType TranslateChangeType(FileWatchChangeType changeType)

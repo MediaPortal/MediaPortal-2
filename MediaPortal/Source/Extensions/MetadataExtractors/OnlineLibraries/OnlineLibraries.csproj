@@ -300,6 +300,7 @@
     <Compile Include="Matchers\MovieMatcher.cs" />
     <Compile Include="Matchers\MovieFanArtTvMatcher.cs" />
     <Compile Include="Matchers\MovieOmDbMatcher.cs" />
+    <Compile Include="Matches\BaseMatch.cs" />
     <Compile Include="Matches\SimpleNameMatch.cs" />
     <Compile Include="MetadataUpdater.cs" />
     <Compile Include="SerializableRegex.cs" />
@@ -451,7 +452,7 @@
     <Compile Include="Libraries\MovieDbV3\Data\MovieSearchResult.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\PagedMovieSearchResult.cs" />
     <Compile Include="Wrappers\TheAudioDbWrapper.cs" />
-    <Compile Include="Matches\BaseMatch.cs" />
+    <Compile Include="Matches\BaseFanArtMatch.cs" />
     <Compile Include="Matches\SeriesMatch.cs" />
     <Compile Include="Libraries\Common\Settings.cs" />
     <Compile Include="Wrappers\TheMovieDbWrapper.cs" />
