@@ -121,8 +121,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
         OmDbMovie returnValue = null;
         if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
         {
-          string json = File.ReadAllText(cache);
-          returnValue = JsonConvert.DeserializeObject<OmDbMovie>(json);
+          returnValue = _downloader.ReadCache<OmDbMovie>(cache);
         }
         else
         {
@@ -151,8 +150,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
         OmDbSeries returnValue = null;
         if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
         {
-          string json = File.ReadAllText(cache);
-          returnValue = JsonConvert.DeserializeObject<OmDbSeries>(json);
+          returnValue = _downloader.ReadCache<OmDbSeries>(cache);
         }
         else
         {
@@ -182,8 +180,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
         OmDbSeason returnValue = null;
         if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
         {
-          string json = File.ReadAllText(cache);
-          returnValue = JsonConvert.DeserializeObject<OmDbSeason>(json);
+          returnValue = _downloader.ReadCache<OmDbSeason>(cache);
         }
         else
         {
@@ -214,8 +211,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
         OmDbEpisode returnValue = null;
         if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
         {
-          string json = File.ReadAllText(cache);
-          returnValue = JsonConvert.DeserializeObject<OmDbEpisode>(json);
+          returnValue = _downloader.ReadCache<OmDbEpisode>(cache);
         }
         else
         {

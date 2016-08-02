@@ -200,8 +200,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       string cache = CreateAndGetCacheName(id, "Track");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Track>(json);
+        return _downloader.ReadCache<Track>(cache);
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETRECORDING, id);
@@ -219,8 +218,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       string cache = CreateAndGetCacheName(id, "Album");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<TrackRelease>(json);
+        return _downloader.ReadCache<TrackRelease>(cache);
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETRELEASE, id);
@@ -238,8 +236,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       string cache = CreateAndGetCacheName(id, "ReleaseGroup");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<TrackReleaseGroup>(json);
+        return _downloader.ReadCache<TrackReleaseGroup>(cache);
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETRELEASEGROUP, id);
@@ -257,8 +254,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       string cache = CreateAndGetCacheName(id, "Artist");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<TrackArtist>(json);
+        return _downloader.ReadCache<TrackArtist>(cache);
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETARTIST, id);
@@ -276,8 +272,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       string cache = CreateAndGetCacheName(id, "Label");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<TrackLabel>(json);
+        return _downloader.ReadCache<TrackLabel>(cache);
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETLABEL, id);
@@ -295,8 +290,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       string cache = CreateAndGetCacheName(albumId, "Image");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<TrackImageCollection>(json);
+        return _downloader.ReadCache<TrackImageCollection>(cache);
       }
       string url = GetUrl(URL_FANART_LIST, albumId);
       return _downloader.Download<TrackImageCollection>(url, cache);
@@ -350,10 +344,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       if (string.IsNullOrEmpty(cacheFileName))
         return null;
 
-      if (File.Exists(cacheFileName))
-        return File.ReadAllBytes(cacheFileName);
-
-      return null;
+      return _downloader.ReadDownloadedFile(cacheFileName);
     }
 
     #endregion

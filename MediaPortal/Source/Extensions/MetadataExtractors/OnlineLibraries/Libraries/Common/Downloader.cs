@@ -30,6 +30,7 @@ using System.Text;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
@@ -44,6 +45,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// Enables gzip/deflate compression for web requests.
     /// </summary>
     public bool EnableCompression { get; set; }
+
+    private ReaderWriterLockSlim _jsonLock = new ReaderWriterLockSlim();
+    private ReaderWriterLockSlim _fileLock = new ReaderWriterLockSlim();
 
     public Downloader()
     {
@@ -98,14 +102,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         return true;
       try
       {
-        WebClient webClient = new CompressionWebClient();
-        webClient.DownloadFile(url, downloadFile);
-        return true;
+        try
+        {
+          _fileLock.EnterWriteLock();
+          WebClient webClient = new CompressionWebClient();
+          webClient.DownloadFile(url, downloadFile);
+          return true;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when downloading file {0} from {1} ({2})", downloadFile, url, ex.Message);
+          return false;
+        }
       }
-      catch (Exception ex)
+      finally
       {
-        ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when downloading file {0} from {1} ({2})", downloadFile, url, ex.Message);
-        return false;
+        _fileLock.ExitWriteLock();
       }
     }
 
@@ -119,14 +131,81 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       if (string.IsNullOrEmpty(cachePath))
         return;
 
-      using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
+      try
       {
-        using (StreamWriter sw = new StreamWriter(fs))
+        _jsonLock.EnterWriteLock();
+        using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
         {
-          sw.Write(json);
-          sw.Close();
+          using (StreamWriter sw = new StreamWriter(fs))
+          {
+            sw.Write(json);
+            sw.Close();
+          }
+          fs.Close();
         }
-        fs.Close();
+      }
+      finally
+      {
+        _jsonLock.ExitWriteLock();
+      }
+    }
+
+    /// <summary>
+    /// Reads the requested information from the cached JSON file and deserializes the response to the requested <typeparam name="TE">Type</typeparam>.
+    /// </summary>
+    /// <typeparam name="TE">Target type</typeparam>
+    /// <param name="cacheFile">Name for the cached response</param>
+    /// <returns>Cached object</returns>
+    public TE ReadCache<TE>(string cacheFile)
+    {
+      if (string.IsNullOrEmpty(cacheFile))
+        return default(TE);
+
+      try
+      {
+        try
+        {
+          _jsonLock.EnterReadLock();
+          string json = File.ReadAllText(cacheFile, Encoding.UTF8);
+          return JsonConvert.DeserializeObject<TE>(json);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading cache {0} ({1})", cacheFile, ex.Message);
+          return default(TE);
+        }
+      }
+      finally
+      {
+        _jsonLock.ExitReadLock();
+      }
+    }
+
+    /// <summary>
+    /// Returns contents of a file <paramref name="downloadFile"/> downloaded earlier.
+    /// </summary>
+    /// <param name="downloadedFile">Target file name</param>
+    /// <returns>File contents</returns>
+    public byte[] ReadDownloadedFile(string downloadedFile)
+    {
+      if (File.Exists(downloadedFile))
+        return null;
+      try
+      {
+        try
+        {
+          _fileLock.EnterReadLock();
+          return File.ReadAllBytes(downloadedFile);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading file {0} ({1})", downloadedFile, ex.Message);
+          return null;
+        }
+      }
+      finally
+      {
+        _fileLock.ExitReadLock();
       }
     }
   }

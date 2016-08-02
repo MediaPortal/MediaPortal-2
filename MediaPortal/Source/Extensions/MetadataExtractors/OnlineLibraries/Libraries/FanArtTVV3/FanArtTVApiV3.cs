@@ -74,8 +74,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       string cache = CreateAndGetCacheName(artistMbid, "Artist");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<FanArtArtistThumbs>(json);
+        return _downloader.ReadCache<FanArtArtistThumbs>(cache);
       }
 
       string url = GetUrl(URL_GETMUSICARTIST, artistMbid);
@@ -87,8 +86,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       string cache = CreateAndGetCacheName(albumMbid, "Album");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<FanArtAlbumDetails>(json);
+        return _downloader.ReadCache<FanArtAlbumDetails>(cache);
       }
 
       string url = GetUrl(URL_GETMUSICALBUM, albumMbid);
@@ -100,8 +98,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       string cache = CreateAndGetCacheName(labelMbid, "Label");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<FanArtLabelThumbs>(json);
+        return _downloader.ReadCache<FanArtLabelThumbs>(cache);
       }
 
       string url = GetUrl(URL_GETMUSICLABEL, labelMbid);
@@ -113,8 +110,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       string cache = CreateAndGetCacheName(imDbIdOrtmDbId, "Movie");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<FanArtMovieThumbs>(json);
+        return _downloader.ReadCache<FanArtMovieThumbs>(cache);
       }
 
       string url = GetUrl(URL_GETMOVIE, imDbIdOrtmDbId);
@@ -126,8 +122,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       string cache = CreateAndGetCacheName(tvdbid, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<FanArtTVThumbs>(json);
+        return _downloader.ReadCache<FanArtTVThumbs>(cache);
       }
 
       string url = GetUrl(URL_GETSERIES, tvdbid);
@@ -156,10 +151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
       if (string.IsNullOrEmpty(cacheFileName))
         return null;
 
-      if (File.Exists(cacheFileName))
-        return File.ReadAllBytes(cacheFileName);
-
-      return null;
+      return _downloader.ReadDownloadedFile(cacheFileName);
     }
 
     #endregion
