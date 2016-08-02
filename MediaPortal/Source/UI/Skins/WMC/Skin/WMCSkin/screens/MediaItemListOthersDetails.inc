@@ -34,11 +34,18 @@
     </Image.OpacityMask>
   </Image>
 
-  <Label x:Name="MediaItemName" Grid.Row="0" FontFamily="SegoeUIBold"
-          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-          Margin="0,0,20,0" Wrap="True" FontSize="{ThemeResource SmallFontSize}"
-          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-          Color="{ThemeResource TextColor}"/>
+  <media:MediaAspectWrapper Grid.Row="0" Margin="0,0,20,0" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+    <media:MediaAspectWrapper.Template>
+      <ControlTemplate>
+        <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Label.Content>
+            <Binding Path="Title"/>
+          </Label.Content>
+        </Label>
+      </ControlTemplate>
+    </media:MediaAspectWrapper.Template>
+  </media:MediaAspectWrapper>
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="2" Grid.ColumnSpan="2"
         HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"

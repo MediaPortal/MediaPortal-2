@@ -1647,7 +1647,7 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding Title}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
             <Binding Path="PlayCount"/>

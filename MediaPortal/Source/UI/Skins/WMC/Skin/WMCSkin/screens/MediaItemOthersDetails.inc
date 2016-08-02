@@ -13,11 +13,18 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Label x:Name="MediaItemName" Grid.Row="0"
-          HorizontalAlignment="Stretch"
-          Margin="-10,-15,0,0" FontFamily="SegoeUIBold"
-          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-          Color="{ThemeResource TextColor}"/>
+  <media:MediaAspectWrapper Grid.Row="0" Margin="-10,-15,0,0" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+    <media:MediaAspectWrapper.Template>
+      <ControlTemplate>
+        <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Label.Content>
+            <Binding Path="Title"/>
+          </Label.Content>
+        </Label>
+      </ControlTemplate>
+    </media:MediaAspectWrapper.Template>
+  </media:MediaAspectWrapper>
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1"
         Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"

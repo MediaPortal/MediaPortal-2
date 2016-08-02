@@ -31,7 +31,7 @@
 
   <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,0,30,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <StackPanel Orientation="Horizontal">
-      <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+      <!--media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -46,16 +46,17 @@
             </Grid>
           </ControlTemplate>
         </media:MediaAspectWrapper.Template>
-      </media:MediaAspectWrapper>
+      </media:MediaAspectWrapper-->
 
       <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center" >
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                          Grid.Column="0" Grid.Row="4" Margin="15,0,0,0">
+                          Grid.Column="0" Grid.Row="4" Margin="0,0,0,0">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                                             Maximum="5" VerticalAlignment="Center">
+                                 Maximum="5" VerticalAlignment="Center"
+                                 IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                   <StarRatingPanel.Value>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
                       <Binding Path="TotalRating"/>
@@ -68,7 +69,8 @@
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
                 <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}"  Margin="15,0,5,0" VerticalAlignment="Center"
-                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5">
+                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                       IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                   <Label.Content>
                     <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
                   </Label.Content>
@@ -99,7 +101,8 @@
               <StackPanel Orientation="Horizontal">
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
                        Content="{Binding Path=Runtime}" Color="{ThemeResource TextColor}"/>
-                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"/>                
+                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
+                       IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"/>                
               </StackPanel>
             </Grid>
           </ControlTemplate>
