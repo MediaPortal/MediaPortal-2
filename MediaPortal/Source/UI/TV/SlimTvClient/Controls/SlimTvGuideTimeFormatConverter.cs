@@ -1,5 +1,4 @@
-﻿using MediaPortal.Plugins.SlimTv.Client.Helpers;
-using MediaPortal.UI.SkinEngine.MarkupExtensions;
+﻿using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.Xaml;
 using System;
 using System.Collections.Generic;
@@ -17,10 +16,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       result = null;
       DateTime dtVal = (DateTime)values[0].Value;
       double durationPerc;
-      if (double.TryParse(parameter as string, NumberStyles.Any, CultureInfo.InvariantCulture, out durationPerc)
-        && values.Length > 1 && values[1].Value is double)
+      if (double.TryParse(parameter as string, NumberStyles.Any, CultureInfo.InvariantCulture, out durationPerc) &&
+        values.Length > 1 && values[1].Value is double)
         dtVal = dtVal.AddHours((double)values[1].Value * durationPerc);
-      result = dtVal.FormatProgramTime();
+
+      result = dtVal.ToString("t", CultureInfo.CurrentUICulture);
       return true;
     }
   }
