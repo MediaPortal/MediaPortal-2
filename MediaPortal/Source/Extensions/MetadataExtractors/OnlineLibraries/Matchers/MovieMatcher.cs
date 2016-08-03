@@ -740,10 +740,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     private void StoreMovieMatch(MovieInfo movieSearch, MovieInfo movieMatch)
     {
-      if (!movieSearch.IsBaseInfoPresent)
+      if (movieSearch.MovieName.IsEmpty)
         return;
 
-      if (movieMatch == null || !movieMatch.IsBaseInfoPresent)
+      string idValue = null;
+      if (movieMatch == null || !GetMovieId(movieMatch, out idValue))
       {
         _storage.TryAddMatch(new MovieMatch()
         {
@@ -752,19 +753,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return;
       }
 
-      string idValue = null;
-      if (GetMovieId(movieSearch, out idValue))
+      var onlineMatch = new MovieMatch
       {
-        var onlineMatch = new MovieMatch
-        {
-          Id = idValue,
-          ItemName = movieSearch.MovieName.ToString(),
-          OnlineName = movieMatch.MovieName.ToString(),
-          Year = movieSearch.ReleaseDate.HasValue ? movieSearch.ReleaseDate.Value.Year : 
+        Id = idValue,
+        ItemName = movieSearch.MovieName.ToString(),
+        OnlineName = movieMatch.MovieName.ToString(),
+        Year = movieSearch.ReleaseDate.HasValue ? movieSearch.ReleaseDate.Value.Year :
             movieMatch.ReleaseDate.HasValue ? movieMatch.ReleaseDate.Value.Year : 0
-        };
-        _storage.TryAddMatch(onlineMatch);
-      }
+      };
+      _storage.TryAddMatch(onlineMatch);
     }
 
     protected virtual TLang FindBestMatchingLanguage(MovieInfo movieInfo)

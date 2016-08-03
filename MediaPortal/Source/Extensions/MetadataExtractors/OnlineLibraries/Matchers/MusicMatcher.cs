@@ -180,7 +180,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           // Use cached values before doing online query
           TrackMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+            (string.Equals(m.ItemName, GetUniqueTrackName(trackInfo), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.TrackName, StringComparison.OrdinalIgnoreCase)) &&
             (!string.IsNullOrEmpty(m.ArtistName) && trackInfo.Artists.Count > 0 ? trackInfo.Artists[0].Name.Equals(m.ArtistName, StringComparison.OrdinalIgnoreCase) : true) &&
             (!string.IsNullOrEmpty(m.AlbumName) && !string.IsNullOrEmpty(trackInfo.Album) ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true) &&
             ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum) || trackInfo.TrackNum <= 0 || m.TrackNum <= 0)));
@@ -811,37 +811,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return default(T);
     }
 
+    private string GetUniqueTrackName(TrackInfo trackInfo)
+    {
+      return string.Format("{0}: {1} - {2} [{3}]",
+        !string.IsNullOrEmpty(trackInfo.Album) ? trackInfo.Album : "?", 
+        trackInfo.TrackNum > 0 ? trackInfo.TrackNum : 0,
+        !string.IsNullOrEmpty(trackInfo.TrackName) ? trackInfo.TrackName : "?",
+        trackInfo.Artists.Count > 0 ? trackInfo.Artists[0].Name : "?");
+    }
+
     private void StoreTrackMatch(TrackInfo trackSearch, TrackInfo trackMatch)
     {
-      if (!trackSearch.IsBaseInfoPresent)
-        return;
-
-      if (trackMatch == null || !trackMatch.IsBaseInfoPresent)
+      string idValue = null;
+      if (trackMatch == null || !GetTrackId(trackSearch, out idValue))
       {
+        //No match was found. Store search to avoid online search again
         _storage.TryAddMatch(new TrackMatch()
         {
-          ItemName = trackSearch.TrackName,
-          ArtistName = trackSearch.Artists[0].Name,
-          AlbumName = trackSearch.Album,
-          TrackNum = trackSearch.TrackNum
+          ItemName = GetUniqueTrackName(trackSearch),
         });
         return;
       }
 
-      string idValue = null;
-      if (GetTrackId(trackSearch, out idValue))
+      var onlineMatch = new TrackMatch
       {
-        var onlineMatch = new TrackMatch
-        {
-          Id = idValue,
-          ItemName = trackSearch.TrackName,
-          ArtistName = trackMatch.Artists[0].Name,
-          TrackName = trackMatch.TrackName,
-          AlbumName = trackMatch.Album,
-          TrackNum = trackMatch.TrackNum
-        };
-        _storage.TryAddMatch(onlineMatch);
-      }
+        Id = idValue,
+        ItemName = GetUniqueTrackName(trackSearch),
+        ArtistName = trackMatch.Artists.Count > 0 ? trackMatch.Artists[0].Name : "",
+        TrackName = !string.IsNullOrEmpty(trackMatch.TrackName) ? trackMatch.TrackName : "",
+        AlbumName = !string.IsNullOrEmpty(trackMatch.Album) ? trackMatch.Album : "",
+        TrackNum = trackMatch.TrackNum > 0 ? trackMatch.TrackNum : 0
+      };
+      _storage.TryAddMatch(onlineMatch);
     }
 
     protected virtual TLang FindBestMatchingLanguage(TrackInfo trackInfo)

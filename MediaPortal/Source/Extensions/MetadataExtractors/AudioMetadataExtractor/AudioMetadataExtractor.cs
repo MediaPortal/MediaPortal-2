@@ -450,12 +450,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             }
           }
 
+          //Save id if possible
           if(trackInfo.Artists.Count == 1 && !string.IsNullOrEmpty(tag.Tag.MusicBrainzArtistId))
           {
             trackInfo.Artists[0].MusicBrainzId = tag.Tag.MusicBrainzArtistId;
-
-            MusicTheAudioDbMatcher.Instance.StoreArtistMatch(trackInfo.Artists[0]);
-            MusicBrainzMatcher.Instance.StoreArtistMatch(trackInfo.Artists[0]);
           }
 
           IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
@@ -474,12 +472,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             }
           }
 
+          //Save id if possible
           if (trackInfo.AlbumArtists.Count == 1 && !string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseArtistId))
           {
             trackInfo.AlbumArtists[0].MusicBrainzId = tag.Tag.MusicBrainzReleaseArtistId;
-
-            MusicTheAudioDbMatcher.Instance.StoreArtistMatch(trackInfo.AlbumArtists[0]);
-            MusicBrainzMatcher.Instance.StoreArtistMatch(trackInfo.AlbumArtists[0]);
           }
 
           IEnumerable<string> composers = tag.Tag.Composers;
@@ -556,7 +552,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         //Try to find correct artist names
         trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
+        foreach(PersonInfo person in trackInfo.Artists)
+        {
+          MusicTheAudioDbMatcher.Instance.StoreArtistMatch(person);
+          MusicBrainzMatcher.Instance.StoreArtistMatch(person);
+        }
         trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
+        foreach (PersonInfo person in trackInfo.AlbumArtists)
+        {
+          MusicTheAudioDbMatcher.Instance.StoreArtistMatch(person);
+          MusicBrainzMatcher.Instance.StoreArtistMatch(person);
+        }
 
         MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
         MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, true); //Always force quick mode because online queries mostly timeout

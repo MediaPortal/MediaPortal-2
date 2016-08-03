@@ -289,7 +289,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       track.TrackName = trackDetail.Track;
       track.Album = trackDetail.Album;
       track.TrackNum = trackDetail.TrackNumber;
-      track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 0;
+      track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 1;
       track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
       track.TrackLyrics = trackDetail.TrackLyrics;
       track.Duration = trackDetail.Duration ?? 0;
