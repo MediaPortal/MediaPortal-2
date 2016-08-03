@@ -101,5 +101,5 @@
   <Import Project="..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets" Condition="Exists('..\..\..\Packages\bass.tta.2.4.0\build\bass.tta.targets')" />
   <Import Project="..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets" Condition="Exists('..\..\..\Packages\bass.wma.2.4.4\build\bass.wma.targets')" />
   <Import Project="..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets" Condition="Exists('..\..\..\Packages\bass.wv.2.4.4\build\bass.wv.targets')" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>
+

@@ -15,7 +15,6 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>da41ce4d</NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -328,5 +327,5 @@
     <NugetContentRestoreTask SolutionDir="$(SolutionDir)" ProjectDir="$(ProjectDir)" AdditionalFolders="References" />
   </Target>
   <Import Project="..\..\..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets" Condition="Exists('..\..\..\..\Packages\MSBuild.NugetContentRestore.0.1.5.2\build\net40\MSBuild.NugetContentRestore.targets')" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>
+
