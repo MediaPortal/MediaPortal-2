@@ -152,15 +152,15 @@
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                 <StackPanel Orientation="Horizontal">
                   <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}"
-                         IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+                         Color="{ThemeResource TextColor}">
                     <Label.Content>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
                         <Binding Path="Duration"/>
                       </MultiBinding>
                     </Label.Content>
                   </Label>
-                  <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"/>
+                  <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
+                         IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 </StackPanel>
               </Grid>
             </ControlTemplate>

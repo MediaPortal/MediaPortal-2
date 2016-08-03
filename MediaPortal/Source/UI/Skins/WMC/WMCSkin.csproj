@@ -276,11 +276,15 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemListOthersDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\WMCSkin\screens\MediaItemOthersDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemOthersDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemListSeriesDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\WMCSkin\screens\MediaItemEpisodeDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemEpisodeDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc">
       <SubType>Designer</SubType>
@@ -288,7 +292,9 @@
     <Content Include="Skin\WMCSkin\screens\MultiListDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\WMCSkin\screens\MultiDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MultiDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\weather.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

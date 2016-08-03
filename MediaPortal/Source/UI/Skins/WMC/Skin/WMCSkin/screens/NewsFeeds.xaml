@@ -61,7 +61,7 @@
             </Image>
             <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" VerticalAlignment="Stretch">
               <Label DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" 
-                     FontSize="{ThemeResource SmallFontSize}"
+                     FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
                      Content="{Binding Title}" Margin="0" Wrap="True" VerticalAlignment="Stretch" />
               <Label Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" 
                      FontSize="{ThemeResource SmallFontSize}"

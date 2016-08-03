@@ -23,7 +23,7 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="20,30,20,-160" DataContext="{Binding Source={StaticResource Model}}">
+      <DockPanel LastChildFill="True" Margin="20,10,20,-160" DataContext="{Binding Source={StaticResource Model}}">
 
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
@@ -72,7 +72,7 @@
               </Grid.ColumnDefinitions>
 
               <Label Grid.Row="0" Grid.Column="0" Color="{ThemeResource TextColor}" Margin="0,0,0,7"
-                     FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Stretch"
+                     FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Stretch" FontFamily="SegoeUIBold"
                      Content="{Binding Path=SelectedFeed.Title}" Wrap="True" />
 
               <Label Grid.Row="1" Grid.Column="0" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" Color="{ThemeResource TextColor}" 
