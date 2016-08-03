@@ -187,7 +187,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (type == FanArtTypes.Banner)
             {
-              fanartFiles.AddRange(Directory.GetFiles(path, "img_graphical_ *.jpg"));
+              fanartFiles.AddRange(Directory.GetFiles(path, "img_graphical_*.jpg"));
               fanartFiles.AddRange(Directory.GetFiles(path, "img_text_*.jpg"));
             }
             else if (type == FanArtTypes.Poster)

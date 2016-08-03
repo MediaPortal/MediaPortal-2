@@ -176,7 +176,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       protected bool _fileCheckAllowed;
 
       public ShareWatcher(Share share, MediaLibrary parent)
-        : base()
       {
         _share = share;
         _parent = parent;
@@ -254,7 +253,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               DateTime startCheck = DateTime.Now;
               while (IsFileLocked(fileAccess.LocalFileSystemPath) && (DateTime.Now - startCheck).TotalMinutes < 5 && _fileCheckAllowed)
               {
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
               }
               if (_fileCheckAllowed && !IsFileLocked(fileAccess.LocalFileSystemPath))
               {
