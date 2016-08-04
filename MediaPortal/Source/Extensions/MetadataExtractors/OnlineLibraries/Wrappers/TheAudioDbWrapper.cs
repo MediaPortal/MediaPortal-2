@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1;
@@ -44,7 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <returns></returns>
     public bool Init(string cachePath)
     {
-      _audioDbHandler = new AudioDbApiV1("975376238723lcbzmsjwq98", cachePath);
+      _audioDbHandler = new AudioDbApiV1("912057237373f620001833", cachePath);
       SetDefaultLanguage(AudioDbApiV1.DefaultLanguage);
       SetCachePath(cachePath);
       return true;
@@ -273,6 +274,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           //Get the track into the cache
           trackDetail = _audioDbHandler.GetTrack(foundTrack.TrackID, cacheOnly);
+        }
+      }
+      if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
+      {
+        List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, cacheOnly);
+        if (foundTracks != null && foundTracks.Count > 0)
+        {
+          trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
         }
       }
       if (trackDetail == null) return false;
