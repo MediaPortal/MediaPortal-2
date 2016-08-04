@@ -8,6 +8,6 @@ set xml=Build_Report_Release_Client.xml
 set html=Build_Report_Release_Client.html
 
 set logger=/l:XmlFileLogger,"%PathToBuildReport%\MSBuild.ExtensionPack.Loggers.dll";logfile=%xml%
-"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" /m Build.proj %logger% /property:OneStepOnly=true;BuildClient=true
+"%WINDIR%\Microsoft.NET\Framework\v4.0.30319\MSBUILD.exe" /m Build.proj %logger% /property:OneStepOnly=true;BuildClient=true;Configuration=Release
 
 %PathToBuildReport%\msxsl %xml% _BuildReport_Files\BuildReport.xslt -o %html%
