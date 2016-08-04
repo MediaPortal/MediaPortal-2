@@ -29,7 +29,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class VideosFilterByLanguageScreenData : AbstractVideosFilterScreenData
+  public class VideosFilterByLanguageScreenData : AbstractVideosFilterScreenData<FilterItem>
   {
     public VideosFilterByLanguageScreenData() :
         base(Consts.SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG, Consts.RES_FILTER_BY_AUDIO_LANG_MENU_ITEM,

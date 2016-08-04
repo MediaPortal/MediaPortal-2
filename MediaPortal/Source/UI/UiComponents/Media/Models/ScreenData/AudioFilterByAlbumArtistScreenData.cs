@@ -22,14 +22,13 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class AudioFilterByAlbumArtistScreenData : AbstractAudioFilterScreenData
+  public class AudioFilterByAlbumArtistScreenData : AbstractAudioFilterScreenData<ArtistFilterItem>
   {
     public AudioFilterByAlbumArtistScreenData() :
       base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST, Consts.RES_FILTER_BY_ALBUM_ARTIST_MENU_ITEM,
@@ -37,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
     }
 
-    public override AbstractFiltersScreenData<FilterItem> Derive()
+    public override AbstractFiltersScreenData<ArtistFilterItem> Derive()
     {
       return new AudioFilterByAlbumArtistScreenData();
     }

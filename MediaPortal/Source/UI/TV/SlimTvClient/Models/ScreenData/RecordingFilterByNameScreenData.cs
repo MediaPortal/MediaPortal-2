@@ -30,7 +30,7 @@ using MediaPortal.UiComponents.Media.Models.ScreenData;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models.ScreenData
 {
-  public class RecordingFilterByNameScreenData : AbstractVideosFilterScreenData
+  public class RecordingFilterByNameScreenData : AbstractVideosFilterScreenData<FilterItem>
   {
     public RecordingFilterByNameScreenData() :
       base(SlimTvConsts.SCREEN_RECORDINGS_FILTER_BY_NAME, SlimTvConsts.RES_FILTER_BY_NAME_MENU_ITEM,

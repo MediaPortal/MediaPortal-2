@@ -22,14 +22,13 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class MovieFilterByCollectionScreenData : AbstractMovieFilterScreenData
+  public class MovieFilterByCollectionScreenData : AbstractMovieFilterScreenData<MovieFilterItem>
   {
     public MovieFilterByCollectionScreenData() :
       base(Consts.SCREEN_MOVIES_FILTER_BY_COLLECTION, Consts.RES_FILTER_BY_MOVIES_COLLECTION_MENU_ITEM,
