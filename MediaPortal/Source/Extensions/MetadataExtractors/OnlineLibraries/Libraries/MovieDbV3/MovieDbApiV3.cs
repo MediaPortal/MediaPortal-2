@@ -378,8 +378,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Movie");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Movie>(json);
+        return _downloader.ReadCache<Movie>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETMOVIE, language, id);
@@ -398,8 +397,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(imdbId, language, "Movie");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Movie>(json);
+        return _downloader.ReadCache<Movie>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETMOVIE, language, imdbId);
@@ -416,13 +414,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Crew");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<MovieCasts>(json);
+        return _downloader.ReadCache<MovieCasts>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETMOVIECASTCREW, null, id);
-      MovieCasts result = _downloader.Download<MovieCasts>(url);
-      return result;
+      return _downloader.Download<MovieCasts>(url, cache);
     }
 
     /// <summary>
@@ -451,8 +447,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Collection");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<MovieCollection>(json);
+        return _downloader.ReadCache<MovieCollection>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETCOLLECTION, language, id);
@@ -485,8 +480,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Company");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Company>(json);
+        return _downloader.ReadCache<Company>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETCOMPANY, language, id);
@@ -505,8 +499,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Network");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Network>(json);
+        return _downloader.ReadCache<Network>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETNETWORK, language, id);
@@ -525,8 +518,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Person");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Person>(json);
+        return _downloader.ReadCache<Person>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETPERSON, language, id) + "&append_to_response=external_ids";
@@ -559,8 +551,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Series>(json);
+        return _downloader.ReadCache<Series>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETSERIES, language, id) + "&append_to_response=external_ids,content_ratings";
@@ -577,13 +568,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Series_Crew");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<MovieCasts>(json);
+        return _downloader.ReadCache<MovieCasts>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETSERIESCASTCREW, null, id);
-      MovieCasts result = _downloader.Download<MovieCasts>(url);
-      return result;
+      return _downloader.Download<MovieCasts>(url, cache);
     }
 
     /// <summary>
@@ -613,8 +602,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}", season));
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Season>(json);
+        return _downloader.ReadCache<Season>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETSEASON, language, id, season) + "&append_to_response=external_ids";
@@ -632,13 +620,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Crew", season));
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<MovieCasts>(json);
+        return _downloader.ReadCache<MovieCasts>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETSEASONCASTCREW, null, id, season);
-      MovieCasts result = _downloader.Download<MovieCasts>(url);
-      return result;
+      return _downloader.Download<MovieCasts>(url, cache);
     }
 
     /// <summary>
@@ -670,8 +656,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Episode{1}", season, episode));
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<Episode>(json);
+        return _downloader.ReadCache<Episode>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETEPISODE, language, id, season, episode) + "&append_to_response=external_ids";
@@ -690,13 +675,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Episode{1}_Crew", season, episode));
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string json = File.ReadAllText(cache);
-        return JsonConvert.DeserializeObject<MovieCasts>(json);
+        return _downloader.ReadCache<MovieCasts>(cache);
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETEPISODECASTCREW, null, id, season, episode);
-      MovieCasts result = _downloader.Download<MovieCasts>(url);
-      return result;
+      return _downloader.Download<MovieCasts>(url, cache);
     }
 
     /// <summary>
@@ -738,10 +721,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       if (string.IsNullOrEmpty(cacheFileName))
         return null;
 
-      if (File.Exists(cacheFileName))
-        return File.ReadAllBytes(cacheFileName);
-
-      return null;
+      return _downloader.ReadDownloadedFile(cacheFileName);
     }
 
     #endregion

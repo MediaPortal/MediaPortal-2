@@ -101,6 +101,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       get
       {
+        if (Artists.Count == 0)
+          return false;
         if (string.IsNullOrEmpty(Album))
           return false;
         if (string.IsNullOrEmpty(TrackName))
@@ -402,14 +404,24 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return string.Equals(AlbumAmazonId, other.AlbumAmazonId, StringComparison.InvariantCultureIgnoreCase);
         if (!string.IsNullOrEmpty(AlbumItunesId) && !string.IsNullOrEmpty(other.AlbumItunesId))
           return string.Equals(AlbumItunesId, other.AlbumItunesId, StringComparison.InvariantCultureIgnoreCase);
-        if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && Album == other.Album && 
-          ReleaseDate.HasValue && other.ReleaseDate.HasValue && ReleaseDate.Value == other.ReleaseDate.Value)
-          return true;
+        if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && 
+          ReleaseDate.HasValue && other.ReleaseDate.HasValue)
+          return Album == other.Album && ReleaseDate.Value == other.ReleaseDate.Value;
       }
 
-      if (!string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName) && 
-        ReleaseDate.HasValue && other.ReleaseDate.HasValue && ReleaseDate.Value == other.ReleaseDate.Value)
-        return true;
+      if(!string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName))
+      {
+        if (Artists.Count > 0 && other.Artists.Count > 0 && ReleaseDate.HasValue && other.ReleaseDate.HasValue)
+          return Artists.SequenceEqual(other.Artists) && ReleaseDate.Value == other.ReleaseDate.Value;
+        if (AlbumArtists.Count > 0 && other.AlbumArtists.Count > 0 && ReleaseDate.HasValue && other.ReleaseDate.HasValue)
+          return AlbumArtists.SequenceEqual(other.AlbumArtists) && ReleaseDate.Value == other.ReleaseDate.Value;
+        if (Artists.Count > 0 && other.Artists.Count > 0)
+          return Artists.SequenceEqual(other.Artists);
+        if (AlbumArtists.Count > 0 && other.AlbumArtists.Count > 0)
+          return AlbumArtists.SequenceEqual(other.AlbumArtists);
+        if (ReleaseDate.HasValue && other.ReleaseDate.HasValue)
+          return ReleaseDate.Value == other.ReleaseDate.Value;
+      }   
 
       return false;
     }

@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, false);
-      //MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+      MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, true); //Always force quick mode because online queries mostly timeout
       MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, false);
 
       if (albumInfo.Tracks.Count == 0)

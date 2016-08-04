@@ -346,9 +346,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && MatchNames(Album, other.Album) && 
         ReleaseDate.HasValue && other.ReleaseDate.HasValue && ReleaseDate.Value == other.ReleaseDate.Value)
         return true;
-      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) &&
-        MatchNames(Album, other.Album))
-        return true;
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album))
+        return MatchNames(Album, other.Album);
 
       return false;
     }

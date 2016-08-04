@@ -180,7 +180,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           // Use cached values before doing online query
           TrackMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+            (string.Equals(m.ItemName, GetUniqueTrackName(trackInfo), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.TrackName, StringComparison.OrdinalIgnoreCase)) &&
+            (!string.IsNullOrEmpty(m.ArtistName) && trackInfo.Artists.Count > 0 ? trackInfo.Artists[0].Name.Equals(m.ArtistName, StringComparison.OrdinalIgnoreCase) : true) &&
             (!string.IsNullOrEmpty(m.AlbumName) && !string.IsNullOrEmpty(trackInfo.Album) ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true) &&
             ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum) || trackInfo.TrackNum <= 0 || m.TrackNum <= 0)));
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Try to lookup movie \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
@@ -715,6 +716,59 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
+    public virtual bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo person,  bool forceQuickMode)
+    {
+      try
+      {
+        // Try online lookup
+        if (!Init())
+          return false;
+
+        TLang language = FindBestMatchingLanguage(trackInfo);
+        string id;
+        bool updated = false;
+        if (_artistMatcher.GetNameMatch(person.Name, out id))
+        {
+          if (SetPersonId(person, id))
+            updated = true;
+        }
+
+        //Try updating from cache
+        if (!_wrapper.UpdateFromOnlineMusicTrackPerson(trackInfo, person, language, true))
+        {
+          if (!forceQuickMode)
+          {
+            //Try to update person information from online source if online Ids are present
+            if (!_wrapper.UpdateFromOnlineMusicTrackPerson(trackInfo, person, language, false))
+            {
+              //Search for the person online and update the Ids if a match is found
+              if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
+              {
+                //Ids were updated now try to fetch the online person info
+                if (_wrapper.UpdateFromOnlineMusicTrackPerson(trackInfo, person, language, false))
+                  updated = true;
+              }
+            }
+            else
+            {
+              updated = true;
+            }
+          }
+        }
+        else
+        {
+          updated = true;
+        }
+
+        return updated;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing person {0}", ex, person.ToString());
+        return false;
+      }
+    }
+
     #endregion
 
     #region Metadata update helpers
@@ -757,35 +811,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return default(T);
     }
 
+    private string GetUniqueTrackName(TrackInfo trackInfo)
+    {
+      return string.Format("{0}: {1} - {2} [{3}]",
+        !string.IsNullOrEmpty(trackInfo.Album) ? trackInfo.Album : "?", 
+        trackInfo.TrackNum > 0 ? trackInfo.TrackNum : 0,
+        !string.IsNullOrEmpty(trackInfo.TrackName) ? trackInfo.TrackName : "?",
+        trackInfo.Artists.Count > 0 ? trackInfo.Artists[0].Name : "?");
+    }
+
     private void StoreTrackMatch(TrackInfo trackSearch, TrackInfo trackMatch)
     {
-      if (!trackSearch.IsBaseInfoPresent)
-        return;
-
-      if (trackMatch == null || !trackMatch.IsBaseInfoPresent)
+      string idValue = null;
+      if (trackMatch == null || !GetTrackId(trackSearch, out idValue))
       {
+        //No match was found. Store search to avoid online search again
         _storage.TryAddMatch(new TrackMatch()
         {
-          ItemName = trackSearch.TrackName,
-          AlbumName = trackSearch.Album,
-          TrackNum = trackSearch.TrackNum
+          ItemName = GetUniqueTrackName(trackSearch),
         });
         return;
       }
 
-      string idValue = null;
-      if (GetTrackId(trackSearch, out idValue))
+      var onlineMatch = new TrackMatch
       {
-        var onlineMatch = new TrackMatch
-        {
-          Id = idValue,
-          ItemName = trackSearch.TrackName,
-          TrackName = trackMatch.TrackName,
-          AlbumName = trackMatch.Album,
-          TrackNum = trackMatch.TrackNum
-        };
-        _storage.TryAddMatch(onlineMatch);
-      }
+        Id = idValue,
+        ItemName = GetUniqueTrackName(trackSearch),
+        ArtistName = trackMatch.Artists.Count > 0 ? trackMatch.Artists[0].Name : "",
+        TrackName = !string.IsNullOrEmpty(trackMatch.TrackName) ? trackMatch.TrackName : "",
+        AlbumName = !string.IsNullOrEmpty(trackMatch.Album) ? trackMatch.Album : "",
+        TrackNum = trackMatch.TrackNum > 0 ? trackMatch.TrackNum : 0
+      };
+      _storage.TryAddMatch(onlineMatch);
     }
 
     protected virtual TLang FindBestMatchingLanguage(TrackInfo trackInfo)

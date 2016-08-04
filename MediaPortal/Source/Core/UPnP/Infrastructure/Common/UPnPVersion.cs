@@ -30,7 +30,8 @@ namespace UPnP.Infrastructure.Common
   public class UPnPVersion
   {
     public const string VERSION_PREFIX = "UPnP/";
-
+    public const string DLNA_VERSION_PREFIX = "DLNADOC/";
+    
     protected int _verMax;
     protected int _verMin;
 
@@ -68,6 +69,8 @@ namespace UPnP.Infrastructure.Common
     {
       result = null;
       int dotIndex = versionStr.IndexOf('.');
+      if (dotIndex < 0)
+        dotIndex = versionStr.IndexOf(',');
       if (!versionStr.StartsWith(VERSION_PREFIX) || dotIndex < VERSION_PREFIX.Length + 1)
         return false;
       int verMax;

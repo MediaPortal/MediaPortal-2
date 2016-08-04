@@ -176,7 +176,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       protected bool _fileCheckAllowed;
 
       public ShareWatcher(Share share, MediaLibrary parent)
-        : base()
       {
         _share = share;
         _parent = parent;
@@ -254,7 +253,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               DateTime startCheck = DateTime.Now;
               while (IsFileLocked(fileAccess.LocalFileSystemPath) && (DateTime.Now - startCheck).TotalMinutes < 5 && _fileCheckAllowed)
               {
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
               }
               if (_fileCheckAllowed && !IsFileLocked(fileAccess.LocalFileSystemPath))
               {
@@ -731,20 +730,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
       return affectedRows;
-    }
-
-    protected void DeleteDuplicateMediaItem(ITransaction transaction, Guid mediaItemId)
-    {
-      string commandStr = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
-          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
-
-      using (IDbCommand command = transaction.CreateCommand())
-      {
-        transaction.Database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
-
-        command.CommandText = commandStr;
-        command.ExecuteNonQuery();
-      }
     }
 
     protected IFilter AddOnlyOnlineFilter(IFilter innerFilter)
@@ -1336,7 +1321,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           if (mediaItemId.HasValue && mergedMediaItem.Value != mediaItemId.Value)
           {
-            DeleteDuplicateMediaItem(transaction, mediaItemId.Value);
+            DeleteMediaItemAndReleationships(transaction, mediaItemId.Value);
           }
 
           //Aspects were merged into an existing media item. Discard the remaining aspects
@@ -1843,6 +1828,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           }
         }
 
+        //if(parentId.HasValue)
+          //Logger.Debug("MediaLibrary: Found parent {0} with role {1} for child {2} with role {3}", parentId, parentRole, mediaItemId, childRole);
         return parentId.HasValue;
       }
       catch (Exception e)
@@ -1918,7 +1905,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
                 if (allChildsAreVirtual == true)
                 {
-                  Logger.Debug("MediaLibrary: All {0} children with role {1} of parent media item {2} with role {3} are virtual", childs.Count, childRole, parentId.Value, parentRole);
+                  //Logger.Debug("MediaLibrary: All {0} children with role {1} of parent media item {2} with role {3} are virtual", childs.Count, childRole, parentId.Value, parentRole);
 
                   foreach (Guid childId in childs)
                   {
@@ -1939,7 +1926,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           foreach (Guid childId in childsToDelete)
           {
-            Logger.Debug("MediaLibrary: Delete virtual child media item {0}", mediaItemId);
+            Logger.Debug("MediaLibrary: Delete virtual child media item {0}", childId);
 
             DeleteMediaItemAndReleationships(transaction, childId);
           }

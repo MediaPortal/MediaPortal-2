@@ -762,6 +762,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           persons = exactMatches;
           return true;
         }
+        if (exactMatches.Count == 2)
+        {
+          //Check if the 2 matches are actually the same person with different names
+          if(GetLevenshteinDistance(exactMatches[0], exactMatches[1]) == 0 || NamesAreMostlyEqual(exactMatches[0], exactMatches[1]) ||
+            GetLevenshteinDistance(exactMatches[1], exactMatches[0]) == 0 || NamesAreMostlyEqual(exactMatches[1], exactMatches[0]))
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", personSearch);
+            persons.Clear();
+            persons.Add(exactMatches[0]);
+            return true;
+          }
+        }
 
         persons = persons.Where(p => GetLevenshteinDistance(p, personSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
         if(persons.Count == 0)
@@ -1177,7 +1189,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
 
         if (tracks.Count > 1)
+        { 
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", trackSearch, tracks.Count);
+
+          int equalCount = 0;
+          foreach (TrackInfo track in tracks)
+          {
+            if (trackSearch.Equals(track))
+              equalCount++;
+          }
+          if (equalCount == tracks.Count)
+          {
+            //All found albums match so take first match
+            TrackInfo forcedMatch = tracks[0];
+            tracks.Clear();
+            tracks.Add(forcedMatch);
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Forced match found \"{0}\"!", trackSearch);
+          }
+        }
 
         return tracks.Count == 1;
       }
@@ -1310,7 +1339,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
 
         if (albums.Count > 1)
+        {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", albumSearch, albums.Count);
+          int equalCount = 0;
+          foreach(AlbumInfo album in albums)
+          {
+            if (albumSearch.Equals(album))
+              equalCount++;
+          }
+          if(equalCount == albums.Count)
+          {
+            //All found albums match so take first match
+            AlbumInfo forcedMatch = albums[0];
+            albums.Clear();
+            albums.Add(forcedMatch);
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Forced match found \"{0}\"!", albumSearch);
+          }
+        }
 
         return albums.Count == 1;
       }
@@ -1335,7 +1380,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           bool artistFound = false;
           foreach (PersonInfo searchArtist in searchArtists)
-            if (trackArtist == searchArtist || GetLevenshteinDistance(trackArtist, searchArtist) == 0)
+            if (trackArtist.Name == searchArtist.Name || trackArtist.Name == searchArtist.AlternateName || 
+              trackArtist.AlternateName == searchArtist.Name || GetLevenshteinDistance(trackArtist, searchArtist) == 0)
             {
               artistFound = true;
               break;
@@ -1446,7 +1492,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return MAX_LEVENSHTEIN_DIST + 1;
 
       string cleanedName = RemoveCharacters(personSearch.Name);
-      return StringUtils.GetLevenshteinDistance(RemoveCharacters(personOnline.Name), cleanedName);
+      if (string.IsNullOrEmpty(personOnline.AlternateName))
+        return StringUtils.GetLevenshteinDistance(RemoveCharacters(personOnline.Name), cleanedName);
+      else
+        return Math.Min(
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(personOnline.Name), cleanedName),
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(personOnline.AlternateName), cleanedName)
+        );
     }
 
     protected int GetLevenshteinDistance(CharacterInfo characterOnline, CharacterInfo characterSearch)
@@ -1536,7 +1588,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (personOnline.Occupation != personSearch.Occupation)
         return false;
 
-      return BaseInfo.MatchNames(personOnline.Name, personSearch.Name);
+      if (string.IsNullOrEmpty(personOnline.AlternateName))
+        return BaseInfo.MatchNames(personOnline.Name, personSearch.Name);
+      else
+      {
+        if (BaseInfo.MatchNames(personOnline.Name, personSearch.Name))
+          return true;
+        if (BaseInfo.MatchNames(personOnline.AlternateName, personSearch.Name))
+          return true;
+      }
+      return false;
     }
 
     protected bool NamesAreMostlyEqual(CharacterInfo characterOnline, CharacterInfo characterSearch)

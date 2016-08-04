@@ -1146,10 +1146,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     private void StoreSeriesMatch(SeriesInfo seriesSearch, SeriesInfo seriesMatch)
     {
-      if (!seriesSearch.IsBaseInfoPresent)
+      if (seriesSearch.SeriesName.IsEmpty)
         return;
 
-      if (seriesMatch == null || !seriesMatch.IsBaseInfoPresent)
+      string idValue = null;
+      if (seriesMatch == null || !GetSeriesId(seriesSearch, out idValue))
       {
         _storage.TryAddMatch(new SeriesMatch()
         {
@@ -1158,19 +1159,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return;
       }
 
-      string idValue = null;
-      if (GetSeriesId(seriesSearch, out idValue))
+      var onlineMatch = new SeriesMatch
       {
-        var onlineMatch = new SeriesMatch
-        {
-          Id = idValue,
-          ItemName = seriesSearch.SeriesName.ToString(),
-          OnlineName = seriesMatch.SeriesName.ToString(),
-          Year = seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year :
+        Id = idValue,
+        ItemName = seriesSearch.SeriesName.ToString(),
+        OnlineName = seriesMatch.SeriesName.ToString(),
+        Year = seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year :
             seriesMatch.FirstAired.HasValue ? seriesMatch.FirstAired.Value.Year : 0
-        };
-        _storage.TryAddMatch(onlineMatch);
-      }
+      };
+      _storage.TryAddMatch(onlineMatch);
     }
 
     protected virtual TLang FindBestMatchingLanguage(SeriesInfo seriesInfo)

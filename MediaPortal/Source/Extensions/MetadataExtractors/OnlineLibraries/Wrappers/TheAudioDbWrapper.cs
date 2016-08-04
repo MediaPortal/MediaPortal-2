@@ -57,7 +57,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       tracks = null;
       language = language ?? PreferredLanguage;
 
-      List<AudioDbTrack> foundTracks = _audioDbHandler.SearchTrack(trackSearch.Artists.Count > 0 ? trackSearch.Artists[0].Name : "", trackSearch.TrackName);
+      List<AudioDbTrack> foundTracks = null;
+      foreach(PersonInfo person in trackSearch.Artists)
+      {
+        foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName);
+        if (foundTracks != null)
+          break;
+      }
+      if (foundTracks == null)
+      {
+        foreach (PersonInfo person in trackSearch.AlbumArtists)
+        {
+          foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName);
+          if (foundTracks != null)
+            break;
+        }
+      }
       if (foundTracks == null) return false;
 
       foreach (AudioDbTrack track in foundTracks)
@@ -139,6 +154,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           AudioDbId = artist.ArtistId,
           MusicBrainzId = artist.MusicBrainzID,
           Name = artist.Artist,
+          AlternateName = artist.ArtistAlternate,
           Occupation = PersonAspect.OCCUPATION_ARTIST,
           IsGroup = artist.Members.HasValue ? artist.Members.Value > 1 : false,
         };
@@ -226,6 +242,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       person.MusicBrainzId = artistDetail.MusicBrainzID;
       person.Name = artistDetail.Artist;
+      person.AlternateName = artistDetail.ArtistAlternate;
       person.Biography = artistDetail.Biography;
       person.DateOfBirth = born;
       person.DateOfDeath = died;
@@ -272,7 +289,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       track.TrackName = trackDetail.Track;
       track.Album = trackDetail.Album;
       track.TrackNum = trackDetail.TrackNumber;
-      track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 0;
+      track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 1;
       track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
       track.TrackLyrics = trackDetail.TrackLyrics;
       track.Duration = trackDetail.Duration ?? 0;
@@ -359,7 +376,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           track.TrackName = trackDetail.Track;
           track.Album = albumDetail.Album;
           track.TrackNum = trackDetail.TrackNumber;
-          track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 0;
+          track.DiscNum = trackDetail.CD.HasValue ? trackDetail.CD.Value : 1;
           track.Rating = new SimpleRating(trackDetail.Rating, trackDetail.RatingCount);
           track.TrackLyrics = trackDetail.TrackLyrics;
           track.Duration = trackDetail.Duration ?? 0;
@@ -378,6 +395,35 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
 
       return !cacheIncomplete;
+    }
+
+    public override bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
+    {
+      AudioDbAlbum albumDetail = null;
+      language = language ?? PreferredLanguage;
+
+      if (album.AudioDbId > 0)
+        albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, cacheOnly);
+      if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzId))
+      {
+        List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, cacheOnly);
+        if (foundAlbums != null && foundAlbums.Count == 1)
+        {
+          //Get the album into the cache
+          albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, cacheOnly);
+        }
+      }
+      if (albumDetail == null) return false;
+
+      if (!string.IsNullOrEmpty(albumDetail.Label) && BaseInfo.MatchNames(company.Name, albumDetail.Label) && albumDetail.LabelId.HasValue)
+      {
+        company.AudioDbId = albumDetail.LabelId.Value;
+        company.Name = albumDetail.Label;
+        company.Type = CompanyAspect.COMPANY_MUSIC_LABEL;
+        return true;
+      }
+
+      return false;
     }
 
     #endregion
