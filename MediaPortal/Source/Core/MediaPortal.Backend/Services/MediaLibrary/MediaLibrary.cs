@@ -173,12 +173,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       protected MediaLibrary _parent;
       protected Share _share;
       protected IResourceChangeNotifier _fileChangeNotifier;
-      protected bool _fileCheckAllowed;
+      protected DateTime? _lastChange;
+      protected int _importDelay;
+      protected Timer _checkTimer;
 
-      public ShareWatcher(Share share, MediaLibrary parent)
+      public ShareWatcher(Share share, MediaLibrary parent, int checkIntervalMs = 5000, int importDelaySecs = 300)
       {
         _share = share;
         _parent = parent;
+        _importDelay = importDelaySecs;
 
         IResourceAccessor resAccess = null;
         if (!share.BaseResourcePath.TryCreateLocalResourceAccessor(out resAccess))
@@ -196,12 +199,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
 
         _fileChangeNotifier = resAccess as IResourceChangeNotifier;
-        if (fileAccess == null)
+        if (_fileChangeNotifier == null)
           return;
 
         if (!string.IsNullOrEmpty(resAccess.ResourcePathName))
         {
-          _fileCheckAllowed = true;
+          _lastChange = DateTime.Now;
+          _checkTimer = new Timer(CheckShareChange, null, checkIntervalMs, checkIntervalMs);
 
           List<MediaSourceChangeType> changeTypes = new List<MediaSourceChangeType>();
           changeTypes.Add(MediaSourceChangeType.Created);
@@ -216,145 +220,61 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       private void ShareWatcherPathChanged(IResourceAccessor resourceAccessor, IResourceAccessor oldResourceAccessor, MediaSourceChangeType changeType)
       {
-        if (!_fileCheckAllowed)
-          return;
-
-        string path = "?";
-
         try
         {
-          ResourcePath resPath;
-          Guid? resGuid = null;
           ILocalFsResourceAccessor fileAccess = resourceAccessor as ILocalFsResourceAccessor;
-          using (fileAccess.EnsureLocalFileSystemAccess())
-          {
-            path = fileAccess.LocalFileSystemPath;
+          if (fileAccess == null)
+            return;
 
-            //Check if path is a file
-            if (fileAccess.IsFile)
-            {
-              //Check if file is valid
-              if (fileAccess.Exists)
-              {
-                FileInfo fileInfo = new FileInfo(fileAccess.LocalFileSystemPath);
-                if ((fileInfo.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
-                {
-                  //Ignore hidden files
-                  return;
-                }
-                if ((fileInfo.Attributes & FileAttributes.System) == FileAttributes.System)
-                {
-                  //Ignore system files
-                  return;
-                }
-              }
+          //Check if resource is part of share
+          if (!_share.BaseResourcePath.IsParentOf(fileAccess.CanonicalLocalResourcePath))
+            return;
 
-              //Wait for file copy
-              DateTime startCheck = DateTime.Now;
-              while (IsFileLocked(fileAccess.LocalFileSystemPath) && (DateTime.Now - startCheck).TotalMinutes < 5 && _fileCheckAllowed)
-              {
-                Thread.Sleep(1000);
-              }
-              if (_fileCheckAllowed && !IsFileLocked(fileAccess.LocalFileSystemPath))
-              {
-                //Check if file should imported
-                if (fileAccess.Exists)
-                {
-                  if (fileAccess.Size < 10000)
-                  {
-                    //Ignore small files
-                    return;
-                  }
-                }
-              }
-              else
-              {
-                //File locked bailout
-                return;
-              }
-
-              resPath = fileAccess.CanonicalLocalResourcePath;
-            }
-            else
-            {
-              resPath = fileAccess.CanonicalLocalResourcePath;
-            }
-           
-            //Check if resource is part of share
-            if (!_share.BaseResourcePath.IsParentOf(resPath))
-            {
-              return;
-            }
-
-            //Check if resource already in media library
-            ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-            using (ITransaction transaction = database.BeginTransaction())
-            {
-              resGuid = _parent.GetMediaItemId(transaction, _share.SystemId, resPath);
-            }
-
-            //Check if resource is deleted
-            if (changeType == MediaSourceChangeType.Deleted || changeType == MediaSourceChangeType.DirectoryDeleted)
-            {
-              //Resource was deleted
-              if (resGuid.HasValue)
-                _parent.DeleteMediaItemOrPath(_share.SystemId, resPath, true);
-              return;
-            }
-            else if (changeType == MediaSourceChangeType.Renamed)
-            {
-              //Resource was renamed
-              _parent.DeleteMediaItemOrPath(_share.SystemId, oldResourceAccessor.CanonicalLocalResourcePath, true);
-            }
-          }
-
-          //Refresh or import resource
-          IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
-          if (resGuid.HasValue)
-            importerWorker.ScheduleRefresh(resPath, _share.MediaCategories, false);
-          else
-            importerWorker.ScheduleImport(resPath, _share.MediaCategories, false);
-
-          Logger.Debug("MediaLibrary: Share watcher {0} {1}", path, changeType);
+          _lastChange = DateTime.Now;
         }
         catch (Exception e)
         {
-          Logger.Error("MediaLibrary: Error checking path {0}", e, path);
+          Logger.Error("MediaLibrary: Error logging change for share {0}", e, _share.Name);
         }
       }
 
-      private bool IsFileLocked(string file)
+      private void CheckShareChange(object stateInfo)
       {
-        FileStream stream = null;
-        if (!File.Exists(file))
-          return false;
-
         try
         {
-          stream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-        }
-        catch (IOException)
-        {
-          //the file is unavailable because it is:
-          //still being written to or being processed by another thread
-          return true;
-        }
-        finally
-        {
-          if (stream != null)
-            stream.Close();
-        }
+          if (_lastChange.HasValue)
+          {
+            if ((DateTime.Now - _lastChange.Value).TotalSeconds > _importDelay)
+            {
+              IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+              importerWorker.ScheduleImport(_share.BaseResourcePath, _share.MediaCategories, true);
 
-        //file is not locked
-        return false;
+              _lastChange = null;
+            }
+          }
+        }
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error starting import for share {0}", e, _share.Name);
+        }
       }
 
       public void Dispose()
       {
-        _fileCheckAllowed = false;
         if(_fileChangeNotifier != null)
           _fileChangeNotifier.UnregisterChangeTracker(ShareWatcherPathChanged);
+
+        if (_checkTimer != null)
+          _checkTimer.Dispose();
       }
+    }
+
+    protected class ChildCountDefinition
+    {
+      public Guid ParentRole { get; set; }
+      public MediaItemAspectMetadata ParentMiaType { get; set; }
+      public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute { get; set; }
+      public bool IncludeVirtual { get; set; }
     }
 
     #endregion
@@ -379,6 +299,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected bool _shutdown = false;
 
     protected Dictionary<Guid, List<Guid>> _virtualRoleHierarchy = new Dictionary<Guid, List<Guid>>();
+    protected Dictionary<Guid, List<ChildCountDefinition>> _virtualRoleHierarchyChildCount = new Dictionary<Guid, List<ChildCountDefinition>>();
     protected Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
     protected object opsSync = new object();
 
@@ -2016,6 +1937,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               if (TryFindParent(database, transaction, mediaItemId, childRole, parentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
               {
+                int totalCount = 0;
+                int availableCount = 0;
+
                 command.Parameters.Clear();
                 database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
                 database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
@@ -2043,9 +1967,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     childs.Add(childId);
                     if (childVirtual == false)
                     {
+                      availableCount++;
                       allChildsAreVirtual = false;
-                      break;
                     }
+                    totalCount++;
                   }
                 }
 
@@ -2068,6 +1993,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = " + isVirtual +
                 " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
                 command.ExecuteNonQuery();
+
+                if(_virtualRoleHierarchyChildCount.ContainsKey(childRole))
+                {
+                  foreach (ChildCountDefinition def in _virtualRoleHierarchyChildCount[childRole])
+                  {
+                    if(def.ParentRole == parentRole)
+                    {
+                      //Set parent child count
+                      command.CommandText = "UPDATE " + _miaManagement.GetMIATableName(def.ParentMiaType) +
+                      " SET " + _miaManagement.GetMIAAttributeColumnName(def.ChildCountAttribute) + " = " + 
+                      (def.IncludeVirtual ? totalCount : availableCount) +
+                      " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
+                      command.ExecuteNonQuery();
+                    }
+                  }
+                }
 
                 Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} to virtual = {2}", parentId.Value, parentRole, isVirtual);
               }
@@ -2471,6 +2412,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if(!_virtualRoleHierarchy.ContainsKey(childRole))
         _virtualRoleHierarchy.Add(childRole, new List<Guid>());
       _virtualRoleHierarchy[childRole].Add(parentRole);
+    }
+
+    public void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType,
+      MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual)
+    {
+      if (!_virtualRoleHierarchyChildCount.ContainsKey(childRole))
+        _virtualRoleHierarchyChildCount.Add(childRole, new List<ChildCountDefinition>());
+      ChildCountDefinition def = new ChildCountDefinition()
+      {
+        ParentRole = parentRole,
+        ParentMiaType = parentMiaType,
+        ChildCountAttribute = childCountAttribute,
+        IncludeVirtual = includeVirtual
+      };
+      _virtualRoleHierarchyChildCount[childRole].Add(def);
     }
 
     #endregion

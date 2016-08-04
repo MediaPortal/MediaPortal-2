@@ -57,10 +57,16 @@ namespace MediaPortal.Backend.Services.MediaManagement
       mediaLibrary.AddMediaItemAspectStorage(miam, fkSpecs, refMiam, refSpecs);
     }
 
-    public void RegisterMediaItemAspectRoleHierarchy(Guid role, Guid parentRole)
+    public void RegisterMediaItemAspectRoleHierarchy(Guid childRole, Guid parentRole)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-      mediaLibrary.RegisterMediaItemAspectRoleHierarchy(role, parentRole);
+      mediaLibrary.RegisterMediaItemAspectRoleHierarchy(childRole, parentRole);
+    }
+
+    public void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType, MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      mediaLibrary.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(childRole, parentRole, parentMiaType, childCountAttribute, includeVirtual);
     }
   }
 }

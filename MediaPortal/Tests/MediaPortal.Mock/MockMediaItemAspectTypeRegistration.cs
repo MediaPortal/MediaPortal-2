@@ -47,12 +47,14 @@ namespace MediaPortal.Mock
 
     public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
     {
-      throw new NotImplementedException();
     }
 
     public void RegisterMediaItemAspectRoleHierarchy(Guid role, Guid parentRole)
     {
-      throw new NotImplementedException();
+    }
+
+    public void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType, MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual)
+    {
     }
   }
 }
