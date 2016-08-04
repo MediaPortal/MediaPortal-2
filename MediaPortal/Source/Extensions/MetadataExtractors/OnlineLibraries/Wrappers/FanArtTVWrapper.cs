@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <returns></returns>
     public bool Init(string cachePath)
     {
-      _fanArtTvHandler = new FanArtTVApiV3("53b9498b23f38abf1e1cbe11de2f8102", cachePath);
+      _fanArtTvHandler = new FanArtTVApiV3("82daed8035a4ad8fd868f70d5ee2012e", cachePath);
       SetDefaultLanguage(FanArtTVApiV3.DefaultLanguage);
       SetCachePath(cachePath);
       return true;
