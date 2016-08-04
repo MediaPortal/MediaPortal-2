@@ -114,6 +114,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
 
+    /// <summary>
+    /// Contains the number of tracks available for listening.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_TRACKS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailTracks", typeof(int), Cardinality.Inline, true);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "AlbumItem", new[] {
@@ -129,7 +135,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_NUMDISCS,
             ATTR_SALES,
             ATTR_TOTAL_RATING,
-            ATTR_RATING_COUNT
+            ATTR_RATING_COUNT,
+            ATTR_AVAILABLE_TRACKS
         });
 
     public static readonly Guid ROLE_ALBUM = new Guid("CCCA5512-1CBA-4859-BD53-1D7AE96EBBCE");

@@ -442,6 +442,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateString(ref seriesInfo.Certification, seriesMatch.Certification);
           MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, seriesMatch.NextEpisodeName);
 
+          if(seriesInfo.TotalSeasons < seriesMatch.TotalSeasons)
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalSeasons, seriesMatch.TotalSeasons);
+          if (seriesInfo.TotalEpisodes < seriesMatch.TotalEpisodes)
+            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalEpisodes, seriesMatch.TotalEpisodes);
+
           MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesMatch.FirstAired);
           MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Popularity, seriesMatch.Popularity);
           MetadataUpdater.SetOrUpdateValue(ref seriesInfo.IsEnded, seriesMatch.IsEnded);
@@ -553,6 +558,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           MetadataUpdater.SetOrUpdateString(ref seasonInfo.SeriesName, seasonMatch.SeriesName);
           MetadataUpdater.SetOrUpdateString(ref seasonInfo.Description, seasonMatch.Description);
+
+          if (seasonInfo.TotalEpisodes < seasonMatch.TotalEpisodes)
+            MetadataUpdater.SetOrUpdateValue(ref seasonInfo.TotalEpisodes, seasonMatch.TotalEpisodes);
 
           MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, seasonMatch.FirstAired);
           MetadataUpdater.SetOrUpdateValue(ref seasonInfo.SeasonNumber, seasonMatch.SeasonNumber);
@@ -1150,7 +1158,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return;
 
       string idValue = null;
-      if (seriesMatch == null || !GetSeriesId(seriesSearch, out idValue))
+      if (seriesMatch == null || !GetSeriesId(seriesSearch, out idValue) || seriesMatch.SeriesName.IsEmpty)
       {
         _storage.TryAddMatch(new SeriesMatch()
         {

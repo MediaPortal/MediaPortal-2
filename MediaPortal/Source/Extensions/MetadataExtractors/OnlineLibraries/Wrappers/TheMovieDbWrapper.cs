@@ -268,6 +268,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       collection.MovieDbId = collectionDetail.Id;
       collection.CollectionName = new SimpleTitle(collectionDetail.Name, false);
       collection.Movies = ConvertToMovies(collectionDetail, collectionDetail.Movies);
+      collection.TotalMovies = collectionDetail.Movies.Count;
 
       return true;
     }
@@ -418,7 +419,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           cacheIncomplete = true;
         if (currentSeason != null)
         {
-          foreach(SeasonEpisode episodeDetail in currentSeason.Episodes)
+          series.TotalSeasons = currentSeason.SeasonNumber;
+          series.TotalEpisodes += currentSeason.Episodes.Count;
+
+          foreach (SeasonEpisode episodeDetail in currentSeason.Episodes)
           {
             EpisodeInfo info = new EpisodeInfo()
             {
@@ -502,6 +506,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       season.FirstAired = seasonDetail.AirDate;
       season.Description = new SimpleTitle(seasonDetail.Overview, false);
       season.SeasonNumber = seasonDetail.SeasonNumber;
+      season.TotalEpisodes = seasonDetail.Episodes.Count;
 
       return true;
     }

@@ -61,13 +61,26 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DESCRIPTION =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Description", 5000, Cardinality.Inline, false);
 
+    /// <summary>
+    /// Contains the number of episodes available for watching.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_EPISODES =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailEpisodes", typeof(int), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the total number of episodes currently available for the season.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUM_EPISODES =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumEpisodes", typeof(int), Cardinality.Inline, true);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "SeasonItem", new[] {
             ATTR_SERIES_NAME,
             ATTR_SEASON,
             ATTR_SERIES_SEASON,
-            ATTR_DESCRIPTION
+            ATTR_DESCRIPTION,
+            ATTR_AVAILABLE_EPISODES,
+            ATTR_NUM_EPISODES
         });
 
     public static readonly Guid ROLE_SEASON = new Guid("830D5DCD-708C-4E30-B043-CCDCBF593E12");

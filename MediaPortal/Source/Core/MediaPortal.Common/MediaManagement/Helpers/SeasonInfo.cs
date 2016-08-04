@@ -94,6 +94,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the season description.
     /// </summary>
     public SimpleTitle Description = null;
+    public int TotalEpisodes = 0;
 
     public override bool IsBaseInfoPresent
     {
@@ -155,6 +156,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
+      if (TotalEpisodes > 0) MediaItemAspect.SetAttribute(aspectData, SeasonAspect.ATTR_NUM_EPISODES, TotalEpisodes);
 
       if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SEASON, ImdbId);
       if (TvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SEASON, TvdbId.ToString());
@@ -188,6 +190,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         SeriesName = new SimpleTitle(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, out tempString);
         Description = new SimpleTitle(tempString, false);
+
+        int? count;
+        if (MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_NUM_EPISODES, out count))
+          TotalEpisodes = count.Value;
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SEASON, out id))

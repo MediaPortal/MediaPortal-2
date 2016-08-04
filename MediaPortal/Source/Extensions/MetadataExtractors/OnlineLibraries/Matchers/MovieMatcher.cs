@@ -675,6 +675,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           MetadataUpdater.SetOrUpdateString(ref movieCollectionInfo.CollectionName, movieCollectionMatch.CollectionName);
 
+          if (movieCollectionInfo.TotalMovies < movieCollectionMatch.TotalMovies)
+            MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.TotalMovies, movieCollectionMatch.TotalMovies);
+
           MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies, true);
 
           MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.Thumbnail, movieCollectionMatch.Thumbnail);
@@ -744,7 +747,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return;
 
       string idValue = null;
-      if (movieMatch == null || !GetMovieId(movieMatch, out idValue))
+      if (movieMatch == null || !GetMovieId(movieMatch, out idValue) || movieMatch.MovieName.IsEmpty)
       {
         _storage.TryAddMatch(new MovieMatch()
         {

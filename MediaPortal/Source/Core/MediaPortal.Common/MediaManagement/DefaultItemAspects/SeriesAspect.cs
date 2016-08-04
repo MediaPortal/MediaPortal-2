@@ -132,6 +132,30 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RATING_COUNT =
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("RatingCount", typeof(int), Cardinality.Inline, true);
 
+    /// <summary>
+    /// Contains the number of episodes available for watching.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_EPISODES =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailEpisodes", typeof(int), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the number of seasons available for watching.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_SEASONS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailSeasons", typeof(int), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the total number of episodes currently available for the series.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUM_EPISODES =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumEpisodes", typeof(int), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the total number of seasons currently available for the series.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUM_SEASONS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumSeasons", typeof(int), Cardinality.Inline, true);
+
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "SeriesItem", new[] {
             ATTR_SERIES_NAME,
@@ -149,7 +173,11 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_POPULARITY,
             ATTR_SCORE,
             ATTR_TOTAL_RATING,
-            ATTR_RATING_COUNT
+            ATTR_RATING_COUNT,
+            ATTR_AVAILABLE_EPISODES,
+            ATTR_AVAILABLE_SEASONS,
+            ATTR_NUM_EPISODES,
+            ATTR_NUM_SEASONS
         });
 
     public static readonly Guid ROLE_SERIES = new Guid("13FDBDAF-F5D0-46C8-952F-F22647812C50");

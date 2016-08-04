@@ -90,7 +90,7 @@
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\MediaInfoLib\MediaInfoLib.csproj">
-      <Project>{7280C551-DCE2-46B7-943E-8C0D90CDC22C}</Project>
+      <Project>{7280c551-dce2-46b7-943e-8c0d90cdc22c}</Project>
       <Name>MediaInfoLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj">
