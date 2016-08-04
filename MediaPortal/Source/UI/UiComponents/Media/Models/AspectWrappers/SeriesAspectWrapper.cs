@@ -61,6 +61,10 @@ protected AbstractProperty _popularityProperty;
 protected AbstractProperty _scoreProperty;
 protected AbstractProperty _totalRatingProperty;
 protected AbstractProperty _ratingCountProperty;
+protected AbstractProperty _availEpisodesProperty;
+protected AbstractProperty _availSeasonsProperty;
+protected AbstractProperty _numEpisodesProperty;
+protected AbstractProperty _numSeasonsProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -243,6 +247,50 @@ public int? RatingCount
   set { _ratingCountProperty.SetValue(value); }
 }
 
+public AbstractProperty AvailEpisodesProperty
+{
+  get{ return _availEpisodesProperty; }
+}
+
+public int? AvailEpisodes
+{
+  get { return (int?) _availEpisodesProperty.GetValue(); }
+  set { _availEpisodesProperty.SetValue(value); }
+}
+
+public AbstractProperty AvailSeasonsProperty
+{
+  get{ return _availSeasonsProperty; }
+}
+
+public int? AvailSeasons
+{
+  get { return (int?) _availSeasonsProperty.GetValue(); }
+  set { _availSeasonsProperty.SetValue(value); }
+}
+
+public AbstractProperty NumEpisodesProperty
+{
+  get{ return _numEpisodesProperty; }
+}
+
+public int? NumEpisodes
+{
+  get { return (int?) _numEpisodesProperty.GetValue(); }
+  set { _numEpisodesProperty.SetValue(value); }
+}
+
+public AbstractProperty NumSeasonsProperty
+{
+  get{ return _numSeasonsProperty; }
+}
+
+public int? NumSeasons
+{
+  get { return (int?) _numSeasonsProperty.GetValue(); }
+  set { _numSeasonsProperty.SetValue(value); }
+}
+
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -276,6 +324,10 @@ public SeriesAspectWrapper()
   _scoreProperty = new SProperty(typeof(float?));
   _totalRatingProperty = new SProperty(typeof(double?));
   _ratingCountProperty = new SProperty(typeof(int?));
+  _availEpisodesProperty = new SProperty(typeof(int?));
+  _availSeasonsProperty = new SProperty(typeof(int?));
+  _numEpisodesProperty = new SProperty(typeof(int?));
+  _numSeasonsProperty = new SProperty(typeof(int?));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -314,6 +366,10 @@ public void Init(MediaItem mediaItem)
   Score = (float?) aspect[SeriesAspect.ATTR_SCORE];
   TotalRating = (double?) aspect[SeriesAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[SeriesAspect.ATTR_RATING_COUNT];
+  AvailEpisodes = (int?) aspect[SeriesAspect.ATTR_AVAILABLE_EPISODES];
+  AvailSeasons = (int?) aspect[SeriesAspect.ATTR_AVAILABLE_SEASONS];
+  NumEpisodes = (int?) aspect[SeriesAspect.ATTR_NUM_EPISODES];
+  NumSeasons = (int?) aspect[SeriesAspect.ATTR_NUM_SEASONS];
 }
 
 public void SetEmpty()
@@ -334,6 +390,10 @@ public void SetEmpty()
   Score = null;
   TotalRating = null;
   RatingCount = null;
+  AvailEpisodes = null;
+  AvailSeasons = null;
+  NumEpisodes = null;
+  NumSeasons = null;
 }
 
 

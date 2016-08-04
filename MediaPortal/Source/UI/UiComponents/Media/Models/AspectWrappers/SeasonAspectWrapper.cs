@@ -49,6 +49,8 @@ protected AbstractProperty _seriesNameProperty;
 protected AbstractProperty _seasonProperty;
 protected AbstractProperty _seriesSeasonNameProperty;
 protected AbstractProperty _descriptionProperty;
+protected AbstractProperty _availEpisodesProperty;
+protected AbstractProperty _numEpisodesProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -99,6 +101,28 @@ public string Description
   set { _descriptionProperty.SetValue(value); }
 }
 
+public AbstractProperty AvailEpisodesProperty
+{
+  get{ return _availEpisodesProperty; }
+}
+
+public int? AvailEpisodes
+{
+  get { return (int?) _availEpisodesProperty.GetValue(); }
+  set { _availEpisodesProperty.SetValue(value); }
+}
+
+public AbstractProperty NumEpisodesProperty
+{
+  get{ return _numEpisodesProperty; }
+}
+
+public int? NumEpisodes
+{
+  get { return (int?) _numEpisodesProperty.GetValue(); }
+  set { _numEpisodesProperty.SetValue(value); }
+}
+
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -120,6 +144,8 @@ public SeasonAspectWrapper()
   _seasonProperty = new SProperty(typeof(int?));
   _seriesSeasonNameProperty = new SProperty(typeof(string));
   _descriptionProperty = new SProperty(typeof(string));
+  _availEpisodesProperty = new SProperty(typeof(int?));
+  _numEpisodesProperty = new SProperty(typeof(int?));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -146,6 +172,8 @@ public void Init(MediaItem mediaItem)
   Season = (int?) aspect[SeasonAspect.ATTR_SEASON];
   SeriesSeasonName = (string) aspect[SeasonAspect.ATTR_SERIES_SEASON];
   Description = (string) aspect[SeasonAspect.ATTR_DESCRIPTION];
+  AvailEpisodes = (int?) aspect[SeasonAspect.ATTR_AVAILABLE_EPISODES];
+  NumEpisodes = (int?) aspect[SeasonAspect.ATTR_NUM_EPISODES];
 }
 
 public void SetEmpty()
@@ -154,6 +182,8 @@ public void SetEmpty()
   Season = null;
   SeriesSeasonName = null;
   Description = null;
+  AvailEpisodes = null;
+  NumEpisodes = null;
 }
 
 
