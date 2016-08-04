@@ -39,13 +39,17 @@ namespace MediaItemAspectModelBuilder
 
 
       List<Type> typeList = new List<Type> {
-        typeof(MediaAspect), typeof(ImporterAspect),
-        typeof(VideoAspect), typeof(VideoStreamAspect), typeof(VideoAudioStreamAspect),
+        typeof(MediaAspect),
+        typeof(ImporterAspect),
+        typeof(VideoAspect),
+        typeof(VideoStreamAspect), typeof(VideoAudioStreamAspect),
         typeof(AudioAspect), typeof(AudioAlbumAspect),
-        typeof(ImageAspect),typeof(ImageCollectionAspect),
+        typeof(ImageAspect),
         typeof(MovieAspect), typeof(MovieCollectionAspect),
         typeof(SeriesAspect), typeof(SeasonAspect), typeof(EpisodeAspect),
-        typeof(PersonAspect), typeof(CharacterAspect), typeof(CompanyAspect)};
+        typeof(PersonAspect),
+        typeof(CharacterAspect),
+        typeof(CompanyAspect)};
       string classNamespace = "MediaPortal.UiComponents.Media.Models.AspectWrappers";
       string codeBasePath = @"..\..\..\..\..\Source\UI\UiComponents\Media\Models\AspectWrappers\";
 
