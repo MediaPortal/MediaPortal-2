@@ -194,8 +194,6 @@ namespace MediaPortal.Common.MediaManagement
           string key = null;
           string data = null;
 
-          reader.ReadStartElement();
-
           if (reader.MoveToAttribute("Key"))
             key = reader.ReadContentAsString();
           if (reader.MoveToAttribute("Data"))
@@ -204,8 +202,7 @@ namespace MediaPortal.Common.MediaManagement
           if(key != null && data != null)
             _userData.Add(key, data);
 
-          reader.MoveToContent();
-          //reader.ReadEndElement(); //UserData
+          reader.Read();
         }
         else
         {
