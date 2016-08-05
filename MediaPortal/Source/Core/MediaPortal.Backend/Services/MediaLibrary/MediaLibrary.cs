@@ -177,11 +177,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       protected int _importDelay;
       protected Timer _checkTimer;
 
-      public ShareWatcher(Share share, MediaLibrary parent, int checkIntervalMs = 5000, int importDelaySecs = 300)
+      public ShareWatcher(Share share, MediaLibrary parent, bool scheduleImport, int checkIntervalMs = 5000, int importDelaySecs = 300)
       {
         _share = share;
         _parent = parent;
         _importDelay = importDelaySecs;
+        _lastChange = null;
 
         IResourceAccessor resAccess = null;
         if (!share.BaseResourcePath.TryCreateLocalResourceAccessor(out resAccess))
@@ -204,7 +205,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (!string.IsNullOrEmpty(resAccess.ResourcePathName))
         {
-          _lastChange = DateTime.Now;
+          if(scheduleImport)
+            _lastChange = DateTime.Now;
           _checkTimer = new Timer(CheckShareChange, null, checkIntervalMs, checkIntervalMs);
 
           List<MediaSourceChangeType> changeTypes = new List<MediaSourceChangeType>();
@@ -2440,7 +2442,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         try
         {
-          ShareWatcher watcher = new ShareWatcher(share, this);
+          ShareWatcher watcher = new ShareWatcher(share, this, true);
           _shareWatchers.Add(share.ShareId, watcher);
         }
         catch (Exception e)
@@ -2497,7 +2499,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         TryScheduleLocalShareImport(share);
 
-        ShareWatcher watcher = new ShareWatcher(share, this);
+        ShareWatcher watcher = new ShareWatcher(share, this, false);
         _shareWatchers.Add(share.ShareId, watcher);
       }
       catch (Exception e)
