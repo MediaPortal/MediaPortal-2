@@ -105,6 +105,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         try
         {
           _fileLock.EnterWriteLock();
+          if (File.Exists(downloadFile))
+            return true;
           WebClient webClient = new CompressionWebClient();
           webClient.DownloadFile(url, downloadFile);
           return true;
@@ -134,6 +136,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       try
       {
         _jsonLock.EnterWriteLock();
+        if (string.IsNullOrEmpty(cachePath))
+          return;
         using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
         {
           using (StreamWriter sw = new StreamWriter(fs))
@@ -166,6 +170,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         try
         {
           _jsonLock.EnterReadLock();
+          if (string.IsNullOrEmpty(cacheFile))
+            return default(TE);
           string json = File.ReadAllText(cacheFile, Encoding.UTF8);
           return JsonConvert.DeserializeObject<TE>(json);
         }
@@ -178,6 +184,75 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       finally
       {
         _jsonLock.ExitReadLock();
+      }
+    }
+
+    /// <summary>
+    /// Checks if a cached file is above a specified age.
+    /// </summary>
+    /// <param name="cacheFile">Name for the cached response</param>
+    /// <param name="maxAgeInDays">Maximum age of the cached response in days</param>
+    /// <returns>Cached object</returns>
+    public bool IsCacheExpired(string cacheFile, double maxAgeInDays)
+    {
+      if (string.IsNullOrEmpty(cacheFile))
+        return false;
+
+      try
+      {
+        try
+        {
+          _jsonLock.EnterReadLock();
+          if (string.IsNullOrEmpty(cacheFile))
+            return false;
+          FileInfo info = new FileInfo(cacheFile);
+          if ((DateTime.Now - info.CreationTime).TotalDays > maxAgeInDays)
+            return true;
+
+          return false;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when determining cache {0} age ({1})", cacheFile, ex.Message);
+          return false;
+        }
+      }
+      finally
+      {
+        _jsonLock.ExitReadLock();
+      }
+    }
+
+    /// <summary>
+    /// Deletes the cached response.
+    /// </summary>
+    /// <param name="cacheFile">Name for the cached response</param>
+    /// <returns>Cached object</returns>
+    public bool DeleteCache(string cacheFile)
+    {
+      if (string.IsNullOrEmpty(cacheFile))
+        return true;
+
+      try
+      {
+        try
+        {
+          _jsonLock.EnterWriteLock();
+          if (string.IsNullOrEmpty(cacheFile))
+            return true;
+
+          File.Delete(cacheFile);
+          return true;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when determining cache {0} age ({1})", cacheFile, ex.Message);
+          return false;
+        }
+      }
+      finally
+      {
+        _jsonLock.ExitWriteLock();
       }
     }
 
@@ -195,6 +270,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         try
         {
           _fileLock.EnterReadLock();
+          if (File.Exists(downloadedFile))
+            return null;
           return File.ReadAllBytes(downloadedFile);
         }
         catch (Exception ex)
