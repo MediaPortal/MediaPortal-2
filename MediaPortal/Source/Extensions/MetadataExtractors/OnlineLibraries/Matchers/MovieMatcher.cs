@@ -642,7 +642,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool forceQuickMode)
+    public virtual bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool forceQuickMode)
     {
       try
       {
@@ -678,7 +678,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (movieCollectionInfo.TotalMovies < movieCollectionMatch.TotalMovies)
             MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.TotalMovies, movieCollectionMatch.TotalMovies);
 
-          MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies, true);
+          if(updateMovieList) //Comparing all movies can be quite time consuming
+            MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies, true);
 
           MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.Thumbnail, movieCollectionMatch.Thumbnail);
         }

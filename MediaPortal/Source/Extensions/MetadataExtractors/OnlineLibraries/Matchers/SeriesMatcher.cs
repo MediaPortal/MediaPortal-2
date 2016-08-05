@@ -380,7 +380,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool forceQuickMode)
+    public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
     {
       try
       {
@@ -463,7 +463,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies, true);
           MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors, true);
           MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters, true);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Episodes, seriesMatch.Episodes, true);
+          if(updateEpisodeList) //Comparing all episodes can be quite time consuming
+            MetadataUpdater.SetOrUpdateList(seriesInfo.Episodes, seriesMatch.Episodes, true);
 
           //Store person matches
           foreach (PersonInfo person in seriesInfo.Actors)

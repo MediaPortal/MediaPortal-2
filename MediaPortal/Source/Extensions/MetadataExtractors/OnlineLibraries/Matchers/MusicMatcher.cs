@@ -613,7 +613,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateAlbum(AlbumInfo albumInfo, bool forceQuickMode)
+    public virtual bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode)
     {
       try
       {
@@ -681,7 +681,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, true);
-          MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
+          if(updateTrackList) //Comparing all tracks can be quite time consuming
+            MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
 
           //Store person matches
           foreach (PersonInfo person in albumInfo.Artists)
