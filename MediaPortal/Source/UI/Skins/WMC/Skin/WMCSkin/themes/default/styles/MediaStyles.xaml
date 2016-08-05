@@ -1047,8 +1047,19 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" Margin="10,0,10,0" FontFamily="SegoeUIBold" HorizontalAlignment="Right"
-          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/> <!--x:Name needs to be duration, so the TextColor can be changed in ControlStyle-->
+
+      <!--media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="2">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Label x:Name="PartlyWatchedLabel" Margin="0,0,5,0" Content="{Binding Path=PlayPercentage}"  FontFamily="SegoeUIBold"
+                     FontSize="{ThemeResource SmallFontSize}">
+              </Label>
+            </Grid>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </-->
+
     </Grid>
   </ControlTemplate>
   
@@ -1348,26 +1359,31 @@
                FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"/>
       </StackPanel>
 
-      <media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="2">
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="2" >
         <media:UserDataWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+                </Grid.IsVisible>
+                <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
                      Source="partlywatched.png">
-                <Image.IsVisible>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
-                    <Binding Path="PlayPercentage"/>
-                  </MultiBinding>
-                </Image.IsVisible>
-              </Image>
-              <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+              </Grid>
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+                </Grid.IsVisible>
+                <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
                      Source="watched.png">
-                <Image.IsVisible>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >85">
-                    <Binding Path="PlayPercentage"/>
-                  </MultiBinding>
-                </Image.IsVisible>
-              </Image>
+                </Image>
+              </Grid>
             </Grid>
           </ControlTemplate>
         </media:UserDataWrapper.Template>
@@ -1647,16 +1663,17 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="SegoeUIBold"
-             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
-        <!--Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-            <Binding Source="{ThemeResource WatchedTextColor}"/>
-          </MultiBinding>
-        </-->
-      </Label>
+      <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
+        <media:MovieAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                       Content="{Binding MovieName}" Color="{ThemeResource MediaItemUnwatchedColor}"/>
+            </Grid>
+          </ControlTemplate>
+        </media:MovieAspectWrapper.Template>
+      </media:MovieAspectWrapper>
+
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
@@ -1688,9 +1705,35 @@
         </Image.IsVisible>
       </Image>
 
-      <!-- TODO: Year -->
-      <Label x:Name="Year" Grid.Row="0" Grid.Column="2" Content="{Binding Year}" FontFamily="SegoeUIBold"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="2" >
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+                </Grid.IsVisible>
+                <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+                     Source="partlywatched.png">
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+              </Grid>
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+                </Grid.IsVisible>
+                <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+                     Source="watched.png">
+                </Image>
+              </Grid>
+            </Grid>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
     </Grid>
   </ControlTemplate>
 
