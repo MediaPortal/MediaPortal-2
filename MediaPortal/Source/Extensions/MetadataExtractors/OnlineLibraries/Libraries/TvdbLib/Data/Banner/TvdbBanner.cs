@@ -282,9 +282,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
       {
         WebClient client = new CompressionWebClient();
         byte[] imgData = client.DownloadData(path);
-        MemoryStream ms = new MemoryStream(imgData);
-        Image img = Image.FromStream(ms, true, true);
-        return img;
+
+        using (MemoryStream ms = new MemoryStream(imgData))
+        {
+          using (Image sourceImage = Image.FromStream(ms, true, false))
+          {
+            Image targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (Graphics g = Graphics.FromImage(targetImage))
+            {
+              g.DrawImageUnscaled(sourceImage, 0, 0);
+            }
+            return targetImage;
+          }
+        }
+
+        //Below leads to memory leaking because stream is not disposed as it is not allowed to dispose
+        //the stream for the lifetime of the image
+        //MemoryStream ms = new MemoryStream(imgData);
+        //Image img = Image.FromStream(ms, true, true);
+        //return img;
       }
       catch (Exception ex)
       {

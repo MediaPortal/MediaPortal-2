@@ -204,6 +204,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
       series.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
 
+      series.TotalSeasons = seriesDetail.Episodes.Select(e => e.SeasonNumber).Max();
+      series.TotalEpisodes = seriesDetail.Episodes.Count;
+
       foreach (TvdbEpisode episodeDetail in seriesDetail.Episodes.OrderByDescending(e => e.Id))
       {
         EpisodeInfo info = new EpisodeInfo()
@@ -284,6 +287,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       season.FirstAired = seriesDetail.FirstAired;
       season.SeasonNumber = season.SeasonNumber.Value;
       season.Description = new SimpleTitle(seriesDetail.Overview, false);
+      season.TotalEpisodes = seriesDetail.Episodes.FindAll(e => e.SeasonNumber == season.SeasonNumber).Count;
 
       return true;
     }

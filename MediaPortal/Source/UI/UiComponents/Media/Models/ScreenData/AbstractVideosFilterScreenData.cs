@@ -27,7 +27,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public abstract class AbstractVideosFilterScreenData : AbstractFiltersScreenData<FilterItem>
+  public abstract class AbstractVideosFilterScreenData<T> : AbstractFiltersScreenData<T> where T : FilterItem, new()
   {
     protected AbstractVideosFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
         MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion) { }

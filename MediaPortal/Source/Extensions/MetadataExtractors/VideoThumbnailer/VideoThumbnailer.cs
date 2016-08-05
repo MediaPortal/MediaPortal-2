@@ -211,8 +211,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       }
       finally
       {
-        if (File.Exists(tempFileName))
-          File.Delete(tempFileName);
+        try
+        {
+          if (File.Exists(tempFileName))
+            File.Delete(tempFileName);
+        }
+        catch { }
       }
       return true;
     }

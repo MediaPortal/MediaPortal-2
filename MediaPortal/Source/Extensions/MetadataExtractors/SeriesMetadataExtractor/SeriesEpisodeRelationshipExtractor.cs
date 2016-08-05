@@ -67,6 +67,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
+      if (forceQuickMode)
+        return false;
+
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
@@ -74,11 +77,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (_checkCache.IsItemChecked(seriesInfo))
         return false;
 
-      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false);
-      SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
-      SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
-      SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
-      SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, false);
+      SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, true, false);
+      SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, true, forceQuickMode);
+      SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, true, forceQuickMode);
+      SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, true, forceQuickMode);
+      SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, true, false);
 
       if (seriesInfo.Episodes.Count == 0)
         return false;

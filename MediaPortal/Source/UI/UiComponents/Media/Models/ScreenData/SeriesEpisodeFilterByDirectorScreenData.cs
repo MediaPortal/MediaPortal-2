@@ -28,7 +28,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesEpisodeFilterByDirectorScreenData : AbstractVideosFilterScreenData
+  public class SeriesEpisodeFilterByDirectorScreenData : AbstractSeriesFilterScreenData<DirectorFilterItem>
   {
     public SeriesEpisodeFilterByDirectorScreenData() :
         base(Consts.SCREEN_SERIES_EPISODE_FILTER_BY_DIRECTOR, Consts.RES_FILTER_BY_DIRECTOR_MENU_ITEM,
@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
     }
 
-    public override AbstractFiltersScreenData<FilterItem> Derive()
+    public override AbstractFiltersScreenData<DirectorFilterItem> Derive()
     {
       return new SeriesEpisodeFilterByDirectorScreenData();
     }

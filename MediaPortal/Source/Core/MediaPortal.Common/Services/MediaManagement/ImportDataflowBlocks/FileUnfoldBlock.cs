@@ -105,33 +105,39 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         var files = FileSystemResourceNavigator.GetFiles(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
         IDictionary<ResourcePath, DateTime> path2LastImportDate = null;
 
-        if (ImportJobInformation.JobType == ImportJobType.Refresh)
+        SingleMediaItemAspect directoryAspect;
+        // ReSharper disable once PossibleInvalidOperationException
+        // TODO: Rework this
+        IEnumerable<MediaItem> mediaItems = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
+          .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect));
+        if (mediaItems != null)
         {
-          SingleMediaItemAspect directoryAspect;
-          // ReSharper disable once PossibleInvalidOperationException
-          // TODO: Rework this
-          IEnumerable<MediaItem> mediaItems = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
-            .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect));
-          if (mediaItems != null)
+          path2LastImportDate = new Dictionary<ResourcePath, DateTime>();
+          foreach (MediaItem mi in mediaItems)
           {
-            path2LastImportDate = new Dictionary<ResourcePath, DateTime>();
-            foreach (MediaItem mi in mediaItems)
+            IList<MultipleMediaItemAspect> providerAspects = null;
+            if (MediaItemAspect.TryGetAspects(mi.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
             {
-              IList<MultipleMediaItemAspect> providerAspects = null;
-              if(MediaItemAspect.TryGetAspects(mi.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
+              foreach (var pra in providerAspects)
               {
-                foreach (var pra in providerAspects)
-                {
-                  path2LastImportDate.Add(ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
-                      mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
-                }
+                path2LastImportDate.Add(ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
+                    mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
               }
             }
-            await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
           }
+          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
         }
 
-        result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+        if (ImportJobInformation.JobType == ImportJobType.Import)
+        {
+          //Only import new files so only add non existing paths
+          result.UnionWith(files.Where(f => !path2LastImportDate.Keys.Contains(f.CanonicalLocalResourcePath)).
+            Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+        }
+        else
+        {
+          result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+        }
 
         // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,
         // store the DateOfLastImport in the PendingImportResource

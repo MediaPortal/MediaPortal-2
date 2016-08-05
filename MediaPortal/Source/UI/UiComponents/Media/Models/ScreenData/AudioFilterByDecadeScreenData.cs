@@ -28,7 +28,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class AudioFilterByDecadeScreenData : AbstractAudioFilterScreenData
+  public class AudioFilterByDecadeScreenData : AbstractAudioFilterScreenData<FilterItem>
   {
     public AudioFilterByDecadeScreenData() :
         base(Consts.SCREEN_AUDIO_FILTER_BY_DECADE, Consts.RES_FILTER_BY_DECADE_MENU_ITEM,

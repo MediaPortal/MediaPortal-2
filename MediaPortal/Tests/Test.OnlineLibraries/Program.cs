@@ -223,7 +223,7 @@ namespace Test.OnlineLibraries
         {
           TvdbId = Int32.Parse(value)
         };
-        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false);
+        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false, false);
         Console.WriteLine("{0}: {1}", seriesInfo.SeriesName, seriesInfo.Description);
       }
 

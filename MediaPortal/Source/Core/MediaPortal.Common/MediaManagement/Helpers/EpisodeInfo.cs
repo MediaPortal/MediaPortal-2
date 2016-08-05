@@ -448,11 +448,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         SeasonInfo info = new SeasonInfo
         {
           SeasonNumber = SeasonNumber,
-          ImdbId = SeriesImdbId,
-          MovieDbId = SeriesMovieDbId,
-          TvdbId = SeriesTvdbId,
-          TvMazeId = SeriesTvMazeId,
-          TvRageId = SeriesTvRageId,
+          SeriesImdbId = SeriesImdbId,
+          SeriesMovieDbId = SeriesMovieDbId,
+          SeriesTvdbId = SeriesTvdbId,
+          SeriesTvMazeId = SeriesTvMazeId,
+          SeriesTvRageId = SeriesTvRageId,
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage)
         };
         return (T)(object)info;

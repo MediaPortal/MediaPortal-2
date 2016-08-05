@@ -200,6 +200,7 @@
     <Compile Include="Models\Navigation\EpisodeItem.cs" />
     <Compile Include="Models\MediaItemsActionModel.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumLabelScreenData.cs" />
     <Compile Include="Models\ScreenData\AudioFilterByAlbumArtistScreenData.cs" />

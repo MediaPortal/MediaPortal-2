@@ -70,15 +70,31 @@ namespace MediaPortal.Common.MediaManagement
     void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs);
 
     /// <summary>
-    /// Registration method for all media item aspect types which have roles that are in a hierarchy. Specify a 
+    /// Registration method for all media item aspect types which have roles that are in a hierarchy. Specifies a 
     /// relationship between child role and parent role.
     /// </summary>
     /// <remarks>
     /// This method will be used to delete virtual media items that are pure virtual, meaning no physical resource is attached 
     /// to any media item in the hierarchy.
     /// </remarks>
-    /// <param name="role">The role of the child.</param>
+    /// <param name="childRole">The role of the child.</param>
     /// <param name="parentRole">The role of the parent.</param>
-    void RegisterMediaItemAspectRoleHierarchy(Guid role, Guid parentRole);
+    void RegisterMediaItemAspectRoleHierarchy(Guid childRole, Guid parentRole);
+
+    /// <summary>
+    /// Registration method for all media item aspect types which have roles that are in a hierarchy. Specifies an 
+    /// attribute that contains the number of child roles are available for the parent role.
+    /// </summary>
+    /// <remarks>
+    /// This method will be used to delete virtual media items that are pure virtual, meaning no physical resource is attached 
+    /// to any media item in the hierarchy.
+    /// </remarks>
+    /// <param name="childRole">The role of the child.</param>
+    /// <param name="parentRole">The role of the parent.</param>
+    /// <param name="parentMiaType">Media item aspect type of the parent.</param>
+    /// <param name="childCountAttribute">Media item aspect type attributes that reference foreign attributes.</param>
+    /// <param name="includeVirtual">Includes virtual child in the count.</param>
+    void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType, 
+      MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual);
   }
 }

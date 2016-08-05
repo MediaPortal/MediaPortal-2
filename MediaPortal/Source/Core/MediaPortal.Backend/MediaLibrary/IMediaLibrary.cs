@@ -325,6 +325,9 @@ namespace MediaPortal.Backend.MediaLibrary
 
     void RegisterMediaItemAspectRoleHierarchy(Guid childRole, Guid parentRole);
 
+    void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType,
+      MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual);
+
     #endregion
 
     #region Shares management

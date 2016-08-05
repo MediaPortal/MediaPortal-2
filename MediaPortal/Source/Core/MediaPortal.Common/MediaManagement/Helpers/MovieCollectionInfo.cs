@@ -42,6 +42,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public SimpleTitle CollectionName = null;
     public List<MovieInfo> Movies = new List<MovieInfo>();
+    public int TotalMovies = 0;
 
     public override bool IsBaseInfoPresent
     {
@@ -79,6 +80,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(CollectionName.Text));
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
       MediaItemAspect.SetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, CollectionName.Text);
+      if(TotalMovies > 0) MediaItemAspect.SetAttribute(aspectData, MovieCollectionAspect.ATTR_NUM_MOVIES, TotalMovies);
 
       if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, MovieDbId.ToString());
 
@@ -94,6 +96,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, out tempString);
         CollectionName = new SimpleTitle(tempString, false);
+
+        int? count;
+        if (MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_NUM_MOVIES, out count))
+          TotalMovies = count.Value;
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))

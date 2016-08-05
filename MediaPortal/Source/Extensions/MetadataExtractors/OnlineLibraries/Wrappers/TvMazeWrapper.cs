@@ -193,11 +193,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         if(seriesDetail.Embedded.Episodes != null)
         {
-          foreach(TvMazeEpisode episodeDetail in seriesDetail.Embedded.Episodes)
-          {
-            if (episodeDetail.EpisodeNumber <= 0)
-              continue;
+          series.TotalSeasons = seriesDetail.Embedded.Episodes.Select(e => e.SeasonNumber).Max();
+          series.TotalEpisodes = seriesDetail.Embedded.Episodes.Count;
 
+          foreach (TvMazeEpisode episodeDetail in seriesDetail.Embedded.Episodes)
+          {
             EpisodeInfo info = new EpisodeInfo()
             {
               TvMazeId = episodeDetail.Id,
@@ -262,6 +262,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       season.SeriesName = new SimpleTitle(seriesDetail.Name, true);
       season.FirstAired = seasonDetail.PremiereDate;
       season.SeasonNumber = seasonDetail.SeasonNumber;
+      season.TotalEpisodes = seasonDetail.EpisodeCount ?? 0;
 
       return true;
     }

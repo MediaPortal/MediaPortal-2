@@ -28,7 +28,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesFilterByTvNetworkScreenData : AbstractVideosFilterScreenData
+  public class SeriesFilterByTvNetworkScreenData : AbstractSeriesFilterScreenData<TVNetworkFilterItem>
   {
     public SeriesFilterByTvNetworkScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_NETWORK, Consts.RES_FILTER_BY_TV_NETWORK_MENU_ITEM,
@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
     }
 
-    public override AbstractFiltersScreenData<FilterItem> Derive()
+    public override AbstractFiltersScreenData<TVNetworkFilterItem> Derive()
     {
       return new SeriesFilterByTvNetworkScreenData();
     }

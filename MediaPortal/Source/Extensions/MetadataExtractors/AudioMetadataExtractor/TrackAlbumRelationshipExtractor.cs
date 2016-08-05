@@ -74,9 +74,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!_albumCache.TryGetCheckedItem(trackInfo.CloneBasicInstance<AlbumInfo>(), out albumInfo))
       {
         albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-        MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
-        MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, true); //Always force quick mode because online queries mostly timeout
-        MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, forceQuickMode);
+        MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
+        MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, false, true); //Always force quick mode because online queries mostly timeout
+        MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
 
         _albumCache.TryAddCheckedItem(albumInfo);
       }

@@ -642,7 +642,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool forceQuickMode)
+    public virtual bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool forceQuickMode)
     {
       try
       {
@@ -675,7 +675,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           MetadataUpdater.SetOrUpdateString(ref movieCollectionInfo.CollectionName, movieCollectionMatch.CollectionName);
 
-          MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies, true);
+          if (movieCollectionInfo.TotalMovies < movieCollectionMatch.TotalMovies)
+            MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.TotalMovies, movieCollectionMatch.TotalMovies);
+
+          if(updateMovieList) //Comparing all movies can be quite time consuming
+            MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies, true);
 
           MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.Thumbnail, movieCollectionMatch.Thumbnail);
         }
@@ -744,7 +748,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return;
 
       string idValue = null;
-      if (movieMatch == null || !GetMovieId(movieMatch, out idValue))
+      if (movieMatch == null || !GetMovieId(movieMatch, out idValue) || movieMatch.MovieName.IsEmpty)
       {
         _storage.TryAddMatch(new MovieMatch()
         {

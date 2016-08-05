@@ -1343,16 +1343,8 @@
         </Image>
       </DockPanel>
       <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
-        <media:EpisodeAspectWrapper MediaItem="{Binding MediaItem}">
-          <media:EpisodeAspectWrapper.Template>
-            <ControlTemplate>
-              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Label x:Name="NumberLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-                       Content="{Binding Episode}" Color="{ThemeResource MediaItemUnwatchedColor}"/>
-              </Grid>
-            </ControlTemplate>
-          </media:EpisodeAspectWrapper.Template>
-        </media:EpisodeAspectWrapper>
+        <Label x:Name="NumberLabel" Content="{Binding EpisodeNumber}" FontSize="{ThemeResource SmallFontSize}" 
+               FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"/>
         <Label Content=" - " FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
         </Label>
         <Label x:Name="ItemLabel" Content="{Binding EpisodeName}" FontSize="{ThemeResource SmallFontSize}" 

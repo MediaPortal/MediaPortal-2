@@ -22,6 +22,13 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.Settings;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
+
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
@@ -29,5 +36,55 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class MovieFilterItem : FilterItem
   {
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
+
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
+      int? count;
+      if (mediaItem.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID))
+      {
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieCollectionAspect.ATTR_AVAILABLE_MOVIES, out count))
+          AvailableMovies = count.Value.ToString();
+        else
+          AvailableMovies = "";
+
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieCollectionAspect.ATTR_NUM_MOVIES, out count))
+          TotalMovies = count.Value.ToString();
+        else
+          TotalMovies = "";
+
+        if (showVirtual)
+          Movies = TotalMovies;
+        else
+          Movies = AvailableMovies;
+
+        string name;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieCollectionAspect.ATTR_COLLECTION_NAME, out name))
+          SimpleTitle = name;
+      }
+
+      FireChange();
+    }
+
+    public string AvailableMovies
+    {
+      get { return this[Consts.KEY_AVAIL_MOVIES]; }
+      set { SetLabel(Consts.KEY_AVAIL_MOVIES, value); }
+    }
+
+    public string TotalMovies
+    {
+      get { return this[Consts.KEY_TOTAL_MOVIES]; }
+      set { SetLabel(Consts.KEY_TOTAL_MOVIES, value); }
+    }
+
+    public string Movies
+    {
+      get { return this[Consts.KEY_NUM_MOVIES]; }
+      set { SetLabel(Consts.KEY_NUM_MOVIES, value); }
+    }
   }
 }

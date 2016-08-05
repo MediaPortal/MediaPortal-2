@@ -29,7 +29,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesFilterBySeasonScreenData : AbstractFiltersScreenData<SeasonFilterItem>
+  public class SeriesFilterBySeasonScreenData : AbstractSeriesFilterScreenData<SeasonFilterItem>
   {
     public SeriesFilterBySeasonScreenData() :
       base(Consts.SCREEN_SERIES_FILTER_BY_SEASON, Consts.RES_FILTER_BY_SERIES_SEASON_MENU_ITEM,
@@ -39,14 +39,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override AbstractFiltersScreenData<SeasonFilterItem> Derive()
     {
       return new SeriesFilterBySeasonScreenData();
-    }
-
-    protected override string GetNavbarDisplayLabel(Views.ViewSpecification subViewSpecification)
-    {
-      // subViewSpecification contains "Series S01" pattern, here we only want to show the season number.
-      string season = subViewSpecification.ViewDisplayName ?? string.Empty;
-      season = season.Substring(season.LastIndexOf("S") + 1);
-      return LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel, season);
     }
   }
 }

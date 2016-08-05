@@ -58,6 +58,7 @@ protected AbstractProperty _numDiscsProperty;
 protected AbstractProperty _salesProperty;
 protected AbstractProperty _totalRatingProperty;
 protected AbstractProperty _ratingCountProperty;
+protected AbstractProperty _availTracksProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -207,6 +208,17 @@ public int? RatingCount
   set { _ratingCountProperty.SetValue(value); }
 }
 
+public AbstractProperty AvailTracksProperty
+{
+  get{ return _availTracksProperty; }
+}
+
+public int? AvailTracks
+{
+  get { return (int?) _availTracksProperty.GetValue(); }
+  set { _availTracksProperty.SetValue(value); }
+}
+
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -237,6 +249,7 @@ public AudioAlbumAspectWrapper()
   _salesProperty = new SProperty(typeof(long?));
   _totalRatingProperty = new SProperty(typeof(double?));
   _ratingCountProperty = new SProperty(typeof(int?));
+  _availTracksProperty = new SProperty(typeof(int?));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -272,6 +285,7 @@ public void Init(MediaItem mediaItem)
   Sales = (long?) aspect[AudioAlbumAspect.ATTR_SALES];
   TotalRating = (double?) aspect[AudioAlbumAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[AudioAlbumAspect.ATTR_RATING_COUNT];
+  AvailTracks = (int?) aspect[AudioAlbumAspect.ATTR_AVAILABLE_TRACKS];
 }
 
 public void SetEmpty()
@@ -289,6 +303,7 @@ public void SetEmpty()
   Sales = null;
   TotalRating = null;
   RatingCount = null;
+  AvailTracks = null;
 }
 
 

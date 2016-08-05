@@ -312,6 +312,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       season.SeriesName = new SimpleTitle(seasonDetail.Title, true);
       season.FirstAired = seasonDetail.Episodes != null && seasonDetail.Episodes.Count > 0 ? seasonDetail.Episodes[0].Released : default(DateTime?);
       season.SeasonNumber = seasonDetail.SeasonNumber;
+      season.TotalEpisodes = seasonDetail.Episodes.Count;
 
       return true;
     }

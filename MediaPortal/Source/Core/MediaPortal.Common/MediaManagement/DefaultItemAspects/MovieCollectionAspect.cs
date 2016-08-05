@@ -43,10 +43,23 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COLLECTION_NAME =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CollectionName", 200, Cardinality.Inline, true);
 
+    /// <summary>
+    /// Contains the number of movies available for watching.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_MOVIES =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailMovies", typeof(int), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the total number of movies currently available for the collection.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUM_MOVIES =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumMovies", typeof(int), Cardinality.Inline, true);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "MovieCollectionItem", new[] {
-            ATTR_COLLECTION_NAME
+            ATTR_COLLECTION_NAME,
+            ATTR_AVAILABLE_MOVIES,
+            ATTR_NUM_MOVIES
         });
 
     public static readonly Guid ROLE_MOVIE_COLLECTION = new Guid("EB0F461A-E7BB-46D2-8D85-2A18122A0983");

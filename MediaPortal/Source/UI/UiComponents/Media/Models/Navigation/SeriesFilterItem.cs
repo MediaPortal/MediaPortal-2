@@ -22,6 +22,13 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.Settings;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
+
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
@@ -29,5 +36,85 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class SeriesFilterItem : FilterItem
   {
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
+
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
+      AvailableSeasons = "";
+      TotalSeasons = "";
+      AvailableEpisodes = "";
+      TotalEpisodes = "";
+
+      int? count;
+      if(mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+      {
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_AVAILABLE_SEASONS, out count))
+          AvailableSeasons = count.Value.ToString();
+
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_NUM_SEASONS, out count))
+          TotalSeasons = count.Value.ToString();
+
+        if (showVirtual)
+          Seasons = TotalSeasons;
+        else
+          Seasons = AvailableSeasons;
+
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_AVAILABLE_EPISODES, out count))
+          AvailableEpisodes = count.Value.ToString();         
+
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_NUM_EPISODES, out count))
+          TotalEpisodes = count.Value.ToString();
+
+        if (showVirtual)
+          Episodes = TotalEpisodes;
+        else
+          Episodes = AvailableEpisodes;
+
+        string name;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIES_NAME, out name))
+          SimpleTitle = name;
+      }
+
+      FireChange();
+    }
+
+    public string AvailableEpisodes
+    {
+      get { return this[Consts.KEY_AVAIL_EPISODES]; }
+      set { SetLabel(Consts.KEY_AVAIL_EPISODES, value); }
+    }
+
+    public string TotalEpisodes
+    {
+      get { return this[Consts.KEY_TOTAL_EPISODES]; }
+      set { SetLabel(Consts.KEY_TOTAL_EPISODES, value); }
+    }
+
+    public string Episodes
+    {
+      get { return this[Consts.KEY_NUM_EPISODES]; }
+      set { SetLabel(Consts.KEY_NUM_EPISODES, value); }
+    }
+
+    public string AvailableSeasons
+    {
+      get { return this[Consts.KEY_AVAIL_SEASONS]; }
+      set { SetLabel(Consts.KEY_AVAIL_SEASONS, value); }
+    }
+
+    public string TotalSeasons
+    {
+      get { return this[Consts.KEY_TOTAL_SEASONS]; }
+      set { SetLabel(Consts.KEY_TOTAL_SEASONS, value); }
+    }
+
+    public string Seasons
+    {
+      get { return this[Consts.KEY_NUM_SEASONS]; }
+      set { SetLabel(Consts.KEY_NUM_SEASONS, value); }
+    }
   }
 }

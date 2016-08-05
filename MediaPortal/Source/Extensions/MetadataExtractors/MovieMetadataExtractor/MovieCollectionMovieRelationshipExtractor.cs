@@ -67,6 +67,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       extractedLinkedAspects = null;
 
+      if (forceQuickMode)
+        return false;
+
       MovieCollectionInfo collectionInfo = new MovieCollectionInfo();
       if (!collectionInfo.FromMetadata(aspects))
         return false;
@@ -74,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (_checkCache.IsItemChecked(collectionInfo))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, false);
+      MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true, forceQuickMode);
 
       if (collectionInfo.Movies.Count == 0)
         return false;
@@ -130,7 +133,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.FromMetadata(linkedAspects))
         return false;
 
-      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true))
+      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true, true))
         return false;
 
       index = collectionInfo.Movies.IndexOf(movieInfo);

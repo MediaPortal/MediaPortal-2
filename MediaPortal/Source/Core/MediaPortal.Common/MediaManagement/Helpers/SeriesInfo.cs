@@ -87,6 +87,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int? NextEpisodeSeasonNumber = null;
     public int? NextEpisodeNumber = null;
     public DateTime? NextEpisodeAirDate = null;
+    public int TotalSeasons = 0;
+    public int TotalEpisodes = 0;
 
     /// <summary>
     /// Contains a list of <see cref="CultureInfo.TwoLetterISOLanguageName"/> of the medium. This can be used
@@ -152,6 +154,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!Description.IsEmpty) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, CleanString(Description.Text));
       if (!string.IsNullOrEmpty(Certification)) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_CERTIFICATION, Certification);
       MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_ENDED, IsEnded);
+      if (TotalSeasons > 0) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NUM_SEASONS, TotalSeasons);
+      if (TotalEpisodes > 0) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_NUM_EPISODES, TotalEpisodes);
 
       if (NextEpisodeAirDate.HasValue)
       {
@@ -216,6 +220,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         SeriesName = new SimpleTitle(tempString, false);
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, out tempString);
         Description = new SimpleTitle(tempString, false);
+
+        int? count;
+        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NUM_SEASONS, out count))
+          TotalSeasons = count.Value;
+        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NUM_EPISODES, out count))
+          TotalEpisodes = count.Value;
 
         string id;
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, out id))

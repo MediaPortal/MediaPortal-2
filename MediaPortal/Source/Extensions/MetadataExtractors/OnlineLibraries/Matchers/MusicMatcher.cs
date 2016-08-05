@@ -613,7 +613,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateAlbum(AlbumInfo albumInfo, bool forceQuickMode)
+    public virtual bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode)
     {
       try
       {
@@ -666,12 +666,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateString(ref albumInfo.Album, albumMatch.Album);
           MetadataUpdater.SetOrUpdateString(ref albumInfo.Description, albumMatch.Description);
 
+          if (albumInfo.TotalTracks < albumMatch.TotalTracks)
+            MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalTracks, albumMatch.TotalTracks);
+
           MetadataUpdater.SetOrUpdateValue(ref albumInfo.Compilation, albumMatch.Compilation);
           MetadataUpdater.SetOrUpdateValue(ref albumInfo.DiscNum, albumMatch.DiscNum);
           MetadataUpdater.SetOrUpdateValue(ref albumInfo.ReleaseDate, albumMatch.ReleaseDate);
           MetadataUpdater.SetOrUpdateValue(ref albumInfo.Sales, albumMatch.Sales);
           MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalDiscs, albumMatch.TotalDiscs);
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalTracks, albumMatch.TotalTracks);
 
           MetadataUpdater.SetOrUpdateRatings(ref albumInfo.Rating, albumMatch.Rating);
 
@@ -679,7 +681,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, true);
-          MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
+          if(updateTrackList) //Comparing all tracks can be quite time consuming
+            MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
 
           //Store person matches
           foreach (PersonInfo person in albumInfo.Artists)
@@ -823,7 +826,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private void StoreTrackMatch(TrackInfo trackSearch, TrackInfo trackMatch)
     {
       string idValue = null;
-      if (trackMatch == null || !GetTrackId(trackSearch, out idValue))
+      if (trackMatch == null || !GetTrackId(trackSearch, out idValue) || string.IsNullOrEmpty(trackMatch.TrackName))
       {
         //No match was found. Store search to avoid online search again
         _storage.TryAddMatch(new TrackMatch()

@@ -67,5 +67,10 @@ namespace MediaPortal.UI.Services.MediaManagement
     {
       //TODO: Is this necessary on client?
     }
+
+    public void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType, MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual)
+    {
+      //TODO: Is this necessary on client?
+    }
   }
 }

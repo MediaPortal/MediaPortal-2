@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!_collectionCache.TryGetCheckedItem(movieInfo.CloneBasicInstance<MovieCollectionInfo>(), out collectionInfo))
       {
         collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-        MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, forceQuickMode);
+        MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, false, false);
 
         _collectionCache.TryAddCheckedItem(collectionInfo);
       }
@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.FromMetadata(linkedAspects))
         return false;
 
-      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true))
+      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true, true))
         return false;
 
       MovieInfo movieInfo = new MovieInfo();

@@ -28,7 +28,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class VideosFilterByPlayCountScreenData : AbstractVideosFilterScreenData
+  public class VideosFilterByPlayCountScreenData : AbstractVideosFilterScreenData<FilterItem>
   {
     public VideosFilterByPlayCountScreenData() :
         base(Consts.SCREEN_VIDEOS_FILTER_BY_PLAYCOUNT, Consts.RES_FILTER_BY_VIDEO_PLAYCOUNT_MENU_ITEM,

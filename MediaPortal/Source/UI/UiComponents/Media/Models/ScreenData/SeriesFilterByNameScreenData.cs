@@ -28,7 +28,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesFilterByNameScreenData : AbstractFiltersScreenData<SeriesFilterItem>
+  public class SeriesFilterByNameScreenData : AbstractSeriesFilterScreenData<SeriesFilterItem>
   {
     public SeriesFilterByNameScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_FILTER_BY_SERIES_NAME_MENU_ITEM,
