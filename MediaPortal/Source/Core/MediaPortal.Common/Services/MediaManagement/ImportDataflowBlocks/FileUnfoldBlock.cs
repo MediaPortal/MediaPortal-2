@@ -128,7 +128,16 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
         }
 
-        result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+        if (ImportJobInformation.JobType == ImportJobType.Import)
+        {
+          //Only import new files so only add non existing paths
+          result.UnionWith(files.Where(f => !path2LastImportDate.Keys.Contains(f.CanonicalLocalResourcePath)).
+            Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+        }
+        else
+        {
+          result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
+        }
 
         // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,
         // store the DateOfLastImport in the PendingImportResource
