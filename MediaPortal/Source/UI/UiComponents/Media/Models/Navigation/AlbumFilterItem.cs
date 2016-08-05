@@ -22,6 +22,13 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.Settings;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
+
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
@@ -29,5 +36,55 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class AlbumFilterItem : FilterItem
   {
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
+
+      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      bool showVirtual = settings.ShowVirtual;
+
+      int? count;
+      if (mediaItem.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+      {
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS, out count))
+          AvailableTracks = count.Value.ToString();
+        else
+          AvailableTracks = "";
+
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAlbumAspect.ATTR_NUMTRACKS, out count))
+          TotalTracks = count.Value.ToString();
+        else
+          TotalTracks = "";
+
+        if (showVirtual)
+          Tracks = TotalTracks;
+        else
+          Tracks = AvailableTracks;
+
+        string name;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAlbumAspect.ATTR_ALBUM, out name))
+          SimpleTitle = name;
+      }
+
+      FireChange();
+    }
+
+    public string AvailableTracks
+    {
+      get { return this[Consts.KEY_AVAIL_TRACKS]; }
+      set { SetLabel(Consts.KEY_AVAIL_TRACKS, value); }
+    }
+
+    public string TotalTracks
+    {
+      get { return this[Consts.KEY_TOTAL_TRACKS]; }
+      set { SetLabel(Consts.KEY_TOTAL_TRACKS, value); }
+    }
+
+    public string Tracks
+    {
+      get { return this[Consts.KEY_NUM_TRACKS]; }
+      set { SetLabel(Consts.KEY_NUM_TRACKS, value); }
+    }
   }
 }

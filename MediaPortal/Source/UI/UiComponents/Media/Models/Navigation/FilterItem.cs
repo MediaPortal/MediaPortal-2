@@ -49,7 +49,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         AdditionalProperties.TryGetValue(Consts.KEY_MEDIA_ITEM, out mi);
         return mi as MediaItem;
       }
-      set { AdditionalProperties[Consts.KEY_MEDIA_ITEM] = value; }
+      set
+      {
+        AdditionalProperties[Consts.KEY_MEDIA_ITEM] = value;
+        Update(value);
+      }
     }
+
+    public virtual void Update(MediaItem mediaItem)
+    { }
   }
 }

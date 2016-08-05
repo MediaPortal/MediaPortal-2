@@ -500,15 +500,28 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_AUDIO_ENCODING = "AudioEncoding";
     public const string KEY_VIDEO_ENCODING = "VideoEncoding";
 
+    public const string KEY_NUM_TRACKS = "NumTracks";
+    public const string KEY_TOTAL_TRACKS = "TotalTracks";
+    public const string KEY_AVAIL_TRACKS = "AvailTracks";
+
     public const string KEY_STORY_PLOT = "StoryPlot";
 
     public const string KEY_SERIES_NAME = "SeriesName";
     public const string KEY_SERIES_SEASON = "SeriesSeason";
     public const string KEY_SERIES_EPISODE_NUM = "SeriesEpisodeNum";
     public const string KEY_SERIES_EPISODE_NAME = "SeriesEpisodeName";
+    public const string KEY_NUM_EPISODES = "NumEpisodes";
+    public const string KEY_NUM_SEASONS = "NumSeasons";
+    public const string KEY_TOTAL_EPISODES = "TotalEpisodes";
+    public const string KEY_TOTAL_SEASONS = "TotalSeasons";
+    public const string KEY_AVAIL_EPISODES = "AvailEpisodes";
+    public const string KEY_AVAIL_SEASONS = "AvailSeasons";
 
     public const string KEY_MOVIE_COLLECTION = "MovieCollection";
     public const string KEY_MOVIE_YEAR = "MovieYear";
+    public const string KEY_NUM_MOVIES = "NumMovies";
+    public const string KEY_TOTAL_MOVIES = "TotalMovies";
+    public const string KEY_AVAIL_MOVIES = "AvailMovies";
 
     public const string KEY_IS_CURRENT_ITEM = "IsCurrentItem";
 

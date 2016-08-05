@@ -40,13 +40,5 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       return new SeriesFilterBySeasonScreenData();
     }
-
-    protected override string GetNavbarDisplayLabel(Views.ViewSpecification subViewSpecification)
-    {
-      // subViewSpecification contains "Series S01" pattern, here we only want to show the season number.
-      string season = subViewSpecification.ViewDisplayName ?? string.Empty;
-      season = season.Substring(season.LastIndexOf("S") + 1);
-      return LocalizationHelper.Translate(_navbarSubViewNavigationDisplayLabel, season);
-    }
   }
 }
