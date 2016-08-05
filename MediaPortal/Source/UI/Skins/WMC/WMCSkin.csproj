@@ -144,6 +144,7 @@
     <Content Include="Skin\WMCSkin\images\preview.png" />
     <Content Include="Skin\WMCSkin\images\RECORD.SERIES.PNG" />
     <Content Include="Skin\WMCSkin\images\RECORD.SINGLE.PNG" />
+    <Content Include="Skin\WMCSkin\images\watched.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\0.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\1.png" />
     <Content Include="Skin\WMCSkin\images\Weather\128x128\10.png" />
