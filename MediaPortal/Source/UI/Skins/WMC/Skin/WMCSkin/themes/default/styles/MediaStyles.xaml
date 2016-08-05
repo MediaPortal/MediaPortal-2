@@ -1332,7 +1332,7 @@
         </Image>
       </DockPanel>
       <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
-        <Label x:Name="NumberLabel" Content="{Binding Episode}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
+        <Label x:Name="NumberLabel" Content="{Binding EpisodeNumber}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
           <Label.Color>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
               <Binding Path="PlayCount"/>

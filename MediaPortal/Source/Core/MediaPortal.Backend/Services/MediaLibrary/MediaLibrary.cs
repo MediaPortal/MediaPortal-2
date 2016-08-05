@@ -246,10 +246,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             if ((DateTime.Now - _lastChange.Value).TotalSeconds > _importDelay)
             {
+              _lastChange = null;
+
               IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
               importerWorker.ScheduleImport(_share.BaseResourcePath, _share.MediaCategories, true);
-
-              _lastChange = null;
             }
           }
         }
