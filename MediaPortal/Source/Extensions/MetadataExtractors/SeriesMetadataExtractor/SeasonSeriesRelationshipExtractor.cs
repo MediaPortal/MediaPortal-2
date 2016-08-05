@@ -70,11 +70,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!_seriesCache.TryGetCheckedItem(seasonInfo.CloneBasicInstance<SeriesInfo>(), out seriesInfo))
       {
         seriesInfo = seasonInfo.CloneBasicInstance<SeriesInfo>();
-        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false);
         SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
         SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
         SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
-        SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, forceQuickMode);
+        SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, false);
 
         _seriesCache.TryAddCheckedItem(seriesInfo);
       }
