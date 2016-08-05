@@ -65,6 +65,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       extractedLinkedAspects = null;
 
+      if (forceQuickMode)
+        return false;
+
       MovieInfo movieInfo = new MovieInfo();
       if (!movieInfo.FromMetadata(aspects))
         return false;

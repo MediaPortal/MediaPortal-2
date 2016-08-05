@@ -67,6 +67,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       extractedLinkedAspects = null;
 
+      if (forceQuickMode)
+        return false;
+
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(aspects))
         return false;
