@@ -303,7 +303,7 @@ namespace MediaPortal.UI.Services.Players
     protected static void NotifyPlayback(MediaItem mediaItem, int playPercentage)
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      PlayerContextManagerSettings settings = settingsManager.Load<PlayerContextManagerSettings>();
+      PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
       bool watched = playPercentage >= settings.WatchedPlayPercentage;
       if (watched)
         playPercentage = 100;
