@@ -203,22 +203,27 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <returns></returns>
     private async Task<Guid> AddDirectory(IFileSystemResourceAccessor directoryAccessor, Guid parentDirectoryId)
     {
-      var directoryPath = directoryAccessor.CanonicalLocalResourcePath;
-      var mediaAspect = new SingleMediaItemAspect(MediaAspect.Metadata);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, directoryAccessor.ResourceName);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_SORT_TITLE, directoryAccessor.ResourceName);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, DateTime.MinValue);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_RATING, 0);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, null);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.MinValue);
-      var directoryAspect = new SingleMediaItemAspect(DirectoryAspect.Metadata);
-      IList<MediaItemAspect> aspects = new List<MediaItemAspect>(new[]
-        {
+      var directoryMediaItem = await LoadLocalItem(directoryAccessor.CanonicalLocalResourcePath, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION);
+      if (directoryMediaItem == null)
+      {
+        var directoryPath = directoryAccessor.CanonicalLocalResourcePath;
+        var mediaAspect = new SingleMediaItemAspect(MediaAspect.Metadata);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, directoryAccessor.ResourceName);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_SORT_TITLE, directoryAccessor.ResourceName);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, DateTime.MinValue);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_RATING, 0);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, null);
+        mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.MinValue);
+        var directoryAspect = new SingleMediaItemAspect(DirectoryAspect.Metadata);
+        IList<MediaItemAspect> aspects = new List<MediaItemAspect>(new[]
+          {
             mediaAspect,
             directoryAspect
         });
-      return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects, ImportJobInformation.JobType);
+        return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects, ImportJobInformation.JobType);
+      }
+      return directoryMediaItem.MediaItemId;
     }
 
     #endregion
