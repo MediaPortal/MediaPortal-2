@@ -25,9 +25,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Web;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
-using Newtonsoft.Json;
 using System;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
@@ -75,6 +74,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     private readonly string _cachePath;
     private Configuration _configuration;
     private readonly MovieDbDownloader _downloader;
+    private Dictionary<int, List<int>> _collectionMovieList = new Dictionary<int, List<int>>();
 
     #endregion
 
@@ -170,7 +170,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       {
         try
         {
-          File.Delete(file);
+          _downloader.DeleteCache(file);
         }
         catch
         { }
@@ -182,7 +182,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       {
         try
         {
-          File.Delete(file);
+          _downloader.DeleteCache(file);
+        }
+        catch
+        { }
+      }
+    }
+
+    /// <summary>
+    /// Deletes all cache files for the specified movie collection.
+    /// </summary>
+    /// <param name="id">TMDB id of movie collection</param>
+    /// <returns></returns>
+    public void DeleteMovieCollectionCache(int id)
+    {
+      string folder = Path.Combine(_cachePath, id.ToString());
+      if (!Directory.Exists(folder))
+        return;
+
+      string cacheFileMask = Path.GetFileName(CreateAndGetCacheName(id, "*", "Collection"));
+      string[] cacheFiles = Directory.GetFiles(folder, cacheFileMask);
+      foreach (string file in cacheFiles)
+      {
+        try
+        {
+          _downloader.DeleteCache(file);
         }
         catch
         { }
@@ -376,13 +400,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     public Movie GetMovie(int id, string language, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, language, "Movie");
+      Movie movie = null;
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<Movie>(cache);
+        movie = _downloader.ReadCache<Movie>(cache);
       }
-      if (cacheOnly) return null;
-      string url = GetUrl(URL_GETMOVIE, language, id);
-      return _downloader.Download<Movie>(url, cache);
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETMOVIE, language, id);
+        movie = _downloader.Download<Movie>(url, cache);
+      }
+      if(movie != null && movie.Id > 0 && movie.Collection != null && movie.Collection.Id > 0)
+      {
+        lock(_collectionMovieList)
+        {
+          if (!_collectionMovieList.ContainsKey(movie.Collection.Id))
+            _collectionMovieList.Add(movie.Collection.Id, new List<int>());
+          if(!_collectionMovieList[movie.Collection.Id].Contains(movie.Id))
+            _collectionMovieList[movie.Collection.Id].Add(movie.Id);
+        }
+      }
+      return movie;
     }
 
     /// <summary>
@@ -395,13 +434,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     public Movie GetMovie(string imdbId, string language, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(imdbId, language, "Movie");
+      Movie movie = null;
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<Movie>(cache);
+        movie = _downloader.ReadCache<Movie>(cache);
       }
-      if (cacheOnly) return null;
-      string url = GetUrl(URL_GETMOVIE, language, imdbId);
-      return _downloader.Download<Movie>(url, cache);
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETMOVIE, language, imdbId);
+        movie = _downloader.Download<Movie>(url, cache);
+      }
+      if (movie != null && movie.Id > 0 && movie.Collection != null && movie.Collection.Id > 0)
+      {
+        lock (_collectionMovieList)
+        {
+          if (!_collectionMovieList.ContainsKey(movie.Collection.Id))
+            _collectionMovieList.Add(movie.Collection.Id, new List<int>());
+          if (!_collectionMovieList[movie.Collection.Id].Contains(movie.Id))
+            _collectionMovieList[movie.Collection.Id].Add(movie.Id);
+        }
+      }
+      return movie;
     }
 
     /// <summary>
@@ -447,7 +501,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       string cache = CreateAndGetCacheName(id, language, "Collection");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<MovieCollection>(cache);
+        MovieCollection collection = _downloader.ReadCache<MovieCollection>(cache);
+        if (collection != null)
+        {
+          bool expired = false;
+          lock (_collectionMovieList)
+          {
+            if (_collectionMovieList.ContainsKey(id))
+            {
+              //Check if any movie has been found as part of the collection that is not found in the cache
+              if (_collectionMovieList[id].Except(collection.Movies.Select(m => m.Id)).Any())
+                expired = true;
+            }
+            else
+            {
+              _collectionMovieList.Add(id, new List<int>());
+              _collectionMovieList[id].AddRange(collection.Movies.Select(m => m.Id));
+            }
+          }
+          if (expired)
+            _downloader.DeleteCache(cache);
+          else
+            return collection;
+        }
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETCOLLECTION, language, id);
