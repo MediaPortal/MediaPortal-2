@@ -2082,6 +2082,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 float watchedCount = 0;
                 command.CommandText = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
                     ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                    ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_PLAYCOUNT) +
                     " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
                     " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
                     " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
@@ -2110,9 +2111,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                       nonVirtualChildCount++;
                     }
                     int playCount = 0;
-                    if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount) && playCount > 0)
+                    if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount))
                     {
-                      watchedCount++;
+                      if(playCount > 0)
+                        watchedCount++;
+                    }
+                    else //Prefer user play count but use overall play count if not available
+                    {
+                      int? totalPlayCount = database.ReadDBValue<int?>(reader, 2);
+                      if (totalPlayCount.HasValue && totalPlayCount.Value > 0)
+                        watchedCount++;
                     }
                   }
                 }
