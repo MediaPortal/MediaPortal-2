@@ -1003,7 +1003,7 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="90"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
@@ -1176,16 +1176,28 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="90"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="SegoeUIBold"
-             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
-      </Label>
+      <media:SeasonAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="5,0,10,0">
+        <media:SeasonAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <StackPanel Orientation="Horizontal">
+                <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Margin="0,0,7,0"
+                     Content="[Media.SeasonRootViewName]" Color="{ThemeResource MediaItemUnwatchedColor}"/>
+                <Label x:Name="NumberLabel" Content="{Binding Season}" FontSize="{ThemeResource SmallFontSize}" 
+                       FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"/>
+              </StackPanel>
+            </Grid>
+          </ControlTemplate>
+        </media:SeasonAspectWrapper.Template>
+      </media:SeasonAspectWrapper>
+
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
@@ -1784,11 +1796,44 @@
         </Image.OpacityMask>
       </Image>
       <!-- Unwatched indicator -->
-      <Image Source="unwatched_flag.png" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-        </Image.IsVisible>
-      </Image>
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+                </Grid.IsVisible>
+                <Image Source="flag.png" Height="90" Stretch="Uniform">
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+                <Image x:Name="PartlyWatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
+                     Source="partlywatched.png" HorizontalAlignment="Right" VerticalAlignment="Top">
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+              </Grid>
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+                </Grid.IsVisible>
+                <Image Source="flag.png" Height="90" Stretch="Uniform"/>
+                <Image x:Name="WatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
+                     Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top">
+                </Image>
+              </Grid>
+            </Grid>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
+
     </Grid>
   </ControlTemplate>
 

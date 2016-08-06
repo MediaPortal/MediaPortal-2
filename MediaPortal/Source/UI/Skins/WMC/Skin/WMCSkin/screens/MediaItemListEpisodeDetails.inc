@@ -45,21 +45,16 @@
               <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
             </Label.Content>
           </Label>
-          <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label.Content>
-              <Binding Path="Season " Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Season {0}"/>
-            </Label.Content>
-          </Label>
+          <StackPanel Orientation="Horizontal">
+            <Label Content="[Media.SeasonRootViewName]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"
+                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
+          </StackPanel>
 
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <Label Content="Episode " Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center"/>
-            <Label x:Name="EpisodeLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Center">
-              <Label.Content>
-                <Binding Path="Episode"/>
-              </Label.Content>
-            </Label>
+          <StackPanel Orientation="Horizontal">
+            <Label Content="[Media.EpisodeRootViewName]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <Label x:Name="EpisodeLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"
+                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Episode}"/>
           </StackPanel>
 
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
