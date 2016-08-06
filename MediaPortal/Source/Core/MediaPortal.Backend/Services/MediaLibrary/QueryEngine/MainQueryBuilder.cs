@@ -343,6 +343,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
 
+
       statementStr = result.ToString();
     }
 

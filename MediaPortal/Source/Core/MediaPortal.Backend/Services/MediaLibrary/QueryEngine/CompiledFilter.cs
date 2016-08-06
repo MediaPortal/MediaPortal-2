@@ -309,49 +309,62 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       RelationshipFilter relationshipFilter = filter as RelationshipFilter;
       if (relationshipFilter != null)
       {
-        BindVar roleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.Role, typeof(Guid));
-        BindVar linkedRoleVar1 = new BindVar(bvNamespace.CreateNewBindVarName("V1"), relationshipFilter.LinkedRole, typeof(Guid));
-        BindVar roleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.Role, typeof(Guid));
-        BindVar linkedRoleVar2 = new BindVar(bvNamespace.CreateNewBindVarName("V2"), relationshipFilter.LinkedRole, typeof(Guid));
+        TableQueryData tqdRelationshipTable = new TableQueryData(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
+        TableQueryData tqdInverseRelationshipTable = new TableQueryData(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
 
-        resultParts.Add(outerMIIDJoinVariable);
-        resultParts.Add(" IN(");
+        tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqdRelationshipTable,
+            new RequestedAttribute(tqdRelationshipTable, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), outerMIIDJoinVariable));
+        tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqdInverseRelationshipTable,
+            new RequestedAttribute(tqdInverseRelationshipTable, miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID)),
+            outerMIIDJoinVariable));
 
-        resultParts.Add("SELECT V1.");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
-        resultParts.Add(" FROM ");
-        resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
-        resultParts.Add(" V1 WHERE V1.");
+        string alias1 = tqdRelationshipTable.GetAlias(ns);
+        string alias2 = tqdInverseRelationshipTable.GetAlias(ns);
+        BindVar roleVar = new BindVar(bvNamespace.CreateNewBindVarName("R"), relationshipFilter.Role, typeof(Guid));
+        BindVar linkedRoleVar = new BindVar(bvNamespace.CreateNewBindVarName("R"), relationshipFilter.LinkedRole, typeof(Guid));
+        resultBindVars.Add(roleVar);
+        resultBindVars.Add(linkedRoleVar);
+
+        resultParts.Add("((");
+        resultParts.Add(alias1 + ".");
         resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
-        resultParts.Add("=@" + roleVar1.Name);
-        resultBindVars.Add(roleVar1);
-        resultParts.Add(" AND V1.");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
-        resultParts.Add("=@" + linkedRoleVar1.Name);
-        resultBindVars.Add(linkedRoleVar1);
+        resultParts.Add("=@" + roleVar.Name);
         resultParts.Add(" AND ");
-        CompileStatementParts(miaManagement, relationshipFilter.Filter, ns, bvNamespace,
-          requiredMIATypes, "V1." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME, tableJoins, resultParts, resultBindVars);
-
-        resultParts.Add(" UNION ");
-
-        resultParts.Add("SELECT V2.");
-        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-        resultParts.Add(" FROM ");
-        resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
-        resultParts.Add(" V2 WHERE V2.");
+        resultParts.Add(alias1 + ".");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + linkedRoleVar.Name);
+        resultParts.Add(") OR (");
+        resultParts.Add(alias1 + ".");
         resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
-        resultParts.Add("=@" + linkedRoleVar2.Name);
-        resultBindVars.Add(linkedRoleVar2);
-        resultParts.Add(" AND V2.");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
-        resultParts.Add("=@" + roleVar2.Name);
-        resultBindVars.Add(roleVar2);
+        resultParts.Add("=@" + linkedRoleVar.Name);
         resultParts.Add(" AND ");
-        CompileStatementParts(miaManagement, relationshipFilter.Filter, ns, bvNamespace,
-          requiredMIATypes, "V2." + miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID), 
-          tableJoins, resultParts, resultBindVars);
-        resultParts.Add(")");
+        resultParts.Add(alias1 + ".");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + roleVar.Name);
+        resultParts.Add(") OR (");
+        resultParts.Add(alias2 + ".");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
+        resultParts.Add("=@" + roleVar.Name);
+        resultParts.Add(" AND ");
+        resultParts.Add(alias2 + ".");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + linkedRoleVar.Name);
+        resultParts.Add(") OR (");
+        resultParts.Add(alias2 + ".");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
+        resultParts.Add("=@" + linkedRoleVar.Name);
+        resultParts.Add(" AND ");
+        resultParts.Add(alias2 + ".");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + roleVar.Name);
+        resultParts.Add("))");
+
+        if (relationshipFilter.Filter != null)
+        {
+          resultParts.Add(" AND ");
+          CompileStatementParts(miaManagement, relationshipFilter.Filter, ns, bvNamespace,
+            requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
+        }
         return;
       }
 
