@@ -47,7 +47,6 @@ namespace MediaPortal.UiComponents.Media.Views
     #region Protected fields
 
     protected IFilter _filter;
-    protected IFilter _relationshipFilter;
     protected MediaItemQuery _query;
     protected bool _onlyOnline;
     protected int? _maxNumItems;
@@ -57,13 +56,12 @@ namespace MediaPortal.UiComponents.Media.Views
 
     #region Ctor
 
-    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilter filter, IFilter relationshipFilter,
+    public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilter filter,
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
         base(viewDisplayName, necessaryMIATypeIDs, optionalMIATypeIDs)
     {
       _filter = filter;
-      _relationshipFilter = relationshipFilter;
-      _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, filter ?? relationshipFilter);
+      _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, filter);
       _onlyOnline = onlyOnline;
     }
 
@@ -77,11 +75,6 @@ namespace MediaPortal.UiComponents.Media.Views
     public IFilter Filter
     {
       get { return _filter; }
-    }
-
-    public IFilter RelationshipFilter
-    {
-      get { return _relationshipFilter; }
     }
 
     /// <summary>
@@ -110,7 +103,7 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter, IFilter relationshipFilter)
+    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter)
     {
       IFilter combinedFilter;
       if (_filter == null)
@@ -124,7 +117,7 @@ namespace MediaPortal.UiComponents.Media.Views
         else
           combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { _filter, filter });
       }
-      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, relationshipFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
+      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
         {
             MaxNumItems = _maxNumItems
         };
@@ -180,7 +173,7 @@ namespace MediaPortal.UiComponents.Media.Views
             subViewSpecifications = new List<ViewSpecification>(groups.Count);
             foreach (MLQueryResultGroup group in groups)
             {
-              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter, null);
+              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter);
               subViewSpecification.MaxNumItems = null;
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);
