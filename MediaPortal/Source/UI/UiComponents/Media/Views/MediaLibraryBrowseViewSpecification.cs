@@ -124,7 +124,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null)
         return new List<MediaItem>();
 
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
       MediaItemQuery query = new MediaItemQuery(
@@ -158,7 +158,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
       try

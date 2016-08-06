@@ -83,7 +83,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
       IFilter combinedFilter = filter != null ? new RelationshipFilter(filter, _linkedRole, _role) : null;

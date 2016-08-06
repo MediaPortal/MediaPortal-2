@@ -80,7 +80,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
       IEnumerable <Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;

@@ -63,6 +63,7 @@ namespace MediaPortal.UiComponents.Media.Settings
   {
     public const LayoutType DEFAULT_LAYOUT_TYPE = LayoutType.ListLayout;
     public const LayoutSize DEFAULT_LAYOUT_SIZE = LayoutSize.Small;
+    public const bool DEFAULT_SHOW_VIRTUAL = false;
 
     public ViewSettings()
     {
@@ -75,5 +76,11 @@ namespace MediaPortal.UiComponents.Media.Settings
 
     [Setting(SettingScope.User)]
     public MediaDictionary<string, string> ScreenHierarchy { get; set; }
+
+    /// <summary>
+    /// Default setting for showing virtual media items.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public bool ShowVirtual { get; set; }
   }
 }

@@ -43,7 +43,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;

@@ -52,7 +52,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
       HomogenousMap valueGroups = cd.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, null, ProjectionFunction.DateToYear,

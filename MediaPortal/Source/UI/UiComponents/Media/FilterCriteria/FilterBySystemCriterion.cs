@@ -57,7 +57,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         return new List<FilterValue>();
 
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
       HomogenousMap valueGroups = cd.GetValueGroups(ProviderResourceAspect.ATTR_SYSTEM_ID, null, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
