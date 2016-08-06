@@ -29,12 +29,11 @@
                 <Binding Path="SeriesName"/>
               </Label.Content>
             </Label>
-            <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Label.Content>
-                <Binding Path="Season" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Season {0}"/>
-              </Label.Content>
-            </Label>
+            <StackPanel Orientation="Horizontal">
+              <Label Content="[Media.SeasonRootViewName]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+              <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
+            </StackPanel>
           </StackPanel>
       </ControlTemplate>
     </media:SeasonAspectWrapper.Template>
