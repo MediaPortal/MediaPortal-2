@@ -38,6 +38,7 @@ using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -1055,32 +1056,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Artist;
-        List<PersonInfo> persons = trackInfo.Artists;
-        if(persons != null && persons.Count > 0)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading track artist images for ID {0}", downloadId);
-          foreach (PersonInfo person in persons)
-          {
-            if (_wrapper.GetFanArt(person, language, scope, out images) == false)
-            {
-              if (images != null)
-              {
-                SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-                SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-                SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-                SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-                SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-                SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-                SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-                SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-              }
-            }
-          }
-        }
-        persons = trackInfo.AlbumArtists;
+        List<PersonInfo> persons = new List<PersonInfo>(trackInfo.Artists);
+        persons = persons.Union(new List<PersonInfo>(trackInfo.AlbumArtists)).ToList();
         if (persons != null && persons.Count > 0)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading album artist images for ID {0}", downloadId);
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading artist images for ID {0}", downloadId);
           foreach (PersonInfo person in persons)
           {
             if (_wrapper.GetFanArt(person, language, scope, out images) == false)
@@ -1101,7 +1081,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Writer;
-        persons = trackInfo.Composers;
+        persons = new List<PersonInfo>(trackInfo.Composers);
         if (persons != null && persons.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading composer images for ID {0}", downloadId);
@@ -1125,7 +1105,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.MusicLabel;
-        List<CompanyInfo> companies = trackInfo.MusicLabels;
+        List<CompanyInfo> companies = new List<CompanyInfo>(trackInfo.MusicLabels);
         if (companies != null && companies.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading label images for ID {0}", downloadId);

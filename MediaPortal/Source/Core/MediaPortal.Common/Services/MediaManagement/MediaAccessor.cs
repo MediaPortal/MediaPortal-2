@@ -34,6 +34,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RawUrlResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider;
+using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
@@ -272,6 +273,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       RegisterProvider(new LocalFsResourceProvider());
       RegisterProvider(new RemoteResourceProvider());
       RegisterProvider(new RawUrlResourceProvider());
+      RegisterProvider(new VirtualResourceProvider());
     }
 
     protected void DisposeProviders()

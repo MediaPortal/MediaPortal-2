@@ -38,6 +38,7 @@ using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Common.Threading;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -1547,12 +1548,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Actor;
-        List<PersonInfo> persons = seriesInfo.Actors;
+        List<PersonInfo> persons = new List<PersonInfo>(seriesInfo.Actors);
         if(episodeInfo != null)
         {
-          for (int i = 0; i < seriesInfo.Actors.Count; i++)
-            if (!persons.Contains(seriesInfo.Actors[i]))
-              persons.Add(seriesInfo.Actors[i]);
+          persons = persons.Union(new List<PersonInfo>(episodeInfo.Actors)).ToList();
         }
         if(persons != null && persons.Count > 0)
         {
@@ -1581,7 +1580,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         persons = null;
         if (episodeInfo != null)
         {
-          persons = episodeInfo.Directors;
+          persons = new List<PersonInfo>(episodeInfo.Directors);
         }
         if (persons != null && persons.Count > 0)
         {
@@ -1610,7 +1609,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         persons = null;
         if (episodeInfo != null)
         {
-          persons = episodeInfo.Writers;
+          persons = new List<PersonInfo>(episodeInfo.Writers);
         }
         if (persons != null && persons.Count > 0)
         {
@@ -1636,12 +1635,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Character;
-        List<CharacterInfo> characters = seriesInfo.Characters;
+        List<CharacterInfo> characters = new List<CharacterInfo>(seriesInfo.Characters);
         if (episodeInfo != null)
         {
-          for (int i = 0; i < episodeInfo.Characters.Count; i++)
-            if (!characters.Contains(episodeInfo.Characters[i]))
-              characters.Add(episodeInfo.Characters[i]);
+          characters = characters.Union(new List<CharacterInfo>(episodeInfo.Characters)).ToList();
         }
         if (characters != null && characters.Count > 0)
         {
@@ -1667,7 +1664,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Company;
-        List<CompanyInfo> companies = seriesInfo.ProductionCompanies;
+        List<CompanyInfo> companies = new List<CompanyInfo>(seriesInfo.ProductionCompanies);
         if (companies != null && companies.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading company images for ID {0}", downloadId);
@@ -1692,7 +1689,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.TVNetwork;
-        List<CompanyInfo> networks = seriesInfo.Networks;
+        List<CompanyInfo> networks = new List<CompanyInfo>(seriesInfo.Networks);
         if (companies != null && companies.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading network images for ID {0}", downloadId);
