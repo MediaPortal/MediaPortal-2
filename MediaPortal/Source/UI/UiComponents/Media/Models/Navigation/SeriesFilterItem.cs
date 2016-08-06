@@ -40,7 +40,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
 
-      MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
       AvailableSeasons = "";
