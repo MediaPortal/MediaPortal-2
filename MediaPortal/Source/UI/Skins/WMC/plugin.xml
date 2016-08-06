@@ -62,6 +62,12 @@
         Text="[WMC.Configuration.EnableFanart]"
         HelpText="[WMC.Configuration.EnableFanart.Help]"
         ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableFanartConfiguration"/>
+    
+    <ConfigSetting
+        Id="EnableWatchedFlags"
+        Text="[WMC.Configuration.EnableWatchedFlags]"
+        HelpText="[WMC.Configuration.EnableWatchedFlags.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableWatchedFlagsConfiguration"/>
   </Register>
 
 </Plugin>
