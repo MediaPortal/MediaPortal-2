@@ -123,6 +123,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         return true;
       }
+      else if (aspectData.ContainsKey(MediaAspect.ASPECT_ID))
+      {
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_TITLE, out tempString);
+        CollectionName = new SimpleTitle(tempString, false);
+
+        string id;
+        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
+          MovieDbId = Convert.ToInt32(id);
+
+        return true;
+      }
       return false;
     }
 

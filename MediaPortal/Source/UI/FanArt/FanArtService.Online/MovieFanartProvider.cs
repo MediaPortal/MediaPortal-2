@@ -41,13 +41,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
   public class MovieFanartProvider : IFanArtProvider
   {
     private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
-    private static readonly Guid[] OPTIONAL_MIAS = { MovieAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
+    private static readonly Guid[] OPTIONAL_MIAS = { MovieAspect.ASPECT_ID, MovieCollectionAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
     private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
     {
        FanArtMediaTypes.Movie,
        FanArtMediaTypes.MovieCollection,
        FanArtMediaTypes.Actor,
+       FanArtMediaTypes.Character,
        FanArtMediaTypes.Director,
        FanArtMediaTypes.Writer,
        FanArtMediaTypes.Company,
@@ -135,6 +136,24 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
       fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
       fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+
+      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.MovieCollection &&
+        (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.Poster))
+      {
+        MovieCollectionInfo collection = infoObject as MovieCollectionInfo;
+        if (collection != null)
+        {
+          mediaType = FanArtMediaTypes.Movie;
+          MovieTheMovieDbMatcher.Instance.UpdateCollection(collection, true, true);
+          foreach (MovieInfo movie in collection.Movies)
+          {
+            fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(movie, mediaType, fanArtType));
+            fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(movie, mediaType, fanArtType));
+            if (fanArtFiles.Count > 0)
+              break;
+          }
+        }
+      }
 
       List<IResourceLocator> files = new List<IResourceLocator>();
       try
