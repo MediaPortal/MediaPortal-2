@@ -33,7 +33,6 @@ using MediaPortal.UI.Players.BassPlayer.InputSources;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.Settings;
 using MediaPortal.UI.Players.BassPlayer.Utils;
-using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 
 namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 {
@@ -115,8 +114,6 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
       using (IResourceAccessor accessor = locator.CreateAccessor())
       {
-        if (accessor is VirtualResourceAccessor)
-          return false;
         if (accessor is AudioCDResourceAccessor || accessor is INetworkResourceAccessor)
           return true;
         string ext = DosPathHelper.GetExtension(accessor.ResourcePathName).ToLowerInvariant();
