@@ -3,4 +3,9 @@
   <string name="WMC.Configuration.SkinSettings">Skin Settings</string>
   <string name="WMC.Configuration.EnableFanart">Enable fanart</string>
   <string name="WMC.Configuration.EnableFanart.Help">Whether to display background fanart.</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Enable watched flags</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Whether to display watched icons in the selected views.</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">List View</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Grid View</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Cover View</string>
 </resources>

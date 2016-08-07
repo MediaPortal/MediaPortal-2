@@ -11,5 +11,14 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings
   {
     [Setting(SettingScope.User, true)]
     public bool EnableFanart { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableListWatchedFlags { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableGridWatchedFlags { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableCoverWatchedFlags { get; set; }
   }
 }

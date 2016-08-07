@@ -70,6 +70,7 @@
     <Compile Include="Models\NestedItem.cs" />
     <Compile Include="Models\SkinSettingsModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
     <Compile Include="Settings\SkinChangeMonitor.cs" />
     <Compile Include="Settings\WMCSkinSettings.cs" />
