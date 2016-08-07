@@ -45,12 +45,21 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     protected Guid _role;
     protected Guid _linkedRole;
+    protected Guid? _baseRole;
     protected IFilter _filter;
     protected IEnumerable<Guid> _necessaryMIATypeIds;
     protected IEnumerable<Guid> _optionalMIATypeIds;
     protected SortInformation _sortInformation;
 
     public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, SortInformation sortInformation)
+      : this(role, linkedRole, null, necessaryMIATypeIds, null, filter, sortInformation)
+     { }
+ 
+     public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, IFilter filter, SortInformation sortInformation)
+     : this(role, linkedRole, null, necessaryMIATypeIds, optionalMIATypeIds, filter, sortInformation)
+     { }
+ 
+    public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, Guid? baseRole, IEnumerable<Guid> necessaryMIATypeIds, IFilter filter, SortInformation sortInformation)
     {
       _role = role;
       _linkedRole = linkedRole;
@@ -60,10 +69,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       _sortInformation = sortInformation;
     }
 
-    public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, IFilter filter, SortInformation sortInformation)
+    public FilteredRelationshipMLFilterCriterion(Guid role, Guid linkedRole, Guid? baseRole, IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, IFilter filter, SortInformation sortInformation)
     {
       _role = role;
       _linkedRole = linkedRole;
+      _baseRole = baseRole;
       _necessaryMIATypeIds = necessaryMIATypeIds;
       _optionalMIATypeIds = optionalMIATypeIds;
       _filter = filter;
@@ -72,7 +82,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter, RelationshipFilter relationshipFilter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -86,7 +96,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
-      IFilter combinedFilter = filter != null ? new RelationshipFilter(filter, _linkedRole, _role) : null;
+      IFilter combinedFilter = null;
+      if (relationshipFilter != null)
+        combinedFilter = new RelationshipFilter(relationshipFilter, _linkedRole, _role);
+      else
+        combinedFilter = filter;
       if (combinedFilter != null && _filter != null)
         combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, combinedFilter, _filter);
       IEnumerable <Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
@@ -100,8 +114,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       {
         string name;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
+        RelationshipFilter itemFilter = new RelationshipFilter(item.MediaItemId, _role, _linkedRole);
         result.Add(new FilterValue(name,
-          new RelationshipFilter(item.MediaItemId, _role, _linkedRole),
+          _baseRole.HasValue ? new RelationshipFilter(itemFilter, _role, _baseRole.Value) : itemFilter,
+          itemFilter,
           null,
           item,
           this));

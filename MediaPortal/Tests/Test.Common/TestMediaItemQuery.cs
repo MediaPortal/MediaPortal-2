@@ -58,7 +58,7 @@ namespace Test.Common
 
       Assert.IsTrue(query2.Filter is RelationshipFilter, "Query filter type");
       RelationshipFilter filter = (RelationshipFilter)query2.Filter;
-      Assert.AreEqual(((MediaItemIdFilter)filter.Filter).MediaItemIds.First(), itemId, "Filter item ID");
+      Assert.AreEqual(filter.ItemId, itemId, "Filter item ID");
       Assert.AreEqual(filter.Role, itemType, "Filter item type");
       Assert.AreEqual(filter.LinkedRole, relationshipType, "Filter item linked role");
     }
