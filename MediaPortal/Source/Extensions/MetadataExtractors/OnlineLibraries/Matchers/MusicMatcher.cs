@@ -38,6 +38,7 @@ using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -173,7 +174,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             matchFound = true;
         }
 
-        if(!matchFound)
+        if (!matchFound)
         {
           // Load cache or create new list
           List<TrackMatch> matches = _storage.GetMatches();
@@ -681,7 +682,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, true);
-          if(updateTrackList) //Comparing all tracks can be quite time consuming
+          if (updateTrackList) //Comparing all tracks can be quite time consuming
             MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
 
           //Store person matches
@@ -719,7 +720,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo person,  bool forceQuickMode)
+    public virtual bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo person, bool forceQuickMode)
     {
       try
       {
@@ -817,7 +818,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private string GetUniqueTrackName(TrackInfo trackInfo)
     {
       return string.Format("{0}: {1} - {2} [{3}]",
-        !string.IsNullOrEmpty(trackInfo.Album) ? trackInfo.Album : "?", 
+        !string.IsNullOrEmpty(trackInfo.Album) ? trackInfo.Album : "?",
         trackInfo.TrackNum > 0 ? trackInfo.TrackNum : 0,
         !string.IsNullOrEmpty(trackInfo.TrackName) ? trackInfo.TrackName : "?",
         trackInfo.Artists.Count > 0 ? trackInfo.Artists[0].Name : "?");
@@ -1040,7 +1041,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return;
         }
 
-        if(images != null)
+        if (images != null)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading track images for ID {0}", downloadId);
 
@@ -1055,32 +1056,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Artist;
-        List<PersonInfo> persons = trackInfo.Artists;
-        if(persons != null && persons.Count > 0)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading track artist images for ID {0}", downloadId);
-          foreach (PersonInfo person in persons)
-          {
-            if (_wrapper.GetFanArt(person, language, scope, out images) == false)
-            {
-              if (images != null)
-              {
-                SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-                SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-                SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-                SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-                SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-                SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-                SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-                SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-              }
-            }
-          }
-        }
-        persons = trackInfo.AlbumArtists;
+        List<PersonInfo> persons = new List<PersonInfo>(trackInfo.Artists);
+        persons = persons.Union(new List<PersonInfo>(trackInfo.AlbumArtists)).ToList();
         if (persons != null && persons.Count > 0)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading album artist images for ID {0}", downloadId);
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading artist images for ID {0}", downloadId);
           foreach (PersonInfo person in persons)
           {
             if (_wrapper.GetFanArt(person, language, scope, out images) == false)
@@ -1101,7 +1081,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Writer;
-        persons = trackInfo.Composers;
+        persons = new List<PersonInfo>(trackInfo.Composers);
         if (persons != null && persons.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading composer images for ID {0}", downloadId);
@@ -1125,7 +1105,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.MusicLabel;
-        List<CompanyInfo> companies = trackInfo.MusicLabels;
+        List<CompanyInfo> companies = new List<CompanyInfo>(trackInfo.MusicLabels);
         if (companies != null && companies.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading label images for ID {0}", downloadId);

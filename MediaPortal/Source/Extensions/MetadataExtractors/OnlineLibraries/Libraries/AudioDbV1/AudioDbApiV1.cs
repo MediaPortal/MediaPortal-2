@@ -127,7 +127,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     {
       string url = GetUrl(URL_ALBUM_BY_NAME_AND_ARTIST, Uri.EscapeDataString(artistName), Uri.EscapeDataString(albumName));
       AudioDbAlbums audioDbAlbums = _downloader.Download<AudioDbAlbums>(url);
-      if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
+      if (audioDbAlbums != null && audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
         return audioDbAlbums.Albums;
       return null;
     }

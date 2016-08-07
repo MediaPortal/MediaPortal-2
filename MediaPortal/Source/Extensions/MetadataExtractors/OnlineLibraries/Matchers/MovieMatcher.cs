@@ -191,7 +191,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             matchFound = true;
         }
 
-        if(!matchFound)
+        if (!matchFound)
         {
           // Load cache or create new list
           List<MovieMatch> matches = _storage.GetMatches();
@@ -527,7 +527,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
         }
 
-        if(updated)
+        if (updated)
           MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters, false);
 
         List<string> thumbs = new List<string>();
@@ -569,8 +569,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (companyType == CompanyAspect.COMPANY_PRODUCTION)
         {
           companies = movieMatch.ProductionCompanies;
-        foreach (CompanyInfo company in companies)
-        {
+          foreach (CompanyInfo company in companies)
+          {
             string id;
             if (_companyMatcher.GetNameMatch(company.Name, out id))
             {
@@ -678,7 +678,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (movieCollectionInfo.TotalMovies < movieCollectionMatch.TotalMovies)
             MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.TotalMovies, movieCollectionMatch.TotalMovies);
 
-          if(updateMovieList) //Comparing all movies can be quite time consuming
+          if (updateMovieList) //Comparing all movies can be quite time consuming
             MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies, true);
 
           MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.Thumbnail, movieCollectionMatch.Thumbnail);
@@ -964,7 +964,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return;
         }
 
-        if(images != null)
+        if (images != null)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading movie images for ID {0}", downloadId);
 
@@ -1001,8 +1001,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Actor;
-        List<PersonInfo> persons = movieInfo.Actors;
-        if(persons != null && persons.Count > 0)
+        List<PersonInfo> persons = new List<PersonInfo>(movieInfo.Actors);
+        if (persons != null && persons.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading actors images for ID {0}", downloadId);
           foreach (PersonInfo person in persons)
@@ -1025,7 +1025,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Director;
-        persons = movieInfo.Directors;
+        persons = new List<PersonInfo>(movieInfo.Directors);
         if (persons != null && persons.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading director images for ID {0}", downloadId);
@@ -1049,7 +1049,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Writer;
-        persons = movieInfo.Writers;
+        persons = new List<PersonInfo>(movieInfo.Writers);
         if (persons != null && persons.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading writer images for ID {0}", downloadId);
@@ -1073,7 +1073,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Character;
-        List<CharacterInfo> characters = movieInfo.Characters;
+        List<CharacterInfo> characters = new List<CharacterInfo>(movieInfo.Characters);
         if (characters != null && characters.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading character images for ID {0}", downloadId);
@@ -1097,7 +1097,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Company;
-        List<CompanyInfo> companies = movieInfo.ProductionCompanies;
+        List<CompanyInfo> companies = new List<CompanyInfo>(movieInfo.ProductionCompanies);
         if (companies != null && companies.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading company images for ID {0}", downloadId);

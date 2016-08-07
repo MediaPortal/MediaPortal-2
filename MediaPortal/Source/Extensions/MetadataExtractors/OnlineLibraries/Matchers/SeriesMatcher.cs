@@ -38,6 +38,7 @@ using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Common.Threading;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -85,7 +86,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private void LoadConfig()
     {
       _config = Settings.Load<SeriresMatcherSettings>(_configFile);
-      if(_config == null)
+      if (_config == null)
         _config = new SeriresMatcherSettings();
     }
 
@@ -226,7 +227,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             matchFound = true;
         }
 
-        if(!matchFound)
+        if (!matchFound)
         {
           // Load cache or create new list
           List<SeriesMatch> matches = _storage.GetMatches();
@@ -247,7 +248,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if(seriesMatchFound)
+          if (seriesMatchFound)
           {
             //If Id was found in cache the online movie info is probably also in the cache
             if (_wrapper.UpdateFromOnlineSeriesEpisode(episodeMatch, language, true))
@@ -260,7 +261,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (!_wrapper.UpdateFromOnlineSeriesEpisode(episodeMatch, language, false))
             {
               //Search for the movie online and update the Ids if a match is found
-              if(_wrapper.SearchSeriesEpisodeUniqueAndUpdate(episodeMatch, language))
+              if (_wrapper.SearchSeriesEpisodeUniqueAndUpdate(episodeMatch, language))
               {
                 //Ids were updated now try to update movie information from online source
                 if (_wrapper.UpdateFromOnlineSeriesEpisode(episodeMatch, language, false))
@@ -442,7 +443,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateString(ref seriesInfo.Certification, seriesMatch.Certification);
           MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, seriesMatch.NextEpisodeName);
 
-          if(seriesInfo.TotalSeasons < seriesMatch.TotalSeasons)
+          if (seriesInfo.TotalSeasons < seriesMatch.TotalSeasons)
             MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalSeasons, seriesMatch.TotalSeasons);
           if (seriesInfo.TotalEpisodes < seriesMatch.TotalEpisodes)
             MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalEpisodes, seriesMatch.TotalEpisodes);
@@ -463,7 +464,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies, true);
           MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors, true);
           MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters, true);
-          if(updateEpisodeList) //Comparing all episodes can be quite time consuming
+          if (updateEpisodeList) //Comparing all episodes can be quite time consuming
             MetadataUpdater.SetOrUpdateList(seriesInfo.Episodes, seriesMatch.Episodes, true);
 
           //Store person matches
@@ -568,7 +569,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           MetadataUpdater.SetOrUpdateValue(ref seasonInfo.Thumbnail, seasonMatch.Thumbnail);
         }
- 
+
         if (seasonInfo.Thumbnail == null)
         {
           List<string> thumbs = GetFanArtFiles(seasonInfo, FanArtMediaTypes.SeriesSeason, FanArtTypes.Poster);
@@ -1443,7 +1444,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return;
         }
 
-        if(images != null)
+        if (images != null)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading movie images for ID {0}", downloadId);
 
@@ -1547,14 +1548,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Actor;
-        List<PersonInfo> persons = seriesInfo.Actors;
-        if(episodeInfo != null)
+        List<PersonInfo> persons = new List<PersonInfo>(seriesInfo.Actors);
+        if (episodeInfo != null)
         {
-          for (int i = 0; i < seriesInfo.Actors.Count; i++)
-            if (!persons.Contains(seriesInfo.Actors[i]))
-              persons.Add(seriesInfo.Actors[i]);
+          persons = persons.Union(new List<PersonInfo>(episodeInfo.Actors)).ToList();
         }
-        if(persons != null && persons.Count > 0)
+        if (persons != null && persons.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading actors images for ID {0}", downloadId);
           for (int i = 0; i < persons.Count; i++)
@@ -1581,7 +1580,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         persons = null;
         if (episodeInfo != null)
         {
-          persons = episodeInfo.Directors;
+          persons = new List<PersonInfo>(episodeInfo.Directors);
         }
         if (persons != null && persons.Count > 0)
         {
@@ -1610,7 +1609,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         persons = null;
         if (episodeInfo != null)
         {
-          persons = episodeInfo.Writers;
+          persons = new List<PersonInfo>(episodeInfo.Writers);
         }
         if (persons != null && persons.Count > 0)
         {
@@ -1636,12 +1635,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Character;
-        List<CharacterInfo> characters = seriesInfo.Characters;
+        List<CharacterInfo> characters = new List<CharacterInfo>(seriesInfo.Characters);
         if (episodeInfo != null)
         {
-          for (int i = 0; i < episodeInfo.Characters.Count; i++)
-            if (!characters.Contains(episodeInfo.Characters[i]))
-              characters.Add(episodeInfo.Characters[i]);
+          characters = characters.Union(new List<CharacterInfo>(episodeInfo.Characters)).ToList();
         }
         if (characters != null && characters.Count > 0)
         {
@@ -1667,7 +1664,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.Company;
-        List<CompanyInfo> companies = seriesInfo.ProductionCompanies;
+        List<CompanyInfo> companies = new List<CompanyInfo>(seriesInfo.ProductionCompanies);
         if (companies != null && companies.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading company images for ID {0}", downloadId);
@@ -1692,7 +1689,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         scope = FanArtMediaTypes.TVNetwork;
-        List<CompanyInfo> networks = seriesInfo.Networks;
+        List<CompanyInfo> networks = new List<CompanyInfo>(seriesInfo.Networks);
         if (companies != null && companies.Count > 0)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading network images for ID {0}", downloadId);
@@ -1752,7 +1749,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + @" Download: Saved {0} {1}\{2}", idx, scope, type);
         return idx;
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
         return 0;
