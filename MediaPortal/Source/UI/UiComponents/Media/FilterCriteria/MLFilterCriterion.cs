@@ -42,12 +42,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// <param name="selectAttributeFilter">Special filter which can be implemented by a special filter criterion which
     /// fills the <see cref="FilterValue.SelectAttributeFilter"/>.</param>
     /// <param name="filter">Base filter for the media items from which the available values will be collected.</param>
-    /// <param name="relationshipFilter">Filter for the virtual media items from which the available values will be collected.</param>
     /// <returns>Collection of filter value objects which hold a title for the particular filter value and which can
     /// create the actual filter to be used in a media item query.</returns>
     /// <exception cref="NotConnectedException">If the media library is currently not connected.</exception>
     public abstract ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds,
-        IFilter selectAttributeFilter, IFilter filter, RelationshipFilter relationshipFilter);
+        IFilter selectAttributeFilter, IFilter filter);
 
     /// <summary>
     /// Builds value groups for the values created by this filter criterion.

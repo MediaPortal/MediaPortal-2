@@ -31,7 +31,6 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     protected string _title;
     protected IFilter _filter;
-    protected RelationshipFilter _relationshipFilter;
     protected IFilter _selectAttributeFilter;
     protected int? _numItems = null;
     protected MediaItem _item = null;
@@ -63,16 +62,6 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       _criterion = criterion;
     }
 
-    public FilterValue(string title, IFilter filter, RelationshipFilter relationshipFilter, IFilter selectAttributeFilter, MediaItem item, MLFilterCriterion criterion)
-    {
-      _title = title;
-      _filter = filter;
-      _relationshipFilter = relationshipFilter;
-      _selectAttributeFilter = selectAttributeFilter;
-      _item = item;
-      _criterion = criterion;
-    }
-
     public string Title
     {
       get { return _title; }
@@ -96,11 +85,6 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     public IFilter Filter
     {
       get { return _filter; }
-    }
-
-    public RelationshipFilter RelationshipFilter
-    {
-      get { return _relationshipFilter; }
     }
 
     public IFilter SelectAttributeFilter
