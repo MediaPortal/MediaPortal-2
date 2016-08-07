@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -75,9 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (_checkCache.IsItemChecked(episodeInfo))
         return false;
 
-      SeriesTvDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
-      SeriesTheMovieDbMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
-      SeriesTvMazeMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
+      OnlineMatcherService.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
 
       if (episodeInfo.Characters.Count == 0)
         return false;

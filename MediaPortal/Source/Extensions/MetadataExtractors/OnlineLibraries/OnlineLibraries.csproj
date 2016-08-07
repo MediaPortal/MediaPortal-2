@@ -302,6 +302,7 @@
     <Compile Include="Matchers\MovieOmDbMatcher.cs" />
     <Compile Include="Matches\BaseMatch.cs" />
     <Compile Include="Matches\SimpleNameMatch.cs" />
+    <Compile Include="OnlineMatcherService.cs" />
     <Compile Include="MetadataUpdater.cs" />
     <Compile Include="SerializableRegex.cs" />
     <Compile Include="Wrappers\ApiWrapperImageCollection.cs" />

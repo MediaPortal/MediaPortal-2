@@ -35,6 +35,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -142,10 +143,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         infoObject = episodeInfo;
       }
 
-      fanArtFiles.AddRange(SeriesTvDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesTvMazeMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(infoObject, mediaType, fanArtType));
 
       if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.SeriesSeason &&
         (fanArtType == FanArtTypes.Banner || fanArtType == FanArtTypes.Poster))
@@ -154,10 +152,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         SeriesInfo seriesInfo = new SeriesInfo();
         seriesInfo.FromMetadata(mediaItem.Aspects);
         infoObject = seriesInfo;
-        fanArtFiles.AddRange(SeriesTvDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-        fanArtFiles.AddRange(SeriesTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-        fanArtFiles.AddRange(SeriesTvMazeMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-        fanArtFiles.AddRange(SeriesFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+        fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(infoObject, mediaType, fanArtType));
       }
 
       List<IResourceLocator> files = new List<IResourceLocator>();

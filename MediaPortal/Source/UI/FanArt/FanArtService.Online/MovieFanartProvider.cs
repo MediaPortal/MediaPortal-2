@@ -35,6 +35,7 @@ using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -134,8 +135,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         infoObject = movieCollectionInfo;
       }
 
-      fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(OnlineMatcherService.GetMovieFanArtFiles(infoObject, mediaType, fanArtType));
 
       if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.MovieCollection &&
         (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.Poster))
@@ -144,11 +144,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         if (collection != null)
         {
           mediaType = FanArtMediaTypes.Movie;
-          MovieTheMovieDbMatcher.Instance.UpdateCollection(collection, true, true);
+          OnlineMatcherService.UpdateCollection(collection, true, true);
           foreach (MovieInfo movie in collection.Movies)
           {
-            fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(movie, mediaType, fanArtType));
-            fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(movie, mediaType, fanArtType));
+            fanArtFiles.AddRange(OnlineMatcherService.GetMovieFanArtFiles(infoObject, mediaType, fanArtType));
             if (fanArtFiles.Count > 0)
               break;
           }

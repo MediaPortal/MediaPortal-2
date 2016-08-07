@@ -44,6 +44,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers;
 using System.Globalization;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -552,21 +553,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         //Try to find correct artist names
         trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
-        foreach(PersonInfo person in trackInfo.Artists)
+        
+        foreach (PersonInfo person in trackInfo.Artists)
         {
-          MusicTheAudioDbMatcher.Instance.StoreArtistMatch(person);
-          MusicBrainzMatcher.Instance.StoreArtistMatch(person);
+          OnlineMatcherService.StoreAudioPersonMatch(person);
         }
         trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
         foreach (PersonInfo person in trackInfo.AlbumArtists)
         {
-          MusicTheAudioDbMatcher.Instance.StoreArtistMatch(person);
-          MusicBrainzMatcher.Instance.StoreArtistMatch(person);
+          OnlineMatcherService.StoreAudioPersonMatch(person);
         }
 
-        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
-        MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, true); //Always force quick mode because online queries mostly timeout
-        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
+        OnlineMatcherService.FindAndUpdateTrack(trackInfo, forceQuickMode);
 
         if (!_onlyFanArt)
           trackInfo.SetMetadata(extractedAspectData);

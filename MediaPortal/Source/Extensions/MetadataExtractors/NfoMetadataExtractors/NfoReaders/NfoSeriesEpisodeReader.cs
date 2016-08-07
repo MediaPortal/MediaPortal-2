@@ -39,6 +39,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Utilities;
 using System.Globalization;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -1038,10 +1039,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               Thumbnail = person.Thumb,
               Order = person.Order
             };
-            SeriesTvDbMatcher.Instance.StoreActorMatch(info);
-            SeriesTheMovieDbMatcher.Instance.StoreActorMatch(info);
-            SeriesTvMazeMatcher.Instance.StoreActorMatch(info);
-            SeriesOmDbMatcher.Instance.StoreActorMatch(info);
+            OnlineMatcherService.StoreSeriesPersonMatch(info);
           }
         }
 
@@ -1068,10 +1066,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               Thumbnail = person.Thumb,
               Order = person.Order
             };
-            SeriesTvDbMatcher.Instance.StoreActorMatch(info);
-            SeriesTheMovieDbMatcher.Instance.StoreActorMatch(info);
-            SeriesTvMazeMatcher.Instance.StoreActorMatch(info);
-            SeriesOmDbMatcher.Instance.StoreActorMatch(info);
+            OnlineMatcherService.StoreSeriesPersonMatch(info);
           }
         }
 

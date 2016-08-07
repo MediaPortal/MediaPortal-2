@@ -25,6 +25,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -70,12 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!_seriesCache.TryGetCheckedItem(seasonInfo.CloneBasicInstance<SeriesInfo>(), out seriesInfo))
       {
         seriesInfo = seasonInfo.CloneBasicInstance<SeriesInfo>();
-        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false, false);
-        SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, false, forceQuickMode);
-        SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, false, forceQuickMode);
-        SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, false, forceQuickMode);
-        SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, false, false);
-
+        OnlineMatcherService.UpdateSeries(seriesInfo, false, forceQuickMode);
         _seriesCache.TryAddCheckedItem(seriesInfo);
       }
 
