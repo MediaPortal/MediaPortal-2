@@ -222,6 +222,7 @@
     <Compile Include="Models\ScreenData\VideosFilterByCharacterScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByDirectorScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByCompanyScreenData.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\VideosFilterByPlayCountScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByWriterScreenData.cs" />
@@ -559,6 +560,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\VideosFilterByCharacter.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByGenre.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

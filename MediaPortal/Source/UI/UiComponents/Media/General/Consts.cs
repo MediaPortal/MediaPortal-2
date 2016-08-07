@@ -424,6 +424,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_SERIES_EPISODE_FILTER_BY_CHARACTER = "SeriesEpisodeFilterByCharacter";
     public const string SCREEN_SERIES_EPISODE_FILTER_BY_DIRECTOR = "SeriesEpisodeFilterByDirector";
     public const string SCREEN_SERIES_EPISODE_FILTER_BY_WRITER = "SeriesEpisodeFilterByWriter";
+    public const string SCREEN_SERIES_FILTER_BY_GENRE = "SeriesFilterByGenre";
     public const string SCREEN_VIDEOS_SIMPLE_SEARCH = "VideoSimpleSearch";
     public const string SCREEN_IMAGE_SHOW_ITEMS = "ImageShowItems";
     public const string SCREEN_IMAGE_FILTER_BY_YEAR = "ImageFilterByYear";
@@ -587,7 +588,6 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           SeriesAspect.ASPECT_ID,
-          VideoAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_SERIES_MIAS = null;
