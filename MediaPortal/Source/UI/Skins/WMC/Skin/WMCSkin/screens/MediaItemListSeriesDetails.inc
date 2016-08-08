@@ -97,8 +97,8 @@
         </ControlTemplate>
       </media:MediaAspectWrapper.Template>
     </media:MediaAspectWrapper>
-  
-    <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+
+    <!--media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -107,7 +107,35 @@
           </Grid>
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
+    </media:VideoAspectWrapper-->
+    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:SeriesAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical" Grid.Column="0" Margin="0,0,0,0">
+              <StackPanel Orientation="Horizontal">
+                <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailSeasons}"
+                       Margin="0,0,8,0" Opacity="0.5"/>
+                <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
+                       Margin="0,0,8,0" Opacity="0.5"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal">
+                <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailEpisodes}"
+                       Margin="0,0,8,0" Opacity="0.5"/>
+                <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+                       Margin="0,0,8,0" Opacity="0.5"/>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </media:SeriesAspectWrapper.Template>
+    </media:SeriesAspectWrapper>
   </StackPanel>
 
   <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch"
