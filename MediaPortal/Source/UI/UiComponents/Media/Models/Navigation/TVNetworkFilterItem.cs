@@ -22,6 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.General;
+
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
@@ -29,5 +33,24 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class TVNetworkFilterItem : FilterItem
   {
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
+
+      if (mediaItem.Aspects.ContainsKey(CompanyAspect.ASPECT_ID))
+      {
+        string text;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, CompanyAspect.ATTR_DESCRIPTION, out text))
+          StoryPlot = text;
+      }
+
+      FireChange();
+    }
+
+    public string StoryPlot
+    {
+      get { return this[Consts.KEY_STORY_PLOT]; }
+      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
+    }
   }
 }

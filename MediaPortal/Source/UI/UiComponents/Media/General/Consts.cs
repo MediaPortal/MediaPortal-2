@@ -501,6 +501,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_AUDIO_ENCODING = "AudioEncoding";
     public const string KEY_VIDEO_ENCODING = "VideoEncoding";
 
+    public const string KEY_ALBUM = "Album";
     public const string KEY_NUM_TRACKS = "NumTracks";
     public const string KEY_TOTAL_TRACKS = "TotalTracks";
     public const string KEY_AVAIL_TRACKS = "AvailTracks";
