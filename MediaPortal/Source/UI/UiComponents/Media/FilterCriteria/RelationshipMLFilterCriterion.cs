@@ -83,7 +83,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
-      IEnumerable <Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
+      IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
       IFilter queryFilter = filter != null ? new RelationshipFilter(filter, _linkedRole, _role) : null;
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
@@ -96,7 +96,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         string name;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
         result.Add(new FilterValue(name,
-          new RelationshipFilter(item.MediaItemId, _role, _linkedRole),
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          new RelationalFilter(RelationshipAspect.ATTR_ROLE, RelationalOperator.EQ, _linkedRole),
+          new RelationalFilter(RelationshipAspect.ATTR_LINKED_ID, RelationalOperator.EQ, item.MediaItemId)),
           null,
           item,
           this));
