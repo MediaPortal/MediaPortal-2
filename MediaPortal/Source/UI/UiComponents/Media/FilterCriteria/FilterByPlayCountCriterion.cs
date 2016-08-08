@@ -61,8 +61,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.GT, "0");
 
-      int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, unwatchedFilter, true, showVirtual);
-      int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, watchedFilter, true, showVirtual);
+      int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, unwatchedFilter), true, showVirtual);
+      int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, watchedFilter), true, showVirtual);
 
       return new List<FilterValue>(new FilterValue[]
         {
