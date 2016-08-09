@@ -51,11 +51,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
     public static readonly IList<Regex> REGEXP_CLEANUPS = new List<Regex>
       {
         // Removing "disc n" from name, this can be used in future to detect multipart titles!
-        new Regex(@"(\s|-|_)*(Disc|CD|DVD)\s*\d{1,2}", RegexOptions.IgnoreCase), 
+        new Regex(@"(\s|-|_)*(Disc|CD|DVD)\s*\d{1,2}", RegexOptions.IgnoreCase),
         new Regex(@"\s*(Blu-ray|BD|3D|®|™)", RegexOptions.IgnoreCase), 
         // If source is an ISO or ZIP medium, remove the extensions for lookup
-        new Regex(@".(iso|zip)$", RegexOptions.IgnoreCase), 
-        new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase), 
+        new Regex(@".(iso|zip)$", RegexOptions.IgnoreCase),
+        new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase),
+        // Common tags regex from MovingPictures
+        new Regex(@"(([\(\{\[]|\b)((576|720|1080)[pi]|dir(ectors )?cut|dvd([r59]|rip|scr(eener)?)|(avc)?hd|wmv|ntsc|pal|mpeg|dsr|r[1-5]|bd[59]|dts|ac3|blu(-)?ray|[hp]dtv|stv|hddvd|xvid|divx|x264|dxva|(?-i)FEST[Ii]VAL|L[iI]M[iI]TED|[WF]S|PROPER|REPACK|RER[Ii]P|REAL|RETA[Ii]L|EXTENDED|REMASTERED|UNRATED|CHRONO|THEATR[Ii]CAL|DC|SE|UNCUT|[Ii]NTERNAL|[DS]UBBED)([\]\)\}]|\b)(-[^\s]+$)?)", RegexOptions.IgnoreCase),
         // Can be extended
       };
 
