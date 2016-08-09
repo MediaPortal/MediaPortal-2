@@ -96,9 +96,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         string name;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
         result.Add(new FilterValue(name,
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-          new RelationalFilter(RelationshipAspect.ATTR_ROLE, RelationalOperator.EQ, _linkedRole),
-          new RelationalFilter(RelationshipAspect.ATTR_LINKED_ID, RelationalOperator.EQ, item.MediaItemId)),
+          new RelationshipFilter(item.MediaItemId, _role, _linkedRole),
           null,
           item,
           this));
