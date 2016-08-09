@@ -128,7 +128,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
           movieInfo.ImdbId = imdbId;
 
-        if (!movieInfo.IsBaseInfoPresent || movieInfo.ReleaseDate.HasValue == false)
+        if (!movieInfo.IsBaseInfoPresent)
         {
           // Also test the full path year. This is useful if the path contains the real name and year.
           foreach (string path in pathsToTest)
@@ -136,9 +136,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
               break;
           }
+          //Fall back to MediaAspect.ATTR_TITLE
+          if (movieInfo.MovieName.IsEmpty && !string.IsNullOrEmpty(title))
+            movieInfo.MovieName = title;
         }
 
-        if (movieInfo.ReleaseDate.HasValue == false)
+        if (!movieInfo.ReleaseDate.HasValue)
         {
           // When searching movie title, the year can be relevant for multiple titles with same name but different years
           DateTime recordingDate;
