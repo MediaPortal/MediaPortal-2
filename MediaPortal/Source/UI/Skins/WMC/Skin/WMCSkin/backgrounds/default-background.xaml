@@ -55,13 +55,13 @@ Default background image - no media present
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <!-- If active, semitransparent FanArts will appear-->
-              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0"
+              <!--<Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0"
                      IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=EnableFanart}">
                 <Image.Source>
                   <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                    Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
                 </Image.Source>
-              </Image>
+              </Image>-->
             </Grid>
           </VisualBrush.Visual>
         </VisualBrush>

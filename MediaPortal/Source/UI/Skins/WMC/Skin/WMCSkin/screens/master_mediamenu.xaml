@@ -48,22 +48,38 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_bare.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     >
   <Include.Resources>
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="1">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} ? {1} : ({0} == {LayoutType}.{ListLayout} ? {2} : {3})">
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-            <Binding Source="Background_GridView.png"/>   <!--Grid-->
-            <Binding Source="Background_ListView.png"/>   <!--List-->
-            <Binding Source="Background_GridView.png"/>   <!--Cover-->
-          </MultiBinding>
-        </Image.Source>
-      </Image>
+      <ControlTemplate.Resources>
+        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+        <Model x:Key="SkinSettingsModel" Id="B074D623-D161-4F15-BE18-D73DD580B1BB"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Image x:Name="FanArtImageBackground" Stretch="UniformToFill"
+                     IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=EnableFanart}">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+          </Image.Source>
+        </Image>
+
+        <Image Stretch="Fill" Opacity="1">
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} ? {1} : ({0} == {LayoutType}.{ListLayout} ? {2} : {3})">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="Background_GridView.png"/> <!--Grid-->
+              <Binding Source="Background_ListView.png"/> <!--List-->
+              <Binding Source="Background_GridView.png"/> <!--Cover-->
+            </MultiBinding>
+          </Image.Source>
+        </Image>
+      </Grid>
     </ControlTemplate>
 
     <ControlTemplate x:Key="Client_Template">
