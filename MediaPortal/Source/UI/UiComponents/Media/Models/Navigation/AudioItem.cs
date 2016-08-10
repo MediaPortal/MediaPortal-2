@@ -48,12 +48,18 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (!trackInfo.FromMetadata(mediaItem.Aspects))
         return;
 
-
+      Album = trackInfo.Album;
       string artists = StringUtils.Join(", ", trackInfo.Artists.Select(a => a.Name));
       SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
       long? duration = trackInfo.Duration > 0 ? trackInfo.Duration : default(long?);
       Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds(duration.Value)) : string.Empty;
       FireChange();
+    }
+
+    public string Album
+    {
+      get { return this[Consts.KEY_ALBUM]; }
+      set { SetLabel(Consts.KEY_ALBUM, value); }
     }
 
     public string Duration

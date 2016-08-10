@@ -73,12 +73,31 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           Episodes = AvailableEpisodes;
 
-        string name;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIES_NAME, out name))
-          SimpleTitle = name;
+        string text;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_SERIES_NAME, out text))
+        {
+          SimpleTitle = text;
+          Series = text;
+        }
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_DESCRIPTION, out text))
+        {
+          StoryPlot = text;
+        }
       }
 
       FireChange();
+    }
+
+    public string Series
+    {
+      get { return this[Consts.KEY_SERIES_NAME]; }
+      set { SetLabel(Consts.KEY_SERIES_NAME, value); }
+    }
+
+    public string StoryPlot
+    {
+      get { return this[Consts.KEY_STORY_PLOT]; }
+      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
     }
 
     public string AvailableEpisodes

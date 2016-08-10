@@ -319,8 +319,10 @@
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
     <Compile Include="Settings\Configuration\OpenPlayerStrategy.cs" />
     <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />
+    <Compile Include="Settings\Configuration\ShowVirtual.cs" />
     <Compile Include="Settings\Configuration\SkipStepList.cs" />
     <Compile Include="Settings\Configuration\SkipStepTimeout.cs" />
+    <Compile Include="Settings\Configuration\WatchedPlayPercentage.cs" />
     <Compile Include="Settings\ViewSettings.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
