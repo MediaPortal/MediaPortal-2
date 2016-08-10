@@ -56,9 +56,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return false;
-
-      var rl = mediaItem.GetResourceLocator();
-
+      
       IList<MultipleMediaItemAspect> pras;
       if (!MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
         return false;
@@ -69,15 +67,26 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
       int playCount = GetNewPlayCount();
-      if(playCount > 0)
+      int playPercentage = playCount > 0 ? 100 : 0;
+      
+      if (playCount > 0)
       {
         cd.NotifyPlayback(mediaItem.MediaItemId, true);
       }
 
       if (userProfile.HasValue)
-        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, playCount.ToString());
+      {
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
+          UserDataKeysKnown.KEY_PLAY_COUNT, playCount.ToString());
+        userProfileDataManagement.UserProfileDataManagement.SetUserMediaItemData(userProfile.Value, mediaItem.MediaItemId,
+          UserDataKeysKnown.KEY_PLAY_PERCENTAGE, (playCount > 0 ? 100 : 0).ToString());
+      }
 
-        changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
+      //Also update media item locally so changes are reflected in GUI without reloading
+      MediaItemAspect.SetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, playCount);
+      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT] = playCount.ToString();
+      mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE] = playPercentage.ToString();
+      changeType = ContentDirectoryMessaging.MediaItemChangeType.Updated;
       return true;
     }
   }
