@@ -34,11 +34,17 @@
               <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
             </StackPanel>
+            <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+              <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+                     Margin="0,0,8,0" Opacity="0.5"/>
+              <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+                     Margin="0,0,8,0" Opacity="0.5"/>
+            </StackPanel>
           </StackPanel>
       </ControlTemplate>
     </media:SeasonAspectWrapper.Template>
   </media:SeasonAspectWrapper>
-
+  
   <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="1" Grid.Row="1" Margin="10,0,5,35">
     <media:SeasonAspectWrapper.Template>
       <ControlTemplate>
@@ -49,7 +55,7 @@
         </ControlTemplate>
     </media:SeasonAspectWrapper.Template>
   </media:SeasonAspectWrapper>
-
+  
     <!--media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
           <media:MediaAspectWrapper.Template>
             <ControlTemplate>
@@ -68,7 +74,7 @@
           </media:MediaAspectWrapper.Template>
         </media:MediaAspectWrapper-->
 
-        <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+  <!--media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
           <media:VideoAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -77,6 +83,6 @@
               </Grid>
             </ControlTemplate>
           </media:VideoAspectWrapper.Template>
-        </media:VideoAspectWrapper>
+        </media:VideoAspectWrapper-->
       
 </Grid>

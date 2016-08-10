@@ -23,7 +23,8 @@
   <Image Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="0,10,10,0" Height="210">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                          Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      </ImageSourceWrapper>
     </Image.Source>
     <Image.OpacityMask>
       <VisualBrush>
@@ -50,13 +51,19 @@
             <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
           </StackPanel>
+          <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+                   Margin="0,0,8,0" Opacity="0.5"/>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+                   Margin="0,0,8,0" Opacity="0.5"/>
+          </StackPanel>
         </StackPanel>
       </ControlTemplate>
     </media:SeasonAspectWrapper.Template>
 </media:SeasonAspectWrapper>
 
   <StackPanel Orientation="Vertical" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,0,0,5">
-    <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+    <!--media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -65,7 +72,8 @@
           </Grid>
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
+    </media:VideoAspectWrapper-->
+    
   </StackPanel>
 
   <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
