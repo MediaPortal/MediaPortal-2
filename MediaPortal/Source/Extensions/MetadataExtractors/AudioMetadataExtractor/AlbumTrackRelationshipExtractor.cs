@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -77,9 +78,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (_checkCache.IsItemChecked(albumInfo))
         return false;
 
-      MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, true, false);
-      MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, true, true); //Always force quick mode because online queries mostly timeout
-      MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, true, false);
+      OnlineMatcherService.UpdateAlbum(albumInfo, true, forceQuickMode);
 
       if (albumInfo.Tracks.Count == 0)
         return false;
@@ -89,10 +88,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       for (int i = 0; i < albumInfo.Tracks.Count; i++)
       {
         TrackInfo trackInfo = albumInfo.Tracks[i];
-
-        //MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
-        //MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
-        //MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
 
         IDictionary<Guid, IList<MediaItemAspect>> trackAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         trackInfo.SetMetadata(trackAspects);

@@ -309,61 +309,68 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       RelationshipFilter relationshipFilter = filter as RelationshipFilter;
       if (relationshipFilter != null)
       {
-        TableQueryData tqdRelationshipTable = new TableQueryData(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
-        TableQueryData tqdInverseRelationshipTable = new TableQueryData(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
-
-        tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqdRelationshipTable,
-            new RequestedAttribute(tqdRelationshipTable, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), outerMIIDJoinVariable));
-        tableJoins.Add(new TableJoin("LEFT OUTER JOIN", tqdInverseRelationshipTable,
-            new RequestedAttribute(tqdInverseRelationshipTable, miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID)),
-            outerMIIDJoinVariable));
-
-        string alias1 = tqdRelationshipTable.GetAlias(ns);
-        string alias2 = tqdInverseRelationshipTable.GetAlias(ns);
-        BindVar roleVar = new BindVar(bvNamespace.CreateNewBindVarName("R"), relationshipFilter.Role, typeof(Guid));
-        BindVar linkedRoleVar = new BindVar(bvNamespace.CreateNewBindVarName("R"), relationshipFilter.LinkedRole, typeof(Guid));
+        BindVar roleVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationshipFilter.Role, typeof(Guid));
         resultBindVars.Add(roleVar);
+        BindVar linkedRoleVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationshipFilter.LinkedRole, typeof(Guid));
         resultBindVars.Add(linkedRoleVar);
 
-        resultParts.Add("((");
-        resultParts.Add(alias1 + ".");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
-        resultParts.Add("=@" + roleVar.Name);
-        resultParts.Add(" AND ");
-        resultParts.Add(alias1 + ".");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
-        resultParts.Add("=@" + linkedRoleVar.Name);
-        resultParts.Add(") OR (");
-        resultParts.Add(alias1 + ".");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
-        resultParts.Add("=@" + linkedRoleVar.Name);
-        resultParts.Add(" AND ");
-        resultParts.Add(alias1 + ".");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
-        resultParts.Add("=@" + roleVar.Name);
-        resultParts.Add(") OR (");
-        resultParts.Add(alias2 + ".");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
-        resultParts.Add("=@" + roleVar.Name);
-        resultParts.Add(" AND ");
-        resultParts.Add(alias2 + ".");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
-        resultParts.Add("=@" + linkedRoleVar.Name);
-        resultParts.Add(") OR (");
-        resultParts.Add(alias2 + ".");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
-        resultParts.Add("=@" + linkedRoleVar.Name);
-        resultParts.Add(" AND ");
-        resultParts.Add(alias2 + ".");
-        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
-        resultParts.Add("=@" + roleVar.Name);
-        resultParts.Add("))");
+        string idAlias;
+        string sqlStatement;
+        IList<BindVar> bindVars;
+        ICollection<QueryAttribute> requiredAttributes = new List<QueryAttribute>();
 
-        if (relationshipFilter.Filter != null)
+        RelationshipQueryBuilder filterBuilder = new RelationshipQueryBuilder(miaManagement, requiredAttributes, requiredMIATypes, relationshipFilter.Filter, bvNamespace.BindVarCounter);
+        filterBuilder.GenerateSqlStatement(out idAlias, out sqlStatement, out bindVars);
+
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(" IN(");
+
+        resultParts.Add("SELECT R1.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
+        resultParts.Add(" FROM ");
+        resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
+        resultParts.Add(" R1 WHERE R1.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
+        resultParts.Add("=@" + roleVar.Name);
+        resultParts.Add(" AND R1.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + linkedRoleVar.Name);
+        if (!string.IsNullOrEmpty(sqlStatement))
         {
-          resultParts.Add(" AND ");
-          CompileStatementParts(miaManagement, relationshipFilter.Filter, ns, bvNamespace,
-            requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
+          resultParts.Add(" AND R1." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" IN(SELECT TS." + idAlias + " FROM (");
+          resultParts.Add(sqlStatement);
+          resultParts.Add(") TS)");
+        }
+
+        resultParts.Add(" UNION ");
+
+        resultParts.Add("SELECT R2.");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add(" FROM ");
+        resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
+        resultParts.Add(" R2 WHERE R2.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE));
+        resultParts.Add("=@" + linkedRoleVar.Name);
+        resultParts.Add(" AND R2.");
+        resultParts.Add(miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE));
+        resultParts.Add("=@" + roleVar.Name);
+        if (!string.IsNullOrEmpty(sqlStatement))
+        {
+          resultParts.Add(" AND R2." + miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
+          resultParts.Add(" IN(SELECT TS." + idAlias + " FROM (");
+          resultParts.Add(sqlStatement);
+          resultParts.Add(") TS)");
+        }
+        resultParts.Add(")");
+
+        if (bindVars != null)
+        {
+          bvNamespace.BindVarCounter += bindVars.Count;
+          foreach (BindVar bindVar in bindVars)
+          {
+            resultBindVars.Add(bindVar);
+          }
         }
         return;
       }

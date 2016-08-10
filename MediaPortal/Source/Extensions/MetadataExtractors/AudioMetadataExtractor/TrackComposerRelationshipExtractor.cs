@@ -32,6 +32,7 @@ using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -75,9 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (_checkCache.IsItemChecked(trackInfo))
         return false;
 
-      MusicTheAudioDbMatcher.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_COMPOSER, forceQuickMode);
-      MusicBrainzMatcher.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_COMPOSER, true); //Always force quick mode because online queries mostly timeout
-      MusicFanArtTvMatcher.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_COMPOSER, forceQuickMode);
+      OnlineMatcherService.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_COMPOSER, forceQuickMode);
 
       if (trackInfo.Composers.Count == 0)
         return false;

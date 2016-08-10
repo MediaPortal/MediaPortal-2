@@ -97,8 +97,8 @@
         </ControlTemplate>
       </media:MediaAspectWrapper.Template>
     </media:MediaAspectWrapper>
-  
-    <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+
+    <!--media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -107,9 +107,25 @@
           </Grid>
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
-  </StackPanel>
+    </media:VideoAspectWrapper-->
 
+    <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+      <StackPanel Orientation="Horizontal">
+        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
+               Margin="0,0,8,0" Opacity="0.5"/>
+        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
+               Margin="0,0,8,0" Opacity="0.5"/>
+      </StackPanel>
+      <StackPanel Orientation="Horizontal">
+        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+               Margin="0,0,8,0" Opacity="0.5"/>
+        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+               Margin="0,0,8,0" Opacity="0.5"/>
+      </StackPanel>
+    </StackPanel>
+
+  </StackPanel>
+  
   <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch"
                              Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,30,10,10">
     <media:SeriesAspectWrapper.Template>

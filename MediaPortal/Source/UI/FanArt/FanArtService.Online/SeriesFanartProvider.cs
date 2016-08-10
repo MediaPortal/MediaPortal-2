@@ -35,6 +35,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -45,6 +46,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
     {
+       FanArtMediaTypes.Undefined,
        FanArtMediaTypes.Episode,
        FanArtMediaTypes.Series,
        FanArtMediaTypes.SeriesSeason,
@@ -141,23 +143,76 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         episodeInfo.FromMetadata(mediaItem.Aspects);
         infoObject = episodeInfo;
       }
+      else if (mediaType == FanArtMediaTypes.Undefined)
+      {
+        if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.Episode;
+          EpisodeInfo episodeInfo = new EpisodeInfo();
+          episodeInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = episodeInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.SeriesSeason;
+          SeasonInfo seasonInfo = new SeasonInfo();
+          seasonInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = seasonInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.Series;
+          SeriesInfo seriesInfo = new SeriesInfo();
+          seriesInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = seriesInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(PersonAspect.ASPECT_ID))
+        {
+          PersonInfo personInfo = new PersonInfo();
+          personInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = personInfo;
+          if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR)
+            mediaType = FanArtMediaTypes.Episode;
+          else if (personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR)
+            mediaType = FanArtMediaTypes.Director;
+          else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
+            mediaType = FanArtMediaTypes.Writer;
+          else
+            return false;
+        }
+        else if (mediaItem.Aspects.ContainsKey(CharacterAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.Character;
+          CharacterInfo characterInfo = new CharacterInfo();
+          characterInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = characterInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(CompanyAspect.ASPECT_ID))
+        {
+          CompanyInfo companyInfo = new CompanyInfo();
+          companyInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = companyInfo;
+          if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
+            mediaType = FanArtMediaTypes.Company;
+          else if (companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
+            mediaType = FanArtMediaTypes.TVNetwork;
+          else
+            return false;
+        }
+        else
+          return false;
+      }
 
-      fanArtFiles.AddRange(SeriesTvDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesTvMazeMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(infoObject, mediaType, fanArtType));
 
       if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.SeriesSeason &&
-        (fanArtType == FanArtTypes.Banner || fanArtType == FanArtTypes.Poster))
+        (fanArtType == FanArtTypes.Banner || fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail))
       {
         mediaType = FanArtMediaTypes.Series;
         SeriesInfo seriesInfo = new SeriesInfo();
         seriesInfo.FromMetadata(mediaItem.Aspects);
         infoObject = seriesInfo;
-        fanArtFiles.AddRange(SeriesTvDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-        fanArtFiles.AddRange(SeriesTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-        fanArtFiles.AddRange(SeriesTvMazeMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-        fanArtFiles.AddRange(SeriesFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+        fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(infoObject, mediaType, fanArtType));
       }
 
       List<IResourceLocator> files = new List<IResourceLocator>();

@@ -22,35 +22,24 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models.Navigation;
 
-namespace MediaPortal.UiComponents.Media.Models.Navigation
+namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  /// <summary>
-  /// Holds a GUI item which represents a company filter choice.
-  /// </summary>
-  public class CompanyFilterItem : FilterItem
+  public class SeriesFilterByGenreScreenData : AbstractSeriesFilterScreenData<FilterItem>
   {
-    public override void Update(MediaItem mediaItem)
+    public SeriesFilterByGenreScreenData() :
+        base(Consts.SCREEN_SERIES_FILTER_BY_GENRE, Consts.RES_FILTER_BY_VIDEO_GENRE_MENU_ITEM,
+        Consts.RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_GENRES))
     {
-      base.Update(mediaItem);
-
-      if (mediaItem.Aspects.ContainsKey(CompanyAspect.ASPECT_ID))
-      {
-        string text;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, CompanyAspect.ATTR_DESCRIPTION, out text))
-          StoryPlot = text;
-      }
-
-      FireChange();
     }
 
-    public string StoryPlot
+    public override AbstractFiltersScreenData<FilterItem> Derive()
     {
-      get { return this[Consts.KEY_STORY_PLOT]; }
-      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
+      return new SeriesFilterByGenreScreenData();
     }
   }
 }

@@ -39,6 +39,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System.Globalization;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -1397,8 +1398,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               Thumbnail = person.Thumb,
               Order = person.Order
             };
-            MovieTheMovieDbMatcher.Instance.StoreActorMatch(info);
-            MovieOmDbMatcher.Instance.StoreActorMatch(info);
+            OnlineMatcherService.StoreMoviePersonMatch(info);
           }
         }
 
@@ -1428,8 +1428,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             Name = _stubs[0].Director,
             Occupation = PersonAspect.OCCUPATION_DIRECTOR,
           };
-          MovieTheMovieDbMatcher.Instance.StoreDirectorMatch(info);
-          MovieOmDbMatcher.Instance.StoreDirectorMatch(info);
+          OnlineMatcherService.StoreMoviePersonMatch(info);
         }
 
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });

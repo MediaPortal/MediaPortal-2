@@ -37,7 +37,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
   class SeriesCharacterRelationshipExtractor : IRelationshipRoleExtractor
   {
-    private static readonly Guid[] ROLE_ASPECTS = { VideoAspect.ASPECT_ID, SeriesAspect.ASPECT_ID };
+    private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
     private CheckedItemCache<SeriesInfo> _checkCache = new CheckedItemCache<SeriesInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
@@ -122,10 +122,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       string name = linkedAspect.GetAttributeValue<string>(CharacterAspect.ATTR_CHARACTER_NAME);
 
       SingleMediaItemAspect aspect;
-      if (!MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out aspect))
+      if (!MediaItemAspect.TryGetAspect(aspects, SeriesAspect.Metadata, out aspect))
         return false;
 
-      IEnumerable<object> actors = aspect.GetCollectionAttribute<object>(VideoAspect.ATTR_CHARACTERS);
+      IEnumerable<object> actors = aspect.GetCollectionAttribute<object>(SeriesAspect.ATTR_CHARACTERS);
       List<string> nameList = new List<string>(actors.Cast<string>());
 
       index = nameList.IndexOf(name);

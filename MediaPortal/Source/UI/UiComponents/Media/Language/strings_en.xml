@@ -128,6 +128,7 @@
   <string name="Media.VideoItemsHeader">Videos</string>
   <string name="Media.AudioItemsHeader">Audio items</string>
   <string name="Media.EpisodeItemsHeader">Episodes</string>
+  <string name="Media.SeasonItemsHeader">Seasons</string>
   <string name="Media.MoviesItemsHeader">Movies</string>
   <string name="Media.ImageItemsHeader">Images</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
@@ -428,6 +429,14 @@
 
   <string name="Settings.Players.OpenPlayerStrategy">Open player strategy</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategy, how newly opened players will be positioned among already open players</string>
+
+  <string name="Settings.Players.WatchedPlayPercentage">Watched play percentage</string>
+  <string name="Settings.Players.WatchedPlayPercentage.Help">Select what percentage of a media item needs to be played before it is marked as watched</string>
+
+  <string name="Settings.Media">Media</string>
+  
+  <string name="Settings.Media.ShowVirtual">Show all known media items</string>
+  <string name="Settings.Media.ShowVirtual.Help">Select whether to show all known media items even if there is not a local file reference</string>
 
   <!-- Secondary filters -->
   <string name="Filter.RemoteNumericAlphabet0"></string>

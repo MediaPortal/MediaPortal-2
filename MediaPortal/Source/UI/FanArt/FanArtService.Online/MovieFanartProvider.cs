@@ -35,6 +35,7 @@ using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -45,6 +46,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
     {
+       FanArtMediaTypes.Undefined,
        FanArtMediaTypes.Movie,
        FanArtMediaTypes.MovieCollection,
        FanArtMediaTypes.Actor,
@@ -133,22 +135,70 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         movieCollectionInfo.FromMetadata(mediaItem.Aspects);
         infoObject = movieCollectionInfo;
       }
+      else if (mediaType == FanArtMediaTypes.Undefined)
+      {
+        if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.Movie;
+          MovieInfo movieInfo = new MovieInfo();
+          movieInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = movieInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.MovieCollection;
+          MovieCollectionInfo movieCollectionInfo = new MovieCollectionInfo();
+          movieCollectionInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = movieCollectionInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(PersonAspect.ASPECT_ID))
+        {
+          PersonInfo personInfo = new PersonInfo();
+          personInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = personInfo;
+          if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR)
+            mediaType = FanArtMediaTypes.Episode;
+          else if (personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR)
+            mediaType = FanArtMediaTypes.Director;
+          else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
+            mediaType = FanArtMediaTypes.Writer;
+          else
+            return false;
+        }
+        else if (mediaItem.Aspects.ContainsKey(CharacterAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.Character;
+          CharacterInfo characterInfo = new CharacterInfo();
+          characterInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = characterInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(CompanyAspect.ASPECT_ID))
+        {
+          CompanyInfo companyInfo = new CompanyInfo();
+          companyInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = companyInfo;
+          if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
+            mediaType = FanArtMediaTypes.Company;
+          else
+            return false;
+        }
+        else
+          return false;
+      }
 
-      fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(OnlineMatcherService.GetMovieFanArtFiles(infoObject, mediaType, fanArtType));
 
       if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.MovieCollection &&
-        (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.Poster))
+        (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail))
       {
         MovieCollectionInfo collection = infoObject as MovieCollectionInfo;
         if (collection != null)
         {
           mediaType = FanArtMediaTypes.Movie;
-          MovieTheMovieDbMatcher.Instance.UpdateCollection(collection, true, true);
+          OnlineMatcherService.UpdateCollection(collection, true, true);
           foreach (MovieInfo movie in collection.Movies)
           {
-            fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(movie, mediaType, fanArtType));
-            fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(movie, mediaType, fanArtType));
+            fanArtFiles.AddRange(OnlineMatcherService.GetMovieFanArtFiles(infoObject, mediaType, fanArtType));
             if (fanArtFiles.Count > 0)
               break;
           }

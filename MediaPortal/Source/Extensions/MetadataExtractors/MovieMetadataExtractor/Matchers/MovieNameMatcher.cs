@@ -51,11 +51,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
     public static readonly IList<Regex> REGEXP_CLEANUPS = new List<Regex>
       {
         // Removing "disc n" from name, this can be used in future to detect multipart titles!
-        new Regex(@"(\s|-|_)*(Disc|CD|DVD)\s*\d{1,2}", RegexOptions.IgnoreCase), 
+        new Regex(@"(\s|-|_)*(Disc|CD|DVD)\s*\d{1,2}", RegexOptions.IgnoreCase),
         new Regex(@"\s*(Blu-ray|BD|3D|®|™)", RegexOptions.IgnoreCase), 
         // If source is an ISO or ZIP medium, remove the extensions for lookup
-        new Regex(@".(iso|zip)$", RegexOptions.IgnoreCase), 
-        new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase), 
+        new Regex(@".(iso|zip)$", RegexOptions.IgnoreCase),
+        new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase),
+        // Common tags regex from MovingPictures
+        new Regex(@"(([\(\{\[]|\b)((576|720|1080)[pi]|dvd([r59]|rip|scr)|(avc)?hd|wmv|ntsc|pal|mpeg|dsr|r[1-5]|bd[59]|dts|ac3|blu(-)?ray|[hp]dtv|stv|hddvd|xvid|divx|x264|dxva)([\]\)\}]|\b)(-[^\s]+$)?)", RegexOptions.IgnoreCase),
         // Can be extended
       };
 

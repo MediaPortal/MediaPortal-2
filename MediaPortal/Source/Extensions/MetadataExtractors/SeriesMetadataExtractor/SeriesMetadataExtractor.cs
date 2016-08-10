@@ -34,6 +34,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -170,11 +171,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         episodeInfo.Summary.DefaultLanguage = true;
       }
 
-      SeriesTvDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false); //Provides IMDBID and TVDBID
-      SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
-      SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
-      SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
-      SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
+      OnlineMatcherService.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
 
       if (!_onlyFanArt)
         episodeInfo.SetMetadata(extractedAspectData);

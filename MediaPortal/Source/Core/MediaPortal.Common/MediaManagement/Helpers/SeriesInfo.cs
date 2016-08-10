@@ -182,11 +182,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (Rating.VoteCount.HasValue) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_RATING_COUNT, Rating.VoteCount.Value);
       }
 
-      MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_ISDVD, false);
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
       if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList<object>());
 
       if (Networks.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
@@ -245,15 +244,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         IEnumerable collection;
 
         Actors.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_ACTORS, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ACTORS, out collection))
           Actors.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ACTOR }));
 
         Characters.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, out collection))
           Characters.AddRange(collection.Cast<object>().Select(s => new CharacterInfo() { Name = s.ToString() }));
 
         Genres.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_GENRES, out collection))
+        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_GENRES, out collection))
           Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
 
         Awards.Clear();

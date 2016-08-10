@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -75,8 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (_checkCache.IsItemChecked(movieInfo))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_ACTOR, forceQuickMode);
-      MovieOmDbMatcher.Instance.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_ACTOR, forceQuickMode);
+      OnlineMatcherService.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_ACTOR, forceQuickMode);
 
       if (movieInfo.Actors.Count == 0)
         return false;
