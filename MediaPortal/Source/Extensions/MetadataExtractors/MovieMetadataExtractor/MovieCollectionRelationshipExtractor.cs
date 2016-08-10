@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -76,8 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!_collectionCache.TryGetCheckedItem(movieInfo.CloneBasicInstance<MovieCollectionInfo>(), out collectionInfo))
       {
         collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-        MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, false, false);
-
+        OnlineMatcherService.UpdateCollection(collectionInfo, false, false);
         _collectionCache.TryAddCheckedItem(collectionInfo);
       }
 
@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.FromMetadata(linkedAspects))
         return false;
 
-      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true, true))
+      if (!OnlineMatcherService.UpdateCollection(collectionInfo, true, true))
         return false;
 
       MovieInfo movieInfo = new MovieInfo();

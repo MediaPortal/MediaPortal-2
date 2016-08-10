@@ -28,6 +28,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   {
     protected int _bindVarCounter = 0;
 
+    public int BindVarCounter
+    {
+      get { return _bindVarCounter; }
+      set { _bindVarCounter = value; }
+    }
+
     public string CreateNewBindVarName(string prefix)
     {
       return prefix + _bindVarCounter++;

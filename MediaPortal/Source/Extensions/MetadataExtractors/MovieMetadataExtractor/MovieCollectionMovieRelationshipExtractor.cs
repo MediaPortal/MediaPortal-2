@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -77,7 +78,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (_checkCache.IsItemChecked(collectionInfo))
         return false;
 
-      MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true, forceQuickMode);
+      OnlineMatcherService.UpdateCollection(collectionInfo, true, forceQuickMode);
 
       if (collectionInfo.Movies.Count == 0)
         return false;
@@ -87,10 +88,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       for (int i = 0; i < collectionInfo.Movies.Count; i++)
       {
         MovieInfo movieInfo = collectionInfo.Movies[i];
-
-        //MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
-        //MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
-        MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
 
         IDictionary<Guid, IList<MediaItemAspect>> movieAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         movieInfo.SetMetadata(movieAspects);
@@ -133,7 +130,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.FromMetadata(linkedAspects))
         return false;
 
-      if (!MovieTheMovieDbMatcher.Instance.UpdateCollection(collectionInfo, true, true))
+      if (!OnlineMatcherService.UpdateCollection(collectionInfo, true, true))
         return false;
 
       index = collectionInfo.Movies.IndexOf(movieInfo);

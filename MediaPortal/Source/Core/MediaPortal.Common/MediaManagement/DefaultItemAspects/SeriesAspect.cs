@@ -55,6 +55,24 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Description", 5000, Cardinality.Inline, false);
 
     /// <summary>
+    /// Genre string.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
+    /// Enumeration of actor name strings.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ACTORS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Actors", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
+    /// Enumeration of fictional character name strings.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CHARACTERS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Characters", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Contains list of awards.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
@@ -161,7 +179,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_SERIES_NAME,
             ATTR_ORIG_SERIES_NAME,
             ATTR_DESCRIPTION,
+            ATTR_GENRES,
             ATTR_AWARDS,
+            ATTR_ACTORS,
+            ATTR_CHARACTERS,
             ATTR_NETWORKS,
             ATTR_COMPANIES,
             ATTR_CERTIFICATION,

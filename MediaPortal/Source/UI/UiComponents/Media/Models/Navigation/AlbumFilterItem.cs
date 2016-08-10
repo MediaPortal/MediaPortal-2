@@ -61,12 +61,26 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           Tracks = AvailableTracks;
 
-        string name;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAlbumAspect.ATTR_ALBUM, out name))
-          SimpleTitle = name;
+        string text;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAlbumAspect.ATTR_ALBUM, out text))
+          Album = text;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAlbumAspect.ATTR_DESCRIPTION, out text))
+          StoryPlot = text;
       }
 
       FireChange();
+    }
+
+    public string Album
+    {
+      get { return this[Consts.KEY_ALBUM]; }
+      set { SetLabel(Consts.KEY_ALBUM, value); }
+    }
+
+    public string StoryPlot
+    {
+      get { return this[Consts.KEY_STORY_PLOT]; }
+      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
     }
 
     public string AvailableTracks

@@ -35,6 +35,7 @@ using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -45,6 +46,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
     {
+       FanArtMediaTypes.Undefined,
        FanArtMediaTypes.Album,
        FanArtMediaTypes.Audio,
        FanArtMediaTypes.Artist,
@@ -125,10 +127,49 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         albumInfo.FromMetadata(mediaItem.Aspects);
         infoObject = albumInfo;
       }
+      else if (mediaType == FanArtMediaTypes.Undefined)
+      {
+        if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.Audio;
+          TrackInfo trackInfo = new TrackInfo();
+          trackInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = trackInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        {
+          mediaType = FanArtMediaTypes.Album;
+          AlbumInfo albumInfo = new AlbumInfo();
+          albumInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = albumInfo;
+        }
+        else if (mediaItem.Aspects.ContainsKey(PersonAspect.ASPECT_ID))
+        {
+          PersonInfo personInfo = new PersonInfo();
+          personInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = personInfo;
+          if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST)
+            mediaType = FanArtMediaTypes.Artist;
+          else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
+            mediaType = FanArtMediaTypes.Writer;
+          else
+            return false;
+        }
+        else if (mediaItem.Aspects.ContainsKey(CompanyAspect.ASPECT_ID))
+        {
+          CompanyInfo companyInfo = new CompanyInfo();
+          companyInfo.FromMetadata(mediaItem.Aspects);
+          infoObject = companyInfo;
+          if (companyInfo.Type == CompanyAspect.COMPANY_MUSIC_LABEL)
+            mediaType = FanArtMediaTypes.MusicLabel;
+          else
+            return false;
+        }
+        else
+          return false;
+      }
 
-      fanArtFiles.AddRange(MusicTheAudioDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(MusicBrainzMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(MusicFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(OnlineMatcherService.GetAudioFanArtFiles(infoObject, mediaType, fanArtType));
 
       List<IResourceLocator> files = new List<IResourceLocator>();
       try

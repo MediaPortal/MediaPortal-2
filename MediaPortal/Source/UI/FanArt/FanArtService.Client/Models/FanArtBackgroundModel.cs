@@ -286,11 +286,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       SeriesFilterItem series = SelectedItem as SeriesFilterItem;
       if (series != null)
       {
+        MediaItem = series.MediaItem;
         FanArtMediaType = FanArtMediaTypes.Series;
         FanArtName = series.MediaItem.MediaItemId.ToString();
         SimpleTitle = series.SimpleTitle;
-        MediaItem = series.MediaItem;
-        ItemDescription = null;
+        ItemDescription = series.StoryPlot;
         return;
       }
       SeasonFilterItem season = SelectedItem as SeasonFilterItem;
@@ -300,14 +300,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.SeriesSeason;
         FanArtName = season.MediaItem.MediaItemId.ToString();
         SimpleTitle = season.SimpleTitle;
-        ItemDescription = null;
+        ItemDescription = season.StoryPlot;
         return;
       }
       EpisodeItem episode = SelectedItem as EpisodeItem;
       if (episode != null)
       {
         MediaItem = episode.MediaItem;
-        FanArtMediaType = FanArtMediaTypes.Series;
+        FanArtMediaType = FanArtMediaTypes.Episode;
         FanArtName = episode.MediaItem.MediaItemId.ToString();
         SimpleTitle = episode.Series;
         ItemDescription = episode.StoryPlot;
@@ -326,8 +326,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       MovieItem movie = SelectedItem as MovieItem;
       if (movie != null)
       {
+        MediaItem = movie.MediaItem;
         FanArtMediaType = FanArtMediaTypes.Movie;
-        // Fanart loading now depends on the MediaItemId to support local fanart
         FanArtName = movie.MediaItem.MediaItemId.ToString();
         SimpleTitle = movie.SimpleTitle;
         ItemDescription = movie.StoryPlot;
@@ -336,8 +336,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       VideoItem video = SelectedItem as VideoItem;
       if (video != null)
       {
-        FanArtMediaType = FanArtMediaTypes.Movie;
-        // Fanart loading now depends on the MediaItemId to support local fanart
+        MediaItem = video.MediaItem;
         FanArtName = video.MediaItem.MediaItemId.ToString();
         SimpleTitle = video.SimpleTitle;
         ItemDescription = string.Empty;
@@ -350,17 +349,91 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.Album;
         FanArtName = albumItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = albumItem.SimpleTitle;
-        ItemDescription = string.Empty;
+        ItemDescription = albumItem.StoryPlot;
         return;
       }
       AudioItem audioItem = SelectedItem as AudioItem;
       if (audioItem != null)
       {
+        MediaItem = albumItem.MediaItem;
         FanArtMediaType = FanArtMediaTypes.Audio;
         FanArtName = audioItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = audioItem.SimpleTitle;
         ItemDescription = string.Empty;
         return;
+      }
+      ActorFilterItem actorItem = SelectedItem as ActorFilterItem;
+      if (actorItem != null)
+      {
+        MediaItem = actorItem.MediaItem;
+        FanArtMediaType = FanArtMediaTypes.Actor;
+        FanArtName = actorItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = actorItem.SimpleTitle;
+        ItemDescription = actorItem.StoryPlot;
+        return;
+      }
+      DirectorFilterItem directorItem = SelectedItem as DirectorFilterItem;
+      if (directorItem != null)
+      {
+        MediaItem = directorItem.MediaItem;
+        FanArtMediaType = FanArtMediaTypes.Director;
+        FanArtName = directorItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = directorItem.SimpleTitle;
+        ItemDescription = directorItem.StoryPlot;
+      }
+      WriterFilterItem writerItem = SelectedItem as WriterFilterItem;
+      if (writerItem != null)
+      {
+        MediaItem = writerItem.MediaItem;
+        FanArtMediaType = FanArtMediaTypes.Writer;
+        FanArtName = writerItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = writerItem.SimpleTitle;
+        ItemDescription = writerItem.StoryPlot;
+      }
+      ArtistFilterItem artisitItem = SelectedItem as ArtistFilterItem;
+      if (artisitItem != null)
+      {
+        MediaItem = artisitItem.MediaItem;
+        FanArtMediaType = FanArtMediaTypes.Artist;
+        FanArtName = artisitItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = artisitItem.SimpleTitle;
+        ItemDescription = artisitItem.StoryPlot;
+      }
+      ComposerFilterItem composerItem = SelectedItem as ComposerFilterItem;
+      if (composerItem != null)
+      {
+        MediaItem = composerItem.MediaItem;
+        FanArtMediaType = FanArtMediaTypes.Writer;
+        FanArtName = composerItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = composerItem.SimpleTitle;
+        ItemDescription = composerItem.StoryPlot;
+      }
+      CharacterFilterItem characterItem = SelectedItem as CharacterFilterItem;
+      if (characterItem != null)
+      {
+        MediaItem = characterItem.MediaItem;
+        FanArtMediaType = FanArtMediaTypes.Character;
+        FanArtName = characterItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = characterItem.SimpleTitle;
+        ItemDescription = string.Empty;
+      }
+      CompanyFilterItem companyItem = SelectedItem as CompanyFilterItem;
+      if (companyItem != null)
+      {
+        MediaItem = companyItem.MediaItem;
+        FanArtMediaType = FanArtMediaTypes.Company;
+        FanArtName = companyItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = companyItem.SimpleTitle;
+        ItemDescription = companyItem.StoryPlot;
+      }
+      TVNetworkFilterItem tvNetworkItem = SelectedItem as TVNetworkFilterItem;
+      if (tvNetworkItem != null)
+      {
+        MediaItem = companyItem.MediaItem;
+        FanArtMediaType = FanArtMediaTypes.TVNetwork;
+        FanArtName = companyItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = companyItem.SimpleTitle;
+        ItemDescription = companyItem.StoryPlot;
       }
       FilterItem filterItem = SelectedItem as FilterItem;
       if (filterItem != null)

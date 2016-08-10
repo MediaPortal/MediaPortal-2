@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -74,10 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!_albumCache.TryGetCheckedItem(trackInfo.CloneBasicInstance<AlbumInfo>(), out albumInfo))
       {
         albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-        MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
-        MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, false, true); //Always force quick mode because online queries mostly timeout
-        MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
-
+        OnlineMatcherService.UpdateAlbum(albumInfo, false, forceQuickMode);
         _albumCache.TryAddCheckedItem(albumInfo);
       }
 

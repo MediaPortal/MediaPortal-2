@@ -257,6 +257,13 @@
         Text="[Settings.Players]"/>
   </Register>
 
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Media"
+        Redundant="true"
+        Text="[Settings.Media]"/>
+  </Register>
+
   <!-- Contents of '/Players' section -->
   <Register Location="/Configuration/Settings/Players">
     <ConfigSetting
@@ -289,5 +296,22 @@
       HelpText="[Settings.Players.OpenPlayerStrategy.Help]"
       ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.OpenPlayerStrategy"/>
 
+    <ConfigSetting
+      Id="WatchedPlayPercentage"
+      Text="[Settings.Players.WatchedPlayPercentage]"
+      HelpText="[Settings.Players.WatchedPlayPercentage.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.WatchedPlayPercentage"/>
+
   </Register>
+
+  <!-- Contents of '/Media' section -->
+  <Register Location="/Configuration/Settings/Media">
+    <ConfigSetting
+        Id="ShowVirtual"
+        Text="[Settings.Media.ShowVirtual]"
+        HelpText="[Settings.Media.ShowVirtual.Help]"
+        ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.ShowVirtual"/>
+    
+  </Register>
+  
 </Plugin>

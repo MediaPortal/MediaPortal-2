@@ -83,7 +83,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
       bool showVirtual = settings.ShowVirtual;
 
-      IEnumerable <Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
+      IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
       IFilter queryFilter = filter != null ? new RelationshipFilter(filter, _linkedRole, _role) : null;
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);

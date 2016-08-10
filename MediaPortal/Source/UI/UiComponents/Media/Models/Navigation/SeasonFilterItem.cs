@@ -62,10 +62,41 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           Episodes = AvailableEpisodes;
 
         if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeasonAspect.ATTR_SEASON, out count))
+        {
           SimpleTitle = count.Value.ToString();
+          Season = count.Value.ToString();
+        }
+
+        string text;
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeasonAspect.ATTR_SERIES_NAME, out text))
+        {
+          Series = text;
+        }
+        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeasonAspect.ATTR_DESCRIPTION, out text))
+        {
+          StoryPlot = text;
+        }
       }
 
       FireChange();
+    }
+
+    public string Series
+    {
+      get { return this[Consts.KEY_SERIES_NAME]; }
+      set { SetLabel(Consts.KEY_SERIES_NAME, value); }
+    }
+
+    public string Season
+    {
+      get { return this[Consts.KEY_SERIES_SEASON]; }
+      set { SetLabel(Consts.KEY_SERIES_SEASON, value); }
+    }
+
+    public string StoryPlot
+    {
+      get { return this[Consts.KEY_STORY_PLOT]; }
+      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
     }
 
     public string AvailableEpisodes
