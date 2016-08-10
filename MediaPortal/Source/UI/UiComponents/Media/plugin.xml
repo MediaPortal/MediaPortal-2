@@ -307,7 +307,7 @@
   <!-- Contents of '/Media' section -->
   <Register Location="/Configuration/Settings/Media">
     <ConfigSetting
-        Id="ClosePlayersWhenFinished"
+        Id="ShowVirtual"
         Text="[Settings.Media.ShowVirtual]"
         HelpText="[Settings.Media.ShowVirtual.Help]"
         ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.ShowVirtual"/>

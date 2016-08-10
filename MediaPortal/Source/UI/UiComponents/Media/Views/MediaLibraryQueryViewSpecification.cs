@@ -110,17 +110,15 @@ namespace MediaPortal.UiComponents.Media.Views
         combinedFilter = filter;
       else
       {
-        // Relationsships cannot be chained up, so the new filter needs to replace the former one.
-        // TODO: implement correct support for this scenario in backend
-        if (_filter is RelationshipFilter && filter is RelationshipFilter)
-          combinedFilter = filter;
+        if (filter is RelationshipFilter)
+          combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, _filter });
         else
           combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { _filter, filter });
       }
       return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
-        {
-            MaxNumItems = _maxNumItems
-        };
+      {
+        MaxNumItems = _maxNumItems
+      };
     }
 
     public override IEnumerable<MediaItem> GetAllMediaItems()
