@@ -188,8 +188,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
       fanArtFiles.AddRange(OnlineMatcherService.GetMovieFanArtFiles(infoObject, mediaType, fanArtType));
 
-      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.MovieCollection &&
-        (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail))
+      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.MovieCollection)
       {
         MovieCollectionInfo collection = infoObject as MovieCollectionInfo;
         if (collection != null)
@@ -198,10 +197,20 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
           OnlineMatcherService.UpdateCollection(collection, true, true);
           foreach (MovieInfo movie in collection.Movies)
           {
-            fanArtFiles.AddRange(OnlineMatcherService.GetMovieFanArtFiles(infoObject, mediaType, fanArtType));
+            fanArtFiles.AddRange(OnlineMatcherService.GetMovieFanArtFiles(movie, mediaType, fanArtType));
             if (fanArtFiles.Count > 0)
               break;
           }
+        }
+      }
+      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.Character)
+      {
+        CharacterInfo character = infoObject as CharacterInfo;
+        if (character != null)
+        {
+          mediaType = FanArtMediaTypes.Actor;
+          PersonInfo person = character.CloneBasicInstance<PersonInfo>();
+          fanArtFiles.AddRange(OnlineMatcherService.GetMovieFanArtFiles(person, mediaType, fanArtType));
         }
       }
 

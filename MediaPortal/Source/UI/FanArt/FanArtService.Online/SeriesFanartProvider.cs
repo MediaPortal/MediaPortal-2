@@ -205,14 +205,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
       fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(infoObject, mediaType, fanArtType));
 
-      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.SeriesSeason &&
-        (fanArtType == FanArtTypes.Banner || fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail))
+      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.SeriesSeason)
       {
-        mediaType = FanArtMediaTypes.Series;
-        SeriesInfo seriesInfo = new SeriesInfo();
-        seriesInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = seriesInfo;
-        fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(infoObject, mediaType, fanArtType));
+        SeasonInfo season = infoObject as SeasonInfo;
+        if (season != null)
+        {
+          mediaType = FanArtMediaTypes.Series;
+          SeriesInfo series = season.CloneBasicInstance<SeriesInfo>();
+          fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(series, mediaType, fanArtType));
+        }
+      }
+      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.Character)
+      {
+        CharacterInfo character = infoObject as CharacterInfo;
+        if (character != null)
+        {
+          mediaType = FanArtMediaTypes.Actor;
+          PersonInfo person = character.CloneBasicInstance<PersonInfo>();
+          fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(person, mediaType, fanArtType));
+        }
       }
 
       List<IResourceLocator> files = new List<IResourceLocator>();

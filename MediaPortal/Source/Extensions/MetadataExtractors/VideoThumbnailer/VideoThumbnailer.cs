@@ -131,6 +131,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb) && thumb != null)
         return true;
 
+      //ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Evaluate {0}", lfsra.ResourceName);
+
       bool isPrimaryResource = false;
       IList<MultipleMediaItemAspect> resourceAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out resourceAspects))
@@ -181,6 +183,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         lfsra.LocalFileSystemPath,
         tempFileName,
         downscale);
+
+      //ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: FFMpeg {0} {1}", executable, arguments);
 
       try
       {

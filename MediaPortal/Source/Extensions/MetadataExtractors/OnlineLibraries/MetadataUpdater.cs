@@ -112,6 +112,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
                   SetOrUpdateRatings(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
+                else if (field.GetValue(currentObj) is byte[])
+                {
+                  byte[] currentVal = (byte[])field.GetValue(currentObj);
+                  byte[] newVal = (byte[])field.GetValue(newObj);
+                  SetOrUpdateValue(ref currentVal, newVal);
+                  field.SetValue(currentObj, currentVal);
+                }
                 else if (field.GetValue(currentObj) is IList)
                 {
                   IList currentVal = (IList)field.GetValue(currentObj);
