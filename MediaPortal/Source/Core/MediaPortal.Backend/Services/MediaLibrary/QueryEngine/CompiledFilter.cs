@@ -163,8 +163,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               {
                 resultParts.Add(" AND ");
               }
-
-              BuildAttributeFilterExpression(filterItem, miaManagement.GetMIAAttributeColumnName(attributeType), bvNamespace, resultParts, resultBindVars);
+              //Empty filter needs to be handled differently to other IAttribute filters
+              if (filterItem is EmptyFilter)
+                CompileStatementParts(miaManagement, filterItem, ns, bvNamespace, requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
+              else
+                BuildAttributeFilterExpression(filterItem, miaManagement.GetMIAAttributeColumnName(attributeType), bvNamespace, resultParts, resultBindVars);
             }
             resultParts.Add(")");
           }

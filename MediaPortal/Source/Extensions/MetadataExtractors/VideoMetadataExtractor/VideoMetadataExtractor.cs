@@ -346,6 +346,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
       public void UpdateMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, ILocalFsResourceAccessor lfsra, int partNum, int partSet)
       {
+        //VideoAspect required to mark this media item as a video
+        MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(_title));
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);

@@ -574,6 +574,26 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
       };
 
+    public static readonly Guid[] OPTIONAL_LOCAL_BROWSING_MIAS = new Guid[]
+      {
+          AudioAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          ImageAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS = new Guid[]
+      {
+          MovieAspect.ASPECT_ID,
+          EpisodeAspect.ASPECT_ID,
+          AudioAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          ImageAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
+      };
+
     public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,
