@@ -498,6 +498,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_MEDIA_ITEM_ACTION = "MediaItemAction";
     public const string KEY_NUM_ITEMS = "NumItems";
     public const string KEY_DURATION = "Duration";
+    public const string KEY_WATCH_PERCENTAGE = "WatchPercentage";
     public const string KEY_AUDIO_ENCODING = "AudioEncoding";
     public const string KEY_VIDEO_ENCODING = "VideoEncoding";
 
@@ -506,7 +507,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_TOTAL_TRACKS = "TotalTracks";
     public const string KEY_AVAIL_TRACKS = "AvailTracks";
 
+    public const string KEY_ACTOR = "Actor";
     public const string KEY_STORY_PLOT = "StoryPlot";
+    public const string KEY_DESCRIPTION = "Description";
 
     public const string KEY_SERIES_NAME = "SeriesName";
     public const string KEY_SERIES_SEASON = "SeriesSeason";

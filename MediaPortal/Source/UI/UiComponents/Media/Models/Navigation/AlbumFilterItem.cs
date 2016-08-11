@@ -22,12 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -40,8 +38,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
 
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      bool showVirtual = settings.ShowVirtual;
+      AlbumInfo album = new AlbumInfo();
+      if (!album.FromMetadata(mediaItem.Aspects))
+        return;
+
+      Album = album.Album ?? "";
+      Description = album.Description.Text ?? "";
 
       int? count;
       if (mediaItem.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
@@ -56,16 +58,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalTracks = "";
 
-        if (showVirtual)
+        if (ShowVirtual)
           Tracks = TotalTracks;
         else
           Tracks = AvailableTracks;
-
-        string text;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAlbumAspect.ATTR_ALBUM, out text))
-          Album = text;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, AudioAlbumAspect.ATTR_DESCRIPTION, out text))
-          StoryPlot = text;
       }
 
       FireChange();
@@ -77,10 +73,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       set { SetLabel(Consts.KEY_ALBUM, value); }
     }
 
-    public string StoryPlot
+    public string Description
     {
-      get { return this[Consts.KEY_STORY_PLOT]; }
-      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
+      get { return this[Consts.KEY_DESCRIPTION]; }
+      set { SetLabel(Consts.KEY_DESCRIPTION, value); }
     }
 
     public string AvailableTracks

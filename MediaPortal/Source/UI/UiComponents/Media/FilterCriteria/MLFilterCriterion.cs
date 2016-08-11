@@ -26,6 +26,9 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -63,5 +66,16 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// <exception cref="NotConnectedException">If the media library is currently not connected.</exception>
     public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter,
         IFilter filter);
+
+    public bool ShowVirtual
+    {
+      get
+      {
+        //TODO: Decide whether the value should be cached to avoid reading from disk or leave like this so
+        //if it is changed the new value is loaded
+        ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+        return settings.ShowVirtual;
+      }
+    }
   }
 }

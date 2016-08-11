@@ -51,8 +51,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       Album = trackInfo.Album;
       string artists = StringUtils.Join(", ", trackInfo.Artists.Select(a => a.Name));
       SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
-      long? duration = trackInfo.Duration > 0 ? trackInfo.Duration : default(long?);
-      Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds(duration.Value)) : string.Empty;
+      
       FireChange();
     }
 
@@ -60,12 +59,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_ALBUM]; }
       set { SetLabel(Consts.KEY_ALBUM, value); }
-    }
-
-    public string Duration
-    {
-      get { return this[Consts.KEY_DURATION]; }
-      set { SetLabel(Consts.KEY_DURATION, value); }
     }
   }
 }

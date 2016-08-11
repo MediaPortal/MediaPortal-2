@@ -27,6 +27,9 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -107,6 +110,17 @@ namespace MediaPortal.UiComponents.Media.Views
     public virtual int? AbsNumItems
     {
       get { return null; }
+    }
+
+    public bool ShowVirtual
+    {
+      get
+      {
+        //TODO: Decide whether the value should be cached to avoid reading from disk or leave like this so
+        //if it is changed the new value is loaded
+        ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+        return settings.ShowVirtual;
+      }
     }
 
     /// <summary>

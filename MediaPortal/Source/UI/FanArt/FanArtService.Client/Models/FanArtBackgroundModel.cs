@@ -349,7 +349,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.Album;
         FanArtName = albumItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = albumItem.SimpleTitle;
-        ItemDescription = albumItem.StoryPlot;
+        ItemDescription = albumItem.Description;
         return;
       }
       AudioItem audioItem = SelectedItem as AudioItem;
@@ -369,7 +369,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.Actor;
         FanArtName = actorItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = actorItem.SimpleTitle;
-        ItemDescription = actorItem.StoryPlot;
+        ItemDescription = actorItem.Description;
         return;
       }
       DirectorFilterItem directorItem = SelectedItem as DirectorFilterItem;
@@ -379,7 +379,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.Director;
         FanArtName = directorItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = directorItem.SimpleTitle;
-        ItemDescription = directorItem.StoryPlot;
+        ItemDescription = directorItem.Description;
       }
       WriterFilterItem writerItem = SelectedItem as WriterFilterItem;
       if (writerItem != null)
@@ -388,7 +388,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.Writer;
         FanArtName = writerItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = writerItem.SimpleTitle;
-        ItemDescription = writerItem.StoryPlot;
+        ItemDescription = writerItem.Description;
       }
       ArtistFilterItem artisitItem = SelectedItem as ArtistFilterItem;
       if (artisitItem != null)
@@ -397,7 +397,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.Artist;
         FanArtName = artisitItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = artisitItem.SimpleTitle;
-        ItemDescription = artisitItem.StoryPlot;
+        ItemDescription = artisitItem.Description;
       }
       ComposerFilterItem composerItem = SelectedItem as ComposerFilterItem;
       if (composerItem != null)
@@ -406,7 +406,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.Writer;
         FanArtName = composerItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = composerItem.SimpleTitle;
-        ItemDescription = composerItem.StoryPlot;
+        ItemDescription = composerItem.Description;
       }
       CharacterFilterItem characterItem = SelectedItem as CharacterFilterItem;
       if (characterItem != null)
@@ -424,7 +424,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.Company;
         FanArtName = companyItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = companyItem.SimpleTitle;
-        ItemDescription = companyItem.StoryPlot;
+        ItemDescription = companyItem.Description;
       }
       TVNetworkFilterItem tvNetworkItem = SelectedItem as TVNetworkFilterItem;
       if (tvNetworkItem != null)
@@ -433,7 +433,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         FanArtMediaType = FanArtMediaTypes.TVNetwork;
         FanArtName = companyItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = companyItem.SimpleTitle;
-        ItemDescription = companyItem.StoryPlot;
+        ItemDescription = companyItem.Description;
       }
       FilterItem filterItem = SelectedItem as FilterItem;
       if (filterItem != null)

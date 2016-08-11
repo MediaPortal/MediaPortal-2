@@ -22,12 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -40,8 +38,13 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
 
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      bool showVirtual = settings.ShowVirtual;
+      SeasonInfo seasonInfo = new SeasonInfo();
+      if (!seasonInfo.FromMetadata(mediaItem.Aspects))
+        return;
+
+      Season = seasonInfo.SeasonNumber.HasValue ? seasonInfo.SeasonNumber.Value.ToString() : "";
+      Series = seasonInfo.SeriesName.Text ?? "";
+      StoryPlot = seasonInfo.Description.Text ?? "";
 
       int? count;
       if (mediaItem.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
@@ -56,26 +59,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalEpisodes = "";
 
-        if (showVirtual)
+        if (ShowVirtual)
           Episodes = TotalEpisodes;
         else
           Episodes = AvailableEpisodes;
-
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeasonAspect.ATTR_SEASON, out count))
-        {
-          SimpleTitle = count.Value.ToString();
-          Season = count.Value.ToString();
-        }
-
-        string text;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeasonAspect.ATTR_SERIES_NAME, out text))
-        {
-          Series = text;
-        }
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeasonAspect.ATTR_DESCRIPTION, out text))
-        {
-          StoryPlot = text;
-        }
       }
 
       FireChange();

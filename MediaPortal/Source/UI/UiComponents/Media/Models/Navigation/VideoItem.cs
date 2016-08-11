@@ -73,12 +73,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       FireChange();
     }
 
-    public string Duration
-    {
-      get { return this[Consts.KEY_DURATION]; }
-      set { SetLabel(Consts.KEY_DURATION, value); }
-    }
-
     public string AudioEncoding
     {
       get { return this[Consts.KEY_AUDIO_ENCODING]; }

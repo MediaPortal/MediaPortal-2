@@ -22,6 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.UiComponents.Media.General;
+
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
@@ -29,5 +33,30 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class CharacterFilterItem : FilterItem
   {
+    public override void Update(MediaItem mediaItem)
+    {
+      base.Update(mediaItem);
+
+      CharacterInfo character = new CharacterInfo();
+      if (!character.FromMetadata(mediaItem.Aspects))
+        return;
+
+      Name = character.Name ?? "";
+      Actor = character.ActorName ?? "";
+
+      FireChange();
+    }
+
+    public string Name
+    {
+      get { return this[Consts.KEY_NAME]; }
+      set { SetLabel(Consts.KEY_NAME, value); }
+    }
+
+    public string Actor
+    {
+      get { return this[Consts.KEY_ACTOR]; }
+      set { SetLabel(Consts.KEY_ACTOR, value); }
+    }
   }
 }

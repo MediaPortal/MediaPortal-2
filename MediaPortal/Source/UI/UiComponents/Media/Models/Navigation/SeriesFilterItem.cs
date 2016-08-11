@@ -22,12 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -40,8 +38,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
 
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      bool showVirtual = settings.ShowVirtual;
+      SeriesInfo seriesInfo = new SeriesInfo();
+      if (!seriesInfo.FromMetadata(mediaItem.Aspects))
+        return;
+
+      Series = seriesInfo.SeriesName.Text ?? "";
+      StoryPlot = seriesInfo.Description.Text ?? "";
 
       AvailableSeasons = "";
       TotalSeasons = "";
@@ -57,7 +59,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_NUM_SEASONS, out count))
           TotalSeasons = count.Value.ToString();
 
-        if (showVirtual)
+        if (ShowVirtual)
           Seasons = TotalSeasons;
         else
           Seasons = AvailableSeasons;
@@ -68,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_NUM_EPISODES, out count))
           TotalEpisodes = count.Value.ToString();
 
-        if (showVirtual)
+        if (ShowVirtual)
           Episodes = TotalEpisodes;
         else
           Episodes = AvailableEpisodes;

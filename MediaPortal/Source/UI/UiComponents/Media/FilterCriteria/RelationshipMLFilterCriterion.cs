@@ -32,8 +32,6 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.Media.Settings;
-using MediaPortal.Common.Settings;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
@@ -80,16 +78,13 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      bool showVirtual = settings.ShowVirtual;
-
       IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
       IFilter queryFilter = filter != null ? new RelationshipFilter(filter, _linkedRole, _role) : null;
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
       if (_sortInformation != null)
         query.SortInformation = new List<SortInformation> { _sortInformation };
-      IList<MediaItem> items = cd.Search(query, true, userProfile, showVirtual);
+      IList<MediaItem> items = cd.Search(query, true, userProfile, ShowVirtual);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
       {

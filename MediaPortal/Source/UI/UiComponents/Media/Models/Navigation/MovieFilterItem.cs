@@ -22,12 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -40,8 +38,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
 
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      bool showVirtual = settings.ShowVirtual;
+      MovieCollectionInfo movieCollection = new MovieCollectionInfo();
+      if (!movieCollection.FromMetadata(mediaItem.Aspects))
+        return;
+
+      CollectionName = movieCollection.CollectionName.Text ?? "";
 
       int? count;
       if (mediaItem.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID))
@@ -56,17 +57,19 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalMovies = "";
 
-        if (showVirtual)
+        if (ShowVirtual)
           Movies = TotalMovies;
         else
           Movies = AvailableMovies;
-
-        string name;
-        if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieCollectionAspect.ATTR_COLLECTION_NAME, out name))
-          SimpleTitle = name;
       }
 
       FireChange();
+    }
+
+    public string CollectionName
+    {
+      get { return this[Consts.KEY_MOVIE_COLLECTION]; }
+      set { SetLabel(Consts.KEY_MOVIE_COLLECTION, value); }
     }
 
     public string AvailableMovies

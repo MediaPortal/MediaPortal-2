@@ -33,8 +33,6 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.UiComponents.Media.Settings;
-using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -56,15 +54,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      bool showVirtual = settings.ShowVirtual;
-
       IEnumerable<Guid> mias = new[] { MediaAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID }.Concat(necessaryMIATypeIds);
       MediaItemQuery query = new MediaItemQuery(mias, filter)
       {
         SortInformation = new List<SortInformation> { new SortInformation(EpisodeAspect.ATTR_EPISODE, SortDirection.Ascending) }
       };
-      var items = cd.Search(query, true, userProfile, showVirtual);
+      var items = cd.Search(query, true, userProfile, ShowVirtual);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (var item in items)
       {
