@@ -43,9 +43,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init(string cachePath)
+    public bool Init(string cachePath, bool useHttps)
     {
-      _omDbHandler = new OmDbApiV1(cachePath);
+      _omDbHandler = new OmDbApiV1(cachePath, useHttps);
       return true;
     }
 

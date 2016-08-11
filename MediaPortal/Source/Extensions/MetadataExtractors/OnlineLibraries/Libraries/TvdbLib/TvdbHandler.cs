@@ -233,10 +233,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///       handle user specific tasks and keep the downloaded data consistent with the online data (via the updates api)</para>
     /// <para>An api key is used for downloading data from thetvdb -> see http://thetvdb.com/wiki/index.php/Programmers_API</para>
     /// </summary>
-    public TvdbHandler()
+    public TvdbHandler(string apiKey, bool useHttps)
     {
-      _apiKey = "9628A4332A8F3487"; //store api key
-      _downloader = new TvdbDownloader(_apiKey);
+      _apiKey = apiKey; //store api key
+      _downloader = new TvdbDownloader(_apiKey, useHttps);
       _cacheProvider = null;
     }
 
@@ -245,8 +245,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     /// <param name="cacheProvider">The cache provider used to store the information</param>
     /// <param name="apiKey">Api key to use for this project</param>
-    public TvdbHandler(ICacheProvider cacheProvider) : this()
+    public TvdbHandler(string apiKey, bool useHttps, ICacheProvider cacheProvider)
     {
+      _apiKey = apiKey; //store api key
+      _downloader = new TvdbDownloader(_apiKey, useHttps);
       _cacheProvider = cacheProvider; //store given cache provider
     }
 
@@ -1780,7 +1782,5 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     }
 
     #endregion
-
-
   }
 }

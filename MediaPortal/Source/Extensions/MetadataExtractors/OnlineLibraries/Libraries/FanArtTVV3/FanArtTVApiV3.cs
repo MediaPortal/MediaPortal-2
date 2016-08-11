@@ -38,7 +38,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
 
     public const string DefaultLanguage = "en";
 
-    private const string URL_API_BASE = "https://webservice.fanart.tv/v3/";
+    private const string URL_API_BASE = "webservice.fanart.tv/v3/";
     private const string URL_GETMOVIE =   URL_API_BASE + "movies/{0}";
     private const string URL_GETMUSICARTIST = URL_API_BASE + "music/{0}";
     private const string URL_GETMUSICALBUM =  URL_API_BASE + "music/albums/{0}";
@@ -52,15 +52,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
     private readonly string _apiKey;
     private readonly string _cachePath;
     private readonly Downloader _downloader;
+    private readonly bool _useHttps;
 
     #endregion
 
     #region Constructor
 
-    public FanArtTVApiV3(string apiKey, string cachePath)
+    public FanArtTVApiV3(string apiKey, string cachePath, bool useHttps)
     {
       _apiKey = apiKey;
       _cachePath = cachePath;
+      _useHttps = useHttps;
       _downloader = new Downloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
     }
@@ -167,7 +169,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3
     protected string GetUrl(string urlBase, params object[] args)
     {
       string replacedUrl = string.Format(urlBase, args);
-      return string.Format("{0}?api_key={1}", replacedUrl, _apiKey);
+      if(_useHttps)
+        return string.Format("https://{0}?api_key={1}", replacedUrl, _apiKey);
+      else
+        return string.Format("http://{0}?api_key={1}", replacedUrl, _apiKey);
     }
 
     /// <summary>

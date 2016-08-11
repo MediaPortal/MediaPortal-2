@@ -43,9 +43,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init(string cachePath)
+    public bool Init(string cachePath, bool useHttps)
     {
-      _musicBrainzHandler = new MusicBrainzApiV2(cachePath);
+      _musicBrainzHandler = new MusicBrainzApiV2(cachePath, useHttps);
       SetDefaultLanguage(MusicBrainzApiV2.DefaultLanguage);
       SetCachePath(cachePath);
       return true;

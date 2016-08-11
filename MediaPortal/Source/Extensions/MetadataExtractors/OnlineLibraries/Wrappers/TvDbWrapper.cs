@@ -57,10 +57,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init(string cachePath)
+    public bool Init(string cachePath, bool useHttps)
     {
       ICacheProvider cacheProvider = new XmlCacheProvider(cachePath);
-      _tvdbHandler = new TvdbHandler(cacheProvider);
+      _tvdbHandler = new TvdbHandler("9628A4332A8F3487", useHttps, cacheProvider);
       _tvdbHandler.InitCache();
       if (!_tvdbHandler.IsLanguagesCached)
         _tvdbHandler.ReloadLanguages();
@@ -607,11 +607,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             }
             if (season != null && season.SeriesTvdbId > 0 && season.SeasonNumber.HasValue)
             {
-              seriesDetail = _tvdbHandler.GetSeries(episode.SeriesTvdbId, language, false, false, true);
+              seriesDetail = _tvdbHandler.GetSeries(season.SeriesTvdbId, language, false, false, true);
 
               if (seriesDetail != null)
               {
-                images.Id = episode.TvdbId.ToString();
+                images.Id = season.TvdbId.ToString();
 
                 var seasonLookup = seriesDetail.SeasonBanners.Where(s => s.Season == season.SeasonNumber).ToLookup(s => string.Format("{0}_{1}", s.Season, s.BannerType), v => v);
                 foreach (IGrouping<string, TvdbSeasonBanner> tvdbSeasonBanners in seasonLookup)

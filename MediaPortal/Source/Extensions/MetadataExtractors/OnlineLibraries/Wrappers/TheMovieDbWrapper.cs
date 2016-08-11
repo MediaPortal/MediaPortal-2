@@ -45,9 +45,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init(string cachePath)
+    public bool Init(string cachePath, bool useHttps)
     {
-      _movieDbHandler = new MovieDbApiV3("1e3f311b50e6ca53bbc3fcade2214b5e", cachePath);
+      _movieDbHandler = new MovieDbApiV3("1e3f311b50e6ca53bbc3fcade2214b5e", cachePath, useHttps);
       SetDefaultLanguage(MovieDbApiV3.DefaultLanguage);
       SetCachePath(cachePath);
       return true;

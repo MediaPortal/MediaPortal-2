@@ -28,6 +28,8 @@ using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Threading;
 using MediaPortal.Utilities.Network;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
@@ -43,6 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     public const int MAX_FANART_IMAGES = 5;
     public const int MAX_FANART_DOWNLOADERS = 3;
+    public const int FANART_TOKEN_CLEAN_DEALY = 300000;
 
     #endregion
 
@@ -67,6 +70,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     private bool _disposed;
     private bool _inited;
+    private bool _useHttps;
+    private bool _onlyBasicFanArt;
 
     #endregion
 
@@ -82,10 +87,85 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       set { _downloadFanart = value; }
     }
 
+    protected ILogger Logger
+    {
+      get
+      {
+        return ServiceRegistration.Get<ILogger>();
+      }
+    }
+
+    protected bool UseSecureWebCommunication
+    {
+      get
+      {
+        return _useHttps;
+      }
+    }
+
+    protected bool OnlyBasicFanArt
+    {
+      get
+      {
+        return _onlyBasicFanArt;
+      }
+    }
+
+    #endregion
+
+    #region FanArt Count
+
+    private static Dictionary<string, Dictionary<string, int>> _fanArtCount = new Dictionary<string, Dictionary<string, int>>();
+    private static Timer _clearTimer = new Timer(ClearFanArtCount, null, Timeout.Infinite, Timeout.Infinite);
+    private static object _fanArtCountSync = new object();
+
+    private static void ClearFanArtCount(object state)
+    {
+      lock (_fanArtCountSync)
+      {
+        _clearTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        _fanArtCount.Clear();
+      }
+    }
+
+    public static void AddFanArtCount(string FanArtToken, string FanArtType, int FanArtCount)
+    {
+      if (string.IsNullOrEmpty(FanArtToken))
+        return;
+
+      _clearTimer.Change(FANART_TOKEN_CLEAN_DEALY, Timeout.Infinite);
+      lock (_fanArtCountSync)
+      {
+        if (!_fanArtCount.ContainsKey(FanArtToken))
+          _fanArtCount.Add(FanArtToken, new Dictionary<string, int>());
+        if (!_fanArtCount[FanArtToken].ContainsKey(FanArtType))
+          _fanArtCount[FanArtToken].Add(FanArtType, 0);
+        _fanArtCount[FanArtToken][FanArtType] += FanArtCount;
+      }
+    }
+
+    public static int GetFanArtCount(string FanArtToken, string FanArtType)
+    {
+      if (string.IsNullOrEmpty(FanArtToken))
+        return 0;
+
+      lock (_fanArtCountSync)
+      {
+        if (!_fanArtCount.ContainsKey(FanArtToken))
+          _fanArtCount.Add(FanArtToken, new Dictionary<string, int>());
+        if (!_fanArtCount[FanArtToken].ContainsKey(FanArtType))
+          _fanArtCount[FanArtToken].Add(FanArtType, 0);
+        return _fanArtCount[FanArtToken][FanArtType];
+      }
+    }
+
     #endregion
 
     protected BaseMatcher()
     {
+      OnlineLibrarySettings settings = ServiceRegistration.Get<ISettingsManager>().Load<OnlineLibrarySettings>();
+      _useHttps = settings.UseSecureWebCommunication;
+      _onlyBasicFanArt = settings.OnlyBasicFanArt;
     }
 
     public virtual bool Init()

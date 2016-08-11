@@ -266,6 +266,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
         IsLoaded = true;
         return true;
       }
+      if (BannerImage != null)
+        BannerImage.Dispose();
       BannerImage = null;
       IsLoaded = false;
       return false;

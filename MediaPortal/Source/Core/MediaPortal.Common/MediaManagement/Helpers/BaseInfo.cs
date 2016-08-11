@@ -59,6 +59,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public abstract bool HasExternalId { get; }
 
+    public string FanArtToken = null;
 
     /// <summary>
     /// Used to replace all "." and "_" that are not followed by a word character.
@@ -157,6 +158,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public virtual T CloneBasicInstance<T>()
     {
       return default(T);
+    }
+
+    public virtual void InitFanArtToken()
+    {
+      if (string.IsNullOrEmpty(FanArtToken))
+        FanArtToken = Guid.NewGuid().ToString();
     }
 
     #endregion

@@ -50,10 +50,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// TvdbDownloader constructor
     /// </summary>
     /// <param name="apiKey">The api key used for downloading data from thetvdb -> see http://thetvdb.com/wiki/index.php/Programmers_API</param>
-    public TvdbDownloader(String apiKey)
+    public TvdbDownloader(String apiKey, bool useHttps)
     {
       _apiKey = apiKey;
       _xmlHandler = new TvdbXmlReader();//xml handler (extract xml information into objects)
+      if (useHttps)
+        TvdbLinkCreator.BASE_SERVER = TvdbLinkCreator.SECURE_SERVER;
+      else
+        TvdbLinkCreator.BASE_SERVER = TvdbLinkCreator.NORMAL_SERVER;
     }
 
     protected string DownloadString(string url)

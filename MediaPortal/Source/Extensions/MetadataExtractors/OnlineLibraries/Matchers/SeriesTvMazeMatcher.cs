@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper()
+    public override bool InitWrapper(bool useHttps)
     {
       try
       {
@@ -113,6 +113,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (episode.TvMazeId > 0)
         id = episode.TvMazeId.ToString();
       return id != null;
+    }
+
+    protected override bool SetSeriesEpisodeId(EpisodeInfo episode, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        episode.TvMazeId = Convert.ToInt32(id);
+        return true;
+      }
+      return false;
     }
 
     protected override bool GetCompanyId(CompanyInfo company, out string id)

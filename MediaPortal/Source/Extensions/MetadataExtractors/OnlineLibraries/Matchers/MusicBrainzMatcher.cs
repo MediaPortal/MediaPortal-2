@@ -61,7 +61,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper()
+    public override bool InitWrapper(bool useHttps)
     {
       try
       {
@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
         string lang = new RegionInfo(currentCulture.LCID).TwoLetterISORegionName;
         wrapper.SetPreferredLanguage(lang);
-        if (wrapper.Init(CACHE_PATH))
+        if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
           return true;
@@ -93,6 +93,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!string.IsNullOrEmpty(album.MusicBrainzId))
         id = album.MusicBrainzId;
       return id != null;
+    }
+
+    protected override bool SetTrackAlbumId(AlbumInfo album, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        album.MusicBrainzId = id;
+        return true;
+      }
+      return false;
     }
 
     protected override bool GetTrackId(TrackInfo track, out string id)
@@ -153,7 +163,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override int SaveFanArtImages(string id, IEnumerable<TrackImage> images, string scope, string type)
+    protected override int SaveFanArtImages(string fanArtToken, string id, IEnumerable<TrackImage> images, string scope, string type)
     {
       if (images == null)
         return 0;
@@ -170,6 +180,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       int idx = 0;
       foreach (TrackImage img in images)
       {
+        int externalFanArtCount = GetFanArtCount(fanArtToken, type);
+        if (externalFanArtCount >= MAX_FANART_IMAGES)
+          break;
         if (idx >= MAX_FANART_IMAGES)
           break;
 
@@ -178,7 +191,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (imageType.Equals(imgType, StringComparison.InvariantCultureIgnoreCase))
           {
             if (_wrapper.DownloadFanArt(id, img, scope, type))
+            {
+              AddFanArtCount(fanArtToken, type, 1);
               idx++;
+            }
             break;
           }
         }

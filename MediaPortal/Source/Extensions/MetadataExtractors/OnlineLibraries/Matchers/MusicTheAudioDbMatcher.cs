@@ -58,7 +58,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper()
+    public override bool InitWrapper(bool useHttps)
     {
       try
       {
@@ -94,6 +94,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (album.AudioDbId > 0)
         id = album.AudioDbId.ToString();
       return id != null;
+    }
+
+    protected override bool SetTrackAlbumId(AlbumInfo album, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        album.AudioDbId = Convert.ToInt64(id);
+        return true;
+      }
+      return false;
     }
 
     protected override bool GetTrackId(TrackInfo track, out string id)

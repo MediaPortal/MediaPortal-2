@@ -83,11 +83,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 
     public string DownloadString(string url)
     {
-      CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 };
-      foreach (KeyValuePair<string, string> headerEntry in Headers)
-        webClient.Headers[headerEntry.Key] = headerEntry.Value;
+      using (CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 })
+      {
+        foreach (KeyValuePair<string, string> headerEntry in Headers)
+          webClient.Headers[headerEntry.Key] = headerEntry.Value;
 
-      return webClient.DownloadString(url);
+        return webClient.DownloadString(url);
+      }
     }
 
     /// <summary>
@@ -107,8 +109,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           _fileLock.EnterWriteLock();
           if (File.Exists(downloadFile))
             return true;
-          WebClient webClient = new CompressionWebClient();
-          webClient.DownloadFile(url, downloadFile);
+          using (WebClient webClient = new CompressionWebClient())
+            webClient.DownloadFile(url, downloadFile);
           return true;
         }
         catch (Exception ex)

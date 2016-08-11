@@ -40,8 +40,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     public const string DefaultLanguage = "US";
 
-    private const string URL_API_BASE = "https://musicbrainz.org/ws/2/";
-    private const string URL_FANART_API_BASE = "http://coverartarchive.org/";
+    private const string URL_API_BASE = "musicbrainz.org/ws/2/";
+    private const string URL_FANART_API_BASE = "coverartarchive.org/";
 
     private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings+isrcs&fmt=json";
     private const string URL_GETRELEASE = URL_API_BASE + "release/{0}?inc=artist-credits+labels+discids+recordings+tags&fmt=json";
@@ -62,6 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     private static readonly FileVersionInfo FILE_VERSION_INFO;
     private readonly string _cachePath;
     private readonly Downloader _downloader;
+    private readonly bool _useHttps;
 
     #endregion
 
@@ -72,9 +73,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       FILE_VERSION_INFO = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
     }
 
-    public MusicBrainzApiV2(string cachePath)
+    public MusicBrainzApiV2(string cachePath, bool useHttps)
     {
       _cachePath = cachePath;
+      _useHttps = useHttps;
       _downloader = new MusicBrainzDownloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
       _downloader.Headers["User-Agent"] = "MediaPortal/" + FILE_VERSION_INFO.FileVersion + " (http://www.team-mediaportal.com/)";
@@ -359,7 +361,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <returns>Complete url</returns>
     protected string GetUrl(string urlBase, params object[] args)
     {
-      return string.Format(urlBase, args);
+      if(_useHttps)
+        return "https://" + string.Format(urlBase, args);
+      else
+        return "http://" + string.Format(urlBase, args);
     }
 
     /// <summary>

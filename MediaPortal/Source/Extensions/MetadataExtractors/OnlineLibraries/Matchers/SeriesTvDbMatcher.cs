@@ -73,14 +73,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper()
+    public override bool InitWrapper(bool useHttps)
     {
       try
       {
         TvDbWrapper wrapper = new TvDbWrapper();
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-        if (wrapper.Init(CACHE_PATH))
+        if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
           wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
@@ -132,6 +132,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (episode.TvdbId > 0)
         id = episode.TvdbId.ToString();
       return id != null;
+    }
+
+    protected override bool SetSeriesEpisodeId(EpisodeInfo episode, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        episode.TvdbId = Convert.ToInt32(id);
+        return true;
+      }
+      return false;
     }
 
     protected override bool GetCompanyId(CompanyInfo company, out string id)
@@ -264,31 +274,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return fanartFiles;
     }
 
-    protected override int SaveFanArtImages(string id, IEnumerable<TvdbBanner> images, string scope, string type)
+    protected override int SaveFanArtImages(string fanArtToken, string id, IEnumerable<TvdbBanner> images, string scope, string type)
     {
       if (images == null)
         return 0;
 
-      return SaveBanners(images, _wrapper.PreferredLanguage);
+      return SaveBanners(fanArtToken, images, _wrapper.PreferredLanguage, type);
     }
 
-    protected override int SaveSeriesSeasonFanArtImages(string id, int seasonNo, IEnumerable<TvdbBanner> images, string scope, string type)
+    protected override int SaveSeriesSeasonFanArtImages(string fanArtToken, string id, int seasonNo, IEnumerable<TvdbBanner> images, string scope, string type)
     {
       if (images == null)
         return 0;
 
-      return SaveBanners(images, _wrapper.PreferredLanguage);
+      return SaveBanners(fanArtToken, images, _wrapper.PreferredLanguage, type);
     }
 
-    protected override int SaveSeriesEpisodeFanArtImages(string id, int seasonNo, int episodeNo, IEnumerable<TvdbBanner> images, string scope, string type)
+    protected override int SaveSeriesEpisodeFanArtImages(string fanArtToken, string id, int seasonNo, int episodeNo, IEnumerable<TvdbBanner> images, string scope, string type)
     {
       if (images == null)
         return 0;
 
-      return SaveBanners(images, _wrapper.PreferredLanguage);
+      return SaveBanners(fanArtToken, images, _wrapper.PreferredLanguage, type);
     }
 
-    private int SaveBanners(IEnumerable<TvdbBanner> banners, TvdbLanguage language)
+    private int SaveBanners(string fanArtToken, IEnumerable<TvdbBanner> banners, TvdbLanguage language, string type)
     {
       int idx = 0;
       foreach (TvdbBanner tvdbBanner in banners)
@@ -296,7 +306,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (tvdbBanner.Language != language && language != null && tvdbBanner.Language != null)
           continue;
 
-        if (idx++ >= MAX_FANART_IMAGES)
+        int externalFanArtCount = GetFanArtCount(fanArtToken, type);
+        if (externalFanArtCount >= MAX_FANART_IMAGES)
+          break;
+
+        if (idx >= MAX_FANART_IMAGES)
           break;
 
         if (!tvdbBanner.IsLoaded)
@@ -306,6 +320,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             tvdbBanner.LoadBanner();
             tvdbBanner.UnloadBanner();
+            idx++;
+            AddFanArtCount(fanArtToken, type, 1);
           }
           catch (Exception ex)
           {
@@ -324,12 +340,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         if (_useUniversalLanguage)
         {
-          idx = SaveBanners(banners, TvdbLanguage.UniversalLanguage);
+          idx = SaveBanners(fanArtToken, banners, TvdbLanguage.UniversalLanguage, type);
           if (idx > 0)
             return idx;
         }
 
-        idx = SaveBanners(banners, TvdbLanguage.DefaultLanguage);
+        idx = SaveBanners(fanArtToken, banners, TvdbLanguage.DefaultLanguage, type);
       }
       ServiceRegistration.Get<ILogger>().Debug(@"SeriesTvDbMatcher Download: Saved {0} banners", idx);
       return idx;

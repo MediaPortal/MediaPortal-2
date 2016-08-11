@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper()
+    public override bool InitWrapper(bool useHttps)
     {
       try
       {
@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
         wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
-        if (wrapper.Init(CACHE_PATH))
+        if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
           return true;
@@ -93,6 +93,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!string.IsNullOrEmpty(album.MusicBrainzGroupId))
         id = album.MusicBrainzGroupId;
       return id != null;
+    }
+
+    protected override bool SetTrackAlbumId(AlbumInfo album, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        album.MusicBrainzGroupId = id;
+        return true;
+      }
+      return false;
     }
 
     protected override bool GetTrackId(TrackInfo track, out string id)

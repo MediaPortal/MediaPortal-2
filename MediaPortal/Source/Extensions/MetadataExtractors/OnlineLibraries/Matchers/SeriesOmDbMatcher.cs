@@ -57,12 +57,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper()
+    public override bool InitWrapper(bool useHttps)
     {
       try
       {
         OmDbWrapper wrapper = new OmDbWrapper();
-        if (wrapper.Init(CACHE_PATH))
+        if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
           return true;
@@ -93,7 +93,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!string.IsNullOrEmpty(id))
       {
-        episode.ImdbId = id;
+        episode.SeriesImdbId = id;
         return true;
       }
       return false;
@@ -116,6 +116,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!string.IsNullOrEmpty(episode.ImdbId))
         id = episode.ImdbId;
       return id != null;
+    }
+
+    protected override bool SetSeriesEpisodeId(EpisodeInfo episode, string id)
+    {
+      if (!string.IsNullOrEmpty(id))
+      {
+        episode.ImdbId = id;
+        return true;
+      }
+      return false;
     }
 
     #endregion

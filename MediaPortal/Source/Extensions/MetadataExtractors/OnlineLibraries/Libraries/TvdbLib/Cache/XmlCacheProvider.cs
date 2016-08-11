@@ -786,7 +786,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
             {
               using (Image sourceImage = Image.FromFile(fName))
               {
-                Image targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                Image targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, sourceImage.PixelFormat);
                 using (Graphics g = Graphics.FromImage(targetImage))
                 {
                   g.DrawImageUnscaled(sourceImage, 0, 0);

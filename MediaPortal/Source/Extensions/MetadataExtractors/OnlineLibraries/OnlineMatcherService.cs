@@ -25,7 +25,9 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -93,7 +95,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           TrackInfo trackInfo = albumInfo.Tracks[i];
           //MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
           //MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
-          MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+          //MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
         }
       }
       return success;
@@ -175,7 +177,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           MovieInfo movieInfo = collectionInfo.Movies[i];
           //MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
           //MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
-          MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+          //MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
         }
       }
       return success;
@@ -241,6 +243,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       success |= SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
       return success;
     }
+
     public static bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode)
     {
       bool success = false;
@@ -249,6 +252,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       success |= SeriesTvMazeMatcher.Instance.UpdateEpisodePersons(episodeInfo, occupation, forceQuickMode);
       return success;
     }
+
     public static bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode)
     {
       bool success = false;
@@ -257,6 +261,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       success |= SeriesTvMazeMatcher.Instance.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
       return success;
     }
+
     public static bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode)
     {
       bool success = false;
@@ -266,6 +271,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       success |= SeriesFanArtTvMatcher.Instance.UpdateSeason(seasonInfo, forceQuickMode);
       return success;
     }
+
     public static bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
     {
       bool success = false;
@@ -288,11 +294,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
           //SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
           //SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
-          SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
+          //SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
         }
       }
         return success;
     }
+
+    public static bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)
+    {
+      bool success = false;
+      success |= SeriesTvDbMatcher.Instance.UpdateSeriesPersons(seriesInfo, occupation, forceQuickMode);
+      success |= SeriesTheMovieDbMatcher.Instance.UpdateSeriesPersons(seriesInfo, occupation, forceQuickMode);
+      success |= SeriesTvMazeMatcher.Instance.UpdateSeriesPersons(seriesInfo, occupation, forceQuickMode);
+      return success;
+    }
+
+    public static bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode)
+    {
+      bool success = false;
+      success |= SeriesTvDbMatcher.Instance.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
+      success |= SeriesTheMovieDbMatcher.Instance.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
+      success |= SeriesTvMazeMatcher.Instance.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
+      return success;
+    }
+
     public static bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
     {
       bool success = false;

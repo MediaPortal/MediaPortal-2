@@ -57,12 +57,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
     }
 
-    public override bool InitWrapper()
+    public override bool InitWrapper(bool useHttps)
     {
       try
       {
         OmDbWrapper wrapper = new OmDbWrapper();
-        if (wrapper.Init(CACHE_PATH))
+        if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
           return true;

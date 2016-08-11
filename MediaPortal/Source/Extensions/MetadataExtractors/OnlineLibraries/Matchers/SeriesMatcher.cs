@@ -28,7 +28,6 @@ using System.Globalization;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using System.Collections.Generic;
@@ -38,7 +37,7 @@ using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Common.Threading;
-using System.Linq;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -63,6 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _characterMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CharacterMatches.xml"));
       _companyMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "CompanyMatches.xml"));
       _networkMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "NetworkMatches.xml"));
+      _seriesNameMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "SeriesNameMatches.xml"));
       _configFile = Path.Combine(cachePath, "SeriesConfig.xml");
 
       Init();
@@ -78,10 +78,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       LoadConfig();
 
-      return InitWrapper();
+      return InitWrapper(UseSecureWebCommunication);
     }
 
-    public abstract bool InitWrapper();
+    public abstract bool InitWrapper(bool useHttps);
 
     private void LoadConfig()
     {
@@ -122,6 +122,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private SimpleNameMatcher _directorMatcher;
     private SimpleNameMatcher _writerMatcher;
     private SimpleNameMatcher _characterMatcher;
+    private SimpleNameMatcher _seriesNameMatcher;
 
     protected ApiWrapper<TImg, TLang> _wrapper = null;
     protected bool UseSeasonIdForFanArt { get; set; }
@@ -190,6 +191,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!Init())
           return false;
 
+        episodeInfo.InitFanArtToken();
+
         EpisodeInfo episodeMatch = null;
         SeriesInfo seriesMatch = null;
         SeriesInfo episodeSeries = episodeInfo.CloneBasicInstance<SeriesInfo>();
@@ -237,14 +240,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             (string.Equals(m.ItemName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase) ||
             string.Equals(m.OnlineName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
             (episodeSeries.FirstAired.HasValue && m.Year == episodeSeries.FirstAired.Value.Year || !episodeSeries.FirstAired.HasValue || m.Year == 0));
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
+          Logger.Debug(GetType().Name + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
 
           episodeMatch = CloneProperties(episodeInfo);
-          if (match != null && match.Id != null)
+          if (match != null)
           {
             if (SetSeriesId(episodeMatch, match.Id))
             {
               seriesMatchFound = true;
+            }
+            else if (string.IsNullOrEmpty(seriesId))
+            {
+              //Match was found but with invalid Id probably to avoid a retry
+              //No Id is available so online search will probably fail again
+              return false;
             }
           }
 
@@ -252,11 +261,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             //If Id was found in cache the online movie info is probably also in the cache
             if (_wrapper.UpdateFromOnlineSeriesEpisode(episodeMatch, language, true))
+            {
+              Logger.Debug(GetType().Name + ": Found episode {0} in cache", episodeInfo.ToString());
               matchFound = true;
+            }
           }
 
           if (!matchFound && !forceQuickMode)
           {
+            Logger.Debug(GetType().Name + ": Search for episode {0} online", episodeInfo.ToString());
+
             //Try to update movie information from online source if online Ids are present
             if (!_wrapper.UpdateFromOnlineSeriesEpisode(episodeMatch, language, false))
             {
@@ -351,11 +365,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             _memoryCache.TryAdd(seriesId, episodeInfo.CloneBasicInstance<SeriesInfo>());
 
+            DownloadData data = new DownloadData()
+            {
+              FanArtToken = episodeInfo.FanArtToken,
+              FanArtMediaType = FanArtMediaTypes.Episode,
+            };
+            data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+            if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
+            {
+              data.FanArtId[FanArtMediaTypes.SeriesSeason] = episodeInfo.SeasonNumber.Value.ToString();
+              data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.EpisodeNumbers[0].ToString();
+            }
+
             if (GetSeriesEpisodeId(episodeInfo, out episodeId))
             {
               _memoryCacheEpisode.TryAdd(episodeId, episodeInfo);
 
-              seriesId += "|" + episodeId;
+              data.FanArtId[FanArtMediaTypes.Undefined] = episodeId;
             }
             else
             {
@@ -366,7 +392,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 _memoryCacheEpisode.TryAdd(seriesId, episodeInfo);
               }
             }
-            ScheduleDownload(seriesId);
+
+            ScheduleDownload(data.Serialize());
           }
 
           return true;
@@ -376,7 +403,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing episode {0}", ex, episodeInfo.ToString());
+        Logger.Debug(GetType().Name + ": Exception while processing episode {0}", ex, episodeInfo.ToString());
         return false;
       }
     }
@@ -389,6 +416,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!Init())
           return false;
 
+        string id;
+        if (!GetSeriesId(seriesInfo, out id))
+        {
+          if (_seriesNameMatcher.GetNameMatch(seriesInfo.SeriesName.Text, out id))
+          {
+            if (!SetSeriesId(seriesInfo, id))
+            {
+              //Match probably stored with invalid Id to avoid retries. 
+              //Searching for this series by name only failed so stop trying.
+              return false;
+            }
+          }
+        }
+
+        seriesInfo.InitFanArtToken();
+
         TLang language = FindBestMatchingLanguage(seriesInfo);
         bool updated = false;
         SeriesInfo seriesMatch = CloneProperties(seriesInfo);
@@ -398,6 +441,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           if (!forceQuickMode)
           {
+            Logger.Debug(GetType().Name + ": Search for series {0} online", seriesInfo.ToString());
+
             //Try to update series information from online source if online Ids are present
             if (!_wrapper.UpdateFromOnlineSeries(seriesMatch, language, false))
             {
@@ -417,6 +462,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
         else
         {
+          Logger.Debug(GetType().Name + ": Found series {0} in cache", seriesInfo.ToString());
           updated = true;
         }
 
@@ -470,7 +516,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Store person matches
           foreach (PersonInfo person in seriesInfo.Actors)
           {
-            string id;
             if (GetPersonId(person, out id))
               _actorMatcher.StoreNameMatch(id, person.Name, person.Name);
           }
@@ -478,7 +523,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Store character matches
           foreach (CharacterInfo character in seriesInfo.Characters)
           {
-            string id;
             if (GetCharacterId(character, out id))
               _characterMatcher.StoreNameMatch(id, character.Name, character.Name);
           }
@@ -486,7 +530,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Store company matches
           foreach (CompanyInfo company in seriesInfo.ProductionCompanies)
           {
-            string id;
             if (GetCompanyId(company, out id))
               _companyMatcher.StoreNameMatch(id, company.Name, company.Name);
           }
@@ -494,12 +537,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Store network matches
           foreach (CompanyInfo company in seriesInfo.Networks)
           {
-            string id;
             if (GetCompanyId(company, out id))
               _networkMatcher.StoreNameMatch(id, company.Name, company.Name);
           }
 
           MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Thumbnail, seriesMatch.Thumbnail);
+
+          string seriesId;
+          if (GetSeriesId(seriesInfo, out seriesId))
+          {
+            DownloadData data = new DownloadData()
+            {
+              FanArtToken = seriesInfo.FanArtToken,
+              FanArtMediaType = FanArtMediaTypes.Series,
+            };
+            data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+            ScheduleDownload(data.Serialize());
+          }         
+        }
+
+        string Id;
+        if (!GetSeriesId(seriesInfo, out Id))
+        {
+          //Store empty match so it is not retried
+          _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
         }
 
         if (seriesInfo.Thumbnail == null)
@@ -513,7 +574,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing series {0}", ex, seriesInfo.ToString());
+        Logger.Debug(GetType().Name + ": Exception while processing series {0}", ex, seriesInfo.ToString());
         return false;
       }
     }
@@ -526,6 +587,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!Init())
           return false;
 
+        seasonInfo.InitFanArtToken();
+
         TLang language = default(TLang);
         bool updated = false;
         SeasonInfo seasonMatch = CloneProperties(seasonInfo);
@@ -534,6 +597,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           if (!forceQuickMode)
           {
+            Logger.Debug(GetType().Name + ": Search for season {0} online", seasonInfo.ToString());
+
             //Try to update season information from online source
             if (_wrapper.UpdateFromOnlineSeriesSeason(seasonMatch, language, false))
               updated = true;
@@ -541,6 +606,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
         else
         {
+          Logger.Debug(GetType().Name + ": Found season {0} in cache", seasonInfo.ToString());
           updated = true;
         }
 
@@ -568,6 +634,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateValue(ref seasonInfo.SeasonNumber, seasonMatch.SeasonNumber);
 
           MetadataUpdater.SetOrUpdateValue(ref seasonInfo.Thumbnail, seasonMatch.Thumbnail);
+
+          DownloadData data = new DownloadData()
+          {
+            FanArtToken = seasonInfo.FanArtToken,
+            FanArtMediaType = FanArtMediaTypes.SeriesSeason,
+          };
+
+          string seriesId;
+          if (GetSeriesId(seasonInfo.CloneBasicInstance<SeriesInfo>(), out seriesId))
+          {
+            data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+          }
+          if(seasonInfo.SeasonNumber.HasValue)
+          {
+            data.FanArtId[FanArtMediaTypes.SeriesSeason] = seasonInfo.SeasonNumber.Value.ToString();
+          }
+          ScheduleDownload(data.Serialize());
         }
 
         if (seasonInfo.Thumbnail == null)
@@ -581,7 +664,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing season {0}", ex, seasonInfo.ToString());
+        Logger.Debug(GetType().Name + ": Exception while processing season {0}", ex, seasonInfo.ToString());
         return false;
       }
     }
@@ -600,25 +683,37 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ACTOR)
         {
-          persons = seriesMatch.Actors;
-          foreach (PersonInfo person in persons)
+          foreach (PersonInfo person in seriesMatch.Actors)
           {
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
             {
               if (SetPersonId(person, id))
+              {
+                //Only add if Id valid if not then it is to avoid a retry
+                //and the person should be ignored
+                persons.Add(person);
                 updated = true;
+              }
+            }
+            else
+            {
+              persons.Add(person);
             }
           }
         }
 
         foreach (PersonInfo person in persons)
         {
+          person.InitFanArtToken();
+
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesPerson(seriesMatch, person, language, true))
           {
             if (!forceQuickMode)
             {
+              Logger.Debug(GetType().Name + ": Search for person {0} online", person.ToString());
+
               //Try to update movie information from online source if online Ids are present
               if (!_wrapper.UpdateFromOnlineSeriesPerson(seriesMatch, person, language, false))
               {
@@ -638,6 +733,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
+            Logger.Debug(GetType().Name + ": Found person {0} in cache", person.ToString());
             updated = true;
           }
         }
@@ -655,7 +751,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (GetPersonId(person, out id))
+            {
               _actorMatcher.StoreNameMatch(id, person.Name, person.Name);
+
+              DownloadData data = new DownloadData()
+              {
+                FanArtToken = person.FanArtToken,
+                FanArtMediaType = FanArtMediaTypes.Actor,
+              };
+              data.FanArtId[FanArtMediaTypes.Actor] = id;
+
+              string seriesId;
+              if (GetSeriesId(seriesInfo, out seriesId))
+              {
+                data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+              }
+              ScheduleDownload(data.Serialize());
+            }
+            else
+            {
+              //Store empty match so he/she is not retried
+              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+            }
 
             if (person.Thumbnail == null)
             {
@@ -670,7 +787,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing persons {0}", ex, seriesInfo.ToString());
+        Logger.Debug(GetType().Name + ": Exception while processing persons {0}", ex, seriesInfo.ToString());
         return false;
       }
     }
@@ -693,13 +810,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (SetCharacterId(character, id))
               updated = true;
+            else
+              continue;
           }
+
+          character.InitFanArtToken();
 
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesCharacter(seriesMatch, character, language, true))
           {
             if (!forceQuickMode)
             {
+              Logger.Debug(GetType().Name + ": Search for character {0} online", character.ToString());
+
               //Try to update movie information from online source if online Ids are present
               if (!_wrapper.UpdateFromOnlineSeriesCharacter(seriesMatch, character, language, false))
               {
@@ -719,6 +842,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
+            Logger.Debug(GetType().Name + ": Found character {0} in cache", character.ToString());
             updated = true;
           }
         }
@@ -731,7 +855,35 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           string id;
           if (GetCharacterId(character, out id))
+          {
             _characterMatcher.StoreNameMatch(id, character.Name, character.Name);
+
+            DownloadData data = new DownloadData()
+            {
+              FanArtToken = character.FanArtToken,
+              FanArtMediaType = FanArtMediaTypes.Character,
+            };
+            data.FanArtId[FanArtMediaTypes.Character] = id;
+
+            string seriesId;
+            if (GetSeriesId(seriesInfo, out seriesId))
+            {
+              data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+            }
+
+            string actorId;
+            PersonInfo actor = character.CloneBasicInstance<PersonInfo>();
+            if (GetPersonId(actor, out actorId))
+            {
+              data.FanArtId[FanArtMediaTypes.Actor] = actorId;
+            }
+            ScheduleDownload(data.Serialize());
+          }
+          else
+          {
+            //Store empty match so he/she is not retried
+            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+          }
 
           if (character.Thumbnail == null)
           {
@@ -745,7 +897,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing characters {0}", ex, seriesInfo.ToString());
+        Logger.Debug(GetType().Name + ": Exception while processing characters {0}", ex, seriesInfo.ToString());
         return false;
       }
     }
@@ -764,37 +916,57 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         List<CompanyInfo> companies = new List<CompanyInfo>();
         if (companyType == CompanyAspect.COMPANY_PRODUCTION)
         {
-          companies = seriesMatch.ProductionCompanies;
-          foreach (CompanyInfo company in companies)
+          foreach (CompanyInfo company in seriesMatch.ProductionCompanies)
           {
             string id;
             if (_companyMatcher.GetNameMatch(company.Name, out id))
             {
               if (SetCompanyId(company, id))
+              {
+                //Only add if Id valid if not then it is to avoid a retry
+                //and the company should be ignored
+                companies.Add(company);
                 updated = true;
+              }
+            }
+            else
+            {
+              companies.Add(company);
             }
           }
         }
         else if (companyType == CompanyAspect.COMPANY_TV_NETWORK)
         {
-          companies = seriesMatch.Networks;
-          foreach (CompanyInfo company in companies)
+          foreach (CompanyInfo company in seriesMatch.Networks)
           {
             string id;
             if (_networkMatcher.GetNameMatch(company.Name, out id))
             {
               if (SetCompanyId(company, id))
+              {
+                //Only add if Id valid if not then it is to avoid a retry
+                //and the company should be ignored
+                companies.Add(company);
                 updated = true;
+              }
+            }
+            else
+            {
+              companies.Add(company);
             }
           }
         }
         foreach (CompanyInfo company in companies)
         {
+          company.InitFanArtToken();
+
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesCompany(seriesMatch, company, language, true))
           {
             if (!forceQuickMode)
             {
+              Logger.Debug(GetType().Name + ": Search for company {0} online", company.ToString());
+
               //Try to update company information from online source if online Ids are present
               if (!_wrapper.UpdateFromOnlineSeriesCompany(seriesMatch, company, language, false))
               {
@@ -814,6 +986,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
+            Logger.Debug(GetType().Name + ": Found company {0} in cache", company.ToString());
             updated = true;
           }
         }
@@ -833,7 +1006,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (GetCompanyId(company, out id))
+            {
               _companyMatcher.StoreNameMatch(id, company.Name, company.Name);
+
+              DownloadData data = new DownloadData()
+              {
+                FanArtToken = company.FanArtToken,
+                FanArtMediaType = FanArtMediaTypes.Company,
+              };
+              data.FanArtId[FanArtMediaTypes.Company] = id;
+              ScheduleDownload(data.Serialize());
+            }
+            else
+            {
+              //Store empty match so it is not retried
+              _companyMatcher.StoreNameMatch("", company.Name, company.Name);
+            }
 
             if (company.Thumbnail == null)
             {
@@ -849,7 +1037,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (GetCompanyId(company, out id))
+            {
               _networkMatcher.StoreNameMatch(id, company.Name, company.Name);
+
+              DownloadData data = new DownloadData()
+              {
+                FanArtToken = company.FanArtToken,
+                FanArtMediaType = FanArtMediaTypes.TVNetwork,
+              };
+              data.FanArtId[FanArtMediaTypes.TVNetwork] = id;
+              ScheduleDownload(data.Serialize());
+            }
+            else
+            {
+              //Store empty match so it is not retried
+              _networkMatcher.StoreNameMatch("", company.Name, company.Name);
+            }
 
             if (company.Thumbnail == null)
             {
@@ -864,7 +1067,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing companies {0}", ex, seriesInfo.ToString());
+        Logger.Debug(GetType().Name + ": Exception while processing companies {0}", ex, seriesInfo.ToString());
         return false;
       }
     }
@@ -883,50 +1086,78 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ACTOR)
         {
-          persons = episodeMatch.Actors;
-          foreach (PersonInfo person in persons)
+          foreach (PersonInfo person in episodeMatch.Actors)
           {
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
             {
               if (SetPersonId(person, id))
+              {
+                //Only add if Id valid if not then it is to avoid a retry
+                //and the person should be ignored
+                persons.Add(person);
                 updated = true;
+              }
+            }
+            else
+            {
+              persons.Add(person);
             }
           }
         }
         else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
         {
-          persons = episodeMatch.Directors;
-          foreach (PersonInfo person in persons)
+          foreach (PersonInfo person in episodeMatch.Directors)
           {
             string id;
             if (_directorMatcher.GetNameMatch(person.Name, out id))
             {
               if (SetPersonId(person, id))
+              {
+                //Only add if Id valid if not then it is to avoid a retry
+                //and the person should be ignored
+                persons.Add(person);
                 updated = true;
+              }
+            }
+            else
+            {
+              persons.Add(person);
             }
           }
         }
         else if (occupation == PersonAspect.OCCUPATION_WRITER)
         {
-          persons = episodeMatch.Writers;
-          foreach (PersonInfo person in persons)
+          foreach (PersonInfo person in episodeMatch.Writers)
           {
             string id;
             if (_writerMatcher.GetNameMatch(person.Name, out id))
             {
               if (SetPersonId(person, id))
+              {
+                //Only add if Id valid if not then it is to avoid a retry
+                //and the person should be ignored
+                persons.Add(person);
                 updated = true;
+              }
+            }
+            else
+            {
+              persons.Add(person);
             }
           }
         }
         foreach (PersonInfo person in persons)
         {
+          person.InitFanArtToken();
+
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesEpisodePerson(episodeMatch, person, language, true))
           {
             if (!forceQuickMode)
             {
+              Logger.Debug(GetType().Name + ": Search for person {0} online", person.ToString());
+
               //Try to update person information from online source if online Ids are present
               if (!_wrapper.UpdateFromOnlineSeriesEpisodePerson(episodeMatch, person, language, false))
               {
@@ -946,6 +1177,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
+            Logger.Debug(GetType().Name + ": Found person {0} in cache", person.ToString());
             updated = true;
           }
         }
@@ -976,7 +1208,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (GetPersonId(person, out id))
+            {
               _actorMatcher.StoreNameMatch(id, person.Name, person.Name);
+
+              DownloadData data = new DownloadData()
+              {
+                FanArtToken = person.FanArtToken,
+                FanArtMediaType = FanArtMediaTypes.Actor,
+              };
+              data.FanArtId[FanArtMediaTypes.Actor] = id;
+
+              string seriesId;
+              if (GetSeriesId(episodeInfo.CloneBasicInstance<SeriesInfo>(), out seriesId))
+              {
+                data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+              }
+
+              if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
+              {
+                data.FanArtId[FanArtMediaTypes.SeriesSeason] = episodeInfo.SeasonNumber.Value.ToString();
+                data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.EpisodeNumbers[0].ToString();
+              }
+              ScheduleDownload(data.Serialize());
+            }
+            else
+            {
+              //Store empty match so he/she is not retried
+              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+            }
 
             if (person.Thumbnail == null)
             {
@@ -992,7 +1251,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (GetPersonId(person, out id))
+            {
               _directorMatcher.StoreNameMatch(id, person.Name, person.Name);
+
+              DownloadData data = new DownloadData()
+              {
+                FanArtToken = person.FanArtToken,
+                FanArtMediaType = FanArtMediaTypes.Director,
+              };
+              data.FanArtId[FanArtMediaTypes.Director] = id;
+
+              string seriesId;
+              if (GetSeriesId(episodeInfo.CloneBasicInstance<SeriesInfo>(), out seriesId))
+              {
+                data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+              }
+
+              if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
+              {
+                data.FanArtId[FanArtMediaTypes.SeriesSeason] = episodeInfo.SeasonNumber.Value.ToString();
+                data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.EpisodeNumbers[0].ToString();
+              }
+              ScheduleDownload(data.Serialize());
+            }
+            else
+            {
+              //Store empty match so he/she is not retried
+              _directorMatcher.StoreNameMatch("", person.Name, person.Name);
+            }
 
             if (person.Thumbnail == null)
             {
@@ -1008,7 +1294,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             string id;
             if (GetPersonId(person, out id))
+            {
               _writerMatcher.StoreNameMatch(id, person.Name, person.Name);
+
+              DownloadData data = new DownloadData()
+              {
+                FanArtToken = person.FanArtToken,
+                FanArtMediaType = FanArtMediaTypes.Writer,
+              };
+              data.FanArtId[FanArtMediaTypes.Writer] = id;
+
+              string seriesId;
+              if (GetSeriesId(episodeInfo.CloneBasicInstance<SeriesInfo>(), out seriesId))
+              {
+                data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+              }
+
+              if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
+              {
+                data.FanArtId[FanArtMediaTypes.SeriesSeason] = episodeInfo.SeasonNumber.Value.ToString();
+                data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.EpisodeNumbers[0].ToString();
+              }
+              ScheduleDownload(data.Serialize());
+            }
+            else
+            {
+              //Store empty match so he/she is not retried
+              _writerMatcher.StoreNameMatch("", person.Name, person.Name);
+            }
 
             if (person.Thumbnail == null)
             {
@@ -1023,7 +1336,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing persons {0}", ex, episodeInfo.ToString());
+        Logger.Debug(GetType().Name + ": Exception while processing persons {0}", ex, episodeInfo.ToString());
         return false;
       }
     }
@@ -1046,13 +1359,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (SetCharacterId(character, id))
               updated = true;
+            else
+              continue;
           }
+
+          character.InitFanArtToken();
 
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesEpisodeCharacter(episodeMatch, character, language, true))
           {
             if (!forceQuickMode)
             {
+              Logger.Debug(GetType().Name + ": Search for character {0} online", character.ToString());
+
               //Try to update character information from online source if online Ids are present
               if (!_wrapper.UpdateFromOnlineSeriesEpisodeCharacter(episodeMatch, character, language, false))
               {
@@ -1072,6 +1391,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
+            Logger.Debug(GetType().Name + ": Found character {0} in cache", character.ToString());
             updated = true;
           }
         }
@@ -1093,7 +1413,41 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           string id;
           if (GetCharacterId(character, out id))
+          {
             _characterMatcher.StoreNameMatch(id, character.Name, character.Name);
+
+            DownloadData data = new DownloadData()
+            {
+              FanArtToken = character.FanArtToken,
+              FanArtMediaType = FanArtMediaTypes.Character,
+            };
+            data.FanArtId[FanArtMediaTypes.Character] = id;
+
+            string seriesId;
+            if (GetSeriesId(episodeInfo.CloneBasicInstance<SeriesInfo>(), out seriesId))
+            {
+              data.FanArtId[FanArtMediaTypes.Series] = seriesId;
+            }
+
+            if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
+            {
+              data.FanArtId[FanArtMediaTypes.SeriesSeason] = episodeInfo.SeasonNumber.Value.ToString();
+              data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.EpisodeNumbers[0].ToString();
+            }
+
+            string actorId;
+            PersonInfo actor = character.CloneBasicInstance<PersonInfo>();
+            if (GetPersonId(actor, out actorId))
+            {
+              data.FanArtId[FanArtMediaTypes.Actor] = actorId;
+            }
+            ScheduleDownload(data.Serialize());
+          }
+          else
+          {
+            //Store empty match so he/she is not retried
+            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+          }
 
           if (character.Thumbnail == null)
           {
@@ -1107,7 +1461,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception while processing characters {0}", ex, episodeInfo.ToString());
+        Logger.Debug(GetType().Name + ": Exception while processing characters {0}", ex, episodeInfo.ToString());
         return false;
       }
     }
@@ -1238,6 +1592,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return false;
     }
 
+    protected virtual bool SetSeriesEpisodeId(EpisodeInfo episode, string id)
+    {
+      return false;
+    }
+
     protected virtual bool GetPersonId(PersonInfo person, out string id)
     {
       id = null;
@@ -1302,7 +1661,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
       if (threadPool != null)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Refreshing local cache");
+        Logger.Debug(GetType().Name + ": Refreshing local cache");
         threadPool.Add(() =>
         {
           if (_wrapper != null)
@@ -1398,329 +1757,248 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (string.IsNullOrEmpty(downloadId))
           return;
 
-        string seriesId = null;
-        string episodeId = null;
-        int seasonNo = 0;
-        int episodeNo = 0;
-
-        string[] ids = null;
-        if (downloadId.Contains("|"))
-          ids = downloadId.Split('|');
-
-        seriesId = downloadId;
-        if (ids != null && ids.Length > 2)
-        {
-          seriesId = ids[0];
-          int.TryParse(ids[1], out seasonNo);
-          int.TryParse(ids[2], out episodeNo);
-          episodeId = downloadId;
-        }
-        else if (ids != null && ids.Length > 1)
-        {
-          seriesId = ids[0];
-          episodeId = ids[1];
-        }
-
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Started for ID {0}", downloadId);
-
-        SeriesInfo seriesInfo;
-        if (!_memoryCache.TryGetValue(seriesId, out seriesInfo))
+        DownloadData data = new DownloadData();
+        if (!data.Deserialize(downloadId))
           return;
-
-        EpisodeInfo episodeInfo = null;
-        if (episodeId != null)
-          _memoryCacheEpisode.TryGetValue(episodeId, out episodeInfo);
 
         if (!Init())
           return;
 
-        TLang language = FindBestMatchingLanguage(seriesInfo);
-        ApiWrapperImageCollection<TImg> images;
-        string scope = FanArtMediaTypes.Series;
-        if (_wrapper.GetFanArt(seriesInfo, language, scope, out images) == false)
+        string[] fanArtTypes = new string[]
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Failed getting images for movie ID {0}", downloadId);
+          FanArtTypes.FanArt,
+          FanArtTypes.Poster,
+          FanArtTypes.Banner,
+          FanArtTypes.ClearArt,
+          FanArtTypes.Cover,
+          FanArtTypes.DiscArt,
+          FanArtTypes.Logo,
+          FanArtTypes.Thumbnail
+        };
 
-          return;
-        }
-
-        if (images != null)
+        try
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading movie images for ID {0}", downloadId);
-
-          SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-          SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-          SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-          SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-          SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-          SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-          SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-          SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-        }
-
-        if (seasonNo > 0)
-        {
-          scope = FanArtMediaTypes.SeriesSeason;
-          SeasonInfo seasonInfo = new SeasonInfo();
-          seasonInfo.SeasonNumber = seasonNo;
-          seasonInfo.CopyIdsFrom(seriesInfo);
-          if (_wrapper.GetFanArt(seasonInfo, language, scope, out images) == false)
+          string seriesId = null;
+          string episodeId = null;
+          string seasonNo = null;
+          string episodeNo = null;
+          TLang language = default(TLang);
+          if (data.FanArtId.ContainsKey(FanArtMediaTypes.Undefined))
           {
-            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Failed getting season images for ID {0}", downloadId);
+            episodeId = data.FanArtId[FanArtMediaTypes.Undefined];
 
-            return;
+            EpisodeInfo episodeInfo;
+            if (_memoryCacheEpisode.TryGetValue(episodeId, out episodeInfo))
+              language = FindBestMatchingLanguage(episodeInfo);
+          }
+          if (data.FanArtId.ContainsKey(FanArtMediaTypes.Series))
+          {
+            seriesId = data.FanArtId[FanArtMediaTypes.Series];
+          }
+          if (data.FanArtId.ContainsKey(FanArtMediaTypes.SeriesSeason))
+          {
+            seasonNo = data.FanArtId[FanArtMediaTypes.SeriesSeason];
+          }
+          if (data.FanArtId.ContainsKey(FanArtMediaTypes.Episode))
+          {
+            episodeNo = data.FanArtId[FanArtMediaTypes.Episode];
+          }
+
+          Logger.Debug(GetType().Name + " Download: Started for series ID {0}", seriesId);
+
+          ApiWrapperImageCollection<TImg> images = null;
+          string Id = seriesId;
+          if (data.FanArtMediaType == FanArtMediaTypes.Series)
+          {
+            SeriesInfo seriesInfo = new SeriesInfo();
+            if (SetSeriesId(seriesInfo, seriesId))
+            {
+              foreach (string fanArtType in fanArtTypes)
+                AddFanArtCount(data.FanArtToken, fanArtType, GetFanArtFiles(seriesInfo, data.FanArtMediaType, fanArtType).Count);
+
+              if (_wrapper.GetFanArt(seriesInfo, language, data.FanArtMediaType, out images) == false)
+              {
+                Logger.Debug(GetType().Name + " Download: Failed getting images for series ID {0}", seriesId);
+                return;
+              }
+            }
+          }
+          else if (data.FanArtMediaType == FanArtMediaTypes.SeriesSeason)
+          {
+            SeriesInfo seriesInfo = new SeriesInfo();
+            SeasonInfo seasonInfo = new SeasonInfo();
+            if (SetSeriesId(seriesInfo, seriesId))
+            {
+              seasonInfo.CopyIdsFrom(seriesInfo);
+            }
+            if (seasonNo != null)
+            {
+              seasonInfo.SeasonNumber = Convert.ToInt32(seasonNo);
+            }
+            foreach (string fanArtType in fanArtTypes)
+              AddFanArtCount(data.FanArtToken, fanArtType, GetFanArtFiles(seasonInfo, data.FanArtMediaType, fanArtType).Count);
+
+            if (_wrapper.GetFanArt(seasonInfo, language, data.FanArtMediaType, out images) == false)
+            {
+              Logger.Debug(GetType().Name + " Download: Failed getting images for series season {0} S{1}", Id, seasonNo);
+              return;
+            }
+          }
+          else if (data.FanArtMediaType == FanArtMediaTypes.Episode)
+          {
+            SeriesInfo seriesInfo = new SeriesInfo();
+            EpisodeInfo episodeInfo = new EpisodeInfo();
+            if (SetSeriesId(seriesInfo, seriesId))
+            {
+              episodeInfo.CopyIdsFrom(seriesInfo);
+            }
+            SetSeriesEpisodeId(episodeInfo, episodeId);
+            if (seasonNo != null)
+            {
+              episodeInfo.SeasonNumber = Convert.ToInt32(seasonNo);
+            }
+            if (episodeNo != null)
+            {
+              episodeInfo.EpisodeNumbers.Add(Convert.ToInt32(episodeNo));
+            }
+            foreach (string fanArtType in fanArtTypes)
+              AddFanArtCount(data.FanArtToken, fanArtType, GetFanArtFiles(episodeInfo, data.FanArtMediaType, fanArtType).Count);
+
+            if (_wrapper.GetFanArt(episodeInfo, language, data.FanArtMediaType, out images) == false)
+            {
+              Logger.Debug(GetType().Name + " Download: Failed getting images for series episode {0} S{1}E{2}", Id, seasonNo, episodeNo);
+              return;
+            }
+          }
+          else if (data.FanArtMediaType == FanArtMediaTypes.Actor || data.FanArtMediaType == FanArtMediaTypes.Director || data.FanArtMediaType == FanArtMediaTypes.Writer)
+          {
+            if (OnlyBasicFanArt)
+              return;
+
+            Id = data.FanArtId[data.FanArtMediaType];
+            PersonInfo personInfo = new PersonInfo();
+            if (SetPersonId(personInfo, Id))
+            {
+              foreach (string fanArtType in fanArtTypes)
+                AddFanArtCount(data.FanArtToken, fanArtType, GetFanArtFiles(personInfo, data.FanArtMediaType, fanArtType).Count);
+
+              if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
+              {
+                Logger.Debug(GetType().Name + " Download: Failed getting images for series person ID {0}", Id);
+                return;
+              }
+            }
+          }
+          else if (data.FanArtMediaType == FanArtMediaTypes.Character)
+          {
+            if (OnlyBasicFanArt)
+              return;
+
+            Id = data.FanArtId[FanArtMediaTypes.Character];
+            CharacterInfo characterInfo = new CharacterInfo();
+            if (SetCharacterId(characterInfo, Id))
+            {
+              foreach (string fanArtType in fanArtTypes)
+                AddFanArtCount(data.FanArtToken, fanArtType, GetFanArtFiles(characterInfo, data.FanArtMediaType, fanArtType).Count);
+
+              if (_wrapper.GetFanArt(characterInfo, language, data.FanArtMediaType, out images) == false)
+              {
+                Logger.Debug(GetType().Name + " Download: Failed getting images for series character ID {0}", Id);
+                return;
+              }
+            }
+          }
+          else if (data.FanArtMediaType == FanArtMediaTypes.Company || data.FanArtMediaType == FanArtMediaTypes.TVNetwork)
+          {
+            if (OnlyBasicFanArt)
+              return;
+
+            Id = data.FanArtId[data.FanArtMediaType];
+            CompanyInfo companyInfo = new CompanyInfo();
+            if (SetCompanyId(companyInfo, Id))
+            {
+              foreach (string fanArtType in fanArtTypes)
+                AddFanArtCount(data.FanArtToken, fanArtType, GetFanArtFiles(companyInfo, data.FanArtMediaType, fanArtType).Count);
+
+              if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
+              {
+                Logger.Debug(GetType().Name + " Download: Failed getting images for series company ID {0}", Id);
+                return;
+              }
+            }
           }
 
           if (images != null)
           {
-            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading season images for ID {0}", downloadId);
+            Logger.Debug(GetType().Name + " Download: Downloading images for ID {0}", Id);
 
-            if (UseSeasonIdForFanArt)
+            if (!UseSeasonIdForFanArt && data.FanArtMediaType == FanArtMediaTypes.SeriesSeason)
             {
-              SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-              SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-              SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-              SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-              SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-              SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-              SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-              SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
+              if (seasonNo != null)
+              {
+                int season = Convert.ToInt32(seasonNo);
+                SaveSeriesSeasonFanArtImages(data.FanArtToken, seriesId, season, images.Backdrops, data.FanArtMediaType, FanArtTypes.FanArt);
+                SaveSeriesSeasonFanArtImages(data.FanArtToken, seriesId, season, images.Posters, data.FanArtMediaType, FanArtTypes.Poster);
+                SaveSeriesSeasonFanArtImages(data.FanArtToken, seriesId, season, images.Banners, data.FanArtMediaType, FanArtTypes.Banner);
+                SaveSeriesSeasonFanArtImages(data.FanArtToken, seriesId, season, images.Covers, data.FanArtMediaType, FanArtTypes.Cover);
+                SaveSeriesSeasonFanArtImages(data.FanArtToken, seriesId, season, images.Thumbnails, data.FanArtMediaType, FanArtTypes.Thumbnail);
+
+                if (!OnlyBasicFanArt)
+                {
+                  SaveSeriesSeasonFanArtImages(data.FanArtToken, seriesId, season, images.ClearArt, data.FanArtMediaType, FanArtTypes.ClearArt);
+                  SaveSeriesSeasonFanArtImages(data.FanArtToken, seriesId, season, images.DiscArt, data.FanArtMediaType, FanArtTypes.DiscArt);
+                  SaveSeriesSeasonFanArtImages(data.FanArtToken, seriesId, season, images.Logos, data.FanArtMediaType, FanArtTypes.Logo);
+                }
+              }
+            }
+            else if (UseEpisodeIdForFanArt && data.FanArtMediaType == FanArtMediaTypes.Episode)
+            {
+              if (seasonNo != null && episodeNo != null)
+              {
+                int season = Convert.ToInt32(seasonNo);
+                int episode = Convert.ToInt32(episodeNo);
+                SaveSeriesEpisodeFanArtImages(data.FanArtToken, seriesId, season, episode, images.Backdrops, data.FanArtMediaType, FanArtTypes.FanArt);
+                SaveSeriesEpisodeFanArtImages(data.FanArtToken, seriesId, season, episode, images.Posters, data.FanArtMediaType, FanArtTypes.Poster);
+                SaveSeriesEpisodeFanArtImages(data.FanArtToken, seriesId, season, episode, images.Banners, data.FanArtMediaType, FanArtTypes.Banner);
+                SaveSeriesEpisodeFanArtImages(data.FanArtToken, seriesId, season, episode, images.Covers, data.FanArtMediaType, FanArtTypes.Cover);
+                SaveSeriesEpisodeFanArtImages(data.FanArtToken, seriesId, season, episode, images.Thumbnails, data.FanArtMediaType, FanArtTypes.Thumbnail);
+
+                if (!OnlyBasicFanArt)
+                {
+                  SaveSeriesEpisodeFanArtImages(data.FanArtToken, seriesId, season, episode, images.ClearArt, data.FanArtMediaType, FanArtTypes.ClearArt);
+                  SaveSeriesEpisodeFanArtImages(data.FanArtToken, seriesId, season, episode, images.DiscArt, data.FanArtMediaType, FanArtTypes.DiscArt);
+                  SaveSeriesEpisodeFanArtImages(data.FanArtToken, seriesId, season, episode, images.Logos, data.FanArtMediaType, FanArtTypes.Logo);
+                }
+              }
             }
             else
             {
-              SaveSeriesSeasonFanArtImages(seriesId, seasonNo, images.Backdrops, scope, FanArtTypes.FanArt);
-              SaveSeriesSeasonFanArtImages(seriesId, seasonNo, images.Posters, scope, FanArtTypes.Poster);
-              SaveSeriesSeasonFanArtImages(seriesId, seasonNo, images.Banners, scope, FanArtTypes.Banner);
-              SaveSeriesSeasonFanArtImages(seriesId, seasonNo, images.ClearArt, scope, FanArtTypes.ClearArt);
-              SaveSeriesSeasonFanArtImages(seriesId, seasonNo, images.Covers, scope, FanArtTypes.Cover);
-              SaveSeriesSeasonFanArtImages(seriesId, seasonNo, images.DiscArt, scope, FanArtTypes.DiscArt);
-              SaveSeriesSeasonFanArtImages(seriesId, seasonNo, images.Logos, scope, FanArtTypes.Logo);
-              SaveSeriesSeasonFanArtImages(seriesId, seasonNo, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-            }
-          }
-        }
+              SaveFanArtImages(data.FanArtToken, images.Id, images.Backdrops, data.FanArtMediaType, FanArtTypes.FanArt);
+              SaveFanArtImages(data.FanArtToken, images.Id, images.Posters, data.FanArtMediaType, FanArtTypes.Poster);
+              SaveFanArtImages(data.FanArtToken, images.Id, images.Banners, data.FanArtMediaType, FanArtTypes.Banner);
+              SaveFanArtImages(data.FanArtToken, images.Id, images.Covers, data.FanArtMediaType, FanArtTypes.Cover);
+              SaveFanArtImages(data.FanArtToken, images.Id, images.Thumbnails, data.FanArtMediaType, FanArtTypes.Thumbnail);
 
-        if (episodeInfo == null && seasonNo > 0 && episodeNo > 0)
-        {
-          episodeInfo = new EpisodeInfo();
-          episodeInfo.SeasonNumber = seasonNo;
-          episodeInfo.EpisodeNumbers.Add(episodeNo);
-          episodeInfo.CopyIdsFrom(seriesInfo);
-        }
-
-        if (episodeInfo != null)
-        {
-          scope = FanArtMediaTypes.Episode;
-          if (_wrapper.GetFanArt(episodeInfo, language, scope, out images) == false)
-          {
-            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Failed getting episode images for ID {0}", downloadId);
-
-            return;
-          }
-
-          if (images != null)
-          {
-            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading episode images for ID {0}", downloadId);
-
-            if (UseEpisodeIdForFanArt)
-            {
-              SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-              SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-              SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-              SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-              SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-              SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-              SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-              SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-            }
-            else
-            {
-              SaveSeriesEpisodeFanArtImages(seriesId, seasonNo, episodeNo, images.Backdrops, scope, FanArtTypes.FanArt);
-              SaveSeriesEpisodeFanArtImages(seriesId, seasonNo, episodeNo, images.Posters, scope, FanArtTypes.Poster);
-              SaveSeriesEpisodeFanArtImages(seriesId, seasonNo, episodeNo, images.Banners, scope, FanArtTypes.Banner);
-              SaveSeriesEpisodeFanArtImages(seriesId, seasonNo, episodeNo, images.ClearArt, scope, FanArtTypes.ClearArt);
-              SaveSeriesEpisodeFanArtImages(seriesId, seasonNo, episodeNo, images.Covers, scope, FanArtTypes.Cover);
-              SaveSeriesEpisodeFanArtImages(seriesId, seasonNo, episodeNo, images.DiscArt, scope, FanArtTypes.DiscArt);
-              SaveSeriesEpisodeFanArtImages(seriesId, seasonNo, episodeNo, images.Logos, scope, FanArtTypes.Logo);
-              SaveSeriesEpisodeFanArtImages(seriesId, seasonNo, episodeNo, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-            }
-          }
-        }
-
-        scope = FanArtMediaTypes.Actor;
-        List<PersonInfo> persons = new List<PersonInfo>(seriesInfo.Actors);
-        if (episodeInfo != null)
-        {
-          persons = persons.Union(new List<PersonInfo>(episodeInfo.Actors)).ToList();
-        }
-        if (persons != null && persons.Count > 0)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading actors images for ID {0}", downloadId);
-          for (int i = 0; i < persons.Count; i++)
-          {
-            PersonInfo person = persons[i];
-            if (_wrapper.GetFanArt(person, language, scope, out images) == false)
-            {
-              if (images != null)
+              if (!OnlyBasicFanArt)
               {
-                SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-                SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-                SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-                SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-                SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-                SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-                SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-                SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
+                SaveFanArtImages(data.FanArtToken, images.Id, images.ClearArt, data.FanArtMediaType, FanArtTypes.ClearArt);
+                SaveFanArtImages(data.FanArtToken, images.Id, images.DiscArt, data.FanArtMediaType, FanArtTypes.DiscArt);
+                SaveFanArtImages(data.FanArtToken, images.Id, images.Logos, data.FanArtMediaType, FanArtTypes.Logo);
               }
             }
+
+            Logger.Debug(GetType().Name + " Download: Finished saving images for ID {0}", Id);
           }
         }
-
-        scope = FanArtMediaTypes.Director;
-        persons = null;
-        if (episodeInfo != null)
+        finally
         {
-          persons = new List<PersonInfo>(episodeInfo.Directors);
+          // Remember we are finished
+          FinishDownloadFanArt(downloadId);
         }
-        if (persons != null && persons.Count > 0)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading director images for ID {0}", downloadId);
-          for (int i = 0; i < persons.Count; i++)
-          {
-            PersonInfo person = persons[i];
-            if (_wrapper.GetFanArt(person, language, scope, out images) == false)
-            {
-              if (images != null)
-              {
-                SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-                SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-                SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-                SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-                SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-                SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-                SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-                SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-              }
-            }
-          }
-        }
-
-        scope = FanArtMediaTypes.Writer;
-        persons = null;
-        if (episodeInfo != null)
-        {
-          persons = new List<PersonInfo>(episodeInfo.Writers);
-        }
-        if (persons != null && persons.Count > 0)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading writer images for ID {0}", downloadId);
-          for (int i = 0; i < persons.Count; i++)
-          {
-            PersonInfo person = persons[i];
-            if (_wrapper.GetFanArt(person, language, scope, out images) == false)
-            {
-              if (images != null)
-              {
-                SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-                SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-                SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-                SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-                SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-                SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-                SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-                SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-              }
-            }
-          }
-        }
-
-        scope = FanArtMediaTypes.Character;
-        List<CharacterInfo> characters = new List<CharacterInfo>(seriesInfo.Characters);
-        if (episodeInfo != null)
-        {
-          characters = characters.Union(new List<CharacterInfo>(episodeInfo.Characters)).ToList();
-        }
-        if (characters != null && characters.Count > 0)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading character images for ID {0}", downloadId);
-          for (int i = 0; i < characters.Count; i++)
-          {
-            CharacterInfo character = characters[i];
-            if (_wrapper.GetFanArt(character, language, scope, out images) == false)
-            {
-              if (images != null)
-              {
-                SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-                SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-                SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-                SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-                SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-                SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-                SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-                SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-              }
-            }
-          }
-        }
-
-        scope = FanArtMediaTypes.Company;
-        List<CompanyInfo> companies = new List<CompanyInfo>(seriesInfo.ProductionCompanies);
-        if (companies != null && companies.Count > 0)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading company images for ID {0}", downloadId);
-          for (int i = 0; i < companies.Count; i++)
-          {
-            CompanyInfo company = companies[i];
-            if (_wrapper.GetFanArt(company, language, scope, out images) == false)
-            {
-              if (images != null)
-              {
-                SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-                SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-                SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-                SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-                SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-                SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-                SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-                SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-              }
-            }
-          }
-        }
-
-        scope = FanArtMediaTypes.TVNetwork;
-        List<CompanyInfo> networks = new List<CompanyInfo>(seriesInfo.Networks);
-        if (companies != null && companies.Count > 0)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Downloading network images for ID {0}", downloadId);
-          for (int i = 0; i < companies.Count; i++)
-          {
-            CompanyInfo company = companies[i];
-            if (_wrapper.GetFanArt(company, language, scope, out images) == false)
-            {
-              if (images != null)
-              {
-                SaveFanArtImages(images.Id, images.Backdrops, scope, FanArtTypes.FanArt);
-                SaveFanArtImages(images.Id, images.Posters, scope, FanArtTypes.Poster);
-                SaveFanArtImages(images.Id, images.Banners, scope, FanArtTypes.Banner);
-                SaveFanArtImages(images.Id, images.ClearArt, scope, FanArtTypes.ClearArt);
-                SaveFanArtImages(images.Id, images.Covers, scope, FanArtTypes.Cover);
-                SaveFanArtImages(images.Id, images.DiscArt, scope, FanArtTypes.DiscArt);
-                SaveFanArtImages(images.Id, images.Logos, scope, FanArtTypes.Logo);
-                SaveFanArtImages(images.Id, images.Thumbnails, scope, FanArtTypes.Thumbnail);
-              }
-            }
-          }
-        }
-
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Finished saving images for ID {0}", downloadId);
-
-        // Remember we are finished
-        FinishDownloadFanArt(downloadId);
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, downloadId);
+        Logger.Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, downloadId);
       }
     }
 
@@ -1729,7 +2007,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return image != null;
     }
 
-    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string scope, string type)
+    protected virtual int SaveFanArtImages(string fanArtToken, string id, IEnumerable<TImg> images, string scope, string type)
     {
       try
       {
@@ -1739,24 +2017,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         int idx = 0;
         foreach (TImg img in images)
         {
+          int externalFanArtCount = GetFanArtCount(fanArtToken, type);
+          if (externalFanArtCount >= MAX_FANART_IMAGES)
+            break;
           if (!VerifyFanArtImage(img))
             continue;
           if (idx >= MAX_FANART_IMAGES)
             break;
           if (_wrapper.DownloadFanArt(id, img, scope, type))
+          {
+            AddFanArtCount(fanArtToken, type, 1);
             idx++;
+          }
         }
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + @" Download: Saved {0} {1}\{2}", idx, scope, type);
+        Logger.Debug(GetType().Name + @" Download: Saved {0} {1}\{2}", idx, scope, type);
         return idx;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
+        Logger.Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
         return 0;
       }
     }
 
-    protected virtual int SaveSeriesSeasonFanArtImages(string id, int seasonNo, IEnumerable<TImg> images, string scope, string type)
+    protected virtual int SaveSeriesSeasonFanArtImages(string fanArtToken, string id, int seasonNo, IEnumerable<TImg> images, string scope, string type)
     {
       try
       {
@@ -1766,24 +2050,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         int idx = 0;
         foreach (TImg img in images)
         {
+          int externalFanArtCount = GetFanArtCount(fanArtToken, type);
+          if (externalFanArtCount >= MAX_FANART_IMAGES)
+            break;
           if (!VerifyFanArtImage(img))
             continue;
           if (idx >= MAX_FANART_IMAGES)
             break;
           if (_wrapper.DownloadSeriesSeasonFanArt(id, seasonNo, img, scope, type))
+          {
+            AddFanArtCount(fanArtToken, type, 1);
             idx++;
+          }
         }
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + @" Download: Saved {0} Season {1}: {2}\{3}", idx, seasonNo, scope, type);
+        Logger.Debug(GetType().Name + @" Download: Saved {0} Season {1}: {2}\{3}", idx, seasonNo, scope, type);
         return idx;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
+        Logger.Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
         return 0;
       }
     }
 
-    protected virtual int SaveSeriesEpisodeFanArtImages(string id, int seasonNo, int episodeNo, IEnumerable<TImg> images, string scope, string type)
+    protected virtual int SaveSeriesEpisodeFanArtImages(string fanArtToken, string id, int seasonNo, int episodeNo, IEnumerable<TImg> images, string scope, string type)
     {
       try
       {
@@ -1793,19 +2083,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         int idx = 0;
         foreach (TImg img in images)
         {
+          int externalFanArtCount = GetFanArtCount(fanArtToken, type);
+          if (externalFanArtCount >= MAX_FANART_IMAGES)
+            break;
           if (!VerifyFanArtImage(img))
             continue;
           if (idx >= MAX_FANART_IMAGES)
             break;
           if (_wrapper.DownloadSeriesEpisodeFanArt(id, seasonNo, episodeNo, img, scope, type))
+          {
+            AddFanArtCount(fanArtToken, type, 1);
             idx++;
+          }
         }
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + @" Download: Saved {0} S{1}E{2}: {3}\{4}", idx, seasonNo, episodeNo, scope, type);
+        Logger.Debug(GetType().Name + @" Download: Saved {0} S{1}E{2}: {3}\{4}", idx, seasonNo, episodeNo, scope, type);
         return idx;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
+        Logger.Debug(GetType().Name + " Download: Exception downloading images for ID {0}", ex, id);
         return 0;
       }
     }

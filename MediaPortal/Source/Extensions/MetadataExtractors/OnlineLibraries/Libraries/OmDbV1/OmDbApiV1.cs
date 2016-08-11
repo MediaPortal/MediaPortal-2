@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
 
     public const string DefaultLanguage = "en";
 
-    private const string URL_API_BASE = "https://www.omdbapi.com/";
+    private const string URL_API_BASE = "www.omdbapi.com/";
     private const string URL_QUERYMOVIE = URL_API_BASE + "?s={0}&type=movie";
     private const string URL_QUERYSERIES = URL_API_BASE + "?s={0}&type=series";
     private const string URL_GETTITLEMOVIE = URL_API_BASE + "?t={0}&type=movie";
@@ -63,14 +63,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     private object _seriesSync = new object();
     private object _seasonSync = new object();
     private object _episodeSync = new object();
+    private readonly bool _useHttps;
 
     #endregion
 
     #region Constructor
 
-    public OmDbApiV1(string cachePath)
+    public OmDbApiV1(string cachePath, bool useHttps)
     {
       _cachePath = cachePath;
+      _useHttps = useHttps;
       _downloader = new Downloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
     }
@@ -244,7 +246,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
       else replacedUrl += "&plot=short";
       if(includeTomatoRating) replacedUrl += "&tomatoes=true";
       else replacedUrl += "&tomatoes=false";
-      return string.Format("{0}&r=json", replacedUrl);
+
+      if(_useHttps)
+        return string.Format("https://{0}&r=json", replacedUrl);
+      else
+        return string.Format("http://{0}&r=json", replacedUrl);
     }
 
     /// <summary>
