@@ -1459,11 +1459,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 });
           //Logger.Debug("Searching for existing items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", mergeHandler.MergeableAspects.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
 
-          IList<MediaItem> existingItems = Search(database, transaction, 
-            new MediaItemQuery(mergeHandler.MergeableAspects, GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects), filter), false, null, true);
+          IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects).ToList();
+          if(optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
+          {
+            //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
+            //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
+            optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
+          }
+          IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
           foreach (MediaItem existingItem in existingItems)
           {
-            Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+            //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
             if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
             {
               existingMediaItemId = existingItem.MediaItemId;
@@ -1598,7 +1604,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 });
           //Logger.Debug("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
           // Any potential linked item must contain all of LinkedRoleAspects
-          IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds), filter), false, null, true);
+          IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds).ToList();
+          if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
+          {
+            //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
+            //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
+            optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
+          }
+          IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds, filter), false, null, true);
           foreach (MediaItem externalItem in externalItems)
           {
             //Logger.Debug("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
@@ -1628,7 +1641,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void AddRelationship(IRelationshipRoleExtractor roleExtractor, Guid itemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
     {
-      if (roleExtractor.Role == Guid.Empty || roleExtractor.LinkedRole == Guid.Empty)
+      if (!roleExtractor.BuildRelationship)
         return;
 
       int index;

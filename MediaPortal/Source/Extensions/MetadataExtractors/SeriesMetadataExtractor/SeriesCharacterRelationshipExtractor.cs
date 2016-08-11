@@ -29,9 +29,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -40,6 +40,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
     private CheckedItemCache<SeriesInfo> _checkCache = new CheckedItemCache<SeriesInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+
+    public bool BuildRelationship
+    {
+      get { return true; }
+    }
 
     public Guid Role
     {
@@ -75,9 +80,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (_checkCache.IsItemChecked(seriesInfo))
         return false;
 
-      SeriesTvDbMatcher.Instance.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
-      SeriesTheMovieDbMatcher.Instance.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
-      SeriesTvMazeMatcher.Instance.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
+      OnlineMatcherService.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
 
       if (seriesInfo.Characters.Count == 0)
         return false;

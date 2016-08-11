@@ -24,12 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
@@ -41,6 +39,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private CheckedItemCache<AlbumInfo> _checkCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+
+    public bool BuildRelationship
+    {
+      get { return true; }
+    }
 
     public Guid Role
     {

@@ -29,7 +29,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
@@ -42,10 +41,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
     private CheckedItemCache<SeriesInfo> _checkCache = new CheckedItemCache<SeriesInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
-    public Guid Role
+    public bool BuildRelationship
     {
       //We don't want to build series -> episode relation because there already is a episode -> series relation
-      get { return Guid.Empty; }
+      get { return false; }
+    }
+
+    public Guid Role
+    {
+      get { return SeriesAspect.ROLE_SERIES; }
     }
 
     public Guid[] RoleAspects
@@ -55,8 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public Guid LinkedRole
     {
-      //We don't want to build series -> episode relation because there already is a episode -> series relation
-      get { return Guid.Empty; }
+      get { return EpisodeAspect.ROLE_EPISODE; }
     }
 
     public Guid[] LinkedRoleAspects

@@ -53,6 +53,13 @@ namespace MediaPortal.Common.MediaManagement
     Guid[] LinkedRoleAspects { get; }
 
     /// <summary>
+    /// Specifies whether or not this relation should be built. A relationship should not be 
+    /// built if it creates the inverse of an already existing relationship.
+    /// E.g. If Series -> Episode exists don't create Episode -> Series.
+    /// </summary>
+    bool BuildRelationship { get; }
+
+    /// <summary>
     /// Part 1 of the relationship building - try to build a relationship
     /// from a group of aspects with Role to another group of aspects Linked Role
     /// </summary>

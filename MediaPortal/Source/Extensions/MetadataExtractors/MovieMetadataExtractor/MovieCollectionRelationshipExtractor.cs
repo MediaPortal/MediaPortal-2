@@ -42,6 +42,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     private CheckedItemCache<MovieInfo> _checkCache = new CheckedItemCache<MovieInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
     private CheckedItemCache<MovieCollectionInfo> _collectionCache = new CheckedItemCache<MovieCollectionInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
+    public bool BuildRelationship
+    {
+      get { return true; }
+    }
+
     public Guid Role
     {
       get { return MovieAspect.ROLE_MOVIE; }

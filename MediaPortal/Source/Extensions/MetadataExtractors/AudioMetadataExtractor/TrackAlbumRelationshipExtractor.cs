@@ -40,6 +40,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private CheckedItemCache<TrackInfo> _checkCache = new CheckedItemCache<TrackInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
     private CheckedItemCache<AlbumInfo> _albumCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
+    public bool BuildRelationship
+    {
+      //Album -> track relationship already exists
+      get { return false; }
+    }
+
     public Guid Role
     {
       get { return AudioAspect.ROLE_TRACK; }

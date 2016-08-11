@@ -78,6 +78,14 @@ namespace MediaPortal.Mock
     public Func<IDictionary<Guid, IList<MediaItemAspect>>, IDictionary<Guid, IList<MediaItemAspect>>, bool> Matcher { get; set; }
 
     public int Index { get; set; }
+
+    public bool BuildRelationship
+    {
+      get
+      {
+        return true;
+      }
+    }
   }
 
   public class MockRelationshipExtractor : IRelationshipExtractor

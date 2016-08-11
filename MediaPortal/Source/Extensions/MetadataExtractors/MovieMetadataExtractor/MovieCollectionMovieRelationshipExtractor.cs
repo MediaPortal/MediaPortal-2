@@ -24,12 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
@@ -42,10 +40,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private CheckedItemCache<MovieCollectionInfo> _checkCache = new CheckedItemCache<MovieCollectionInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
-    public Guid Role
+    public bool BuildRelationship
     {
       //We don't want to build collection -> movie relation because there already is a movie -> collection relation
-      get { return Guid.Empty; }
+      get { return false; }
+    }
+
+    public Guid Role
+    {
+      
+      get { return MovieCollectionAspect.ROLE_MOVIE_COLLECTION; }
     }
 
     public Guid[] RoleAspects
@@ -55,8 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public Guid LinkedRole
     {
-      //We don't want to build collection -> movie relation because there already is a movie -> collection relation
-      get { return Guid.Empty; }
+      get { return MovieAspect.ROLE_MOVIE; }
     }
 
     public Guid[] LinkedRoleAspects
