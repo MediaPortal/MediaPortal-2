@@ -41,6 +41,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      SimpleTitle = Title;
       IList<MultipleMediaItemAspect> videoAspects;
       IList<MultipleMediaItemAspect> audioAspects;
       if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out videoAspects) && 
@@ -65,7 +66,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
             if (!audioEncodings.Contains(audioEnc))
               audioEncodings.Add(audioEnc);
         }
-        SimpleTitle = Title;
         Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int)duration.Value)) : string.Empty;
         AudioEncoding = audioEncodings.Count > 0 ? string.Join(", ", audioEncodings) : string.Empty;
         VideoEncoding = videoEncodings.Count > 0 ? string.Join(", ", videoEncodings) : string.Empty;
