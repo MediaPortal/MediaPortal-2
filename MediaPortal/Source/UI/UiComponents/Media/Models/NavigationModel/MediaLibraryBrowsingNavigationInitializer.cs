@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -68,14 +67,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new SortByDate(),
         };
 
-      var optionalMias = new[]
-      {
-        MovieAspect.ASPECT_ID,
-        EpisodeAspect.ASPECT_ID,
-        AudioAspect.ASPECT_ID,
-        VideoAspect.ASPECT_ID,
-        ImageAspect.ASPECT_ID
-      }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
+      var optionalMias = Consts.OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS
+        .Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 
       _customRootViewSpecification = new AddedRemovableMediaViewSpecificationFacade(
         new BrowseMediaRootProxyViewSpecification(_viewName, _necessaryMias, optionalMias));
