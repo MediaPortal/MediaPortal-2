@@ -755,7 +755,7 @@ namespace UPnP.Infrastructure.CP.SSDP
             upnpVersionString = versionInfo;
           else if (versionInfo.StartsWith("DLNADOC/"))
             dlnaVersion = versionInfo;
-          else if (upnpVersionIndex == -1)
+          else if (upnpVersionString == null)
             osVersionTokens.Add(versionInfo);
           else
             productVersionTokens.Add(versionInfo);
