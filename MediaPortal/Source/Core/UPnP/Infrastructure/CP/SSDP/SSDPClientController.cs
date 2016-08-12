@@ -762,7 +762,7 @@ namespace UPnP.Infrastructure.CP.SSDP
             upnpVersionString = versionInfo;
           else if (versionInfo.StartsWith(UPnPVersion.DLNA_VERSION_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             dlnaVersion = versionInfo;
-          else if (upnpVersionIndex == -1)
+          else if (upnpVersionString == null)
             osVersionTokens.Add(versionInfo);
           else
             productVersionTokens.Add(versionInfo);
