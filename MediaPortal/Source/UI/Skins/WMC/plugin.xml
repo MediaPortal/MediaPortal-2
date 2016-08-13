@@ -72,6 +72,24 @@
         Text="[WMC.Configuration.EnableWatchedFlags]"
         HelpText="[WMC.Configuration.EnableWatchedFlags.Help]"
         ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableWatchedFlagsConfiguration"/>
+
+    <ConfigSetting
+        Id="EnableBanners"
+        Text="[WMC.Configuration.EnableBanners]"
+        HelpText="[WMC.Configuration.EnableBanners.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableBannersConfiguration"/>
+
+    <ConfigSetting
+        Id="EnableAnimatedBackground"
+        Text="[WMC.Configuration.EnableAnimatedBackground]"
+        HelpText="[WMC.Configuration.EnableAnimatedBackground.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableAnimatedBackgroundConfiguration"/>
+
+    <ConfigSetting
+        Id="EnableMediaItemDetailsView"
+        Text="[WMC.Configuration.EnableMediaItemDetailsView]"
+        HelpText="[WMC.Configuration.EnableMediaItemDetailsView.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/>
   </Register>
 
 </Plugin>
