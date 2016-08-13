@@ -806,7 +806,9 @@
   <!--MediaItem view styles-->
   <Model x:Key="MediaItemsActionModel" Id="970649B2-CAE8-4830-A985-E5E78F3CB24F"/>
 
-  <!-- Filter -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++++++++++++++++++++++ Filter +++++++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -876,7 +878,9 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Container -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++++++++++++++++++++ Container ++++++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewContainerItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -996,9 +1000,11 @@
       </Label>
     </Grid>
   </ControlTemplate>
-  
 
-  <!-- Series Filter -->
+
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++++++++++++++++++++++ Series +++++++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewSeriesFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -1240,7 +1246,9 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Series Season Filter -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--+++++++++++++++++++++ Series Season +++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewSeriesSeasonFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -1495,7 +1503,9 @@
   </ControlTemplate>
 
 
-  <!-- Episode -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++++++++++++++++++ Series Episode +++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewEpisodeItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -1757,8 +1767,9 @@
     </Grid>
   </ControlTemplate>
 
-
-  <!-- Movie Collection Filter -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++++++++++++ Movie Collection Filter ++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewMovieFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -2023,7 +2034,9 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Movie -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--+++++++++++++++++++++++++ Movie +++++++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewMovieItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -2297,7 +2310,9 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Video -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--+++++++++++++++++++++++++ Video +++++++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewVideoItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -2330,9 +2345,9 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding Title}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
       </Label>
-      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Margin="0,0,10,0"
+      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Color="{ThemeResource TextColor}" Margin="0,0,10,0"
              FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
       </Label>  
       <!--Grid x:Name="Details" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
@@ -2458,7 +2473,9 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Audio -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--+++++++++++++++++++++++++ Audio +++++++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewAudioItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -2593,7 +2610,8 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Audio Album -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++++++++++++++++++++ Audio Album ++++++++++++++++++++++++-->
 
   <ControlTemplate x:Key="ListViewAlbumItemTemplate">
     <Grid x:Name="ItemControl">
@@ -2791,7 +2809,9 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- Image -->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--+++++++++++++++++++++++++ Image +++++++++++++++++++++++++++-->
+  
   <ControlTemplate x:Key="ListViewImageItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
