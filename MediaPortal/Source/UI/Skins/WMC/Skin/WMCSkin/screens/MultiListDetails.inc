@@ -66,6 +66,17 @@
       <Include Source="screens\MediaItemListMovieDetails.inc"/>
     </Control.TemplateControl>
   </Control>
+  <Control x:Name="MovieCollectionDetails">
+    <Control.IsVisible>
+      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+        <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+        <Binding Source="{x:Static aspect:MovieCollectionAspect.ASPECT_ID}" />
+      </MultiBinding>
+    </Control.IsVisible>
+    <Control.TemplateControl>
+      <Include Source="screens\MediaItemListMovieCollectionDetails.inc"/>
+    </Control.TemplateControl>
+  </Control>
   <Control x:Name="SeriesDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
@@ -101,11 +112,12 @@
   </Control>
   <Control x:Name="AllOtherDetails">
     <Control.IsVisible>
-      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible}))">
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible})||({7}=={VisibilityEnum}.{Visible}))">
         <Binding ElementName="AudioDetails" Path="Visibility" />
         <Binding ElementName="AudioAlbumDetails" Path="Visibility" />
         <Binding ElementName="ImageDetails" Path="Visibility" />
         <Binding ElementName="MovieDetails" Path="Visibility" />
+        <Binding ElementName="MovieCollectionDetails" Path="Visibility" />
         <Binding ElementName="SeriesDetails" Path="Visibility" />
         <Binding ElementName="SeasonDetails" Path="Visibility" />
         <Binding ElementName="EpisodeDetails" Path="Visibility" />

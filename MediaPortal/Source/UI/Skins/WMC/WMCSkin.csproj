@@ -259,7 +259,13 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemListEpisodeDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListMovieCollectionDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemListSeasonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemMovieCollectionDetails.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeasonDetails.inc" />
