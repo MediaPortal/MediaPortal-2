@@ -124,13 +124,13 @@
   <!-- Screen headers -->
   <string name="Media.BrowseMediaNavigationHeader">Browse media navigation</string>
   <string name="Media.LocalMediaNavigationHeader">Local media navigation</string>
-  <string name="Media.MediaItemsHeader">Media items</string>
-  <string name="Media.VideoItemsHeader">Videos</string>
-  <string name="Media.AudioItemsHeader">Audio items</string>
-  <string name="Media.EpisodeItemsHeader">Episodes</string>
-  <string name="Media.SeasonItemsHeader">Seasons</string>
-  <string name="Media.MoviesItemsHeader">Movies</string>
-  <string name="Media.ImageItemsHeader">Images</string>
+  <string name="Media.MediaItemsHeader">Media item(s)</string>
+  <string name="Media.VideoItemsHeader">Video(s)</string>
+  <string name="Media.AudioItemsHeader">Audio item(s)</string>
+  <string name="Media.EpisodeItemsHeader">Episode(s)</string>
+  <string name="Media.SeasonItemsHeader">Season(s)</string>
+  <string name="Media.MoviesItemsHeader">Movie(s)</string>
+  <string name="Media.ImageItemsHeader">Image(s)</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
   <string name="Media.ChooseCollectionHeader">Choose a collection</string>
   <string name="Media.ChooseActorHeader">Choose an actor</string>

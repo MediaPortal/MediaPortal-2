@@ -1087,7 +1087,7 @@
       <Image Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                    fanart:MaxWidth="{StaticResource BANNER_GRID_WIDTH}" fanart:MaxHeight="{StaticResource BANNER_GRID_HEIGHT}"/>
+                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
         <Image.OpacityMask>
           <VisualBrush>
