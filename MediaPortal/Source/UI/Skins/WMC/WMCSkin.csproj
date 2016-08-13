@@ -259,7 +259,13 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemListEpisodeDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListMovieCollectionDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemListSeasonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemMovieCollectionDetails.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeasonDetails.inc" />
@@ -491,6 +497,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\default\styles\Animations.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\VirtualKeyboardStyle.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\DialogVirtualKeyboard.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
