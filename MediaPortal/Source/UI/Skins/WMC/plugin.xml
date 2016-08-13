@@ -22,11 +22,11 @@
     <PluginReference PluginId="{DF6A25DF-D937-4DFF-B1BD-563641A62417}" CompatibleAPI="1"/> <!-- Home Menu Editor -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{B4D6171B-81CB-4813-ACBE-FD3133ADC504}" CompatibleAPI="1"/> <!-- SkinSettings plugin -->
   </DependsOn>
 
   <Register Location="/Models">
     <Model Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309" Name="WMCHomeMenuModel" ClassName="MediaPortal.UiComponents.WMCSkin.Models.HomeMenuModel"/>
-    <Model Id="B074D623-D161-4F15-BE18-D73DD580B1BB" Name="SkinSettingsModel" ClassName="MediaPortal.UiComponents.WMCSkin.Models.SkinSettingsModel"/>
     <Model Id="762EC648-AA64-42A4-9401-59FDB2FBF18C" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.WMCSkin.Actions.SkinSettingsAction"/>
   </Register>
   
@@ -37,6 +37,10 @@
 
   <Register Location="/Resources/Skin">
     <Resource Id="WMCkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/SkinSettings">
+    <SkinSettings Id="F9063616-EC04-4C22-B207-12C1918EAF11" Name="WMC" ClassName="MediaPortal.UiComponents.WMCSkin.Settings.WMCSkinSettings"/>
   </Register>
 
   <!-- Contents of '/Appearance' section -->

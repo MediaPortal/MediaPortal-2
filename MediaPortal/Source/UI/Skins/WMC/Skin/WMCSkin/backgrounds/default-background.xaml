@@ -44,9 +44,9 @@ Default background image - no media present
         <VisualBrush x:Name="FanartVisualBrush" AnimationEnabled="True">
           <VisualBrush.Visual>
             <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{ThemeResource BackgroundBrush}">
-              <Grid.Resources>
+              <!--<Grid.Resources>
                 <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
-                <Model x:Key="SkinSettingsModel" Id="B074D623-D161-4F15-BE18-D73DD580B1BB"/>
+                <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
               </Grid.Resources>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -54,9 +54,9 @@ Default background image - no media present
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <!-- If active, semitransparent FanArts will appear-->
-              <!--<Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0"
-                     IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=EnableFanart}">
+              --><!-- If active, semitransparent FanArts will appear--><!--
+              <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0"
+                     IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
                 <Image.Source>
                   <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                    Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>

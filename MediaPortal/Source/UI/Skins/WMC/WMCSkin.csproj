@@ -68,11 +68,9 @@
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\NavigationList.cs" />
     <Compile Include="Models\NestedItem.cs" />
-    <Compile Include="Models\SkinSettingsModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
-    <Compile Include="Settings\SkinChangeMonitor.cs" />
     <Compile Include="Settings\WMCSkinSettings.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -372,6 +370,10 @@
     <ProjectReference Include="..\..\..\..\Incubator\HomeEditor\HomeEditor.csproj">
       <Project>{8a94cde9-eda2-4dd7-b860-0421e578055c}</Project>
       <Name>HomeEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Incubator\SkinSettings\SkinSettings.csproj">
+      <Project>{61c5a548-5b9b-4750-b98b-8161ec95dead}</Project>
+      <Name>SkinSettings</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>

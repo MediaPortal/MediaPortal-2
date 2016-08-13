@@ -1,5 +1,6 @@
 ﻿using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
+using SkinSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
   {
     public EnableWatchedFlagsConfiguration()
     {
-      SkinChangeMonitor.Instance.RegisterConfiguration(this);
+      SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
       _items.Add(LocalizationHelper.CreateResourceString("[WMC.Configuration.EnableWatchedFlags.ListView]"));
       _items.Add(LocalizationHelper.CreateResourceString("[WMC.Configuration.EnableWatchedFlags.GridView]"));
       _items.Add(LocalizationHelper.CreateResourceString("[WMC.Configuration.EnableWatchedFlags.CoverView]"));
@@ -42,7 +43,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
 
     public void Dispose()
     {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(this);
+      SkinChangeMonitor.Instance.UnregisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
     }
   }
 }
