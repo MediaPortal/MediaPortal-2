@@ -1589,8 +1589,14 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Image x:Name="Thumb" Stretch="Uniform" Margin="1"
-                   Source="{Binding MediaItem}">
+      <Image x:Name="thumb" Stretch="UniformToFill" Margin="1" Source="{Binding MediaItem}">
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
       </Image>
       <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
               Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}"
