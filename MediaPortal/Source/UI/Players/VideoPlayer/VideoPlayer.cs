@@ -43,7 +43,6 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.Players;
-using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX;
@@ -54,7 +53,7 @@ using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Video
 {
-  public class VideoPlayer : BaseDXPlayer, ISharpDXMultiTexturePlayer, ISubtitlePlayer, IChapterPlayer, ITitlePlayer, IResumablePlayer
+  public class VideoPlayer : BaseDXPlayer, ISharpDXVideoPlayer, ISubtitlePlayer, IChapterPlayer, ITitlePlayer, IResumablePlayer
   {
     #region Classes & interfaces
 
@@ -343,7 +342,6 @@ namespace MediaPortal.UI.Players.Video
             return null;
 
           PostProcessTexture(videoTexture);
-         // _mpcSubsRenderer.DrawItem();
           _textureInvalid = false;
           return videoTexture;
         }
@@ -362,14 +360,8 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="targetTexture"></param>
     protected virtual void PostProcessTexture(Texture targetTexture)
     {
-      _mpcSubsRenderer.DrawItem();
+      _mpcSubsRenderer.DrawItem(targetTexture, false);
     }
-
-    public virtual Texture[] TexturePlanes
-    {
-      get { return _mpcSubsRenderer.TexturePlanes; }
-    }
-
 
     public IGeometry GeometryOverride
     {

@@ -547,7 +547,7 @@ namespace MediaPortal.UI.Players.Video
       _subtitleRenderer.DrawOverlay(targetTexture);
     }
 
-    public override Texture[] TexturePlanes
+    public Texture[] TexturePlanes
     {
       get { return _osdRenderer.TexturePlanes; }
     }

@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using System.IO;
-using MediaPortal.UI.Players.Video.Tools;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -36,11 +36,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   public class MpcSubsRenderer : IDisposable
   {
     /// <summary>
-    /// Array containing different texture planes.
-    /// </summary>
-    private readonly Texture[] _planes = new Texture[1];
-
-    /// <summary>
     /// Lock for syncronising the texture update and rendering
     /// </summary>
     private readonly object _syncObj = new Object();
@@ -50,66 +45,28 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public MpcSubsRenderer(Action onTextureInvalidated)
     {
       _onTextureInvalidated = onTextureInvalidated;
-      _planes[0] = new Texture(SkinContext.Device, SkinContext.BackBufferWidth, SkinContext.BackBufferHeight, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
     }
 
-    public Texture[] TexturePlanes
-    {
-      get
-      {
-        lock (_syncObj)
-        {
-          return _planes;
-        }
-      }
-    }
-
-    private void FreeResources()
-    {
-      lock (_syncObj)
-      {
-        FilterGraphTools.TryDispose(ref _planes[0]);
-      }
-    }
-
-    public void DrawItem()
+    public void DrawItem(Texture targetTexture, bool clear)
     {
       try
       {
         lock (_syncObj)
         {
-          using (new TemporaryRenderTarget(_planes[0]))
+          using (new TemporaryRenderTarget(targetTexture))
           {
-            SkinContext.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0);
-            MpcSubtitles.Render(0, 0, SkinContext.BackBufferWidth, SkinContext.BackBufferHeight);
+            if (clear)
+              SkinContext.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0);
+            var surfaceDesc = targetTexture.GetLevelDescription(0);
+            MpcSubtitles.Render(0, 0, surfaceDesc.Width, surfaceDesc.Height);
           }
-          //SaveTexture(_planes[0], 0);
         }
+        if (_onTextureInvalidated != null)
+          _onTextureInvalidated();
       }
       catch (Exception ex)
       {
-        // BluRayPlayerBuilder.LogError(ex.ToString());
-      }
-
-      if (_onTextureInvalidated != null)
-        _onTextureInvalidated();
-    }
-
-    private int n = 0;
-
-    private void SaveTexture(Texture texture, int index)
-    {
-      using (var stream = BaseTexture.ToStream(texture, ImageFileFormat.Png))
-      using (var sr = new BinaryReader(stream))
-      using (var fs = new FileStream(string.Format("overlay_{0}_{1}.png", index, (n++)), FileMode.Create))
-      using (var sw = new BinaryWriter(fs))
-      {
-        byte[] buffer = new byte[512];
-        int bytesRead;
-        while ((bytesRead = sr.Read(buffer, 0, buffer.Length)) > 0)
-        {
-          sw.Write(buffer, 0, bytesRead);
-        }
+        ServiceRegistration.Get<ILogger>().Error("MpcSubs: Error rendering subtitle onto video frame", ex);
       }
     }
 
@@ -117,7 +74,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     public void Dispose()
     {
-      FreeResources();
     }
 
     #endregion
