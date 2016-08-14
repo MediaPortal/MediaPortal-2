@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
+using SharpDX;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
@@ -11,33 +7,44 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   public struct SubtitleStyle
   {
     [MarshalAs(UnmanagedType.LPWStr)]
-    public string fontName;
-    public int fontColor;
+    public string FontName;
+    public int FontColor;
     [MarshalAs(UnmanagedType.Bool)]
-    public bool fontIsBold;
-    public int fontSize;
-    public int fontCharset;
-    public int shadow;
-    public int borderWidth;
+    public bool FontIsBold;
+    public int FontSize;
+    public int FontCharset;
+    public int ShadowDepth;
+    public int BorderWidth;
     [MarshalAs(UnmanagedType.Bool)]
-    public bool isBorderOutline;
+    public bool IsBorderOutline;
 
     public void Load()
     {
-      fontName = "Arial";
-      fontSize = 18;
-      fontIsBold = true;
-      fontCharset = 1; //default charset
+      FontName = "Arial";
+      FontSize = 18;
+      FontIsBold = true;
+      FontCharset = 1; //default charset
 
       string strColor = "ffffff";
-      int argb = Int32.Parse(strColor, System.Globalization.NumberStyles.HexNumber);
+      int argb = int.Parse(strColor, System.Globalization.NumberStyles.HexNumber);
+
       //convert ARGB to BGR (COLORREF)
-      fontColor = (int)((argb & 0x000000FF) << 16) |
-                  (int)(argb & 0x0000FF00) |
-                  (int)((argb & 0x00FF0000) >> 16);
-      shadow = 3;
-      borderWidth = 2;
-      isBorderOutline = true;
+      FontColor = argb.ToBGR();
+      ShadowDepth = 3;
+      BorderWidth = 2;
+      IsBorderOutline = true;
+    }
+  }
+
+  public static class ColorExtension
+  {
+    public static int ToBGR(this int argb)
+    {
+      return (argb & 0x000000FF) << 16 | argb & 0x0000FF00 | (argb & 0x00FF0000) >> 16;
+    }
+    public static int ToBGR(this Color color)
+    {
+      return ((int)color).ToBGR();
     }
   }
 }

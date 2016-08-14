@@ -361,7 +361,9 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     /// <param name="targetTexture"></param>
     protected virtual void PostProcessTexture(Texture targetTexture)
-    {}
+    {
+      _mpcSubsRenderer.DrawItem();
+    }
 
     public virtual Texture[] TexturePlanes
     {

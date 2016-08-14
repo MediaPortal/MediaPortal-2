@@ -25,8 +25,10 @@
 using System;
 using System.IO;
 using MediaPortal.UI.Players.Video.Tools;
+using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using SharpDX;
 using SharpDX.Direct3D9;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
@@ -36,9 +38,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// <summary>
     /// Array containing different texture planes.
     /// </summary>
-    private readonly Texture[] _planes = new Texture[2];
-    private readonly DeviceEx _device = SkinContext.Device;
-    private Sprite _sprite;
+    private readonly Texture[] _planes = new Texture[1];
 
     /// <summary>
     /// Lock for syncronising the texture update and rendering
@@ -50,7 +50,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public MpcSubsRenderer(Action onTextureInvalidated)
     {
       _onTextureInvalidated = onTextureInvalidated;
-      _sprite = new Sprite(_device);
+      _planes[0] = new Texture(SkinContext.Device, SkinContext.BackBufferWidth, SkinContext.BackBufferHeight, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
     }
 
     public Texture[] TexturePlanes
@@ -69,8 +69,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       lock (_syncObj)
       {
         FilterGraphTools.TryDispose(ref _planes[0]);
-        FilterGraphTools.TryDispose(ref _planes[1]);
-        FilterGraphTools.TryDispose(ref _sprite);
       }
     }
 
@@ -80,33 +78,17 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       {
         lock (_syncObj)
         {
-          DeviceEx device = SkinContext.Device;
-          Texture subText = new Texture(device, 1920, 1080, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
-          using (new TemporaryRenderTarget(subText))
-          { MpcSubtitles.Render(0, 0, 1920, 1080); }
-
-          // var index = (int)subText.Plane;
-
-          // Dispose old texture only if new texture for plane is different
-          //if (_planes[index] != null)
-          //{
-          //  var isNewTexture = _planes[index].NativePointer != item.Texture;
-          //  if (isNewTexture)
-          //    FilterGraphTools.TryDispose(ref _planes[index]);
-          //}
-
-          //if (item.Width == 0 || item.Height == 0 || item.Texture == IntPtr.Zero)
-          //  return;
-
-          // var texture = new Texture(item.Texture);
-          ////SaveTexture(texture, index);
-         
-          _planes[0] = subText;
+          using (new TemporaryRenderTarget(_planes[0]))
+          {
+            SkinContext.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0);
+            MpcSubtitles.Render(0, 0, SkinContext.BackBufferWidth, SkinContext.BackBufferHeight);
+          }
+          //SaveTexture(_planes[0], 0);
         }
       }
       catch (Exception ex)
       {
-       // BluRayPlayerBuilder.LogError(ex.ToString());
+        // BluRayPlayerBuilder.LogError(ex.ToString());
       }
 
       if (_onTextureInvalidated != null)
@@ -114,6 +96,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     }
 
     private int n = 0;
+
     private void SaveTexture(Texture texture, int index)
     {
       using (var stream = BaseTexture.ToStream(texture, ImageFileFormat.Png))
