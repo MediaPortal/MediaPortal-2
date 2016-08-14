@@ -15,7 +15,6 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>fb05149b</NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Source\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -133,13 +132,6 @@ IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
   </PropertyGroup>
   <Import Project="..\..\Packages\MediaPortal.BDReader.1.7.1.1\build\MediaPortal.BDReader.targets" Condition="Exists('..\..\Packages\MediaPortal.BDReader.1.7.1.1\build\MediaPortal.BDReader.targets')" />
   <Import Project="..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
