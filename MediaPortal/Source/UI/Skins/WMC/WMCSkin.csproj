@@ -353,6 +353,12 @@
     <Content Include="Skin\WMCSkin\fonts\SketchyTimes.ttf" />
     <None Include="Skin\WMCSkin\fonts\seguisb.ttf" />
     <Content Include="Skin\WMCSkin\fonts\seguisb.desc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemVideoDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListVideoDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\home.xaml" />

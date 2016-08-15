@@ -2656,26 +2656,39 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding Title}" Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
       </Label>
-      <Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Color="{ThemeResource TextColor}" Margin="0,0,10,0"
-             FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
-      </Label>  
-      <!--Grid x:Name="Details" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
-        <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutSize}.{Small}"/>
-        </Grid.IsVisible>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="200"/>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
-        <Label x:Name="VideoEncodingTitle" Grid.Column="0" Content="Video: " FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-        <Label x:Name="VideoEncoding" Grid.Column="1" Content="{Binding VideoEncoding}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-        <Label x:Name="AudioEncodingTitle" Grid.Column="2" Content="Audio: " FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-        <Label x:Name="AudioEncoding" Grid.Column="3" Content="{Binding AudioEncoding}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-      </-->
+      
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="2"
+                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+                </Grid.IsVisible>
+                <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+                     Source="partlywatched.png">
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+              </Grid>
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+                </Grid.IsVisible>
+                <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+                     Source="watched.png">
+                </Image>
+              </Grid>
+            </Grid>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
     </Grid>
   </ControlTemplate>
 
@@ -2687,19 +2700,75 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Image x:Name="thumb" Stretch="Uniform" Margin="1" Source="{Binding MediaItem}">
-      </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0"
+      
+      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"
+                  MaxHeight="{StaticResource VIDEO_GRID_HEIGHT}" Width="{StaticResource VIDEO_GRID_WIDTH}">
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="7" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+        </Grid>
+        <Image x:Name="thumb" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
+               Source="{Binding MediaItem}"/>
+        <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
+              Width="{StaticResource VIDEO_GRID_WIDTH}" Height="{StaticResource VIDEO_GRID_HEIGHT}"
               IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
-
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+              <GradientStop Color="#F2447da7" Offset="0"/>
+              <GradientStop Color="#F2124273" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        <Image Width="{StaticResource VIDEO_GRID_WIDTH}" Height="{StaticResource VIDEO_GRID_HEIGHT}"
+             Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      </Grid>
+      <!-- watched indicator -->
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0"
+                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+                </Grid.IsVisible>
+                <Image Source="flag.png" Height="90" Stretch="Uniform">
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+                <Image x:Name="PartlyWatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
+                     Source="partlywatched.png" HorizontalAlignment="Right" VerticalAlignment="Top">
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+              </Grid>
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+                </Grid.IsVisible>
+                <Image Source="flag.png" Height="90" Stretch="Uniform"/>
+                <Image x:Name="WatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
+                     Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top">
+                </Image>
+              </Grid>
+            </Grid>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
     </Grid>
   </ControlTemplate>
 
@@ -2760,6 +2829,46 @@
           </LinearGradientBrush>
         </Rectangle.Stroke>
       </Rectangle>
+
+      <!-- watched indicator -->
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0"
+                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+                </Grid.IsVisible>
+                <Image Source="flag.png" Height="90" Stretch="Uniform">
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+                <Image x:Name="PartlyWatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
+                     Source="partlywatched.png" HorizontalAlignment="Right" VerticalAlignment="Top">
+                  <Image.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+                      <Binding Path="PlayPercentage"/>
+                    </MultiBinding>
+                  </Image.IsVisible>
+                </Image>
+              </Grid>
+              <Grid>
+                <Grid.IsVisible>
+                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+                </Grid.IsVisible>
+                <Image Source="flag.png" Height="90" Stretch="Uniform"/>
+                <Image x:Name="WatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
+                     Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top">
+                </Image>
+              </Grid>
+            </Grid>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
 
       <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                            RadiusX="4" RadiusY="4" StrokeThickness="0" Margin="0,0,0,0"
