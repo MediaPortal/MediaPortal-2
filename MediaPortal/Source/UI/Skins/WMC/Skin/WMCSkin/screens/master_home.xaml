@@ -214,13 +214,27 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </DockPanel>
 
     <!-- Mouse control buttons -->
-    <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,10,0">
+    <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
       <StackPanel Orientation="Horizontal">
         <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-          <Button x:Name="MinMaxButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
-                  Command="{Command Source={StaticResource ScreenModeModel},Path=ToggleScreenMode}"/>
+          <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=NormalWindowed}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="MaximizedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=FullScreen}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
           <Button x:Name="ExitButton" Style="{ThemeResource ExitButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
-                  Command="{Command Source={Service Window},Path=Shutdown}"/>
+                  Command="{Command Source={Service Window},Path=Shutdown}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
         </StackPanel>
       </StackPanel>
     </Grid>

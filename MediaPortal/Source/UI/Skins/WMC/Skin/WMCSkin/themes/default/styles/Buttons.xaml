@@ -1371,48 +1371,6 @@
   </Style>
 
   <!--General Mouse Control buttons-->
-  <!--Style x:Key="MinMaxButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}" >
-          <Grid>
-            <Image Source="MINIMIZE.NOFOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="0" VerticalAlignment="Center">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
-                  <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
-            <Image Source="MINIMIZE.FOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="0" VerticalAlignment="Center">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
-                  <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
-            <Image Source="MAXIMIZE.NOFOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="0" VerticalAlignment="Center">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
-                  <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{NormalWindowed}"/>
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
-            <Image Source="MAXIMIZE.FOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="0" VerticalAlignment="Center">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
-                  <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{NormalWindowed}"/>
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style-->
 
   <Style x:Key="MinMaxButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
