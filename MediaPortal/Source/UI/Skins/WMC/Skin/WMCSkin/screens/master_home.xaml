@@ -61,14 +61,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill"/>
-    <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill"/>
-    <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill"/>
-    <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill"/>
-    <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill"/>
+    <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
 
     <Grid.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+      <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
       <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
       <Storyboard
                 x:Key="AnimationL1"
