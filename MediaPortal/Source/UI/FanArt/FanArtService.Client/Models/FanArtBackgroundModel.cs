@@ -355,7 +355,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       AudioItem audioItem = SelectedItem as AudioItem;
       if (audioItem != null)
       {
-        MediaItem = albumItem.MediaItem;
+        MediaItem = audioItem.MediaItem;
         FanArtMediaType = FanArtMediaTypes.Audio;
         FanArtName = audioItem.MediaItem.MediaItemId.ToString();
         SimpleTitle = audioItem.SimpleTitle;
