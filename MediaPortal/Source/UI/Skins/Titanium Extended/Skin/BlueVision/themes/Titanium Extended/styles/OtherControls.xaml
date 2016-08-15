@@ -321,7 +321,7 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="None"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
               <ScrollContentPresenter.OpacityMask>
 			          <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
