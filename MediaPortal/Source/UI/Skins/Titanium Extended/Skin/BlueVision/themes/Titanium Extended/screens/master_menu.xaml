@@ -120,7 +120,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{ThemeResource SlideInStoryboard}"/>
               </DataTrigger.EnterActions>
               <DataTrigger.ExitActions>
-                <!--BeginStoryboard x:Name="SlideOut_BeginStoryboard" Storyboard="{ThemeResource SlideOutStoryboard}"/-->
+                <BeginStoryboard x:Name="SlideOut_BeginStoryboard" Storyboard="{ThemeResource SlideOutStoryboard}"/>
                 <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
               </DataTrigger.ExitActions>
               <Setter TargetName="MainMenu" Property="SetFocusPrio" Value="Highest" />
@@ -209,7 +209,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <BeginStoryboard x:Name="SlideDown_BeginStoryboard" Storyboard="{ThemeResource SlideDownStoryboard}"/>
               </DataTrigger.EnterActions>
               <DataTrigger.ExitActions>
-                <!--BeginStoryboard BeginStoryboardName="SlideUp_BeginStoryboard"/-->
+                <BeginStoryboard x:Name="Slideup_BeginStoryboard" Storyboard="{ThemeResource SlideUpStoryboard}"/>
                 <StopStoryboard BeginStoryboardName="SlideDown_BeginStoryboard"/>
               </DataTrigger.ExitActions>
               <Setter TargetName="TopMenu" Property="SetFocusPrio" Value="Highest" />

@@ -210,6 +210,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diagnostics", "..\Incubator
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeEditor", "..\Incubator\HomeEditor\HomeEditor.csproj", "{8A94CDE9-EDA2-4DD7-B860-0421E578055C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinSettings", "..\Incubator\SkinSettings\SkinSettings.csproj", "{61C5A548-5B9B-4750-B98B-8161EC95DEAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -532,6 +534,10 @@ Global
 		{8A94CDE9-EDA2-4DD7-B860-0421E578055C}.Debug|x86.Build.0 = Debug|x86
 		{8A94CDE9-EDA2-4DD7-B860-0421E578055C}.Release|x86.ActiveCfg = Release|x86
 		{8A94CDE9-EDA2-4DD7-B860-0421E578055C}.Release|x86.Build.0 = Release|x86
+		{61C5A548-5B9B-4750-B98B-8161EC95DEAD}.Debug|x86.ActiveCfg = Debug|x86
+		{61C5A548-5B9B-4750-B98B-8161EC95DEAD}.Debug|x86.Build.0 = Debug|x86
+		{61C5A548-5B9B-4750-B98B-8161EC95DEAD}.Release|x86.ActiveCfg = Release|x86
+		{61C5A548-5B9B-4750-B98B-8161EC95DEAD}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -633,5 +639,6 @@ Global
 		{874401F8-1283-4C20-8EFA-FD0EE7AD53A8} = {9579F1D5-315A-4528-AC60-FA7D61874E27}
 		{D6DFE439-30B7-4B0B-A80F-D2D65363E9FF} = {91CC1D84-4327-48CA-8186-D7C3529AEB44}
 		{8A94CDE9-EDA2-4DD7-B860-0421E578055C} = {91CC1D84-4327-48CA-8186-D7C3529AEB44}
+		{61C5A548-5B9B-4750-B98B-8161EC95DEAD} = {E9A798FE-B9A8-49CE-B13C-30B08C065026}
 	EndGlobalSection
 EndGlobal

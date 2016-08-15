@@ -36,8 +36,8 @@
   
   <WrapPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0">
 
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:MediaAspectWrapper.Template>
+    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
@@ -47,11 +47,11 @@
             <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Title}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding TrackName}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
+      </media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
 
     <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:AudioAspectWrapper.Template>

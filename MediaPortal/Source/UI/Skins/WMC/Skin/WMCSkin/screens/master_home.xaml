@@ -61,14 +61,21 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill"/>
-    <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill"/>
-    <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill"/>
-    <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill"/>
-    <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill"/>
+    <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill" 
+           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
 
     <Grid.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+      <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
       <Storyboard
                 x:Key="AnimationL1"
                 BeginTime="00:00:00.000"
@@ -206,10 +213,37 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
         </StackPanel>
       </Grid>
-      <!-- FooterPanel -->
+            <!-- FooterPanel -->
 
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
       <Control x:Name="ClientArea" DockPanel.Dock="Right" Template="{DynamicResource Client_Template}"/>
     </DockPanel>
+
+    <!-- Mouse control buttons -->
+    <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
+      <StackPanel Orientation="Horizontal">
+        <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=NormalWindowed}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="MaximizedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=FullScreen}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="ExitButton" Style="{ThemeResource ExitButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=Shutdown}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+
   </Grid>
 </Screen>

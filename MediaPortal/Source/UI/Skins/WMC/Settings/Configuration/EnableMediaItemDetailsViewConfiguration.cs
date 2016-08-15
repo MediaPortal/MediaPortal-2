@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
 {
-  public class EnableFanartConfiguration : YesNo, IDisposable
+  public class EnableMediaItemDetailsViewConfiguration : YesNo, IDisposable
   {
-    public EnableFanartConfiguration()
+    public EnableMediaItemDetailsViewConfiguration()
     {
       SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
     }
@@ -18,14 +18,14 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
     public override void Load()
     {
       base.Load();
-      _yes = SettingsManager.Load<WMCSkinSettings>().EnableFanart;
+      _yes = SettingsManager.Load<WMCSkinSettings>().EnableMediaItemDetailsView;
     }
 
     public override void Save()
     {
       base.Save();
       var settings = SettingsManager.Load<WMCSkinSettings>();
-      settings.EnableFanart = _yes;
+      settings.EnableMediaItemDetailsView = _yes;
       SettingsManager.Save(settings);
     }
 
