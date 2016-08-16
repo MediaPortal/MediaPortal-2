@@ -120,8 +120,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             {
               foreach (var pra in providerAspects)
               {
-                path2LastImportDate.Add(ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
-                    mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+                ResourcePath path = ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+                if(!path2LastImportDate.ContainsKey(path))
+                  path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
               }
             }
           }

@@ -35,6 +35,8 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -178,6 +180,71 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return true;
       }
       return false;
+    }
+
+    #endregion
+
+    #region Metadata update helpers
+
+    protected override TvdbLanguage FindBestMatchingLanguage(SeriesInfo seriesInfo)
+    {
+      TvdbLanguage returnVal;
+
+      CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+      // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
+      if (seriesInfo.Languages.Count == 0 || seriesInfo.Languages.Contains(mpLocal.TwoLetterISOLanguageName))
+      {
+        returnVal = TvDbUtils.ParseLanguage(mpLocal.TwoLetterISOLanguageName);
+        if (returnVal.Id != Util.NO_VALUE)
+          return returnVal;
+      }
+
+      // If there is only one language available, use this one.
+      if (seriesInfo.Languages.Count == 1)
+      {
+        returnVal = TvDbUtils.ParseLanguage(seriesInfo.Languages[0]);
+        if (returnVal.Id != Util.NO_VALUE)
+          return returnVal;
+      }
+
+      // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
+      // By returning null we allow fallback to the default language of the online source (en).
+      return TvdbLanguage.DefaultLanguage;
+    }
+
+    protected override TvdbLanguage FindBestMatchingLanguage(EpisodeInfo episodeInfo)
+    {
+      TvdbLanguage returnVal;
+
+      CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+      // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
+      if (episodeInfo.Languages.Count == 0 || episodeInfo.Languages.Contains(mpLocal.TwoLetterISOLanguageName))
+      {
+        returnVal = TvDbUtils.ParseLanguage(mpLocal.TwoLetterISOLanguageName);
+        if (returnVal.Id != Util.NO_VALUE)
+          return returnVal;
+      }
+
+      // If there is only one language available, use this one.
+      if (episodeInfo.Languages.Count == 1)
+      {
+        returnVal = TvDbUtils.ParseLanguage(episodeInfo.Languages[0]);
+        if (returnVal.Id != Util.NO_VALUE)
+          return returnVal;
+      }
+
+      // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
+      // By returning null we allow fallback to the default language of the online source (en).
+      return TvdbLanguage.DefaultLanguage;
+    }
+
+    protected override TvdbLanguage FindMatchingLanguage(string shortLanguageString)
+    {
+      TvdbLanguage returnVal = TvDbUtils.ParseLanguage(shortLanguageString);
+      if (returnVal.Id != Util.NO_VALUE)
+        return returnVal;
+
+      return TvdbLanguage.DefaultLanguage;
     }
 
     #endregion

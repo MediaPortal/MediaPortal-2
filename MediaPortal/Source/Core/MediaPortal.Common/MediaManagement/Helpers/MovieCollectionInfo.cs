@@ -107,7 +107,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-          Thumbnail = data;
+          HasThumbnail = true;
 
         return true;
       }

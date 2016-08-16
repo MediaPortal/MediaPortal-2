@@ -43,17 +43,32 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Maximum cover image width. Larger images will be scaled down to fit this dimension.
     /// </summary>
-    public const int MAX_COVER_WIDTH = 1000;
+    public const int MAX_COVER_WIDTH = 512;
 
     /// <summary>
     /// Maximum cover image height. Larger images will be scaled down to fit this dimension.
     /// </summary>
-    public const int MAX_COVER_HEIGHT = 1000;
+    public const int MAX_COVER_HEIGHT = 512;
 
     /// <summary>
     /// Binary data for the thumbnail image.
     /// </summary>
     public byte[] Thumbnail = null;
+
+    private bool _hasThumbnail = false;
+    private bool _hasChanged = false;
+
+    public bool HasThumbnail
+    {
+      get { return _hasThumbnail || Thumbnail != null; }
+      set { _hasThumbnail = value; }
+    }
+
+    public bool HasChanged
+    {
+      get { return _hasChanged; }
+      set { _hasChanged = value; }
+    }
 
     public abstract bool IsBaseInfoPresent { get; }
 
@@ -88,11 +103,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         {
           MediaItemAspect.SetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
         }
+        HasThumbnail = true;
+        Thumbnail = null;
         return true;
       }
       // Decoding of invalid image data can fail, but main MediaItem is correct.
       catch { }
-
+      Thumbnail = null;
       return false;
     }
 

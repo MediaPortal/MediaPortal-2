@@ -64,7 +64,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new EpisodeWriterRelationshipExtractor());
       _extractors.Add(new EpisodeCharacterRelationshipExtractor());
 
-      _extractors.Add(new SeasonSeriesRelationshipExtractor());
+      _extractors.Add(new SeriesSeasonRelationshipExtractor());
 
       _extractors.Add(new SeriesActorRelationshipExtractor());
       _extractors.Add(new SeriesCharacterRelationshipExtractor());

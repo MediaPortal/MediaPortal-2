@@ -69,8 +69,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
         Match match = regex.Match(trackInfo.TrackName);
         if (match.Groups[GROUP_ARTIST].Length > 0 && match.Groups[GROUP_ALBUM].Length > 0 && match.Groups[GROUP_TRACK].Length > 0)
         {
-          MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, match.Groups[GROUP_TRACK].Value.Trim(new[] { ' ', '-' }));
-          MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, match.Groups[GROUP_ALBUM].Value.Trim(new[] { ' ', '-' }));
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, match.Groups[GROUP_TRACK].Value.Trim(new[] { ' ', '-' }));
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, match.Groups[GROUP_ALBUM].Value.Trim(new[] { ' ', '-' }));
           List<PersonInfo> artists = new List<PersonInfo>()
           {
             new PersonInfo()
@@ -79,10 +79,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
               Occupation = PersonAspect.OCCUPATION_ARTIST,
             }
           };
-          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, artists, true);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Artists, artists, true);
 
           if (match.Groups[GROUP_TRACK_NUM].Length > 0)
-            MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, Convert.ToInt32(match.Groups[GROUP_TRACK_NUM].Value));
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, Convert.ToInt32(match.Groups[GROUP_TRACK_NUM].Value));
           return true;
         }
       }

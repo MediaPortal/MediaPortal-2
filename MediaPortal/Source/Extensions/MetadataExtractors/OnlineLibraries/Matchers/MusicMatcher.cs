@@ -174,7 +174,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           // Prefer memory cache
           CheckCacheAndRefresh();
           if (_memoryCache.TryGetValue(trackId, out trackMatch))
+          {
             matchFound = true;
+          }
         }
 
         if (!matchFound)
@@ -237,37 +239,40 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound)
         {
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AudioDbId, trackMatch.AudioDbId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackMatch.MusicBrainzId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.IsrcId, trackMatch.IsrcId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.LyricId, trackMatch.LyricId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicIpId, trackMatch.MusicIpId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.MvDbId, trackMatch.MvDbId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAudioDbId, trackMatch.AlbumAudioDbId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumCdDdId, trackMatch.AlbumCdDdId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzDiscId, trackMatch.AlbumMusicBrainzDiscId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzGroupId, trackMatch.AlbumMusicBrainzGroupId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzId, trackMatch.AlbumMusicBrainzId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAmazonId, trackMatch.AlbumAmazonId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumItunesId, trackMatch.AlbumItunesId);
-          MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumUpcEanId, trackMatch.AlbumUpcEanId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AudioDbId, trackMatch.AudioDbId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackMatch.MusicBrainzId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.IsrcId, trackMatch.IsrcId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.LyricId, trackMatch.LyricId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicIpId, trackMatch.MusicIpId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.MvDbId, trackMatch.MvDbId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAudioDbId, trackMatch.AlbumAudioDbId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumCdDdId, trackMatch.AlbumCdDdId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzDiscId, trackMatch.AlbumMusicBrainzDiscId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzGroupId, trackMatch.AlbumMusicBrainzGroupId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzId, trackMatch.AlbumMusicBrainzId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAmazonId, trackMatch.AlbumAmazonId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumItunesId, trackMatch.AlbumItunesId);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumUpcEanId, trackMatch.AlbumUpcEanId);
 
-          MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackMatch.TrackName);
-          MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackLyrics, trackMatch.TrackLyrics);
-          MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackMatch.Album);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackMatch.TrackName);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackLyrics, trackMatch.TrackLyrics);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackMatch.Album);
 
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.DiscNum, trackMatch.DiscNum);
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.ReleaseDate, trackMatch.ReleaseDate);
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalDiscs, trackMatch.TotalDiscs);
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalTracks, trackMatch.TotalTracks);
-          MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, trackMatch.TrackNum);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.DiscNum, trackMatch.DiscNum);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.ReleaseDate, trackMatch.ReleaseDate);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalDiscs, trackMatch.TotalDiscs);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalTracks, trackMatch.TotalTracks);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, trackMatch.TrackNum);
 
-          MetadataUpdater.SetOrUpdateRatings(ref trackInfo.Rating, trackMatch.Rating);
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref trackInfo.Rating, trackMatch.Rating);
 
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
+
+          //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+          //So changes to these lists will only be stored if something else has changed.
           MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists, true);
           MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists, true);
           MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers, true);
-          MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels, true);
 
           //Store person matches
@@ -298,14 +303,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
           }
 
-          MetadataUpdater.SetOrUpdateValue(ref trackMatch.Thumbnail, trackMatch.Thumbnail);
-          if (trackInfo.Thumbnail == null)
-          {
-            List<string> thumbs = GetFanArtFiles(trackInfo, FanArtMediaTypes.Movie, FanArtTypes.Poster);
-            if (thumbs.Count > 0)
-              trackInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
-          }
-
           if (GetTrackId(trackInfo, out trackId))
           {
             _memoryCache.TryAdd(trackId, trackInfo);
@@ -314,6 +311,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               FanArtToken = trackInfo.FanArtToken,
               FanArtMediaType = FanArtMediaTypes.Audio,
+              ShortLanguage = language != null ? language.ToString() : "",
             };
             data.FanArtId[FanArtMediaTypes.Audio] = trackId;
             ScheduleDownload(data.Serialize());
@@ -404,7 +402,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 {
                   //Ids were updated now try to fetch the online person info
                   if (_wrapper.UpdateFromOnlineMusicTrackPerson(trackMatch, person, language, false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    trackInfo.HasChanged = true;
                     updated = true;
+                  }
                 }
               }
               else
@@ -431,6 +433,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
+          //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ARTIST)
             MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists, false);
           else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
@@ -451,6 +455,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = person.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.Artist,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.Artist] = id;
 
@@ -472,13 +477,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //Store empty match so he/she is not retried
               _artistMatcher.StoreNameMatch("", person.Name, person.Name);
             }
-
-            if (person.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(person, FanArtMediaTypes.Artist, FanArtTypes.Thumbnail);
-              if (thumbs.Count > 0)
-                person.Thumbnail = File.ReadAllBytes(thumbs[0]);
-            }
           }
         }
         else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
@@ -494,6 +492,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = person.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.Writer,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.Writer] = id;
 
@@ -514,13 +513,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Store empty match so he/she is not retried
               _composerMatcher.StoreNameMatch("", person.Name, person.Name);
-            }
-
-            if (person.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(person, FanArtMediaTypes.Writer, FanArtTypes.Thumbnail);
-              if (thumbs.Count > 0)
-                person.Thumbnail = File.ReadAllBytes(thumbs[0]);
             }
           }
         }
@@ -586,7 +578,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 {
                   //Ids were updated now try to fetch the online person info
                   if (_wrapper.UpdateFromOnlineMusicTrackAlbumPerson(albumMatch, person, language, false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    albumInfo.HasChanged = true;
                     updated = true;
+                  }
                 }
               }
               else
@@ -604,6 +600,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
+          //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ARTIST)
             MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists, false);
         }
@@ -622,6 +620,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = person.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.Artist,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.Artist] = id;
 
@@ -636,13 +635,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Store empty match so he/she is not retried
               _artistMatcher.StoreNameMatch("", person.Name, person.Name);
-            }
-
-            if (person.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(person, FanArtMediaTypes.Artist, FanArtTypes.Thumbnail);
-              if (thumbs.Count > 0)
-                person.Thumbnail = File.ReadAllBytes(thumbs[0]);
             }
           }
         }
@@ -708,7 +700,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 {
                   //Ids were updated now try to fetch the online company info
                   if (_wrapper.UpdateFromOnlineMusicTrackAlbumCompany(albumMatch, company, language, false))
+                  {
+                    //Set track as changed because cache has changed and might contain new/updated data
+                    albumInfo.HasChanged = true;
                     updated = true;
+                  }
                 }
               }
               else
@@ -726,6 +722,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
+          //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (companyType == CompanyAspect.COMPANY_MUSIC_LABEL)
             MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, false);
         }
@@ -744,6 +742,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = company.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.MusicLabel,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.MusicLabel] = id;
               ScheduleDownload(data.Serialize());
@@ -752,13 +751,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Store empty match so it is not retried
               _labelMatcher.StoreNameMatch("", company.Name, company.Name);
-            }
-
-            if (company.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(company, FanArtMediaTypes.Company, FanArtTypes.Logo);
-              if (thumbs.Count > 0)
-                company.Thumbnail = File.ReadAllBytes(thumbs[0]);
             }
           }
         }
@@ -832,33 +824,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
-          MetadataUpdater.SetOrUpdateId(ref albumInfo.AudioDbId, albumMatch.AudioDbId);
-          MetadataUpdater.SetOrUpdateId(ref albumInfo.CdDdId, albumMatch.CdDdId);
-          MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzDiscId, albumMatch.MusicBrainzDiscId);
-          MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzGroupId, albumMatch.MusicBrainzGroupId);
-          MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzId, albumMatch.MusicBrainzId);
-          MetadataUpdater.SetOrUpdateId(ref albumInfo.AmazonId, albumMatch.AmazonId);
-          MetadataUpdater.SetOrUpdateId(ref albumInfo.ItunesId, albumMatch.ItunesId);
-          MetadataUpdater.SetOrUpdateId(ref albumInfo.UpcEanId, albumMatch.UpcEanId);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.AudioDbId, albumMatch.AudioDbId);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.CdDdId, albumMatch.CdDdId);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzDiscId, albumMatch.MusicBrainzDiscId);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzGroupId, albumMatch.MusicBrainzGroupId);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.MusicBrainzId, albumMatch.MusicBrainzId);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.AmazonId, albumMatch.AmazonId);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.ItunesId, albumMatch.ItunesId);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref albumInfo.UpcEanId, albumMatch.UpcEanId);
 
-          MetadataUpdater.SetOrUpdateString(ref albumInfo.Album, albumMatch.Album);
-          MetadataUpdater.SetOrUpdateString(ref albumInfo.Description, albumMatch.Description);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref albumInfo.Album, albumMatch.Album);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref albumInfo.Description, albumMatch.Description);
 
           if (albumInfo.TotalTracks < albumMatch.TotalTracks)
-            MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalTracks, albumMatch.TotalTracks);
+            albumInfo.HasChanged = true;
+          MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalTracks, albumMatch.TotalTracks);
 
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.Compilation, albumMatch.Compilation);
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.DiscNum, albumMatch.DiscNum);
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.ReleaseDate, albumMatch.ReleaseDate);
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.Sales, albumMatch.Sales);
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalDiscs, albumMatch.TotalDiscs);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.Compilation, albumMatch.Compilation);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.DiscNum, albumMatch.DiscNum);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.ReleaseDate, albumMatch.ReleaseDate);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.Sales, albumMatch.Sales);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalDiscs, albumMatch.TotalDiscs);
 
-          MetadataUpdater.SetOrUpdateRatings(ref albumInfo.Rating, albumMatch.Rating);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref albumInfo.Rating, albumMatch.Rating);
 
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
+
+          //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+          //So changes to these lists will only be stored if something else has changed.
           MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists, true);
-          MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
-          MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, true);
+
           if (updateTrackList) //Comparing all tracks can be quite time consuming
             MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
 
@@ -876,8 +873,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               _labelMatcher.StoreNameMatch(id, company.Name, company.Name);
           }
 
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.Thumbnail, albumMatch.Thumbnail);
-
           string albumId;
           if (GetTrackAlbumId(albumInfo, out albumId))
           {
@@ -885,6 +880,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               FanArtToken = albumInfo.FanArtToken,
               FanArtMediaType = FanArtMediaTypes.Album,
+              ShortLanguage = language != null ? language.ToString() : "",
             };
             data.FanArtId[FanArtMediaTypes.Album] = albumId;
             ScheduleDownload(data.Serialize());
@@ -896,13 +892,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Store empty match so it is not retried
           _albumMatcher.StoreNameMatch("", albumInfo.Album, albumInfo.Album);
-        }
-
-        if (albumInfo.Thumbnail == null)
-        {
-          List<string> thumbs = GetFanArtFiles(albumInfo, FanArtMediaTypes.Album, FanArtTypes.Cover);
-          if (thumbs.Count > 0)
-            albumInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
         }
 
         return updated;
@@ -1091,6 +1080,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return default(TLang);
     }
 
+    protected virtual TLang FindMatchingLanguage(string shortLanguageString)
+    {
+      if (typeof(TLang) == typeof(string) && !string.IsNullOrEmpty(shortLanguageString))
+      {
+        return (TLang)Convert.ChangeType(shortLanguageString, typeof(TLang));
+      }
+      return default(TLang);
+    }
+
     #endregion
 
     #region Ids
@@ -1253,14 +1251,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         try
         {
           string trackId = null;
-          TLang language = default(TLang);
+          TLang language = FindMatchingLanguage(data.ShortLanguage);
           if (data.FanArtId.ContainsKey(FanArtMediaTypes.Audio))
           {
             trackId = data.FanArtId[FanArtMediaTypes.Audio];
-
-            TrackInfo trackInfo;
-            if (_memoryCache.TryGetValue(trackId, out trackInfo))
-              language = FindBestMatchingLanguage(trackInfo);
           }
 
           Logger.Debug(GetType().Name + " Download: Started for track ID {0}", trackId);

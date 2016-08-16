@@ -595,18 +595,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
         {
           try
           {
-            using (Image sourceImage = Image.FromFile(fName))
-            {
-              Image targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-              using (Graphics g = Graphics.FromImage(targetImage))
-              {
-                g.DrawImage(sourceImage, 0, 0, sourceImage.Width, sourceImage.Height);
-              }
-              return targetImage;
-            }
-
-            //Below leads to file handle leaking?
-            //return Image.FromFile(fName);
+            return Image.FromFile(fName);
           }
           catch (Exception ex)
           {
@@ -648,12 +637,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
 
     #endregion
 
-    #region Helpermethods
+    #region Helper methods
 
     /// <summary>
     /// Load the time when the cache was updated last
     /// </summary>
-    /// <returns>DateTime of lsat update</returns>
+    /// <returns>DateTime of last update</returns>
     private DateTime LoadLastUpdatedFromCache()
     {
       if (File.Exists(_rootFolder + Path.DirectorySeparatorChar + "lastUpdated.ser"))

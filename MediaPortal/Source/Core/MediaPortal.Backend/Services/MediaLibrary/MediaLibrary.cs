@@ -1355,11 +1355,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             //Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
             continue;
           }
-          // For multiple MIAs let MIA management decide if it's and add or update
-          if(mia is MultipleMediaItemAspect)
-            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
-          else
-            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, false);
+          // Let MIA management decide if it's and add or update
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
         }
         transaction.Commit();
 

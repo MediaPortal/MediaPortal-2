@@ -1744,8 +1744,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         outParams = null;
         return error;
       }
-      query.Limit = limit;
-      query.Offset = offset;
+      if (!query.Limit.HasValue)
+        query.Limit = limit;
+      if (!query.Offset.HasValue)
+        query.Offset = offset;
       IList<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Search(query, !all, userProfile, includeVirtual);
       outParams = new List<object> { mediaItems };
       return null;

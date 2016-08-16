@@ -295,34 +295,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound && episodeMatch != null)
         {
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, episodeMatch.ImdbId);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.MovieDbId, episodeMatch.MovieDbId);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvdbId, episodeMatch.TvdbId);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvMazeId, episodeMatch.TvMazeId);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvRageId, episodeMatch.TvRageId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, episodeMatch.ImdbId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.MovieDbId, episodeMatch.MovieDbId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvdbId, episodeMatch.TvdbId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvMazeId, episodeMatch.TvMazeId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvRageId, episodeMatch.TvRageId);
 
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, episodeMatch.SeriesImdbId);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesMovieDbId, episodeMatch.SeriesMovieDbId);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, episodeMatch.SeriesTvdbId);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvMazeId, episodeMatch.SeriesTvMazeId);
-          MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvRageId, episodeMatch.SeriesTvRageId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, episodeMatch.SeriesImdbId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesMovieDbId, episodeMatch.SeriesMovieDbId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, episodeMatch.SeriesTvdbId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvMazeId, episodeMatch.SeriesTvMazeId);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvRageId, episodeMatch.SeriesTvRageId);
 
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, episodeMatch.EpisodeName);
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, episodeMatch.Summary);
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, episodeMatch.SeriesName);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, episodeMatch.EpisodeName);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, episodeMatch.Summary);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, episodeMatch.SeriesName);
 
-          MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodeMatch.FirstAired);
-          MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episodeMatch.SeasonNumber);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodeMatch.FirstAired);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episodeMatch.SeasonNumber);
           MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, episodeMatch.SeriesFirstAired);
 
-          MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.Rating, episodeMatch.Rating);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.Rating, episodeMatch.Rating);
 
-          MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers, true);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers, true);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers, true);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers, true);
+
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
+
+          //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+          //So changes to these lists will only be stored if something else has changed.
           MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors, true);
           MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters, true);
           MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors, true);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
           MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers, true);
 
           //Store person matches
@@ -353,14 +357,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               _characterMatcher.StoreNameMatch(id, character.Name, character.Name);
           }
 
-          MetadataUpdater.SetOrUpdateValue(ref episodeInfo.Thumbnail, episodeMatch.Thumbnail);
-          if (episodeInfo.Thumbnail == null)
-          {
-            List<string> thumbs = GetFanArtFiles(episodeInfo, FanArtMediaTypes.Episode, FanArtTypes.Thumbnail);
-            if (thumbs.Count > 0)
-              episodeInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
-          }
-
           if (GetSeriesId(episodeInfo.CloneBasicInstance<SeriesInfo>(), out seriesId))
           {
             _memoryCache.TryAdd(seriesId, episodeInfo.CloneBasicInstance<SeriesInfo>());
@@ -369,6 +365,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               FanArtToken = episodeInfo.FanArtToken,
               FanArtMediaType = FanArtMediaTypes.Episode,
+              ShortLanguage = language != null ? language.ToString() : "",
             };
             data.FanArtId[FanArtMediaTypes.Series] = seriesId;
             if (episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0)
@@ -435,6 +432,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         TLang language = FindBestMatchingLanguage(seriesInfo);
         bool updated = false;
         SeriesInfo seriesMatch = CloneProperties(seriesInfo);
+        seriesMatch.Seasons.Clear();
         seriesMatch.Episodes.Clear();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineSeries(seriesMatch, language, true))
@@ -475,41 +473,51 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             seriesInfo.NextEpisodeNumber = null;
             seriesInfo.NextEpisodeSeasonNumber = null;
             seriesInfo.NextEpisodeName = null;
+            seriesInfo.HasChanged = true;
           }
 
-          MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvdbId, seriesMatch.TvdbId);
-          MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesMatch.ImdbId);
-          MetadataUpdater.SetOrUpdateId(ref seriesInfo.MovieDbId, seriesMatch.MovieDbId);
-          MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvMazeId, seriesMatch.TvMazeId);
-          MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvRageId, seriesMatch.TvRageId);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvdbId, seriesMatch.TvdbId);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.ImdbId, seriesMatch.ImdbId);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.MovieDbId, seriesMatch.MovieDbId);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvMazeId, seriesMatch.TvMazeId);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seriesInfo.TvRageId, seriesMatch.TvRageId);
 
-          MetadataUpdater.SetOrUpdateString(ref seriesInfo.SeriesName, seriesMatch.SeriesName);
-          MetadataUpdater.SetOrUpdateString(ref seriesInfo.OriginalName, seriesMatch.OriginalName);
-          MetadataUpdater.SetOrUpdateString(ref seriesInfo.Description, seriesMatch.Description);
-          MetadataUpdater.SetOrUpdateString(ref seriesInfo.Certification, seriesMatch.Certification);
-          MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, seriesMatch.NextEpisodeName);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.SeriesName, seriesMatch.SeriesName);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.OriginalName, seriesMatch.OriginalName);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.Description, seriesMatch.Description);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.Certification, seriesMatch.Certification);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, seriesMatch.NextEpisodeName);
 
           if (seriesInfo.TotalSeasons < seriesMatch.TotalSeasons)
-            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalSeasons, seriesMatch.TotalSeasons);
+            seriesInfo.HasChanged = true;
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalSeasons, seriesMatch.TotalSeasons);
+
           if (seriesInfo.TotalEpisodes < seriesMatch.TotalEpisodes)
-            MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalEpisodes, seriesMatch.TotalEpisodes);
+            seriesInfo.HasChanged = true;
+          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalEpisodes, seriesMatch.TotalEpisodes);
 
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesMatch.FirstAired);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Popularity, seriesMatch.Popularity);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.IsEnded, seriesMatch.IsEnded);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeAirDate, seriesMatch.NextEpisodeAirDate);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeNumber, seriesMatch.NextEpisodeNumber);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeSeasonNumber, seriesMatch.NextEpisodeSeasonNumber);
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Score, seriesMatch.Score);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesMatch.FirstAired);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Popularity, seriesMatch.Popularity);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.IsEnded, seriesMatch.IsEnded);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeAirDate, seriesMatch.NextEpisodeAirDate);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeNumber, seriesMatch.NextEpisodeNumber);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.NextEpisodeSeasonNumber, seriesMatch.NextEpisodeSeasonNumber);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Score, seriesMatch.Score);
 
-          MetadataUpdater.SetOrUpdateRatings(ref seriesInfo.Rating, seriesMatch.Rating);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref seriesInfo.Rating, seriesMatch.Rating);
 
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres, true);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Awards, seriesMatch.Awards, true);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres, true);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Awards, seriesMatch.Awards, true);
+
+          //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+          //So changes to these lists will only be stored if something else has changed.
           MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks, true);
           MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies, true);
           MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors, true);
           MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters, true);
+
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Seasons, seriesMatch.Seasons, true);
+
           if (updateEpisodeList) //Comparing all episodes can be quite time consuming
             MetadataUpdater.SetOrUpdateList(seriesInfo.Episodes, seriesMatch.Episodes, true);
 
@@ -541,8 +549,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               _networkMatcher.StoreNameMatch(id, company.Name, company.Name);
           }
 
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Thumbnail, seriesMatch.Thumbnail);
-
           string seriesId;
           if (GetSeriesId(seriesInfo, out seriesId))
           {
@@ -550,6 +556,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               FanArtToken = seriesInfo.FanArtToken,
               FanArtMediaType = FanArtMediaTypes.Series,
+              ShortLanguage = language != null ? language.ToString() : "",
             };
             data.FanArtId[FanArtMediaTypes.Series] = seriesId;
             ScheduleDownload(data.Serialize());
@@ -561,13 +568,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Store empty match so it is not retried
           _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
-        }
-
-        if (seriesInfo.Thumbnail == null)
-        {
-          List<string> thumbs = GetFanArtFiles(seriesInfo, FanArtMediaTypes.Series, FanArtTypes.Poster);
-          if (thumbs.Count > 0)
-            seriesInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
         }
 
         return updated;
@@ -612,33 +612,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvdbId, seasonMatch.TvdbId);
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.ImdbId, seasonMatch.ImdbId);
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.MovieDbId, seasonMatch.MovieDbId);
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvMazeId, seasonMatch.TvMazeId);
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvRageId, seasonMatch.TvRageId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvdbId, seasonMatch.TvdbId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.ImdbId, seasonMatch.ImdbId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.MovieDbId, seasonMatch.MovieDbId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvMazeId, seasonMatch.TvMazeId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.TvRageId, seasonMatch.TvRageId);
 
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesImdbId, seasonMatch.SeriesImdbId);
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesMovieDbId, seasonMatch.SeriesMovieDbId);
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvdbId, seasonMatch.SeriesTvdbId);
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvMazeId, seasonMatch.SeriesTvMazeId);
-          MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvRageId, seasonMatch.SeriesTvRageId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesImdbId, seasonMatch.SeriesImdbId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesMovieDbId, seasonMatch.SeriesMovieDbId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvdbId, seasonMatch.SeriesTvdbId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvMazeId, seasonMatch.SeriesTvMazeId);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref seasonInfo.SeriesTvRageId, seasonMatch.SeriesTvRageId);
 
-          MetadataUpdater.SetOrUpdateString(ref seasonInfo.SeriesName, seasonMatch.SeriesName);
-          MetadataUpdater.SetOrUpdateString(ref seasonInfo.Description, seasonMatch.Description);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seasonInfo.SeriesName, seasonMatch.SeriesName);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seasonInfo.Description, seasonMatch.Description);
 
           if (seasonInfo.TotalEpisodes < seasonMatch.TotalEpisodes)
-            MetadataUpdater.SetOrUpdateValue(ref seasonInfo.TotalEpisodes, seasonMatch.TotalEpisodes);
+            seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.TotalEpisodes, seasonMatch.TotalEpisodes);
 
-          MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, seasonMatch.FirstAired);
-          MetadataUpdater.SetOrUpdateValue(ref seasonInfo.SeasonNumber, seasonMatch.SeasonNumber);
-
-          MetadataUpdater.SetOrUpdateValue(ref seasonInfo.Thumbnail, seasonMatch.Thumbnail);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, seasonMatch.FirstAired);
+          seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.SeasonNumber, seasonMatch.SeasonNumber);
 
           DownloadData data = new DownloadData()
           {
             FanArtToken = seasonInfo.FanArtToken,
             FanArtMediaType = FanArtMediaTypes.SeriesSeason,
+            ShortLanguage = language != null ? language.ToString() : "",
           };
 
           string seriesId;
@@ -651,13 +650,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtId[FanArtMediaTypes.SeriesSeason] = seasonInfo.SeasonNumber.Value.ToString();
           }
           ScheduleDownload(data.Serialize());
-        }
-
-        if (seasonInfo.Thumbnail == null)
-        {
-          List<string> thumbs = GetFanArtFiles(seasonInfo, FanArtMediaTypes.SeriesSeason, FanArtTypes.Poster);
-          if (thumbs.Count > 0)
-            seasonInfo.Thumbnail = File.ReadAllBytes(thumbs[0]);
         }
 
         return updated;
@@ -722,7 +714,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 {
                   //Ids were updated now try to fetch the online movie info
                   if (_wrapper.UpdateFromOnlineSeriesPerson(seriesMatch, person, language, false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    seriesInfo.HasChanged = true;
                     updated = true;
+                  }
                 }
               }
               else
@@ -740,6 +736,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
+          //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
             MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors, false);
         }
@@ -758,6 +756,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = person.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.Actor,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.Actor] = id;
 
@@ -772,13 +771,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Store empty match so he/she is not retried
               _actorMatcher.StoreNameMatch("", person.Name, person.Name);
-            }
-
-            if (person.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(person, FanArtMediaTypes.Actor, FanArtTypes.Thumbnail);
-              if (thumbs.Count > 0)
-                person.Thumbnail = File.ReadAllBytes(thumbs[0]);
             }
           }
         }
@@ -831,7 +823,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 {
                   //Ids were updated now try to fetch the online movie info
                   if (_wrapper.UpdateFromOnlineSeriesCharacter(seriesMatch, character, language, false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    seriesInfo.HasChanged = true;
                     updated = true;
+                  }
                 }
               }
               else
@@ -848,7 +844,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         if (updated)
+        {
+          //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
+          //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters, false);
+        }
 
         List<string> thumbs = new List<string>();
         foreach (CharacterInfo character in seriesInfo.Characters)
@@ -862,6 +862,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               FanArtToken = character.FanArtToken,
               FanArtMediaType = FanArtMediaTypes.Character,
+              ShortLanguage = language != null ? language.ToString() : "",
             };
             data.FanArtId[FanArtMediaTypes.Character] = id;
 
@@ -883,13 +884,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             //Store empty match so he/she is not retried
             _characterMatcher.StoreNameMatch("", character.Name, character.Name);
-          }
-
-          if (character.Thumbnail == null)
-          {
-            thumbs = GetFanArtFiles(character, FanArtMediaTypes.Character, FanArtTypes.Thumbnail);
-            if (thumbs.Count > 0)
-              character.Thumbnail = File.ReadAllBytes(thumbs[0]);
           }
         }
 
@@ -975,7 +969,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 {
                   //Ids were updated now try to fetch the online company info
                   if (_wrapper.UpdateFromOnlineSeriesCompany(seriesMatch, company, language, false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    seriesInfo.HasChanged = true;
                     updated = true;
+                  }
                 }
               }
               else
@@ -993,6 +991,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
+          //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (companyType == CompanyAspect.COMPANY_PRODUCTION)
             MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies, false);
           else if (companyType == CompanyAspect.COMPANY_TV_NETWORK)
@@ -1013,6 +1013,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = company.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.Company,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.Company] = id;
               ScheduleDownload(data.Serialize());
@@ -1021,13 +1022,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Store empty match so it is not retried
               _companyMatcher.StoreNameMatch("", company.Name, company.Name);
-            }
-
-            if (company.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(company, FanArtMediaTypes.Company, FanArtTypes.Logo);
-              if (thumbs.Count > 0)
-                company.Thumbnail = File.ReadAllBytes(thumbs[0]);
             }
           }
         }
@@ -1044,6 +1038,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = company.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.TVNetwork,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.TVNetwork] = id;
               ScheduleDownload(data.Serialize());
@@ -1052,13 +1047,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Store empty match so it is not retried
               _networkMatcher.StoreNameMatch("", company.Name, company.Name);
-            }
-
-            if (company.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(company, FanArtMediaTypes.Company, FanArtTypes.Logo);
-              if (thumbs.Count > 0)
-                company.Thumbnail = File.ReadAllBytes(thumbs[0]);
             }
           }
         }
@@ -1166,7 +1154,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 {
                   //Ids were updated now try to fetch the online person info
                   if (_wrapper.UpdateFromOnlineSeriesEpisodePerson(episodeMatch, person, language, false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    episodeInfo.HasChanged = true;
                     updated = true;
+                  }
                 }
               }
               else
@@ -1193,6 +1185,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
+          //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
             MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors, false);
           else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
@@ -1215,6 +1209,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = person.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.Actor,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.Actor] = id;
 
@@ -1236,13 +1231,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //Store empty match so he/she is not retried
               _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
-
-            if (person.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(person, FanArtMediaTypes.Actor, FanArtTypes.Thumbnail);
-              if (thumbs.Count > 0)
-                person.Thumbnail = File.ReadAllBytes(thumbs[0]);
-            }
           }
         }
         else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
@@ -1258,6 +1246,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = person.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.Director,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.Director] = id;
 
@@ -1279,13 +1268,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //Store empty match so he/she is not retried
               _directorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
-
-            if (person.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(person, FanArtMediaTypes.Director, FanArtTypes.Thumbnail);
-              if (thumbs.Count > 0)
-                person.Thumbnail = File.ReadAllBytes(thumbs[0]);
-            }
           }
         }
         else if (occupation == PersonAspect.OCCUPATION_WRITER)
@@ -1301,6 +1283,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 FanArtToken = person.FanArtToken,
                 FanArtMediaType = FanArtMediaTypes.Writer,
+                ShortLanguage = language != null ? language.ToString() : "",
               };
               data.FanArtId[FanArtMediaTypes.Writer] = id;
 
@@ -1321,13 +1304,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Store empty match so he/she is not retried
               _writerMatcher.StoreNameMatch("", person.Name, person.Name);
-            }
-
-            if (person.Thumbnail == null)
-            {
-              thumbs = GetFanArtFiles(person, FanArtMediaTypes.Writer, FanArtTypes.Thumbnail);
-              if (thumbs.Count > 0)
-                person.Thumbnail = File.ReadAllBytes(thumbs[0]);
             }
           }
         }
@@ -1380,7 +1356,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 {
                   //Ids were updated now try to fetch the online character info
                   if (_wrapper.UpdateFromOnlineSeriesEpisodeCharacter(episodeMatch, character, language, false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    episodeInfo.HasChanged = true;
                     updated = true;
+                  }
                 }
               }
               else
@@ -1406,7 +1386,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         if (updated)
+        {
+          //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
+          //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters, false);
+        }
 
         List<string> thumbs = new List<string>();
         foreach (CharacterInfo character in episodeInfo.Characters)
@@ -1420,6 +1404,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               FanArtToken = character.FanArtToken,
               FanArtMediaType = FanArtMediaTypes.Character,
+              ShortLanguage = language != null ? language.ToString() : "",
             };
             data.FanArtId[FanArtMediaTypes.Character] = id;
 
@@ -1447,13 +1432,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             //Store empty match so he/she is not retried
             _characterMatcher.StoreNameMatch("", character.Name, character.Name);
-          }
-
-          if (character.Thumbnail == null)
-          {
-            thumbs = GetFanArtFiles(character, FanArtMediaTypes.Character, FanArtTypes.Thumbnail);
-            if (thumbs.Count > 0)
-              character.Thumbnail = File.ReadAllBytes(thumbs[0]);
           }
         }
 
@@ -1567,6 +1545,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
       // By returning null we allow fallback to the default language of the online source (en).
+      return default(TLang);
+    }
+
+    protected virtual TLang FindMatchingLanguage(string shortLanguageString)
+    {
+      if (typeof(TLang) == typeof(string) && !string.IsNullOrEmpty(shortLanguageString))
+      {
+        return (TLang)Convert.ChangeType(shortLanguageString, typeof(TLang));
+      }
       return default(TLang);
     }
 
@@ -1782,14 +1769,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           string episodeId = null;
           string seasonNo = null;
           string episodeNo = null;
-          TLang language = default(TLang);
+          TLang language = FindMatchingLanguage(data.ShortLanguage);
           if (data.FanArtId.ContainsKey(FanArtMediaTypes.Undefined))
           {
             episodeId = data.FanArtId[FanArtMediaTypes.Undefined];
-
-            EpisodeInfo episodeInfo;
-            if (_memoryCacheEpisode.TryGetValue(episodeId, out episodeInfo))
-              language = FindBestMatchingLanguage(episodeInfo);
           }
           if (data.FanArtId.ContainsKey(FanArtMediaTypes.Series))
           {

@@ -73,7 +73,7 @@
     <Compile Include="EpisodeDirectorRelationshipExtractor.cs" />
     <Compile Include="EpisodeActorRelationshipExtractor.cs" />
     <Compile Include="EpisodeSeriesRelationshipExtractor.cs" />
-    <Compile Include="SeasonSeriesRelationshipExtractor.cs" />
+    <Compile Include="SeriesSeasonRelationshipExtractor.cs" />
     <Compile Include="SeriesRelationshipExtractor.cs" />
     <Compile Include="SeriesMetadataExtractorSettings.cs" />
     <Compile Include="NameMatchers\MatroskaMatcher.cs" />

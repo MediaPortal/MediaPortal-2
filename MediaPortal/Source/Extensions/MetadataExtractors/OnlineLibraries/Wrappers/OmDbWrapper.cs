@@ -255,13 +255,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       //Episode listing is currently not optimal
       //OmDbSeason seasonDetails = null;
+      //OmDbSeasonEpisode nextEpisode = null;
       //int seasonNumber = 1;
-      //while(true)
+      //while (true)
       //{
       //  seasonDetails = _omDbHandler.GetSeriesSeason(series.ImdbId, seasonNumber, cacheOnly);
       //  if (seasonDetails != null)
       //  {
-      //    foreach(OmDbSeasonEpisode episodeDetail in seasonDetails.Episodes)
+      //    SeasonInfo seasonInfo = new SeasonInfo()
+      //    {
+      //      SeriesImdbId = seriesDetail.ImdbID,
+      //      SeriesName = new SimpleTitle(seriesDetail.Title, true),
+      //      SeasonNumber = seasonDetails.SeasonNumber,
+      //      FirstAired = seasonDetails.Episodes.First().Released,
+      //      TotalEpisodes = seasonDetails.Episodes.Count
+      //    };
+      //    if (!series.Seasons.Contains(seasonInfo))
+      //      series.Seasons.Add(seasonInfo);
+
+      //    foreach (OmDbSeasonEpisode episodeDetail in seasonDetails.Episodes)
       //    {
       //      if (episodeDetail.EpisodeNumber <= 0) continue;
 
@@ -280,24 +292,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       //      };
 
       //      series.Episodes.Add(info);
-      //    }
 
-      //    OmDbSeasonEpisode episodeDetails = seasonDetails.Episodes.Where(e => e.Released > DateTime.Now).FirstOrDefault();
-      //    if (episodeDetails == null)
-      //    {
-      //      seasonNumber++;
-      //      continue;
+      //      if (nextEpisode == null && episodeDetail.Released > DateTime.Now)
+      //      {
+      //        series.NextEpisodeName = new SimpleTitle(episodeDetail.Title, true);
+      //        series.NextEpisodeAirDate = episodeDetail.Released;
+      //        series.NextEpisodeSeasonNumber = seasonDetails.SeasonNumber;
+      //        series.NextEpisodeNumber = episodeDetail.EpisodeNumber;
+      //      }
       //    }
-      //    if (episodeDetails != null)
-      //    {
-      //      series.NextEpisodeName = new SimpleTitle(episodeDetails.Title, true);
-      //      series.NextEpisodeAirDate = episodeDetails.Released;
-      //      series.NextEpisodeSeasonNumber = seasonDetails.SeasonNumber;
-      //      series.NextEpisodeNumber = episodeDetails.EpisodeNumber;
-      //    }
+      //    seasonNumber++;
       //  }
-      //  break;
+      //  else
+      //  {
+      //    break;
+      //  }
       //}
+      series.TotalSeasons = series.Seasons.Count;
+      series.TotalEpisodes = series.Episodes.Count;
 
       return true;
     }

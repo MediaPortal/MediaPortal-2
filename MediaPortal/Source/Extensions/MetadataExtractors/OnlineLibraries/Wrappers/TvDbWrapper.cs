@@ -204,12 +204,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
       series.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
 
-      series.TotalSeasons = seriesDetail.Episodes.Select(e => e.SeasonNumber).Max();
-      series.TotalEpisodes = seriesDetail.Episodes.Count;
-
       foreach (TvdbEpisode episodeDetail in seriesDetail.Episodes.OrderByDescending(e => e.Id))
       {
-        EpisodeInfo info = new EpisodeInfo()
+        SeasonInfo seasonInfo = new SeasonInfo()
+        {
+          TvdbId = episodeDetail.SeasonId,
+
+          SeriesTvdbId = seriesDetail.Id,
+          SeriesImdbId = seriesDetail.ImdbId,
+          SeriesName = new SimpleTitle(seriesDetail.SeriesName, false),
+          SeasonNumber = episodeDetail.SeasonNumber,
+        };
+        if(!series.Seasons.Contains(seasonInfo))
+          series.Seasons.Add(seasonInfo);
+
+        EpisodeInfo episodeInfo = new EpisodeInfo()
         {
           TvdbId = episodeDetail.Id,
 
@@ -229,19 +238,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         };
 
         if (episodeDetail.DvdEpisodeNumber > 0)
-          info.DvdEpisodeNumbers = new List<double>(new double[] { episodeDetail.DvdEpisodeNumber });
+          episodeInfo.DvdEpisodeNumbers = new List<double>(new double[] { episodeDetail.DvdEpisodeNumber });
 
-        info.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
+        episodeInfo.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
         //info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR, info.Actors.Count));
-        info.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
-        info.Directors = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, 0);
-        info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0);
-        info.Languages.Add(episodeDetail.Language.Abbriviation);
+        episodeInfo.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
+        episodeInfo.Directors = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, 0);
+        episodeInfo.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0);
+        episodeInfo.Languages.Add(episodeDetail.Language.Abbriviation);
 
-        if(!series.Episodes.Contains(info))
-          series.Episodes.Add(info);
+        if(!series.Episodes.Contains(episodeInfo))
+          series.Episodes.Add(episodeInfo);
       }
       series.Episodes.Sort();
+      series.TotalEpisodes = series.Episodes.Count;
+
+      for (int index = 0; index < series.Seasons.Count; index++)
+      {
+        series.Seasons[index].FirstAired = series.Episodes.Find(e => e.SeasonNumber == series.Seasons[index].SeasonNumber).FirstAired;
+        series.Seasons[index].TotalEpisodes = series.Episodes.FindAll(e => e.SeasonNumber == series.Seasons[index].SeasonNumber).Count;
+      }
+      series.Seasons.Sort();
+      series.TotalSeasons = series.Seasons.Count;
 
       TvdbEpisode nextEpisode = seriesDetail.Episodes.Where(e => e.FirstAired > DateTime.Now).OrderBy(e => e.FirstAired)
         .ThenByDescending(p => p.Id).FirstOrDefault();

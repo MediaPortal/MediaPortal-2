@@ -411,20 +411,37 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         series.Characters = ConvertToCharacters(seriesCast.Cast);
       }
 
-      SeriesSeason season = seriesDetail.Seasons.Where(s => s.AirDate < DateTime.Now).LastOrDefault();
-      if (season != null)
+      SeasonEpisode nextEpisode = null;
+      foreach (SeriesSeason season in seriesDetail.Seasons)
       {
         Season currentSeason = _movieDbHandler.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber, language, cacheOnly);
         if (cacheOnly && currentSeason == null)
           cacheIncomplete = true;
         if (currentSeason != null)
         {
-          series.TotalSeasons = currentSeason.SeasonNumber;
-          series.TotalEpisodes += currentSeason.Episodes.Count;
+          SeasonInfo seasonInfo = new SeasonInfo()
+          {
+            MovieDbId = currentSeason.SeasonId,
+            ImdbId = currentSeason.ExternalId.ImDbId,
+            TvdbId = currentSeason.ExternalId.TvDbId ?? 0,
+            TvRageId = currentSeason.ExternalId.TvRageId ?? 0,
+
+            SeriesMovieDbId = seriesDetail.Id,
+            SeriesImdbId = seriesDetail.ExternalId.ImDbId,
+            SeriesTvdbId = seriesDetail.ExternalId.TvDbId ?? 0,
+            SeriesTvRageId = seriesDetail.ExternalId.TvRageId ?? 0,
+            SeriesName = new SimpleTitle(seriesDetail.Name, false),
+
+            FirstAired = currentSeason.AirDate,
+            Description = currentSeason.Overview,
+            TotalEpisodes = currentSeason.Episodes.Count,
+            SeasonNumber = currentSeason.SeasonNumber
+          };
+          series.Seasons.Add(seasonInfo);
 
           foreach (SeasonEpisode episodeDetail in currentSeason.Episodes)
           {
-            EpisodeInfo info = new EpisodeInfo()
+            EpisodeInfo episodeInfo = new EpisodeInfo()
             {
               SeriesMovieDbId = seriesDetail.Id,
               SeriesImdbId = seriesDetail.ExternalId.ImDbId,
@@ -442,39 +459,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               Genres = seriesDetail.Genres.Select(g => g.Name).ToList(),
             };
 
-            info.Actors = new List<PersonInfo>();
-            info.Characters = new List<CharacterInfo>();
+            episodeInfo.Actors = new List<PersonInfo>();
+            episodeInfo.Characters = new List<CharacterInfo>();
             if (seriesCast != null)
             {
-              info.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR));
-              info.Characters.AddRange(ConvertToCharacters(seriesCast.Cast));
+              episodeInfo.Actors.AddRange(ConvertToPersons(seriesCast.Cast, PersonAspect.OCCUPATION_ACTOR));
+              episodeInfo.Characters.AddRange(ConvertToCharacters(seriesCast.Cast));
             }
             //info.Actors.AddRange(ConvertToPersons(episodeDetail.GuestStars, PersonAspect.OCCUPATION_ACTOR));
             //info.Characters.AddRange(ConvertToCharacters(episodeDetail.GuestStars));
-            info.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
-            info.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER);
+            episodeInfo.Directors = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Director").ToList(), PersonAspect.OCCUPATION_DIRECTOR);
+            episodeInfo.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER);
 
-            series.Episodes.Add(info);
-          }
+            series.Episodes.Add(episodeInfo);
 
-          SeasonEpisode nextEpisode = currentSeason.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
-          if (nextEpisode == null) //Try next season
-          {
-            currentSeason = _movieDbHandler.GetSeriesSeason(seriesDetail.Id, season.SeasonNumber + 1, language, cacheOnly);
-            if (currentSeason != null)
+            if (nextEpisode == null && episodeDetail.AirDate > DateTime.Now)
             {
-              nextEpisode = currentSeason.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
+              nextEpisode = episodeDetail;
+              series.NextEpisodeName = new SimpleTitle(nextEpisode.Name, false);
+              series.NextEpisodeAirDate = nextEpisode.AirDate;
+              series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
+              series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
             }
-          }
-          if (nextEpisode != null)
-          {
-            series.NextEpisodeName = new SimpleTitle(nextEpisode.Name, false);
-            series.NextEpisodeAirDate = nextEpisode.AirDate;
-            series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
-            series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
           }
         }
       }
+
+      series.TotalSeasons = series.Seasons.Count;
+      series.TotalEpisodes = series.Episodes.Count;
 
       return !cacheIncomplete;
     }

@@ -116,27 +116,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       IList<string> tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
       string plot = tags != null ? tags.FirstOrDefault() : string.Empty;
       if (!string.IsNullOrEmpty(plot))
-        MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, plot, true);
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, plot, true);
 
       // Read genre
       tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
       if (tags != null)
-        MetadataUpdater.SetOrUpdateList(movieInfo.Genres, new List<string>(tags), false);
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, new List<string>(tags), false);
 
       // Read actors
       tags = tagsToExtract[MatroskaConsts.TAG_ACTORS];
       if (tags != null)
-        MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
           tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
 
       tags = tagsToExtract[MatroskaConsts.TAG_DIRECTORS];
       if (tags != null)
-        MetadataUpdater.SetOrUpdateList(movieInfo.Directors,
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Directors,
           tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_DIRECTOR }).ToList(), false);
 
       tags = tagsToExtract[MatroskaConsts.TAG_WRITTEN_BY];
       if (tags != null)
-        MetadataUpdater.SetOrUpdateList(movieInfo.Writers,
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Writers,
           tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_WRITER }).ToList(), false);
 
       if (tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID] != null)
@@ -145,7 +145,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID])
           if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
           {
-            MetadataUpdater.SetOrUpdateId(ref movieInfo.ImdbId, imdbId);
+            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.ImdbId, imdbId);
             break;
           }
       }
@@ -155,7 +155,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_MOVIE_TMDB_ID])
           if (int.TryParse(candidate, out tmp) == true)
           {
-            MetadataUpdater.SetOrUpdateId(ref movieInfo.MovieDbId, tmp);
+            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.MovieDbId, tmp);
             break;
           }
       }

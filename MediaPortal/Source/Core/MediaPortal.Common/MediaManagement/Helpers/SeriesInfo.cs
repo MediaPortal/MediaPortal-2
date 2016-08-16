@@ -102,6 +102,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<string> Genres = new List<string>();
     public List<string> Awards = new List<string>();
     public List<EpisodeInfo> Episodes = new List<EpisodeInfo>();
+    public List<SeasonInfo> Seasons = new List<SeasonInfo>();
 
     public override bool IsBaseInfoPresent
     {
@@ -279,7 +280,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-          Thumbnail = data;
+          HasThumbnail = true;
 
         if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
         {
@@ -358,7 +359,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-          Thumbnail = data;
+          HasThumbnail = true;
 
         if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
         {

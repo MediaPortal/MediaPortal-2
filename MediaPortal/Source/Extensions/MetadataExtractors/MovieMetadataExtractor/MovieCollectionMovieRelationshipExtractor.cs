@@ -86,6 +86,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (collectionInfo.Movies.Count == 0)
         return false;
 
+      if (!collectionInfo.HasChanged)
+        return false;
+
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
       for (int i = 0; i < collectionInfo.Movies.Count; i++)

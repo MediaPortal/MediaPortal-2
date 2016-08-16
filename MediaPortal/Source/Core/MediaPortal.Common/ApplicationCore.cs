@@ -213,7 +213,6 @@ namespace MediaPortal.Common
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);
       miatr.RegisterMediaItemAspectRoleHierarchy(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(AudioAspect.ROLE_TRACK,AudioAlbumAspect.ROLE_ALBUM, AudioAlbumAspect.Metadata, AudioAlbumAspect.ATTR_NUMTRACKS, true);
       miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAlbumAspect.Metadata, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS, false);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
@@ -222,20 +221,15 @@ namespace MediaPortal.Common
       miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
       miatr.RegisterMediaItemAspectRoleHierarchy(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.Metadata, SeriesAspect.ATTR_NUM_EPISODES, true);
       miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.Metadata, SeriesAspect.ATTR_AVAILABLE_EPISODES, false);
       miatr.RegisterMediaItemAspectRoleHierarchy(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.Metadata, SeasonAspect.ATTR_NUM_EPISODES, true);
       miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.Metadata, SeasonAspect.ATTR_AVAILABLE_EPISODES, false);
       miatr.RegisterMediaItemAspectRoleHierarchy(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.Metadata, SeriesAspect.ATTR_NUM_SEASONS, true);
       miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.Metadata, SeriesAspect.ATTR_AVAILABLE_SEASONS, false);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieCollectionAspect.Metadata);
       miatr.RegisterMediaItemAspectRoleHierarchy(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieCollectionAspect.Metadata, 
-        MovieCollectionAspect.ATTR_NUM_MOVIES, true);
       miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieCollectionAspect.Metadata, 
         MovieCollectionAspect.ATTR_AVAILABLE_MOVIES, false);
 
