@@ -1329,7 +1329,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected virtual void Reconcile(Guid mediaItemId, bool isRefresh)
     {
       UpdateRelationships(mediaItemId, isRefresh);
-      Logger.Info("Reconciled media item {0}", mediaItemId);
+      Logger.Debug("Reconciled media item {0}", mediaItemId);
     }
 
     public void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
@@ -1684,7 +1684,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 relations.Add(relationId);
             }
           }
-          Logger.Info("MediaLibrary: Delete media item {0} and {1} relations", mediaItemId, relations.Count);
+          Logger.Debug("MediaLibrary: Delete media item {0} and {1} relations", mediaItemId, relations.Count);
           
           //Delete item
           command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +

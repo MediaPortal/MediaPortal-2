@@ -53,6 +53,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string SOURCE_MVDB = "MVDB";
     public static readonly string SOURCE_LYRIC = "LYRIC";
     public static readonly string SOURCE_ITUNES = "ITUNES";
+    public static readonly string SOURCE_NAME = "NAME";
 
     public static readonly string TYPE_CHARACTER = "CHARACTER"; // Someone in a movie / series
     public static readonly string TYPE_COLLECTION = "COLLECTION";

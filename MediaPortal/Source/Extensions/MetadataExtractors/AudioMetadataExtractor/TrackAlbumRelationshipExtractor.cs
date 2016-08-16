@@ -42,8 +42,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public bool BuildRelationship
     {
-      //Album -> track relationship already exists
-      get { return false; }
+      get { return true; }
     }
 
     public Guid Role
@@ -93,6 +92,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
       {
         MediaItemAspect.SetAttribute(albumAspects, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
+      }
+
+      byte[] data;
+      if (MediaItemAspect.TryGetAttribute(aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
+      {
+        //Use image from track as image
+        MediaItemAspect.SetAttribute(albumAspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, data);
       }
 
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))

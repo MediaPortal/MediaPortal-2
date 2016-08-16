@@ -550,7 +550,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           }
         }
 
-        if(_onlyFanArt)
+        if (trackInfo.AlbumArtists.Count > 0 && !string.IsNullOrEmpty(trackInfo.Album) && !trackInfo.HasExternalId)
+        {
+          //If no external Ids are present, give it a fallback Id so an album item will always be created
+          trackInfo.AlbumNameId = trackInfo.AlbumArtists[0].Name + ":" + trackInfo.Album;
+          trackInfo.AlbumNameId = BaseInfo.CleanString(trackInfo.AlbumNameId);
+          trackInfo.AlbumNameId = BaseInfo.CleanupWhiteSpaces(trackInfo.AlbumNameId);
+          trackInfo.AlbumNameId = trackInfo.AlbumNameId.Replace(" ", "");
+        }
+
+        if (_onlyFanArt)
           trackInfo.SetMetadata(extractedAspectData);
 
         AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);

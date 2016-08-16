@@ -42,7 +42,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public bool BuildRelationship
     {
-      get { return true; }
+      //Album -> track relationship already exists
+      get { return false; }
     }
 
     public Guid Role

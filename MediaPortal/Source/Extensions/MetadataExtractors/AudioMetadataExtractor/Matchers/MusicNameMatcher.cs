@@ -81,6 +81,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
           };
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Artists, artists, true);
 
+          List<PersonInfo> albumArtists = new List<PersonInfo>()
+          {
+            new PersonInfo()
+            {
+              Name = match.Groups[GROUP_ARTIST].Value.Trim(new[] { ' ', '-' }),
+              Occupation = PersonAspect.OCCUPATION_ARTIST,
+            }
+          };
+          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, albumArtists, true);
+
           if (match.Groups[GROUP_TRACK_NUM].Length > 0)
             trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, Convert.ToInt32(match.Groups[GROUP_TRACK_NUM].Value));
           return true;
