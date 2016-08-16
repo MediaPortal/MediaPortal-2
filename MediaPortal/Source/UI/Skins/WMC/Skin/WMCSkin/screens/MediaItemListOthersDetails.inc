@@ -11,7 +11,6 @@
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="Auto"/>
-    <RowDefinition Height="Auto"/>
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
@@ -19,11 +18,10 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Image Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Height="280">
+  <Image Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="0,10,10,0" Height="210">
     <Image.Source>
-      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" HorizontalTextureAlignment="Right" VerticalTextureAlignment="Top"
-                          FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}"/>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
     </Image.Source>
     <Image.OpacityMask>
       <VisualBrush>
@@ -34,23 +32,70 @@
     </Image.OpacityMask>
   </Image>
 
-  <media:MediaAspectWrapper Grid.Row="0" Margin="0,0,20,0" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:MediaAspectWrapper.Template>
-      <ControlTemplate>
-        <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Label.Content>
-            <Binding Path="Title"/>
-          </Label.Content>
-        </Label>
-      </ControlTemplate>
-    </media:MediaAspectWrapper.Template>
-  </media:MediaAspectWrapper>
+  <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0,0,20,0" VerticalAlignment="Stretch">
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MediaAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal">
+            <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Label.Content>
+                <Binding Path="Title"/>
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </ControlTemplate>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="2" Grid.ColumnSpan="2"
-        HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
-        Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-        Margin="0,40,5,25" TextTrimming="WordEllipsis"
-        Color="{ThemeResource TextColor}"/>
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MediaAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal">
+            <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Opacity="0.5"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Color="{ThemeResource TextColor}"/>
+          </StackPanel>
+        </ControlTemplate>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
+
+    <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:VideoStreamAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StackPanel Orientation="Horizontal">
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
+                     Color="{ThemeResource TextColor}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                    <Binding Path="Duration"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </media:VideoStreamAspectWrapper.Template>
+    </media:VideoStreamAspectWrapper>
+  </StackPanel>
+
+  <media:VideoAspectWrapper Grid.Row="1" Grid.ColumnSpan="2" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+    <media:VideoAspectWrapper.Template>
+      <ControlTemplate>
+        <StackPanel Orientation="Horizontal">
+          <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                 Opacity="0.5" TextTrimming="WordEllipsis" Margin="0,40,5,25"
+                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label.Content>
+              <Binding Path="StoryPlot"/>
+            </Label.Content>
+          </Label>
+        </StackPanel>
+      </ControlTemplate>
+    </media:VideoAspectWrapper.Template>
+  </media:VideoAspectWrapper>
 
 </Grid>
