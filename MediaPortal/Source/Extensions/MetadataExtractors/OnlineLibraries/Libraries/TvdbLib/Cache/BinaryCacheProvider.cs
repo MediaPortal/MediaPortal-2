@@ -600,7 +600,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
               Image targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
               using (Graphics g = Graphics.FromImage(targetImage))
               {
-                g.DrawImageUnscaled(sourceImage, 0, 0);
+                g.DrawImage(sourceImage, 0, 0, sourceImage.Width, sourceImage.Height);
               }
               return targetImage;
             }
