@@ -68,6 +68,8 @@ namespace UPnP.Infrastructure.Common
     {
       result = null;
       int dotIndex = versionStr.IndexOf('.');
+      if (dotIndex < 0)
+        dotIndex = versionStr.IndexOf(',');
       if (!versionStr.StartsWith(VERSION_PREFIX) || dotIndex < VERSION_PREFIX.Length + 1)
         return false;
       int verMax;
