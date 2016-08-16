@@ -56,10 +56,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         TagLib.Tag tag = mp4File.Tag;
 
         if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
-          MetadataUpdater.SetOrUpdateList(movieInfo.Genres, new List<string>(tag.Genres), false);
+          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, new List<string>(tag.Genres), false);
 
         if (!ReferenceEquals(tag.Performers, null) && tag.Performers.Length > 0)
-          MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
+          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
             tag.Performers.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
 
         return true;

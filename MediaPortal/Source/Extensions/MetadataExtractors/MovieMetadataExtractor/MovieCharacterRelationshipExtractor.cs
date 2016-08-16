@@ -85,6 +85,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (movieInfo.Characters.Count == 0)
         return false;
 
+      if (!movieInfo.HasChanged)
+        return false;
+
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
       foreach (CharacterInfo character in movieInfo.Characters)

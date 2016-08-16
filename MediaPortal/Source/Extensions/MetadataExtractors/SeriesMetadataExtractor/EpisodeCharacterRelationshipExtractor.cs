@@ -85,6 +85,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (episodeInfo.Characters.Count == 0)
         return false;
 
+      if (!episodeInfo.HasChanged)
+        return false;
+
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
       foreach (CharacterInfo character in episodeInfo.Characters)

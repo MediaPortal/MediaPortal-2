@@ -193,11 +193,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         if(seriesDetail.Embedded.Episodes != null)
         {
-          series.TotalSeasons = seriesDetail.Embedded.Episodes.Select(e => e.SeasonNumber).Max();
-          series.TotalEpisodes = seriesDetail.Embedded.Episodes.Count;
-
           foreach (TvMazeEpisode episodeDetail in seriesDetail.Embedded.Episodes)
           {
+            SeasonInfo seasonInfo = new SeasonInfo()
+            {
+              SeriesTvMazeId = seriesDetail.Id,
+              SeriesImdbId = seriesDetail.Externals.ImDbId,
+              SeriesTvdbId = seriesDetail.Externals.TvDbId ?? 0,
+              SeriesTvRageId = seriesDetail.Externals.TvRageId ?? 0,
+              SeriesName = new SimpleTitle(seriesDetail.Name, true),
+              SeasonNumber = episodeDetail.SeasonNumber,
+              FirstAired = episodeDetail.AirDate,
+              TotalEpisodes = seriesDetail.Embedded.Episodes.FindAll(e => e.SeasonNumber == episodeDetail.SeasonNumber).Count
+            };
+            if (!series.Seasons.Contains(seasonInfo))
+              series.Seasons.Add(seasonInfo);
+
             EpisodeInfo info = new EpisodeInfo()
             {
               TvMazeId = episodeDetail.Id,
@@ -222,6 +233,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
             series.Episodes.Add(info);
           }
+
+          series.TotalSeasons = series.Seasons.Count;
+          series.TotalEpisodes = series.Episodes.Count;
 
           TvMazeEpisode nextEpisode = seriesDetail.Embedded.Episodes.Where(e => e.AirDate > DateTime.Now).FirstOrDefault();
           if (nextEpisode != null)

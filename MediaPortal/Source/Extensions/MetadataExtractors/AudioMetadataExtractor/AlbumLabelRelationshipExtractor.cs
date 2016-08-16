@@ -85,6 +85,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (albumInfo.MusicLabels.Count == 0)
         return false;
 
+      if (!albumInfo.HasChanged)
+        return false;
+
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
       foreach (CompanyInfo company in albumInfo.MusicLabels)

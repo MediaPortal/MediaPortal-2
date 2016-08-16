@@ -39,6 +39,7 @@ using MediaPortal.Utilities.Graphics;
 using Un4seen.Bass.AddOn.Tags;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
 {
@@ -217,45 +218,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
               trackInfo.ReleaseDate = new DateTime(year, 1, 1);
           }
 
-          // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
-          if (tags.PictureCount > 0)
+          if (!trackInfo.HasThumbnail)
           {
-            try
+            // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
+            if (tags.PictureCount > 0)
             {
-              using (Image cover = tags.PictureGetImage(0))
-              using (MemoryStream result = new MemoryStream())
+              try
               {
-                cover.Save(result, ImageFormat.Jpeg);
-                trackInfo.Thumbnail = result.ToArray();
+                using (Image cover = tags.PictureGetImage(0))
+                using (MemoryStream result = new MemoryStream())
+                {
+                  cover.Save(result, ImageFormat.Jpeg);
+                  trackInfo.Thumbnail = result.ToArray();
+                  trackInfo.HasChanged = true;
+                }
+              }
+              // Decoding of invalid image data can fail, but main MediaItem is correct.
+              catch { }
+            }
+            else
+            {
+              // In quick mode only allow thumbs taken from cache.
+              bool cachedOnly = forceQuickMode;
+
+              // Thumbnail extraction
+              fileName = mediaItemAccessor.ResourcePathName;
+              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+              byte[] thumbData;
+              ImageType imageType;
+              if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
+              {
+                trackInfo.Thumbnail = thumbData;
+                trackInfo.HasChanged = true;
               }
             }
-            // Decoding of invalid image data can fail, but main MediaItem is correct.
-            catch { }
-          }
-          else
-          {
-            // In quick mode only allow thumbs taken from cache.
-            bool cachedOnly = forceQuickMode;
-
-            // Thumbnail extraction
-            fileName = mediaItemAccessor.ResourcePathName;
-            IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-            byte[] thumbData;
-            ImageType imageType;
-            if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
-              trackInfo.Thumbnail = thumbData;
           }
         }
 
-        bool forceQuickModePrimary = forceQuickMode;
-        if (!trackInfo.IsBaseInfoPresent || !trackInfo.HasExternalId)
-        {
-          forceQuickModePrimary = false;
-        }
-
-        MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickModePrimary);
-        //MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
-        MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickModePrimary);
+        OnlineMatcherService.FindAndUpdateTrack(trackInfo, forceQuickMode);
 
         if (!_onlyFanArt)
           trackInfo.SetMetadata(extractedAspectData);

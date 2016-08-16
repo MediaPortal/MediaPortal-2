@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       IList<string> tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
       string plot = tags != null ? tags.FirstOrDefault() : string.Empty;
       if (!string.IsNullOrEmpty(plot))
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, plot, true);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, plot, true);
 
       // Series and episode handling. Prefer information from tags.
       if (tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE] != null)
@@ -78,7 +78,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         if (!string.IsNullOrEmpty(title))
         {
           title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title);
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, title, true);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, title, true);
         }
       }
 
@@ -88,7 +88,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         if (!string.IsNullOrEmpty(title))
         {
           title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title);
-          MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, title, true);
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, title, true);
         }
       }
 
@@ -98,14 +98,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_SERIES_IMDB_ID])
           if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
           {
-            MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, imdbId);
+            episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, imdbId);
             break;
           }
       }
 
       if (tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS] != null)
       {
-        MetadataUpdater.SetOrUpdateList(episodeInfo.Actors,
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Actors,
           tagsToExtract[MatroskaConsts.TAG_SERIES_ACTORS].Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
       }
 
@@ -116,14 +116,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_SERIES_TVDB_ID])
           if (int.TryParse(candidate, out tmp) == true)
           {
-            MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, tmp);
+            episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, tmp);
             break;
           }
       }
 
       int tmpInt;
       if (tagsToExtract[MatroskaConsts.TAG_SEASON_NUMBER] != null && int.TryParse(tagsToExtract[MatroskaConsts.TAG_SEASON_NUMBER].FirstOrDefault(), out tmpInt))
-        MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, tmpInt);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, tmpInt);
 
       if (tagsToExtract[MatroskaConsts.TAG_EPISODE_NUMBER] != null)
       {

@@ -33,7 +33,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   /// <see cref="SeasonInfo"/> contains information about a series season. It's used as an interface structure for external 
   /// online data scrapers to fill in metadata.
   /// </summary>
-  public class SeasonInfo : BaseInfo
+  public class SeasonInfo : BaseInfo, IComparable<SeasonInfo>
   {
     /// <summary>
     /// Returns the index for "Series" used in <see cref="FormatString"/>.
@@ -218,7 +218,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-          Thumbnail = data;
+          HasThumbnail = true;
 
         return true;
       }
@@ -361,6 +361,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       //TODO: Check if this is functional
       return (SeriesName.IsEmpty ? "Unnamed Season" : ToString()).GetHashCode();
+    }
+
+    public int CompareTo(SeasonInfo other)
+    {
+      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text != other.SeriesName.Text)
+        return SeriesName.Text.CompareTo(other.SeriesName.Text);
+      if (SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value != other.SeasonNumber.Value)
+        return SeasonNumber.Value.CompareTo(other.SeasonNumber.Value);
+
+      return 0;
     }
 
     #endregion

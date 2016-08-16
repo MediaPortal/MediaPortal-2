@@ -110,7 +110,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
               if (yearMa.Success)
               {
                 //episodeInfo.SeriesName = new SimpleTitle(EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value), episodeInfo.SeriesName.DefaultLanguage);
-                MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
+                episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
               }
             }
             if (!episodeInfo.SeriesName.IsEmpty)
@@ -135,11 +135,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
 
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, EpisodeInfo.CleanupWhiteSpaces(group.Value), true);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, EpisodeInfo.CleanupWhiteSpaces(group.Value), true);
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)
-        MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, EpisodeInfo.CleanupWhiteSpaces(group.Value), true);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, EpisodeInfo.CleanupWhiteSpaces(group.Value), true);
 
       group = ma.Groups[GROUP_SEASONNUM];
       int tmpInt;
@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
           if (int.TryParse(capture.Value, out episodeNum))
             episodeNums.Add(episodeNum);
         }
-        MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeNums, true);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeNums, true);
       }
       return true;
     }

@@ -509,32 +509,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (year >= 1930 && year <= 2030)
             trackInfo.ReleaseDate = new DateTime(year, 1, 1);
 
-          // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
-          IPicture[] pics = tag.Tag.Pictures;
-          if (pics.Length > 0)
+          if (!trackInfo.HasThumbnail)
           {
-            try
+            // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
+            IPicture[] pics = tag.Tag.Pictures;
+            if (pics.Length > 0)
             {
-              using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
+              try
               {
-                trackInfo.Thumbnail = stream.ToArray();
+                using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
+                {
+                  trackInfo.Thumbnail = stream.ToArray();
+                  trackInfo.HasChanged = true;
+                }
+              }
+              // Decoding of invalid image data can fail, but main MediaItem is correct.
+              catch { }
+            }
+            else
+            {
+              // In quick mode only allow thumbs taken from cache.
+              bool cachedOnly = forceQuickMode;
+
+              // Thumbnail extraction
+              fileName = mediaItemAccessor.ResourcePathName;
+              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+              byte[] thumbData;
+              ImageType imageType;
+              if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
+              {
+                trackInfo.Thumbnail = thumbData;
+                trackInfo.HasChanged = true;
               }
             }
-            // Decoding of invalid image data can fail, but main MediaItem is correct.
-            catch { }
-          }
-          else
-          {
-            // In quick mode only allow thumbs taken from cache.
-            bool cachedOnly = forceQuickMode;
-
-            // Thumbnail extraction
-            fileName = mediaItemAccessor.ResourcePathName;
-            IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-            byte[] thumbData;
-            ImageType imageType;
-            if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
-              trackInfo.Thumbnail = thumbData;
           }
 
           if (string.IsNullOrEmpty(trackInfo.Album) || trackInfo.Artists.Count == 0)
@@ -546,10 +553,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if(_onlyFanArt)
           trackInfo.SetMetadata(extractedAspectData);
 
-        if (AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo))
-        {
-          CDFreeDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
-        }
+        AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
 
         //Try to find correct artist names
         trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);

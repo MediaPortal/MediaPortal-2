@@ -267,6 +267,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
       Summary = new SimpleTitle(tempString, false);
 
+      double value;
+      if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_TOTAL_RATING, out value))
+        Rating.RatingValue = value;
+
+      int count;
+      if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_RATING_COUNT, out count))
+        Rating.VoteCount = count;
+
       string id;
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_EPISODE, out id))
         TvdbId = Convert.ToInt32(id);
@@ -323,7 +331,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-        Thumbnail = data;
+        HasThumbnail = true;
 
       if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
       {
@@ -507,12 +515,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public int CompareTo(EpisodeInfo other)
     {
-      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
-        SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value != other.SeasonNumber.Value)
+      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text != other.SeriesName.Text)
+        return SeriesName.Text.CompareTo(other.SeriesName.Text);
+      if (SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value != other.SeasonNumber.Value)
         return SeasonNumber.Value.CompareTo(other.SeasonNumber.Value);
-      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
-        SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value == other.SeasonNumber.Value &&
-        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.First() != other.EpisodeNumbers.First())
+      if (EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.First() != other.EpisodeNumbers.First())
         return EpisodeNumbers.First().CompareTo(other.EpisodeNumbers.First());
       if (EpisodeName.IsEmpty || other.EpisodeName.IsEmpty)
         return 1;

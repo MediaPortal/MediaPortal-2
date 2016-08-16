@@ -784,18 +784,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
           {
             try
             {
-              using (Image sourceImage = Image.FromFile(fName))
-              {
-                Image targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, sourceImage.PixelFormat);
-                using (Graphics g = Graphics.FromImage(targetImage))
-                {
-                  g.DrawImageUnscaled(sourceImage, 0, 0);
-                }
-                return targetImage;
-              }
-
-              //Below leads to file handle leaking?
-              //return Image.FromFile(fName);
+              return Image.FromFile(fName);
             }
             catch (Exception ex)
             {

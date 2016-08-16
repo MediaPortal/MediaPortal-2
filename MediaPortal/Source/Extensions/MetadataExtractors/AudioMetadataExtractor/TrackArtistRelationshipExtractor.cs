@@ -82,6 +82,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (trackInfo.Artists.Count == 0)
         return false;
 
+      if (!trackInfo.HasChanged)
+        return false;
+
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
       foreach (PersonInfo person in trackInfo.Artists)

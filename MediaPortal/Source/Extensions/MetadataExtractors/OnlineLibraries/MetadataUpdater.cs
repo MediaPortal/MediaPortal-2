@@ -36,11 +36,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// </summary>
   public class MetadataUpdater
   {
-    public static void SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing)
+    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing)
     {
+      bool itemAdded;
+      return SetOrUpdateList(currentList, newList, addMissing, out itemAdded);
+    }
+
+    public static bool SetOrUpdateList<T>(List<T> currentList, List<T> newList, bool addMissing, out bool itemWasAdded)
+    {
+      itemWasAdded = false;
+      bool changed = false;
       if (newList == null)
       {
-        return;
+        return false;
       }
       if (currentList == null)
       {
@@ -67,56 +75,56 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 {
                   object currentVal = field.GetValue(currentObj);
                   object newVal = field.GetValue(newObj);
-                  SetOrUpdateId(ref currentVal, newVal);
+                  changed |= SetOrUpdateId(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is string && field.GetValue(newObj) is string)
                 {
                   string currentVal = (string)field.GetValue(currentObj);
                   string newVal = (string)field.GetValue(newObj);
-                  SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is string)
                 {
                   SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
                   string newVal = (string)field.GetValue(newObj);
-                  SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is string && field.GetValue(newObj) is SimpleTitle)
                 {
                   string currentVal = (string)field.GetValue(currentObj);
                   SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is SimpleTitle)
                 {
                   SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
                   SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  SetOrUpdateString(ref currentVal, newVal);
+                  changed |= SetOrUpdateString(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleRating && field.GetValue(newObj) is SimpleRating)
                 {
                   SimpleRating currentVal = (SimpleRating)field.GetValue(currentObj);
                   SimpleRating newVal = (SimpleRating)field.GetValue(newObj);
-                  SetOrUpdateRatings(ref currentVal, newVal);
+                  changed |= SetOrUpdateRatings(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is SimpleRating && field.GetValue(newObj) is double)
                 {
                   SimpleRating currentVal = (SimpleRating)field.GetValue(currentObj);
                   SimpleRating newVal = new SimpleRating((double)field.GetValue(newObj));
-                  SetOrUpdateRatings(ref currentVal, newVal);
+                  changed |= SetOrUpdateRatings(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is byte[])
                 {
                   byte[] currentVal = (byte[])field.GetValue(currentObj);
                   byte[] newVal = (byte[])field.GetValue(newObj);
-                  SetOrUpdateValue(ref currentVal, newVal);
+                  changed |= SetOrUpdateValue(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
                 else if (field.GetValue(currentObj) is IList)
@@ -124,81 +132,84 @@ namespace MediaPortal.Extensions.OnlineLibraries
                   IList currentVal = (IList)field.GetValue(currentObj);
                   IList newVal = (IList)field.GetValue(newObj);
                   Type listElementType = currentVal.GetType().GetGenericArguments().Single();
+                  bool itemAdded = false;
                   if (listElementType == typeof(long))
                   {
-                    SetOrUpdateList((List<long>)currentVal, (List<long>)newVal, true);
+                    changed |= SetOrUpdateList((List<long>)currentVal, (List<long>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(int))
                   {
-                    SetOrUpdateList((List<int>)currentVal, (List<int>)newVal, true);
+                    changed |= SetOrUpdateList((List<int>)currentVal, (List<int>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(short))
                   {
-                    SetOrUpdateList((List<short>)currentVal, (List<short>)newVal, true);
+                    changed |= SetOrUpdateList((List<short>)currentVal, (List<short>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(ulong))
                   {
-                    SetOrUpdateList((List<ulong>)currentVal, (List<ulong>)newVal, true);
+                    changed |= SetOrUpdateList((List<ulong>)currentVal, (List<ulong>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(uint))
                   {
-                    SetOrUpdateList((List<uint>)currentVal, (List<uint>)newVal, true);
+                    changed |= SetOrUpdateList((List<uint>)currentVal, (List<uint>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(ushort))
                   {
-                    SetOrUpdateList((List<ushort>)currentVal, (List<ushort>)newVal, true);
+                    changed |= SetOrUpdateList((List<ushort>)currentVal, (List<ushort>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(double))
                   {
-                    SetOrUpdateList((List<double>)currentVal, (List<double>)newVal, true);
+                    changed |= SetOrUpdateList((List<double>)currentVal, (List<double>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(float))
                   {
-                    SetOrUpdateList((List<float>)currentVal, (List<float>)newVal, true);
+                    changed |= SetOrUpdateList((List<float>)currentVal, (List<float>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(string))
                   {
-                    SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true);
+                    changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(PersonInfo))
                   {
-                    SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true);
+                    changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(CompanyInfo))
                   {
-                    SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true);
+                    changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(CharacterInfo))
                   {
-                    SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true);
+                    changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(SeasonInfo))
                   {
-                    SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true);
+                    changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(EpisodeInfo))
                   {
-                    SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true);
+                    changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(MovieInfo))
                   {
-                    SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true);
+                    changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded);
                   }
                   else if (listElementType == typeof(TrackInfo))
                   {
-                    SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true);
+                    changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded);
                   }
                   else
                   {
                     throw new ArgumentException("SetOrUpdateList: IList is of an unsupported type");
                   }
                   field.SetValue(currentObj, currentVal);
+                  if (itemAdded)
+                    itemWasAdded = true;
                 }
                 else
                 {
                   object currentVal = field.GetValue(currentObj);
                   object newVal = field.GetValue(newObj);
-                  SetOrUpdateValue(ref currentVal, newVal);
+                  changed |= SetOrUpdateValue(ref currentVal, newVal);
                   field.SetValue(currentObj, currentVal);
                 }
               }
@@ -208,109 +219,141 @@ namespace MediaPortal.Extensions.OnlineLibraries
         else if(addMissing)
         { 
           currentList.Add(newList[iNew]);
+          itemWasAdded = true;
+          changed = true;
         }
       }
       currentList.Sort();
+      return changed;
     }
 
-    public static void SetOrUpdateString(ref SimpleTitle currentString, string newString, bool isDefaultLanguage)
+    public static bool SetOrUpdateString(ref SimpleTitle currentString, string newString, bool isDefaultLanguage)
     {
       if (string.IsNullOrEmpty(newString))
-        return;
+        return false;
+
       if (currentString.Text == null || currentString.IsEmpty)
       {
         currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
-        return;
+        return true;
       }
       //Avoid overwriting strings in the correct language with that of the default language
       if(currentString.DefaultLanguage && !isDefaultLanguage)
       {
         currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
+        return true;
       }
       else if (currentString.DefaultLanguage == true)
       {
         if(currentString.Text.Length <= newString.Trim().Length)
         {
           currentString = new SimpleTitle(newString.Trim(), isDefaultLanguage);
+          return true;
         }
       }
+      return false;
     }
 
-    public static void SetOrUpdateString(ref string currentString, string newString)
+    public static bool SetOrUpdateString(ref string currentString, string newString)
     {
       if (string.IsNullOrEmpty(newString))
-        return;
+        return false;
+
       if (string.IsNullOrEmpty(currentString))
       {
         currentString = newString.Trim();
-        return;
+        return true;
       }
       if (currentString.Length < newString.Trim().Length)
       {
         currentString = newString.Trim();
+        return true;
       }
+      return false;
     }
 
-    public static void SetOrUpdateString(ref string currentString, SimpleTitle newString)
+    public static bool SetOrUpdateString(ref string currentString, SimpleTitle newString)
     {
       if (newString.IsEmpty)
-        return;
+        return false;
+
       if (string.IsNullOrEmpty(currentString))
       {
         currentString = newString.Text.Trim();
-        return;
+        return true;
       }
       if (currentString.Length < newString.Text.Trim().Length)
       {
         currentString = newString.Text.Trim();
+        return true;
       }
+      return false;
     }
 
-    public static void SetOrUpdateString(ref SimpleTitle currentString, SimpleTitle newString)
+    public static bool SetOrUpdateString(ref SimpleTitle currentString, SimpleTitle newString)
     {
       if (newString.IsEmpty)
-        return;
-      SetOrUpdateString(ref currentString, newString.Text, newString.DefaultLanguage);
+        return false;
+
+      return SetOrUpdateString(ref currentString, newString.Text, newString.DefaultLanguage);
     }
 
-    public static void SetOrUpdateId<T>(ref T currentId, T newId)
+    public static bool SetOrUpdateId<T>(ref T currentId, T newId)
     {
       if (currentId is string || newId is string)
       {
-        if(string.IsNullOrEmpty(currentId as string))
+        if (string.IsNullOrEmpty(currentId as string))
+        {
           currentId = newId;
-        return;
+          return true;
+        }
       }
       if (currentId is long || currentId is int || currentId is short)
       {
-        if (Convert.ToInt64(newId) > 0)
+        if (Convert.ToInt64(currentId) == 0 && Convert.ToInt64(newId) > 0)
+        {
           currentId = newId;
-        return;
+          return true;
+        }
       }
+      return false;
     }
 
-    public static void SetOrUpdateRatings(ref SimpleRating currentRating, SimpleRating newRating)
+    public static bool SetOrUpdateRatings(ref SimpleRating currentRating, SimpleRating newRating)
     {
-      if(currentRating.IsEmpty)
+      if(newRating.IsEmpty)
+      {
+        return false;
+      }
+      else if(currentRating.IsEmpty)
       {
         currentRating = newRating;
+        return true;
       }
       else if (!currentRating.VoteCount.HasValue && newRating.VoteCount.HasValue)
       {
         currentRating = newRating;
+        return true;
       }
       else if (currentRating.VoteCount.HasValue && newRating.VoteCount.HasValue && 
         currentRating.VoteCount.Value < newRating.VoteCount.Value)
       {
         currentRating = newRating;
+        return true;
       }
+      return false;
     }
 
-    public static void SetOrUpdateValue<T>(ref T currentNumber, T newNumber)
+    public static bool SetOrUpdateValue<T>(ref T currentNumber, T newNumber)
     {
-      if (currentNumber == null)
+      if (newNumber == null)
+      {
+        return false;
+      }
+      else if (currentNumber == null)
       {
         currentNumber = newNumber;
+        return true;
       }
       else if (currentNumber is DateTime || newNumber is DateTime)
       {
@@ -319,36 +362,57 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           if (((DateTime)(object)currentNumber).Year == ((DateTime)(object)newNumber).Year &&
             ((DateTime)(object)currentNumber) < ((DateTime)(object)newNumber))
+          {
             currentNumber = newNumber;
+            return true;
+          }
         }
       }
       else if (currentNumber is long || currentNumber is int || currentNumber is short ||
         newNumber is long || newNumber is int || newNumber is short)
       {
-        if ((currentNumber == null || Convert.ToInt64(currentNumber) == 0) && newNumber != null)
+        if ((currentNumber == null || Convert.ToInt64(currentNumber) == 0) && 
+          (newNumber != null && Convert.ToInt64(newNumber) > 0))
+        {
           currentNumber = newNumber;
+          return true;
+        }
       }
       else if (currentNumber is ulong || currentNumber is uint || currentNumber is ushort ||
         newNumber is ulong || newNumber is uint || newNumber is ushort)
       {
-        if ((currentNumber == null || Convert.ToUInt64(currentNumber) == 0) && newNumber != null)
+        if ((currentNumber == null || Convert.ToUInt64(currentNumber) == 0) &&
+          (newNumber != null && Convert.ToUInt64(newNumber) > 0))
+        {
           currentNumber = newNumber;
+          return true;
+        }
       }
       else if (currentNumber is float || currentNumber is double ||
         newNumber is float || newNumber is double)
       {
-        if ((currentNumber == null || Convert.ToDouble(currentNumber) == 0) && newNumber != null)
+        if ((currentNumber == null || Convert.ToDouble(currentNumber) == 0) &&
+          (newNumber != null && Convert.ToDouble(newNumber) > 0))
+        {
           currentNumber = newNumber;
+          return true;
+        }
       }
       else if (currentNumber is bool || newNumber is bool)
       {
-        if (newNumber != null)
+        if (newNumber != null && (Convert.ToBoolean(currentNumber) != Convert.ToBoolean(newNumber)))
+        {
           currentNumber = newNumber;
+          return true;
+        }
       }
       else if (currentNumber is byte[] || newNumber is byte[])
       {
         if (currentNumber == null && newNumber != null)
+        {
           currentNumber = newNumber;
+          return true;
+        }
       }
       else if (currentNumber == null || newNumber == null)
       {
@@ -358,6 +422,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         throw new ArgumentException("SetOrUpdateValue: currentNumber or newNumber is of an unsupported type");
       }
+      return false;
     }
   }
 }

@@ -24,28 +24,27 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace MediaPortal.Common.General
 {
   public class CheckedItemCache<T>
   {
+    private const int CHECK_DELAY = 60000;
+
     private ConcurrentDictionary<T, T> _checkedItems = new ConcurrentDictionary<T, T>();
     private DateTime _lastCacheRefresh = DateTime.Now;
     private double _expirationAgeInHours = 1;
+    private Timer _clearTimer;
 
     public CheckedItemCache(double expirationAgeInHours)
     {
       _expirationAgeInHours = expirationAgeInHours;
+      _clearTimer = new Timer(ClearCache, null, CHECK_DELAY, CHECK_DELAY);
     }
 
     public bool IsItemChecked(T item)
     {
-      if ((DateTime.Now - _lastCacheRefresh).TotalHours > _expirationAgeInHours)
-      {
-        _lastCacheRefresh = DateTime.Now;
-        _checkedItems.Clear();
-      }
-
       if (!_checkedItems.ContainsKey(item))
       {
         _checkedItems.TryAdd(item, item);
@@ -54,14 +53,17 @@ namespace MediaPortal.Common.General
       return true;
     }
 
-    public bool TryGetCheckedItem(T item, out T checkedItem)
+    private void ClearCache(object state)
     {
       if ((DateTime.Now - _lastCacheRefresh).TotalHours > _expirationAgeInHours)
       {
         _lastCacheRefresh = DateTime.Now;
         _checkedItems.Clear();
       }
+    }
 
+    public bool TryGetCheckedItem(T item, out T checkedItem)
+    {
       checkedItem = default(T);
       if (!_checkedItems.ContainsKey(item))
       {

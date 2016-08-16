@@ -53,7 +53,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     /// <param name="shortLanguageDesc"></param>
     /// <returns></returns>
-    internal static TvdbLanguage ParseLanguage(String shortLanguageDesc)
+    public static TvdbLanguage ParseLanguage(String shortLanguageDesc)
     {
       lock (_syncObj)
       {
