@@ -84,6 +84,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private FormWindowState _previousWindowState;
     private Point _previousMousePosition;
     private ScreenMode _mode = ScreenMode.NormalWindowed;
+    private ScreenMode _previousMode = ScreenMode.NormalWindowed;
     private bool _forceOnTop = false;
     private bool _hasFocus = false;
     private readonly ScreenManager _screenManager;
@@ -157,6 +158,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       _previousWindowLocation = Location;
       _previousWindowClientSize = desiredWindowedSize;
       _previousWindowState = FormWindowState.Normal;
+      _previousMode = ScreenMode.NormalWindowed;
 
       if (appSettings.ScreenMode == ScreenMode.FullScreen)
         SwitchToFullscreen(validScreenNum);
@@ -517,6 +519,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (mode == _mode)
         return;
 
+      _previousMode = _mode;
       settings.ScreenMode = mode;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
@@ -1027,7 +1030,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       base.OnSizeChanged(e);
       // This method override is only necessary to capture the window state change event. All other cases aren't interesting here.
-      if (_adaptToSizeEnabled && WindowState != FormWindowState.Minimized && _previousWindowState != WindowState)
+      // MP2-529: Don't call AdaptToSize if switching to/from fullscreen, it calls Stop/StartUI but they are already being called when switching
+      // to/from fullscreen leading to a LockRecursionException
+      if (_adaptToSizeEnabled && WindowState != FormWindowState.Minimized && _previousWindowState != WindowState &&
+        _mode != ScreenMode.FullScreen && _previousMode != ScreenMode.FullScreen)
         AdaptToSize();
     }
 
