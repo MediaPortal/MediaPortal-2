@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -483,7 +484,6 @@ Global
 		{E73C038E-FD47-40AD-9256-4457316F8A97}.Release|x86.Build.0 = Release|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Debug|x86.ActiveCfg = Debug|x86
 		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.ActiveCfg = Release|x86
-		{7625B1CE-577D-4E56-83DD-08C6EE9984D4}.Release|x86.Build.0 = Release|x86
 		{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}.Debug|x86.ActiveCfg = Debug|x86
 		{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}.Release|x86.ActiveCfg = Release|x86
 		{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}.Debug|x86.ActiveCfg = Debug|x86
