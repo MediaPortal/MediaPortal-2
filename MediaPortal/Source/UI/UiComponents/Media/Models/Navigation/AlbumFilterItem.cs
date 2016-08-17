@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// <summary>
   /// Holds a GUI item which represents an audio album filter choice.
   /// </summary>
-  public class AlbumFilterItem : FilterItem
+  public class AlbumFilterItem : PlayableContainerMediaItem
   {
     public override void Update(MediaItem mediaItem)
     {

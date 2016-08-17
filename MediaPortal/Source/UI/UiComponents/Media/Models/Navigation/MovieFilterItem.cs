@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// <summary>
   /// Holds a GUI item which represents a movie filter choice.
   /// </summary>
-  public class MovieFilterItem : FilterItem
+  public class MovieFilterItem : PlayableContainerMediaItem
   {
     public override void Update(MediaItem mediaItem)
     {
