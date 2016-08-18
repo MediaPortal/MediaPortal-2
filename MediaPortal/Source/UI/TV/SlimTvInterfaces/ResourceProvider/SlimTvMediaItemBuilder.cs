@@ -80,19 +80,19 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
 
       SlimTvResourceAccessor resourceAccessor = new SlimTvResourceAccessor(slotIndex, path);
 
-      IList<MultipleMediaItemAspect> providerResourceAspects;
-      MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerResourceAspects);
-      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
+      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
 
       String raPath = resourceAccessor.CanonicalLocalResourcePath.Serialize();
-      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, raPath);
 
       string title;
       string mimeType;
       if (isTv)
       {
         // VideoAspect needs to be included to associate VideoPlayer later!
-        MediaItemAspect.CreateAspect(aspects, VideoStreamAspect.Metadata);
+        MediaItemAspect.GetOrCreateAspect(aspects, VideoAspect.Metadata);
         title = "Live TV";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_TV;
       }
@@ -106,7 +106,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_TITLE, title);
       MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
       MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false);
-      providerResourceAspects[0].SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType); // Custom mimetype for LiveTv or Radio
       LiveTvMediaItem.LiveTvMediaItem tvStream = new LiveTvMediaItem.LiveTvMediaItem(new Guid(), aspects);
       return tvStream;
     }
