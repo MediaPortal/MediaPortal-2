@@ -806,6 +806,27 @@
   <!--MediaItem view styles-->
   <Model x:Key="MediaItemsActionModel" Id="970649B2-CAE8-4830-A985-E5E78F3CB24F"/>
 
+  <ControlTemplate x:Key="WatchedFlag_Template">
+    <Grid>
+      <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+               Source="partlywatched.png">
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
+            <Binding Path="PlayCount"/>
+            <Binding Path="WatchPercentage"/>
+          </MultiBinding>
+        </Image.IsVisible>
+      </Image>
+
+      <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+               Source="watched.png">
+        <Image.IsVisible>
+          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+        </Image.IsVisible>
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
   <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
   <!--++++++++++++++++++++++++ Filter +++++++++++++++++++++++++++-->
   
@@ -1710,37 +1731,9 @@
         <Label x:Name="ItemLabel" Content="{Binding EpisodeName}" FontSize="{ThemeResource SmallFontSize}" 
                FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"/>
       </StackPanel>
-
-      <media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="2"
-                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}">
-        <media:UserDataWrapper.Template>
-          <ControlTemplate>
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Grid>
-                <Grid.IsVisible>
-                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-                </Grid.IsVisible>
-                <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
-                     Source="partlywatched.png">
-                  <Image.IsVisible>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
-                      <Binding Path="PlayPercentage"/>
-                    </MultiBinding>
-                  </Image.IsVisible>
-                </Image>
-              </Grid>
-              <Grid>
-                <Grid.IsVisible>
-                  <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
-                </Grid.IsVisible>
-                <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
-                     Source="watched.png">
-                </Image>
-              </Grid>
-            </Grid>
-          </ControlTemplate>
-        </media:UserDataWrapper.Template>
-      </media:UserDataWrapper>
+      
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource WatchedFlag_Template}"
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
 
     </Grid>
   </ControlTemplate>
