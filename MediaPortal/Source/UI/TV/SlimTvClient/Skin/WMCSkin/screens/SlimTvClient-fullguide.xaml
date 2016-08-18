@@ -33,7 +33,7 @@
           <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="EpgTimeGrid" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" Margin="50,10,0,10">
+        <Grid x:Name="EpgTimeGrid" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="50,10,0,10">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
