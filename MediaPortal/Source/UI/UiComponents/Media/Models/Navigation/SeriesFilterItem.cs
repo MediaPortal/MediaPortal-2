@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// <summary>
   /// Holds a GUI item which represents a series filter choice.
   /// </summary>
-  public class SeriesFilterItem : FilterItem
+  public class SeriesFilterItem : PlayableContainerMediaItem
   {
     public override void Update(MediaItem mediaItem)
     {

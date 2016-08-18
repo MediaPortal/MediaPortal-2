@@ -187,6 +187,7 @@
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />
     <Compile Include="Models\Navigation\ComposerFilterItem.cs" />
+    <Compile Include="Models\Navigation\PlayableContainerMediaItem.cs" />
     <Compile Include="Models\Navigation\SeasonFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieFilterItem.cs" />
     <Compile Include="Models\Navigation\MovieItem.cs" />
