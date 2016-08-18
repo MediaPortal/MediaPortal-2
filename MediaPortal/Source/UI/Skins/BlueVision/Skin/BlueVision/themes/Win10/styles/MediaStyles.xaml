@@ -1895,7 +1895,7 @@
               <Binding>
                 <Binding.Source>
                   <ControlTemplate TargetType="{x:Type ListView}"> 
-                    <ScrollViewer CanContentScroll="True" Margin="-5,0,572,20" Style="{ThemeResource GradientScrollViewerStyle}"
+                    <ScrollViewer CanContentScroll="True" Margin="-5,-30,572,20" Style="{ThemeResource GradientScrollViewerStyle}"
                                   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                       <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
@@ -1907,7 +1907,7 @@
               <Binding>
                 <Binding.Source>
                   <ControlTemplate TargetType="{x:Type ListView}">
-                    <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource LeftSideScrollViewerStyle}"
+                    <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource HorizontalGradientScrollViewerStyle}"
                         HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                       <ItemsPresenter VerticalAlignment="Bottom" HorizontalAlignment="Stretch"/>
                     </ScrollViewer>
@@ -1930,7 +1930,21 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="0,0,120,10"/>
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="True" Orientation="Vertical" Margin="0,0,120,10">
+                      <AnimatedStackPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier"/>
+                        </Storyboard>
+                      </AnimatedStackPanel.Resources>
+                      <AnimatedStackPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedStackPanel.Triggers>
+                    </AnimatedStackPanel>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>
@@ -1938,7 +1952,22 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="0,0,0,10"/>
+                    <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="True" ScrollMargin="240,240" Margin="0,-140,0,-140">
+                      <AnimatedWrapPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier"/>
+                        </Storyboard>
+                      </AnimatedWrapPanel.Resources>
+                      <AnimatedWrapPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedWrapPanel.Triggers>
+                    </AnimatedWrapPanel>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>
@@ -1946,7 +1975,22 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <VirtualizingStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="0,0,0,10"/>
+                    <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
+                    <AnimatedStackPanel x:Name="CoverItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="True" ScrollMargin="280,260" Margin="-140,0,-170,0">
+                      <AnimatedStackPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="CoverItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier"/>
+                        </Storyboard>
+                      </AnimatedStackPanel.Resources>
+                      <AnimatedStackPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedStackPanel.Triggers>
+                    </AnimatedStackPanel>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>
