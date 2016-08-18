@@ -210,7 +210,7 @@
 
   </WrapPanel>
 
-  <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+  <!--media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:MediaAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="0" Grid.Column="1">
@@ -229,7 +229,7 @@
          </Grid>
       </ControlTemplate>
     </media:MediaAspectWrapper.Template>
-  </media:MediaAspectWrapper>
+  </media:MediaAspectWrapper-->
 
           
 
