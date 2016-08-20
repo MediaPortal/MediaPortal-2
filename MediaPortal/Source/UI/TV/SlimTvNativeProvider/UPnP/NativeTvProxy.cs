@@ -458,6 +458,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         if (success)
         {
           channels = channelList.Cast<IChannel>().ToList();
+          foreach(var channel in channels)
+            _channelCache[channel.ChannelId] = channel;
           return true;
         }
         return false;
