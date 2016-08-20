@@ -12,7 +12,7 @@
   </Grid.Resources>
 
   <!-- SHADOW -->
-  <Control Style="{ThemeResource Shadow_3_23}" IsVisible="{Binding ElementName=thumb, Path=HasImage}" />
+  <!--Control Style="{ThemeResource Shadow_3_23}" IsVisible="{Binding ElementName=thumb, Path=HasImage}" /-->
   <!-- SHADOW -->
 
   <Grid>

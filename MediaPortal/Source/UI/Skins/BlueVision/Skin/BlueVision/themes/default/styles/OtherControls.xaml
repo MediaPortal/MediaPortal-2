@@ -33,6 +33,41 @@
 
   <!-- ***************************** ScrollViewer styles ********************************* -->
 
+  <Style x:Key="GradientScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid" Margin="0">
+            <Grid.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0">
+                    <Rectangle.Fill>
+                      <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
+                        <GradientStop Color="#00000000" Offset="0"/>
+                        <GradientStop Color="#FF000000" Offset="0.12"/>
+                        <GradientStop Color="#FF000000" Offset="0.72"/>
+                        <GradientStop Color="#00000000" Offset="0.84"/>
+                      </LinearGradientBrush>
+                    </Rectangle.Fill>
+                  </Rectangle>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.OpacityMask>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="LeftSideScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
     <Setter Property="Template">
       <Setter.Value>

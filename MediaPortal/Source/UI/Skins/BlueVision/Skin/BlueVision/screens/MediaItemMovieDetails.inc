@@ -26,7 +26,7 @@
     FontFamily="DefaultBold"/>
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
-        Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" HorizontalAlignment="Stretch"
+        TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
         Color="{ThemeResource TextColor}" Margin="-10,0,5,25"/>
 

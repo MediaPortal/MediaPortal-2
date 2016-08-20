@@ -430,8 +430,8 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="1000"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="99"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -445,20 +445,20 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
+                <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/-->
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+                <!--BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/-->
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                <!--StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/-->
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
@@ -607,8 +607,8 @@
               IsVisible ="False"
               CornerRadius="{ThemeResource ButtonControlRadiusX}"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
-              BorderThickness="2"
-              Margin="-1">
+              BorderThickness="3"
+              Margin="0">
           </Border>
         </ControlTemplate>
       </Setter.Value>
@@ -673,7 +673,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="2">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -685,8 +685,10 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonCoverControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="2,2,2,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonCoverControlStyle}"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="100"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="4" Panel.ZIndex="99"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

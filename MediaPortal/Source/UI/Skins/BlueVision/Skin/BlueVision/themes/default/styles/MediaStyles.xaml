@@ -886,7 +886,7 @@
     <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
 
       <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_20}" />
+      <!--Control Style="{ThemeResource Shadow_3_20}" /-->
       <!-- SHADOW -->
 
       <Grid>
@@ -2284,7 +2284,7 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                <!--Setter Property="StackPanel.ZIndex" Value="100.0"/-->
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
@@ -2337,7 +2337,7 @@
         </BindingWrapper>
       </BindingSetter.BindingWrapper>
     </BindingSetter>
-    <Setter Property="Template">
+    <!--Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource LeftSideScrollViewerStyle}"
@@ -2346,7 +2346,52 @@
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
-    </Setter>
+    </-->
+    <BindingSetter Property="Template">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <!-- List layout -->
+              <Binding>
+                <Binding.Source>
+                  <ControlTemplate TargetType="{x:Type ListView}">
+                    <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource LeftSideScrollViewerStyle}"
+                        HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                    </ScrollViewer>
+                  </ControlTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Grid layout -->
+              <Binding>
+                <Binding.Source>
+                  <ControlTemplate TargetType="{x:Type ListView}">
+                    <ScrollViewer CanContentScroll="True" Margin="5,0,5,5" Style="{ThemeResource GradientScrollViewerStyle}"
+                                  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                    </ScrollViewer>
+                  </ControlTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Cover layout -->
+              <Binding>
+                <Binding.Source>
+                  <ControlTemplate TargetType="{x:Type ListView}">
+                    <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource LeftSideScrollViewerStyle}"
+                        HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <ItemsPresenter VerticalAlignment="Bottom" HorizontalAlignment="Stretch"/>
+                    </ScrollViewer>
+                  </ControlTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
     <BindingSetter Property="ItemsPanel">
       <BindingSetter.BindingWrapper>
         <BindingWrapper>
@@ -2365,7 +2410,22 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Margin="0,0,80,0"/>
+                    <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" LoopScroll="True" ScrollMargin="240,350" Margin="-150,0,-100,0">
+                      <AnimatedWrapPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier"/>
+                        </Storyboard>
+                      </AnimatedWrapPanel.Resources>
+                      <AnimatedWrapPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedWrapPanel.Triggers>
+                    </AnimatedWrapPanel>
                   </ItemsPanelTemplate>
                 </Binding.Source>
               </Binding>

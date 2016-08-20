@@ -10,11 +10,11 @@
   
   <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="220"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="405"/>
-  <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="125"/>
+  <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="115"/>
 
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="150"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="81.25"/>
-  <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="175"/>
+  <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="177"/>
 
   <ResourceWrapper x:Key="GRIDVIEW_FILTER_WIDTH" Resource="225"/>
   <ResourceWrapper x:Key="GRIDVIEW_FILTER_HEIGHT" Resource="130"/>
