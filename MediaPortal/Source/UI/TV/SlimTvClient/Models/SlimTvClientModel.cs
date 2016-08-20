@@ -377,11 +377,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public void UpdateProgram(object sender, SelectionChangedEventArgs e)
     {
-      var selectedItem = e.FirstAddedItem as ListItem;
-      if (selectedItem != null)
+      var channelItem = e.FirstAddedItem as ChannelProgramListItem;
+      if (channelItem != null)
       {
-        IChannel channel = (IChannel)selectedItem.AdditionalProperties["CHANNEL"];
-        UpdateSelectedChannelPrograms(channel);
+        IProgram currentProgram = null;
+        IProgram nextProgram = null;
+        lock (CurrentGroupChannels.SyncRoot)
+          if (channelItem.Programs != null && channelItem.Programs.Count == 2)
+          {
+            currentProgram = channelItem.Programs[0].AdditionalProperties["PROGRAM"] as IProgram;
+            nextProgram = channelItem.Programs[1].AdditionalProperties["PROGRAM"] as IProgram;
+          }
+        SelectedChannelName = channelItem.Channel.Name;
+        SelectedCurrentProgram.SetProgram(currentProgram);
+        SelectedNextProgram.SetProgram(nextProgram);
+        double progress = currentProgram != null ?
+          (DateTime.Now - currentProgram.StartTime).TotalSeconds / (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100 : 100d;
+        SelectedProgramProgress = progress;
       }
     }
 
@@ -904,7 +916,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           isOneSelected |= isCurrentSelected;
           ChannelProgramListItem item = new ChannelProgramListItem(currentChannel, null)
           {
-            Programs = new ItemsList { GetNoProgramPlaceholder(), GetNoProgramPlaceholder() },
+            Programs = new ItemsList { GetNoProgramPlaceholder(channel.ChannelId), GetNoProgramPlaceholder(channel.ChannelId) },
             Command = new MethodDelegateCommand(() => Tune(currentChannel)),
             Selected = isCurrentSelected
           };
@@ -954,30 +966,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           IProgram[] nowNext;
           IProgram currentProgram = null;
           IProgram nextProgram = null;
-          if (programs != null && programs.TryGetValue(channelItem.Channel.ChannelId, out nowNext))
+          int channelId = channelItem.Channel.ChannelId;
+          if (programs != null && programs.TryGetValue(channelId, out nowNext))
           {
             currentProgram = nowNext.Length > 0 ? nowNext[0] : null;
             nextProgram = nowNext.Length > 1 ? nowNext[1] : null;
           }
 
-          CreateProgramListItem(currentProgram, channelItem.Programs[0]);
-          CreateProgramListItem(nextProgram, channelItem.Programs[1], currentProgram);
+          CreateProgramListItem(currentProgram, channelItem.Programs[0], channelId);
+          CreateProgramListItem(nextProgram, channelItem.Programs[1], channelId, currentProgram);
         }
     }
 
-    private static void CreateProgramListItem(IProgram program, ListItem itemToUpdate, IProgram previousProgram = null)
+    private static void CreateProgramListItem(IProgram program, ListItem itemToUpdate, int channelId, IProgram previousProgram = null)
     {
       ProgramListItem item = itemToUpdate as ProgramListItem;
       if (item == null)
         return;
-      item.Program.SetProgram(program ?? GetNoProgram(previousProgram));
+      item.Program.SetProgram(program ?? GetNoProgram(channelId, previousProgram));
       item.AdditionalProperties["PROGRAM"] = program;
       item.Update();
     }
 
-    private static ProgramListItem GetNoProgramPlaceholder(IProgram previousProgram = null)
+    private static ProgramListItem GetNoProgramPlaceholder(int channelId, IProgram previousProgram = null)
     {
-      IProgram placeHolder = GetNoProgram(previousProgram);
+      IProgram placeHolder = GetNoProgram(channelId, previousProgram);
       ProgramProperties programProperties = new ProgramProperties
       {
         Title = placeHolder.Title,
@@ -987,7 +1000,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return new ProgramListItem(programProperties);
     }
 
-    private static IProgram GetNoProgram(IProgram previousProgram = null)
+    private static IProgram GetNoProgram(int channelId, IProgram previousProgram = null)
     {
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
       DateTime from;
@@ -1005,6 +1018,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       return new Program
       {
+        ChannelId = channelId,
         Title = loc.ToString("[SlimTvClient.NoProgram]"),
         StartTime = from,
         EndTime = to
