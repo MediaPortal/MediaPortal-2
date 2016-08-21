@@ -77,5 +77,11 @@ namespace MediaPortal.Common.General
     {
       return _checkedItems.TryAdd(checkedItem, checkedItem);
     }
+
+    public void ClearCache()
+    {
+      _lastCacheRefresh = DateTime.Now;
+      _checkedItems.Clear();
+    }
   }
 }

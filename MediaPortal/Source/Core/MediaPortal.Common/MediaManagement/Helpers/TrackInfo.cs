@@ -358,6 +358,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.TotalDiscs = TotalDiscs;
         info.TotalTracks = TotalTracks;
         info.Compilation = Compilation;
+        info.Languages.AddRange(Languages);
         return (T)(object)info;
       }
       return default(T);

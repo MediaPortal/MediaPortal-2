@@ -371,6 +371,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MovieCollectionInfo info = new MovieCollectionInfo();
         info.MovieDbId = CollectionMovieDbId;
         info.CollectionName = new SimpleTitle(CollectionName.Text, CollectionName.DefaultLanguage);
+        info.Languages.AddRange(Languages);
         return (T)(object)info;
       }
       return default(T);

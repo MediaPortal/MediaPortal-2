@@ -449,6 +449,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage),
           FirstAired = SeriesFirstAired
         };
+        info.Languages.AddRange(Languages);
         return (T)(object)info;
       }
       else if (typeof(T) == typeof(SeasonInfo))
@@ -463,6 +464,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesTvRageId = SeriesTvRageId,
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage)
         };
+        info.Languages.AddRange(Languages);
         return (T)(object)info;
       }
       return default(T);

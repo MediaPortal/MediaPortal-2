@@ -99,7 +99,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       else
       {
         // AudioAspect needs to be included to associate an AudioPlayer later!
-        MediaItemAspect.SetAspect(aspects, new SingleMediaItemAspect(AudioAspect.Metadata));
+        MediaItemAspect.GetOrCreateAspect(aspects, AudioAspect.Metadata);
         title = "Live Radio";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
       }

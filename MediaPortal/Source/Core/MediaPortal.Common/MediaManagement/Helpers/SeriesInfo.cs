@@ -282,24 +282,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
           HasThumbnail = true;
 
-        if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
-        {
-          Languages.Clear();
-          IList<MultipleMediaItemAspect> audioAspects;
-          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
-          {
-            foreach (MultipleMediaItemAspect audioAspect in audioAspects)
-            {
-              string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-              if (!string.IsNullOrEmpty(language))
-              {
-                if (Languages.Contains(language))
-                  Languages.Add(language);
-              }
-            }
-          }
-        }
-
         return true;
       }
       else if (aspectData.ContainsKey(SeasonAspect.ASPECT_ID))
@@ -337,6 +319,24 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_SERIES, out id))
           TvRageId = Convert.ToInt32(id);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out ImdbId);
+
+        if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
+        {
+          Languages.Clear();
+          IList<MultipleMediaItemAspect> audioAspects;
+          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+          {
+            foreach (MultipleMediaItemAspect audioAspect in audioAspects)
+            {
+              string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+              if (!string.IsNullOrEmpty(language))
+              {
+                if (Languages.Contains(language))
+                  Languages.Add(language);
+              }
+            }
+          }
+        }
 
         return true;
       }
