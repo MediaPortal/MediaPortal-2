@@ -69,5 +69,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         });
 
     public static readonly Guid ROLE_COMPANY = new Guid("4CD8D4D2-4013-4AC7-A10F-E54325776A16");
+    public static readonly Guid ROLE_TV_NETWORK = new Guid("D28A9778-7608-4E6A-9646-C938FE6DB769");
+    public static readonly Guid ROLE_MUSIC_LABEL = new Guid("B6F2F3BF-9B4A-41EB-A8D1-8690B6D31FE7");
   }
 }
