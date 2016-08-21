@@ -40,4 +40,10 @@
         Id="EpisodeMergeHandler"
         ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.EpisodeMergeHandler"/>
   </Register>
+
+  <Register Location="/Media/FanArtHandlers">
+    <Instance
+        Id="SeriesFanArtHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.SeriesFanArtHandler"/>
+  </Register>
 </Plugin>

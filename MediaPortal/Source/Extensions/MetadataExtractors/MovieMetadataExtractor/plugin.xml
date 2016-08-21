@@ -40,4 +40,10 @@
         Id="MovieMergeHandler"
         ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieMergeHandler"/>
   </Register>
+
+  <Register Location="/Media/FanArtHandlers">
+    <Instance
+        Id="MovieFanArtHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.MovieFanArtHandler"/>
+  </Register>
 </Plugin>
