@@ -55,6 +55,10 @@ namespace MediaPortal.Common.Services.MediaManagement
       // Merge handler related messages. The param will contain the id of the merge handler.
       MergeHandlerAdded,
       MergeHandlerRemoved,
+
+      // FanArt handler related messages. The param will contain the id of the FanArt handler.
+      FanArtHandlerAdded,
+      FanArtHandlerRemoved,
     }
 
     // Message data

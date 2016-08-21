@@ -336,7 +336,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       string data = (string) inParams[3];
       bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserMediaItemData(profileId, mediaItemId, key, data);
       if(success)
-        ServiceRegistration.Get<IMediaLibrary>().UserDataUpdated(profileId, mediaItemId, key);
+        ServiceRegistration.Get<IMediaLibrary>().UserDataUpdated(profileId, mediaItemId, key, data);
       outParams = new List<object> {success};
       return null;
     }

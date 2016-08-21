@@ -80,6 +80,12 @@ namespace MediaPortal.Common.ResourceAccess
     IDictionary<Guid, IMediaMergeHandler> LocalMergeHandlers { get; }
 
     /// <summary>
+    /// Collection of all registered local FanArt handlers, organized as a dictionary of
+    /// (GUID; FanArt handler) mappings.
+    /// </summary>
+    IDictionary<Guid, IMediaFanArtHandler> LocalFanArtHandlers { get; }
+
+    /// <summary>
     /// Initializes resource providers, metadata extractors and internal structures.
     /// </summary>
     void Initialize();

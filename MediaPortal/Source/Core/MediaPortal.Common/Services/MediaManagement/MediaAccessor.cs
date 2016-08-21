@@ -63,11 +63,13 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected const string METADATA_EXTRACTORS_PLUGIN_LOCATION = "/Media/MetadataExtractors";
     protected const string RELATIONSHIP_EXTRACTORS_PLUGIN_LOCATION = "/Media/RelationshipExtractors";
     protected const string MERGE_HANDLERS_PLUGIN_LOCATION = "/Media/MergeHandlers";
+    protected const string FANART_HANDLERS_PLUGIN_LOCATION = "/Media/FanArtHandlers";
 
     protected const string METADATA_EXTRACTORS_USE_COMPONENT_NAME = "MediaAccessor: MetadataExtractors";
     protected const string RESOURCE_PROVIDERS_USE_COMPONENT_NAME = "MediaAccessor: ResourceProviders";
     protected const string RELATIONSHIP_EXTRACTORS_USE_COMPONENT_NAME = "MediaAccessor: RelationshipExtractors";
     protected const string MERGE_HANDLERS_USE_COMPONENT_NAME = "MediaAccessor: MergeHandlers";
+    protected const string FANART_HANDLERS_USE_COMPONENT_NAME = "MediaAccessor: FanArtHandlers";
 
     #endregion
 
@@ -205,6 +207,39 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    protected class FanArtHandlerPluginItemChangeListener : IItemRegistrationChangeListener
+    {
+      protected MediaAccessor _parent;
+
+      internal FanArtHandlerPluginItemChangeListener(MediaAccessor parent)
+      {
+        _parent = parent;
+      }
+
+      public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
+      {
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+        foreach (PluginItemMetadata itemMetadata in items)
+        {
+          try
+          {
+            IMediaFanArtHandler fanartHandler = pluginManager.RequestPluginItem<IMediaFanArtHandler>(
+                itemMetadata.RegistrationLocation, itemMetadata.Id, new FixedItemStateTracker(FANART_HANDLERS_USE_COMPONENT_NAME));
+            _parent.RegisterFanArtHandler(fanartHandler);
+          }
+          catch (PluginInvalidStateException e)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("Cannot add fanart handler for {0}", e, itemMetadata);
+          }
+        }
+      }
+
+      public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
+      {
+        // TODO: Make FanArtHandlers removable?
+      }
+    }
+
     #endregion
 
     #region Protected fields
@@ -214,10 +249,12 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected MetadataExtractorPluginItemChangeListener _metadataExtractorsPluginItemChangeListener;
     protected RelationshipExtractorPluginItemChangeListener _relationshipExtractorPluginItemChangeListener;
     protected MergeHandlerPluginItemChangeListener _mergeHandlerPluginItemChangeListener;
+    protected FanArtHandlerPluginItemChangeListener _fanartHandlerPluginItemChangeListener;
     protected IDictionary<Guid, IResourceProvider> _providers = null;
     protected IDictionary<Guid, IMetadataExtractor> _metadataExtractors = null;
     protected IDictionary<Guid, IRelationshipExtractor> _relationshipExtractors = null;
     protected IDictionary<Guid, IMediaMergeHandler> _mergeHandlers = null;
+    protected IDictionary<Guid, IMediaFanArtHandler> _fanartHandlers = null;
     protected IDictionary<string, MediaCategory> _mediaCategories;
 
     #endregion
@@ -268,6 +305,13 @@ namespace MediaPortal.Common.Services.MediaManagement
       MediaAccessorMessaging.SendMergeHandlerMessage(MediaAccessorMessaging.MessageType.MergeHandlerAdded, mergeHandler.Metadata.MergeHandlerId);
     }
 
+    protected void RegisterFanArtHandler(IMediaFanArtHandler fanartHandler)
+    {
+      lock (_syncObj)
+        _fanartHandlers.Add(fanartHandler.Metadata.FanArtHandlerId, fanartHandler);
+      MediaAccessorMessaging.SendMergeHandlerMessage(MediaAccessorMessaging.MessageType.FanArtHandlerAdded, fanartHandler.Metadata.FanArtHandlerId);
+    }
+
     protected void RegisterCoreProviders()
     {
       RegisterProvider(new LocalFsResourceProvider());
@@ -310,6 +354,15 @@ namespace MediaPortal.Common.Services.MediaManagement
       foreach (IDisposable d in _mergeHandlers.Values.OfType<IDisposable>())
         d.Dispose();
       _mergeHandlers = null;
+    }
+
+    protected void DisposeFanArtHandlers()
+    {
+      if (_fanartHandlers == null)
+        return;
+      foreach (IDisposable d in _fanartHandlers.Values.OfType<IDisposable>())
+        d.Dispose();
+      _fanartHandlers = null;
     }
 
     /// <summary>
@@ -377,6 +430,22 @@ namespace MediaPortal.Common.Services.MediaManagement
         RegisterMergeHandler(mergeHandler);
     }
 
+    /// <summary>
+    /// Checks that the FanArtHandler plugins are loaded.
+    /// </summary>
+    protected void CheckFanArtHandlersLoaded()
+    {
+      lock (_syncObj)
+      {
+        if (_fanartHandlers != null)
+          return;
+        _fanartHandlers = new Dictionary<Guid, IMediaFanArtHandler>();
+      }
+      foreach (IMediaFanArtHandler fanartHandler in ServiceRegistration.Get<IPluginManager>().RequestAllPluginItems<IMediaFanArtHandler>(
+          FANART_HANDLERS_PLUGIN_LOCATION, new FixedItemStateTracker(FANART_HANDLERS_USE_COMPONENT_NAME))) // TODO: Make fanart handlers removable
+        RegisterFanArtHandler(fanartHandler);
+    }
+
     protected void RegisterPluginItemListeners()
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
@@ -388,6 +457,8 @@ namespace MediaPortal.Common.Services.MediaManagement
           _relationshipExtractorPluginItemChangeListener);
       pluginManager.AddItemRegistrationChangeListener(MERGE_HANDLERS_PLUGIN_LOCATION,
           _mergeHandlerPluginItemChangeListener);
+      pluginManager.AddItemRegistrationChangeListener(FANART_HANDLERS_PLUGIN_LOCATION,
+          _fanartHandlerPluginItemChangeListener);
     }
 
     protected void UnregisterPluginItemListeners()
@@ -401,6 +472,8 @@ namespace MediaPortal.Common.Services.MediaManagement
           _relationshipExtractorPluginItemChangeListener);
       pluginManager.RemoveItemRegistrationChangeListener(MERGE_HANDLERS_PLUGIN_LOCATION,
           _mergeHandlerPluginItemChangeListener);
+      pluginManager.RemoveItemRegistrationChangeListener(FANART_HANDLERS_PLUGIN_LOCATION,
+          _fanartHandlerPluginItemChangeListener);
     }
 
     #endregion
@@ -468,6 +541,16 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    public IDictionary<Guid, IMediaFanArtHandler> LocalFanArtHandlers
+    {
+      get
+      {
+        CheckFanArtHandlersLoaded();
+        lock (_syncObj)
+          return new Dictionary<Guid, IMediaFanArtHandler>(_fanartHandlers);
+      }
+    }
+
     public virtual void Initialize()
     {
       RegisterPluginItemListeners();
@@ -479,6 +562,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       CheckMetadataExtractorsLoaded();
       CheckRelationshipExtractorsLoaded();
       CheckMergeHandlersLoaded();
+      CheckFanArtHandlersLoaded();
     }
 
     public virtual void Shutdown()
@@ -488,6 +572,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       DisposeMetadataExtractors();
       DisposeRelationshipExtractors();
       DisposeMergeHandlers();
+      DisposeFanArtHandlers();
     }
 
     public ICollection<Share> CreateDefaultShares()

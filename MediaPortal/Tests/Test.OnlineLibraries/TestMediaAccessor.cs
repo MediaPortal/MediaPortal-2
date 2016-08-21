@@ -51,6 +51,14 @@ namespace Test.OnlineLibraries
       get { throw new NotImplementedException(); }
     }
 
+    public IDictionary<Guid, IMediaFanArtHandler> LocalFanArtHandlers
+    {
+      get
+      {
+        throw new NotImplementedException();
+      }
+    }
+
     public void Initialize()
     {
       throw new NotImplementedException();

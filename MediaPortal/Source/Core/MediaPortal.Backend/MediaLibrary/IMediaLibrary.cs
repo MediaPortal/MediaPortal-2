@@ -300,7 +300,7 @@ namespace MediaPortal.Backend.MediaLibrary
 
     #region User data management
 
-    void UserDataUpdated(Guid userProfileId, Guid mediaItemId, string userDataKey);
+    void UserDataUpdated(Guid userProfileId, Guid mediaItemId, string userDataKey, string userData);
 
     #endregion
 

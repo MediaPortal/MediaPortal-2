@@ -580,7 +580,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           UpdateVirtualParents(transaction.Database, transaction, parentId.Value);
 
           //Check if new virtual parent user data should be updated
-          UpdateAllParentUserData(transaction.Database, transaction, parentId.Value);
+          UpdateAllParentPlayUserData(transaction.Database, transaction, parentId.Value);
         }
       }
       return affectedRows;
@@ -1316,6 +1316,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (reconcile)
           Reconcile(mediaItemId.Value, isRefresh);
 
+        CollectFanArt(mediaItemId.Value);
+
         return mediaItemId.Value;
       }
       catch (Exception e)
@@ -1423,7 +1425,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               UpdateMergedMediaItem(database, transaction, existingMediaItemId, existingAspects.Values.SelectMany(x => x));
               UpdateVirtualParents(database, transaction, existingMediaItemId);
-              UpdateAllParentUserData(database, transaction, existingMediaItemId);
+              UpdateAllParentPlayUserData(database, transaction, existingMediaItemId);
               return existingMediaItemId;
             }
           }
@@ -1537,7 +1539,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         //Update parents
         UpdateVirtualParents(database, transaction, mediaItemId);
-        UpdateAllParentUserData(database, transaction, mediaItemId);
+        UpdateAllParentPlayUserData(database, transaction, mediaItemId);
 
         transaction.Commit();
       }
@@ -1626,6 +1628,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, isVirtual);
 
               UpdateMediaItem(externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x), true, isRefresh);
+              CollectFanArt(externalItem.MediaItemId);
 
               return true;
             }
@@ -1699,6 +1702,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           //Delete orphaned relations
           foreach (Guid relationId in relations)
             DeleteOrphan(database, transaction, relationId);
+
+          DeleteFanArt(mediaItemId);
         }
       }
       catch (Exception e)
@@ -1922,6 +1927,60 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    private bool DeleteFanArt(Guid mediaItemId)
+    {
+      try
+      {
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+
+        Logger.Debug("Scheduling FanArt deletion for {0}", mediaItemId);
+
+        foreach (IMediaFanArtHandler handler in mediaAccessor.LocalFanArtHandlers.Values)
+        {
+          handler.DeleteFanArt(mediaItemId);
+        }
+        return true;
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error deleting FanArt for media item {0}", e, mediaItemId);
+      }
+      return false;
+    }
+
+    private bool CollectFanArt(Guid mediaItemId)
+    {
+      try
+      {
+        MediaItemIdFilter filter = new MediaItemIdFilter(mediaItemId);
+        IList<Guid> reqiuredAspectIds = new List<Guid>() { MediaAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
+        IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(reqiuredAspectIds).ToList();
+        IList<MediaItem> fanartItems = Search(new MediaItemQuery(reqiuredAspectIds, optionalAspectIds, filter), false, null, true);
+        if (fanartItems.Count == 0)
+          return false;
+
+        IDictionary<Guid, IList<MediaItemAspect>> aspects = fanartItems.First().Aspects;
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+
+        Logger.Debug("Scheduling FanArt downloads for {0}", mediaItemId);
+
+        foreach (IMediaFanArtHandler handler in mediaAccessor.LocalFanArtHandlers.Values)
+        {
+          IList<Guid> aspectIds = new List<Guid>(handler.FanArtAspects);
+
+          // Any usable item must contain any of the hander.FanArtAspects
+          if (aspectIds.Where(a => aspects.ContainsKey(a)).Any())
+            handler.CollectFanArt(mediaItemId, aspects);
+        }
+        return true;
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error downloading FanArt for media item {0}", e, mediaItemId);
+      }
+      return false;
+    }
+
     private void UpdateVirtualParents(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
     {
       try
@@ -2035,7 +2094,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private void UpdateAllParentUserData(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    private void UpdateAllParentPlayUserData(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
     {
       try
       {
@@ -2165,7 +2224,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private void UpdateParentUserData(Guid userProfileId, Guid mediaItemId)
+    private void UpdateParentPlayUserData(Guid userProfileId, Guid mediaItemId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       
@@ -2182,8 +2241,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             string parentRoleColumn = null;
             string childIdColumn = null;
             string childRoleColumn = null;
-            List<Guid> parentsToDelete = new List<Guid>();
-            List<Guid> childsToDelete = new List<Guid>();
             foreach (Guid childRole in _virtualRoleHierarchy.Keys)
             {
               foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
@@ -2249,11 +2306,98 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
         foreach (var key in parentPercentages)
+        {
           userManager.SetUserMediaItemData(userProfileId, key.Key, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, key.Value.ToString());
+          userManager.SetUserMediaItemData(userProfileId, key.Key, UserDataKeysKnown.KEY_PLAY_COUNT, key.Value >= 100 ? "1" : "0");
+        }
       }
       catch (Exception e)
       {
         Logger.Error("MediaLibrary: Error updating parent media item {0} user data", e, mediaItemId);
+        throw;
+      }
+    }
+
+    private void UpdateChildPlayUserData(Guid userProfileId, Guid mediaItemId, bool watched)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+
+      try
+      {
+        Dictionary<Guid, int> childPlayCounts = new Dictionary<Guid, int>();
+        using (ITransaction transaction = database.BeginTransaction())
+        {
+          using (IDbCommand command = transaction.CreateCommand())
+          {
+            foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+            {
+              foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+              {
+                command.Parameters.Clear();
+                database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", parentRole, typeof(Guid));
+                database.AddParameter(command, "CHILD_ROLE_ID", childRole, typeof(Guid));
+                database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
+                database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
+
+                command.CommandText = "SELECT R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                  ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                  " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                  " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                  " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                  " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                  " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                  " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                  " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
+                  " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @CHILD_ROLE_ID" +
+                  " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
+                  " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
+                  " AND M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 0" +
+                  " UNION " +
+                  "SELECT R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                  ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                  " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                  " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                  " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                  " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                  " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                  " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                  " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
+                  " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @CHILD_ROLE_ID" +
+                  " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
+                  " AND R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                  " AND M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 0";
+
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                  while (reader.Read())
+                  {
+                    Guid? childId = database.ReadDBValue<Guid?>(reader, 0);
+                    int playCount = 0;
+                    if (watched)
+                    {
+                      string plays = database.ReadDBValue<string>(reader, 1);
+                      int.TryParse(plays, out playCount);
+                      playCount++;
+                    }
+                    childPlayCounts.Add(childId.Value, playCount);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
+        foreach (var key in childPlayCounts)
+        {
+          userManager.SetUserMediaItemData(userProfileId, key.Key, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, watched ? "100" : "0");
+          userManager.SetUserMediaItemData(userProfileId, key.Key, UserDataKeysKnown.KEY_PLAY_COUNT, key.Value.ToString());
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error updating media item {0} childs user data", e, mediaItemId);
         throw;
       }
     }
@@ -2364,11 +2508,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region User data management
 
-    public void UserDataUpdated(Guid userProfileId, Guid mediaItemId, string userDataKey)
+    public void UserDataUpdated(Guid userProfileId, Guid mediaItemId, string userDataKey, string userData)
     {
-      if (userDataKey != UserDataKeysKnown.KEY_PLAY_COUNT)
-        return;
-      UpdateParentUserData(userProfileId, mediaItemId);
+      if (userDataKey == UserDataKeysKnown.KEY_PLAY_COUNT)
+      {
+        UpdateParentPlayUserData(userProfileId, mediaItemId);
+        UpdateChildPlayUserData(userProfileId, mediaItemId, Convert.ToInt32(userData) > 0);
+      }
     }
 
     #endregion
