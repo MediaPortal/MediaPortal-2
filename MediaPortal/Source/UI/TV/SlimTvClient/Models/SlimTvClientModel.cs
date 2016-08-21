@@ -382,18 +382,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         IProgram currentProgram = null;
         IProgram nextProgram = null;
-        lock (CurrentGroupChannels.SyncRoot)
-          if (channelItem.Programs != null && channelItem.Programs.Count == 2)
-          {
-            currentProgram = channelItem.Programs[0].AdditionalProperties["PROGRAM"] as IProgram;
-            nextProgram = channelItem.Programs[1].AdditionalProperties["PROGRAM"] as IProgram;
-          }
-        SelectedChannelName = channelItem.Channel.Name;
-        SelectedCurrentProgram.SetProgram(currentProgram, channelItem.Channel);
-        SelectedNextProgram.SetProgram(nextProgram, channelItem.Channel);
-        double progress = currentProgram != null ?
-          (DateTime.Now - currentProgram.StartTime).TotalSeconds / (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100 : 100d;
-        SelectedProgramProgress = progress;
+        if (channelItem.Programs != null)
+        {
+          lock (channelItem.Programs.SyncRoot)
+            if (channelItem.Programs.Count == 2)
+            {
+              currentProgram = channelItem.Programs[0].AdditionalProperties["PROGRAM"] as IProgram;
+              nextProgram = channelItem.Programs[1].AdditionalProperties["PROGRAM"] as IProgram;
+            }
+          SelectedChannelName = channelItem.Channel.Name;
+          SelectedCurrentProgram.SetProgram(currentProgram, channelItem.Channel);
+          SelectedNextProgram.SetProgram(nextProgram, channelItem.Channel);
+          double progress = currentProgram != null ?
+            (DateTime.Now - currentProgram.StartTime).TotalSeconds / (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100 : 100d;
+          SelectedProgramProgress = progress;
+        }
       }
     }
 
