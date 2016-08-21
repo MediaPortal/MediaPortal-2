@@ -389,8 +389,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             nextProgram = channelItem.Programs[1].AdditionalProperties["PROGRAM"] as IProgram;
           }
         SelectedChannelName = channelItem.Channel.Name;
-        SelectedCurrentProgram.SetProgram(currentProgram);
-        SelectedNextProgram.SetProgram(nextProgram);
+        SelectedCurrentProgram.SetProgram(currentProgram, channelItem.Channel);
+        SelectedNextProgram.SetProgram(nextProgram, channelItem.Channel);
         double progress = currentProgram != null ?
           (DateTime.Now - currentProgram.StartTime).TotalSeconds / (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100 : 100d;
         SelectedProgramProgress = progress;
@@ -701,8 +701,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IProgram nextProgram;
       if (_tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
       {
-        current.SetProgram(currentProgram);
-        next.SetProgram(nextProgram);
+        current.SetProgram(currentProgram, channel);
+        next.SetProgram(nextProgram, channel);
         double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds / (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
         progressProperty.SetValue(progress);
       }
@@ -836,18 +836,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
           IProgram currentProgram = null;
           IProgram nextProgram = null;
+          IChannel channel = null;
           if (context != null && context.Channel != null)
           {
-            ChannelName = context.Channel.Name;
-            if (_tvHandler.ProgramInfo != null && _tvHandler.ProgramInfo.GetNowNextProgram(context.Channel, out currentProgram, out nextProgram) && currentProgram != null)
+            channel = context.Channel;
+            ChannelName = channel.Name;
+            if (_tvHandler.ProgramInfo != null && _tvHandler.ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram) && currentProgram != null)
             {
               double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
                                 (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
               _programProgressProperty.SetValue(progress);
             }
           }
-          CurrentProgram.SetProgram(currentProgram);
-          NextProgram.SetProgram(nextProgram);
+          CurrentProgram.SetProgram(currentProgram, channel);
+          NextProgram.SetProgram(nextProgram, channel);
         }
       }
     }
@@ -966,24 +968,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           IProgram[] nowNext;
           IProgram currentProgram = null;
           IProgram nextProgram = null;
-          int channelId = channelItem.Channel.ChannelId;
-          if (programs != null && programs.TryGetValue(channelId, out nowNext))
+          IChannel channel = channelItem.Channel;
+          if (programs != null && programs.TryGetValue(channel.ChannelId, out nowNext))
           {
             currentProgram = nowNext.Length > 0 ? nowNext[0] : null;
             nextProgram = nowNext.Length > 1 ? nowNext[1] : null;
           }
 
-          CreateProgramListItem(currentProgram, channelItem.Programs[0], channelId);
-          CreateProgramListItem(nextProgram, channelItem.Programs[1], channelId, currentProgram);
+          CreateProgramListItem(currentProgram, channelItem.Programs[0], channel);
+          CreateProgramListItem(nextProgram, channelItem.Programs[1], channel, currentProgram);
         }
     }
 
-    private static void CreateProgramListItem(IProgram program, ListItem itemToUpdate, int channelId, IProgram previousProgram = null)
+    private static void CreateProgramListItem(IProgram program, ListItem itemToUpdate, IChannel channel, IProgram previousProgram = null)
     {
       ProgramListItem item = itemToUpdate as ProgramListItem;
       if (item == null)
         return;
-      item.Program.SetProgram(program ?? GetNoProgram(channelId, previousProgram));
+      item.Program.SetProgram(program ?? GetNoProgram(channel.ChannelId, previousProgram), channel);
       item.AdditionalProperties["PROGRAM"] = program;
       item.Update();
     }

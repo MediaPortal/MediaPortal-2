@@ -257,10 +257,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         IProgram currentProgram = program;
         programProperties.SetProgram(currentProgram);
 
-        if (ProgramComparer.Instance.Equals(currentProgram, program))
-        {
-        }
-
         ProgramListItem item = new ProgramListItem(programProperties)
         {
           Command = new MethodDelegateCommand(() =>
