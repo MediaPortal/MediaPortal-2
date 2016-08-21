@@ -33,15 +33,13 @@ using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class SeriesFanartProvider : IFanArtProvider
   {
-    private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
+    private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID };
     private static readonly Guid[] OPTIONAL_MIAS = { SeriesAspect.ASPECT_ID, SeasonAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
     private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
@@ -95,134 +93,97 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (Guid.TryParse(name, out mediaItemId) == false)
         return false;
 
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
-      if (mediaLibrary == null)
-        return false;
-
-      IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter), false, null, true);
-      if (items == null || items.Count == 0)
-        return false;
-
-      MediaItem mediaItem = items.First();
       List<string> fanArtFiles = new List<string>();
-      object infoObject = null;
-      if (mediaType == FanArtMediaTypes.Actor || mediaType == FanArtMediaTypes.Director || mediaType == FanArtMediaTypes.Writer)
+      fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), fanArtType));
+
+      // Try fallback
+      if (fanArtFiles.Count == 0 && 
+        (mediaType == FanArtMediaTypes.SeriesSeason || 
+        mediaType == FanArtMediaTypes.Character ||
+        (mediaType == FanArtMediaTypes.Episode && fanArtType == FanArtTypes.FanArt)))
       {
-        PersonInfo personInfo = new PersonInfo();
-        personInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = personInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.Character)
-      {
-        CharacterInfo characterInfo = new CharacterInfo();
-        characterInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = characterInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.Company || mediaType == FanArtMediaTypes.TVNetwork)
-      {
-        CompanyInfo companyInfo = new CompanyInfo();
-        companyInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = companyInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.Series)
-      {
-        SeriesInfo seriesInfo = new SeriesInfo();
-        seriesInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = seriesInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.SeriesSeason)
-      {
-        SeasonInfo seasonInfo = new SeasonInfo();
-        seasonInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = seasonInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.Episode)
-      {
-        EpisodeInfo episodeInfo = new EpisodeInfo();
-        episodeInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = episodeInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.Undefined)
-      {
-        if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
-        {
-          mediaType = FanArtMediaTypes.Episode;
-          EpisodeInfo episodeInfo = new EpisodeInfo();
-          episodeInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = episodeInfo;
-        }
-        else if (mediaItem.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
-        {
-          mediaType = FanArtMediaTypes.SeriesSeason;
-          SeasonInfo seasonInfo = new SeasonInfo();
-          seasonInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = seasonInfo;
-        }
-        else if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
-        {
-          mediaType = FanArtMediaTypes.Series;
-          SeriesInfo seriesInfo = new SeriesInfo();
-          seriesInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = seriesInfo;
-        }
-        else if (mediaItem.Aspects.ContainsKey(PersonAspect.ASPECT_ID))
-        {
-          PersonInfo personInfo = new PersonInfo();
-          personInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = personInfo;
-          if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR)
-            mediaType = FanArtMediaTypes.Episode;
-          else if (personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR)
-            mediaType = FanArtMediaTypes.Director;
-          else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
-            mediaType = FanArtMediaTypes.Writer;
-          else
-            return false;
-        }
-        else if (mediaItem.Aspects.ContainsKey(CharacterAspect.ASPECT_ID))
-        {
-          mediaType = FanArtMediaTypes.Character;
-          CharacterInfo characterInfo = new CharacterInfo();
-          characterInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = characterInfo;
-        }
-        else if (mediaItem.Aspects.ContainsKey(CompanyAspect.ASPECT_ID))
-        {
-          CompanyInfo companyInfo = new CompanyInfo();
-          companyInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = companyInfo;
-          if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
-            mediaType = FanArtMediaTypes.Company;
-          else if (companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
-            mediaType = FanArtMediaTypes.TVNetwork;
-          else
-            return false;
-        }
-        else
+        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+        if (mediaLibrary == null)
           return false;
-      }
 
-      fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(infoObject, mediaType, fanArtType));
+        IFilter filter = new MediaItemIdFilter(mediaItemId);
+        IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter), false, null, true);
+        if (items == null || items.Count == 0)
+          return false;
 
-      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.SeriesSeason)
-      {
-        SeasonInfo season = infoObject as SeasonInfo;
-        if (season != null)
+        MediaItem mediaItem = items.First();
+
+        if (mediaType == FanArtMediaTypes.Episode && fanArtType == FanArtTypes.FanArt)
         {
-          mediaType = FanArtMediaTypes.Series;
-          SeriesInfo series = season.CloneBasicInstance<SeriesInfo>();
-          fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(series, mediaType, fanArtType));
+          if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+          {
+            IList<MultipleMediaItemAspect> relationAspects;
+            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+            {
+              //Season fallback
+              foreach (MultipleMediaItemAspect relation in relationAspects)
+              {
+                if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeasonAspect.ROLE_SEASON)
+                {
+                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                  if (fanArtFiles.Count > 0)
+                    break;
+                }
+              }
+
+              //Series fallback
+              if (fanArtFiles.Count == 0)
+              {
+                foreach (MultipleMediaItemAspect relation in relationAspects)
+                {
+                  if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
+                  {
+                    fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                    if (fanArtFiles.Count > 0)
+                      break;
+                  }
+                }
+              }
+            }
+          }
         }
-      }
-      if (fanArtFiles.Count == 0 && mediaType == FanArtMediaTypes.Character)
-      {
-        CharacterInfo character = infoObject as CharacterInfo;
-        if (character != null)
+        else if (mediaType == FanArtMediaTypes.SeriesSeason)
         {
-          mediaType = FanArtMediaTypes.Actor;
-          PersonInfo person = character.CloneBasicInstance<PersonInfo>();
-          fanArtFiles.AddRange(OnlineMatcherService.GetSeriesFanArtFiles(person, mediaType, fanArtType));
+          if (mediaItem.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
+          {
+            IList<MultipleMediaItemAspect> relationAspects;
+            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+            {
+              foreach (MultipleMediaItemAspect relation in relationAspects)
+              {
+                if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
+                {
+                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                  if (fanArtFiles.Count > 0)
+                    break;
+                }
+              }
+            }
+          }
+        }
+        else if (mediaType == FanArtMediaTypes.Character)
+        {
+          if (mediaItem.Aspects.ContainsKey(CharacterAspect.ASPECT_ID))
+          {
+            IList<MultipleMediaItemAspect> relationAspects;
+            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+            {
+              foreach (MultipleMediaItemAspect relation in relationAspects)
+              {
+                if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ACTOR)
+                {
+                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                  if (fanArtFiles.Count > 0)
+                    break;
+                }
+              }
+            }
+          }
         }
       }
 

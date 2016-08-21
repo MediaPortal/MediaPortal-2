@@ -25,23 +25,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
-using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class AudioFanartProvider : IFanArtProvider
   {
-    private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID };
+    private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID };
     private static readonly Guid[] OPTIONAL_MIAS = { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
     private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
@@ -91,85 +85,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (Guid.TryParse(name, out mediaItemId) == false)
         return false;
 
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
-      if (mediaLibrary == null)
-        return false;
-
-      IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter), false, null, true);
-      if (items == null || items.Count == 0)
-        return false;
-
-      MediaItem mediaItem = items.First();
       List<string> fanArtFiles = new List<string>();
-      object infoObject = null;
-      if (mediaType == FanArtMediaTypes.Artist || mediaType == FanArtMediaTypes.Composer)
-      {
-        PersonInfo personInfo = new PersonInfo();
-        personInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = personInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.MusicLabel)
-      {
-        CompanyInfo companyInfo = new CompanyInfo();
-        companyInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = companyInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.Audio)
-      {
-        TrackInfo trackInfo = new TrackInfo();
-        trackInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = trackInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.Album)
-      {
-        AlbumInfo albumInfo = new AlbumInfo();
-        albumInfo.FromMetadata(mediaItem.Aspects);
-        infoObject = albumInfo;
-      }
-      else if (mediaType == FanArtMediaTypes.Undefined)
-      {
-        if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-        {
-          mediaType = FanArtMediaTypes.Audio;
-          TrackInfo trackInfo = new TrackInfo();
-          trackInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = trackInfo;
-        }
-        else if (mediaItem.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
-        {
-          mediaType = FanArtMediaTypes.Album;
-          AlbumInfo albumInfo = new AlbumInfo();
-          albumInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = albumInfo;
-        }
-        else if (mediaItem.Aspects.ContainsKey(PersonAspect.ASPECT_ID))
-        {
-          PersonInfo personInfo = new PersonInfo();
-          personInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = personInfo;
-          if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST)
-            mediaType = FanArtMediaTypes.Artist;
-          else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
-            mediaType = FanArtMediaTypes.Writer;
-          else
-            return false;
-        }
-        else if (mediaItem.Aspects.ContainsKey(CompanyAspect.ASPECT_ID))
-        {
-          CompanyInfo companyInfo = new CompanyInfo();
-          companyInfo.FromMetadata(mediaItem.Aspects);
-          infoObject = companyInfo;
-          if (companyInfo.Type == CompanyAspect.COMPANY_MUSIC_LABEL)
-            mediaType = FanArtMediaTypes.MusicLabel;
-          else
-            return false;
-        }
-        else
-          return false;
-      }
-
-      fanArtFiles.AddRange(OnlineMatcherService.GetAudioFanArtFiles(infoObject, mediaType, fanArtType));
+      fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), fanArtType));
 
       List<IResourceLocator> files = new List<IResourceLocator>();
       try
