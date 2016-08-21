@@ -1197,7 +1197,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (SetTrackId(trackInfo, Id))
             {
               foreach (string fanArtType in fanArtTypes)
-                AddFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
+                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
 
               if (_wrapper.GetFanArt(trackInfo, language, data.FanArtMediaType, out images) == false)
               {
@@ -1213,7 +1213,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (SetTrackAlbumId(albumInfo, Id))
             {
               foreach (string fanArtType in fanArtTypes)
-                AddFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
+                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
 
               if (_wrapper.GetFanArt(albumInfo, language, data.FanArtMediaType, out images) == false)
               {
@@ -1232,7 +1232,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (SetPersonId(personInfo, Id))
             {
               foreach (string fanArtType in fanArtTypes)
-                AddFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
+                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
 
               if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
               {
@@ -1251,7 +1251,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             if (SetCompanyId(companyInfo, Id))
             {
               foreach (string fanArtType in fanArtTypes)
-                AddFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
+                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
 
               if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
               {
@@ -1318,6 +1318,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             AddFanArtCount(fanArtToken, fanartType, 1);
             idx++;
+          }
+          else
+          {
+            Logger.Warn(GetType().Name + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
           }
         }
         Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);

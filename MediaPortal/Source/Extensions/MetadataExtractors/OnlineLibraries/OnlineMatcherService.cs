@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
       success |= MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
       success |= MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, true); //Always force quick mode because online queries mostly timeout
-      success |= MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
+      success |= MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
       return success;
     }
 
@@ -73,9 +73,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public static bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool forceQuickMode)
     {
       bool success = false;
-      success |= MusicTheAudioDbMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, false);
+      success |= MusicTheAudioDbMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, forceQuickMode);
       success |= MusicBrainzMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, true); //Always force quick mode because online queries mostly timeout
-      success |= MusicFanArtTvMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, false);
+      success |= MusicFanArtTvMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, forceQuickMode);
       return success;
     }
 
@@ -84,7 +84,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       bool success = false;
       success |= MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, false);
       success |= MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, true); //Always force quick mode because online queries mostly timeout
-      success |= MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, false);
+      success |= MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, forceQuickMode);
 
       if (updateTrackList)
       {
@@ -143,7 +143,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       bool success = false;
       success |= MovieTheMovieDbMatcher.Instance.FindAndUpdateMovie(movieInfo, false);
       success |= MovieOmDbMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
-      success |= MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, false);
+      success |= MovieFanArtTvMatcher.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
       return success;
     }
 
@@ -195,6 +195,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       bool success = false;
       success |= MovieTheMovieDbMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
       success |= MovieOmDbMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      success |= MovieFanArtTvMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
       return success;
     }
 
@@ -240,7 +241,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       success |= SeriesTheMovieDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID, TMDBID and TVDBID
       success |= SeriesTvMazeMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides TvMazeID, IMDBID and TVDBID
       success |= SeriesOmDbMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode); //Provides IMDBID
-      success |= SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
+      success |= SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
       return success;
     }
 
@@ -279,7 +280,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       success |= SeriesTheMovieDbMatcher.Instance.UpdateSeries(seriesInfo, updateEpisodeList, forceQuickMode);
       success |= SeriesTvMazeMatcher.Instance.UpdateSeries(seriesInfo, updateEpisodeList, forceQuickMode);
       success |= SeriesOmDbMatcher.Instance.UpdateSeries(seriesInfo, updateEpisodeList, forceQuickMode);
-      success |= SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, updateEpisodeList, false);
+      success |= SeriesFanArtTvMatcher.Instance.UpdateSeries(seriesInfo, updateEpisodeList, forceQuickMode);
 
       if (updateEpisodeList)
       {

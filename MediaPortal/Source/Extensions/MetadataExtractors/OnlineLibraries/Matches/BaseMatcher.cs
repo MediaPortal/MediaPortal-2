@@ -127,6 +127,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       }
     }
 
+    public static void InitFanArtCount(string FanArtToken, string FanArtType, int FanArtCount)
+    {
+      lock (_fanArtCountSync)
+      {
+        if (!_fanArtCount.ContainsKey(FanArtToken) || !_fanArtCount[FanArtToken].ContainsKey(FanArtType))
+        {
+          if (!_fanArtCount.ContainsKey(FanArtToken))
+            _fanArtCount.Add(FanArtToken, new Dictionary<string, int>());
+          if (!_fanArtCount[FanArtToken].ContainsKey(FanArtType))
+            _fanArtCount[FanArtToken].Add(FanArtType, FanArtCount);
+        }
+      }
+    }
+
     public static void AddFanArtCount(string FanArtToken, string FanArtType, int FanArtCount)
     {
       if (string.IsNullOrEmpty(FanArtToken))
@@ -135,11 +149,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       _clearTimer.Change(FANART_TOKEN_CLEAN_DEALY, Timeout.Infinite);
       lock (_fanArtCountSync)
       {
-        if (!_fanArtCount.ContainsKey(FanArtToken))
-          _fanArtCount.Add(FanArtToken, new Dictionary<string, int>());
-        if (!_fanArtCount[FanArtToken].ContainsKey(FanArtType))
-          _fanArtCount[FanArtToken].Add(FanArtType, 0);
-        _fanArtCount[FanArtToken][FanArtType] += FanArtCount;
+        if (_fanArtCount.ContainsKey(FanArtToken) && _fanArtCount[FanArtToken].ContainsKey(FanArtType))
+          _fanArtCount[FanArtToken][FanArtType] += FanArtCount;
       }
     }
 
