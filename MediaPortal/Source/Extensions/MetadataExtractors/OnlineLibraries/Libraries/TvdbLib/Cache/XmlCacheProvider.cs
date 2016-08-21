@@ -743,16 +743,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="image">banner to save</param>
     /// <param name="seriesId">id of series</param>
     /// <param name="fileName">filename (will be the same name used by LoadImageFromCache)</param>
-    public void SaveToCache(Image image, int seriesId, string fileName)
+    public void SaveToCache(Image image, int seriesId, string folderName, string fileName)
     {
-      String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      String imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
+      {
+        imageRoot = folderName;
+        if (!Directory.Exists(imageRoot))
+          Directory.CreateDirectory(imageRoot);
+      }
       _imageLock.EnterWriteLock();
       try
       {
-        if (Directory.Exists(seriesRoot))
+        if (Directory.Exists(imageRoot))
         {
           if (image != null)
-            image.Save(seriesRoot + Path.DirectorySeparatorChar + fileName);
+            image.Save(imageRoot + Path.DirectorySeparatorChar + fileName);
         }
         else
         {
@@ -771,15 +777,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="seriesId">series id</param>
     /// <param name="fileName">filename of the image (same one as used by SaveToCache)</param>
     /// <returns>The loaded image or null if the image wasn't found</returns>
-    public Image LoadImageFromCache(int seriesId, string fileName)
+    public Image LoadImageFromCache(int seriesId, string folderName, string fileName)
     {
-      String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      String imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
+        imageRoot = folderName;
       _imageLock.EnterReadLock();
       try
       {
-        if (Directory.Exists(seriesRoot))
+        if (Directory.Exists(imageRoot))
         {
-          String fName = seriesRoot + Path.DirectorySeparatorChar + fileName;
+          String fName = imageRoot + Path.DirectorySeparatorChar + fileName;
           if (File.Exists(fName))
           {
             try
@@ -806,10 +814,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="seriesId">id of series</param>
     /// <param name="fileName">name of image</param>
     /// <returns>true if image was removed successfully, false otherwise (e.g. image didn't exist)</returns>
-    public bool RemoveImageFromCache(int seriesId, string fileName)
+    public bool RemoveImageFromCache(int seriesId, string folderName, string fileName)
     {
-      String fName = _rootFolder + Path.DirectorySeparatorChar + seriesId +
-                     Path.DirectorySeparatorChar + fileName;
+      string imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
+        imageRoot = folderName;
+      string fName = imageRoot + Path.DirectorySeparatorChar + fileName;
 
       _imageLock.EnterWriteLock();
       try

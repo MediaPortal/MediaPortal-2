@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
@@ -101,13 +102,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public static IList<string> GetAudioFanArtFiles(object infoObject, string mediaType, string fanArtType)
+    public static bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
-      List<string> fanArtFiles = new List<string>();
-      fanArtFiles.AddRange(MusicTheAudioDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(MusicBrainzMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(MusicFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      return fanArtFiles;
+      bool success = false;
+      success |= MusicTheAudioDbMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      success |= MusicBrainzMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      success |= MusicFanArtTvMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      return success;
     }
 
     public static void StoreAudioPersonMatch(PersonInfo person)
@@ -154,7 +155,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-
     public static bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
     {
       bool success = false;
@@ -190,12 +190,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public static IList<string> GetMovieFanArtFiles(object infoObject, string mediaType, string fanArtType)
+    public static bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
-      List<string> fanArtFiles = new List<string>();
-      fanArtFiles.AddRange(MovieTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(MovieFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      return fanArtFiles;
+      bool success = false;
+      success |= MovieTheMovieDbMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      success |= MovieOmDbMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      return success;
     }
 
     public static void StoreMoviePersonMatch(PersonInfo person)
@@ -327,14 +327,15 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public static IList<string> GetSeriesFanArtFiles(object infoObject, string mediaType, string fanArtType)
+    public static bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
-      List<string> fanArtFiles = new List<string>();
-      fanArtFiles.AddRange(SeriesTvDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesTheMovieDbMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesTvMazeMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      fanArtFiles.AddRange(SeriesFanArtTvMatcher.Instance.GetFanArtFiles(infoObject, mediaType, fanArtType));
-      return fanArtFiles;
+      bool success = false;
+      success |= SeriesTvDbMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      success |= SeriesTheMovieDbMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      success |= SeriesTvMazeMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      success |= SeriesOmDbMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      success |= SeriesFanArtTvMatcher.Instance.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+      return success;
     }
 
     public static void StoreSeriesPersonMatch(PersonInfo person)

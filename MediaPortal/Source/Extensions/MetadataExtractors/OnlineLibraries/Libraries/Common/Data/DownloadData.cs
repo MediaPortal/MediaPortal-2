@@ -33,6 +33,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data
     public string FanArtToken;
     public string FanArtMediaType;
     public string ShortLanguage;
+    public string MediaItemId;
+    public string Name;
     public Dictionary<string, string> FanArtId = new Dictionary<string, string>();
 
     public string Serialize()
@@ -41,6 +43,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data
       builder.Append(FanArtToken ?? "").Append('|');
       builder.Append(FanArtMediaType ?? "").Append('|');
       builder.Append(ShortLanguage ?? "").Append('|');
+      builder.Append(MediaItemId ?? "").Append('|');
+      builder.Append(Name ?? "").Append('|');
       foreach (KeyValuePair<string, string> pair in FanArtId)
       {
         builder.Append(pair.Key).Append(":").Append(pair.Value).Append(',');
@@ -53,12 +57,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data
     {
       FanArtId.Clear();
       string[] tokens = val.Split('|');
-      if (tokens.Length != 4)
+      if (tokens.Length != 6)
         return false;
       FanArtToken = tokens[0];
       FanArtMediaType = tokens[1];
       ShortLanguage = tokens[2];
-      tokens = tokens[3].Split(new char[] { ':', ',' }, StringSplitOptions.RemoveEmptyEntries);
+      MediaItemId = tokens[3];
+      Name = tokens[4];
+      tokens = tokens[5].Split(new char[] { ':', ',' }, StringSplitOptions.RemoveEmptyEntries);
       for (int i = 0; i < tokens.Length; i += 2)
       {
         string key = tokens[i];

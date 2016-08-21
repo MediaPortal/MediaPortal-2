@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -118,12 +117,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #endregion
 
     #region FanArt
-
-    public override List<string> GetFanArtFiles<T>(T infoObject, string scope, string type)
-    {
-      // No fanart
-      return new List<string>();
-    }
 
     protected override void DownloadFanArt(string downloadId)
     {

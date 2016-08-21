@@ -33,6 +33,8 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.General;
+using System.IO;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -163,44 +165,52 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override int SaveFanArtImages(string fanArtToken, string id, IEnumerable<TrackImage> images, string scope, string type)
+    protected override int SaveFanArtImages(string fanArtToken, string id, IEnumerable<TrackImage> images, string mediaItemId, string name, string fanartType)
     {
-      if (images == null)
-        return 0;
-
-      string imgType = null;
-      if (type == FanArtTypes.Cover)
-        imgType = "Front";
-      else if (type == FanArtTypes.DiscArt)
-        imgType = "Medium";
-
-      if (imgType == null)
-        return 0;
-
-      int idx = 0;
-      foreach (TrackImage img in images)
+      try
       {
-        int externalFanArtCount = GetFanArtCount(fanArtToken, type);
-        if (externalFanArtCount >= MAX_FANART_IMAGES)
-          break;
-        if (idx >= MAX_FANART_IMAGES)
-          break;
+        if (images == null)
+          return 0;
 
-        foreach (string imageType in img.Types)
+        string imgType = null;
+        if (fanartType == FanArtTypes.Cover)
+          imgType = "Front";
+        else if (fanartType == FanArtTypes.DiscArt)
+          imgType = "Medium";
+
+        if (imgType == null)
+          return 0;
+
+        int idx = 0;
+        foreach (TrackImage img in images)
         {
-          if (imageType.Equals(imgType, StringComparison.InvariantCultureIgnoreCase))
-          {
-            if (_wrapper.DownloadFanArt(id, img, scope, type))
-            {
-              AddFanArtCount(fanArtToken, type, 1);
-              idx++;
-            }
+          int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
+          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES)
             break;
+          if (idx >= FanArtCache.MAX_FANART_IMAGES)
+            break;
+
+          foreach (string imageType in img.Types)
+          {
+            if (imageType.Equals(imgType, StringComparison.InvariantCultureIgnoreCase))
+            {
+              if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
+              {
+                AddFanArtCount(fanArtToken, fanartType, 1);
+                idx++;
+              }
+              break;
+            }
           }
         }
+        Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
+        return idx;
       }
-      ServiceRegistration.Get<ILogger>().Debug(@"MusicBrainzMatcher Download: Saved {0} {1}\{2}", idx, scope, type);
-      return idx;
+      catch (Exception ex)
+      {
+        Logger.Debug(GetType().Name + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
+        return 0;
+      }
     }
 
     #endregion

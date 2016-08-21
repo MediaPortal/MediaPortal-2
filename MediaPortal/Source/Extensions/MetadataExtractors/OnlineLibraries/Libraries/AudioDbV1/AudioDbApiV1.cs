@@ -298,11 +298,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     /// Downloads images in "original" size and saves them to cache.
     /// </summary>
     /// <param name="url">Image to download</param>
-    /// <param name="category">Image category (Poster, Cover, Backdrop...)</param>
+    /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(long id, string url, string category)
+    public bool DownloadImage(long id, string url, string folderPath)
     {
-      string cacheFileName = CreateAndGetCacheName(id, url, category);
+      string cacheFileName = CreateAndGetCacheName(id, url, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
         return false;
 
@@ -310,9 +310,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return true;
     }
 
-    public byte[] GetImage(long id, string url, string category)
+    public byte[] GetImage(long id, string url, string folderPath)
     {
-      string cacheFileName = CreateAndGetCacheName(id, url, category);
+      string cacheFileName = CreateAndGetCacheName(id, url, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
         return null;
 
@@ -340,16 +340,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     /// Creates a local file name for loading and saving <see cref="MovieImage"/>s.
     /// </summary>
     /// <param name="album"></param>
-    /// <param name="category"></param>
+    /// <param name="folderPath"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(long id, string url, string category)
+    protected string CreateAndGetCacheName(long id, string url, string folderPath)
     {
       try
       {
-        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", id, category));
-        if (!Directory.Exists(folder))
-          Directory.CreateDirectory(folder);
-        return Path.Combine(folder, url.Substring(url.LastIndexOf('/') + 1));
+        string prefix = string.Format(@"TADB({0})_", id);
+        if (!Directory.Exists(folderPath))
+          Directory.CreateDirectory(folderPath);
+        return Path.Combine(folderPath, prefix + url.Substring(url.LastIndexOf('/') + 1));
       }
       catch
       {

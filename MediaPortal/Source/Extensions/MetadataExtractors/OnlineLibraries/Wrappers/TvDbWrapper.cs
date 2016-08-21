@@ -35,12 +35,15 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using System.IO;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
   class TvDbWrapper : ApiWrapper<TvdbBanner, TvdbLanguage>
   {
     protected TvdbHandler _tvdbHandler;
+    private IdMapper _seriesToActorMap;
 
     /// <summary>
     /// Sets the preferred language in short format like: en, de, ...
@@ -68,6 +71,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       _tvdbHandler.UpdateProgressed += TvdbHandlerOnUpdateProgressed;
       SetDefaultLanguage(TvdbLanguage.DefaultLanguage);
       SetCachePath(cachePath);
+
+      _seriesToActorMap = new IdMapper(Path.Combine(cachePath, "SeriesToActorMap.xml"));
       return true;
     }
 
@@ -203,6 +208,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       series.Actors = ConvertToPersons(seriesDetail.TvdbActors, PersonAspect.OCCUPATION_ACTOR);
       series.Characters = ConvertToCharacters(seriesDetail.TvdbActors);
+
+      foreach(TvdbActor actor in seriesDetail.TvdbActors)
+      {
+        _seriesToActorMap.StoreMappedId(actor.Id.ToString(), seriesDetail.Id.ToString());
+      }
 
       foreach (TvdbEpisode episodeDetail in seriesDetail.Episodes.OrderByDescending(e => e.Id))
       {
@@ -593,20 +603,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
               if (seriesDetail != null)
               {
-                try
-                {
-                  //Save all actors here because they are saved under the series
-                  foreach (TvdbActorBanner banner in seriesDetail.TvdbActors.Select(a => a.ActorImage).ToList())
-                  {
-                    banner.LoadBanner();
-                    banner.UnloadBanner();
-                  }
-                }
-                catch (Exception ex)
-                {
-                  ServiceRegistration.Get<ILogger>().Error("TvDbWrapper: Error downloading actor banners", ex);
-                }
-
                 images.Id = series.TvdbId.ToString();
                 images.Posters.AddRange(seriesDetail.PosterBanners);
                 images.Banners.AddRange(seriesDetail.SeriesBanners);
@@ -660,8 +656,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
           else if (scope == FanArtMediaTypes.Actor)
           {
-            // Probably already downloaded for the series
-            return true;
+            PersonInfo person = infoObject as PersonInfo;
+            string seriesId = null;
+            _seriesToActorMap.GetMappedId(person.TvdbId.ToString(), out seriesId);
+            int seriesTvdbId = 0;
+            if (int.TryParse(seriesId, out seriesTvdbId))
+            {
+              seriesDetail = _tvdbHandler.GetSeries(seriesTvdbId, language, false, true, true);
+              if (seriesDetail != null)
+              {
+                foreach (TvdbActor actor in seriesDetail.TvdbActors)
+                {
+                  if (actor.Id == person.TvdbId)
+                  {
+                    images.Id = actor.Id.ToString();
+                    images.Thumbnails.AddRange(new TvdbBanner[] { actor.ActorImage });
+                    return true;
+                  }
+                }
+              }
+            }
           }
           else
           {
@@ -680,22 +694,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public override bool DownloadFanArt(string id, TvdbBanner image, string scope, string type)
+    public override bool DownloadFanArt(string id, TvdbBanner image, string folderPath)
     {
+      image.CachePath = folderPath;
       image.LoadBanner();
-      return image.UnloadBanner();
-    }
-
-    public override bool DownloadSeriesSeasonFanArt(string id, int seasonNo, TvdbBanner image, string scope, string type)
-    {
-      image.LoadBanner();
-      return image.UnloadBanner();
-    }
-
-    public override bool DownloadSeriesEpisodeFanArt(string id, int seasonNo, int episodeNo, TvdbBanner image, string scope, string type)
-    {
-      image.LoadBanner();
-      return image.UnloadBanner();
+      return image.UnloadBanner(true);
     }
 
     #endregion

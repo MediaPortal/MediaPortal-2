@@ -534,35 +534,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public override bool DownloadFanArt(string id, TvMazeImageCollection image, string scope, string type)
+    public override bool DownloadFanArt(string id, TvMazeImageCollection image, string folderPath)
     {
       int ID;
       if (int.TryParse(id, out ID))
       {
-        string category = string.Format(@"{0}\{1}", scope, type);
-        return _tvMazeHandler.DownloadImage(ID, image, category);
-      }
-      return false;
-    }
-
-    public override bool DownloadSeriesSeasonFanArt(string id, int seasonNo, TvMazeImageCollection image, string scope, string type)
-    {
-      int ID;
-      if (int.TryParse(id, out ID))
-      {
-        string category = string.Format(@"S{0:00} {1}\{2}", seasonNo, scope, type);
-        return _tvMazeHandler.DownloadImage(ID, image, category);
-      }
-      return false;
-    }
-
-    public override bool DownloadSeriesEpisodeFanArt(string id, int seasonNo, int episodeNo, TvMazeImageCollection image, string scope, string type)
-    {
-      int ID;
-      if (int.TryParse(id, out ID))
-      {
-        string category = string.Format(@"S{0:00}E{1:00} {2}\{3}", seasonNo, episodeNo, scope, type);
-        return _tvMazeHandler.DownloadImage(ID, image, category);
+        return _tvMazeHandler.DownloadImage(ID, image, folderPath);
       }
       return false;
     }

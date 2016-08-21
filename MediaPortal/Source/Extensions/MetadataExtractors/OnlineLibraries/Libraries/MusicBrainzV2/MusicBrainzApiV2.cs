@@ -326,12 +326,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// Downloads images in "original" size and saves them to cache.
     /// </summary>
     /// <param name="image">Image to download</param>
-    /// <param name="category">Image category (Front, Back, ...)</param>
+    /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(string albumId, TrackImage image, string category)
+    public bool DownloadImage(string albumId, TrackImage image, string folderPath)
     {
       if (string.IsNullOrEmpty(albumId)) return false;
-      string cacheFileName = CreateAndGetCacheName(albumId, image, category);
+      string cacheFileName = CreateAndGetCacheName(albumId, image, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
         return false;
 
@@ -339,10 +339,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       return true;
     }
 
-    public byte[] GetImage(string albumId, TrackImage image, string category)
+    public byte[] GetImage(string albumId, TrackImage image, string folderPath)
     {
       if (string.IsNullOrEmpty(albumId)) return null;
-      string cacheFileName = CreateAndGetCacheName(albumId, image, category);
+      string cacheFileName = CreateAndGetCacheName(albumId, image, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
         return null;
 
@@ -371,16 +371,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// Creates a local file name for loading and saving <see cref="TrackImage"/>s.
     /// </summary>
     /// <param name="image"></param>
-    /// <param name="category"></param>
+    /// <param name="folderPath"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(string Id, TrackImage image, string category)
+    protected string CreateAndGetCacheName(string id, TrackImage image, string folderPath)
     {
       try
       {
-        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", Id, category));
-        if (!Directory.Exists(folder))
-          Directory.CreateDirectory(folder);
-        return Path.Combine(folder, image.ImageUrl.Substring(image.ImageUrl.LastIndexOf('/') + 1));
+        string prefix = string.Format(@"MB({0})_", id);
+        if (!Directory.Exists(folderPath))
+          Directory.CreateDirectory(folderPath);
+        return Path.Combine(folderPath, prefix + image.ImageUrl.Substring(image.ImageUrl.LastIndexOf('/') + 1));
       }
       catch
       {

@@ -496,13 +496,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public override bool DownloadFanArt(string id, string image, string scope, string type)
+    public override bool DownloadFanArt(string id, string image, string folderPath)
     {
       int ID;
       if (int.TryParse(id, out ID))
       {
-        string category = string.Format(@"{0}\{1}", scope, type);
-        return _audioDbHandler.DownloadImage(ID, image, category);
+        return _audioDbHandler.DownloadImage(ID, image, folderPath);
       }
       return false;
     }

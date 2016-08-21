@@ -780,11 +780,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// Downloads images in "original" size and saves them to cache.
     /// </summary>
     /// <param name="image">Image to download</param>
-    /// <param name="category">Image category (Poster, Cover, Backdrop...)</param>
+    /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(string Id, ImageItem image, string category)
+    public bool DownloadImage(string Id, ImageItem image, string folderPath)
     {
-      string cacheFileName = CreateAndGetCacheName(Id, image, category);
+      string cacheFileName = CreateAndGetCacheName(Id, image, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
         return false;
 
@@ -793,9 +793,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       return true;
     }
 
-    public byte[] GetImage(string Id, ImageItem image, string category)
+    public byte[] GetImage(string Id, ImageItem image, string folderPath)
     {
-      string cacheFileName = CreateAndGetCacheName(Id, image, category);
+      string cacheFileName = CreateAndGetCacheName(Id, image, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
         return null;
 
@@ -825,42 +825,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// Creates a local file name for loading and saving <see cref="ImageItem"/>s.
     /// </summary>
     /// <param name="image"></param>
-    /// <param name="category"></param>
+    /// <param name="folderPath"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(string Id, ImageItem image, string category)
+    protected string CreateAndGetCacheName(string id, ImageItem image, string folderPath)
     {
       try
       {
-        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", Id, category));
-        if (!Directory.Exists(folder))
-          Directory.CreateDirectory(folder);
+        string prefix = string.Format(@"TMDB({0})_", id);
+        if (!Directory.Exists(folderPath))
+          Directory.CreateDirectory(folderPath);
         if (string.IsNullOrEmpty(image.FilePath)) return null;
-        return Path.Combine(folder, image.FilePath.TrimStart(new[] { '/' }));
-      }
-      catch
-      {
-        // TODO: logging
-        return null;
-      }
-    }
-
-    /// <summary>
-    /// Creates a local file name for loading and saving images of a <see cref="MovieCollection"/>.
-    /// </summary>
-    /// <param name="collection">MovieCollection</param>
-    /// <param name="usePoster"><c>true</c> for Poster, <c>false</c> for Backdrop</param>
-    /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(MovieCollection collection, bool usePoster)
-    {
-      try
-      {
-        string folder = Path.Combine(_cachePath, string.Format(@"COLL_{0}\{1}", collection.Id, usePoster ? "Posters" : "Backdrops"));
-        if (!Directory.Exists(folder))
-          Directory.CreateDirectory(folder);
-        string fileName = usePoster ? collection.PosterPath : collection.BackdropPath;
-        if (string.IsNullOrEmpty(fileName))
-          return null;
-        return Path.Combine(folder, fileName.TrimStart(new[] { '/' }));
+        return Path.Combine(folderPath, prefix + image.FilePath.TrimStart(new[] { '/' }));
       }
       catch
       {

@@ -43,7 +43,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   {
     #region Constants
 
-    public const int MAX_FANART_IMAGES = 5;
     public const int MAX_FANART_DOWNLOADERS = 3;
     public const int FANART_TOKEN_CLEAN_DEALY = 300000;
 
@@ -186,7 +185,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       return true;
     }
 
-    public bool ScheduleDownload(TId tvDbId, bool force = false)
+    protected bool ScheduleDownload(TId tvDbId, bool force = false)
     {
       if (!_downloadFanart)
         return true;

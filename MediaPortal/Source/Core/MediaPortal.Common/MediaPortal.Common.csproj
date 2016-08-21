@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="General\FanArtCache.cs" />
     <Compile Include="General\CheckedItemCache.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
@@ -89,8 +90,10 @@
     <Compile Include="MediaManagement\Helpers\PersonInfo.cs" />
     <Compile Include="MediaManagement\Helpers\AlbumInfo.cs" />
     <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
+    <Compile Include="MediaManagement\IMediaFanArtHandler.cs" />
     <Compile Include="MediaManagement\IMediaMergeHandler.cs" />
     <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
+    <Compile Include="MediaManagement\FanArtHandlerMetadata.cs" />
     <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />

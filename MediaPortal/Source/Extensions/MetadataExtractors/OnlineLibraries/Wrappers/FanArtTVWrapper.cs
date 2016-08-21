@@ -285,10 +285,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public override bool DownloadFanArt(string id, FanArtMovieThumb image, string scope, string type)
+    public override bool DownloadFanArt(string id, FanArtMovieThumb image, string folderPath)
     {
-      string category = string.Format(@"{0}\{1}", scope, type);
-      return _fanArtTvHandler.DownloadImage(id, image, category);
+      return _fanArtTvHandler.DownloadImage(id, image, folderPath);
     }
 
     #endregion

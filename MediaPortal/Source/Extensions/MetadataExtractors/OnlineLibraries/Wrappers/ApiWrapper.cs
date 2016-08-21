@@ -1408,23 +1408,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public virtual bool GetFanArt<T>(T infoObject, TLang language, string scope, out ApiWrapperImageCollection<TImg> images)
+    public virtual bool GetFanArt<T>(T infoObject, TLang language, string fanartMediaType, out ApiWrapperImageCollection<TImg> images)
     {
       images = null;
       return false;
     }
 
-    public virtual bool DownloadFanArt(string id, TImg image, string scope, string type)
-    {
-      return false;
-    }
-
-    public virtual bool DownloadSeriesSeasonFanArt(string id, int seasonNo, TImg image, string scope, string type)
-    {
-      return false;
-    }
-
-    public virtual bool DownloadSeriesEpisodeFanArt(string id, int seasonNo, int episodeNo, TImg image, string scope, string type)
+    public virtual bool DownloadFanArt(string id, TImg image, string folderPath)
     {
       return false;
     }

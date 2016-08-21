@@ -866,22 +866,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public override bool DownloadFanArt(string id, ImageItem image, string scope, string type)
+    public override bool DownloadFanArt(string id, ImageItem image, string folderPath)
     {
-      string category = string.Format(@"{0}\{1}", scope, type);
-      return _movieDbHandler.DownloadImage(id, image, category);
-    }
-
-    public override bool DownloadSeriesSeasonFanArt(string id, int seasonNo, ImageItem image, string scope, string type)
-    {
-      string category = string.Format(@"S{0:00} {1}\{2}", seasonNo, scope, type);
-      return _movieDbHandler.DownloadImage(id, image, category);
-    }
-
-    public override bool DownloadSeriesEpisodeFanArt(string id, int seasonNo, int episodeNo, ImageItem image, string scope, string type)
-    {
-      string category = string.Format(@"S{0:00}E{1:00} {2}\{3}", seasonNo, episodeNo, scope, type);
-      return _movieDbHandler.DownloadImage(id, image, category);
+      return _movieDbHandler.DownloadImage(id, image, folderPath);
     }
 
     #endregion

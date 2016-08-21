@@ -295,13 +295,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// Downloads images in "original" size and saves them to cache.
     /// </summary>
     /// <param name="image">Image to download</param>
-    /// <param name="image">Image to download</param>
-    /// <param name="category">Image category (Poster, Cover, Backdrop...)</param>
+    /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(int id, TvMazeImageCollection image, string category)
+    public bool DownloadImage(int id, TvMazeImageCollection image, string folderPath)
     {
       string imageUrl = image.OriginalUrl ?? image.MediumUrl;
-      string cacheFileName = CreateAndGetCacheName(id, imageUrl, category);
+      string cacheFileName = CreateAndGetCacheName(id, imageUrl, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
         return false;
 
@@ -310,10 +309,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       return true;
     }
 
-    public byte[] GetImage(int id, TvMazeImageCollection image, string category)
+    public byte[] GetImage(int id, TvMazeImageCollection image, string folderPath)
     {
       string imageUrl = image.OriginalUrl ?? image.MediumUrl;
-      string cacheFileName = CreateAndGetCacheName(id, imageUrl, category);
+      string cacheFileName = CreateAndGetCacheName(id, imageUrl, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
         return null;
 
@@ -362,16 +361,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id"></param>
     /// <param name="imageUrl"></param>
-    /// <param name="category"></param>
+    /// <param name="folderPath"></param>
     /// <returns>Cache file name or <c>null</c> if directory could not be created</returns>
-    protected string CreateAndGetCacheName(int id, string imageUrl, string category)
+    protected string CreateAndGetCacheName(int id, string imageUrl, string folderPath)
     {
       try
       {
-        string folder = Path.Combine(_cachePath, string.Format(@"{0}\{1}", id, category));
-        if (!Directory.Exists(folder))
-          Directory.CreateDirectory(folder);
-        return Path.Combine(folder, imageUrl.Substring(imageUrl.LastIndexOf('/') + 1));
+        string prefix = string.Format(@"TVM({0})_", id);
+        if (!Directory.Exists(folderPath))
+          Directory.CreateDirectory(folderPath);
+        return Path.Combine(folderPath, prefix + imageUrl.Substring(imageUrl.LastIndexOf('/') + 1));
       }
       catch
       {

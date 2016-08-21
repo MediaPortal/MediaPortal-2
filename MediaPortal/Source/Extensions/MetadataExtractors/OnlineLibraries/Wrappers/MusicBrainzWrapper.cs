@@ -505,12 +505,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public override bool DownloadFanArt(string id, TrackImage image, string scope, string type)
+    public override bool DownloadFanArt(string id, TrackImage image, string folderPath)
     {
       if (!string.IsNullOrEmpty(id))
       {
-        string category = string.Format(@"{0}\{1}", scope, type);
-        return _musicBrainzHandler.DownloadImage(id, image, category);
+        return _musicBrainzHandler.DownloadImage(id, image, folderPath);
       }
       return false;
     }
