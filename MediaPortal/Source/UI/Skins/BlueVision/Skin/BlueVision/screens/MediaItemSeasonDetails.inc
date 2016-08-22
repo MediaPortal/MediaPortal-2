@@ -42,9 +42,8 @@
           </StackPanel>
 
           <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
-                Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" HorizontalAlignment="Stretch"
-                Content="{Binding Description}"
-                Color="{ThemeResource TextColor}" Margin="-10,0,5,25"/>
+                 TextTrimming="WordEllipsis"  HorizontalAlignment="Stretch"
+                 Content="{Binding Description}" Color="{ThemeResource TextColor}" Margin="-10,0,5,25"/>
         </Grid>
       </ControlTemplate>
     </media:SeasonAspectWrapper.Template>
