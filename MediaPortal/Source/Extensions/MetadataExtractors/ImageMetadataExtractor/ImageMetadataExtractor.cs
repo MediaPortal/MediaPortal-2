@@ -22,6 +22,10 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Device.Location;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -34,10 +38,6 @@ using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {

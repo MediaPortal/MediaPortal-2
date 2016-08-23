@@ -1097,16 +1097,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           string filePath = fsra.ResourcePathName;
           int multipart = -1;
-          int multipartSet = -1;
+          int multipartSet = 0;
           Match match = REGEXP_MULTIFILE.Match(filePath);
           if (match.Groups[GROUP_DISC].Length > 0)
           {
             if(int.TryParse(match.Groups[GROUP_DISC].Value, out multipart))
             {
-              multipartSet = partSets.IndexOf(match.Groups[GROUP_FILE].Value);
-              if (multipartSet == -1)
+              multipartSet = partSets.IndexOf(match.Groups[GROUP_FILE].Value) + 1;
+              if (multipartSet == 0)
               {
-                multipartSet = partSets.Count;
+                multipartSet = partSets.Count + 1;
                 partSets.Add(match.Groups[GROUP_FILE].Value);
               }
             }

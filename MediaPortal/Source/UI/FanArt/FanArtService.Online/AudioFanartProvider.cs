@@ -25,18 +25,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class AudioFanartProvider : IFanArtProvider
   {
-    private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID };
-    private static readonly Guid[] OPTIONAL_MIAS = { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
+    private static readonly Guid[] NECESSARY_MIAS = { MediaAspect.ASPECT_ID };
+    private static readonly Guid[] OPTIONAL_MIAS = { RelationshipAspect.ASPECT_ID, AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
     private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
     {
@@ -87,6 +91,43 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
       List<string> fanArtFiles = new List<string>();
       fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), fanArtType));
+
+      // Try fallback
+      if (fanArtFiles.Count == 0 &&
+        (mediaType == FanArtMediaTypes.Audio))
+      {
+        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+        if (mediaLibrary == null)
+          return false;
+
+        IFilter filter = new MediaItemIdFilter(mediaItemId);
+        IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter), false, null, true);
+        if (items == null || items.Count == 0)
+          return false;
+
+        MediaItem mediaItem = items.First();
+
+        if (mediaType == FanArtMediaTypes.Audio)
+        {
+          if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+          {
+            IList<MultipleMediaItemAspect> relationAspects;
+            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+            {
+              //Album fallback
+              foreach (MultipleMediaItemAspect relation in relationAspects)
+              {
+                if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == AudioAlbumAspect.ROLE_ALBUM)
+                {
+                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                  if (fanArtFiles.Count > 0)
+                    break;
+                }
+              }
+            }
+          }
+        }
+      }
 
       List<IResourceLocator> files = new List<IResourceLocator>();
       try

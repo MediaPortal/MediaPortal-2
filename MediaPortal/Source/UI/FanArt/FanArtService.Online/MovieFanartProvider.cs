@@ -27,20 +27,20 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Common.General;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
   public class MovieFanartProvider : IFanArtProvider
   {
-    private static readonly Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID };
-    private static readonly Guid[] OPTIONAL_MIAS = { MovieAspect.ASPECT_ID, MovieCollectionAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
+    private static readonly Guid[] NECESSARY_MIAS = { MediaAspect.ASPECT_ID };
+    private static readonly Guid[] OPTIONAL_MIAS = { RelationshipAspect.ASPECT_ID, MovieAspect.ASPECT_ID, MovieCollectionAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
 
     private static readonly List<string> VALID_MEDIA_TYPES = new List<string>()
     {

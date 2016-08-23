@@ -117,8 +117,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         IList<MultipleMediaItemAspect> existingProviderResourceAspects;
         MediaItemAspect.TryGetAspects(existingAspects, ProviderResourceAspect.Metadata, out existingProviderResourceAspects);
 
-        IList<MultipleMediaItemAspect> existingVideoAudioAspects;
-        MediaItemAspect.TryGetAspects(existingAspects, VideoStreamAspect.Metadata, out existingVideoAudioAspects);
+        IList<MultipleMediaItemAspect> existingVideoAspects;
+        MediaItemAspect.TryGetAspects(existingAspects, VideoStreamAspect.Metadata, out existingVideoAspects);
 
         //Replace if existing is a virtual resource
         accessorPath = (string)existingProviderResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
@@ -155,6 +155,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
         newResourceIndex++;
 
+        Dictionary<int, int> partSetMap = new Dictionary<int, int>();
+        int newPartSet = -1;
+        if (existingProviderResourceAspects != null)
+        {
+          foreach (MultipleMediaItemAspect videoStreamAspect in existingVideoAspects)
+          {
+            int mediaSet = videoStreamAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
+            if (newPartSet < mediaSet)
+            {
+              newPartSet = mediaSet;
+            }
+          }
+        }
+        newPartSet++;
+
         bool resourceExists = false; //Resource might already be added in the initial add
         foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
         {
@@ -189,21 +204,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           newPra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
           newPra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
           newPra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID));
-
-          int newPartSet = -1;
-          Dictionary<int, int> partSetMap = new Dictionary<int, int>();
-          if (existingVideoAudioAspects != null)
-          {
-            foreach (MultipleMediaItemAspect videoAspect in existingVideoAudioAspects)
-            {
-              int partSet = videoAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
-              if (newPartSet < resouceIndex)
-              {
-                newPartSet = resouceIndex;
-              }
-            }
-          }
-          newPartSet++;
 
           if (videoAspects != null)
           {
