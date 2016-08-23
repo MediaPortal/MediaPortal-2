@@ -28,11 +28,10 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByAudioComposerCriterion : FilteredRelationshipMLFilterCriterion
+  public class FilterByAudioComposerCriterion : RelationshipMLFilterCriterion
   {
     public FilterByAudioComposerCriterion() :
-      base(PersonAspect.ROLE_PERSON, AudioAspect.ROLE_TRACK, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
-        new RelationalFilter(PersonAspect.ATTR_OCCUPATION, RelationalOperator.EQ, PersonAspect.OCCUPATION_COMPOSER),
+      base(PersonAspect.ROLE_COMPOSER, AudioAspect.ROLE_TRACK, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
         new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
     {
     }

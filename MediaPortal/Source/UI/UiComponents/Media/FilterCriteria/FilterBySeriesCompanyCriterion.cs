@@ -28,11 +28,10 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterBySeriesCompanyCriterion : FilteredRelationshipMLFilterCriterion
+  public class FilterBySeriesCompanyCriterion : RelationshipMLFilterCriterion
   {
     public FilterBySeriesCompanyCriterion() :
       base(CompanyAspect.ROLE_COMPANY, SeriesAspect.ROLE_SERIES, Consts.NECESSARY_COMPANY_MIAS, Consts.OPTIONAL_COMPANY_MIAS,
-        new RelationalFilter(CompanyAspect.ATTR_COMPANY_TYPE, RelationalOperator.EQ, CompanyAspect.COMPANY_PRODUCTION),
         new SortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
     {
     }
