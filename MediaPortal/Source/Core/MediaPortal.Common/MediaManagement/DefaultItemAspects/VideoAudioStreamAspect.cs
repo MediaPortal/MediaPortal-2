@@ -86,6 +86,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_RESOURCE_INDEX,
             ATTR_STREAM_INDEX
         }
-        );
+     );
   }
 }

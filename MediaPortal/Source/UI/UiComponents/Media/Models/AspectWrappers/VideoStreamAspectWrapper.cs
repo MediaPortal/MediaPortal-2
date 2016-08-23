@@ -59,6 +59,8 @@ protected AbstractProperty _aspectHeightProperty;
 protected AbstractProperty _aspectRatioProperty;
 protected AbstractProperty _fPSProperty;
 protected AbstractProperty _mediaItemProperty;
+protected AbstractProperty _aspectIndexProperty;
+protected AbstractProperty _aspectCountProperty;
 
 #endregion
 
@@ -218,6 +220,28 @@ public MediaItem MediaItem
   set { _mediaItemProperty.SetValue(value); }
 }
 
+public AbstractProperty AspectIndexProperty
+{
+  get{ return _aspectIndexProperty; }
+}
+
+public int? AspectIndex
+{
+  get { return (int?) _aspectIndexProperty.GetValue(); }
+  set { _aspectIndexProperty.SetValue(value); }
+}
+
+public AbstractProperty AspectCountProperty
+{
+  get{ return _aspectCountProperty; }
+}
+
+public int? AspectCount
+{
+  get { return (int?) _aspectCountProperty.GetValue(); }
+  set { _aspectCountProperty.SetValue(value); }
+}
+
 #endregion
 
 #region Constructor
@@ -239,6 +263,9 @@ public VideoStreamAspectWrapper()
   _fPSProperty = new SProperty(typeof(float?));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
+  _aspectIndexProperty = new SProperty(typeof(int?));
+  _aspectIndexProperty.Attach(AspectIndexChanged);
+  _aspectCountProperty = new SProperty(typeof(int?));
 }
 
 #endregion
@@ -250,6 +277,11 @@ private void MediaItemChanged(AbstractProperty property, object oldvalue)
   Init(MediaItem);
 }
 
+private void AspectIndexChanged(AbstractProperty property, object oldvalue)
+{
+  Update();
+}
+
 public void Init(MediaItem mediaItem)
 {
   IList<MultipleMediaItemAspect> aspects;
@@ -259,19 +291,51 @@ public void Init(MediaItem mediaItem)
      return;
   }
 
-  ResourceIndex = (int?) aspects[0][VideoStreamAspect.ATTR_RESOURCE_INDEX];
-  StreamIndex = (int?) aspects[0][VideoStreamAspect.ATTR_STREAM_INDEX];
-  VideoType = (string) aspects[0][VideoStreamAspect.ATTR_VIDEO_TYPE];
-  PartNum = (int?) aspects[0][VideoStreamAspect.ATTR_VIDEO_PART];
-  PartSetNum = (int?) aspects[0][VideoStreamAspect.ATTR_VIDEO_PART_SET];
-  Duration = (long?) aspects[0][VideoStreamAspect.ATTR_DURATION];
-  AudioStreamCount = (int?) aspects[0][VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT];
-  VideoEncoding = (string) aspects[0][VideoStreamAspect.ATTR_VIDEOENCODING];
-  VideoBitRate = (long?) aspects[0][VideoStreamAspect.ATTR_VIDEOBITRATE];
-  AspectWidth = (int?) aspects[0][VideoStreamAspect.ATTR_WIDTH];
-  AspectHeight = (int?) aspects[0][VideoStreamAspect.ATTR_HEIGHT];
-  AspectRatio = (float?) aspects[0][VideoStreamAspect.ATTR_ASPECTRATIO];
-  FPS = (float?) aspects[0][VideoStreamAspect.ATTR_FPS];
+  AspectIndex = 0;
+  AspectCount = aspects.Count;
+
+  ResourceIndex = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_RESOURCE_INDEX];
+  StreamIndex = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_STREAM_INDEX];
+  VideoType = (string) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEO_TYPE];
+  PartNum = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEO_PART];
+  PartSetNum = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEO_PART_SET];
+  Duration = (long?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_DURATION];
+  AudioStreamCount = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT];
+  VideoEncoding = (string) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEOENCODING];
+  VideoBitRate = (long?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEOBITRATE];
+  AspectWidth = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_WIDTH];
+  AspectHeight = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_HEIGHT];
+  AspectRatio = (float?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_ASPECTRATIO];
+  FPS = (float?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_FPS];
+}
+
+public void Update()
+{
+  IList<MultipleMediaItemAspect> aspects;
+  if (MediaItem == null ||!MediaItemAspect.TryGetAspects(MediaItem.Aspects, VideoStreamAspect.Metadata, out aspects))
+  {
+     SetEmpty();
+     return;
+  }
+  if (AspectIndex == null || AspectIndex.Value < 0 || AspectIndex.Value >= aspects.Count)
+  {
+     SetEmpty();
+     return;
+  }
+
+  ResourceIndex = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_RESOURCE_INDEX];
+  StreamIndex = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_STREAM_INDEX];
+  VideoType = (string) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEO_TYPE];
+  PartNum = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEO_PART];
+  PartSetNum = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEO_PART_SET];
+  Duration = (long?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_DURATION];
+  AudioStreamCount = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT];
+  VideoEncoding = (string) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEOENCODING];
+  VideoBitRate = (long?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_VIDEOBITRATE];
+  AspectWidth = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_WIDTH];
+  AspectHeight = (int?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_HEIGHT];
+  AspectRatio = (float?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_ASPECTRATIO];
+  FPS = (float?) aspects[AspectIndex.Value][VideoStreamAspect.ATTR_FPS];
 }
 
 public void SetEmpty()

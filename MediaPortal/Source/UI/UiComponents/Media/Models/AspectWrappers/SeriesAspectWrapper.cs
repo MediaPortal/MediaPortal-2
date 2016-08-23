@@ -48,7 +48,10 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 protected AbstractProperty _seriesNameProperty;
 protected AbstractProperty _origNameProperty;
 protected AbstractProperty _descriptionProperty;
+protected AbstractProperty _genresProperty;
 protected AbstractProperty _awardsProperty;
+protected AbstractProperty _actorsProperty;
+protected AbstractProperty _charactersProperty;
 protected AbstractProperty _networksProperty;
 protected AbstractProperty _companiesProperty;
 protected AbstractProperty _certificationProperty;
@@ -104,6 +107,17 @@ public string Description
   set { _descriptionProperty.SetValue(value); }
 }
 
+public AbstractProperty GenresProperty
+{
+  get{ return _genresProperty; }
+}
+
+public IEnumerable<string> Genres
+{
+  get { return (IEnumerable<string>) _genresProperty.GetValue(); }
+  set { _genresProperty.SetValue(value); }
+}
+
 public AbstractProperty AwardsProperty
 {
   get{ return _awardsProperty; }
@@ -113,6 +127,28 @@ public IEnumerable<string> Awards
 {
   get { return (IEnumerable<string>) _awardsProperty.GetValue(); }
   set { _awardsProperty.SetValue(value); }
+}
+
+public AbstractProperty ActorsProperty
+{
+  get{ return _actorsProperty; }
+}
+
+public IEnumerable<string> Actors
+{
+  get { return (IEnumerable<string>) _actorsProperty.GetValue(); }
+  set { _actorsProperty.SetValue(value); }
+}
+
+public AbstractProperty CharactersProperty
+{
+  get{ return _charactersProperty; }
+}
+
+public IEnumerable<string> Characters
+{
+  get { return (IEnumerable<string>) _charactersProperty.GetValue(); }
+  set { _charactersProperty.SetValue(value); }
 }
 
 public AbstractProperty NetworksProperty
@@ -311,7 +347,10 @@ public SeriesAspectWrapper()
   _seriesNameProperty = new SProperty(typeof(string));
   _origNameProperty = new SProperty(typeof(string));
   _descriptionProperty = new SProperty(typeof(string));
+  _genresProperty = new SProperty(typeof(IEnumerable<string>));
   _awardsProperty = new SProperty(typeof(IEnumerable<string>));
+  _actorsProperty = new SProperty(typeof(IEnumerable<string>));
+  _charactersProperty = new SProperty(typeof(IEnumerable<string>));
   _networksProperty = new SProperty(typeof(IEnumerable<string>));
   _companiesProperty = new SProperty(typeof(IEnumerable<string>));
   _certificationProperty = new SProperty(typeof(string));
@@ -353,6 +392,9 @@ public void Init(MediaItem mediaItem)
   SeriesName = (string) aspect[SeriesAspect.ATTR_SERIES_NAME];
   OrigName = (string) aspect[SeriesAspect.ATTR_ORIG_SERIES_NAME];
   Description = (string) aspect[SeriesAspect.ATTR_DESCRIPTION];
+  Genres = (IEnumerable<string>) aspect[SeriesAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+  Actors = (IEnumerable<string>) aspect[SeriesAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
+  Characters = (IEnumerable<string>) aspect[SeriesAspect.ATTR_CHARACTERS] ?? EMPTY_STRING_COLLECTION;
   Awards = (IEnumerable<string>) aspect[SeriesAspect.ATTR_AWARDS] ?? EMPTY_STRING_COLLECTION;
   Networks = (IEnumerable<string>) aspect[SeriesAspect.ATTR_NETWORKS] ?? EMPTY_STRING_COLLECTION;
   Companies = (IEnumerable<string>) aspect[SeriesAspect.ATTR_COMPANIES] ?? EMPTY_STRING_COLLECTION;
@@ -377,6 +419,9 @@ public void SetEmpty()
   SeriesName = null;
   OrigName = null;
   Description = null;
+  Genres = EMPTY_STRING_COLLECTION;
+  Actors = EMPTY_STRING_COLLECTION;
+  Characters = EMPTY_STRING_COLLECTION;
   Awards = EMPTY_STRING_COLLECTION;
   Networks = EMPTY_STRING_COLLECTION;
   Companies = EMPTY_STRING_COLLECTION;

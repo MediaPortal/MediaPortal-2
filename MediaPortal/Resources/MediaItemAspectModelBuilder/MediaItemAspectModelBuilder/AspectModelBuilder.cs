@@ -169,6 +169,13 @@ namespace MediaItemAspectModelBuilder
       result.AppendLine("/// </summary>"); // Begin of class
       result.AppendFormat("public class {0}Wrapper{1}\r\n{{\r\n", aspectName, baseClass); // Begin of class
 
+      if (multiAspect)
+      {
+        CreateProperty("AspectIndex", typeof(int), false, true);
+        _propertyCreation.Add("_aspectIndexProperty.Attach(AspectIndexChanged);");
+        CreateProperty("AspectCount", typeof(int));
+      }
+
       AppendRegion(result, "Constants", _consts, false);
       AppendRegion(result, "Fields", _fields, false);
       AppendRegion(result, "Properties", _properties);
@@ -179,6 +186,12 @@ namespace MediaItemAspectModelBuilder
       _members.Add(@"private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
   Init(MediaItem);
+}");
+
+      if(multiAspect)
+        _members.Add(@"private void AspectIndexChanged(AbstractProperty property, object oldvalue)
+{
+  Update();
 }");
 
       CreateMembers(aspectType, _members, multiAspect);
@@ -196,6 +209,7 @@ namespace MediaItemAspectModelBuilder
     {
       string methodStub = null;
       string emptyStub = null;
+      string updateStub = null;
       if (multiAspect == false)
       {
         methodStub = @"public void Init(MediaItem mediaItem)
@@ -226,6 +240,25 @@ namespace MediaItemAspectModelBuilder
      return;
   }}
 
+  AspectIndex = 0;
+  AspectCount = aspects.Count;
+
+  {0}
+}}";
+        updateStub = @"public void Update()
+{{
+  IList<MultipleMediaItemAspect> aspects;
+  if (MediaItem == null ||!MediaItemAspect.TryGetAspects(MediaItem.Aspects, {1}.Metadata, out aspects))
+  {{
+     SetEmpty();
+     return;
+  }}
+  if (AspectIndex == null || AspectIndex.Value < 0 || AspectIndex.Value >= aspects.Count)
+  {{
+     SetEmpty();
+     return;
+  }}
+
   {0}
 }}";
         emptyStub = @"public void SetEmpty()
@@ -249,7 +282,7 @@ namespace MediaItemAspectModelBuilder
         {
           string varName = FirstLower(spec.AttributeName);
           if(multiAspect)
-            initCommands.Add(string.Format("{0}? {1} = ({0}?) aspects[0][{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
+            initCommands.Add(string.Format("{0}? {1} = ({0}?) aspects[AspectIndex.Value][{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
           else
             initCommands.Add(string.Format("{0}? {1} = ({0}?) aspect[{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
           initCommands.Add(string.Format("{0} = {1}.HasValue? {1}.Value : default({2});", attrName, varName, typeName));
@@ -258,7 +291,7 @@ namespace MediaItemAspectModelBuilder
         {
           string defaultValue = typeName == "IEnumerable<string>" ? " ?? EMPTY_STRING_COLLECTION" : "";
           if(multiAspect)
-            initCommands.Add(string.Format("{0} = ({1}) aspects[0][{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
+            initCommands.Add(string.Format("{0} = ({1}) aspects[AspectIndex.Value][{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
           else
             initCommands.Add(string.Format("{0} = ({1}) aspect[{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
         }
@@ -267,7 +300,8 @@ namespace MediaItemAspectModelBuilder
       }
 
       members.Add(string.Format(methodStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
-
+      if(multiAspect)
+        members.Add(string.Format(updateStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
       members.Add(string.Format(emptyStub, string.Join("\r\n  ", emptyCommands.ToArray())));
     }
 
@@ -282,7 +316,7 @@ namespace MediaItemAspectModelBuilder
       return "null";
     }
 
-    private void CreateProperty(string attrName, Type attrType, bool isCollection = false)
+    private void CreateProperty(string attrName, Type attrType, bool isCollection = false, bool withUpdate = false)
     {
       attrName = CreateSafePropertyName(attrName);
       string publicValuePropertyName = attrName;
