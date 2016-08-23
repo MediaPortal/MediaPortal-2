@@ -26,9 +26,9 @@ using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UI.SkinEngine.Utils;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 {

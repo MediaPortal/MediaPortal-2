@@ -24,22 +24,21 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using MediaPortal.Common;
-using MediaPortal.Common.Localization;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries.Matches;
-using System.Collections.Generic;
 using System.Reflection;
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Common.Threading;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.General;
+using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
+using MediaPortal.Extensions.OnlineLibraries.Matches;
+using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -967,6 +966,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       string id;
       info.InitFanArtToken();
+      FanArtCache.InitFanArtCache(mediaItemId.ToString().ToUpperInvariant(), info.ToString());
       if (info is MovieInfo)
       {
         MovieInfo movieInfo = info as MovieInfo;
@@ -1089,7 +1089,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!data.Deserialize(downloadId))
           return;
 
-        name = string.Format("{0} ({1})", data.MediaItemId, data.Name); 
+        name = string.Format("{0} ({1})", data.MediaItemId, data.Name);
 
         if (!Init())
           return;
@@ -1109,6 +1109,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         try
         {
           TLang language = FindMatchingLanguage(data.ShortLanguage);
+          foreach (string fanArtType in fanArtTypes)
+            InitFanArtCount(data.MediaItemId, data.FanArtToken, fanArtType);
 
           Logger.Debug(GetType().Name + " Download: Started for media item {0}", name);
           ApiWrapperImageCollection<TImg> images = null;
@@ -1119,9 +1121,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             MovieInfo movieInfo = new MovieInfo();
             if (SetMovieId(movieInfo, Id))
             {
-              foreach(string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(movieInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for movie ID {0} [{1}]", Id, name);
@@ -1138,9 +1137,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             MovieCollectionInfo movieCollectionInfo = new MovieCollectionInfo();
             if (SetMovieCollectionId(movieCollectionInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(movieCollectionInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for movie collection ID {0} [{1}]", Id, name);
@@ -1157,9 +1153,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             PersonInfo personInfo = new PersonInfo();
             if (SetPersonId(personInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for movie person ID {0} [{1}]", Id, name);
@@ -1176,9 +1169,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             CharacterInfo characterInfo = new CharacterInfo();
             if (SetCharacterId(characterInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(characterInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for movie character ID {0} [{1}]", Id, name);
@@ -1195,9 +1185,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             CompanyInfo companyInfo = new CompanyInfo();
             if (SetCompanyId(companyInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for movie company ID {0} [{1}]", Id, name);
@@ -1253,13 +1240,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (TImg img in images)
         {
           int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
-          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES)
+          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
           if (!VerifyFanArtImage(img))
             continue;
-          if (idx >= FanArtCache.MAX_FANART_IMAGES)
+          if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
-          if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType))) 
+          if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
           {
             AddFanArtCount(fanArtToken, fanartType, 1);
             idx++;

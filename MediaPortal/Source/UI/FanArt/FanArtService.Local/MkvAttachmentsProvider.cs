@@ -36,6 +36,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {

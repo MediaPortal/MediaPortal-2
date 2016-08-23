@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
+namespace MediaPortal.Common.FanArt
 {
   public static class FanArtMediaTypes
   {
@@ -59,6 +59,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     public const string Thumbnail = "Thumbnail";
     public const string ClearArt = "ClearArt";
     public const string DiscArt = "DiscArt";
-	public const string Logo = "Logo";
+    public const string Logo = "Logo";
   }
 }

@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {

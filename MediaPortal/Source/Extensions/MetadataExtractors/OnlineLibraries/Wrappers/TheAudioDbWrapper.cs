@@ -29,9 +29,9 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -439,13 +439,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string scope, out ApiWrapperImageCollection<string> images)
+    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<string> images)
     {
       images = new ApiWrapperImageCollection<string>();
 
       try
       {
-        if (scope == FanArtMediaTypes.Album)
+        if (fanartMediaType == FanArtMediaTypes.Album)
         {
           TrackInfo track = infoObject as TrackInfo;
           AlbumInfo album = infoObject as AlbumInfo;
@@ -465,7 +465,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             }
           }
         }
-        else if (scope == FanArtMediaTypes.Artist)
+        else if (fanartMediaType == FanArtMediaTypes.Artist)
         {
           PersonInfo person = infoObject as PersonInfo;
           if (person != null && person.AudioDbId > 0)

@@ -24,32 +24,78 @@
 
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace MediaPortal.Common.General
+namespace MediaPortal.Common.FanArt
 {
   public class FanArtCache
   {
-    public static readonly int MAX_FANART_IMAGES = 5;
+    public static readonly Dictionary<string, int> MAX_FANART_IMAGES = new Dictionary<string, int>();
     public static readonly string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
+
+    private static object _initSync = new object();
 
     static FanArtCache()
     {
+      FanArtSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<FanArtSettings>();
+      MAX_FANART_IMAGES.Add(FanArtTypes.Banner, settings.MaxBannerFanArt);
+      MAX_FANART_IMAGES.Add(FanArtTypes.ClearArt, settings.MaxClearArt);
+      MAX_FANART_IMAGES.Add(FanArtTypes.Cover, settings.MaxPosterFanArt);
+      MAX_FANART_IMAGES.Add(FanArtTypes.DiscArt, settings.MaxDiscArt);
+      MAX_FANART_IMAGES.Add(FanArtTypes.FanArt, settings.MaxBackdropFanArt);
+      MAX_FANART_IMAGES.Add(FanArtTypes.Logo, settings.MaxLogoFanArt);
+      MAX_FANART_IMAGES.Add(FanArtTypes.Poster, settings.MaxPosterFanArt);
+      MAX_FANART_IMAGES.Add(FanArtTypes.Thumbnail, settings.MaxThumbFanArt);
+      MAX_FANART_IMAGES.Add(FanArtTypes.Undefined, 0);
+    }
+
+    public static void InitFanArtCache(string mediaItemId)
+    {
+      lock (_initSync)
+      {
+        mediaItemId = mediaItemId.ToUpperInvariant();
+        string cacheFolder = Path.Combine(FANART_CACHE_PATH, mediaItemId);
+        if (!Directory.Exists(cacheFolder))
+        {
+          Directory.CreateDirectory(cacheFolder);
+        }
+      }
+    }
+
+    public static void InitFanArtCache(string mediaItemId, string title)
+    {
+      lock (_initSync)
+      {
+        mediaItemId = mediaItemId.ToUpperInvariant();
+        string cacheFolder = Path.Combine(FANART_CACHE_PATH, mediaItemId);
+        string cacheTitle = Path.Combine(cacheFolder, title + ".mpcache");
+        if (!Directory.Exists(cacheFolder))
+        {
+          Directory.CreateDirectory(cacheFolder);
+          File.AppendAllText(cacheTitle, "");
+        }
+        else if (!File.Exists(cacheTitle))
+        {
+          File.AppendAllText(cacheTitle, "");
+        }
+      }
     }
 
     public static IList<string> GetFanArtFiles(string mediaItemId, string fanartType)
     {
+      mediaItemId = mediaItemId.ToUpperInvariant();
       List<string> fanartFiles = new List<string>();
       string path = Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType);
       if (Directory.Exists(path))
       {
         fanartFiles.AddRange(Directory.GetFiles(path, "*.jpg"));
-        if(fanartFiles.Count < MAX_FANART_IMAGES)
+        if (fanartFiles.Count < MAX_FANART_IMAGES[fanartType])
           fanartFiles.AddRange(Directory.GetFiles(path, "*.png"));
-        if (fanartFiles.Count < MAX_FANART_IMAGES)
+        if (fanartFiles.Count < MAX_FANART_IMAGES[fanartType])
           fanartFiles.AddRange(Directory.GetFiles(path, "*.tbn"));
       }
       return fanartFiles;
@@ -59,6 +105,7 @@ namespace MediaPortal.Common.General
     {
       try
       {
+        mediaItemId = mediaItemId.ToUpperInvariant();
         int maxTries = 3;
         if (Directory.Exists(Path.Combine(FANART_CACHE_PATH, mediaItemId)))
         {
@@ -66,7 +113,8 @@ namespace MediaPortal.Common.General
           {
             try
             {
-              Directory.Delete(Path.Combine(FANART_CACHE_PATH, mediaItemId), true);
+              if (Directory.Exists(Path.Combine(FANART_CACHE_PATH, mediaItemId)))
+                Directory.Delete(Path.Combine(FANART_CACHE_PATH, mediaItemId), true);
               return;
             }
             catch

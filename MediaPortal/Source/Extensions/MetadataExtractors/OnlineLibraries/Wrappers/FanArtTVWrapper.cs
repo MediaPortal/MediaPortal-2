@@ -22,15 +22,14 @@
 
 #endregion
 
+using System;
+using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FanArtTVV3.Data;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -38,7 +37,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
   {
     protected FanArtTVApiV3 _fanArtTvHandler;
 
-     /// <summary>
+    /// <summary>
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
@@ -119,13 +118,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string scope, out ApiWrapperImageCollection<FanArtMovieThumb> images)
+    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<FanArtMovieThumb> images)
     {
       images = new ApiWrapperImageCollection<FanArtMovieThumb>();
 
       try
       {
-        if (scope == FanArtMediaTypes.Movie)
+        if (fanartMediaType == FanArtMediaTypes.Movie)
         {
           FanArtMovieThumbs imgs = null;
           MovieInfo movie = infoObject as MovieInfo;
@@ -148,7 +147,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             return true;
           }
         }
-        else if (scope == FanArtMediaTypes.Series)
+        else if (fanartMediaType == FanArtMediaTypes.Series)
         {
           FanArtTVThumbs imgs = null;
           EpisodeInfo episode = infoObject as EpisodeInfo;
@@ -180,7 +179,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             return true;
           }
         }
-        else if (scope == FanArtMediaTypes.SeriesSeason)
+        else if (fanartMediaType == FanArtMediaTypes.SeriesSeason)
         {
           FanArtTVThumbs imgs = null;
           int seasonNo = 0;
@@ -209,7 +208,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             return true;
           }
         }
-        else if (scope == FanArtMediaTypes.Artist)
+        else if (fanartMediaType == FanArtMediaTypes.Artist)
         {
           FanArtArtistThumbs imgs = null;
           PersonInfo person = infoObject as PersonInfo;
@@ -229,7 +228,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             return true;
           }
         }
-        else if (scope == FanArtMediaTypes.MusicLabel)
+        else if (fanartMediaType == FanArtMediaTypes.MusicLabel)
         {
           FanArtLabelThumbs imgs = null;
           CompanyInfo company = infoObject as CompanyInfo;
@@ -246,7 +245,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             return true;
           }
         }
-        else if (scope == FanArtMediaTypes.Album)
+        else if (fanartMediaType == FanArtMediaTypes.Album)
         {
           FanArtAlbumDetails imgs = null;
           string albumId = null;

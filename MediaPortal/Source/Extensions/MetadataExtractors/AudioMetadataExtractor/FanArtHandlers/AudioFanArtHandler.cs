@@ -24,23 +24,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.ResourceAccess;
-using System.IO;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.Services.ResourceAccess;
-using System.Linq;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using System.Threading.Tasks;
-using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.General;
-using System.Drawing;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
 using TagLib;
 using static MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.AudioMetadataExtractor;
 
@@ -104,13 +103,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IList<MultipleMediaItemAspect> relationAspects;
       if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationAspects))
       {
-        foreach(MultipleMediaItemAspect relation in relationAspects)
+        foreach (MultipleMediaItemAspect relation in relationAspects)
         {
           if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == AudioAlbumAspect.ROLE_ALBUM)
           {
             albumMediaItemId = (Guid)relation[RelationshipAspect.ATTR_LINKED_ID];
           }
-          if((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
+          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
           {
             artistMediaItemIds.Add((Guid)relation[RelationshipAspect.ATTR_LINKED_ID]);
           }
@@ -124,22 +123,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       if (aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        ExtractLocalImages(aspects, albumMediaItemId, artistMediaItemIds);
-
         TrackInfo trackInfo = new TrackInfo();
         trackInfo.FromMetadata(aspects);
+        FanArtCache.InitFanArtCache(mediaItemId.ToString(), trackInfo.ToString());
+        ExtractLocalImages(aspects, albumMediaItemId, artistMediaItemIds);
         OnlineMatcherService.DownloadAudioFanArt(mediaItemId, trackInfo);
 
         if (albumMediaItemId.HasValue && !_checkCache.Contains(albumMediaItemId.Value))
-          OnlineMatcherService.DownloadAudioFanArt(albumMediaItemId.Value, trackInfo.CloneBasicInstance<AlbumInfo>());
-
-        if (albumMediaItemId.HasValue)
+        {
+          AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
+          FanArtCache.InitFanArtCache(albumMediaItemId.Value.ToString(), albumInfo.ToString());
+          OnlineMatcherService.DownloadAudioFanArt(albumMediaItemId.Value, albumInfo);
           _checkCache.Add(albumMediaItemId.Value);
+        }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
       {
         PersonInfo personInfo = new PersonInfo();
         personInfo.FromMetadata(aspects);
+        FanArtCache.InitFanArtCache(mediaItemId.ToString(), personInfo.ToString());
         if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST || personInfo.Occupation == PersonAspect.OCCUPATION_COMPOSER)
           OnlineMatcherService.DownloadAudioFanArt(mediaItemId, personInfo);
       }
@@ -147,7 +149,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       {
         CompanyInfo companyInfo = new CompanyInfo();
         companyInfo.FromMetadata(aspects);
-        if(companyInfo.Type == CompanyAspect.COMPANY_MUSIC_LABEL)
+        FanArtCache.InitFanArtCache(mediaItemId.ToString(), companyInfo.ToString());
+        if (companyInfo.Type == CompanyAspect.COMPANY_MUSIC_LABEL)
           OnlineMatcherService.DownloadAudioFanArt(mediaItemId, companyInfo);
       }
     }
@@ -206,10 +209,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       {
         try
         {
-          if (FanArtCache.GetFanArtFiles(albumMediaItemId.ToString().ToUpperInvariant(), FanArtTypes.Cover).Count >= FanArtCache.MAX_FANART_IMAGES)
+          if (FanArtCache.GetFanArtFiles(albumMediaItemId.ToString(), FanArtTypes.Cover).Count >= FanArtCache.MAX_FANART_IMAGES[FanArtTypes.Cover])
             return;
 
-          string cacheFile = GetCacheFileName(albumMediaItemId.Value, FanArtTypes.Cover, 
+          string cacheFile = GetCacheFileName(albumMediaItemId.Value, FanArtTypes.Cover,
             "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
           if (!System.IO.File.Exists(cacheFile))
           {
@@ -388,7 +391,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     private void SaveFolderFile(string systemId, ResourcePath file, string fanartType, Guid parentId)
     {
-      if (FanArtCache.GetFanArtFiles(parentId.ToString().ToUpperInvariant(), fanartType).Count >= FanArtCache.MAX_FANART_IMAGES)
+      if (FanArtCache.GetFanArtFiles(parentId.ToString(), fanartType).Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
         return;
 
       string cacheFile = GetCacheFileName(parentId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
@@ -423,7 +426,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public void DeleteFanArt(Guid mediaItemId)
     {
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString().ToUpperInvariant()));
+      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
     }
 
     private static ILogger Logger

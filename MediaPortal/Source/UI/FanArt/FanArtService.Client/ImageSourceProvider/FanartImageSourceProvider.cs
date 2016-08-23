@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.FanArt;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 

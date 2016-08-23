@@ -22,24 +22,23 @@
 
 #endregion
 
-using System;
-using System.Collections.Concurrent;
-using System.Globalization;
-using System.IO;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries.Matches;
-using System.Collections.Generic;
-using System.Reflection;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
-using MediaPortal.Common.General;
-using MediaPortal.Common.PathManager;
+using MediaPortal.Extensions.OnlineLibraries.Matches;
+using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -206,7 +205,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
                 matchFound = true;
               }
             }
-            else if(string.IsNullOrEmpty(trackId))
+            else if (string.IsNullOrEmpty(trackId))
             {
               //Match was found but with invalid Id probably to avoid a retry
               //No Id is available so online search will probably fail again
@@ -1069,6 +1068,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       string id;
       info.InitFanArtToken();
+      FanArtCache.InitFanArtCache(mediaItemId.ToString().ToUpperInvariant(), info.ToString());
       if (info is TrackInfo)
       {
         TrackInfo trackInfo = info as TrackInfo;
@@ -1084,7 +1084,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = trackInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Audio] = id;
-          if(GetTrackAlbumId(trackInfo.CloneBasicInstance<AlbumInfo>(), out id))
+          if (GetTrackAlbumId(trackInfo.CloneBasicInstance<AlbumInfo>(), out id))
           {
             data.FanArtId[FanArtMediaTypes.Album] = id;
           }
@@ -1186,6 +1186,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         try
         {
           TLang language = FindMatchingLanguage(data.ShortLanguage);
+          foreach (string fanArtType in fanArtTypes)
+            InitFanArtCount(data.MediaItemId, data.FanArtToken, fanArtType);
 
           Logger.Debug(GetType().Name + " Download: Started for media item {0}", name);
           ApiWrapperImageCollection<TImg> images = null;
@@ -1196,9 +1198,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             TrackInfo trackInfo = new TrackInfo();
             if (SetTrackId(trackInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(trackInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for track ID {0} [{1}]", Id, name);
@@ -1212,9 +1211,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             AlbumInfo albumInfo = new AlbumInfo();
             if (SetTrackAlbumId(albumInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(albumInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for album ID {0} [{1}]", Id, name);
@@ -1231,9 +1227,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             PersonInfo personInfo = new PersonInfo();
             if (SetPersonId(personInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for music person ID {0} [{1}]", Id, name);
@@ -1250,9 +1243,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             CompanyInfo companyInfo = new CompanyInfo();
             if (SetCompanyId(companyInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for music company ID {0} [{1}]", Id, name);
@@ -1308,11 +1298,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (TImg img in images)
         {
           int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
-          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES)
+          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
           if (!VerifyFanArtImage(img))
             continue;
-          if (idx >= FanArtCache.MAX_FANART_IMAGES)
+          if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
           if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
           {

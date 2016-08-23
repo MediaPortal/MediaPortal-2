@@ -29,9 +29,9 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -58,10 +58,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       tracks = null;
       language = language ?? PreferredLanguage;
 
-      List<TrackResult> foundTracks = _musicBrainzHandler.SearchTrack(trackSearch.TrackName, trackSearch.Artists.Select(a => a.Name).ToList(), 
+      List<TrackResult> foundTracks = _musicBrainzHandler.SearchTrack(trackSearch.TrackName, trackSearch.Artists.Select(a => a.Name).ToList(),
         trackSearch.Album, trackSearch.ReleaseDate.HasValue ? trackSearch.ReleaseDate.Value.Year : default(int?),
         trackSearch.TrackNum > 0 ? trackSearch.TrackNum : default(int?));
-      if(foundTracks == null)
+      if (foundTracks == null)
       {
         foundTracks = _musicBrainzHandler.SearchTrack(trackSearch.TrackName, trackSearch.AlbumArtists.Select(a => a.Name).ToList(),
           trackSearch.Album, trackSearch.ReleaseDate.HasValue ? trackSearch.ReleaseDate.Value.Year : default(int?),
@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (exactMatches.Count > 0)
         foundTracks = exactMatches;
 
-      foreach(TrackResult track in foundTracks)
+      foreach (TrackResult track in foundTracks)
       {
         if (tracks == null)
           tracks = new List<TrackInfo>();
@@ -187,7 +187,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Name = artist.Name,
           Occupation = PersonAspect.OCCUPATION_ARTIST,
           IsGroup = string.IsNullOrEmpty(artist.Type) ? false : artist.Type.IndexOf("Group", StringComparison.InvariantCultureIgnoreCase) >= 0,
-      };
+        };
         persons.Add(info);
       }
 
@@ -331,7 +331,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (trackDetail == null && !cacheOnly && !string.IsNullOrEmpty(track.IsrcId))
       {
         List<TrackResult> foundTracks = _musicBrainzHandler.SearchTrackFromIsrc(track.IsrcId);
-        if(foundTracks != null && foundTracks.Count == 1)
+        if (foundTracks != null && foundTracks.Count == 1)
         {
           trackDetail = _musicBrainzHandler.GetTrack(foundTracks[0].Id, cacheOnly);
         }
@@ -348,7 +348,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           if (!trackDetail.InitPropertiesFromAlbum(null, trackDetail.Album, "XW")) //World releases
           {
-            if(!trackDetail.InitPropertiesFromAlbum(null, trackDetail.Album, "XE")) //European releases
+            if (!trackDetail.InitPropertiesFromAlbum(null, trackDetail.Album, "XE")) //European releases
             {
               if (DefaultLanguage != PreferredLanguage) //Try US releases
                 trackDetail.InitPropertiesFromAlbum(null, trackDetail.Album, DefaultLanguage);
@@ -385,7 +385,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           {
             if (!trackReleaseGroup.InitPropertiesFromAlbum(null, track.Album, "XW")) //World releases
             {
-              if(trackReleaseGroup.InitPropertiesFromAlbum(null, track.Album, "XE")) //European releases
+              if (trackReleaseGroup.InitPropertiesFromAlbum(null, track.Album, "XE")) //European releases
               {
                 if (DefaultLanguage != PreferredLanguage) //Try US releases
                   trackReleaseGroup.InitPropertiesFromAlbum(null, trackDetail.Album, DefaultLanguage);
@@ -433,7 +433,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (media.Tracks == null || media.Tracks.Count <= 0)
           continue;
 
-        if(media.Tracks.Count == album.TotalTracks || album.TotalTracks == 0)
+        if (media.Tracks.Count == album.TotalTracks || album.TotalTracks == 0)
         {
           foreach (TrackData trackDetail in media.Tracks)
           {
@@ -448,7 +448,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             track.ReleaseDate = album.ReleaseDate;
 
             int trackNo = 0;
-            if(int.TryParse(trackDetail.Number, out trackNo))
+            if (int.TryParse(trackDetail.Number, out trackNo))
               track.TrackNum = trackNo;
 
             track.Artists = ConvertToPersons(trackDetail.Artists, PersonAspect.OCCUPATION_ARTIST);
@@ -467,13 +467,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string scope, out ApiWrapperImageCollection<TrackImage> images)
+    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<TrackImage> images)
     {
       images = new ApiWrapperImageCollection<TrackImage>();
 
       try
       {
-        if (scope == FanArtMediaTypes.Album)
+        if (fanartMediaType == FanArtMediaTypes.Album)
         {
           TrackInfo track = infoObject as TrackInfo;
           AlbumInfo album = infoObject as AlbumInfo;

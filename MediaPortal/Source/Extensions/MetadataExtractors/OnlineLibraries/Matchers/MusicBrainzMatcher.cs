@@ -32,9 +32,8 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Common.General;
 using System.IO;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -185,9 +184,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (TrackImage img in images)
         {
           int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
-          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES)
+          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
-          if (idx >= FanArtCache.MAX_FANART_IMAGES)
+          if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
 
           foreach (string imageType in img.Types)

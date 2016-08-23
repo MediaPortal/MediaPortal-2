@@ -38,10 +38,11 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 {
-  public class FanArtBackgroundModel: IDisposable
+  public class FanArtBackgroundModel : IDisposable
   {
     #region Consts
 
@@ -58,7 +59,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
     protected AbstractProperty _mediaItemProperty;
     protected AbstractProperty _imageSourceProperty;
 
-    protected AsynchronousMessageQueue _messageQueue = null; 
+    protected AsynchronousMessageQueue _messageQueue = null;
     protected readonly object _syncObj = new object();
     protected IList<IFanartImageSourceProvider> _providerList = null;
     protected IPluginItemStateTracker _providerPluginItemStateTracker;
@@ -85,7 +86,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
 
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new[]{WorkflowManagerMessaging.CHANNEL});
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { WorkflowManagerMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -263,10 +264,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       }
 
       ImageSource = new FanArtImageSource
-        {
-          FanArtMediaType = FanArtMediaTypes.Undefined,
-          FanArtName = string.Empty
-        };
+      {
+        FanArtMediaType = FanArtMediaTypes.Undefined,
+        FanArtName = string.Empty
+      };
     }
 
     private void SetFanArtType()

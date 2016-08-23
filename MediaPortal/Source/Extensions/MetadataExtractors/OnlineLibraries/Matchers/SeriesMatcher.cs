@@ -22,24 +22,23 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Localization;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
+using MediaPortal.Extensions.OnlineLibraries.Matches;
+using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using MediaPortal.Common;
-using MediaPortal.Common.Localization;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries.Matches;
-using System.Collections.Generic;
 using System.Reflection;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Common.Threading;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
-using MediaPortal.Common.General;
-using MediaPortal.Common.PathManager;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -528,7 +527,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (GetCompanyId(company, out id))
               _networkMatcher.StoreNameMatch(id, company.Name, company.Name);
-          }    
+          }
         }
 
         string Id;
@@ -1447,6 +1446,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       string id;
       info.InitFanArtToken();
+      FanArtCache.InitFanArtCache(mediaItemId.ToString().ToUpperInvariant(), info.ToString());
       if (info is SeriesInfo)
       {
         SeriesInfo seriesInfo = info as SeriesInfo;
@@ -1646,8 +1646,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           string seasonNo = null;
           string episodeNo = null;
           TLang language = FindMatchingLanguage(data.ShortLanguage);
-          Logger.Debug(GetType().Name + " Download: Started for media item {0}", name);
+          foreach (string fanArtType in fanArtTypes)
+            InitFanArtCount(data.MediaItemId, data.FanArtToken, fanArtType);
 
+          Logger.Debug(GetType().Name + " Download: Started for media item {0}", name);
           ApiWrapperImageCollection<TImg> images = null;
           string Id = "";
           if (data.FanArtMediaType == FanArtMediaTypes.Series)
@@ -1657,9 +1659,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             SeriesInfo seriesInfo = new SeriesInfo();
             if (SetSeriesId(seriesInfo, seriesId))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(seriesInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for series ID {0} [{1}]", Id, name);
@@ -1699,9 +1698,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               seasonInfo.SeasonNumber = Convert.ToInt32(seasonNo);
             }
-            foreach (string fanArtType in fanArtTypes)
-              InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
             if (_wrapper.GetFanArt(seasonInfo, language, data.FanArtMediaType, out images) == false)
             {
               Logger.Debug(GetType().Name + " Download: Failed getting images for series season {0} [{1}]", Id, name);
@@ -1744,9 +1740,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               episodeInfo.EpisodeNumbers.Add(Convert.ToInt32(episodeNo));
             }
-            foreach (string fanArtType in fanArtTypes)
-              InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
             if (_wrapper.GetFanArt(episodeInfo, language, data.FanArtMediaType, out images) == false)
             {
               Logger.Debug(GetType().Name + " Download: Failed getting images for series episode {0} [{1}]", Id, name);
@@ -1762,9 +1755,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             PersonInfo personInfo = new PersonInfo();
             if (SetPersonId(personInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for series person ID {0} [{1}]", Id, name);
@@ -1781,9 +1771,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             CharacterInfo characterInfo = new CharacterInfo();
             if (SetCharacterId(characterInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(characterInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for series character ID {0} [{1}]", Id, name);
@@ -1800,9 +1787,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             CompanyInfo companyInfo = new CompanyInfo();
             if (SetCompanyId(companyInfo, Id))
             {
-              foreach (string fanArtType in fanArtTypes)
-                InitFanArtCount(data.FanArtToken, fanArtType, FanArtCache.GetFanArtFiles(data.MediaItemId, fanArtType).Count);
-
               if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
               {
                 Logger.Debug(GetType().Name + " Download: Failed getting images for series company ID {0} [{1}]", Id, name);
@@ -1859,11 +1843,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (TImg img in images)
         {
           int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
-          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES)
+          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
           if (!VerifyFanArtImage(img))
             continue;
-          if (idx >= FanArtCache.MAX_FANART_IMAGES)
+          if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
           if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
           {

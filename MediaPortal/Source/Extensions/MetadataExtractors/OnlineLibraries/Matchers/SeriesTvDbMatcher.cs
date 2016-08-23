@@ -34,10 +34,9 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Common.General;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -243,13 +242,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           continue;
 
         int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
-        if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES)
+        if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES[fanartType])
           break;
 
-        if (idx >= FanArtCache.MAX_FANART_IMAGES)
+        if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
           break;
 
-        if(fanartType == FanArtTypes.Banner)
+        if (fanartType == FanArtTypes.Banner)
         {
           if (!tvdbBanner.BannerPath.Contains("wide") && !tvdbBanner.BannerPath.Contains("graphical"))
             continue;

@@ -27,14 +27,15 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
@@ -100,7 +101,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
                 where /* Allow same file name only for non-images, otherwise each image would be its own thumbnail */
-                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) || 
+                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) ||
                       potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "-poster" ||
                       potentialFanArtFileNameWithoutExtension == "poster" ||
                       potentialFanArtFileNameWithoutExtension == "folder"
@@ -156,13 +157,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
     private List<ResourcePath> GetPotentialFanArtFiles(IFileSystemResourceAccessor directoryAccessor)
     {
       var result = new List<ResourcePath>();
-      if(directoryAccessor.IsFile)
+      if (directoryAccessor.IsFile)
         return result;
       foreach (var file in directoryAccessor.GetFiles())
         using (file)
         {
           var path = file.CanonicalLocalResourcePath;
-          if(EXTENSIONS.Contains(ResourcePathHelper.GetExtension(path.ToString())))
+          if (EXTENSIONS.Contains(ResourcePathHelper.GetExtension(path.ToString())))
             result.Add(path);
         }
       return result;

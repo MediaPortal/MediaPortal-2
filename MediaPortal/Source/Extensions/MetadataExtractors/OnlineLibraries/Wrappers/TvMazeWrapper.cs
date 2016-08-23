@@ -29,9 +29,9 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -446,13 +446,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string scope, out ApiWrapperImageCollection<TvMazeImageCollection> images)
+    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<TvMazeImageCollection> images)
     {
       images = new ApiWrapperImageCollection<TvMazeImageCollection>();
 
       try
       {
-        if (scope == FanArtMediaTypes.Series)
+        if (fanartMediaType == FanArtMediaTypes.Series)
         {
           EpisodeInfo episode = infoObject as EpisodeInfo;
           SeasonInfo season = infoObject as SeasonInfo;
@@ -477,7 +477,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             }
           }
         }
-        else if (scope == FanArtMediaTypes.Episode)
+        else if (fanartMediaType == FanArtMediaTypes.Episode)
         {
           EpisodeInfo episode = infoObject as EpisodeInfo;
           if (episode != null && episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
@@ -492,7 +492,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             }
           }
         }
-        else if (scope == FanArtMediaTypes.Actor)
+        else if (fanartMediaType == FanArtMediaTypes.Actor)
         {
           PersonInfo person = infoObject as PersonInfo;
           if (person != null && person.TvMazeId > 0)
@@ -507,7 +507,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             }
           }
         }
-        else if (scope == FanArtMediaTypes.Character)
+        else if (fanartMediaType == FanArtMediaTypes.Character)
         {
           CharacterInfo character = infoObject as CharacterInfo;
           if (character != null && character.TvMazeId > 0)

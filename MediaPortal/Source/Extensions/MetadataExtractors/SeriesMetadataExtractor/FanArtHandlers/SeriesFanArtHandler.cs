@@ -36,10 +36,9 @@ using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using System.Linq;
 using MediaPortal.Common.PathManager;
 using System.Drawing;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Threading.Tasks;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.General;
+using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -73,7 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public SeriesFanArtHandler()
     {
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Series FanArt handler");
-      
+
     }
 
     public Guid[] FanArtAspects
@@ -99,9 +98,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       IList<MultipleMediaItemAspect> relationAspects;
       if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationAspects))
       {
-        foreach(MultipleMediaItemAspect relation in relationAspects)
+        foreach (MultipleMediaItemAspect relation in relationAspects)
         {
-          if((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
+          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
           {
             seriesMediaItemId = (Guid)relation[RelationshipAspect.ATTR_LINKED_ID];
           }
@@ -119,28 +118,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
       {
-        ExtractLocalImages(aspects, seriesMediaItemId, seasonMediaItemId);
-
         EpisodeInfo episodeInfo = new EpisodeInfo();
         episodeInfo.FromMetadata(aspects);
+        FanArtCache.InitFanArtCache(mediaItemId.ToString(), episodeInfo.ToString());
+        ExtractLocalImages(aspects, seriesMediaItemId, seasonMediaItemId);
         OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, episodeInfo);
 
         //Take advantage of the audio language being known and download season and series too
         if (seasonMediaItemId.HasValue && !_checkCache.Contains(seasonMediaItemId.Value))
-          OnlineMatcherService.DownloadSeriesFanArt(seasonMediaItemId.Value, episodeInfo.CloneBasicInstance<SeasonInfo>());
+        {
+          SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
+          FanArtCache.InitFanArtCache(seasonMediaItemId.Value.ToString(), seasonInfo.ToString());
+          OnlineMatcherService.DownloadSeriesFanArt(seasonMediaItemId.Value, seasonInfo);
+          _checkCache.Add(seasonMediaItemId.Value);
+        }
         if (seriesMediaItemId.HasValue && !_checkCache.Contains(seriesMediaItemId.Value))
-          OnlineMatcherService.DownloadSeriesFanArt(seriesMediaItemId.Value, episodeInfo.CloneBasicInstance<SeriesInfo>());
-
-        if (seriesMediaItemId.HasValue)
+        {
+          SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
+          FanArtCache.InitFanArtCache(seriesMediaItemId.Value.ToString(), seriesInfo.ToString());
+          OnlineMatcherService.DownloadSeriesFanArt(seriesMediaItemId.Value, seriesInfo);
           _checkCache.Add(seriesMediaItemId.Value);
-        if (seriesMediaItemId.HasValue)
-          _checkCache.Add(seriesMediaItemId.Value);
+        }
       }
       else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
       {
         PersonInfo personInfo = new PersonInfo();
         personInfo.FromMetadata(aspects);
-        if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR || personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR || 
+        FanArtCache.InitFanArtCache(mediaItemId.ToString(), personInfo.ToString());
+        if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR || personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR ||
           personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
           OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, personInfo);
       }
@@ -148,13 +153,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         CharacterInfo characterInfo = new CharacterInfo();
         characterInfo.FromMetadata(aspects);
+        FanArtCache.InitFanArtCache(mediaItemId.ToString(), characterInfo.ToString());
         OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, characterInfo);
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
       {
         CompanyInfo companyInfo = new CompanyInfo();
         companyInfo.FromMetadata(aspects);
-        if(companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION || companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
+        FanArtCache.InitFanArtCache(mediaItemId.ToString(), companyInfo.ToString());
+        if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION || companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
           OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, companyInfo);
       }
     }
@@ -222,7 +229,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           {
             if (mkvReader.GetAttachmentByName(pattern, out binaryData))
             {
-              if (FanArtCache.GetFanArtFiles(seriesMediaItemId.ToString().ToUpperInvariant(), patterns[pattern]).Count >= FanArtCache.MAX_FANART_IMAGES)
+              if (FanArtCache.GetFanArtFiles(seriesMediaItemId.ToString(), patterns[pattern]).Count >= FanArtCache.MAX_FANART_IMAGES[patterns[pattern]])
                 continue;
 
               string cacheFile = GetCacheFileName(seriesMediaItemId.Value, patterns[pattern],
@@ -391,7 +398,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     private void SaveFolderFile(string systemId, ResourcePath file, string fanartType, Guid parentId)
     {
-      if (FanArtCache.GetFanArtFiles(parentId.ToString().ToUpperInvariant(), fanartType).Count >= FanArtCache.MAX_FANART_IMAGES)
+      if (FanArtCache.GetFanArtFiles(parentId.ToString(), fanartType).Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
         return;
 
       string cacheFile = GetCacheFileName(parentId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
@@ -427,7 +434,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public void DeleteFanArt(Guid mediaItemId)
     {
       _checkCache.Remove(mediaItemId);
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString().ToUpperInvariant()));
+      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
     }
 
     private static ILogger Logger

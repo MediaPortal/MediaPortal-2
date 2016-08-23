@@ -26,10 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Common;
-using MediaPortal.Common.Threading;
-using MediaPortal.Utilities.Network;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.Threading;
+using MediaPortal.Utilities.Network;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
@@ -127,7 +128,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       }
     }
 
-    public static void InitFanArtCount(string FanArtToken, string FanArtType, int FanArtCount)
+    public static void InitFanArtCount(string MediaItemId, string FanArtToken, string FanArtType)
     {
       lock (_fanArtCountSync)
       {
@@ -136,7 +137,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
           if (!_fanArtCount.ContainsKey(FanArtToken))
             _fanArtCount.Add(FanArtToken, new Dictionary<string, int>());
           if (!_fanArtCount[FanArtToken].ContainsKey(FanArtType))
-            _fanArtCount[FanArtToken].Add(FanArtType, FanArtCount);
+            _fanArtCount[FanArtToken].Add(FanArtType, FanArtCache.GetFanArtFiles(MediaItemId, FanArtType).Count);
         }
       }
     }
@@ -184,12 +185,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
         _storage = new MatchStorage<TMatch, TId>(MatchesSettingsFile);
       if (!_inited)
       {
-      // Use own thread to avoid delay during startup
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
-      if (threadPool != null)
-        threadPool.Add(ResumeDownloads, "ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
+        // Use own thread to avoid delay during startup
+        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+        if (threadPool != null)
+          threadPool.Add(ResumeDownloads, "ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
         _inited = true;
-    }
+      }
 
       if (!NetworkConnectionTracker.IsNetworkConnected)
         return false;
