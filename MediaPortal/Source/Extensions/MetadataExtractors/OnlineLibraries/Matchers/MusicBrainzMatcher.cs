@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public MusicBrainzMatcher() : 
+    public MusicBrainzMatcher() :
       base(CACHE_PATH, MAX_MEMCACHE_DURATION)
     {
     }
@@ -110,7 +110,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       id = null;
       if (!string.IsNullOrEmpty(track.MusicBrainzId))
-       id = track.MusicBrainzId;
+        id = track.MusicBrainzId;
       return id != null;
     }
 
@@ -183,22 +183,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         int idx = 0;
         foreach (TrackImage img in images)
         {
-          int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
-          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-            break;
-          if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-            break;
-
-          foreach (string imageType in img.Types)
+          using (FanArtCountLock countLock = GetFanArtCountLock(fanArtToken, fanartType))
           {
-            if (imageType.Equals(imgType, StringComparison.InvariantCultureIgnoreCase))
-            {
-              if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
-              {
-                AddFanArtCount(fanArtToken, fanartType, 1);
-                idx++;
-              }
+            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;
+            if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
+              break;
+
+            foreach (string imageType in img.Types)
+            {
+              if (imageType.Equals(imgType, StringComparison.InvariantCultureIgnoreCase))
+              {
+                if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
+                {
+                  countLock.Count++;
+                  idx++;
+                }
+                break;
+              }
             }
           }
         }

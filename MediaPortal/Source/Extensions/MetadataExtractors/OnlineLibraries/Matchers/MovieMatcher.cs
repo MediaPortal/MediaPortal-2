@@ -1239,21 +1239,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         int idx = 0;
         foreach (TImg img in images)
         {
-          int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
-          if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-            break;
-          if (!VerifyFanArtImage(img))
-            continue;
-          if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-            break;
-          if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
+          using (FanArtCountLock countLock = GetFanArtCountLock(fanArtToken, fanartType))
           {
-            AddFanArtCount(fanArtToken, fanartType, 1);
-            idx++;
-          }
-          else
-          {
-            Logger.Warn(GetType().Name + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
+            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
+              break;
+            if (!VerifyFanArtImage(img))
+              continue;
+            if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
+              break;
+            if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
+            {
+              countLock.Count++;
+              idx++;
+            }
+            else
+            {
+              Logger.Warn(GetType().Name + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
+            }
           }
         }
         Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);

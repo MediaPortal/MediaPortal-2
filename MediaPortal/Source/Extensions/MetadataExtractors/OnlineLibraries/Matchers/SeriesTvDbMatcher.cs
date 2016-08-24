@@ -241,33 +241,35 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (tvdbBanner.Language != language && language != null && tvdbBanner.Language != null)
           continue;
 
-        int externalFanArtCount = GetFanArtCount(fanArtToken, fanartType);
-        if (externalFanArtCount >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-          break;
-
-        if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-          break;
-
-        if (fanartType == FanArtTypes.Banner)
+        using (FanArtCountLock countLock = GetFanArtCountLock(fanArtToken, fanartType))
         {
-          if (!tvdbBanner.BannerPath.Contains("wide") && !tvdbBanner.BannerPath.Contains("graphical"))
-            continue;
-        }
+          if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
+            break;
 
-        if (!tvdbBanner.IsLoaded)
-        {
-          // We need the image only loaded once, later we will access the cache directly
-          try
+          if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
+            break;
+
+          if (fanartType == FanArtTypes.Banner)
           {
-            tvdbBanner.CachePath = Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType);
-            tvdbBanner.LoadBanner();
-            tvdbBanner.UnloadBanner(true);
-            idx++;
-            AddFanArtCount(fanArtToken, fanartType, 1);
+            if (!tvdbBanner.BannerPath.Contains("wide") && !tvdbBanner.BannerPath.Contains("graphical"))
+              continue;
           }
-          catch (Exception ex)
+
+          if (!tvdbBanner.IsLoaded)
           {
-            Logger.Debug(GetType().Name + " Download: Exception saving images for ID {0} [{1} ({2})]", ex, tvdbBanner.Id, mediaItemId, name);
+            // We need the image only loaded once, later we will access the cache directly
+            try
+            {
+              tvdbBanner.CachePath = Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType);
+              tvdbBanner.LoadBanner();
+              tvdbBanner.UnloadBanner(true);
+              idx++;
+              countLock.Count++;
+            }
+            catch (Exception ex)
+            {
+              Logger.Debug(GetType().Name + " Download: Exception saving images for ID {0} [{1} ({2})]", ex, tvdbBanner.Id, mediaItemId, name);
+            }
           }
         }
       }
