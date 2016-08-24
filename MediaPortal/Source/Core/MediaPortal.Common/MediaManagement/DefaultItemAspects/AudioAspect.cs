@@ -121,6 +121,18 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("BitRate", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
+    /// Sample rate of the audio in kHz.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SAMPLERATE =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("SampleRate", typeof(long), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Number of audio channels.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CHANNELS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Channels", typeof(int), Cardinality.Inline, false);
+
+    /// <summary>
     /// ID of the disc in the collection.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DISCID =
@@ -161,12 +173,14 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_COMPOSERS,
             ATTR_ENCODING,
             ATTR_BITRATE,
+            ATTR_CHANNELS,
+            ATTR_SAMPLERATE,
             ATTR_DISCID,
             ATTR_NUMDISCS,
             ATTR_TOTAL_RATING,
             ATTR_RATING_COUNT
         });
 
-      public static readonly Guid ROLE_TRACK = new Guid("10C134B1-4E35-4750-836D-76F3AB58D40A");
+    public static readonly Guid ROLE_TRACK = new Guid("10C134B1-4E35-4750-836D-76F3AB58D40A");
   }
 }

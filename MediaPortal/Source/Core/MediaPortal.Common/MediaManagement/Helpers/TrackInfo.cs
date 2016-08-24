@@ -89,7 +89,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public SimpleRating Rating = new SimpleRating();
     public bool Compilation = false;
     public int BitRate = 0;
+    public int SampleRate = 0;
+    public int Channels = 0;
     public long Duration = 0;
+    public string Encoding = null;
 
     public List<PersonInfo> Artists = new List<PersonInfo>();
     public List<PersonInfo> AlbumArtists = new List<PersonInfo>();
@@ -184,6 +187,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (DiscNum > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_DISCID, DiscNum);
       if (TotalDiscs > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_NUMDISCS, TotalDiscs);
       if (BitRate > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_BITRATE, BitRate);
+      if (Channels > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_CHANNELS, Channels);
+      if (SampleRate > 0) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_SAMPLERATE, SampleRate);
+      if (!string.IsNullOrEmpty(Encoding)) MediaItemAspect.SetAttribute(aspectData, AudioAspect.ATTR_ENCODING, Encoding);
 
       if (!Rating.IsEmpty)
       {
@@ -223,10 +229,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_NUMTRACKS, out TotalTracks);
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_COMPILATION, out Compilation);
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_BITRATE, out BitRate);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_SAMPLERATE, out SampleRate);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_CHANNELS, out Channels);
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ALBUM, out Album);
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_DISCID, out DiscNum);
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_NUMDISCS, out TotalDiscs);
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_DURATION, out Duration);
+      MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_ENCODING, out Encoding);
 
       double? rating;
       MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_TOTAL_RATING, out rating);
@@ -416,12 +425,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return string.Equals(AlbumItunesId, other.AlbumItunesId, StringComparison.InvariantCultureIgnoreCase);
         if (!string.IsNullOrEmpty(AlbumNameId) && !string.IsNullOrEmpty(other.AlbumNameId))
           return string.Equals(AlbumNameId, other.AlbumNameId, StringComparison.InvariantCultureIgnoreCase);
-        if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && 
+        if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) &&
           ReleaseDate.HasValue && other.ReleaseDate.HasValue)
           return Album == other.Album && ReleaseDate.Value == other.ReleaseDate.Value;
       }
 
-      if(!string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName))
+      if (!string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName))
       {
         if (Artists.Count > 0 && other.Artists.Count > 0 && ReleaseDate.HasValue && other.ReleaseDate.HasValue)
           return Artists.SequenceEqual(other.Artists) && ReleaseDate.Value == other.ReleaseDate.Value;
@@ -433,7 +442,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return AlbumArtists.SequenceEqual(other.AlbumArtists);
         if (ReleaseDate.HasValue && other.ReleaseDate.HasValue)
           return ReleaseDate.Value == other.ReleaseDate.Value;
-      }   
+      }
 
       return false;
     }

@@ -345,7 +345,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           trackInfo.FromMetadata(extractedAspectData);
         }
-        if(!trackInfo.IsBaseInfoPresent)
+        if (!trackInfo.IsBaseInfoPresent)
         {
           File tag;
           try
@@ -371,7 +371,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           string artist;
           uint? trackNo;
           GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
-          if(!string.IsNullOrEmpty(title))
+          if (!string.IsNullOrEmpty(title))
             title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title.ToLowerInvariant());
           if (!string.IsNullOrEmpty(artist))
             artist = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(artist.ToLowerInvariant());
@@ -409,6 +409,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           trackInfo.TrackName = title;
           if (tag.Properties.AudioBitrate != 0)
             trackInfo.BitRate = (int)tag.Properties.AudioBitrate;
+          if (tag.Properties.AudioChannels != 0)
+            trackInfo.Channels = (int)tag.Properties.AudioChannels;
+          if (tag.Properties.AudioSampleRate != 0)
+            trackInfo.SampleRate = (int)tag.Properties.AudioSampleRate;
+          if (tag.Properties.Codecs.Count() > 0)
+            trackInfo.Encoding = GuessCodec(tag.Properties.Codecs.First().Description, fileName);
+          else
+            trackInfo.Encoding = GuessCodec("", fileName);
           if (tag.Properties.Duration.TotalSeconds != 0)
             trackInfo.Duration = (long)tag.Properties.Duration.TotalSeconds;
 
@@ -452,7 +460,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           }
 
           //Save id if possible
-          if(trackInfo.Artists.Count == 1 && !string.IsNullOrEmpty(tag.Tag.MusicBrainzArtistId))
+          if (trackInfo.Artists.Count == 1 && !string.IsNullOrEmpty(tag.Tag.MusicBrainzArtistId))
           {
             trackInfo.Artists[0].MusicBrainzId = tag.Tag.MusicBrainzArtistId;
           }
@@ -566,7 +574,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         //Try to find correct artist names
         trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
-        
+
         foreach (PersonInfo person in trackInfo.Artists)
         {
           OnlineMatcherService.StoreAudioPersonMatch(person);
@@ -661,6 +669,43 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
 
       return resolvedList;
+    }
+
+    private string GuessCodec(string description, string filename)
+    {
+      string extension = DosPathHelper.GetExtension(filename).ToUpperInvariant();
+
+      if (description.IndexOf("AIFF Audio", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "AIFF";
+      if (description.IndexOf("Audio APE", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "APE";
+      if (description.IndexOf("DSF Audio", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "DSF";
+      if (description.IndexOf("Flac Audio", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "FLAC";
+      if (description.IndexOf("MusePack", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "MPC";
+      if (description.IndexOf("WavPack", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "WV";
+      if (description.IndexOf("Vorbis", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "VORBIS";
+      if (description.IndexOf("Opus", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "OPUS";
+      if (description.IndexOf("MPEG Version", StringComparison.InvariantCultureIgnoreCase) > 0)
+      {
+        if (description.IndexOf("Layer 1", StringComparison.InvariantCultureIgnoreCase) > 0)
+          return "MP1";
+        if (description.IndexOf("Layer 2", StringComparison.InvariantCultureIgnoreCase) > 0)
+          return "MP2";
+        if (description.IndexOf("Layer 3", StringComparison.InvariantCultureIgnoreCase) > 0)
+          return "MP3";
+      }
+      if (description.IndexOf("AAC", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "AAC";
+      if (description.IndexOf("Windows Media Audio", StringComparison.InvariantCultureIgnoreCase) > 0)
+        return "WMA";
+
+      return extension.Substring(1);
     }
 
     #endregion

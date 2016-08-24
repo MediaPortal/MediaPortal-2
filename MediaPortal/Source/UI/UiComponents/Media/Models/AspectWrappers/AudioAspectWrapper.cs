@@ -59,6 +59,8 @@ protected AbstractProperty _albumArtistsProperty;
 protected AbstractProperty _composersProperty;
 protected AbstractProperty _encodingProperty;
 protected AbstractProperty _bitRateProperty;
+protected AbstractProperty _channelsProperty;
+protected AbstractProperty _sampleRateProperty;
 protected AbstractProperty _discIdProperty;
 protected AbstractProperty _numDiscsProperty;
 protected AbstractProperty _totalRatingProperty;
@@ -223,6 +225,28 @@ public int? BitRate
   set { _bitRateProperty.SetValue(value); }
 }
 
+public AbstractProperty ChannelsProperty
+{
+  get{ return _channelsProperty; }
+}
+
+public int? Channels
+{
+  get { return (int?) _channelsProperty.GetValue(); }
+  set { _channelsProperty.SetValue(value); }
+}
+
+public AbstractProperty SampleRateProperty
+{
+  get{ return _sampleRateProperty; }
+}
+
+public long? SampleRate
+{
+  get { return (long?) _sampleRateProperty.GetValue(); }
+  set { _sampleRateProperty.SetValue(value); }
+}
+
 public AbstractProperty DiscIdProperty
 {
   get{ return _discIdProperty; }
@@ -298,6 +322,8 @@ public AudioAspectWrapper()
   _composersProperty = new SProperty(typeof(IEnumerable<string>));
   _encodingProperty = new SProperty(typeof(string));
   _bitRateProperty = new SProperty(typeof(int?));
+  _channelsProperty = new SProperty(typeof(int?));
+  _sampleRateProperty = new SProperty(typeof(long?));
   _discIdProperty = new SProperty(typeof(int?));
   _numDiscsProperty = new SProperty(typeof(int?));
   _totalRatingProperty = new SProperty(typeof(double?));
@@ -338,6 +364,8 @@ public void Init(MediaItem mediaItem)
   Composers = (IEnumerable<string>) aspect[AudioAspect.ATTR_COMPOSERS] ?? EMPTY_STRING_COLLECTION;
   Encoding = (string) aspect[AudioAspect.ATTR_ENCODING];
   BitRate = (int?) aspect[AudioAspect.ATTR_BITRATE];
+  SampleRate = (long?) aspect[AudioAspect.ATTR_SAMPLERATE];
+  Channels = (int?) aspect[AudioAspect.ATTR_CHANNELS];
   DiscId = (int?) aspect[AudioAspect.ATTR_DISCID];
   NumDiscs = (int?) aspect[AudioAspect.ATTR_NUMDISCS];
   TotalRating = (double?) aspect[AudioAspect.ATTR_TOTAL_RATING];
@@ -360,6 +388,8 @@ public void SetEmpty()
   Composers = EMPTY_STRING_COLLECTION;
   Encoding = null;
   BitRate = null;
+  SampleRate = null;
+  Channels = null;
   DiscId = null;
   NumDiscs = null;
   TotalRating = null;

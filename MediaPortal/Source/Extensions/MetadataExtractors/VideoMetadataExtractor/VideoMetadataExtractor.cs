@@ -199,6 +199,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       protected List<string> _audCodecs = new List<string>();
       protected List<long?> _audBitRates = new List<long?>();
       protected List<int?> _audChannels = new List<int?>();
+      protected List<long?> _audSampleRates = new List<long?>();
       protected List<string> _audioLanguages = new List<string>();
       protected List<int?> _subStreamIds = new List<int?>();
       protected List<string> _subCodecs = new List<string>();
@@ -297,6 +298,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             if (_audChannels[i] == null)
               _audChannels[i] = audChannels.Value;
           }
+
+          long? audSampleRate = mediaInfo.GetAudioSampleRate(i);
+          if (_audSampleRates.Count <= i) _audSampleRates.Add(null);
+          if (audSampleRate.HasValue)
+          {
+            if (_audSampleRates[i] == null)
+              _audSampleRates[i] = audSampleRate.Value;
+          }
         }
 
         _subStreamCount = mediaInfo.GetSubtitleCount();
@@ -378,7 +387,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (_playTime.HasValue)
           videoAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, _playTime.Value / 1000);
         if (_vidBitRate.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value / 1024); // We store kbit/s
+          videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value / 1000); // We store kbit/s
 
         videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
         videoAspect.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
@@ -439,9 +448,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           if (_audCodecs[i] != null)
             audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, _audCodecs[i]);
           if (_audBitRates[i] != null)
-            audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOBITRATE, _audBitRates[i].Value);
+            audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOBITRATE, _audBitRates[i].Value / 1000); // We store kbit/s
           if (_audChannels[i] != null)
             audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, _audChannels[i].Value);
+          if (_audSampleRates[i] != null)
+            audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE, _audSampleRates[i].Value);
           if (_audioLanguages[i] != null)
             audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE, _audioLanguages[i]);
         }
@@ -1101,7 +1112,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           Match match = REGEXP_MULTIFILE.Match(filePath);
           if (match.Groups[GROUP_DISC].Length > 0)
           {
-            if(int.TryParse(match.Groups[GROUP_DISC].Value, out multipart))
+            if (int.TryParse(match.Groups[GROUP_DISC].Value, out multipart))
             {
               multipartSet = partSets.IndexOf(match.Groups[GROUP_FILE].Value) + 1;
               if (multipartSet == 0)
@@ -1158,7 +1169,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               }
             }
           }
-          else if(HasSubtitleExtension(filePath))
+          else if (HasSubtitleExtension(filePath))
           {
             using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
             {

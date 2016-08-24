@@ -61,6 +61,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateMultipleAttributeSpecification("AudioBitRate", typeof(long), Cardinality.Inline, false);
 
     /// <summary>
+    /// Sample rate of the audio in Hz.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_AUDIOSAMPLERATE =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("AudioSampleRate", typeof(long), Cardinality.Inline, false);
+
+    /// <summary>
     /// Number of audio channels.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_AUDIOCHANNELS =
@@ -79,6 +85,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_STREAM_INDEX,
             ATTR_AUDIOENCODING,
             ATTR_AUDIOBITRATE,
+            ATTR_AUDIOSAMPLERATE,
             ATTR_AUDIOCHANNELS,
             ATTR_AUDIOLANGUAGE,
         },

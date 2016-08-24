@@ -355,7 +355,7 @@ namespace MediaInfoLib
         CultureInfo cultureInfo = new CultureInfo(lang2);
         return cultureInfo.TwoLetterISOLanguageName;
       }
-      catch(CultureNotFoundException)
+      catch (CultureNotFoundException)
       {
         try
         {
@@ -393,11 +393,17 @@ namespace MediaInfoLib
     /// <returns>Number of audio channels or <c>null</c>, if the specified audio stream doesn't exist.</returns>
     public int? GetAudioChannels(int stream)
     {
-      string channels = _mediaInfo.Get(StreamKind.Audio, stream, "Channel(s)/String");
-      if (string.IsNullOrEmpty(channels))
-        return null;
-      channels = channels.Substring(0, channels.IndexOf(" "));
-      return GetIntOrNull(channels);
+      return GetIntOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "Channel(s)"));
+    }
+
+    /// <summary>
+    /// Returns the sample rate of the specified audio <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of audio stream to examine.</param>
+    /// <returns>Number of audio channels or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    public long? GetAudioSampleRate(int stream)
+    {
+      return GetLongOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "SamplingRate"));
     }
 
     /// <summary>

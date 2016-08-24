@@ -49,6 +49,7 @@ protected AbstractProperty _resourceIndexProperty;
 protected AbstractProperty _streamIndexProperty;
 protected AbstractProperty _audioEncodingProperty;
 protected AbstractProperty _audioBitRateProperty;
+protected AbstractProperty _audioSampleRateProperty;
 protected AbstractProperty _audioChannelsProperty;
 protected AbstractProperty _audioLanguageProperty;
 protected AbstractProperty _mediaItemProperty;
@@ -101,6 +102,17 @@ public long? AudioBitRate
 {
   get { return (long?) _audioBitRateProperty.GetValue(); }
   set { _audioBitRateProperty.SetValue(value); }
+}
+
+public AbstractProperty AudioSampleRateProperty
+{
+  get{ return _audioSampleRateProperty; }
+}
+
+public long? AudioSampleRate
+{
+  get { return (long?) _audioSampleRateProperty.GetValue(); }
+  set { _audioSampleRateProperty.SetValue(value); }
 }
 
 public AbstractProperty AudioChannelsProperty
@@ -168,6 +180,7 @@ public VideoAudioStreamAspectWrapper()
   _streamIndexProperty = new SProperty(typeof(int?));
   _audioEncodingProperty = new SProperty(typeof(string));
   _audioBitRateProperty = new SProperty(typeof(long?));
+  _audioSampleRateProperty = new SProperty(typeof(long?));
   _audioChannelsProperty = new SProperty(typeof(int?));
   _audioLanguageProperty = new SProperty(typeof(string));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
@@ -207,6 +220,7 @@ public void Init(MediaItem mediaItem)
   StreamIndex = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_STREAM_INDEX];
   AudioEncoding = (string) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOENCODING];
   AudioBitRate = (long?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOBITRATE];
+  AudioSampleRate = (long?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE];
   AudioChannels = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOCHANNELS];
   AudioLanguage = (string) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE];
 }
@@ -229,6 +243,7 @@ public void Update()
   StreamIndex = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_STREAM_INDEX];
   AudioEncoding = (string) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOENCODING];
   AudioBitRate = (long?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOBITRATE];
+  AudioSampleRate = (long?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE];
   AudioChannels = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOCHANNELS];
   AudioLanguage = (string) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE];
 }
@@ -239,6 +254,7 @@ public void SetEmpty()
   StreamIndex = null;
   AudioEncoding = null;
   AudioBitRate = null;
+  AudioSampleRate = null;
   AudioChannels = null;
   AudioLanguage = null;
 }
