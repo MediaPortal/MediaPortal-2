@@ -68,6 +68,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
       {
         Title = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+        SortString = (string)mediaAspect[MediaAspect.ATTR_SORT_TITLE];
         Rating = (int?)mediaAspect[MediaAspect.ATTR_RATING] ?? 0;
         currentPlayCount = (int?)mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0;
       }

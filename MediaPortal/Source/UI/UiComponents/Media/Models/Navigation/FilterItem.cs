@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Settings;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Settings;
@@ -71,6 +72,16 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     }
 
     public virtual void Update(MediaItem mediaItem)
-    { }
+    {
+      if (mediaItem != null)
+      {
+        SingleMediaItemAspect mediaAspect;
+        if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
+        {
+          SimpleTitle = (string)mediaAspect[MediaAspect.ATTR_TITLE];
+          SortString = (string)mediaAspect[MediaAspect.ATTR_SORT_TITLE];
+        }
+      }
+    }
   }
 }

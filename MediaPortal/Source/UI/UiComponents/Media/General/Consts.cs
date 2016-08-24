@@ -493,6 +493,17 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_MIMETYPE = "MimeType";
     public const string KEY_RATING = "Rating";
     public const string KEY_PLAYCOUNT = "PlayCount";
+    public const string KEY_FORMAT = "Format";
+    public const string KEY_LANGUAGE = "Language";
+    public const string KEY_DEFAULT = "Default";
+    public const string KEY_FORCED = "Forced";
+    public const string KEY_PARTS = "Parts";
+    public const string KEY_SET = "Set";
+    public const string KEY_BITRATE = "BitRate";
+    public const string KEY_ASPECTRATIO = "AspctRatio";
+    public const string KEY_FPS = "FPS";
+    public const string KEY_CHANNELS = "Channels";
+    public const string KEY_SAMPLERATE = "SampleRate";
 
     public const string KEY_MEDIA_ITEM = "MediaItem";
     public const string KEY_MEDIA_ITEM_ACTION = "MediaItemAction";
@@ -581,6 +592,7 @@ namespace MediaPortal.UiComponents.Media.General
           ImageAspect.ASPECT_ID,
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID
       };
 
     public static readonly Guid[] OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS = new Guid[]
@@ -592,6 +604,7 @@ namespace MediaPortal.UiComponents.Media.General
           ImageAspect.ASPECT_ID,
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[]
@@ -604,7 +617,8 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid[] OPTIONAL_VIDEO_MIAS = new Guid[]
       {
           VideoStreamAspect.ASPECT_ID,
-          VideoAudioStreamAspect.ASPECT_ID
+          VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_SERIES_MIAS = new Guid[]
@@ -636,7 +650,8 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid[] OPTIONAL_EPISODE_MIAS = new Guid[]
       {
           VideoStreamAspect.ASPECT_ID,
-          VideoAudioStreamAspect.ASPECT_ID
+          VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_MOVIE_COLLECTION_MIAS = new Guid[]
@@ -659,7 +674,8 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid[] OPTIONAL_MOVIES_MIAS = new Guid[]
       {
           VideoStreamAspect.ASPECT_ID,
-          VideoAudioStreamAspect.ASPECT_ID
+          VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_ALBUM_MIAS = new Guid[]
