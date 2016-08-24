@@ -1214,6 +1214,16 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
+      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="6" BorderThickness="0"
+                Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}"
+                IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="#F2447da7" Offset="0"/>
+            <GradientStop Color="#F2124273" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
       <Image Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}"
              Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       <!-- watched indicator -->
@@ -1410,6 +1420,16 @@
           </VisualBrush>
         </Image.OpacityMask>
       </Image>
+      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="6" BorderThickness="0"
+                Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}"
+                IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="#F2447da7" Offset="0"/>
+            <GradientStop Color="#F2124273" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
       <Image Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}"
              Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       <!-- watched indicator -->
