@@ -949,7 +949,7 @@
         <Image Stretch="Uniform">
           <Image.Source>
             <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
-                                Source="{Binding MediaItem.MediaItemId}" FallbackSource="VideoLarge.png" />
+                                Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
           </Image.Source>
           <Image.Opacity>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -976,7 +976,7 @@
 
       <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Image Source="{Binding MediaItem.MediaItemId}" Stretch="Uniform" FallbackSource="VideoNormal.png"
+        <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
                HorizontalAlignment="Center" VerticalAlignment="Center">
           <Image.Opacity>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1002,7 +1002,7 @@
   <ControlTemplate x:Key="VideoCoverTemplate">
     <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image Height="128" Stretch="Uniform" FallbackSource="VideoNormal.png"
-                 HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem.MediaItemId}" >
+                 HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" >
         </Image>
       </Grid>
   </ControlTemplate>

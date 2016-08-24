@@ -10,8 +10,9 @@
 
   <ResourceWrapper x:Key="GroupMenuZoomCoefficient" Resource="1.2"/>
   <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1.03"/> 
-  <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1.02"/>
+  <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1.04"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.04"/>
+  <ResourceWrapper x:Key="PosterZoomCoefficient" Resource="1.1"/>
 
   <!-- Base storyboard which shows an animation when a button has focus -->
   <Storyboard x:Key="FocusedButtonStoryboard_Base" FillBehavior="HoldEnd">
@@ -71,6 +72,17 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
+  <Storyboard x:Key="FocusedMediaStoryboard_GrowOnly" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="{ThemeResource PosterZoomCoefficient}"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="{ThemeResource PosterZoomCoefficient}"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <Storyboard x:Key="FocusedGroupMenuItemStoryboard_GrowOnly" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
@@ -105,7 +117,7 @@
 
   <Storyboard x:Key="FocusedButtonWideStoryboard_Media" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Media"/>
-    <!--StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/-->
+    <StaticResource ResourceKey="FocusedMediaStoryboard_GrowOnly"/>
   </Storyboard>
 
   <Storyboard x:Key="FocusedMenuButtonWideStoryboard" FillBehavior="HoldEnd">
@@ -731,7 +743,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Tile}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Media}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -785,7 +797,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="False"/>
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Media}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
