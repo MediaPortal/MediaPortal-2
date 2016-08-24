@@ -244,5 +244,19 @@ namespace MediaPortal.UI.Players.Video.Settings
       get { return _menuLCID == 0 ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID : _menuLCID; }
       set { _menuLCID = value; }
     }
+
+    /// <summary>
+    /// Gets or sets the preferred menu language.
+    /// If no choice was made before, the getter returns the global MP CurrentCulture.
+    /// </summary>
+    [Setting(SettingScope.User, 1)]
+    public int SubtitlesEngine { get; set; }
+
+    /// <summary>
+    /// Gets or sets advanced subtitles settings
+    /// </summary>
+    [Setting(SettingScope.User, 1)]
+    public int SubtitlesSettings { get; set; }
+
   }
 }

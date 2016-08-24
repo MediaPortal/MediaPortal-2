@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using DirectShow;
+using MediaPortal.UI.Players.Video.Settings;
 using SharpDX;
 
 namespace MediaPortal.UI.Players.Video.Subtitles

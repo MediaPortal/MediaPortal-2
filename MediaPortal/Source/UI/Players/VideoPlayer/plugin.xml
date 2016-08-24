@@ -162,4 +162,18 @@
         HelpText="[Settings.Players.DVDPlayer.EnableSubtitles.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Subtitles"/>
   </Register>
+
+  <Register Location="/Configuration/Settings/Players/VideoPlayer">
+    <ConfigSetting
+        Id="SubtitlesEngine"
+        Text="[Settings.Players.VideoPlayer.SubtitlesEngine]"
+        HelpText="[Settings.Players.VideoPlayer.SubtitlesEngine.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.SubtitlesEngine"/>
+    <ConfigSetting
+        Id="SubtitlesSettings"
+        Text="[Settings.Players.VideoPlayer.SubtitlesSettings]"
+        HelpText="[Settings.Players.VideoPlayer.SubtitlesSettings.Help]"
+        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Subtitles"/>
+  </Register>
+
 </Plugin>
