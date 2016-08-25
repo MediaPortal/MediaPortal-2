@@ -414,9 +414,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (tag.Properties.AudioSampleRate != 0)
             trackInfo.SampleRate = (int)tag.Properties.AudioSampleRate;
           if (tag.Properties.Codecs.Count() > 0)
-            trackInfo.Encoding = GuessCodec(tag.Properties.Codecs.First().Description, fileName);
+            trackInfo.Encoding = GuessCodec(tag.Properties.Codecs.First().Description, fsra.ResourceName);
           else
-            trackInfo.Encoding = GuessCodec("", fileName);
+            trackInfo.Encoding = GuessCodec("", fsra.ResourceName);
           if (tag.Properties.Duration.TotalSeconds != 0)
             trackInfo.Duration = (long)tag.Properties.Duration.TotalSeconds;
 
@@ -675,37 +675,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       string extension = DosPathHelper.GetExtension(filename).ToUpperInvariant();
 
-      if (description.IndexOf("AIFF Audio", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("AIFF Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "AIFF";
-      if (description.IndexOf("Audio APE", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("Audio APE", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "APE";
-      if (description.IndexOf("DSF Audio", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("DSF Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "DSF";
-      if (description.IndexOf("Flac Audio", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("Flac Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "FLAC";
-      if (description.IndexOf("MusePack", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("MusePack", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "MPC";
-      if (description.IndexOf("WavPack", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("WavPack", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "WV";
-      if (description.IndexOf("Vorbis", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("Vorbis", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "VORBIS";
-      if (description.IndexOf("Opus", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("Opus", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "OPUS";
-      if (description.IndexOf("MPEG Version", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("MPEG Version", StringComparison.InvariantCultureIgnoreCase) >= 0)
       {
-        if (description.IndexOf("Layer 1", StringComparison.InvariantCultureIgnoreCase) > 0)
+        if (description.IndexOf("Layer 1", StringComparison.InvariantCultureIgnoreCase) >= 0)
           return "MP1";
-        if (description.IndexOf("Layer 2", StringComparison.InvariantCultureIgnoreCase) > 0)
+        if (description.IndexOf("Layer 2", StringComparison.InvariantCultureIgnoreCase) >= 0)
           return "MP2";
-        if (description.IndexOf("Layer 3", StringComparison.InvariantCultureIgnoreCase) > 0)
+        if (description.IndexOf("Layer 3", StringComparison.InvariantCultureIgnoreCase) >= 0)
           return "MP3";
       }
-      if (description.IndexOf("AAC", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("AAC", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "AAC";
-      if (description.IndexOf("Windows Media Audio", StringComparison.InvariantCultureIgnoreCase) > 0)
+      if (description.IndexOf("Windows Media Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "WMA";
 
-      return extension.Substring(1);
+      if (extension.Length > 1)
+        return extension.Substring(1);
+      return null;
     }
 
     #endregion

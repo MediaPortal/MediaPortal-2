@@ -369,12 +369,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, lfsra.Size);
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, lfsra.CanonicalLocalResourcePath.Serialize());
 
+        int streamId = 0;
         MultipleMediaItemAspect videoAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
         videoAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-        if (_streamId.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, _streamId.Value);
-        else
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, -1);
+        videoAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
         if (_ar.HasValue)
           videoAspect.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, _ar.Value);
         if (_frameRate.HasValue)
@@ -440,11 +438,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
           audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
-
-          if (_audStreamIds[i] != null)
-            audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, _audStreamIds[i].Value);
-          else
-            audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, -1);
+          audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, streamId++);
           if (_audCodecs[i] != null)
             audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, _audCodecs[i]);
           if (_audBitRates[i] != null)
@@ -462,11 +456,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           MultipleMediaItemAspect subtitleAspect = MediaItemAspect.CreateAspect(extractedAspectData, SubtitleAspect.Metadata);
           subtitleAspect.SetAttribute(SubtitleAspect.ATTR_RESOURCE_INDEX, 0);
           subtitleAspect.SetAttribute(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX, 0);
-
-          if (_subStreamIds[i] != null)
-            subtitleAspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, _subStreamIds[i].Value);
-          else
-            subtitleAspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, 0);
+          subtitleAspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, streamId++);
           if (_subCodecs[i] != null)
           {
             if (_subCodecs[i].Equals("VOBSUB", StringComparison.InvariantCultureIgnoreCase))
@@ -479,16 +469,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_SSA);
             else if (_subCodecs[i].Equals("UTF-8", StringComparison.InvariantCultureIgnoreCase))
               subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_SRT);
-            else if (_subCodecs[i].Equals("TELETEXT", StringComparison.InvariantCultureIgnoreCase))
+            else if (_subCodecs[i].IndexOf("TELETEXT", StringComparison.InvariantCultureIgnoreCase) >= 0)
               subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_TELETEXT);
-            else if (_subCodecs[i].Equals("DVB", StringComparison.InvariantCultureIgnoreCase))
+            else if (_subCodecs[i].IndexOf("DVB", StringComparison.InvariantCultureIgnoreCase) >= 0)
               subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_DVBTEXT);
           }
           subtitleAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, _subDefaults[i]);
           subtitleAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, _subForceds[i]);
           subtitleAspect.SetAttribute(SubtitleAspect.ATTR_INTERNAL, true);
           if (_subLanguages[i] != null)
-            subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, _subLanguages[i]);
+            subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, _subLanguages[i].ToUpperInvariant());
         }
       }
 

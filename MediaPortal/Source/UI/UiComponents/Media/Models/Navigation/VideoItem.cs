@@ -158,7 +158,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               validFrameRate = 60;
             else if (fps.Value < 120.100000000000001D)
               validFrameRate = 120;
-            videoStreams[partSet.Value].FPS = validFrameRate.ToString("0.###", CultureInfo.InvariantCulture);
+            videoStreams[partSet.Value].FPS = validFrameRate.ToString("0.###");
           }
           videoStreams[partSet.Value].Heigth = height.Value;
           videoStreams[partSet.Value].Width = width.Value;
@@ -207,7 +207,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               if (bitrate.HasValue)
                 audioItem.BitRate = bitrate.Value.ToString() + " kbps";
               if (samplerate.HasValue)
-                audioItem.SampleRate = samplerate.Value.ToString() + " kHz";
+                audioItem.SampleRate = (samplerate.Value / 1000.0).ToString("0.0") + " kHz";
 
               if (channels.HasValue)
               {
