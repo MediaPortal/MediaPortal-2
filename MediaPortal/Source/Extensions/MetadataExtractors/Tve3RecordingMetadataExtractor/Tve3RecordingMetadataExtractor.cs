@@ -68,7 +68,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public Tve3RecordingSeriesMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "TVEngine3 recordings series metadata extractor", MetadataExtractorPriority.Extended, false,
-        SERIES_MEDIA_CATEGORIES, new[] { EpisodeAspect.Metadata });
+        SERIES_MEDIA_CATEGORIES, new[]
+        {
+          MediaAspect.Metadata,
+          VideoAspect.Metadata,
+          EpisodeAspect.Metadata,
+        });
     }
 
     public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
@@ -196,9 +201,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoStreamAspect.Metadata,
+                VideoAspect.Metadata,
                 RecordingAspect.Metadata,
-                EpisodeAspect.Metadata
               });
     }
 

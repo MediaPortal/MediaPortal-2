@@ -64,10 +64,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public RadioRecordingMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Radio recording metadata extractor", MetadataExtractorPriority.Core, false,
-          MEDIA_CATEGORIES, new[]
+          MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoAspect.Metadata,
+                ProviderResourceAspect.Metadata,
                 AudioAspect.Metadata,
               });
     }

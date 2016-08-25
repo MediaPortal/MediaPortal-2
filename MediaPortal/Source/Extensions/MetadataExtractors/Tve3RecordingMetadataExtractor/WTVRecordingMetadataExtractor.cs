@@ -68,7 +68,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public WTVRecordingSeriesMetadataExtractor()
     {
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "WTV series recordings metadata extractor", MetadataExtractorPriority.Extended, false,
-          SERIES_MEDIA_CATEGORIES, new[] { EpisodeAspect.Metadata });
+          SERIES_MEDIA_CATEGORIES, new[]
+          {
+            MediaAspect.Metadata,
+            VideoAspect.Metadata,
+            EpisodeAspect.Metadata,
+          });
     }
 
     public EpisodeInfo GetSeriesFromTags(IDictionary metadata)
@@ -171,9 +176,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
-                VideoStreamAspect.Metadata,
-                RecordingAspect.Metadata,
-                EpisodeAspect.Metadata
+                ProviderResourceAspect.Metadata,
+                RecordingAspect.Metadata
               });
     }
 
