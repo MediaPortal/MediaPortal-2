@@ -225,15 +225,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override int SaveFanArtImages(string fanArtToken, string id, IEnumerable<TvdbBanner> images, string mediaItemId, string name, string fanartType)
+    protected override int SaveFanArtImages(string id, IEnumerable<TvdbBanner> images, string mediaItemId, string name, string fanartType)
     {
       if (images == null)
         return 0;
 
-      return SaveBanners(fanArtToken, images, _wrapper.PreferredLanguage, mediaItemId, name, fanartType);
+      return SaveBanners(images, _wrapper.PreferredLanguage, mediaItemId, name, fanartType);
     }
 
-    private int SaveBanners(string fanArtToken, IEnumerable<TvdbBanner> banners, TvdbLanguage language, string mediaItemId, string name, string fanartType)
+    private int SaveBanners(IEnumerable<TvdbBanner> banners, TvdbLanguage language, string mediaItemId, string name, string fanartType)
     {
       int idx = 0;
       foreach (TvdbBanner tvdbBanner in banners)
@@ -241,7 +241,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (tvdbBanner.Language != language && language != null && tvdbBanner.Language != null)
           continue;
 
-        using (FanArtCountLock countLock = GetFanArtCountLock(fanArtToken, fanartType))
+        using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
         {
           if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
             break;
@@ -284,12 +284,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         if (_useUniversalLanguage)
         {
-          idx = SaveBanners(fanArtToken, banners, TvdbLanguage.UniversalLanguage, mediaItemId, name, fanartType);
+          idx = SaveBanners(banners, TvdbLanguage.UniversalLanguage, mediaItemId, name, fanartType);
           if (idx > 0)
             return idx;
         }
 
-        idx = SaveBanners(fanArtToken, banners, TvdbLanguage.DefaultLanguage, mediaItemId, name, fanartType);
+        idx = SaveBanners(banners, TvdbLanguage.DefaultLanguage, mediaItemId, name, fanartType);
       }
       Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
       return idx;

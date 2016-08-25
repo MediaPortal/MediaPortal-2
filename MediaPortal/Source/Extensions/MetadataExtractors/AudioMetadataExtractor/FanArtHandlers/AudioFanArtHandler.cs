@@ -190,6 +190,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumMediaItemId.HasValue)
         return;
 
+      string mediaItemId = albumMediaItemId.Value.ToString().ToUpperInvariant();
       TagLib.File tag;
       try
       {
@@ -209,17 +210,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       {
         try
         {
-          if (FanArtCache.GetFanArtFiles(albumMediaItemId.ToString(), FanArtTypes.Cover).Count >= FanArtCache.MAX_FANART_IMAGES[FanArtTypes.Cover])
-            return;
-
-          string cacheFile = GetCacheFileName(albumMediaItemId.Value, FanArtTypes.Cover,
-            "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
-          if (!System.IO.File.Exists(cacheFile))
+          string fanArtType = FanArtTypes.Cover;
+          FanArtCache.InitFanArtCount(mediaItemId, fanArtType);
+          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanArtType))
           {
-            using (MemoryStream ms = new MemoryStream(pics[0].Data.Data))
+            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
+              return;
+
+            string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
+              "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
+            if (!System.IO.File.Exists(cacheFile))
             {
-              using (Image img = Image.FromStream(ms, true, true))
-                img.Save(cacheFile, System.Drawing.Imaging.ImageFormat.Jpeg);
+              using (MemoryStream ms = new MemoryStream(pics[0].Data.Data))
+              {
+                using (Image img = Image.FromStream(ms, true, true))
+                {
+                  img.Save(cacheFile, System.Drawing.Imaging.ImageFormat.Jpeg);
+                  countLock.Count++;
+                }
+              }
             }
           }
         }
@@ -391,32 +400,38 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     private void SaveFolderFile(string systemId, ResourcePath file, string fanartType, Guid parentId)
     {
-      if (FanArtCache.GetFanArtFiles(parentId.ToString(), fanartType).Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-        return;
-
-      string cacheFile = GetCacheFileName(parentId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
-      if (!System.IO.File.Exists(cacheFile))
+      string mediaItemId = parentId.ToString().ToUpperInvariant();
+      FanArtCache.InitFanArtCount(mediaItemId, fanartType);
+      using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
       {
-        using (var fileRa = new ResourceLocator(systemId, file).CreateAccessor())
+        if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
+          return;
+
+        string cacheFile = GetCacheFileName(mediaItemId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
+        if (!System.IO.File.Exists(cacheFile))
         {
-          var fileFsra = fileRa as IFileSystemResourceAccessor;
-          if (fileFsra != null)
+          using (var fileRa = new ResourceLocator(systemId, file).CreateAccessor())
           {
-            using (Stream ms = fileFsra.OpenRead())
+            var fileFsra = fileRa as IFileSystemResourceAccessor;
+            if (fileFsra != null)
             {
-              using (Image img = Image.FromStream(ms, true, true))
-                img.Save(cacheFile);
+              using (Stream ms = fileFsra.OpenRead())
+              {
+                using (Image img = Image.FromStream(ms, true, true))
+                {
+                  img.Save(cacheFile);
+                  countLock.Count++;
+                }
+              }
             }
           }
         }
       }
     }
 
-    private string GetCacheFileName(Guid mediaItemId, string fanartType, string fileName)
+    private string GetCacheFileName(string mediaItemId, string fanartType, string fileName)
     {
-      string cacheFile = Path.Combine(CACHE_PATH,
-              mediaItemId.ToString().ToUpperInvariant(), fanartType, fileName);
-
+      string cacheFile = Path.Combine(CACHE_PATH, mediaItemId, fanartType, fileName);
       string folder = Path.GetDirectoryName(cacheFile);
       if (!Directory.Exists(folder))
         Directory.CreateDirectory(folder);

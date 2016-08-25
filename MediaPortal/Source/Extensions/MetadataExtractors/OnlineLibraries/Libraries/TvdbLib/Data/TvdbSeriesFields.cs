@@ -34,7 +34,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     {
       // Ignore same Season/Episode if the existing Id is higher. This assumes that entries with higher id for same episode
       // are newer.
-      var itemsToRemove = this.Where(existingItem => existingItem.SeasonNumber == item.SeasonNumber && existingItem.EpisodeNumber == item.EpisodeNumber);
+      var itemsToRemove = this.Where(existingItem => existingItem.SeasonNumber == item.SeasonNumber && existingItem.EpisodeNumber == item.EpisodeNumber).ToList();
       foreach (var existingItem in itemsToRemove)
       {
         if (existingItem.Id > item.Id)
@@ -163,7 +163,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data
     public List<TvdbEpisode> GetEpisodes(int season, TvdbEpisode.EpisodeOrdering order)
     {
       List<TvdbEpisode> episodes = new List<TvdbEpisode>();
-      _episodes.ForEach(delegate(TvdbEpisode e) { if (e.SeasonNumber == season) episodes.Add(e); });
+      _episodes.ForEach(delegate (TvdbEpisode e) { if (e.SeasonNumber == season) episodes.Add(e); });
 
       switch (order)
       {

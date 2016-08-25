@@ -1067,7 +1067,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info)
     {
       string id;
-      info.InitFanArtToken();
+      string mediaItem = mediaItemId.ToString().ToUpperInvariant();
       FanArtCache.InitFanArtCache(mediaItemId.ToString().ToUpperInvariant(), info.ToString());
       if (info is TrackInfo)
       {
@@ -1077,10 +1077,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           TLang language = FindBestMatchingLanguage(trackInfo.Languages);
           DownloadData data = new DownloadData()
           {
-            FanArtToken = trackInfo.FanArtToken,
             FanArtMediaType = FanArtMediaTypes.Audio,
             ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItemId.ToString().ToUpperInvariant(),
+            MediaItemId = mediaItem,
             Name = trackInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Audio] = id;
@@ -1099,10 +1098,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           TLang language = FindBestMatchingLanguage(albumInfo.Languages);
           DownloadData data = new DownloadData()
           {
-            FanArtToken = albumInfo.FanArtToken,
             FanArtMediaType = FanArtMediaTypes.Album,
             ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItemId.ToString().ToUpperInvariant(),
+            MediaItemId = mediaItem,
             Name = albumInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Album] = id;
@@ -1116,10 +1114,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           DownloadData data = new DownloadData()
           {
-            FanArtToken = companyInfo.FanArtToken,
             FanArtMediaType = FanArtMediaTypes.MusicLabel,
             ShortLanguage = "",
-            MediaItemId = mediaItemId.ToString().ToUpperInvariant(),
+            MediaItemId = mediaItem,
             Name = companyInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.MusicLabel] = id;
@@ -1133,9 +1130,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           DownloadData data = new DownloadData()
           {
-            FanArtToken = personInfo.FanArtToken,
             ShortLanguage = "",
-            MediaItemId = mediaItemId.ToString().ToUpperInvariant(),
+            MediaItemId = mediaItem,
             Name = personInfo.ToString()
           };
           if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST)
@@ -1187,7 +1183,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           TLang language = FindMatchingLanguage(data.ShortLanguage);
           foreach (string fanArtType in fanArtTypes)
-            InitFanArtCount(data.MediaItemId, data.FanArtToken, fanArtType);
+            FanArtCache.InitFanArtCount(data.MediaItemId, fanArtType);
 
           Logger.Debug(GetType().Name + " Download: Started for media item {0}", name);
           ApiWrapperImageCollection<TImg> images = null;
@@ -1254,17 +1250,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             Logger.Debug(GetType().Name + " Download: Downloading images for ID {0} [{1}]", Id, name);
 
-            SaveFanArtImages(data.FanArtToken, images.Id, images.Backdrops, data.MediaItemId, data.Name, FanArtTypes.FanArt);
-            SaveFanArtImages(data.FanArtToken, images.Id, images.Posters, data.MediaItemId, data.Name, FanArtTypes.Poster);
-            SaveFanArtImages(data.FanArtToken, images.Id, images.Banners, data.MediaItemId, data.Name, FanArtTypes.Banner);
-            SaveFanArtImages(data.FanArtToken, images.Id, images.Covers, data.MediaItemId, data.Name, FanArtTypes.Cover);
-            SaveFanArtImages(data.FanArtToken, images.Id, images.Thumbnails, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
+            SaveFanArtImages(images.Id, images.Backdrops, data.MediaItemId, data.Name, FanArtTypes.FanArt);
+            SaveFanArtImages(images.Id, images.Posters, data.MediaItemId, data.Name, FanArtTypes.Poster);
+            SaveFanArtImages(images.Id, images.Banners, data.MediaItemId, data.Name, FanArtTypes.Banner);
+            SaveFanArtImages(images.Id, images.Covers, data.MediaItemId, data.Name, FanArtTypes.Cover);
+            SaveFanArtImages(images.Id, images.Thumbnails, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
 
             if (!OnlyBasicFanArt)
             {
-              SaveFanArtImages(data.FanArtToken, images.Id, images.ClearArt, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
-              SaveFanArtImages(data.FanArtToken, images.Id, images.DiscArt, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
-              SaveFanArtImages(data.FanArtToken, images.Id, images.Logos, data.MediaItemId, data.Name, FanArtTypes.Logo);
+              SaveFanArtImages(images.Id, images.ClearArt, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
+              SaveFanArtImages(images.Id, images.DiscArt, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
+              SaveFanArtImages(images.Id, images.Logos, data.MediaItemId, data.Name, FanArtTypes.Logo);
             }
 
             Logger.Debug(GetType().Name + " Download: Finished saving images for ID {0} [{1}]", Id, name);
@@ -1287,7 +1283,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return false;
     }
 
-    protected virtual int SaveFanArtImages(string fanArtToken, string id, IEnumerable<TImg> images, string mediaItemId, string name, string fanartType)
+    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string mediaItemId, string name, string fanartType)
     {
       try
       {
@@ -1297,7 +1293,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         int idx = 0;
         foreach (TImg img in images)
         {
-          using (FanArtCountLock countLock = GetFanArtCountLock(fanArtToken, fanartType))
+          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
           {
             if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;

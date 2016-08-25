@@ -2606,7 +2606,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         try
         {
-          ShareWatcher watcher = new ShareWatcher(share, this, true);
+          ShareWatcher watcher = new ShareWatcher(share, this, false);
           _shareWatchers.Add(share.ShareId, watcher);
         }
         catch (Exception e)

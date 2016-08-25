@@ -164,7 +164,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override int SaveFanArtImages(string fanArtToken, string id, IEnumerable<TrackImage> images, string mediaItemId, string name, string fanartType)
+    protected override int SaveFanArtImages(string id, IEnumerable<TrackImage> images, string mediaItemId, string name, string fanartType)
     {
       try
       {
@@ -183,7 +183,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         int idx = 0;
         foreach (TrackImage img in images)
         {
-          using (FanArtCountLock countLock = GetFanArtCountLock(fanArtToken, fanartType))
+          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
           {
             if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;
