@@ -28,6 +28,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 {
@@ -153,9 +154,9 @@ public AbstractProperty AspectIndexProperty
   get{ return _aspectIndexProperty; }
 }
 
-public int? AspectIndex
+public int AspectIndex
 {
-  get { return (int?) _aspectIndexProperty.GetValue(); }
+  get { return (int) _aspectIndexProperty.GetValue(); }
   set { _aspectIndexProperty.SetValue(value); }
 }
 
@@ -164,9 +165,9 @@ public AbstractProperty AspectCountProperty
   get{ return _aspectCountProperty; }
 }
 
-public int? AspectCount
+public int AspectCount
 {
-  get { return (int?) _aspectCountProperty.GetValue(); }
+  get { return (int) _aspectCountProperty.GetValue(); }
   set { _aspectCountProperty.SetValue(value); }
 }
 
@@ -185,9 +186,9 @@ public VideoAudioStreamAspectWrapper()
   _audioLanguageProperty = new SProperty(typeof(string));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
-  _aspectIndexProperty = new SProperty(typeof(int?));
+  _aspectIndexProperty = new SProperty(typeof(int));
   _aspectIndexProperty.Attach(AspectIndexChanged);
-  _aspectCountProperty = new SProperty(typeof(int?));
+  _aspectCountProperty = new SProperty(typeof(int));
 }
 
 #endregion
@@ -201,55 +202,51 @@ private void MediaItemChanged(AbstractProperty property, object oldvalue)
 
 private void AspectIndexChanged(AbstractProperty property, object oldvalue)
 {
-  Update();
+  Init(MediaItem);
+}
+
+public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+{
+  Detach();
+  base.DeepCopy(source, copyManager);
+  var aw = (VideoAudioStreamAspectWrapper)source;
+  AspectIndex = aw.AspectIndex;
+  Attach();
+}
+
+private void Attach()
+{
+  _aspectIndexProperty.Attach(AspectIndexChanged);
+}
+
+private void Detach()
+{
+  _aspectIndexProperty.Detach(AspectIndexChanged);
 }
 
 public void Init(MediaItem mediaItem)
 {
   IList<MultipleMediaItemAspect> aspects;
-  if (mediaItem == null ||!MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioStreamAspect.Metadata, out aspects))
+  if (mediaItem == null || !MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioStreamAspect.Metadata, out aspects) ||
+      AspectIndex < 0 || AspectIndex >= aspects.Count)
   {
      SetEmpty();
      return;
   }
 
-  AspectIndex = 0;
   AspectCount = aspects.Count;
-
-  ResourceIndex = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_RESOURCE_INDEX];
-  StreamIndex = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_STREAM_INDEX];
-  AudioEncoding = (string) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOENCODING];
-  AudioBitRate = (long?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOBITRATE];
-  AudioSampleRate = (long?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE];
-  AudioChannels = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOCHANNELS];
-  AudioLanguage = (string) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE];
-}
-
-public void Update()
-{
-  IList<MultipleMediaItemAspect> aspects;
-  if (MediaItem == null ||!MediaItemAspect.TryGetAspects(MediaItem.Aspects, VideoAudioStreamAspect.Metadata, out aspects))
-  {
-     SetEmpty();
-     return;
-  }
-  if (AspectIndex == null || AspectIndex.Value < 0 || AspectIndex.Value >= aspects.Count)
-  {
-     SetEmpty();
-     return;
-  }
-
-  ResourceIndex = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_RESOURCE_INDEX];
-  StreamIndex = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_STREAM_INDEX];
-  AudioEncoding = (string) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOENCODING];
-  AudioBitRate = (long?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOBITRATE];
-  AudioSampleRate = (long?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE];
-  AudioChannels = (int?) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOCHANNELS];
-  AudioLanguage = (string) aspects[AspectIndex.Value][VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE];
+  ResourceIndex = (int?) aspects[AspectIndex][VideoAudioStreamAspect.ATTR_RESOURCE_INDEX];
+  StreamIndex = (int?) aspects[AspectIndex][VideoAudioStreamAspect.ATTR_STREAM_INDEX];
+  AudioEncoding = (string) aspects[AspectIndex][VideoAudioStreamAspect.ATTR_AUDIOENCODING];
+  AudioBitRate = (long?) aspects[AspectIndex][VideoAudioStreamAspect.ATTR_AUDIOBITRATE];
+  AudioSampleRate = (long?) aspects[AspectIndex][VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE];
+  AudioChannels = (int?) aspects[AspectIndex][VideoAudioStreamAspect.ATTR_AUDIOCHANNELS];
+  AudioLanguage = (string) aspects[AspectIndex][VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE];
 }
 
 public void SetEmpty()
 {
+  AspectCount = 0;
   ResourceIndex = null;
   StreamIndex = null;
   AudioEncoding = null;

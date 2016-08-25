@@ -105,7 +105,7 @@ namespace MediaItemAspectModelBuilder
         string attrName = attributeSpecification.Key;
         Type attrType = spec.AttributeType;
 
-        CreateProperty(attrName, attrType, spec.IsCollectionAttribute);
+        CreateProperty(attrName, attrType, _exposeNullable, spec.IsCollectionAttribute);
       }
 
       #region Copyright
@@ -141,13 +141,17 @@ namespace MediaItemAspectModelBuilder
       _usings.Add("using MediaPortal.Common.MediaManagement;");
       _usings.Add("using MediaPortal.Common.MediaManagement.DefaultItemAspects;");
       if (_createAsControl)
+      {
         _usings.Add("using MediaPortal.UI.SkinEngine.Controls.Visuals;");
+        if (multiAspect)
+          _usings.Add("using MediaPortal.Utilities.DeepCopy;");
+      }
 
       // Constants
       _consts.Add("public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();");
 
       // Common properties
-      CreateProperty("MediaItem", typeof(MediaItem));
+      CreateProperty("MediaItem", typeof(MediaItem), _exposeNullable);
       _propertyCreation.Add("_mediaItemProperty.Attach(MediaItemChanged);");
 
       #endregion
@@ -171,9 +175,9 @@ namespace MediaItemAspectModelBuilder
 
       if (multiAspect)
       {
-        CreateProperty("AspectIndex", typeof(int), false, true);
+        CreateProperty("AspectIndex", typeof(int), false);
         _propertyCreation.Add("_aspectIndexProperty.Attach(AspectIndexChanged);");
-        CreateProperty("AspectCount", typeof(int));
+        CreateProperty("AspectCount", typeof(int), false);
       }
 
       AppendRegion(result, "Constants", _consts, false);
@@ -188,12 +192,32 @@ namespace MediaItemAspectModelBuilder
   Init(MediaItem);
 }");
 
-      if(multiAspect)
+      if (multiAspect)
+      {
         _members.Add(@"private void AspectIndexChanged(AbstractProperty property, object oldvalue)
 {
-  Update();
+  Init(MediaItem);
 }");
-
+        if (_createAsControl)
+        {
+          _members.Add(string.Format(@"public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+{{
+  Detach();
+  base.DeepCopy(source, copyManager);
+  var aw = ({0}Wrapper)source;
+  AspectIndex = aw.AspectIndex;
+  Attach();
+}}", aspectName));
+          _members.Add(@"private void Attach()
+{
+  _aspectIndexProperty.Attach(AspectIndexChanged);
+}");
+          _members.Add(@"private void Detach()
+{
+  _aspectIndexProperty.Detach(AspectIndexChanged);
+}");
+        }
+      }
       CreateMembers(aspectType, _members, multiAspect);
       AppendRegion(result, "Members", _members);
 
@@ -209,7 +233,6 @@ namespace MediaItemAspectModelBuilder
     {
       string methodStub = null;
       string emptyStub = null;
-      string updateStub = null;
       if (multiAspect == false)
       {
         methodStub = @"public void Init(MediaItem mediaItem)
@@ -234,41 +257,26 @@ namespace MediaItemAspectModelBuilder
         methodStub = @"public void Init(MediaItem mediaItem)
 {{
   IList<MultipleMediaItemAspect> aspects;
-  if (mediaItem == null ||!MediaItemAspect.TryGetAspects(mediaItem.Aspects, {1}.Metadata, out aspects))
+  if (mediaItem == null || !MediaItemAspect.TryGetAspects(mediaItem.Aspects, {1}.Metadata, out aspects) ||
+      AspectIndex < 0 || AspectIndex >= aspects.Count)
   {{
      SetEmpty();
      return;
   }}
 
-  AspectIndex = 0;
   AspectCount = aspects.Count;
-
-  {0}
-}}";
-        updateStub = @"public void Update()
-{{
-  IList<MultipleMediaItemAspect> aspects;
-  if (MediaItem == null ||!MediaItemAspect.TryGetAspects(MediaItem.Aspects, {1}.Metadata, out aspects))
-  {{
-     SetEmpty();
-     return;
-  }}
-  if (AspectIndex == null || AspectIndex.Value < 0 || AspectIndex.Value >= aspects.Count)
-  {{
-     SetEmpty();
-     return;
-  }}
-
   {0}
 }}";
         emptyStub = @"public void SetEmpty()
 {{
+  AspectCount = 0;
   {0}
 }}
 ";
       }
       List<string> initCommands = new List<string>();
       List<string> emptyCommands = new List<string>();
+
       foreach (FieldInfo fieldInfo in aspectType.GetFields())
       {
         if (!fieldInfo.Name.StartsWith("ATTR_"))
@@ -282,7 +290,7 @@ namespace MediaItemAspectModelBuilder
         {
           string varName = FirstLower(spec.AttributeName);
           if(multiAspect)
-            initCommands.Add(string.Format("{0}? {1} = ({0}?) aspects[AspectIndex.Value][{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
+            initCommands.Add(string.Format("{0}? {1} = ({0}?) aspects[AspectIndex][{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
           else
             initCommands.Add(string.Format("{0}? {1} = ({0}?) aspect[{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
           initCommands.Add(string.Format("{0} = {1}.HasValue? {1}.Value : default({2});", attrName, varName, typeName));
@@ -291,7 +299,7 @@ namespace MediaItemAspectModelBuilder
         {
           string defaultValue = typeName == "IEnumerable<string>" ? " ?? EMPTY_STRING_COLLECTION" : "";
           if(multiAspect)
-            initCommands.Add(string.Format("{0} = ({1}) aspects[AspectIndex.Value][{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
+            initCommands.Add(string.Format("{0} = ({1}) aspects[AspectIndex][{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
           else
             initCommands.Add(string.Format("{0} = ({1}) aspect[{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
         }
@@ -300,8 +308,6 @@ namespace MediaItemAspectModelBuilder
       }
 
       members.Add(string.Format(methodStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
-      if(multiAspect)
-        members.Add(string.Format(updateStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
       members.Add(string.Format(emptyStub, string.Join("\r\n  ", emptyCommands.ToArray())));
     }
 
@@ -316,13 +322,13 @@ namespace MediaItemAspectModelBuilder
       return "null";
     }
 
-    private void CreateProperty(string attrName, Type attrType, bool isCollection = false, bool withUpdate = false)
+    private void CreateProperty(string attrName, Type attrType, bool exposeNullable, bool isCollection = false)
     {
       attrName = CreateSafePropertyName(attrName);
       string publicValuePropertyName = attrName;
       string publicPropertyName = publicValuePropertyName + "Property";
       string propertyName = "_" + FirstLower(publicPropertyName);
-      string typeName = BuildTypeName(attrType, isCollection, _exposeNullable);
+      string typeName = BuildTypeName(attrType, isCollection, exposeNullable);
       _fields.Add(string.Format(FIELD_TEMPLATE, propertyName));
       _properties.Add(string.Format(BINDING_PROPERTY_TEMPLATE, publicPropertyName, propertyName));
       _properties.Add(string.Format(VALUE_PROPERTY_TEMPLATE, publicValuePropertyName, propertyName, typeName));
