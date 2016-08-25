@@ -122,6 +122,45 @@
         </ControlTemplate>
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
+
+    <media:VideoAudioStreamAspectWrapper AspectIndex="0" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:VideoAudioStreamAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                   Content="{Binding AudioEncoding}" />
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0">
+              <Label.Content>
+                <Binding Path="AudioBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}kbps"/>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"
+                   Content="{Binding AudioLanguage}" />
+          </StackPanel>
+        </ControlTemplate>
+      </media:VideoAudioStreamAspectWrapper.Template>
+    </media:VideoAudioStreamAspectWrapper>
+
+    <media:VideoAudioStreamAspectWrapper AspectIndex="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:VideoAudioStreamAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StackPanel.IsVisible>
+              <Binding Path="AspectCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 1" />
+            </StackPanel.IsVisible>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                   Content="{Binding AudioEncoding}" />
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0">
+              <Label.Content>
+                <Binding Path="AudioBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}kbps"/>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"
+                   Content="{Binding AudioLanguage}" />
+          </StackPanel>
+        </ControlTemplate>
+      </media:VideoAudioStreamAspectWrapper.Template>
+    </media:VideoAudioStreamAspectWrapper>
   </StackPanel>
 
   <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
