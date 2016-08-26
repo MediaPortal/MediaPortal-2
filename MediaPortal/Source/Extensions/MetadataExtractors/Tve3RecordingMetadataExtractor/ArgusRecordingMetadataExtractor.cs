@@ -235,7 +235,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new[] { recording.Category });
 
-        MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STORYPLOT, recording.Description);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, recording.Description);
 
         Match yearMatch = _yearMatcher.Match(recording.Description);
         int guessedYear;

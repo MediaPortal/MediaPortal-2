@@ -177,6 +177,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
               {
                 MediaAspect.Metadata,
                 ProviderResourceAspect.Metadata,
+                VideoAspect.Metadata,
                 RecordingAspect.Metadata
               });
     }
@@ -257,11 +258,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         if (TryGet(tags, TAG_GENRE, out value))
-          MediaItemAspect.SetCollectionAttribute(extractedAspectData, RecordingAspect.ATTR_GENRES, new List<String>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)));
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new List<String>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)));
 
         if (TryGet(tags, TAG_PLOT, out value))
         {
-          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STORYPLOT, value);
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, value);
         }
 
         if (TryGet(tags, TAG_ORIGINAL_TIME, out value))
