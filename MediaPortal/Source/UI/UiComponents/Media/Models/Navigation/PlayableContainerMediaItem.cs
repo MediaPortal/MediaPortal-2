@@ -35,7 +35,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public abstract class PlayableContainerMediaItem : FilterItem
   {
-    public new virtual void Update(MediaItem mediaItem)
+    public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
 
@@ -55,7 +55,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       {
         PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
       }
-      else if(currentPlayCount.HasValue)
+      else if (currentPlayCount.HasValue)
       {
         PlayCount = currentPlayCount.Value;
       }
@@ -63,7 +63,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
     public int PlayCount
     {
-      get { return (int?) AdditionalProperties[Consts.KEY_PLAYCOUNT] ?? 0; }
+      get { return (int?)AdditionalProperties[Consts.KEY_PLAYCOUNT] ?? 0; }
       set { AdditionalProperties[Consts.KEY_PLAYCOUNT] = value; }
     }
 
