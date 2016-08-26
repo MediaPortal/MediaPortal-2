@@ -279,11 +279,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         if (TryGet(tags, TAG_GENRE, out value))
-          MediaItemAspect.SetCollectionAttribute(extractedAspectData, RecordingAspect.ATTR_GENRES, new List<String> { value });
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new List<String> { value });
 
         if (TryGet(tags, TAG_PLOT, out value))
         {
-          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STORYPLOT, value);
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, value);
           Match yearMatch = _yearMatcher.Match(value);
           int guessedYear;
           if (int.TryParse(yearMatch.Value, out guessedYear))

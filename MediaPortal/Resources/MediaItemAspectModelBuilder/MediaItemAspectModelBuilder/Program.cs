@@ -52,22 +52,24 @@ namespace MediaItemAspectModelBuilder
         typeof(CompanyAspect)};
       string classNamespace = "MediaPortal.UiComponents.Media.Models.AspectWrappers";
       string codeBasePath = @"..\..\..\..\..\Source\UI\UiComponents\Media\Models\AspectWrappers\";
+      string aspectNamespace = "MediaPortal.Common.MediaManagement.DefaultItemAspects";
 
-      BuildWrappers(typeList, classNamespace, createAsControl, exposeNullables, codeBasePath);
+      BuildWrappers(typeList, classNamespace, aspectNamespace, createAsControl, exposeNullables, codeBasePath);
 
       typeList = new List<Type> { typeof(RecordingAspect) };
-      classNamespace = "MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers"; 
+      classNamespace = "MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers";
       codeBasePath = @"..\..\..\..\..\Source\UI\TV\SlimTvClient\Models\AspectWrappers\";
+      aspectNamespace = "MediaPortal.Extensions.MetadataExtractors.Aspects";
 
-      BuildWrappers(typeList, classNamespace, createAsControl, exposeNullables, codeBasePath);
+      BuildWrappers(typeList, classNamespace, aspectNamespace, createAsControl, exposeNullables, codeBasePath);
     }
 
-    private static void BuildWrappers(List<Type> typeList, string classNamespace, bool createAsControl, bool exposeNullables, string codeBasePath)
+    private static void BuildWrappers(List<Type> typeList, string classNamespace, string aspectNamespace, bool createAsControl, bool exposeNullables, string codeBasePath)
     {
       foreach (Type aspectType in typeList)
       {
         AspectModelBuilder amb = new AspectModelBuilder();
-        string source = amb.BuildCodeTemplate(aspectType, classNamespace, createAsControl, exposeNullables);
+        string source = amb.BuildCodeTemplate(aspectType, classNamespace, aspectNamespace, createAsControl, exposeNullables);
         string targetFileName = string.Format("{0}Wrapper.cs", aspectType.Name);
         if (!Directory.Exists(codeBasePath))
           Directory.CreateDirectory(codeBasePath);

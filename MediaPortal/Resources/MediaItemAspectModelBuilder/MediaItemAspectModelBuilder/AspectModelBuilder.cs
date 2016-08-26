@@ -89,7 +89,7 @@ namespace MediaItemAspectModelBuilder
     /// <param name="createAsControl">Create a control (see remarks on class).</param>
     /// <param name="exposeNullable">Internal value types are exposed as C# Nullable.</param>
     /// <returns>Source code of created class.</returns>
-    public string BuildCodeTemplate(Type aspectType, string classNamespace, bool createAsControl, bool exposeNullable)
+    public string BuildCodeTemplate(Type aspectType, string classNamespace, string aspectNamespace, bool createAsControl, bool exposeNullable)
     {
       bool multiAspect = false;
       MediaItemAspectMetadata metadata = GetMetadata(aspectType, out multiAspect);
@@ -139,7 +139,7 @@ namespace MediaItemAspectModelBuilder
       _usings.Add("using System.Collections.Generic;");
       _usings.Add("using MediaPortal.Common.General;");
       _usings.Add("using MediaPortal.Common.MediaManagement;");
-      _usings.Add("using MediaPortal.Common.MediaManagement.DefaultItemAspects;");
+      _usings.Add(string.Format("using {0};", aspectNamespace));
       if (_createAsControl)
       {
         _usings.Add("using MediaPortal.UI.SkinEngine.Controls.Visuals;");
@@ -282,14 +282,14 @@ namespace MediaItemAspectModelBuilder
         if (!fieldInfo.Name.StartsWith("ATTR_"))
           continue;
 
-        MediaItemAspectMetadata.AttributeSpecification spec = (MediaItemAspectMetadata.AttributeSpecification) fieldInfo.GetValue(null);
+        MediaItemAspectMetadata.AttributeSpecification spec = (MediaItemAspectMetadata.AttributeSpecification)fieldInfo.GetValue(null);
 
         string attrName = CreateSafePropertyName(spec.AttributeName);
         string typeName = BuildTypeName(spec.AttributeType, spec.IsCollectionAttribute, _exposeNullable);
         if (_valueTypes.Contains(typeName) && !_exposeNullable)
         {
           string varName = FirstLower(spec.AttributeName);
-          if(multiAspect)
+          if (multiAspect)
             initCommands.Add(string.Format("{0}? {1} = ({0}?) aspects[AspectIndex][{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
           else
             initCommands.Add(string.Format("{0}? {1} = ({0}?) aspect[{2}.{3}];", typeName, varName, aspectType.Name, fieldInfo.Name));
@@ -298,7 +298,7 @@ namespace MediaItemAspectModelBuilder
         else
         {
           string defaultValue = typeName == "IEnumerable<string>" ? " ?? EMPTY_STRING_COLLECTION" : "";
-          if(multiAspect)
+          if (multiAspect)
             initCommands.Add(string.Format("{0} = ({1}) aspects[AspectIndex][{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
           else
             initCommands.Add(string.Format("{0} = ({1}) aspect[{2}.{3}]{4};", attrName, typeName, aspectType.Name, fieldInfo.Name, defaultValue));
@@ -375,7 +375,7 @@ namespace MediaItemAspectModelBuilder
       multiAspect = false;
       FieldInfo field = type.GetField("Metadata");
       object metadata = field.GetValue(null);
-      if(metadata is MultipleMediaItemAspectMetadata)
+      if (metadata is MultipleMediaItemAspectMetadata)
       {
         multiAspect = true;
       }
