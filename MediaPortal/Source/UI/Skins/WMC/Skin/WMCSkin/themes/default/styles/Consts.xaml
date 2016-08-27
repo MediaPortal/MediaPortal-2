@@ -9,6 +9,7 @@
   <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="-940,0,50,50"/>
 
   <ResourceWrapper x:Key="HugeFontSize" Resource="72"/>
+  <ResourceWrapper x:Key="InfoTabFontSize" Resource="55"/>
   <ResourceWrapper x:Key="HeaderFontSize" Resource="80"/>
   <ResourceWrapper x:Key="DialogTitleFontSize" Resource="30"/>
 

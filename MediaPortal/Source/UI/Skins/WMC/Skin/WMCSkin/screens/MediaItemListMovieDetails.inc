@@ -151,8 +151,5 @@
         </media:MediaAspectWrapper.Template>
       </media:MediaAspectWrapper>
     </StackPanel>
-
   </StackPanel>
-
-
 </Grid>
