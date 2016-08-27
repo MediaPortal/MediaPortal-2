@@ -40,10 +40,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
   /// </remarks>
   internal class MusicBrainzDownloader : Downloader
   {
-    private static readonly IRequestRateLimiter LIMITER = new RequestRatePerTimeSpanLimiter(1, TimeSpan.FromSeconds(1));
+    private static readonly IRequestRateLimiter LIMITER = new RequestRatePerTimeSpanLimiter(10, TimeSpan.FromSeconds(1));
+
+    private DateTime? _denyRequestsUntilTime = null;
+    private const int REQUEST_DISABLE_TIME_IN_MINUTES = 10;
+    private const int MAX_FAILED_REQUESTS = 3;
+
+    public class RateLimitingException : Exception
+    {
+      public RateLimitingException(string message) : base(message)
+      { }
+    }
+
+    public int RequestTimeouts { get; private set; }
+
+    private void DisableRequestsTemporarily()
+    {
+      _denyRequestsUntilTime = DateTime.Now.AddMinutes(REQUEST_DISABLE_TIME_IN_MINUTES);
+      RequestTimeouts = 0;
+    }
 
     protected override string DownloadJSON(string url)
     {
+      if (_denyRequestsUntilTime.HasValue)
+      {
+        if (_denyRequestsUntilTime.Value > DateTime.Now)
+          throw new RateLimitingException("Requests disabled");
+      }
       var webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 };
       foreach (var headerEntry in Headers)
         webClient.Headers[headerEntry.Key] = headerEntry.Value;
@@ -53,17 +76,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       {
         return webClient.DownloadString(url);
       }
-      //catch (WebException ex)
-      //{
-      //  if(((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.ServiceUnavailable)
-      //  {
-      //    //Rate limiting
-      //    LIMITER.RequestDone();
-      //    LIMITER.RateLimit().Wait();
-      //    return webClient.DownloadString(url);
-      //  }
-      //  throw;
-      //}
+      catch (WebException ex)
+      {
+        if (ex.Response != null && ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.ServiceUnavailable)
+        {
+          //Rate limiting
+          RequestTimeouts++;
+          if (RequestTimeouts >= MAX_FAILED_REQUESTS)
+          {
+            DisableRequestsTemporarily();
+          }
+        }
+        throw;
+      }
       finally
       {
         LIMITER.RequestDone();

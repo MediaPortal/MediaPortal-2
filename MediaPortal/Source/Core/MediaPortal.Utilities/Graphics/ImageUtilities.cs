@@ -49,7 +49,7 @@ namespace MediaPortal.Utilities.Graphics
       // Get accessor that creates the dictionary on demand
       get
       {
-        if (_encoders != null) 
+        if (_encoders != null)
           return _encoders;
         // If the quick lookup isn't initialised, initialise it
         return _encoders = ImageCodecInfo.GetImageEncoders().ToDictionary(codec => codec.MimeType.ToLower());
@@ -211,6 +211,8 @@ namespace MediaPortal.Utilities.Graphics
     /// <returns>Stream containing the resized image</returns>
     public static Stream ResizeImage(Stream sourceStream, ImageFormat targetFormat, int maxWidth, int maxHeight)
     {
+      if (sourceStream.CanSeek && sourceStream.Length == 0)
+        return null;
       using (Image bitmap = ResizeImage(Image.FromStream(sourceStream), maxWidth, maxHeight))
       {
         MemoryStream tmpImageStream = new MemoryStream();

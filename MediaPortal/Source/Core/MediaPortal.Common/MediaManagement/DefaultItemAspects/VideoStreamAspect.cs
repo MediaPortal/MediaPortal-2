@@ -34,6 +34,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     // TODO: Put this somewhere else?
     public static readonly string TYPE_SD = "SD";
     public static readonly string TYPE_HD = "HD";
+    public static readonly string TYPE_UHD = "UHD";
     public static readonly string TYPE_HSBS = "HSBS";
     public static readonly string TYPE_SBS = "SBS";
     public static readonly string TYPE_HTAB = "HTAB";

@@ -132,7 +132,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               videoStreams[partSet.Value].AspectRatio = "4:3";
             else if (aspectRatio.Value < 1.8)
               videoStreams[partSet.Value].AspectRatio = "16:9";
-            else if (aspectRatio.Value < 2.4)
+            else
               videoStreams[partSet.Value].AspectRatio = "21:9";
           }
           if (bitrate.HasValue)
