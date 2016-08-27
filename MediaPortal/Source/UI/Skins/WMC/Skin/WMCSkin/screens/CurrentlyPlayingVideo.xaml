@@ -222,8 +222,8 @@
               </Grid>
 
               <!-- AUDIO INFO TAB-->
-              <Grid Grid.Row="1" Grid.Column="1" >
-                <!-- IsVisible="{Binding ElementName=Audio, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" -->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Audio, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <!--  -->
                 <Grid.RowDefinitions>
                   <RowDefinition Height="60"/>
                   <RowDefinition Height="*"/>
@@ -236,8 +236,8 @@
                 <media:VideoAudioStreamAspectWrapper AspectIndex="0" MediaItem="{Binding MediaItem}" Grid.Column="0" Grid.Row="1">
                   <media:VideoAudioStreamAspectWrapper.Template>
                     <ControlTemplate>
-                      <UniformGrid Rows="2" Columns="2" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="10,10,30,20">
-                        <Border CornerRadius="6" Background="#1A000000" Margin="5"
+                      <UniformGrid Rows="2" Columns="2" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="30,10,30,20">
+                        <Border CornerRadius="6" Background="#1A000000" Margin="10"
                                 IsVisible="{Binding Path=AudioChannels,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
                             <Image.Source>
@@ -269,7 +269,7 @@
                         </Border>
                         <Border CornerRadius="10" Background="#1A000000" Margin="10"
                                 IsVisible="{Binding Path=AudioEncoding,Converter={StaticResource ReferenceToBoolConverter}}">
-                          <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                          <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="-5">
                             <Image.Source>
                               <Binding Path="AudioEncoding" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
                             </Image.Source>
