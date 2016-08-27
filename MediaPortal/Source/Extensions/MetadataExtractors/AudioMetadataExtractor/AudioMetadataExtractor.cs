@@ -347,7 +347,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
         if (!trackInfo.IsBaseInfoPresent)
         {
-          File tag;
+          File tag = null;
           try
           {
             ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
@@ -556,19 +556,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           {
             MusicNameMatcher.MatchTrack(fileName, trackInfo);
           }
-        }
 
-        if (trackInfo.AlbumArtists.Count > 0 && !string.IsNullOrEmpty(trackInfo.Album) && !trackInfo.HasExternalId)
-        {
-          //If no external Ids are present, give it a fallback Id so an album item will always be created
-          trackInfo.AlbumNameId = trackInfo.AlbumArtists[0].Name + ":" + trackInfo.Album;
-          trackInfo.AlbumNameId = BaseInfo.CleanString(trackInfo.AlbumNameId);
-          trackInfo.AlbumNameId = BaseInfo.CleanupWhiteSpaces(trackInfo.AlbumNameId);
-          trackInfo.AlbumNameId = trackInfo.AlbumNameId.Replace(" ", "");
+          tag.Dispose();
         }
 
         if (_onlyFanArt)
+        {
+          AssignNameIdIfNeeded(trackInfo);
           trackInfo.SetMetadata(extractedAspectData);
+        }
 
         AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
 
@@ -586,6 +582,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
 
         OnlineMatcherService.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        AssignNameIdIfNeeded(trackInfo);
 
         if (!_onlyFanArt)
           trackInfo.SetMetadata(extractedAspectData);
@@ -621,7 +618,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         tempPerson.CopyIdsFrom(person);
 
         bool splitFound = false;
-        if (MusicTheAudioDbMatcher.Instance.FindAndUpdateTrackPerson(trackInfo, tempPerson, false))
+        if (OnlineMatcherService.FindAndUpdateTrackPerson(trackInfo, tempPerson, false))
         {
           resolvedList.Add(tempPerson);
         }
@@ -669,6 +666,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
 
       return resolvedList;
+    }
+
+    private void AssignNameIdIfNeeded(TrackInfo trackInfo)
+    {
+      if (trackInfo.AlbumArtists.Count > 0 && !string.IsNullOrEmpty(trackInfo.Album) && !trackInfo.HasExternalId)
+      {
+        //If no external Ids are present, give it a fallback Id so an album item will always be created
+        trackInfo.AlbumNameId = trackInfo.AlbumArtists[0].Name + ":" + trackInfo.Album;
+        trackInfo.AlbumNameId = BaseInfo.CleanString(trackInfo.AlbumNameId);
+        trackInfo.AlbumNameId = BaseInfo.CleanupWhiteSpaces(trackInfo.AlbumNameId);
+        trackInfo.AlbumNameId = trackInfo.AlbumNameId.Replace(" ", "");
+      }
     }
 
     private string GuessCodec(string description, string filename)

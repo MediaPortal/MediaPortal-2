@@ -47,8 +47,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
         success |= CDFreeDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
       }
       success |= MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
-      success |= MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, true); //Always force quick mode because online queries mostly timeout
+      success |= MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
       success |= MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+      return success;
+    }
+
+    public static bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode)
+    {
+      bool success = false;
+      success |= MusicTheAudioDbMatcher.Instance.FindAndUpdateTrackPerson(trackInfo, personInfo, forceQuickMode);
+      success |= MusicBrainzMatcher.Instance.FindAndUpdateTrackPerson(trackInfo, personInfo, forceQuickMode);
       return success;
     }
 
@@ -56,7 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       bool success = false;
       success |= MusicTheAudioDbMatcher.Instance.UpdateAlbumPersons(albumInfo, occupation, forceQuickMode);
-      success |= MusicBrainzMatcher.Instance.UpdateAlbumPersons(albumInfo, occupation, true); //Always force quick mode because online queries mostly timeout
+      success |= MusicBrainzMatcher.Instance.UpdateAlbumPersons(albumInfo, occupation, forceQuickMode);
       success |= MusicFanArtTvMatcher.Instance.UpdateAlbumPersons(albumInfo, occupation, forceQuickMode);
       return success;
     }
@@ -65,7 +73,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       bool success = false;
       success |= MusicTheAudioDbMatcher.Instance.UpdateTrackPersons(trackInfo, occupation, forceQuickMode);
-      success |= MusicBrainzMatcher.Instance.UpdateTrackPersons(trackInfo, occupation, true); //Always force quick mode because online queries mostly timeout
+      success |= MusicBrainzMatcher.Instance.UpdateTrackPersons(trackInfo, occupation, forceQuickMode);
       success |= MusicFanArtTvMatcher.Instance.UpdateTrackPersons(trackInfo, occupation, forceQuickMode);
       return success;
     }
@@ -74,7 +82,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       bool success = false;
       success |= MusicTheAudioDbMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, forceQuickMode);
-      success |= MusicBrainzMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, true); //Always force quick mode because online queries mostly timeout
+      success |= MusicBrainzMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, forceQuickMode);
       success |= MusicFanArtTvMatcher.Instance.UpdateAlbumCompanies(albumInfo, companyType, forceQuickMode);
       return success;
     }
@@ -83,7 +91,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       bool success = false;
       success |= MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, false);
-      success |= MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, true); //Always force quick mode because online queries mostly timeout
+      success |= MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, forceQuickMode);
       success |= MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, forceQuickMode);
 
       if (updateTrackList)
@@ -298,7 +306,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //SeriesFanArtTvMatcher.Instance.FindAndUpdateEpisode(episodeInfo, false);
         }
       }
-        return success;
+      return success;
     }
 
     public static bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)

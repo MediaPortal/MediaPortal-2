@@ -27,9 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
-using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
@@ -41,19 +39,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     public const string DefaultLanguage = "US";
 
     private const string URL_API_BASE = "musicbrainz.org/ws/2/";
+    private const string URL_API_MIRROR = "musicbrainz-mirror.eu:5000/ws/2/";
     private const string URL_FANART_API_BASE = "coverartarchive.org/";
 
-    private const string URL_GETRECORDING = URL_API_BASE + "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings+isrcs&fmt=json";
-    private const string URL_GETRELEASE = URL_API_BASE + "release/{0}?inc=artist-credits+labels+discids+recordings+tags&fmt=json";
-    private const string URL_GETRELEASEGROUP = URL_API_BASE + "release-group/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
-    private const string URL_GETARTIST = URL_API_BASE + "artist/{0}?fmt=json";
-    private const string URL_GETLABEL = URL_API_BASE + "label/{0}?fmt=json";
-    private const string URL_QUERYISRCRECORDING = URL_API_BASE + "isrc/{0}?limit=5&fmt=json";
-    private const string URL_QUERYRECORDING = URL_API_BASE + "recording?query={0}&limit=5&fmt=json";
-    private const string URL_FANART_LIST = URL_FANART_API_BASE + "release/{0}/";
-    private const string URL_QUERYLABEL = URL_API_BASE + "label?query={0}&limit=5&fmt=json";
-    private const string URL_QUERYARTIST = URL_API_BASE + "artist?query={0}&limit=5&fmt=json";
-    private const string URL_QUERYRELEASE = URL_API_BASE + "release?query={0}&limit=5&fmt=json";
+    private const string URL_GETRECORDING = "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings+isrcs&fmt=json";
+    private const string URL_GETRELEASE = "release/{0}?inc=artist-credits+labels+discids+recordings+tags&fmt=json";
+    private const string URL_GETRELEASEGROUP = "release-group/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings&fmt=json";
+    private const string URL_GETARTIST = "artist/{0}?fmt=json";
+    private const string URL_GETLABEL = "label/{0}?fmt=json";
+    private const string URL_QUERYISRCRECORDING = "isrc/{0}?limit=5&fmt=json";
+    private const string URL_QUERYRECORDING = "recording?query={0}&limit=5&fmt=json";
+    private const string URL_FANART_LIST = "release/{0}/";
+    private const string URL_QUERYLABEL = "label?query={0}&limit=5&fmt=json";
+    private const string URL_QUERYARTIST = "artist?query={0}&limit=5&fmt=json";
+    private const string URL_QUERYRELEASE = "release?query={0}&limit=5&fmt=json";
 
     #endregion
 
@@ -61,8 +60,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
     private static readonly FileVersionInfo FILE_VERSION_INFO;
     private readonly string _cachePath;
-    private readonly Downloader _downloader;
+    private readonly MusicBrainzDownloader _downloader;
     private readonly bool _useHttps;
+    private bool _useMirror = true;
 
     #endregion
 
@@ -97,29 +97,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       {
         if (artists.Count > 1) query += " and (";
         else query += " and ";
-        for (int artist = 0; artist <artists.Count; artist++)
+        for (int artist = 0; artist < artists.Count; artist++)
         {
-          if(artist > 0) query += " and ";
+          if (artist > 0) query += " and ";
           query += string.Format("artistname:\"{0}\"", artists[artist]);
         }
         if (artists.Count > 1) query += ")";
       }
       if (!string.IsNullOrEmpty(album))
       {
-        if(album.IndexOf(" ") > 0)
+        if (album.IndexOf(" ") > 0)
           query += string.Format(" and (release:\"{0}\" or release:\"{1}\")", album, album.Split(' ')[0]);
         else
           query += string.Format(" and release:\"{0}\"", album);
       }
-	    if(year.HasValue)
+      if (year.HasValue)
         query += string.Format(" and date:{0}", year.Value);
-	    if(trackNum.HasValue)
+      if (trackNum.HasValue)
         query += string.Format(" and tid:{0}", trackNum.Value);
 
       string url = GetUrl(URL_QUERYRECORDING, Uri.EscapeDataString(query));
 
       Logger.Debug("Loading '{0}','{1}','{2}','{3}','{4} -> {5}", title, string.Join(",", artists), album, year, trackNum, url);
-	
+
       return ParseTracks(url);
     }
 
@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     public List<TrackResult> ParseTracks(string url)
     {
       List<TrackResult> tracks = new List<TrackResult>();
-      List<TrackSearchResult> results = new List<TrackSearchResult>(_downloader.Download<TrackRecordingResult>(url).Results);
+      List<TrackSearchResult> results = new List<TrackSearchResult>(Download<TrackRecordingResult>(url).Results);
       foreach (TrackSearchResult result in results) tracks.AddRange(result.GetTracks());
       return tracks;
     }
@@ -164,7 +164,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 
       string url = GetUrl(URL_QUERYRELEASE, Uri.EscapeDataString(query));
 
-      return _downloader.Download<TrackReleaseSearchResult>(url).Releases;
+      return Download<TrackReleaseSearchResult>(url).Releases;
     }
 
     /// <summary>
@@ -176,7 +176,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       string query = string.Format("\"{0}\"", artistName);
       string url = GetUrl(URL_QUERYARTIST, Uri.EscapeDataString(query));
 
-      return _downloader.Download<TrackArtistResult>(url).Results;
+      return Download<TrackArtistResult>(url).Results;
     }
 
     /// <summary>
@@ -188,7 +188,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       string query = string.Format("\"{0}\"", labelName);
       string url = GetUrl(URL_QUERYLABEL, Uri.EscapeDataString(query));
 
-      return _downloader.Download<TrackLabelResult>(url).Results;
+      return Download<TrackLabelResult>(url).Results;
     }
 
     /// <summary>
@@ -206,7 +206,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETRECORDING, id);
-      return _downloader.Download<Track>(url, cache);
+      return Download<Track>(url, cache);
     }
 
     /// <summary>
@@ -224,7 +224,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETRELEASE, id);
-      return _downloader.Download<TrackRelease>(url, cache);
+      return Download<TrackRelease>(url, cache);
     }
 
     /// <summary>
@@ -242,7 +242,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETRELEASEGROUP, id);
-      return _downloader.Download<TrackReleaseGroup>(url, cache);
+      return Download<TrackReleaseGroup>(url, cache);
     }
 
     /// <summary>
@@ -260,7 +260,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETARTIST, id);
-      return _downloader.Download<TrackArtist>(url, cache);
+      return Download<TrackArtist>(url, cache);
     }
 
     /// <summary>
@@ -278,7 +278,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       }
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETLABEL, id);
-      return _downloader.Download<TrackLabel>(url, cache);
+      return Download<TrackLabel>(url, cache);
     }
 
     /// <summary>
@@ -288,14 +288,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <returns>Image collection</returns>
     public TrackImageCollection GetImages(string albumId)
     {
-      if(string.IsNullOrEmpty(albumId)) return null;
+      if (string.IsNullOrEmpty(albumId)) return null;
       string cache = CreateAndGetCacheName(albumId, "Image");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
         return _downloader.ReadCache<TrackImageCollection>(cache);
       }
       string url = GetUrl(URL_FANART_LIST, albumId);
-      return _downloader.Download<TrackImageCollection>(url, cache);
+      return Download<TrackImageCollection>(url, cache);
     }
 
     public bool HasImages(string albumId, string category = "Front")
@@ -304,7 +304,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       {
         if (string.IsNullOrEmpty(albumId)) return false;
         string url = GetUrl(URL_FANART_LIST, albumId);
-        TrackImageCollection imageCollection = _downloader.Download<TrackImageCollection>(url);
+        TrackImageCollection imageCollection = Download<TrackImageCollection>(url);
         if (imageCollection != null)
         {
           foreach (TrackImage image in imageCollection.Images)
@@ -361,10 +361,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <returns>Complete url</returns>
     protected string GetUrl(string urlBase, params object[] args)
     {
-      if(_useHttps)
-        return "https://" + string.Format(urlBase, args);
+      if (!_useMirror)
+      {
+        if (_useHttps)
+          return "https://" + URL_API_BASE + string.Format(urlBase, args);
+        else
+          return "http://" + URL_API_BASE + string.Format(urlBase, args);
+      }
       else
-        return "http://" + string.Format(urlBase, args);
+      {
+        return "http://" + URL_API_MIRROR + string.Format(urlBase, args);
+      }
+    }
+
+    protected TE Download<TE>(string url, string saveCacheFile = null)
+    {
+      try
+      {
+        return _downloader.Download<TE>(url, saveCacheFile);
+      }
+      catch (MusicBrainzDownloader.RateLimitingException)
+      {
+        //Ignore
+      }
+      return default(TE);
     }
 
     /// <summary>

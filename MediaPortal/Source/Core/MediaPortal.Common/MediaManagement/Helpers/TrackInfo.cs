@@ -89,7 +89,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public SimpleRating Rating = new SimpleRating();
     public bool Compilation = false;
     public int BitRate = 0;
-    public int SampleRate = 0;
+    public long SampleRate = 0;
     public int Channels = 0;
     public long Duration = 0;
     public string Encoding = null;
