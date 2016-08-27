@@ -71,68 +71,69 @@
                 </Image.IsVisible>
               </Image>
 
-              <ScrollViewer Grid.Row="0" Grid.Column="1" CanContentScroll="True" 
-                            HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
-                <StackPanel Orientation="Horizontal">
-                  <RadioButton x:Name="General" Content="General" HorizontalAlignment="Center" VerticalAlignment="Center"
+              <!--<ScrollViewer Grid.Row="0" Grid.Column="1" CanContentScroll="True" 
+                            HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">-->
+              <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                <RadioButton x:Name="General" Content="General" HorizontalAlignment="Center" VerticalAlignment="Center"
                                Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True" Margin="40,0,40,0">
-                    <Label x:Name="TabLabel" Content="General" HorizontalAlignment="Center" VerticalAlignment="Center"
+                  <Label x:Name="TabLabel" Content="General" HorizontalAlignment="Center" VerticalAlignment="Center"
                          FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
-                      <Label.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
-                          <Setter TargetName="TabLabel" Property="Color" Value="White"/>
-                        </DataTrigger>
-                      </Label.Triggers>
-                    </Label>
-                  </RadioButton>
-                  <RadioButton x:Name="Synopsis" Content="Synopsis" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+                <RadioButton x:Name="Synopsis" Content="Synopsis" HorizontalAlignment="Center" VerticalAlignment="Center" 
                            Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False" Margin="40,0,40,0">
-                    <Label x:Name="TabLabel2" Content="Synopsis" HorizontalAlignment="Center" VerticalAlignment="Center"
+                  <Label x:Name="TabLabel2" Content="Synopsis" HorizontalAlignment="Center" VerticalAlignment="Center"
                          FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
-                      <Label.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
-                          <Setter TargetName="TabLabel2" Property="Color" Value="White"/>
-                        </DataTrigger>
-                      </Label.Triggers>
-                    </Label>
-                  </RadioButton>
-                  <RadioButton x:Name="CastCrew" Content="Cast + Crew" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel2" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+                <RadioButton x:Name="CastCrew" Content="Cast + Crew" HorizontalAlignment="Center" VerticalAlignment="Center" 
                            Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False" Margin="40,0,40,0">
-                    <Label x:Name="TabLabel3" Content="Cast + Crew" HorizontalAlignment="Center" VerticalAlignment="Center"
+                  <Label x:Name="TabLabel3" Content="Cast + Crew" HorizontalAlignment="Center" VerticalAlignment="Center"
                          FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
-                      <Label.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
-                          <Setter TargetName="TabLabel3" Property="Color" Value="White"/>
-                        </DataTrigger>
-                      </Label.Triggers>
-                    </Label>
-                  </RadioButton>
-                  <RadioButton x:Name="Audio" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel3" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+                <RadioButton x:Name="Audio" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" 
                            Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False" Margin="40,0,40,0">
-                    <Label x:Name="TabLabel4" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center"
+                  <Label x:Name="TabLabel4" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center"
                          FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
-                      <Label.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
-                          <Setter TargetName="TabLabel4" Property="Color" Value="White"/>
-                        </DataTrigger>
-                      </Label.Triggers>
-                    </Label>
-                  </RadioButton>
-                  <RadioButton x:Name="Subtitle" Content="Subtitle" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel4" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+                <RadioButton x:Name="Subtitle" Content="Subtitle" HorizontalAlignment="Center" VerticalAlignment="Center" 
                            Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="False" Margin="40,0,40,0">
-                    <Label x:Name="TabLabel5" Content="Subtitle" HorizontalAlignment="Center" VerticalAlignment="Center"
+                  <Label x:Name="TabLabel5" Content="Subtitle" HorizontalAlignment="Center" VerticalAlignment="Center"
                          FontSize="{ThemeResource InfoTabFontSize}" Color="{ThemeResource MenuTextBackground}">
-                      <Label.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
-                          <Setter TargetName="TabLabel5" Property="Color" Value="White"/>
-                        </DataTrigger>
-                      </Label.Triggers>
-                    </Label>
-                  </RadioButton>
-                </StackPanel>
-              </ScrollViewer>
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsChecked}" Value="True">
+                        <Setter TargetName="TabLabel5" Property="Color" Value="White"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                </RadioButton>
+              </StackPanel>
+              <!--</ScrollViewer>-->
 
-              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=General, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+              <!--{Binding ElementName=General, Path=IsChecked}-->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=General, Path=IsChecked}">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
