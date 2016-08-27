@@ -132,7 +132,7 @@
                 </StackPanel>
               </ScrollViewer>
 
-              <Grid Grid.Row="1" Grid.Column="1">
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=General, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
@@ -141,7 +141,7 @@
                   <ColumnDefinition Width="25*"/>
                   <ColumnDefinition Width="25*"/>
                 </Grid.ColumnDefinitions>
-                <Control x:Name="Info_MovieGeneral" Grid.Column="0" IsVisible="{Binding ElementName=General, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" >
+                <Control x:Name="Info_MovieGeneral" Grid.Column="0">
                   <Control.IsVisible>
                     <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                       <Binding Path="MediaItem"  />
@@ -178,9 +178,17 @@
                                 IsVisible="{Binding Path=AspectHeight,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
                             <Image.Source>
-                              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} (576 &lt; {0}) &amp;&amp; ({0} &lt; 719) ? {1})">
+                              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 340 ? {1} : ({0} &lt; 460 ? {2} : ({0} &lt; 520 ? {3} : ({0} &lt; 570 ? {4} : ({0} &lt; 700 ? {5} : ({0} &lt; 1000 ? {6} : ({0} &lt; 2000 ? {7} : ({0} &lt; 4000 ? {8} : {9})))))))">
                                 <Binding Path="AspectHeight"/>
+                                <Binding Source="Medialogos\resolution\240.png"/>
+                                <Binding Source="Medialogos\resolution\360.png"/>
+                                <Binding Source="Medialogos\resolution\480.png"/>
+                                <Binding Source="Medialogos\resolution\540.png"/>
                                 <Binding Source="Medialogos\resolution\576.png"/>
+                                <Binding Source="Medialogos\resolution\720p.png"/>
+                                <Binding Source="Medialogos\resolution\1080p.png"/>
+                                <Binding Source="Medialogos\resolution\2160p.png"/>
+                                <Binding Source="Medialogos\resolution\4320p.png"/>
                               </MultiBinding>
                             </Image.Source>
                           </Image>
@@ -210,7 +218,7 @@
                                    IsVisible="{Binding Path=FPS,Converter={StaticResource ReferenceToBoolConverter}}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center">
                               <Label.Content>
-                                <Binding Path="FPS" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F2} fps"/>
+                                <Binding Path="FPS" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F3} fps"/>
                               </Label.Content>
                             </Label>
                           </StackPanel>
