@@ -19,7 +19,6 @@
   <Grid.Resources>
     <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
-    <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
   </Grid.Resources>
 
   <Control x:Name="AudioDetails">
@@ -129,12 +128,12 @@
   </Control>
 
   <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens -->
-  <Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True">
+  <!--<Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True">
     <Label.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
         <Binding Source="{StaticResource MenuModel}" Path="IsHomeScreen"/>
         <Binding Source="{StaticResource MenuModel}" Path="!IsHome"/>
       </MultiBinding>
     </Label.IsVisible>
-  </Label>
+  </Label>-->
 </Grid>
