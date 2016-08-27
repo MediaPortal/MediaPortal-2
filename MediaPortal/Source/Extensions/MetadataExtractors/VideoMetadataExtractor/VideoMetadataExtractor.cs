@@ -426,7 +426,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
         else
         {
-          if (_height.HasValue && _height.Value > 700)
+          if (_height.HasValue && _height.Value > 2000)
+            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
+          else if (_height.HasValue && _height.Value > 700)
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
           else
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
