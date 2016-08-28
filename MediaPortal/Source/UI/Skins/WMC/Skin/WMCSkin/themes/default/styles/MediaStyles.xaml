@@ -1160,7 +1160,8 @@
             </VisualBrush>
           </Image.OpacityMask>
         </Image>
-        <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="6" BorderThickness="0" 
+        <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="6" BorderThickness="0"
+                Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}"
                 IsVisible="{Binding ElementName=thumb2, Path=!HasImage}">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
