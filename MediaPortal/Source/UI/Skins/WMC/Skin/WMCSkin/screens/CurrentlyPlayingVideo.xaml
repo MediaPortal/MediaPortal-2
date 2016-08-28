@@ -132,6 +132,39 @@
               </StackPanel>
               <!--</ScrollViewer>-->
 
+              <!-- SYNOPSIS INFO TAB -->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Synopsis, Path=IsChecked}"
+                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="StoryPlot" Wrap="True" Margin="40" Opacity="0.5" TextTrimming="WordEllipsis"
+                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                       Content="{Binding VideoStoryPlot}"/>
+              </Grid>
+
+              <!-- SUBTITLE INFO TAB -->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Synopsis, Path=IsChecked}"
+                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+                  <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
+                           Margin="0,0,8,0" Opacity="0.5"/>
+                  <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+                           Margin="0,0,8,0" Opacity="0.5"/>
+                </StackPanel>
+                
+              </Grid>
+
               <!-- GENERAL INFO TAB -->
               <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=General, Path=IsChecked}">
                 <Grid.RowDefinitions>
@@ -233,24 +266,26 @@
                   <ColumnDefinition Width="33*"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Column="0" Content="1" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0">
+                <Label Grid.Column="0" Content="1" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0"
+                       DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
                   <Label.IsVisible>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0">
-                      <Binding Path="AspectCount"/>
+                      <Binding Path="AudioStreams.Count"/>
                     </MultiBinding>
                   </Label.IsVisible>
                 </Label>
-                <Label Grid.Column="1" Content="2" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0">
+                <Label Grid.Column="1" Content="2" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0"
+                       DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
                   <Label.IsVisible>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 1">
-                      <Binding Path="AspectCount"/>
+                      <Binding Path="AudioStreams.Count"/>
                     </MultiBinding>
                   </Label.IsVisible>
                 </Label>
                 <Label Grid.Column="2" Content="3" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource MenuTextBackground}" Margin="40,0,0,0">
                     <Label.IsVisible>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 2">
-                        <Binding Path="AspectCount"/>
+                      <Binding Path="AudioStreams.Count"/>
                       </MultiBinding>
                     </Label.IsVisible>
                 </Label>
@@ -273,17 +308,17 @@
                             <RowDefinition Height="*"/>
                           </Grid.RowDefinitions>
                           <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="70*"/>
-                            <ColumnDefinition Width="30*"/>
+                            <ColumnDefinition Width="65*"/>
+                            <ColumnDefinition Width="35*"/>
                           </Grid.ColumnDefinitions>
                           <Border Grid.ColumnSpan="2" CornerRadius="6" Background="#1A000000"/>
-                          <Image Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,8,5,8">
+                          <Image Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,8,0,8">
                             <Image.Source>
                               <Binding Path="AudioLanguage" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
                             </Image.Source>
                           </Image>
-                          <Label Grid.Column="1" Margin="-5,5,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
-                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                          <Label Grid.Column="1" Margin="0,5,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                               HorizontalAlignment="Left" VerticalAlignment="Center">
                             <Label.Content>
                               <Binding Path="AudioLanguage"/>
                             </Label.Content>
@@ -298,20 +333,19 @@
                             </Image.Source>
                           </Image>
                         </Border>
-                        <Border CornerRadius="10" Background="#1A000000" Margin="10">
+                        <Border CornerRadius="10" Background="#1A000000" Margin="10"
+                                IsVisible="{Binding Path=AudioBitRate,Converter={StaticResource ReferenceToBoolConverter}}">
                           <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
-                                   IsVisible="{Binding Path=AudioBitRate,Converter={StaticResource ReferenceToBoolConverter}}"
-                                 HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
                               <Label.Content>
                                 <Binding Path="AudioBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps"/>
                               </Label.Content>
                             </Label>
                             <Label Margin="5,0,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
-                                   IsVisible="{Binding Path=AudioSampleRate,Converter={StaticResource ReferenceToBoolConverter}}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Label.Content>
-                                <Binding Path="AudioSampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0} bps"/>
+                                <Binding Path="AudioSampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0} Hz"/>
                             </Label.Content>
                           </Label>
                           </StackPanel>
@@ -377,7 +411,7 @@
                                    IsVisible="{Binding Path=AudioSampleRate,Converter={StaticResource ReferenceToBoolConverter}}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center">
                               <Label.Content>
-                                <Binding Path="AudioSampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0} bps"/>
+                                <Binding Path="AudioSampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0} Hz"/>
                               </Label.Content>
                             </Label>
                           </StackPanel>
@@ -443,7 +477,7 @@
                                    IsVisible="{Binding Path=AudioSampleRate,Converter={StaticResource ReferenceToBoolConverter}}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center">
                               <Label.Content>
-                                <Binding Path="AudioSampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0} bps"/>
+                                <Binding Path="AudioSampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0} Hz"/>
                               </Label.Content>
                             </Label>
                           </StackPanel>
