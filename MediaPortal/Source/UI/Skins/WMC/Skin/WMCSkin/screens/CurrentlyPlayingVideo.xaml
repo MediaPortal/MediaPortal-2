@@ -227,6 +227,17 @@
                                 <Binding Path="AspectRatio" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F2}:1" />
                               </Label.Content>
                             </Label>
+                            <Label Margin="8,13,8,8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Top">
+                              <Label.Content>
+                                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 1.4 ? {1} : ({0} &lt; 1.8 ? {2} : {3})">
+                                  <Binding Path="AspectHeight"/>
+                                  <Binding Source="4:3"/>
+                                  <Binding Source="16:9"/>
+                                  <Binding Source="21:9"/>
+                                </MultiBinding>
+                              </Label.Content>
+                            </Label>
                           </Grid>
                         </Border>
                         <Border CornerRadius="6" Background="#1A000000" Margin="10">
