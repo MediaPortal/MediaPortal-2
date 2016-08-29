@@ -147,8 +147,7 @@
               </Grid>
 
               <!-- SUBTITLE INFO TAB -->
-              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Synopsis, Path=IsChecked}"
-                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=Subtitle, Path=IsChecked}">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
@@ -157,9 +156,9 @@
                 </Grid.ColumnDefinitions>
                 
                 <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-                  <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
+                  <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Subtitles[0].Language}"
                            Margin="0,0,8,0" Opacity="0.5"/>
-                  <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+                  <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding VideoStreams[0].AspectRatio}"
                            Margin="0,0,8,0" Opacity="0.5"/>
                 </StackPanel>
                 
