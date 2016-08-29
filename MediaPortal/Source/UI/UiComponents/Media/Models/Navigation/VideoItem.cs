@@ -160,7 +160,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               validFrameRate = 120;
             videoStreams[partSet.Value].FPS = validFrameRate.ToString("0.###");
           }
-          videoStreams[partSet.Value].Heigth = height.Value;
+          videoStreams[partSet.Value].Height = height.Value;
           videoStreams[partSet.Value].Width = width.Value;
           videoStreams[partSet.Value].Parts = parts;
           videoStreams[partSet.Value].VideoEncoding = encoding;

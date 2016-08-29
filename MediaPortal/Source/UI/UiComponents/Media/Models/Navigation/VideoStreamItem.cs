@@ -80,7 +80,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       set { AdditionalProperties[Consts.KEY_PARTS] = value; }
     }
 
-    public int? Heigth
+    public int? Height
     {
       get { return (int?)AdditionalProperties[Consts.KEY_HEIGHT]; }
       set { AdditionalProperties[Consts.KEY_HEIGHT] = value; }
