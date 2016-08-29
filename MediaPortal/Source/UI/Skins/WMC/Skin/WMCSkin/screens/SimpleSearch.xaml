@@ -66,26 +66,43 @@
           </Control>
         </Grid>
 
-        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" 
+        <!---Search field for Grid- and Coverview-->
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Height="55" Width="300"
                     VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-120,40,5">
           <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100" 
-                   HorizontalAlignment="Left" Height="55" Width="280"/>
+                   HorizontalAlignment="Stretch"/>
+          <Image x:Name="searchsymbol" Source="Topmenu\search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                 Stretch="Uniform" Height="40" Margin="0,0,8,0"/>
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
           </Grid.IsVisible>
+          <Grid.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="searchsymbol" Property="Opacity" Value="1"/>
+            </Trigger>
+          </Grid.Triggers>
         </Grid>
 
-        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" 
+        <!---Search field for Listview-->
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Height="55" Width="300"
                     VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-20,40,5">
           <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100" 
-                   HorizontalAlignment="Left" Height="55" Width="280"/>
+                   HorizontalAlignment="Stretch"/>
+          <Image x:Name="searchsymbol2" Source="Topmenu\search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                 Stretch="Uniform" Height="40" Margin="0,0,8,0"/>
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
           </Grid.IsVisible>
+          <Grid.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="searchsymbol2" Property="Opacity" Value="1"/>
+            </Trigger>
+          </Grid.Triggers>
         </Grid>
 
+        <!---Don't delete, it's necessary! Is just shifted with margins out of screen to make it invisible-->
         <Control Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" 
                  VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,-150,0">
           <Control.TemplateControl>
