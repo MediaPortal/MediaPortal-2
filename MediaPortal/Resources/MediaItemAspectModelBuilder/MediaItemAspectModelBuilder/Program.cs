@@ -49,7 +49,8 @@ namespace MediaItemAspectModelBuilder
         typeof(SeriesAspect), typeof(SeasonAspect), typeof(EpisodeAspect),
         typeof(PersonAspect),
         typeof(CharacterAspect),
-        typeof(CompanyAspect)};
+        typeof(CompanyAspect),
+        typeof(SubtitleAspect)};
       string classNamespace = "MediaPortal.UiComponents.Media.Models.AspectWrappers";
       string codeBasePath = @"..\..\..\..\..\Source\UI\UiComponents\Media\Models\AspectWrappers\";
       string aspectNamespace = "MediaPortal.Common.MediaManagement.DefaultItemAspects";
