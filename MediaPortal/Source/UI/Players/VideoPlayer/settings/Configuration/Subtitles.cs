@@ -26,17 +26,19 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
-  public class Subtitles : SingleSelectionList
+  public class Subtitles : YesNo
   {
     public override void Load()
     {
-      
+      _yes = SettingsManager.Load<VideoSettings>().EnableSubtitles;
     }
 
     public override void Save()
     {
       base.Save();
       VideoSettings settings = SettingsManager.Load<VideoSettings>();
+      settings.EnableSubtitles = _yes;
+      SettingsManager.Save(settings);
     }
   }
 }

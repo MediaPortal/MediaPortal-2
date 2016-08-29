@@ -196,8 +196,11 @@ namespace MediaPortal.UI.Players.Video
       _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
     }
 
-    protected override void AddSubtitleEngine()
+    protected override void AddMpcHcSubtitleEngine()
     {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      int preferredSubtitleLcid = settings.PreferredSubtitleLanguage;
+
       var fileSystemResourceAccessor = _resourceAccessor as IFileSystemResourceAccessor;
       if (fileSystemResourceAccessor != null)
       {
@@ -207,8 +210,8 @@ namespace MediaPortal.UI.Players.Video
 
         IntPtr upDevice = SkinContext.Device.NativePointer;
         string filename = fileSystemResourceAccessor.ResourcePathName;
-
-        MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", 0);
+        
+        MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", preferredSubtitleLcid);
         MpcSubtitles.SetEnable(true);
       }
     }
@@ -632,8 +635,19 @@ namespace MediaPortal.UI.Players.Video
           }
         }
 
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+        if (settings.EnableMpcHcSubtitleEngine)
+        {
+          AddSubtitleTracksFromMpcEngine(ref subtitleStreams);
+          SetMpcHcSubtitle(subtitleStreams);
+        }
+        else
+        {
+          SetPreferredSubtitle_intern(ref subtitleStreams);
+        }
+
         SetPreferedAudio_intern(ref audioStreams, false);
-        SetPreferredSubtitle_intern(ref subtitleStreams);
+
         lock (SyncObj)
         {
           _streamInfoAudio = audioStreams;
@@ -643,6 +657,52 @@ namespace MediaPortal.UI.Players.Video
         return true;
       }
       return false;
+    }
+
+    private void AddSubtitleTracksFromMpcEngine(ref StreamInfoHandler subtitleStreams)
+    {
+      if (subtitleStreams == null)
+      {
+        return;
+      }
+
+      int subtitleCount = MpcSubtitles.GetCount();
+
+      for (int i = 0; i < subtitleCount; ++i)
+      {
+        string subtitleTrackName = MpcSubtitles.GetTrackName(i);
+        int lcid = LookupLcidFromName(subtitleTrackName);
+        StreamInfo subStream = new StreamInfo(null, i, subtitleTrackName, lcid);
+        subtitleStreams.AddUnique(subStream);
+      }
+    }
+
+    private void SetMpcHcSubtitle(StreamInfoHandler subtitleStreams)
+    {
+      if (subtitleStreams == null)
+      {
+        return;
+      }
+
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      StreamInfo streamInfo = subtitleStreams.FindStream(settings.PreferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleStreamName);
+
+      int subtitleCount = MpcSubtitles.GetCount();
+
+      for (int i = 0; i < subtitleCount; ++i)
+      {
+        string subtitleTrackName = MpcSubtitles.GetTrackName(i);
+        if (streamInfo.Name.Equals(subtitleTrackName))
+        {
+          MpcSubtitles.SetCurrent(i);
+          if (settings.PreferredSubtitleLanguage != streamInfo.LCID)
+          {
+            settings.PreferredSubtitleLanguage = streamInfo.LCID;
+            settings.PreferredSubtitleStreamName = subtitleTrackName;
+            ServiceRegistration.Get<ISettingsManager>().Save(settings);
+          }
+        }
+      }
     }
 
     protected virtual void EnumerateChapters()
@@ -791,14 +851,14 @@ namespace MediaPortal.UI.Players.Video
           subtitleStreams.EnableStream(forced.Name);
         }
         else
-        {          
+        {
           StreamInfo noSubtitleStream = subtitleStreams.FindSimilarStream(NO_SUBTITLES);
           if(noSubtitleStream != null)
             subtitleStreams.EnableStream(noSubtitleStream.Name);
         }
       }
       else
-        subtitleStreams.EnableStream(streamInfo.Name);
+        subtitleStreams.EnableStream(streamInfo.Name);   
     }
 
     /// <summary>
@@ -830,15 +890,39 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="subtitle">subtitle stream</param>
     public virtual void SetSubtitle(string subtitle)
     {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       StreamInfoHandler subtitleStreams;
+
       lock (SyncObj)
+      {
         subtitleStreams = _streamInfoSubtitles;
+      }
 
       if (subtitleStreams == null)
+      {
         return;
+      }
 
-      if (subtitleStreams.EnableStream(subtitle))
+      if (settings.EnableMpcHcSubtitleEngine)
+      {
+        int subtitleCount = MpcSubtitles.GetCount();
+
+        for (int i = 0; i < subtitleCount; ++i)
+        {
+          string subtitleTrackName = MpcSubtitles.GetTrackName(i);
+          if (subtitleTrackName.Equals(subtitle))
+          {
+            MpcSubtitles.SetCurrent(i);
+            settings.PreferredSubtitleLanguage = LookupLcidFromName(subtitleTrackName);
+            settings.PreferredSubtitleStreamName = subtitleTrackName;
+            ServiceRegistration.Get<ISettingsManager>().Save(settings);
+          }
+        }
+      }
+      else if (subtitleStreams.EnableStream(subtitle))
+      {
         SaveSubtitlePreference();
+      }
     }
 
     protected virtual void SaveSubtitlePreference()

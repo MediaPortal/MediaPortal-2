@@ -9,18 +9,19 @@ using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
-  public class SubtitlesEngine : SingleSelectionList
+  public class MpcHcSubtitleEngine : YesNo
   {
     public override void Load()
     {
-
+      _yes = SettingsManager.Load<VideoSettings>().EnableMpcHcSubtitleEngine;
     }
 
     public override void Save()
     {
       base.Save();
       VideoSettings settings = SettingsManager.Load<VideoSettings>();
-      
+      settings.EnableMpcHcSubtitleEngine = _yes;
+      SettingsManager.Save(settings);
     }
   }
 }

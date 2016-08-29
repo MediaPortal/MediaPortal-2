@@ -245,18 +245,9 @@ namespace MediaPortal.UI.Players.Video.Settings
       set { _menuLCID = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the preferred menu language.
-    /// If no choice was made before, the getter returns the global MP CurrentCulture.
-    /// </summary>
-    [Setting(SettingScope.User, 1)]
-    public int SubtitlesEngine { get; set; }
-
-    /// <summary>
-    /// Gets or sets advanced subtitles settings
-    /// </summary>
-    [Setting(SettingScope.User, 1)]
-    public int SubtitlesSettings { get; set; }
+    [Setting(SettingScope.User, true)]
+    public bool EnableMpcHcSubtitleEngine { get; set; }
 
   }
+
 }

@@ -249,7 +249,13 @@ namespace MediaPortal.UI.Players.Video
         int hr = mc.Run();
         new HRESULT(hr).Throw();
 
-        AddSubtitleEngine();
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+        if (settings.EnableMpcHcSubtitleEngine)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Adding MPC-HC subtitle engine", PlayerTitle);
+          AddMpcHcSubtitleEngine();
+        }
+       
         _initialized = true;
         OnGraphRunning();
       }
@@ -442,8 +448,12 @@ namespace MediaPortal.UI.Players.Video
         int hr = _graphBuilder.AddFilter(sourceFilter, sourceFilter.Name);
         new HRESULT(hr).Throw();
 
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
-        AddSubtitleFilter();
+        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+        if (!settings.EnableMpcHcSubtitleEngine)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
+          AddSubtitleFilter();
+        }
 
         using (DSFilter source2 = new DSFilter(sourceFilter))
           hr = source2.OutputPin.Render();
@@ -462,7 +472,7 @@ namespace MediaPortal.UI.Players.Video
     {
     }
 
-    protected virtual void AddSubtitleEngine()
+    protected virtual void AddMpcHcSubtitleEngine()
     {
     }
 
