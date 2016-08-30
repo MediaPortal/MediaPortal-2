@@ -462,6 +462,9 @@
                 <media:SubtitleAspectWrapper Grid.Column="0" Grid.Row="0" AspectIndex="0" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
                 <media:SubtitleAspectWrapper Grid.Column="1" Grid.Row="0" AspectIndex="1" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
                 <media:SubtitleAspectWrapper Grid.Column="2" Grid.Row="0" AspectIndex="2" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+                <media:SubtitleAspectWrapper Grid.Column="3" Grid.Row="0" AspectIndex="3" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+                <media:SubtitleAspectWrapper Grid.Column="4" Grid.Row="0" AspectIndex="4" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
+                <media:SubtitleAspectWrapper Grid.Column="5" Grid.Row="0" AspectIndex="5" MediaItem="{Binding MediaItem}" Template="{StaticResource SubtitleAspect_Template}"/>
 
               </Grid>
             </Grid>
