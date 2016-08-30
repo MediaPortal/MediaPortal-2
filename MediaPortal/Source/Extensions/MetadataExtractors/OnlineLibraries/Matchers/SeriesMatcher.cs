@@ -290,7 +290,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         //Always save match even if none to avoid retries
         SeriesInfo cloneBasicSeries = episodeMatch != null ? episodeMatch.CloneBasicInstance<SeriesInfo>() : null;
-        StoreSeriesMatch(episodeSeries, cloneBasicSeries);
+        if (!forceQuickMode)
+          StoreSeriesMatch(episodeSeries, cloneBasicSeries);
 
         if (matchFound && episodeMatch != null)
         {
@@ -534,7 +535,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!GetSeriesId(seriesInfo, out Id))
         {
           //Store empty match so it is not retried
-          _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
+          if (!forceQuickMode)
+            _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
         }
 
         return updated;
@@ -700,7 +702,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -789,7 +792,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+            if (!forceQuickMode)
+              _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
 
@@ -916,7 +920,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              _companyMatcher.StoreNameMatch("", company.Name, company.Name);
+              if (!forceQuickMode)
+                _companyMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
@@ -932,7 +937,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              _networkMatcher.StoreNameMatch("", company.Name, company.Name);
+              if (!forceQuickMode)
+                _networkMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
@@ -1092,7 +1098,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1108,7 +1115,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _directorMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _directorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1124,7 +1132,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _writerMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _writerMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1222,7 +1231,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+            if (!forceQuickMode)
+              _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
 
