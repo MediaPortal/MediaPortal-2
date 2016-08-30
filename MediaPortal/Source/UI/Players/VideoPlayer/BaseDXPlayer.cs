@@ -238,6 +238,9 @@ namespace MediaPortal.UI.Players.Video
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding source filter", PlayerTitle);
         AddSourceFilter();
 
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
+        AddSubtitleFilter(true);
+
         ServiceRegistration.Get<ILogger>().Debug("{0}: Run graph", PlayerTitle);
 
         //This needs to be done here before we check if the evr pins are connected
@@ -249,13 +252,6 @@ namespace MediaPortal.UI.Players.Video
         int hr = mc.Run();
         new HRESULT(hr).Throw();
 
-        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-        if (settings.EnableMpcHcSubtitleEngine)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("{0}: Adding MPC-HC subtitle engine", PlayerTitle);
-          AddMpcHcSubtitleEngine();
-        }
-       
         _initialized = true;
         OnGraphRunning();
       }
@@ -448,13 +444,6 @@ namespace MediaPortal.UI.Players.Video
         int hr = _graphBuilder.AddFilter(sourceFilter, sourceFilter.Name);
         new HRESULT(hr).Throw();
 
-        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-        if (!settings.EnableMpcHcSubtitleEngine)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
-          AddSubtitleFilter();
-        }
-
         using (DSFilter source2 = new DSFilter(sourceFilter))
           hr = source2.OutputPin.Render();
         new HRESULT(hr).Throw();
@@ -466,13 +455,10 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Adds subtitle filter if any.
+    /// Adds subtitle filter if any. The <paramref name="isSourceFilterPresent"/> is only used for special cases when the graph building is handled by derived classes.
     /// </summary>
-    protected virtual void AddSubtitleFilter()
-    {
-    }
-
-    protected virtual void AddMpcHcSubtitleEngine()
+    /// <param name="isSourceFilterPresent">Indicates if the source filter already has been added to graph.</param>
+    protected virtual void AddSubtitleFilter(bool isSourceFilterPresent)
     {
     }
 
@@ -857,12 +843,13 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio streams
 
-    /// <summary>    /// Helper method to try a lookup of missing LCID from stream names. It compares the given <paramref name="streamName"/> 
+    /// <summary>
+    /// Helper method to try a lookup of missing LCID from stream names. It compares the given <paramref name="streamName"/> 
     /// with the available <see cref="CultureInfo.ThreeLetterISOLanguageName"/> and <see cref="CultureInfo.TwoLetterISOLanguageName"/>.
     /// </summary>
     /// <param name="streamName">Stream name to check.</param>
     /// <returns>Found LCID or <c>0</c></returns>
-    protected int LookupLcidFromName(string streamName)
+    public static int LookupLcidFromName(string streamName)
     {
       if (string.IsNullOrEmpty(streamName))
         return 0;

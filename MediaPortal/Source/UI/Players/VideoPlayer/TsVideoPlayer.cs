@@ -62,7 +62,6 @@ namespace MediaPortal.UI.Players.Video
     protected SubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected GraphRebuilder _graphRebuilder;
-    protected int _selectedSubtitleIndex = NO_STREAM_INDEX;
     protected ChangedMediaType _changedMediaType;
     protected string _oldVideoFormat;
     protected LocalFsResourceAccessorHelper _localFsRaHelper;
@@ -256,28 +255,8 @@ namespace MediaPortal.UI.Players.Video
       {
         // If base class has refreshed the stream infos, then update the subtitle streams.
         ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
-        int count = 0;
         if (subtitleStream != null)
-        {
-          _streamInfoSubtitles = new StreamInfoHandler();
-          subtitleStream.GetSubtitleStreamCount(ref count);
-          if (count > 0)
-          {
-            StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, NO_SUBTITLES, 0);
-            _streamInfoSubtitles.AddUnique(subStream);
-          }
-          for (int i = 0; i < count; ++i)
-          {
-            //FIXME: language should be passed back also as LCID
-            SubtitleLanguage language = new SubtitleLanguage();
-            subtitleStream.GetSubtitleStreamLanguage(i, ref language);
-            int lcid = LookupLcidFromName(language.lang);
-            // Note: the "type" is no longer considered in MP1 code as well, so I guess DVBSub3 only supports Bitmap subs at all.
-            string name = language.lang;
-            StreamInfo subStream = new StreamInfo(null, i, name, lcid);
-            _streamInfoSubtitles.AddUnique(subStream);
-          }
-        }
+          _streamInfoSubtitles = new TsReaderStreamInfoHandler(subtitleStream);
       }
       return refreshed;
     }
@@ -285,32 +264,15 @@ namespace MediaPortal.UI.Players.Video
     public override void SetSubtitle(string subtitle)
     {
       EnumerateStreams();
-      ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
-      if (_streamInfoSubtitles == null || subtitleStream == null)
+      TsReaderStreamInfoHandler tsStreamInfoHandler = _streamInfoSubtitles as TsReaderStreamInfoHandler;
+      if (tsStreamInfoHandler == null)
         return;
 
-      // First try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(subtitle);
-      if (streamInfo != null)
+      if (tsStreamInfoHandler.EnableStream(subtitle))
       {
-        // Tell the renderer if it should render subtitles
-        _selectedSubtitleIndex = streamInfo.StreamIndex;
-        _subtitleRenderer.RenderSubtitles = _selectedSubtitleIndex != NO_STREAM_INDEX;
-        if (_selectedSubtitleIndex != NO_STREAM_INDEX)
-          subtitleStream.SetSubtitleStream(_selectedSubtitleIndex);
+        _subtitleRenderer.RenderSubtitles = !tsStreamInfoHandler.DisableSubs;
         SaveSubtitlePreference();
       }
-    }
-
-    protected override void SaveSubtitlePreference()
-    {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      settings.PreferredSubtitleStreamName = _selectedSubtitleIndex != NO_STREAM_INDEX
-        ? Subtitles[_selectedSubtitleIndex] : String.Empty;
-
-      // If selected stream is "No subtitles", we disable the setting
-      settings.EnableSubtitles = _selectedSubtitleIndex != NO_STREAM_INDEX;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     protected override void SetPreferredSubtitle()

@@ -38,11 +38,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       PlayerTitle = "WTVPlayer";
     }
 
+    protected override void AddSubtitleFilter(bool isSourceFilterPresent)
+    {
+      // Avoid duplicate handling in later step
+      if (isSourceFilterPresent)
+        return;
+
+      base.AddSubtitleFilter(false);
+    }
+
     protected override void AddSourceFilter()
     {
       ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for WTV media item '{1}'", PlayerTitle, SourcePathOrUrl);
 
-      AddSubtitleFilter();
+      // We call the subfilter handler earlier then the regular step
+      AddSubtitleFilter(false);
 
       // try to render the url and let DirectShow choose the source filter
       int hr = _graphBuilder.RenderFile(SourcePathOrUrl, null);

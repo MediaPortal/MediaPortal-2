@@ -87,7 +87,7 @@ namespace MediaPortal.UI.Players.Video
     protected IntPtr _presenterInstance;
 
     // The default name for "No subtitles available" or "Subtitles disabled".
-    protected const string NO_SUBTITLES = "No subtitles";
+    protected internal const string NO_SUBTITLES = "No subtitles";
     protected const string FORCED_SUBTITLES = "forced subtitles";
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
@@ -125,9 +125,9 @@ namespace MediaPortal.UI.Players.Video
 
     protected SkinEngine.Players.RenderDlgt _renderDlgt = null;
 
-    protected StreamInfoHandler _streamInfoAudio = null;
-    protected StreamInfoHandler _streamInfoSubtitles = null;
-    protected StreamInfoHandler _streamInfoTitles = null; // Used mostly for MKV Editions
+    protected BaseStreamInfoHandler _streamInfoAudio = null;
+    protected BaseStreamInfoHandler _streamInfoSubtitles = null;
+    protected BaseStreamInfoHandler _streamInfoTitles = null; // Used mostly for MKV Editions
     protected List<IAMStreamSelect> _streamSelectors = null;
     private readonly object _syncObj = new object();
 
@@ -185,18 +185,28 @@ namespace MediaPortal.UI.Players.Video
       AddEvr();
     }
 
-    protected override void AddSubtitleFilter()
+    protected override void AddSubtitleFilter(bool isSourceFilterPresent)
     {
-      var vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
-      if (vsFilter == null)
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      if (settings.EnableMpcHcSubtitleEngine)
       {
-        ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, VSFILTER_NAME);
-        return;
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding MPC-HC subtitle engine", PlayerTitle);
+        AddMpcHcSubtitleEngine();
       }
-      _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
+      else
+      {
+        var vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
+        if (vsFilter == null)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, VSFILTER_NAME);
+          return;
+        }
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding {1} subtitle engine", PlayerTitle, VSFILTER_NAME);
+        _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
+      }
     }
 
-    protected override void AddMpcHcSubtitleEngine()
+    protected void AddMpcHcSubtitleEngine()
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       int preferredSubtitleLcid = settings.PreferredSubtitleLanguage;
@@ -210,7 +220,7 @@ namespace MediaPortal.UI.Players.Video
 
         IntPtr upDevice = SkinContext.Device.NativePointer;
         string filename = fileSystemResourceAccessor.ResourcePathName;
-        
+
         MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", preferredSubtitleLcid);
         MpcSubtitles.SetEnable(true);
       }
@@ -395,14 +405,14 @@ namespace MediaPortal.UI.Players.Video
     protected void SetPreferredAudio(bool useFirstAsDefault = false)
     {
       EnumerateStreams();
-      StreamInfoHandler audioStreams;
+      BaseStreamInfoHandler audioStreams;
       lock (SyncObj)
         audioStreams = _streamInfoAudio;
 
       SetPreferedAudio_intern(ref audioStreams, useFirstAsDefault);
     }
 
-    private void SetPreferedAudio_intern(ref StreamInfoHandler audioStreams, bool useFirstAsDefault)
+    private void SetPreferedAudio_intern(ref BaseStreamInfoHandler audioStreams, bool useFirstAsDefault)
     {
       if (audioStreams == null || audioStreams.Count == 0)
         return;
@@ -464,7 +474,7 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual void SetAudioStream(string audioStream)
     {
-      StreamInfoHandler audioStreams;
+      BaseStreamInfoHandler audioStreams;
       lock (SyncObj)
         audioStreams = _streamInfoAudio;
 
@@ -487,7 +497,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        StreamInfoHandler audioStreams;
+        BaseStreamInfoHandler audioStreams;
         lock (SyncObj)
           audioStreams = _streamInfoAudio;
 
@@ -500,7 +510,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         EnumerateStreams();
-        StreamInfoHandler audioStreams;
+        BaseStreamInfoHandler audioStreams;
         lock (SyncObj)
           audioStreams = _streamInfoAudio;
 
@@ -527,9 +537,9 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder == null || !_initialized)
         return false;
 
-      StreamInfoHandler audioStreams;
-      StreamInfoHandler subtitleStreams;
-      StreamInfoHandler titleStreams;
+      BaseStreamInfoHandler audioStreams;
+      BaseStreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler titleStreams;
       lock (SyncObj)
       {
         audioStreams = _streamInfoAudio;
@@ -638,13 +648,11 @@ namespace MediaPortal.UI.Players.Video
         VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
         if (settings.EnableMpcHcSubtitleEngine)
         {
-          AddSubtitleTracksFromMpcEngine(ref subtitleStreams);
-          SetMpcHcSubtitle(subtitleStreams);
+          // MPC engine uses it's own way to enumerate subs. It will replace the existing list by a new one.
+          subtitleStreams = new MpcStreamInfoHandler();
         }
-        else
-        {
-          SetPreferredSubtitle_intern(ref subtitleStreams);
-        }
+
+        SetPreferredSubtitle_intern(ref subtitleStreams);
 
         SetPreferedAudio_intern(ref audioStreams, false);
 
@@ -657,52 +665,6 @@ namespace MediaPortal.UI.Players.Video
         return true;
       }
       return false;
-    }
-
-    private void AddSubtitleTracksFromMpcEngine(ref StreamInfoHandler subtitleStreams)
-    {
-      if (subtitleStreams == null)
-      {
-        return;
-      }
-
-      int subtitleCount = MpcSubtitles.GetCount();
-
-      for (int i = 0; i < subtitleCount; ++i)
-      {
-        string subtitleTrackName = MpcSubtitles.GetTrackName(i);
-        int lcid = LookupLcidFromName(subtitleTrackName);
-        StreamInfo subStream = new StreamInfo(null, i, subtitleTrackName, lcid);
-        subtitleStreams.AddUnique(subStream);
-      }
-    }
-
-    private void SetMpcHcSubtitle(StreamInfoHandler subtitleStreams)
-    {
-      if (subtitleStreams == null)
-      {
-        return;
-      }
-
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      StreamInfo streamInfo = subtitleStreams.FindStream(settings.PreferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleStreamName);
-
-      int subtitleCount = MpcSubtitles.GetCount();
-
-      for (int i = 0; i < subtitleCount; ++i)
-      {
-        string subtitleTrackName = MpcSubtitles.GetTrackName(i);
-        if (streamInfo.Name.Equals(subtitleTrackName))
-        {
-          MpcSubtitles.SetCurrent(i);
-          if (settings.PreferredSubtitleLanguage != streamInfo.LCID)
-          {
-            settings.PreferredSubtitleLanguage = streamInfo.LCID;
-            settings.PreferredSubtitleStreamName = subtitleTrackName;
-            ServiceRegistration.Get<ISettingsManager>().Save(settings);
-          }
-        }
-      }
     }
 
     protected virtual void EnumerateChapters()
@@ -826,14 +788,14 @@ namespace MediaPortal.UI.Players.Video
 
     protected virtual void SetPreferredSubtitle()
     {
-      StreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler subtitleStreams;
       lock (SyncObj)
         subtitleStreams = _streamInfoSubtitles;
 
       SetPreferredSubtitle_intern(ref subtitleStreams);
     }
 
-    private void SetPreferredSubtitle_intern(ref StreamInfoHandler subtitleStreams)
+    private void SetPreferredSubtitle_intern(ref BaseStreamInfoHandler subtitleStreams)
     {
       if (subtitleStreams == null)
         return;
@@ -853,12 +815,12 @@ namespace MediaPortal.UI.Players.Video
         else
         {
           StreamInfo noSubtitleStream = subtitleStreams.FindSimilarStream(NO_SUBTITLES);
-          if(noSubtitleStream != null)
+          if (noSubtitleStream != null)
             subtitleStreams.EnableStream(noSubtitleStream.Name);
         }
       }
       else
-        subtitleStreams.EnableStream(streamInfo.Name);   
+        subtitleStreams.EnableStream(streamInfo.Name);
     }
 
     /// <summary>
@@ -869,7 +831,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         EnumerateStreams();
-        StreamInfoHandler subtitleStreams;
+        BaseStreamInfoHandler subtitleStreams;
         lock (SyncObj)
           subtitleStreams = _streamInfoSubtitles;
 
@@ -890,44 +852,21 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="subtitle">subtitle stream</param>
     public virtual void SetSubtitle(string subtitle)
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      StreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler subtitleStreams;
 
       lock (SyncObj)
-      {
         subtitleStreams = _streamInfoSubtitles;
-      }
 
       if (subtitleStreams == null)
-      {
         return;
-      }
 
-      if (settings.EnableMpcHcSubtitleEngine)
-      {
-        int subtitleCount = MpcSubtitles.GetCount();
-
-        for (int i = 0; i < subtitleCount; ++i)
-        {
-          string subtitleTrackName = MpcSubtitles.GetTrackName(i);
-          if (subtitleTrackName.Equals(subtitle))
-          {
-            MpcSubtitles.SetCurrent(i);
-            settings.PreferredSubtitleLanguage = LookupLcidFromName(subtitleTrackName);
-            settings.PreferredSubtitleStreamName = subtitleTrackName;
-            ServiceRegistration.Get<ISettingsManager>().Save(settings);
-          }
-        }
-      }
-      else if (subtitleStreams.EnableStream(subtitle))
-      {
+      if (subtitleStreams.EnableStream(subtitle))
         SaveSubtitlePreference();
-      }
     }
 
     protected virtual void SaveSubtitlePreference()
     {
-      StreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler subtitleStreams;
       lock (SyncObj)
         subtitleStreams = _streamInfoSubtitles;
 
@@ -958,7 +897,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        StreamInfoHandler subtitleStreams;
+        BaseStreamInfoHandler subtitleStreams;
         lock (SyncObj)
           subtitleStreams = _streamInfoSubtitles;
         return subtitleStreams == null ? String.Empty : subtitleStreams.CurrentStreamName;
@@ -1103,7 +1042,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         EnumerateStreams();
-        StreamInfoHandler titleStreams;
+        BaseStreamInfoHandler titleStreams;
         lock (SyncObj)
           titleStreams = _streamInfoTitles;
 
@@ -1121,7 +1060,7 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="title">Title</param>
     public virtual void SetTitle(string title)
     {
-      StreamInfoHandler titleStreams;
+      BaseStreamInfoHandler titleStreams;
       lock (SyncObj)
         titleStreams = _streamInfoTitles;
 
@@ -1140,7 +1079,7 @@ namespace MediaPortal.UI.Players.Video
     {
       get
       {
-        StreamInfoHandler titleStreams;
+        BaseStreamInfoHandler titleStreams;
         lock (SyncObj)
           titleStreams = _streamInfoTitles;
 
