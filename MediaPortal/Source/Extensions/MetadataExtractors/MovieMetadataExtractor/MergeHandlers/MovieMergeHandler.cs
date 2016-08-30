@@ -213,7 +213,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               if (videoResourceIndex == resouceIndex)
               {
                 int partSet = videoAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
-                if(!partSetMap.ContainsKey(partSet))
+                if (!partSetMap.ContainsKey(partSet))
                 {
                   partSetMap.Add(partSet, newPartSet);
                   newPartSet++;
@@ -271,6 +271,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_ENCODING));
                 newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_FORMAT));
                 newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE));
+                newSa.SetAttribute(SubtitleAspect.ATTR_INTERNAL, subAspect.GetAttributeValue(SubtitleAspect.ATTR_INTERNAL));
                 newSa.SetAttribute(SubtitleAspect.ATTR_DEFAULT, subAspect.GetAttributeValue(SubtitleAspect.ATTR_DEFAULT));
                 newSa.SetAttribute(SubtitleAspect.ATTR_FORCED, subAspect.GetAttributeValue(SubtitleAspect.ATTR_FORCED));
               }
@@ -317,6 +318,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_ENCODING));
                 newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_FORMAT));
                 newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE));
+                newSa.SetAttribute(SubtitleAspect.ATTR_INTERNAL, subAspect.GetAttributeValue(SubtitleAspect.ATTR_INTERNAL));
                 newSa.SetAttribute(SubtitleAspect.ATTR_DEFAULT, subAspect.GetAttributeValue(SubtitleAspect.ATTR_DEFAULT));
                 newSa.SetAttribute(SubtitleAspect.ATTR_FORCED, subAspect.GetAttributeValue(SubtitleAspect.ATTR_FORCED));
               }
