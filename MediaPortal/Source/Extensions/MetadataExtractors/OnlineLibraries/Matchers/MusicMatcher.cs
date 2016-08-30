@@ -236,7 +236,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         //Always save match even if none to avoid retries
-        StoreTrackMatch(trackInfo, trackMatch);
+        if (!forceQuickMode)
+          StoreTrackMatch(trackInfo, trackMatch);
 
         if (matchFound)
         {
@@ -444,7 +445,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _artistMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _artistMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -565,7 +567,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _artistMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _artistMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -670,7 +673,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              _labelMatcher.StoreNameMatch("", company.Name, company.Name);
+              if (!forceQuickMode)
+                _labelMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
@@ -796,7 +800,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!GetTrackAlbumId(albumInfo, out Id))
         {
           //Store empty match so it is not retried
-          _albumMatcher.StoreNameMatch("", albumInfo.Album, albumInfo.Album);
+          if (!forceQuickMode)
+            _albumMatcher.StoreNameMatch("", albumInfo.Album, albumInfo.Album);
         }
 
         return updated;
@@ -861,7 +866,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         else
         {
           //Store empty match so he/she is not retried
-          _artistMatcher.StoreNameMatch("", person.Name, person.Name);
+          if (!forceQuickMode)
+            _artistMatcher.StoreNameMatch("", person.Name, person.Name);
         }
 
         return updated;

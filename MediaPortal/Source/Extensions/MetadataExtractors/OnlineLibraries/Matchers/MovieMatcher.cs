@@ -251,7 +251,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         //Always save match even if none to avoid retries
-        StoreMovieMatch(movieInfo, movieMatch);
+        if (!forceQuickMode)
+          StoreMovieMatch(movieInfo, movieMatch);
 
         if (matchFound)
         {
@@ -476,7 +477,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -492,7 +494,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _directorMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _directorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -508,7 +511,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              _writerMatcher.StoreNameMatch("", person.Name, person.Name);
+              if (!forceQuickMode)
+                _writerMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -597,7 +601,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+            if (!forceQuickMode)
+              _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
 
@@ -701,7 +706,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              _companyMatcher.StoreNameMatch("", company.Name, company.Name);
+              if (!forceQuickMode)
+                _companyMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
