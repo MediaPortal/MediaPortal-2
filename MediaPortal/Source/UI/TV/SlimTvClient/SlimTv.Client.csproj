@@ -117,7 +117,9 @@
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />
-    <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.txt4</DependentUpon>
+    </Compile>
     <Compile Include="Models\ChannelZapModel.cs" />
     <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
     <Compile Include="Models\Navigation\RecordingItem.cs" />
@@ -263,6 +265,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Models\AspectWrappers\AspectWrapperGeneratorReflection.txt4" />
     <None Include="packages.config" />
     <None Include="Skin\Titanium\screens\master_tv_menu.xaml">
       <SubType>Designer</SubType>

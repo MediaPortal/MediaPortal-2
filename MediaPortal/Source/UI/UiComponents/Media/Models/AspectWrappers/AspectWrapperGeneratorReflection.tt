@@ -1,0 +1,58 @@
+﻿<#@ template debug="true" hostSpecific="true" #>
+<#@ output extension=".cs" encoding="utf-8" #>
+<#@ include file=".\TemplateFileManagerV2.1.ttinclude" #>
+<#@ include file=".\AspectModelBuilder.ttinclude" #>
+<#@ assembly Name="$(SolutionDir)\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\bin\x86\Debug\MediaInfoLib.dll" #>
+<#@ assembly Name="$(SolutionDir)\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\bin\x86\Debug\DirectShowLib.dll" #>
+<#@ assembly Name="$(SolutionDir)\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\bin\x86\Debug\OnlineLibraries.dll" #>
+<#@ assembly Name="$(SolutionDir)\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\bin\x86\Debug\Tve3RecordingMetadataExtractor.dll" #>
+<#@ import namespace="MediaPortal.Common.MediaManagement.DefaultItemAspects" #>
+<#@ import namespace="MediaPortal.Extensions.MetadataExtractors.Aspects" #>
+<#
+	manager = TemplateFileManager.Create(this);
+
+	const bool createAsControl = true;
+    const bool exposeNullables = true;
+	
+      List<Type> typeList = new List<Type> {
+        typeof(MediaAspect),
+        typeof(ImporterAspect),
+        typeof(VideoAspect),
+        typeof(VideoStreamAspect), typeof(VideoAudioStreamAspect),
+        typeof(AudioAspect), typeof(AudioAlbumAspect),
+        typeof(ImageAspect),
+        typeof(MovieAspect), typeof(MovieCollectionAspect),
+        typeof(SeriesAspect), typeof(SeasonAspect), typeof(EpisodeAspect),
+        typeof(PersonAspect),
+        typeof(CharacterAspect),
+        typeof(CompanyAspect),
+        typeof(SubtitleAspect)};
+      string classNamespace = "MediaPortal.UiComponents.Media.Models.AspectWrappers";      
+      string aspectNamespace = "MediaPortal.Common.MediaManagement.DefaultItemAspects";
+
+      BuildWrappers(typeList, classNamespace, aspectNamespace, createAsControl, exposeNullables);
+
+      typeList = new List<Type> { typeof(RecordingAspect) };
+      classNamespace = "MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers";
+      aspectNamespace = "MediaPortal.Extensions.MetadataExtractors.Aspects";
+	  string project = "SlimTv.Client";
+	  string folder = @"AspectWrappers";
+
+      BuildWrappers(typeList, classNamespace, aspectNamespace, createAsControl, exposeNullables, project, folder);
+
+	  this.manager.Process();
+#>
+<#+ 
+	TemplateFileManager manager;
+
+	private void BuildWrappers(List<Type> typeList, string classNamespace, string aspectNamespace, bool createAsControl, bool exposeNullables, string projectName = null, string folderName = null)
+    {
+      foreach (Type aspectType in typeList)
+      {
+        AspectModelBuilder amb = new AspectModelBuilder();
+        string source = amb.BuildCodeTemplate(aspectType, classNamespace, aspectNamespace, createAsControl, exposeNullables);
+		this.manager.StartNewFile(string.Format("{0}Wrapper.cs", aspectType.Name), projectName, folderName);
+		this.Write(source);        
+      }
+    }
+#>

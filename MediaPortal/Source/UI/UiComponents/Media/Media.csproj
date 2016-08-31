@@ -147,23 +147,68 @@
     <Compile Include="MediaItemActions\AbstractPlayCountAction.cs" />
     <Compile Include="MediaItemActions\SetWatched.cs" />
     <Compile Include="MediaItemActions\SetUnwatched.cs" />
-    <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\CharacterAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\CompanyAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\EpisodeAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\ImporterAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\MovieAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\MovieCollectionAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\PersonAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\SeasonAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\SeriesAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\AspectWrapperGeneratorCodeModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AspectWrapperGeneratorCodeModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\AspectWrapperGeneratorReflection.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\CharacterAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\CompanyAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\EpisodeAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\ImporterAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\MovieAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\MovieCollectionAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\PersonAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\SeasonAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\SeriesAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\SubtitleAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\AspectWrappers\UserDataWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\VideoAudioStreamAspectWrapper.cs" />
-    <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\VideoAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\VideoAudioStreamAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AspectWrappers\VideoStreamAspectWrapper.cs">
+      <DependentUpon>AspectWrapperGeneratorReflection.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
@@ -360,6 +405,14 @@
     <Content Include="Language\strings_en.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Models\AspectWrappers\AspectWrapperGeneratorCodeModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AspectWrapperGeneratorCodeModel.cs</LastGenOutput>
+    </Content>
+    <Content Include="Models\AspectWrappers\AspectWrapperGeneratorReflection.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AspectWrapperGeneratorReflection.cs</LastGenOutput>
+    </Content>
     <Content Include="plugin.xml" />
     <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />
@@ -474,6 +527,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Models\AspectWrappers\TemplateFileManagerV2.1.ttinclude" />
+    <None Include="Models\AspectWrappers\AspectModelBuilder.ttinclude" />
     <None Include="Skin\default\screens\DialogChooseTitle.xaml">
       <SubType>Designer</SubType>
     </None>
@@ -573,6 +628,9 @@
     <Content Include="Skin\default\screens\SeriesFilterByGenre.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
