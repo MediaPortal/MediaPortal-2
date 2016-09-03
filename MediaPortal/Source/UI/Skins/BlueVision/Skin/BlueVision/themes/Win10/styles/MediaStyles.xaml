@@ -1892,7 +1892,7 @@
                 <Binding.Source>
                   <ControlTemplate TargetType="{x:Type ListView}">
                     <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource LeftSideScrollViewerStyle}"
-                        HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                       <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                     </ScrollViewer>
                   </ControlTemplate>                    
@@ -1903,7 +1903,7 @@
                 <Binding.Source>
                   <ControlTemplate TargetType="{x:Type ListView}"> 
                     <ScrollViewer CanContentScroll="True" Margin="-5,-30,572,20" Style="{ThemeResource GradientScrollViewerStyle}"
-                                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                                  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                       <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                     </ScrollViewer>
@@ -1915,7 +1915,7 @@
                 <Binding.Source>
                   <ControlTemplate TargetType="{x:Type ListView}">
                     <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource HorizontalGradientScrollViewerStyle}"
-                        HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                       <ItemsPresenter VerticalAlignment="Bottom" HorizontalAlignment="Stretch"/>
                     </ScrollViewer>
                   </ControlTemplate>

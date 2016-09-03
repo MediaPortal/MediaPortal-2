@@ -148,9 +148,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
-      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
-      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
+      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" 
+               Template="{DynamicResource ResourceKey=Menu_Button_Dummy}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"></Control>
+      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" 
+               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
+      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" 
+               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
       <Border Height="74" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0,-20,5,20" >
         <!--Border.Background>
@@ -178,6 +181,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
+                               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                                HomeMenuModel="{StaticResource MenuModel}" Margin="0,-25,0,0"
                                ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                                SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
