@@ -72,6 +72,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SortByTitle(),
         new SortByFirstAiredDate(),
         new SortByDate(),
+        new SortByAddedDate(),
         new SortBySystem(),
       };
       _defaultGrouping = null;
@@ -82,6 +83,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SortByTitle(),
         new SortByFirstAiredDate(),
         new SortByDate(),
+        new SortByAddedDate(),
         new SortBySystem(),
       };
     }

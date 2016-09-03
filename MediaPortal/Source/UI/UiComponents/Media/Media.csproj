@@ -249,6 +249,7 @@
     <Compile Include="Models\Sorting\AbstractSortByFirstComparableAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableObjectAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableValueAttribute.cs" />
+    <Compile Include="Models\Sorting\SortByAddedDate.cs" />
     <Compile Include="Models\Sorting\VideoSortByFirstWriter.cs" />
     <Compile Include="Models\Sorting\SortByFirstAiredDate.cs" />
     <Compile Include="Models\Sorting\SeriesSortByEpisode.cs" />

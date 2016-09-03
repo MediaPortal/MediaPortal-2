@@ -56,6 +56,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           _defaultSorting,
           new SortByTitle(),
           new SortByDate(),
+          new SortByAddedDate(),
           // We could offer sortings here which are specific for one media item type but which will cope with all three item types (and sort items of the three types in a defined order)
         };
 
@@ -65,6 +66,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           //_defaultGrouping,
           new SortByTitle(),
           new SortByDate(),
+          new SortByAddedDate(),
         };
 
       var optionalMias = Consts.OPTIONAL_LOCAL_BROWSING_MIAS
