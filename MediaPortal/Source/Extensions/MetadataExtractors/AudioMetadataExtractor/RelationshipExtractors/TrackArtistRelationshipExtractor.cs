@@ -89,6 +89,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       foreach (PersonInfo person in trackInfo.Artists)
       {
+        AssignArtistNameId(person);
+
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         person.SetMetadata(personAspects);
 
@@ -96,6 +98,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           extractedLinkedAspects.Add(personAspects);
       }
       return extractedLinkedAspects.Count > 0;
+    }
+
+    private void AssignArtistNameId(PersonInfo personInfo)
+    {
+      if (!string.IsNullOrEmpty(personInfo.Name))
+      {
+        //Give the artist a fallback Id so it will always be created
+        personInfo.NameId = BaseInfo.GetNameId(personInfo.Name);
+      }
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

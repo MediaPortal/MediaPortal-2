@@ -46,6 +46,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public long AudioDbId = 0;
     public int TvMazeId = 0;
     public int TvRageId = 0;
+    public string NameId = null;
 
     /// <summary>
     /// Gets or sets the person name.
@@ -91,6 +92,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return true;
         if (!string.IsNullOrEmpty(ImdbId))
           return true;
+        if (!string.IsNullOrEmpty(NameId))
+          return true;
 
         return false;
       }
@@ -122,6 +125,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (AudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_PERSON, AudioDbId.ToString());
       if (TvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_PERSON, TvMazeId.ToString());
       if (TvRageId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_PERSON, TvRageId.ToString());
+      if (!string.IsNullOrEmpty(NameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_PERSON, NameId);
 
       if (DateOfBirth.HasValue) MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_DATEOFBIRTH, DateOfBirth.Value);
       if (DateOfDeath.HasValue) MediaItemAspect.SetAttribute(aspectData, PersonAspect.ATTR_DATEOFDEATH, DateOfDeath.Value);
@@ -162,6 +166,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         TvRageId = Convert.ToInt32(id);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_PERSON, out ImdbId);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_PERSON, out MusicBrainzId);
+      MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_PERSON, out NameId);
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
@@ -191,6 +196,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         TvdbId = otherPerson.TvdbId;
         TvMazeId = otherPerson.TvMazeId;
         TvRageId = otherPerson.TvRageId;
+        NameId = otherPerson.NameId;
         return true;
       }
       return false;
@@ -224,6 +230,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId) && Occupation == other.Occupation)
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && Occupation == other.Occupation)
+        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Occupation == other.Occupation)
         return true;
 

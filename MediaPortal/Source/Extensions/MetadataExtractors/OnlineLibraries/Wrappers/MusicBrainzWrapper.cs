@@ -47,6 +47,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       _musicBrainzHandler = new MusicBrainzApiV2(cachePath, useHttps);
       SetDefaultLanguage(MusicBrainzApiV2.DefaultLanguage);
+      SetRegionLanguages(new List<string> { "XW", "XE" }); //Worldwide and european wide
       SetCachePath(cachePath);
       return true;
     }
@@ -69,22 +70,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
       if (foundTracks == null) return false;
 
-      //Prefer the once with a language
-      var exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals(language, StringComparison.InvariantCultureIgnoreCase));
-      if (exactMatches.Count == 0) //Try worldwide releases
-        exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals("XW", StringComparison.InvariantCultureIgnoreCase));
-      if (exactMatches.Count == 0) //Try European releases
-        exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals("XE", StringComparison.InvariantCultureIgnoreCase));
-      if (exactMatches.Count == 0 && DefaultLanguage != language) //Try US releases
-        exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.Country) && s.Country.Equals(DefaultLanguage, StringComparison.InvariantCultureIgnoreCase));
-      if (exactMatches.Count > 0)
-        foundTracks = exactMatches;
-
-      //Prefer the once with barcodes because of being more official recordings
-      exactMatches = foundTracks.FindAll(s => !string.IsNullOrEmpty(s.AlbumBarcode));
-      if (exactMatches.Count > 0)
-        foundTracks = exactMatches;
-
       foreach (TrackResult track in foundTracks)
       {
         if (tracks == null)
@@ -93,13 +78,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         TrackInfo info = new TrackInfo()
         {
           MusicBrainzId = track.Id,
+          AlbumAmazonId = track.AlbumAmazonId,
           AlbumMusicBrainzId = track.AlbumId,
           TrackName = track.Title,
           ReleaseDate = track.ReleaseDate,
           TrackNum = track.TrackNum,
           Artists = ConvertToPersons(track.Artists, PersonAspect.OCCUPATION_ARTIST),
           Album = track.Album,
-          Compilation = track.FromCompilation
+          Compilation = track.FromCompilation,
+          AlbumHasBarcode = !string.IsNullOrEmpty(track.AlbumBarcode),
+          AlbumHasOnlineCover = track.AlbumHasCover
         };
         info.Languages.Add(track.Country);
         tracks.Add(info);
@@ -117,32 +105,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         albumSearch.ReleaseDate.HasValue ? albumSearch.ReleaseDate.Value.Year : default(int?), albumSearch.TotalTracks > 0 ? albumSearch.TotalTracks : default(int?));
       if (foundReleases == null) return false;
 
-      //Prefer the once with a release group because of being more official recordings
-      var exactMatches = foundReleases.FindAll(a => a.ReleaseGroup != null);
-      if (exactMatches.Count > 0)
-        foundReleases = exactMatches;
-
-      //Prefer the once with a language
-      exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Country) && a.Country.Equals(language, StringComparison.InvariantCultureIgnoreCase));
-      if (exactMatches.Count == 0) //Try worldwide releases
-        exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Country) && a.Country.Equals("XW", StringComparison.InvariantCultureIgnoreCase));
-      if (exactMatches.Count == 0) //Try European releases
-        exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Country) && a.Country.Equals("XE", StringComparison.InvariantCultureIgnoreCase));
-      if (exactMatches.Count == 0 && DefaultLanguage != language) //Try US releases
-        exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Country) && a.Country.Equals(DefaultLanguage, StringComparison.InvariantCultureIgnoreCase));
-      if (exactMatches.Count > 0)
-        foundReleases = exactMatches;
-
-      //Prefer the once with barcodes because of being more official recordings
-      exactMatches = foundReleases.FindAll(a => !string.IsNullOrEmpty(a.Barcode));
-      if (exactMatches.Count > 0)
-        foundReleases = exactMatches;
-
-      //Prefer the once with artwork
-      exactMatches = foundReleases.FindAll(a => a.CoverArt != null && a.CoverArt.Front);
-      if (exactMatches.Count > 0)
-        foundReleases = exactMatches;
-
       foreach (TrackRelease album in foundReleases)
       {
         if (albums == null)
@@ -151,12 +113,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         AlbumInfo info = new AlbumInfo()
         {
           MusicBrainzId = album.Id,
+          AmazonId = album.AmazonId,
           MusicBrainzGroupId = album.ReleaseGroup != null ? album.ReleaseGroup.Id : null,
           Album = album.Title,
           ReleaseDate = album.Date,
           TotalTracks = album.TrackCount,
           Artists = ConvertToPersons(album.Artists, PersonAspect.OCCUPATION_ARTIST),
           MusicLabels = ConvertToCompanies(album.Labels, CompanyAspect.COMPANY_MUSIC_LABEL),
+          HasOnlineCover = album.CoverArt != null && album.CoverArt.Front ? true : false,
+          HasBarcode = !string.IsNullOrEmpty(album.Barcode),
         };
         info.Languages.Add(album.Country);
         albums.Add(info);
@@ -359,6 +324,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       track.MusicBrainzId = trackDetail.Id;
       track.AlbumMusicBrainzId = trackDetail.AlbumId;
+      track.AlbumAmazonId = trackDetail.AlbumAmazonId;
 
       track.TrackName = trackDetail.Title;
       track.Album = trackDetail.Album;
@@ -379,7 +345,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (string.IsNullOrEmpty(track.AlbumMusicBrainzId) && !string.IsNullOrEmpty(track.AlbumMusicBrainzGroupId))
       {
         TrackReleaseGroup trackReleaseGroup = _musicBrainzHandler.GetReleaseGroup(track.AlbumMusicBrainzGroupId, cacheOnly);
-        if (!string.IsNullOrEmpty(track.Album))
+        if (trackReleaseGroup != null && !string.IsNullOrEmpty(track.Album))
         {
           if (!trackReleaseGroup.InitPropertiesFromAlbum(null, track.Album, PreferredLanguage))
           {
@@ -402,8 +368,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (!string.IsNullOrEmpty(track.AlbumMusicBrainzId))
       {
         TrackRelease trackRelease = _musicBrainzHandler.GetAlbum(track.AlbumMusicBrainzId, cacheOnly);
-        track.AlbumMusicBrainzGroupId = trackRelease.ReleaseGroup != null ? trackRelease.ReleaseGroup.Id : null;
-        track.MusicLabels = ConvertToCompanies(trackRelease.Labels, CompanyAspect.COMPANY_MUSIC_LABEL);
+        if (trackRelease != null)
+        {
+          track.AlbumMusicBrainzGroupId = trackRelease.ReleaseGroup != null ? trackRelease.ReleaseGroup.Id : null;
+          track.MusicLabels = ConvertToCompanies(trackRelease.Labels, CompanyAspect.COMPANY_MUSIC_LABEL);
+        }
       }
 
       return true;
@@ -417,6 +386,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (albumDetail == null) return false;
 
       album.MusicBrainzId = albumDetail.Id;
+      album.AmazonId = albumDetail.AmazonId;
       album.MusicBrainzGroupId = albumDetail.ReleaseGroup != null ? albumDetail.ReleaseGroup.Id : null;
 
       album.Album = albumDetail.Title;

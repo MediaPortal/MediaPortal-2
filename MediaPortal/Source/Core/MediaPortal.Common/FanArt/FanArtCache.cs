@@ -78,7 +78,7 @@ namespace MediaPortal.Common.FanArt
       {
         mediaItemId = mediaItemId.ToUpperInvariant();
         string cacheFolder = Path.Combine(FANART_CACHE_PATH, mediaItemId);
-        string cacheFile = Path.Combine(cacheFolder, FileUtils.GetSafeFilename(title + ".mpcache"));
+        string cacheFile = Path.Combine(cacheFolder, FileUtils.GetSafeFilename(title.Trim().ToUpperInvariant() + ".mpcache"));
         if (!Directory.Exists(cacheFolder))
         {
           Directory.CreateDirectory(cacheFolder);

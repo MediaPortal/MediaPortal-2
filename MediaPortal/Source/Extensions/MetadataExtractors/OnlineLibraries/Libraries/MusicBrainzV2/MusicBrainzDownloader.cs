@@ -26,6 +26,7 @@ using System;
 using System.Text;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using System.Net;
+using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 {
@@ -41,31 +42,50 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
   internal class MusicBrainzDownloader : Downloader
   {
     private static readonly IRequestRateLimiter LIMITER = new RequestRatePerTimeSpanLimiter(10, TimeSpan.FromSeconds(1));
+    private static DateTime? _denyRequestsUntilTime = null;
+    private const int REQUEST_DISABLE_TIME_IN_MINUTES = 1;
+    private const int MAX_FAILED_REQUESTS = 5;
+    private static int _currentMirror = 0;
+    private static int _failedRequests = 0;
+    private static object _requestSync = new object();
 
-    private DateTime? _denyRequestsUntilTime = null;
-    private const int REQUEST_DISABLE_TIME_IN_MINUTES = 10;
-    private const int MAX_FAILED_REQUESTS = 3;
-
-    public class RateLimitingException : Exception
+    public MusicBrainzDownloader() : base()
     {
-      public RateLimitingException(string message) : base(message)
-      { }
+      Mirrors = new List<string>();
     }
 
-    public int RequestTimeouts { get; private set; }
+    public List<string> Mirrors { get; private set; }
+
+    public bool RequestsDisabled
+    {
+      get
+      {
+        if (_denyRequestsUntilTime.HasValue && _denyRequestsUntilTime.Value > DateTime.Now)
+          return true;
+        return false;
+      }
+    }
 
     private void DisableRequestsTemporarily()
     {
-      _denyRequestsUntilTime = DateTime.Now.AddMinutes(REQUEST_DISABLE_TIME_IN_MINUTES);
-      RequestTimeouts = 0;
+      lock (_requestSync)
+      {
+        _denyRequestsUntilTime = DateTime.Now.AddMinutes(REQUEST_DISABLE_TIME_IN_MINUTES);
+      }
     }
 
     protected override string DownloadJSON(string url)
     {
-      if (_denyRequestsUntilTime.HasValue)
+      bool retry = false;
+      lock (_requestSync)
       {
-        if (_denyRequestsUntilTime.Value > DateTime.Now)
-          throw new RateLimitingException("Requests disabled");
+        if (_denyRequestsUntilTime.HasValue)
+        {
+          if (RequestsDisabled)
+            return null;
+          _failedRequests = 0;
+          _denyRequestsUntilTime = null;
+        }
       }
       var webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 };
       foreach (var headerEntry in Headers)
@@ -74,25 +94,44 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       LIMITER.RateLimit().Wait();
       try
       {
-        return webClient.DownloadString(url);
+        string fullUrl = Mirrors[_currentMirror] + url;
+        string json = webClient.DownloadString(fullUrl);
+        if (_failedRequests > 0)
+          _failedRequests--;
+        return json;
       }
       catch (WebException ex)
       {
-        if (ex.Response != null && ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.ServiceUnavailable)
+        if (ex.Status == WebExceptionStatus.Timeout ||
+          (ex.Response != null &&
+          (
+            (((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.ServiceUnavailable ||
+            ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.RequestTimeout)
+          )))
         {
           //Rate limiting
-          RequestTimeouts++;
-          if (RequestTimeouts >= MAX_FAILED_REQUESTS)
+          _failedRequests++;
+          if (_failedRequests >= MAX_FAILED_REQUESTS)
           {
             DisableRequestsTemporarily();
+            return null;
           }
+          _currentMirror = (_currentMirror + 1) % Mirrors.Count;
+          retry = true;
         }
-        throw;
+        else
+        {
+          throw;
+        }
       }
       finally
       {
         LIMITER.RequestDone();
       }
+
+      if(retry)
+        return DownloadJSON(url);
+      return null;
     }
   }
 }

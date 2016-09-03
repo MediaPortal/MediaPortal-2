@@ -66,6 +66,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           _defaultSorting,
           new SortByTitle(),
           new ImageSortBySize(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
 
@@ -76,6 +77,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new SortByYear(),
           new SortByTitle(),
           new ImageSortBySize(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
     }

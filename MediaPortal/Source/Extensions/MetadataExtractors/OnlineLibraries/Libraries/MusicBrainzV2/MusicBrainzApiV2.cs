@@ -62,7 +62,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     private readonly string _cachePath;
     private readonly MusicBrainzDownloader _downloader;
     private readonly bool _useHttps;
-    private bool _useMirror = true;
 
     #endregion
 
@@ -80,6 +79,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       _downloader = new MusicBrainzDownloader { EnableCompression = true };
       _downloader.Headers["Accept"] = "application/json";
       _downloader.Headers["User-Agent"] = "MediaPortal/" + FILE_VERSION_INFO.FileVersion + " (http://www.team-mediaportal.com/)";
+
+      if (_useHttps)
+        _downloader.Mirrors.Add("https://" + URL_API_BASE);
+      else
+        _downloader.Mirrors.Add("http://" + URL_API_BASE);
+      _downloader.Mirrors.Add("http://" + URL_API_MIRROR);
     }
 
     #endregion
@@ -132,8 +137,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     public List<TrackResult> ParseTracks(string url)
     {
       List<TrackResult> tracks = new List<TrackResult>();
-      List<TrackSearchResult> results = new List<TrackSearchResult>(Download<TrackRecordingResult>(url).Results);
-      foreach (TrackSearchResult result in results) tracks.AddRange(result.GetTracks());
+      TrackRecordingResult searchResult = Download<TrackRecordingResult>(url);
+      if (searchResult == null)
+        return tracks;
+      List<TrackSearchResult> results = new List<TrackSearchResult>(searchResult.Results);
+      foreach (TrackSearchResult result in results)
+        tracks.AddRange(result.GetTracks());
       return tracks;
     }
 
@@ -163,8 +172,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       query += " and status:official";
 
       string url = GetUrl(URL_QUERYRELEASE, Uri.EscapeDataString(query));
-
-      return Download<TrackReleaseSearchResult>(url).Releases;
+      TrackReleaseSearchResult searchResult = Download<TrackReleaseSearchResult>(url);
+      if (searchResult == null)
+        return new List<TrackRelease>();
+      return searchResult.Releases;
     }
 
     /// <summary>
@@ -175,8 +186,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     {
       string query = string.Format("\"{0}\"", artistName);
       string url = GetUrl(URL_QUERYARTIST, Uri.EscapeDataString(query));
-
-      return Download<TrackArtistResult>(url).Results;
+      TrackArtistResult searchResult = Download<TrackArtistResult>(url);
+      if (searchResult == null)
+        return new List<TrackArtist>();
+      return searchResult.Results;
     }
 
     /// <summary>
@@ -187,8 +200,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     {
       string query = string.Format("\"{0}\"", labelName);
       string url = GetUrl(URL_QUERYLABEL, Uri.EscapeDataString(query));
-
-      return Download<TrackLabelResult>(url).Results;
+      TrackLabelResult searchResult = Download<TrackLabelResult>(url);
+      if (searchResult == null)
+        return new List<TrackLabelSearchResult>();
+      return searchResult.Results;
     }
 
     /// <summary>
@@ -361,30 +376,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     /// <returns>Complete url</returns>
     protected string GetUrl(string urlBase, params object[] args)
     {
-      if (!_useMirror)
-      {
-        if (_useHttps)
-          return "https://" + URL_API_BASE + string.Format(urlBase, args);
-        else
-          return "http://" + URL_API_BASE + string.Format(urlBase, args);
-      }
-      else
-      {
-        return "http://" + URL_API_MIRROR + string.Format(urlBase, args);
-      }
+      return string.Format(urlBase, args);
     }
 
     protected TE Download<TE>(string url, string saveCacheFile = null)
     {
-      try
-      {
-        return _downloader.Download<TE>(url, saveCacheFile);
-      }
-      catch (MusicBrainzDownloader.RateLimitingException)
-      {
-        //Ignore
-      }
-      return default(TE);
+      return _downloader.Download<TE>(url, saveCacheFile);
     }
 
     /// <summary>

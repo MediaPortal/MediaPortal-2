@@ -76,6 +76,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new VideoSortByFirstWriter(),
           new VideoSortBySize(),
           new VideoSortByAspectRatio(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
 
@@ -91,7 +92,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new VideoSortByFirstDirector(),
           new VideoSortByFirstWriter(),
           new VideoSortBySize(),
-          new VideoSortByAspectRatio()
+          new VideoSortByAspectRatio(),
+          new SortByAddedDate(),
         };
     }
   }

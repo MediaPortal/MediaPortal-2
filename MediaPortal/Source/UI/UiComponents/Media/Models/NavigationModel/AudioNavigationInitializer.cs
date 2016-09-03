@@ -73,6 +73,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new AudioSortByAlbum(),
           new AudioSortByTrack(),
           new SortByYear(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
 
@@ -87,6 +88,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new AudioSortByAlbum(),
           new AudioSortByTrack(),
           new SortByYear(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
     }

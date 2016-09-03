@@ -349,6 +349,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SORT_BY_ASPECT_RATIO = "[Media.SortByAspectRatio]";
     public const string RES_SORT_BY_FIRST_AIRED_DATE = "[Media.SortByFirstAiredDate]";
     public const string RES_SORT_BY_DATE = "[Media.SortByDate]";
+    public const string RES_SORT_BY_ADDED_DATE = "[Media.SortByAddedDate]";
     public const string RES_SORT_BY_EPISODE = "[Media.SortByEpisode]";
     public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
 
@@ -592,7 +593,8 @@ namespace MediaPortal.UiComponents.Media.General
           ImageAspect.ASPECT_ID,
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
-          SubtitleAspect.ASPECT_ID
+          SubtitleAspect.ASPECT_ID,
+          ImporterAspect.ASPECT_ID
       };
 
     public static readonly Guid[] OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS = new Guid[]
@@ -612,6 +614,7 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
+          ImporterAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_VIDEO_MIAS = new Guid[]
@@ -645,6 +648,7 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
           EpisodeAspect.ASPECT_ID,
+          ImporterAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_EPISODE_MIAS = new Guid[]
@@ -669,6 +673,7 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
           MovieAspect.ASPECT_ID,
+          ImporterAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_MOVIES_MIAS = new Guid[]
@@ -692,6 +697,7 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           AudioAspect.ASPECT_ID,
+          ImporterAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_AUDIO_MIAS = null;
@@ -701,6 +707,7 @@ namespace MediaPortal.UiComponents.Media.General
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
           ImageAspect.ASPECT_ID,
+          ImporterAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_IMAGE_MIAS = null;

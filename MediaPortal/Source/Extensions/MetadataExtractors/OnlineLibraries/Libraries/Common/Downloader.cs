@@ -65,6 +65,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     public TE Download<TE>(string url, string saveCacheFile = null)
     {
       string json = DownloadJSON(url);
+      if (string.IsNullOrEmpty(json))
+        return default(TE);
       //Console.WriteLine("JSON: {0}", json);
       if (!string.IsNullOrEmpty(saveCacheFile))
         WriteCache(saveCacheFile, json);

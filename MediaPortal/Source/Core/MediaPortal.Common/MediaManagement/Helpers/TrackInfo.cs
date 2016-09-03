@@ -93,6 +93,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int Channels = 0;
     public long Duration = 0;
     public string Encoding = null;
+    public bool AlbumHasOnlineCover = false;
+    public bool AlbumHasBarcode = false;
 
     public List<PersonInfo> Artists = new List<PersonInfo>();
     public List<PersonInfo> AlbumArtists = new List<PersonInfo>();
@@ -105,10 +107,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       get
       {
-        if (Artists.Count == 0)
-          return false;
-        if (string.IsNullOrEmpty(Album))
-          return false;
         if (string.IsNullOrEmpty(TrackName))
           return false;
 
@@ -368,6 +366,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.TotalTracks = TotalTracks;
         info.Compilation = Compilation;
         info.Languages.AddRange(Languages);
+        info.Artists.AddRange(AlbumArtists);
         return (T)(object)info;
       }
       return default(T);
@@ -429,6 +428,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           ReleaseDate.HasValue && other.ReleaseDate.HasValue)
           return Album == other.Album && ReleaseDate.Value == other.ReleaseDate.Value;
       }
+      if ((!string.IsNullOrEmpty(Album) || !string.IsNullOrEmpty(other.Album)) && Album != other.Album)
+        return false;
 
       if (!string.IsNullOrEmpty(TrackName) && !string.IsNullOrEmpty(other.TrackName) && MatchNames(TrackName, other.TrackName))
       {
