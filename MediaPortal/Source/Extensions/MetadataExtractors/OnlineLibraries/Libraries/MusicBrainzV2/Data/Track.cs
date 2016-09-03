@@ -168,6 +168,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     public string AlbumId { get; set; }
 
+    public string AlbumAmazonId { get; set; }
+
     public string Album { get; set; }
 
     public List<string> TagValues { get; set; }
@@ -214,6 +216,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
             continue;
 
           AlbumId = release.Id;
+          AlbumAmazonId = release.AmazonId;
           Album = release.Title;
 
           TrackArtists = new List<TrackBaseName>();

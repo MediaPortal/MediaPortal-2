@@ -91,7 +91,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
     public virtual bool SetThumbnailMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
-      if (Thumbnail == null)
+      if (Thumbnail == null || Thumbnail.Length == 0)
         return false;
 
       try
@@ -99,6 +99,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         using (MemoryStream stream = new MemoryStream(Thumbnail))
         using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
         {
+          if (resized == null)
+            return false;
           MediaItemAspect.SetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
         }
         HasThumbnail = true;
@@ -154,6 +156,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         }
       }
       return true;
+    }
+
+    public static string GetNameId(string name)
+    {
+      if (!string.IsNullOrEmpty(name))
+      {
+        string nameId = name.Trim();
+        nameId = CleanString(nameId);
+        nameId = CleanupWhiteSpaces(nameId);
+        nameId = nameId.Replace(" ", "").ToLowerInvariant();
+        return nameId;
+      }
+      return null;
     }
 
     public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);

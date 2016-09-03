@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
   //      "id": "76a2c55d-37a7-4258-97d1-8d3d7da094fc",
   //      "packaging": "Cardboard/Paper Sleeve",
   //      "title": "New Life",
-  //      "barcode": "",
+  //      "barcode": "886975645824",
   //      "release-events": [
   //        {
   //          "date": "1981-06-13",
@@ -118,6 +118,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
   //      "date": "1981-06-13",
   //      "quality": "normal",
   //      "country": "GB",
+  //      "asin": "B002LSEY3I",
   //      "disambiguation": ""
   //    }
   [DataContract]
@@ -160,6 +161,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     [DataMember(Name = "barcode")]
     public string Barcode { get; set; }
+
+    [DataMember(Name = "asin")]
+    public string AmazonId { get; set; }
 
     [DataMember(Name = "track-count")]
     public int TrackCount { get; set; }

@@ -28,6 +28,7 @@ using System.IO;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
 {
@@ -42,6 +43,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     private const string URL_ARTIST_BY_MBID = URL_API_BASE + "artist-mb.php?i={1}";
     private const string URL_ARTIST_BY_TADB = URL_API_BASE + "artist.php?i={1}";
     private const string URL_ALBUM_BY_NAME_AND_ARTIST = URL_API_BASE + "searchalbum.php?s={1}&a={2}";
+    private const string URL_ALBUM_BY_NAME = URL_API_BASE + "searchalbum.php?s={1}";
     private const string URL_ALBUM_BY_MBID = URL_API_BASE + "album-mb.php?i={1}";
     private const string URL_ALBUM_BY_TADB = URL_API_BASE + "album.php?m={1}";
     private const string URL_ALBUM_BY_ARTIST_TADB = URL_API_BASE + "album.php?i={1}";
@@ -55,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     #endregion
 
     #region Fields
-    
+
     private readonly string _apiKey;
     private readonly string _cachePath;
     private readonly Downloader _downloader;
@@ -81,7 +83,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       string url = GetUrl(URL_ARTIST_BY_NAME, Uri.EscapeDataString(artistName));
       AudioDbArtists audioDbArtists = _downloader.Download<AudioDbArtists>(url);
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
-        return audioDbArtists.Artists;
+      {
+        List<AudioDbArtist> list = audioDbArtists.Artists.Where(a => a.ArtistId > 0).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 
@@ -100,7 +106,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbArtists = _downloader.Download<AudioDbArtists>(url, cache);
       }
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
-        return audioDbArtists.Artists;
+      {
+        List<AudioDbArtist> list = audioDbArtists.Artists.Where(a => a.ArtistId > 0).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 
@@ -119,7 +129,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbArtists = _downloader.Download<AudioDbArtists>(url, cache);
       }
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
-        return audioDbArtists.Artists[0];
+        return audioDbArtists.Artists.Where(a => a.ArtistId > 0).FirstOrDefault();
       return null;
     }
 
@@ -127,8 +137,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     {
       string url = GetUrl(URL_ALBUM_BY_NAME_AND_ARTIST, Uri.EscapeDataString(artistName), Uri.EscapeDataString(albumName));
       AudioDbAlbums audioDbAlbums = _downloader.Download<AudioDbAlbums>(url);
+      if(audioDbAlbums == null || audioDbAlbums.Albums == null || audioDbAlbums.Albums.Count == 0)
+      {
+        url = GetUrl(URL_ALBUM_BY_NAME, Uri.EscapeDataString(artistName));
+        audioDbAlbums = _downloader.Download<AudioDbAlbums>(url);
+      }
       if (audioDbAlbums != null && audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
-        return audioDbAlbums.Albums;
+      {
+        List<AudioDbAlbum> list = audioDbAlbums.Albums.Where(a => a.AlbumId > 0).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 
@@ -147,7 +166,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
       }
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
-        return audioDbAlbums.Albums;
+      {
+        List<AudioDbAlbum> list = audioDbAlbums.Albums.Where(a => a.AlbumId > 0).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 
@@ -166,7 +189,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
       }
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
-        return audioDbAlbums.Albums;
+      {
+        List<AudioDbAlbum> list = audioDbAlbums.Albums.Where(a => a.AlbumId > 0).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 
@@ -185,7 +212,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
       }
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
-        return audioDbAlbums.Albums[0];
+        return audioDbAlbums.Albums.Where(a => a.AlbumId > 0).FirstOrDefault();
       return null;
     }
 
@@ -204,7 +231,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
-        return audioDbTracks.Tracks;
+      {
+        List<AudioDbTrack> list = audioDbTracks.Tracks.Where(t => t.TrackID > 0).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 
@@ -214,7 +245,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       string url = GetUrl(URL_TRACK_BY_ARTIST_AND_NAME, Uri.EscapeDataString(artistName), Uri.EscapeDataString(trackName));
       audioDbTracks = _downloader.Download<AudioDbTracks>(url);
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
-        return audioDbTracks.Tracks;
+      {
+        List<AudioDbTrack> list = audioDbTracks.Tracks.Where(t => t.TrackID > 0).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 
@@ -233,7 +268,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
-        return audioDbTracks.Tracks[0];
+        return audioDbTracks.Tracks.Where(t => t.TrackID > 0).FirstOrDefault();
       return null;
     }
 
@@ -252,7 +287,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
-        return audioDbTracks.Tracks[0];
+        return audioDbTracks.Tracks.Where(t => t.TrackID > 0).FirstOrDefault();
       return null;
     }
 
@@ -271,7 +306,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbMvids = _downloader.Download<AudioDbMvids>(url, cache);
       }
       if (audioDbMvids.MVids != null && audioDbMvids.MVids.Count > 0)
-        return audioDbMvids.MVids;
+      {
+        List<AudioDbMvid> list = audioDbMvids.MVids.Where(v => !string.IsNullOrEmpty(v.MusicVid)).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 
@@ -290,7 +329,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbMvids = _downloader.Download<AudioDbMvids>(url, cache);
       }
       if (audioDbMvids.MVids != null && audioDbMvids.MVids.Count > 0)
-        return audioDbMvids.MVids;
+      {
+        List<AudioDbMvid> list = audioDbMvids.MVids.Where(v => !string.IsNullOrEmpty(v.MusicVid)).ToList();
+        if (list.Count > 0)
+          return list;
+      }
       return null;
     }
 

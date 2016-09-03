@@ -77,7 +77,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     protected static bool USE_ADDITIONAL_SEPARATOR;
     protected static char ADDITIONAL_SEPARATOR;
     protected static ICollection<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
-    protected static Regex SPLIT_MULTIPLE_ARTISTS_REGEX = new Regex(@"(?<artist>.+)(?:ft\.|feat\.|&|featuring)(?<artist2>.+)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Audio file accessor class needed for our tag library implementation. This class maps
@@ -191,9 +190,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return AUDIO_EXTENSIONS.Contains(ext);
     }
 
-    protected static readonly Regex TRACKNO_FORMAT = new Regex(@"\(?([0-9]+)\)?\.? *-? *(.*)");
-    protected static readonly Regex TITLE_ARTIST_FORMAT1 = new Regex(@"(.*) *- *(.*)");
-    protected static readonly Regex TITLE_ARTIST_FORMAT2 = new Regex(@"(.*) *\((.*)\)");
+    protected static readonly Regex TRACKNO_FORMAT = new Regex(@"\(?([0-9]+)\)?\.? *-? *(.*)", RegexOptions.IgnoreCase);
+    protected static readonly Regex TITLE_ARTIST_FORMAT1 = new Regex(@"(.*) *- *(.*)", RegexOptions.IgnoreCase);
+    protected static readonly Regex TITLE_ARTIST_FORMAT2 = new Regex(@"(.*) *\((.*)\)", RegexOptions.IgnoreCase);
+    protected static readonly Regex SPLIT_MULTIPLE_ARTISTS_REGEX = new Regex(@"(?<artist>.+)(?:ft\.|feat\.|featuring)(?<artist2>.+)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Given an audio file name, this method tries to guess title, artist and track number.
@@ -552,37 +552,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             }
           }
 
+          //Clean up memory
+          foreach (IPicture pic in tag.Tag.Pictures)
+            pic.Data.Clear();
+          tag.Tag.Clear();
+          tag.Dispose();
+
           if (string.IsNullOrEmpty(trackInfo.Album) || trackInfo.Artists.Count == 0)
           {
             MusicNameMatcher.MatchTrack(fileName, trackInfo);
           }
-
-          tag.Dispose();
         }
+
+        //Check artists
+        trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
+        trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
+        if (trackInfo.Artists.Count > 0 && trackInfo.AlbumArtists.Count == 0)
+        {
+          //Presume first artist is album artist. Album searches mostly fail if no album artist is available.
+          trackInfo.AlbumArtists.Add(trackInfo.Artists[0]);
+        }
+
+        AssignAlbumNameId(trackInfo);
 
         if (_onlyFanArt)
-        {
-          AssignNameIdIfNeeded(trackInfo);
           trackInfo.SetMetadata(extractedAspectData);
-        }
 
         AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
 
-        //Try to find correct artist names
-        trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
-
+        //Online search
         foreach (PersonInfo person in trackInfo.Artists)
         {
           OnlineMatcherService.StoreAudioPersonMatch(person);
         }
-        trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
         foreach (PersonInfo person in trackInfo.AlbumArtists)
         {
           OnlineMatcherService.StoreAudioPersonMatch(person);
         }
-
         OnlineMatcherService.FindAndUpdateTrack(trackInfo, forceQuickMode);
-        AssignNameIdIfNeeded(trackInfo);
 
         if (!_onlyFanArt)
           trackInfo.SetMetadata(extractedAspectData);
@@ -610,73 +617,49 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       //Try to find correct artist names
       foreach (PersonInfo person in persons)
       {
-        PersonInfo tempPerson = new PersonInfo()
+        Match match = SPLIT_MULTIPLE_ARTISTS_REGEX.Match(person.Name);
+        if (match.Success)
         {
-          Name = person.Name,
-          Occupation = person.Occupation
-        };
-        tempPerson.CopyIdsFrom(person);
+          if (!string.IsNullOrEmpty(match.Groups["artist"].Value.Trim()) && !string.IsNullOrEmpty(match.Groups["artist2"].Value.Trim()))
+          {
+            PersonInfo tempPerson1 = new PersonInfo()
+            {
+              Name = match.Groups["artist"].Value.Trim(),
+              Occupation = PersonAspect.OCCUPATION_ARTIST
+            };
+            resolvedList.Add(tempPerson1);
 
-        bool splitFound = false;
-        if (OnlineMatcherService.FindAndUpdateTrackPerson(trackInfo, tempPerson, false))
-        {
-          resolvedList.Add(tempPerson);
+            PersonInfo tempPerson2 = new PersonInfo()
+            {
+              Name = match.Groups["artist2"].Value.Trim(),
+              Occupation = PersonAspect.OCCUPATION_ARTIST
+            };
+            resolvedList.Add(tempPerson2);
+          }
+          else
+          {
+            resolvedList.Add(person);
+          }
         }
         else
         {
-          Match match = SPLIT_MULTIPLE_ARTISTS_REGEX.Match(person.Name);
-          if (match.Success)
-          {
-            if (!string.IsNullOrEmpty(match.Groups["artist"].Value.Trim()) && !string.IsNullOrEmpty(match.Groups["artist2"].Value.Trim()))
-            {
-              bool firstFound = false;
-              PersonInfo tempPerson1 = new PersonInfo()
-              {
-                Name = match.Groups["artist"].Value.Trim(),
-                Occupation = PersonAspect.OCCUPATION_ARTIST
-              };
-              if (MusicTheAudioDbMatcher.Instance.FindAndUpdateTrackPerson(trackInfo, tempPerson1, false))
-              {
-                splitFound = true;
-                firstFound = true;
-                resolvedList.Add(tempPerson1);
-              }
-              PersonInfo tempPerson2 = new PersonInfo()
-              {
-                Name = match.Groups["artist2"].Value.Trim(),
-                Occupation = PersonAspect.OCCUPATION_ARTIST
-              };
-              if (MusicTheAudioDbMatcher.Instance.FindAndUpdateTrackPerson(trackInfo, tempPerson2, false))
-              {
-                splitFound = true;
-                if (firstFound == false)
-                  resolvedList.Add(tempPerson1);
-                resolvedList.Add(tempPerson2);
-              }
-              else if (firstFound)
-              {
-                resolvedList.Add(tempPerson2);
-              }
-            }
-          }
-
-          if (!splitFound)
-            resolvedList.Add(tempPerson);
+          resolvedList.Add(person);
         }
       }
 
       return resolvedList;
     }
 
-    private void AssignNameIdIfNeeded(TrackInfo trackInfo)
+    private void AssignAlbumNameId(TrackInfo trackInfo)
     {
-      if (trackInfo.AlbumArtists.Count > 0 && !string.IsNullOrEmpty(trackInfo.Album) && !trackInfo.HasExternalId)
+      if (!string.IsNullOrEmpty(trackInfo.Album))
       {
-        //If no external Ids are present, give it a fallback Id so an album item will always be created
-        trackInfo.AlbumNameId = trackInfo.AlbumArtists[0].Name + ":" + trackInfo.Album;
-        trackInfo.AlbumNameId = BaseInfo.CleanString(trackInfo.AlbumNameId);
-        trackInfo.AlbumNameId = BaseInfo.CleanupWhiteSpaces(trackInfo.AlbumNameId);
-        trackInfo.AlbumNameId = trackInfo.AlbumNameId.Replace(" ", "");
+        //Give the album a fallback Id so it will always be created
+        if (trackInfo.AlbumArtists.Count > 0)
+          trackInfo.AlbumNameId = trackInfo.AlbumArtists[0].Name + ":" + trackInfo.Album;
+        else
+          trackInfo.AlbumNameId = trackInfo.Album;
+        trackInfo.AlbumNameId = BaseInfo.GetNameId(trackInfo.AlbumNameId);
       }
     }
 
@@ -714,8 +697,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (description.IndexOf("Windows Media Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
         return "WMA";
 
-      if (extension.Length > 1)
-        return extension.Substring(1);
       return null;
     }
 

@@ -692,6 +692,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
+        if (string.IsNullOrEmpty(albumInfo.Album))
+          return false;
+
         // Try online lookup
         if (!Init())
           return false;

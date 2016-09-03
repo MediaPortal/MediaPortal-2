@@ -55,6 +55,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public static string SHORT_FORMAT_STR = "{0}";
 
     protected static Regex _fromName = new Regex(@"(?<album>.*) \((?<year>\d+)\)", RegexOptions.IgnoreCase);
+    protected static Regex _albumNumber = new Regex(@"(?<number>\d+)$", RegexOptions.IgnoreCase);
 
     public string MusicBrainzId = null;
     public string MusicBrainzGroupId = null;
@@ -75,6 +76,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public SimpleRating Rating = new SimpleRating();
     public long Sales = 0;
     public bool Compilation = false;
+    public bool HasOnlineCover = false;
+    public bool HasBarcode = false;
 
     public List<PersonInfo> Artists = new List<PersonInfo>();
     public List<CompanyInfo> MusicLabels = new List<CompanyInfo>();
@@ -88,8 +91,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       get
       {
         if (string.IsNullOrEmpty(Album))
-          return false;
-        if (!ReleaseDate.HasValue)
           return false;
 
         return true;
@@ -153,7 +154,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (!Rating.IsEmpty)
       {
-         MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_TOTAL_RATING, Rating.RatingValue.Value);
+        MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_TOTAL_RATING, Rating.RatingValue.Value);
         if (Rating.VoteCount.HasValue) MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_RATING_COUNT, Rating.VoteCount.Value);
       }
 
@@ -364,11 +365,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return string.Equals(ItunesId, other.ItunesId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
         return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
-      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && MatchNames(Album, other.Album) && 
+      if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album) && MatchNames(Album, other.Album) &&
         ReleaseDate.HasValue && other.ReleaseDate.HasValue && ReleaseDate.Value == other.ReleaseDate.Value)
         return true;
       if (!string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(other.Album))
+      {
+        Match match = _albumNumber.Match(Album);
+        if (match.Success)
+        {
+          string searchNumber = match.Groups["number"].Value;
+          match = _albumNumber.Match(other.Album);
+          if (match.Success)
+          {
+            //Make sure "Album vol. 23" is not mistaken for "Album vol. 22"
+            if (searchNumber != match.Groups["number"].Value)
+            {
+              return false;
+            }
+          }
+        }
         return MatchNames(Album, other.Album);
+      }
 
       return false;
     }

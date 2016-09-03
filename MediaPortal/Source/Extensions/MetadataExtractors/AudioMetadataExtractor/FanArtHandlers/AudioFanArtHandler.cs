@@ -235,6 +235,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         // Decoding of invalid image data can fail, but main MediaItem is correct.
         catch { }
       }
+
+      //Clean up memory
+      foreach (IPicture pic in tag.Tag.Pictures)
+        pic.Data.Clear();
+      tag.Tag.Clear();
+      tag.Dispose();
     }
 
     private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? albumMediaItemId, IList<Guid> artistMediaItemIds)

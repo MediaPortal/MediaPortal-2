@@ -79,6 +79,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!_albumCache.TryGetCheckedItem(trackInfo.CloneBasicInstance<AlbumInfo>(), out albumInfo))
       {
         albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
+        AssignAlbumNameId(albumInfo);
         OnlineMatcherService.UpdateAlbum(albumInfo, false, forceQuickMode);
         _albumCache.TryAddCheckedItem(albumInfo);
       }
@@ -105,6 +106,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       extractedLinkedAspects.Add(albumAspects);
       return true;
+    }
+
+    private void AssignAlbumNameId(AlbumInfo albumInfo)
+    {
+      if (!string.IsNullOrEmpty(albumInfo.Album) && string.IsNullOrEmpty(albumInfo.NameId))
+      {
+        //Give the album a fallback Id so it will always be created
+        if (albumInfo.Artists.Count > 0)
+          albumInfo.NameId = albumInfo.Artists[0].Name + ":" + albumInfo.Album;
+        else
+          albumInfo.NameId = albumInfo.Album;
+        albumInfo.NameId = BaseInfo.GetNameId(albumInfo.NameId);
+      }
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

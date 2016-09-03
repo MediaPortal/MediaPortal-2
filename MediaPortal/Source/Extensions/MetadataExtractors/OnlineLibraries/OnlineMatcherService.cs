@@ -22,13 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -47,7 +44,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         success |= CDFreeDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
       }
       success |= MusicTheAudioDbMatcher.Instance.FindAndUpdateTrack(trackInfo, false);
-      success |= MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+      success |= MusicBrainzMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode && success);
       success |= MusicFanArtTvMatcher.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
       return success;
     }
@@ -91,7 +88,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       bool success = false;
       success |= MusicTheAudioDbMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, false);
-      success |= MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, forceQuickMode);
+      success |= MusicBrainzMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, forceQuickMode && success);
       success |= MusicFanArtTvMatcher.Instance.UpdateAlbum(albumInfo, updateTrackList, forceQuickMode);
 
       if (updateTrackList)

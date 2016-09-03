@@ -98,7 +98,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
   //            }
   //          ]
   //        }
-  //      ]
+  //      ],
+  //      "isrcs": [
+  //      {
+  //        "id": "DEQ321200133"
+  //      }
   //    }
   [DataContract]
   public class TrackSearchResult
@@ -126,54 +130,75 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public List<TrackResult> GetTracks()
     {
       List<TrackResult> tracks = new List<TrackResult>();
-      foreach(TrackRelease release in Releases)
+      if (Releases != null)
       {
-        if (release.Status == null || !release.Status.Equals("Official", StringComparison.InvariantCultureIgnoreCase)) //Only official releases
-          continue;
-
-        if (release.ReleaseGroup != null && !release.ReleaseGroup.PrimaryType.Equals("Album", StringComparison.InvariantCultureIgnoreCase)) //Only album releases
-          continue;
-
-        if (Artists == null)
-          continue;
-
-        foreach (TrackMedia media in release.Media)
+        foreach (TrackRelease release in Releases)
         {
-          if (media.Track == null || media.Track.Count <= 0)
+          if (release.Status == null || !release.Status.Equals("Official", StringComparison.InvariantCultureIgnoreCase)) //Only official releases
             continue;
 
-          TrackResult track = new TrackResult();
-          track.AlbumId = release.Id;
-          track.Album = release.Title;
-          track.AlbumBarcode = release.Barcode;
-          track.DiscCount = media.Discs != null ? media.Discs.Count : 0;
-          track.Artists = new List<string>();
-          foreach (TrackArtistCredit artistCredit in Artists)
+          if (release.ReleaseGroup != null && release.ReleaseGroup.PrimaryType != null &&
+            !release.ReleaseGroup.PrimaryType.Equals("Album", StringComparison.InvariantCultureIgnoreCase) &&
+            !release.ReleaseGroup.PrimaryType.Equals("Single", StringComparison.InvariantCultureIgnoreCase)) //Only albums and singles
+            continue;
+
+          if (Artists == null)
+            continue;
+
+          if (release.Media != null && release.Media.Count > 0)
           {
-            track.Artists.Add(artistCredit.Artist.Name);
+            foreach (TrackMedia media in release.Media)
+            {
+              TrackResult track = new TrackResult();
+              track.Id = Id;
+              track.Title = Title;
+              track.AlbumId = release.Id;
+              track.AlbumAmazonId = release.AmazonId;
+              track.Album = release.Title;
+              track.AlbumBarcode = release.Barcode;
+              track.Country = release.Country;
+              track.AlbumHasCover = release.CoverArt != null && release.CoverArt.Front;
+              track.Artists = new List<string>();
+              foreach (TrackArtistCredit artistCredit in Artists)
+              {
+                track.Artists.Add(artistCredit.Artist.Name);
+              }
+              if (release.ReleaseGroup != null && release.ReleaseGroup.SecondaryTypes != null)
+                track.FromCompilation = release.ReleaseGroup.SecondaryTypes.Contains("Compilation");
+
+              track.DiscCount = media.Discs != null ? media.Discs.Count : 0;
+              if (media.Track != null && media.Track.Count > 0)
+              {
+                track.Title = media.Track[0].Title;
+                int trackNum;
+                if (int.TryParse(media.Track[0].Number, out trackNum))
+                  track.TrackNum = trackNum;
+              }
+              tracks.Add(track);
+            }
           }
-          track.Country = release.Country;
-          //track.Id = media.Tracks[0].Id;
-          track.Id = Id;
-          //DateTime releaseDate;
-          //if (DateTime.TryParse(release.Date, out releaseDate))
-          //  track.ReleaseDate = releaseDate;
-          //else if (DateTime.TryParse(release.Date + "-01", out releaseDate))
-          //  track.ReleaseDate = releaseDate;
-          //else if (DateTime.TryParse(release.Date + "-01-01", out releaseDate))
-          //  track.ReleaseDate = releaseDate;
-
-          track.Title = media.Track[0].Title;
-          int trackNum;
-          if (int.TryParse(media.Track[0].Number, out trackNum))
-            track.TrackNum = trackNum;
-          if (release.ReleaseGroup != null && release.ReleaseGroup.SecondaryTypes != null)
-            track.FromCompilation = release.ReleaseGroup.SecondaryTypes.Contains("Compilation");
-
-          tracks.Add(track);
+          else
+          {
+            TrackResult track = new TrackResult();
+            track.Id = Id;
+            track.Title = Title;
+            track.AlbumId = release.Id;
+            track.AlbumAmazonId = release.AmazonId;
+            track.Album = release.Title;
+            track.AlbumBarcode = release.Barcode;
+            track.Country = release.Country;
+            track.AlbumHasCover = release.CoverArt != null && release.CoverArt.Front;
+            track.Artists = new List<string>();
+            foreach (TrackArtistCredit artistCredit in Artists)
+            {
+              track.Artists.Add(artistCredit.Artist.Name);
+            }
+            if (release.ReleaseGroup != null && release.ReleaseGroup.SecondaryTypes != null)
+              track.FromCompilation = release.ReleaseGroup.SecondaryTypes.Contains("Compilation");
+            tracks.Add(track);
+          }
         }
       }
-
       return tracks;
     }
   }
@@ -188,6 +213,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 
     public string AlbumId { get; set; }
 
+    public string AlbumAmazonId { get; set; }
+
     public string Album { get; set; }
 
     public string AlbumBarcode { get; set; }
@@ -201,5 +228,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
     public bool FromCompilation { get; set; }
 
     public string Country { get; set; }
+
+    public bool AlbumHasCover { get; set; }
   }
 }
