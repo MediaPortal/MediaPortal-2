@@ -449,6 +449,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public void CloseOSD()
     {
+      // Makes sure to always have model initialized first and the property created
+      InitModel();
       if (IsOSDVisible)
       {
         // Hide OSD
