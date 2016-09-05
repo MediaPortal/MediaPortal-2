@@ -165,9 +165,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               }
               //Empty filter needs to be handled differently to other IAttribute filters
               if (filterItem is EmptyFilter)
-                CompileStatementParts(miaManagement, filterItem, ns, bvNamespace, requiredMIATypes, outerMIIDJoinVariable, tableJoins, resultParts, resultBindVars);
+              {
+                resultParts.Add(miaManagement.GetMIAAttributeColumnName(attributeType));
+                resultParts.Add(" IS NULL"); 
+              }
               else
+              {
                 BuildAttributeFilterExpression(filterItem, miaManagement.GetMIAAttributeColumnName(attributeType), bvNamespace, resultParts, resultBindVars);
+              }
             }
             resultParts.Add(")");
           }

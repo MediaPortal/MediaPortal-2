@@ -169,7 +169,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         string statementStr;
         IList<BindVar> bindVars;
 
-        SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(_miaManagement,
+        MixedMIAQueryBuilder builder = new MixedMIAQueryBuilder(_miaManagement,
             _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
 
         using (IDbCommand command = transaction.CreateCommand())
