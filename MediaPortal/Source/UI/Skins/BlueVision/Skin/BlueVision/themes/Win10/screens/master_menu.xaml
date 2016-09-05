@@ -234,7 +234,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Rectangle Grid.Row="0" Fill="#666666"
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,67">
             </Rectangle>
-            <ListView x:Name="TopMenu" Grid.Row="0" Style="{ThemeResource PopupMenuListViewStyle}" Margin="10,20,10,80"
+            <ListView x:Name="TopMenu" Grid.Row="0" Style="{ThemeResource SlideMenuItemContainerStyle}" Margin="10,20,10,80"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">

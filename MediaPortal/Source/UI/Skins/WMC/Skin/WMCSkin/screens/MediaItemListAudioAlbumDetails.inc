@@ -36,8 +36,8 @@
   
   <WrapPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0">
 
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:MediaAspectWrapper.Template>
+    <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAlbumAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
@@ -47,14 +47,14 @@
             <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Title}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding Album}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
+      </media:AudioAlbumAspectWrapper.Template>
+    </media:AudioAlbumAspectWrapper>
 
-    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:AudioAspectWrapper.Template>
+    <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAlbumAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
@@ -68,45 +68,11 @@
                 Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
-      </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>
+      </media:AudioAlbumAspectWrapper.Template>
+    </media:AudioAlbumAspectWrapper>
 
-    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:AudioAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="200"/>
-              <ColumnDefinition Width="450"/>
-            </Grid.ColumnDefinitions>            
-            <Label x:Name="AlbumLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
-                Content="[Media.AudioAlbumLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Album" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Album}" Color="{ThemeResource TextColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>
-
-    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:AudioAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="200"/>
-              <ColumnDefinition Width="450"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="AlbumArtistsLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
-                Content="[Media.AudioAlbumArtistsLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="AlbumArtists" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Path=AlbumArtists}" Color="{ThemeResource TextColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>
-
-    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:AudioAspectWrapper.Template>
+    <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAlbumAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
@@ -116,31 +82,14 @@
             <Label x:Name="TrackLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioTrackLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
             <Label x:Name="Track" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Path=Track}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding Path=NumTracks}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
-      </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>
-
-    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:AudioAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="200"/>
-              <ColumnDefinition Width="450"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="DurationLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
-                Content="[Media.AudioDurationLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Duration" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm\:ss}" Color="{ThemeResource TextColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>   
-    
-    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:AudioAspectWrapper.Template>
+      </media:AudioAlbumAspectWrapper.Template>
+    </media:AudioAlbumAspectWrapper>
+   
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MediaAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
@@ -153,8 +102,8 @@
                 Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
-      </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
 
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>
@@ -191,43 +140,8 @@
           </Grid>
         </ControlTemplate>
       </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>
-
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:MediaAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="200"/>
-              <ColumnDefinition Width="450"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="ComposersLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
-                Content="[Media.AudioComposersLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Composers" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Path=Composers}" Color="{ThemeResource TextColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
-
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:MediaAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="200"/>
-              <ColumnDefinition Width="450"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="TypeLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
-                Content="[Media.AudioMimeTypeLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="MimeType" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Path=MimeType}" Color="{ThemeResource TextColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
-
-  </WrapPanel>
+    </media:AudioAspectWrapper>  
+</WrapPanel>
 
   <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:MediaAspectWrapper.Template>

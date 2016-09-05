@@ -1937,7 +1937,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="True" Orientation="Vertical" Margin="0,0,120,10">
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="False" Orientation="Vertical" Margin="0,0,120,10">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
@@ -1960,7 +1960,7 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
-                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="True" ScrollMargin="240,240" Margin="0,-140,0,-140">
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="False" ScrollMargin="240,240" Margin="0,-140,0,-140">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
@@ -1983,7 +1983,7 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
-                    <AnimatedStackPanel x:Name="CoverItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="True" ScrollMargin="280,260" Margin="-140,0,-170,0">
+                    <AnimatedStackPanel x:Name="CoverItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="False" ScrollMargin="280,260" Margin="-140,0,-170,0">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
