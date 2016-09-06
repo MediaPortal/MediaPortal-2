@@ -82,7 +82,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           string countAlias;
           string statementStr;
           IList<BindVar> bindVars;
-          MixedMIAQueryBuilder builder = new MixedMIAQueryBuilder(_miaManagement, new QueryAttribute[] { }, null,
+          MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement, new QueryAttribute[] { }, null,
               _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
           IDictionary<QueryAttribute, string> qa2a;
           builder.GenerateSqlGroupByStatement(out countAlias, out qa2a, out statementStr, out bindVars);

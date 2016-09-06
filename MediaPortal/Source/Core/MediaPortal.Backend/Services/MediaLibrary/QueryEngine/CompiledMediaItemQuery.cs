@@ -169,7 +169,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         string statementStr;
         IList<BindVar> bindVars;
 
-        MixedMIAQueryBuilder builder = new MixedMIAQueryBuilder(_miaManagement,
+        MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement,
             _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
 
         using (IDbCommand command = transaction.CreateCommand())
@@ -503,7 +503,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append("\r\n\r\n");
       }
       result.Append("Main query:\r\n");
-      SingleMIAQueryBuilder mainQueryBuilder = new SingleMIAQueryBuilder(_miaManagement,
+      MIAQueryBuilder mainQueryBuilder = new MIAQueryBuilder(_miaManagement,
           _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
       result.Append(mainQueryBuilder.ToString());
       return result.ToString();
