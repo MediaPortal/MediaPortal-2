@@ -148,12 +148,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" 
-               Template="{DynamicResource ResourceKey=Menu_Button_Dummy}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"></Control>
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="60,0,10,30" 
+          IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+          Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+      </Button>
+
+      <!--Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" 
+               Template="{DynamicResource ResourceKey=Menu_Button_Dummy}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"></>
       <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" 
                IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
       <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" 
-               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
+               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control-->
 
       <Border Height="74" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0,-20,5,20" >
         <!--Border.Background>
@@ -204,11 +209,21 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </StackPanel>
       </Border>
 
-      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="9,-20,60,20"
+      <!--Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="9,-20,60,20"
           HorizontalAlignment="Center" VerticalAlignment="Center"
           IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
           Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-      </Button>
+      </-->
+
+      <Control x:Name="MenuButtonDummy" Grid.Row="0" Grid.Column="4" Margin="10,0,60,30"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               Template="{DynamicResource ResourceKey=Menu_Button_Dummy}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"></Control>
+      <Control x:Name="MenuButtonDummyConfig" Grid.Row="0" Grid.Column="4" Margin="10,0,60,30"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
+      <Control x:Name="MenuButtonPlaceholder" Grid.Row="0" Grid.Column="4" Margin="10,0,60,30"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
       <!--Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" /-->
     </Grid>
