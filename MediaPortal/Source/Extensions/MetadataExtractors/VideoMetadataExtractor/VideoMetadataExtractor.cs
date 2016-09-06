@@ -373,22 +373,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         MultipleMediaItemAspect videoAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
         videoAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
         videoAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
-        if (_ar.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, _ar.Value);
-        if (_frameRate.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_FPS, _frameRate.Value);
-        if (_width.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_WIDTH, _width.Value);
-        if (_height.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, _height.Value);
-        // MediaInfo returns milliseconds, we need seconds
-        if (_playTime.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, _playTime.Value / 1000);
-        if (_vidBitRate.HasValue)
-          videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value / 1000); // We store kbit/s
-
-        videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
-        videoAspect.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
 
         Match match = REGEXP_STEREOSCOPICFILE.Match(lfsra.LocalFileSystemPath);
         if (match.Groups[GROUP_STEREO].Length > 0)
@@ -424,15 +408,54 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             }
           }
         }
-        else
+
+        if (_height.HasValue && _width.HasValue)
         {
-          if (_height.HasValue && _height.Value > 2000)
+          int full3DTABMinHeight = 720 * 2;
+          int full3DSBSMinWidth = 1280 * 2;
+          if (((double)_width.Value / _height.Value >= 2.5) && (_width.Value >= full3DSBSMinWidth)) // we have Full HD SBS 
+          {
+            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SBS);
+            _width = _width.Value / 2;
+          }
+          else if (((double)_width.Value / _height.Value <= 1.5) && (_height.Value >= full3DTABMinHeight)) // we have Full HD TAB
+          {
+            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_TAB);
+            _height = _height.Value / 2;
+          }
+          else if (_height.Value > 2000)
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
-          else if (_height.HasValue && _height.Value > 700)
+          else if (_height.Value > 700)
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
           else
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
         }
+        else if (_height.HasValue)
+        {
+          if (_height.Value > 2000)
+            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
+          else if (_height.Value > 700)
+            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
+          else
+            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
+        }
+
+        if (_ar.HasValue)
+          videoAspect.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, _ar.Value);
+        if (_frameRate.HasValue)
+          videoAspect.SetAttribute(VideoStreamAspect.ATTR_FPS, _frameRate.Value);
+        if (_width.HasValue)
+          videoAspect.SetAttribute(VideoStreamAspect.ATTR_WIDTH, _width.Value);
+        if (_height.HasValue)
+          videoAspect.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, _height.Value);
+        // MediaInfo returns milliseconds, we need seconds
+        if (_playTime.HasValue)
+          videoAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, _playTime.Value / 1000);
+        if (_vidBitRate.HasValue)
+          videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value / 1000); // We store kbit/s
+
+        videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
+        videoAspect.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
         videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, partNum);
         videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, partSet);
 
