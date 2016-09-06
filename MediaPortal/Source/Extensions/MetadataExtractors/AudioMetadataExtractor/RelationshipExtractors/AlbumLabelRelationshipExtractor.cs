@@ -85,6 +85,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (albumInfo.MusicLabels.Count == 0)
         return false;
 
+      bool relationshipFound = false;
+      IList<MultipleMediaItemAspect> relationships;
+      if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships))
+      {
+        foreach (MultipleMediaItemAspect relationship in relationships)
+        {
+          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == LinkedRole ||
+            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == LinkedRole)
+          {
+            relationshipFound = true;
+            break;
+          }
+        }
+      }
+
+      if (!relationshipFound)
+        albumInfo.HasChanged = true; //Force save if no relationship exists
+
       if (!albumInfo.HasChanged && !forceQuickMode)
         return false;
 
