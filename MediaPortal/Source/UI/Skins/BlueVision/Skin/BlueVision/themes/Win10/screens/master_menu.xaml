@@ -236,7 +236,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <!--Image Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
           </Image-->
             
-            <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,140">
+            <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,65,140">
               <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                   <GradientStop Color="#E6666666" Offset="0"/>
@@ -245,7 +245,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </LinearGradientBrush>
               </Rectangle.Fill>
             </Rectangle>
-            <ListView x:Name="TopMenu" Grid.Row="1" Style="{ThemeResource SlideMenuListViewStyle}" Margin="10,20,10,80"
+            <ListView x:Name="TopMenu" Grid.Row="1" Style="{ThemeResource SlideMenuListViewStyle}" Margin="10,20,14,80"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
