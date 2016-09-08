@@ -40,7 +40,7 @@
 
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="5,10,5,10">
+    <Grid>
       <Border BorderThickness="0" CornerRadius="0" BorderBrush="Black" Background="#505050" Opacity="1" Width="348.7" Height="270"/>
       <StackPanel VerticalAlignment="Center" Margin="20" HorizontalAlignment="Center">
         <Label FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
@@ -55,8 +55,19 @@
     </Grid>
   </DataTemplate>
 
+  <Style x:Key="ForcastItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource HomeButtonStyle}" Margin="5,10,5,10"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ListView style for all forecasts of the current location -->
   <Style x:Key="ForecastListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ForcastItemContainerStyle}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource ForecastItemDataTemplate}"/>
     <Setter Property="ItemsPanel">
       <Setter.Value>
