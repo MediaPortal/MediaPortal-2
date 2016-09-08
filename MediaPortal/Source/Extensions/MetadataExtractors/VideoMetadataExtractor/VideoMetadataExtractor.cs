@@ -413,15 +413,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           int full3DTABMinHeight = 720 * 2;
           int full3DSBSMinWidth = 1280 * 2;
-          if (((double)_width.Value / _height.Value >= 2.5) && (_width.Value >= full3DSBSMinWidth)) // we have Full HD SBS 
+          if (((double)_width.Value / (float)_height.Value >= 2.5) && (_width.Value >= full3DSBSMinWidth)) // we have Full HD SBS 
           {
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SBS);
             _width = _width.Value / 2;
+            _ar = (float)_width.Value / (float)_height.Value;
           }
-          else if (((double)_width.Value / _height.Value <= 1.5) && (_height.Value >= full3DTABMinHeight)) // we have Full HD TAB
+          else if (((double)_width.Value / (float)_height.Value <= 1.5) && (_height.Value >= full3DTABMinHeight)) // we have Full HD TAB
           {
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_TAB);
             _height = _height.Value / 2;
+            _ar = (float)_width.Value / (float)_height.Value;
           }
           else if (_height.Value > 2000)
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);

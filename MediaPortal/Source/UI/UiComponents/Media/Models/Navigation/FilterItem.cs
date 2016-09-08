@@ -40,8 +40,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get
       {
-        //TODO: Decide whether the value should be cached to avoid reading from disk or leave like this so
-        //if it is changed the new value is loaded
         ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
         return settings.ShowVirtual;
       }
