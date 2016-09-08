@@ -140,7 +140,7 @@ namespace Test.Backend
       Guid movieId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
       Guid movieType = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
       Guid actorType = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
-      IFilter filter = new RelationshipFilter(movieId, movieType, actorType);
+      IFilter filter = new RelationshipFilter(actorType, movieType, movieId);
 
       ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>();
 
@@ -296,7 +296,7 @@ namespace Test.Backend
       Guid movieId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
       Guid movieType = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
       Guid actorType = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
-      IFilter filter = new RelationshipFilter(movieId, movieType, actorType);
+      IFilter filter = new RelationshipFilter(actorType, movieType, movieId);
 
       SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 

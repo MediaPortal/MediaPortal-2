@@ -99,10 +99,11 @@
     <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
-    <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
