@@ -47,7 +47,7 @@
     </ListView>
 
     <DockPanel DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
-           VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" Margin="70,-130,0,0"
+           VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" Margin="68,-130,0,0"
            IsVisible="{Binding IsItemsValid}">
       <!---Grid+CoverView-->
       <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
