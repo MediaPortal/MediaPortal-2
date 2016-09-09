@@ -92,6 +92,7 @@
     <Compile Include="Services\MediaLibrary\QueryEngine\QueryAttribute.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\MainQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\MultipleMIAQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\MIAQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\SingleMIAQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\TableJoin.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\TableQueryData.cs" />

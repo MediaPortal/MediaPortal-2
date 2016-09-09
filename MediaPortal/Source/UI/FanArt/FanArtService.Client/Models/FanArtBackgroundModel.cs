@@ -430,11 +430,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       TVNetworkFilterItem tvNetworkItem = SelectedItem as TVNetworkFilterItem;
       if (tvNetworkItem != null)
       {
-        MediaItem = companyItem.MediaItem;
+        MediaItem = tvNetworkItem.MediaItem;
         FanArtMediaType = FanArtMediaTypes.TVNetwork;
-        FanArtName = companyItem.MediaItem.MediaItemId.ToString();
-        SimpleTitle = companyItem.SimpleTitle;
-        ItemDescription = companyItem.Description;
+        FanArtName = tvNetworkItem.MediaItem.MediaItemId.ToString();
+        SimpleTitle = tvNetworkItem.SimpleTitle;
+        ItemDescription = tvNetworkItem.Description;
       }
       FilterItem filterItem = SelectedItem as FilterItem;
       if (filterItem != null)

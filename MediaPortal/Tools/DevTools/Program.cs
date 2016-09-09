@@ -259,7 +259,7 @@ namespace MediaPortal.DevTools
                 string id = argList[2];
                 string role = argList[3];
                 string linkedRole = argList[4];
-                ShowMediaItems(client, new RelationshipFilter(new Guid(id), new Guid(role), new Guid(linkedRole)));
+                ShowMediaItems(client, new RelationshipFilter(new Guid(role), new Guid(linkedRole), new Guid(id)));
               }
 
               else

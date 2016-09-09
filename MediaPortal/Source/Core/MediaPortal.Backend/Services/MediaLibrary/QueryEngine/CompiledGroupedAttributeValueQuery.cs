@@ -127,7 +127,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
           {
             QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
-            SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(_miaManagement,
+            MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement,
                 new QueryAttribute[] {selectAttributeQA}, _selectProjectionFunction,
                 _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
             IDictionary<QueryAttribute, string> qa2a;

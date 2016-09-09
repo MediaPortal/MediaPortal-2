@@ -109,7 +109,9 @@ namespace MediaPortal.UiComponents.Media.Views
       else
       {
         if (filter is RelationshipFilter)
-          combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, _filter });
+          combinedFilter = filter;
+        else if (filter is FilteredRelationshipFilter)
+          combinedFilter = filter;
         else
           combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { _filter, filter });
       }

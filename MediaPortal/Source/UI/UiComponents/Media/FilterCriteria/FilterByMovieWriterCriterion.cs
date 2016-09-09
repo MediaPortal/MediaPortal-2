@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class FilterByMovieWriterCriterion : RelationshipMLFilterCriterion
   {
     public FilterByMovieWriterCriterion() :
-      base(PersonAspect.ROLE_WRITER, MovieAspect.ROLE_MOVIE, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
+      base(PersonAspect.ROLE_WRITER, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
         new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
     {
     }

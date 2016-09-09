@@ -45,7 +45,7 @@ namespace Test.Common
       Guid itemType = new Guid("22222222-bbbb-bbbb-bbbb-222222222222");
       Guid relationshipType = new Guid("33333333-cccc-cccc-cccc-333333333333");
 
-      MediaItemQuery query1 = new MediaItemQuery(new Guid[] { MediaAspect.ASPECT_ID }, new RelationshipFilter(itemId, itemType, relationshipType));
+      MediaItemQuery query1 = new MediaItemQuery(new Guid[] { MediaAspect.ASPECT_ID }, new RelationshipFilter(itemType, relationshipType, itemId));
 
       TextWriter writer = new StringWriter();
       XmlWriter serialiser = new XmlTextWriter(writer);
@@ -58,7 +58,7 @@ namespace Test.Common
 
       Assert.IsTrue(query2.Filter is RelationshipFilter, "Query filter type");
       RelationshipFilter filter = (RelationshipFilter)query2.Filter;
-      Assert.AreEqual(((MediaItemIdFilter)filter.Filter).MediaItemIds.First(), itemId, "Filter item ID");
+      Assert.AreEqual(filter.LinkedMediaItemId, itemId, "Filter item linked ID");
       Assert.AreEqual(filter.Role, itemType, "Filter item type");
       Assert.AreEqual(filter.LinkedRole, relationshipType, "Filter item linked role");
     }
