@@ -47,7 +47,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
       {
         DateTime? recordingTimeX = (DateTime?) mediaAspectX.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
         DateTime? recordingTimeY = (DateTime?) mediaAspectY.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
-        return ObjectUtils.Compare(recordingTimeX, recordingTimeY);
+        return ObjectUtils.Compare(recordingTimeY, recordingTimeX);
       }
       return base.Compare(x, y);
     }
