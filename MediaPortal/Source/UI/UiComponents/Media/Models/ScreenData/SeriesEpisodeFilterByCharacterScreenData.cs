@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesEpisodeFilterByCharacterScreenData() :
         base(Consts.SCREEN_SERIES_EPISODE_FILTER_BY_CHARACTER, Consts.RES_FILTER_BY_CHARACTER_MENU_ITEM,
-        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new FilterBySeriesEpisodeCharacterCriterion())
+        Consts.RES_FILTER_ACTOR_NAVBAR_DISPLAY_LABEL, new FilterByCharacterCriterion())
     {
     }
 

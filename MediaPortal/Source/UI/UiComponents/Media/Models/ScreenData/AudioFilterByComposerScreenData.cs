@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public AudioFilterByComposerScreenData() :
         base(Consts.SCREEN_AUDIO_FILTER_BY_COMPOSER, Consts.RES_FILTER_BY_COMPOSER_MENU_ITEM,
-        Consts.RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL, new FilterByAudioComposerCriterion())
+        Consts.RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL, new FilterByComposerCriterion())
     {
     }
 
