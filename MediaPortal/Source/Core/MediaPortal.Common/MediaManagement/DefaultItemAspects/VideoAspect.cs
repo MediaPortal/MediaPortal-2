@@ -89,5 +89,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ISDVD,
             ATTR_STORYPLOT,
         });
+
+    public static readonly Guid ROLE_VIDEO = new Guid("96DB4C0E-13CC-4B5B-B66D-F2CC7D205414");
   }
 }
