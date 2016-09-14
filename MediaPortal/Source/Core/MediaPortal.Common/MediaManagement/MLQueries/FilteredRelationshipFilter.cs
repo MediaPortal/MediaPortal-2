@@ -32,22 +32,20 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   /// </summary>
   public class FilteredRelationshipFilter : IFilter
   {
-    protected IFilter _linkedFilter;
+    protected IFilter _filter;
     protected Guid _role;
-    protected Guid _linkedRole;
 
-    public FilteredRelationshipFilter(Guid role, Guid linkedRole, IFilter linkedFilter)
+    public FilteredRelationshipFilter(Guid role, IFilter filter)
     {
-      _linkedFilter = linkedFilter;
+      _filter = filter;
       _role = role;
-      _linkedRole = linkedRole;
     }
 
     [XmlIgnore]
-    public IFilter LinkedFilter
+    public IFilter Filter
     {
-      get { return _linkedFilter; }
-      set { _linkedFilter = value; }
+      get { return _filter; }
+      set { _filter = value; }
     }
 
     [XmlIgnore]
@@ -57,16 +55,9 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _role = value; }
     }
 
-    [XmlIgnore]
-    public Guid LinkedRole
-    {
-      get { return _linkedRole; }
-      set { _linkedRole = value; }
-    }
-
     public override string ToString()
     {
-      return "(ITEM_ID IN (" + _linkedFilter + ")" + (_role != Guid.Empty ? " AND ROLE='" + _role + "'" : "") + " AND LINKED_ROLE='" + _linkedRole + "')";
+      return "(ITEM_ID IN (" + _filter + ")" + (_role != Guid.Empty ? " AND (ROLE='" + _role + "' OR LINKED_ROLE='" + _role + "')" : "") + ")";
     }
 
     #region Additional members for the XML serialization
@@ -91,8 +82,8 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("FilteredRelationship", typeof(FilteredRelationshipFilter))]
     public object XML_Filter
     {
-      get { return _linkedFilter; }
-      set { _linkedFilter = value as IFilter; }
+      get { return _filter; }
+      set { _filter = value as IFilter; }
     }
 
     /// <summary>
@@ -103,16 +94,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _role; }
       set { _role = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlAttribute("LinkedRole")]
-    public Guid XML_LinkedRole
-    {
-      get { return _linkedRole; }
-      set { _linkedRole = value; }
     }
 
     #endregion
