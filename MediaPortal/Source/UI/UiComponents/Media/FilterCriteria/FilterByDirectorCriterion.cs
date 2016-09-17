@@ -28,9 +28,9 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByMovieDirectorCriterion : RelationshipMLFilterCriterion
+  public class FilterByDirectorCriterion : RelationshipMLFilterCriterion
   {
-    public FilterByMovieDirectorCriterion() :
+    public FilterByDirectorCriterion() :
       base(PersonAspect.ROLE_DIRECTOR, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
         new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
     {

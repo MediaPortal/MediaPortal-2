@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesEpisodeFilterByDirectorScreenData() :
         base(Consts.SCREEN_SERIES_EPISODE_FILTER_BY_DIRECTOR, Consts.RES_FILTER_BY_DIRECTOR_MENU_ITEM,
-        Consts.RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL, new FilterBySeriesEpisodeDirectorCriterion())
+        Consts.RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL, new FilterByDirectorCriterion())
     {
     }
 

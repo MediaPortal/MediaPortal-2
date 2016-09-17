@@ -84,6 +84,17 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         rsfilter.Role = _role; //Inject the desired type of media items
         queryFilter = rsfilter;
       }
+      else if (filter != null && filter is FilteredRelationshipFilter)
+      {
+        FilteredRelationshipFilter rsfilter = filter as FilteredRelationshipFilter;
+        rsfilter.Role = _role; //Inject the desired type of media items
+        queryFilter = rsfilter;
+      }
+      else if (filter != null)
+      {
+        FilteredRelationshipFilter rsfilter = new FilteredRelationshipFilter(_role, filter);
+        queryFilter = rsfilter;
+      }
       IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);

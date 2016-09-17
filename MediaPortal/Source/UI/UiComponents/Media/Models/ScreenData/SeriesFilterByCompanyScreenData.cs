@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public SeriesFilterByCompanyScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_COMPANY, Consts.RES_FILTER_BY_COMPANY_MENU_ITEM,
-        Consts.RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL, new FilterBySeriesCompanyCriterion())
+        Consts.RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL, new FilterByCompanyCriterion())
     {
     }
 

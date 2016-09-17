@@ -183,7 +183,7 @@ namespace Test.Backend
       requiredMIATypes.Add(mia1.Metadata);
       requiredMIATypes.Add(mia2.Metadata);
 
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+      MIAQueryBuilder builder = new MIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
       string mediaItemIdAlias = null;
       IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -217,7 +217,7 @@ namespace Test.Backend
       requiredMIATypes.Add(mia1.Metadata);
       requiredMIATypes.Add(mia2.Metadata);
 
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+      MIAQueryBuilder builder = new MIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
       string mediaItemIdAlias = null;
       IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -253,7 +253,7 @@ namespace Test.Backend
       requiredMIATypes.Add(mia1.Metadata);
       requiredMIATypes.Add(mia2.Metadata);
 
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+      MIAQueryBuilder builder = new MIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
       string mediaItemIdAlias = null;
       IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -298,7 +298,7 @@ namespace Test.Backend
       Guid actorType = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
       IFilter filter = new RelationshipFilter(actorType, movieType, movieId);
 
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+      MIAQueryBuilder builder = new MIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
       string mediaItemIdAlias = null;
       IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -343,7 +343,7 @@ namespace Test.Backend
       requiredMIATypes.Add(mia1.Metadata);
       requiredMIATypes.Add(mia2.Metadata);
 
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+      MIAQueryBuilder builder = new MIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
       string mediaItemIdAlias = null;
       IDictionary<MediaItemAspectMetadata, string> miamAliases = null;
@@ -392,7 +392,7 @@ namespace Test.Backend
       requiredMIATypes.Add(mia1.Metadata);
       requiredMIATypes.Add(mia2.Metadata);
 
-      SingleMIAQueryBuilder builder = new SingleMIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
+      MIAQueryBuilder builder = new MIAQueryBuilder(MockCore.Management, new List<QueryAttribute>(), null, requiredMIATypes, new List<MediaItemAspectMetadata>(), filter, null);
 
       string mediaItemIdAlias = null;
       IDictionary<MediaItemAspectMetadata, string> miamAliases = null;

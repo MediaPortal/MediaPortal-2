@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
@@ -41,10 +42,18 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   public class SimpleMLFilterCriterion : MLFilterCriterion
   {
     protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
+    protected IEnumerable<Guid> _necessaryMIATypeIds;
 
     public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType)
     {
       _attributeType = attributeType;
+      _necessaryMIATypeIds = null;
+    }
+
+    public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType, IEnumerable<Guid> necessaryMIATypeIds)
+    {
+      _attributeType = attributeType;
+      _necessaryMIATypeIds = necessaryMIATypeIds;
     }
 
     #region Base overrides
@@ -55,6 +64,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
+      if (_necessaryMIATypeIds != null)
+        necessaryMIATypeIds = _necessaryMIATypeIds;
       HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtual);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -62,12 +73,22 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       {
         string name = GetDisplayName(group.Key);
         if (name == string.Empty)
-          numEmptyEntries += (int) group.Value;
+          numEmptyEntries += (int)group.Value;
         else
-          result.Add(new FilterValue(name, new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), null, (int) group.Value, this));
+        {
+          IFilter queryFilter = new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key);
+          if (filter != null)
+            queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
+          result.Add(new FilterValue(name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
+        }
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
+      {
+        IFilter queryFilter = new EmptyFilter(_attributeType);
+        if (filter != null)
+          queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, numEmptyEntries, this));
+      }
       return result;
     }
 
@@ -82,6 +103,8 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
+      if (_necessaryMIATypeIds != null)
+        necessaryMIATypeIds = _necessaryMIATypeIds.ToList();
       IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None,
           necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, ShowVirtual);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);

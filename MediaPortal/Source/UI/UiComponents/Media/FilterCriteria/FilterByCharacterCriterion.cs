@@ -28,9 +28,9 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterBySeriesEpisodeCharacterCriterion : RelationshipMLFilterCriterion
+  public class FilterByCharacterCriterion : RelationshipMLFilterCriterion
   {
-    public FilterBySeriesEpisodeCharacterCriterion() :
+    public FilterByCharacterCriterion() :
       base(CharacterAspect.ROLE_CHARACTER, Consts.NECESSARY_CHARACTER_MIAS, Consts.OPTIONAL_CHARACTER_MIAS,
         new SortInformation(CharacterAspect.ATTR_CHARACTER_NAME, SortDirection.Ascending))
     {

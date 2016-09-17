@@ -62,7 +62,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesEpisodeFilterByCharacterScreenData(),
         new SeriesFilterByCompanyScreenData(),
         new SeriesFilterByTvNetworkScreenData(),
-        new VideosFilterByGenreScreenData(),
+        new SeriesFilterByGenreScreenData(),
         new SeriesSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };
       _defaultSorting = new SeriesSortByEpisode();
