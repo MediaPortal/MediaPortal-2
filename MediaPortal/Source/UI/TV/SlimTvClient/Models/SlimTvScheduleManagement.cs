@@ -364,14 +364,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       ProgramProperties programProperties = new ProgramProperties();
       IProgram currentProgram = program;
-      programProperties.SetProgram(currentProgram);
+      IChannel channel;
+      if (!_tvHandler.ChannelAndGroupInfo.GetChannel(currentProgram.ChannelId, out channel))
+        channel = null;
+      programProperties.SetProgram(currentProgram, channel);
 
       ListItem item = new ProgramListItem(programProperties)
       {
         Command = new MethodDelegateCommand(() => ShowActions(schedule, program))
       };
-      IChannel channel;
-      if (_tvHandler.ChannelAndGroupInfo.GetChannel(currentProgram.ChannelId, out channel))
+      if (channel != null)
         item.SetLabel("ChannelName", channel.Name);
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
       item.AdditionalProperties["PROGRAM"] = currentProgram;
