@@ -975,7 +975,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       // Focus was on channel header
       if (header != null)
       {
-        var nextHeader = Children.FirstOrDefault(c => GetRow(c) == row && GetColumn(c) == 0);
+        int colIndex = GroupButtonEnabled ? 1 : 0;
+        var nextHeader = Children.FirstOrDefault(c => GetRow(c) == row && GetColumn(c) == colIndex);
         if (nextHeader != null)
         {
           return nextHeader.TrySetFocus(true);
