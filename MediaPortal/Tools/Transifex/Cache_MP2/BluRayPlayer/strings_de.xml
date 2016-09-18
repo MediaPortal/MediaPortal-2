@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players.Codecs.VideoCodecs.VC1">VC1-Videocodec</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.VC1.Help">Legen Sie den für VC1-Video verwendeten Codec fest (BluRay)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.VC1.Help">Codec für VC1-Video (BluRay) festlegen</string>
 </resources>

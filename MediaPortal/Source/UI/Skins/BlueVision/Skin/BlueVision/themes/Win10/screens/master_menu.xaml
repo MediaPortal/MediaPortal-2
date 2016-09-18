@@ -54,7 +54,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <ControlTemplate x:Key="Menu_Button_Placeholder">
-      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="55,-19,8,0"
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0" Margin="0"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
               Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
@@ -90,7 +90,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
              Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
              IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
-          <Grid x:Name="RightPanel" Margin="10,-60,-680,-300" VerticalAlignment="Stretch"
+          <Grid x:Name="RightPanel" Margin="10,-160,-680,-300" VerticalAlignment="Stretch"
               Width="550" HorizontalAlignment="Right">
             <Grid.IsVisible>
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
@@ -145,16 +145,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="0"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+              <RowDefinition Height="100"/>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TranslateTransform X="0"/>
             </Grid.RenderTransform>
-            <Rectangle Grid.Column="0" Fill="#666666"
-                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,67">
+            <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2,40,60,360">
+              <Rectangle.Fill>
+                <ImageBrush ImageSource="win10_bg.png"></ImageBrush>
+              </Rectangle.Fill>
             </Rectangle>
-            <ListView x:Name="MainListMenu" Grid.Column="0" Style="{ThemeResource SlideMenuListViewStyle}" Margin="10"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
+            <ListView x:Name="MainListMenu" Grid.Row="1" Grid.Column="0" Style="{ThemeResource SlideMenuListViewStyle}" Margin="10,40,10,360"
+              HorizontalAlignment="Stretch" VerticalAlignment="Center" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
               <ListView.Resources>
@@ -162,15 +165,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </ListView.Resources>
             </ListView>
             <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
-                    Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="180" Margin="-45,0,0,40"
+                    Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="180" Margin="-45,0,0,340"
                     IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                     Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
               <Image Source="hiddenmenu_tab.png" Stretch="Uniform" Margin="0,0,0,0"/>
             </Button>
           </Grid>
 
-          <Grid x:Name="TopPanel" Margin="0,5,-130,-1285" VerticalAlignment="Bottom"
-              Width="550" Height="1050" HorizontalAlignment="Right">
+          <Grid x:Name="TopPanel" Margin="0,-45,-130,-1285" VerticalAlignment="Bottom"
+              Width="550" Height="1150" HorizontalAlignment="Right">
             <Grid.IsVisible>
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
@@ -179,12 +182,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Storyboard x:Key="SlideDownStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="TopPanel" Storyboard.TargetProperty="RenderTransform.Y">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-966"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-936"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
               <Storyboard x:Key="SlideUpStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="TopPanel" Storyboard.TargetProperty="RenderTransform.Y">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-966"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-936"/>
                   <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
@@ -223,6 +226,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="550"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+              <RowDefinition Height="100"/>
               <RowDefinition Height="*"/>
               <RowDefinition Height="0"/>
             </Grid.RowDefinitions>
@@ -231,10 +235,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Grid.RenderTransform>
             <!--Image Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
           </Image-->
-            <Rectangle Grid.Row="0" Fill="#666666"
-                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,67">
+            
+            <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,65,140">
+              <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                  <GradientStop Color="#E6666666" Offset="0"/>
+                  <GradientStop Color="#E6666666" Offset="0.62"/>
+                  <GradientStop Color="#00666666" Offset="0.73"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
             </Rectangle>
-            <ListView x:Name="TopMenu" Grid.Row="0" Style="{ThemeResource SlideMenuListViewStyle}" Margin="10,20,10,80"
+            <ListView x:Name="TopMenu" Grid.Row="1" Style="{ThemeResource SlideMenuListViewStyle}" Margin="10,20,14,80"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
@@ -243,7 +254,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </ListView.Resources>
             </ListView>
             <Button x:Name="MenuShowTopButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
-                  Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" Width="180" Margin="0,-40,0,0"
+                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Width="180" Margin="0,-40,0,0"
                   IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                   IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">

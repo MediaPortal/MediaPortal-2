@@ -845,8 +845,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True">
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="{ThemeResource FixedDialogWidth}"/>
+          <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="{ThemeResource FixedDialogWidth}" Margin="0,0,61,0"/>
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
