@@ -173,8 +173,8 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="50*"/>
-                  <ColumnDefinition Width="25*"/>
-                  <ColumnDefinition Width="25*"/>
+                  <ColumnDefinition Width="20*"/>
+                  <ColumnDefinition Width="30*"/>
                 </Grid.ColumnDefinitions>
                 <Control x:Name="Info_MovieGeneral" Grid.Column="0">
                   <Control.IsVisible>
@@ -191,7 +191,7 @@
                 <media:VideoStreamAspectWrapper Grid.Column="2" AspectIndex="0" MediaItem="{Binding MediaItem}">
                   <media:VideoStreamAspectWrapper.Template>
                     <ControlTemplate>
-                      <UniformGrid Rows="2" Columns="2" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="10,20,10,20">
+                      <UniformGrid Rows="2" Columns="3" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="10,20,10,20">
                         <Border CornerRadius="6" Background="#1A000000" Margin="10"
                                 IsVisible="{Binding Path=VideoEncoding,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
