@@ -36,7 +36,7 @@
           <RowDefinition Height="220"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="-125,-25,-110,-75" >
+        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="-175,-25,-175,-125">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <LinearGradientBrush.GradientStops>

@@ -217,11 +217,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         workflowManager.NavigatePush(stateId, navigationContextConfig);
     }
 
-    private ProgramListItem BuildProgramListItem(IProgram program)
+    private ProgramListItem BuildProgramListItem(IProgram program, IChannel channel)
     {
       ProgramProperties programProperties = new ProgramProperties();
       IProgram currentProgram = program;
-      programProperties.SetProgram(currentProgram);
+      programProperties.SetProgram(currentProgram, channel);
 
       ProgramListItem item = new ProgramListItem(programProperties)
         {
@@ -244,7 +244,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
                                 StartTime = startTime ?? today,
                                 EndTime = endTime ?? today.AddDays(1)
                               };
-      programProperties.SetProgram(placeholderProgram);
+      programProperties.SetProgram(placeholderProgram, channel);
 
       var item = new PlaceholderListItem(programProperties)
       {
@@ -352,7 +352,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         channel.Programs.Clear();
         if (_groupPrograms != null)
-          _groupPrograms.Where(p => p.ChannelId == channel.Channel.ChannelId && p.StartTime < GuideEndTime).ToList().ForEach(p => channel.Programs.Add(BuildProgramListItem(p)));
+          _groupPrograms.Where(p => p.ChannelId == channel.Channel.ChannelId && p.StartTime < GuideEndTime).ToList()
+            .ForEach(p => channel.Programs.Add(BuildProgramListItem(p, channel.Channel)));
         FillNoPrograms(channel, GuideStartTime, GuideEndTime);
       }
       // Don't notify about every channel programs list changes, only for channel list

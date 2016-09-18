@@ -2,15 +2,15 @@
 <resources>
   <string name="Utilities.MenuItem">Werkzeuge</string>
   <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Werkzeuge</string>
-  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Wiedergabelistenimport</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Wiedergabelisten-Import</string>
   <string name="Utilities.MainScreenTitle">Werkzeuge</string>
-  <string name="Utilities.PlaylistImport">Wiedergabelistenimport</string>
-  <string name="Utilities.PlaylistImportScreenTitle">Wiedergabelistenimport</string>
+  <string name="Utilities.PlaylistImport">Wiedergabelisten-Import</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Wiedergabelisten-Import</string>
   <string name="Utilities.ImportPlaylistFile">Wiedergabelistendatei importieren</string>
   <string name="Utilities.ChoosePlaylistFile">Datei auswählen</string>
   <string name="Utilities.ChooseImportFileDialogHeader">Importdatei auswählen</string>
   <string name="Utilities.EditPlaylistName">Geben Sie den Namen der neuen Wiedergabeliste ein</string>
-  <string name="Utilities.LocationOfShareContainingItems">Datenverzeichnis, dass die Mediadateien enthält</string>
+  <string name="Utilities.LocationOfShareContainingItems">Datenverzeichnis, das die Mediadateien enthält</string>
   <string name="Utilities.LocalShareLocation">Lokale Freigabe</string>
   <string name="Utilities.ServerShareLocation">Serverfreigabe</string>
   <string name="Utilities.StartPlaylistImport">Wiedergabelistenimport starten</string>
