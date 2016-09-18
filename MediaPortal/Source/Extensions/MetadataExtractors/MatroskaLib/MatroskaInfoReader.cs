@@ -43,6 +43,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
   /// </summary>
   public class MatroskaInfoReader
   {
+    public enum StereoMode
+    {
+      Mono,
+      SBSLeftEyeFirst,
+      TABRightEyeFirst,
+      TABLeftEyeFirst,
+      CheckboardRightEyeFirst,
+      CheckboardLeftEyeFirst,
+      RowInterleavedRightEyeFirst,
+      RowInterleavedLeftEyeFirst,
+      ColumnInterleavedRightEyeFirst,
+      ColumnInterleavedLeftEyeFirst,
+      AnaglyphCyanRed,
+      SBSRightEyeFirst,
+      AnaglyphGreenMagenta,
+      FieldSequentialModeLeftEyeFirst,
+      FieldSequentialModeRightEyeFirst,
+    }
+
     #region Fields
 
     private readonly ILocalFsResourceAccessor _lfsra;
@@ -217,6 +236,57 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             _attachments[_attachments.Count - 1].FileSize = Int32.Parse(line.Substring(line.LastIndexOf(": ") + 2));
         }
       }
+    }
+
+    /// <summary>
+    /// Reads the stereoscopic information from the matroska file.
+    /// </summary>
+    public StereoMode ReadStereoMode()
+    {
+      // Structure of mkvinfo attachment output
+      // |+ Attachments
+      // | + Attached
+      // |  + File name: cover.jpg
+      // |  + Mime type: image/jpeg
+      // |  + File data, size: 132908
+      // |  + File UID: 1495003044
+      ProcessExecutionResult executionResult = null;
+      // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
+      var arguments = string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath);
+      try
+      {
+        lock (MKVINFO_THROTTLE_LOCK)
+          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass).Result;
+      }
+      catch (AggregateException ae)
+      {
+        ae.Handle(e =>
+        {
+          if (e is TaskCanceledException)
+          {
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvInfoPath, arguments);
+            return true;
+          }
+          return false;
+        });
+      }
+      if (executionResult != null && executionResult.Success)
+      {
+        StringReader reader = new StringReader(executionResult.StandardOutput);
+        string line;
+        while ((line = reader.ReadLine()) != null)
+        {
+          if (line.Contains("Stereo mode"))
+          {
+            int stereoMode = 0;
+            if (int.TryParse(line.Substring(line.LastIndexOf(": ") + 2, 2), out stereoMode))
+            {
+              return (StereoMode)stereoMode;
+            }
+          }
+        }
+      }
+      return StereoMode.Mono;
     }
 
     /// <summary>

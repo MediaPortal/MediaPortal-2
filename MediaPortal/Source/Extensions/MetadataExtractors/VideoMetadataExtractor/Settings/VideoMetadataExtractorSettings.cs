@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
       SubtitleFileExtensions = new List<string>(DEFAULT_SUBTITLE_FILE_EXTENSIONS);
       SubtitleFolders = new List<string>(DEFAULT_SUBTITLE_FOLDERS);
       MultiPartVideoRegex = new SerializableRegex(@"\\(?<file>[^\\|^\/]*)(\s|-|_)*(?<media>Disc|CD|DVD)\s*(?<disc>\d{1,2})", RegexOptions.IgnoreCase);
-      StereoscopicVideoRegex = new SerializableRegex(@"\\[-. _](3d|.)?([-. _]*|3d)(?<stereo>(h[-. _]*|half[-. _]*|full[-. _]*)?sbs|(h[-. _]*|half[-. _]*|full[-. _]*)?tab|(h|half[-. _]*|full[-. _]*)?ou)[-. _]", RegexOptions.IgnoreCase);
+      StereoVideoRegex = new SerializableRegex(@"\\.*?[-. _](3d|.*?)?([-. _]?|3d)(?<mode>h[-]?|half[-]?|full[-]?)*(?<stereo>sbs|tab|ou)[-. _]", RegexOptions.IgnoreCase);
       MaxSampleSize = 150;
       SampleVideoRegex = new SerializableRegex(@"(sample)|(trailer)", RegexOptions.IgnoreCase);
     }
@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
     /// Regular expression used to detect stereoscopic videos
     /// </summary>
     [Setting(SettingScope.Global)]
-    public SerializableRegex StereoscopicVideoRegex { get; set; }
+    public SerializableRegex StereoVideoRegex { get; set; }
 
     /// <summary>
     /// Subtitle folders where subtitles for media can be found
