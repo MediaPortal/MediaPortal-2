@@ -173,8 +173,8 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="50*"/>
-                  <ColumnDefinition Width="20*"/>
-                  <ColumnDefinition Width="30*"/>
+                  <ColumnDefinition Width="15*"/>
+                  <ColumnDefinition Width="35*"/>
                 </Grid.ColumnDefinitions>
                 <Control x:Name="Info_MovieGeneral" Grid.Column="0">
                   <Control.IsVisible>
@@ -191,7 +191,46 @@
                 <media:VideoStreamAspectWrapper Grid.Column="2" AspectIndex="0" MediaItem="{Binding MediaItem}">
                   <media:VideoStreamAspectWrapper.Template>
                     <ControlTemplate>
-                      <UniformGrid Rows="2" Columns="3" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="10,20,10,20">
+                      <UniformGrid Rows="2" Columns="3" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,20,0,20">
+
+                        <media:SubtitleAspectWrapper MediaItem="{Binding MediaItem}">
+                          <media:SubtitleAspectWrapper.Template>
+                            <ControlTemplate>
+                              <Grid>
+                                <Border CornerRadius="6" Background="#1A000000" Margin="10"/>
+                                <Image DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="38"
+                                       HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                                  <Image.Source>
+                                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 1 ? {1} : {2}">
+                                      <Binding Path="AspectCount"/>
+                                      <Binding Source="Medialogos\subtitle\nosubtitles.png"/>
+                                      <Binding Source="Medialogos\subtitle\subtitles.png"/>
+                                    </MultiBinding>
+                                  </Image.Source>
+                                </Image>
+                              </Grid>
+                            </ControlTemplate>
+                          </media:SubtitleAspectWrapper.Template>
+                        </media:SubtitleAspectWrapper>
+
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                          <Grid.IsVisible>
+                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {1} || {0} == {2} || {0} == {3} || {0} == {4}">
+                              <Binding Path="VideoType"/>
+                              <Binding Source="HSBS"/>
+                              <Binding Source="SBS"/>
+                              <Binding Source="HTAB"/>
+                              <Binding Source="TAB"/>
+                            </MultiBinding>
+                          </Grid.IsVisible>
+                          <Border CornerRadius="6" Background="#1A000000" Margin="10">
+                          </Border>
+                          <Image Source="Medialogos\video\3d.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="23"/>
+                          <Label HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,30" Content="{Binding VideoType}"
+                                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold">
+                          </Label>
+                        </Grid>
+
                         <Border CornerRadius="6" Background="#1A000000" Margin="10"
                                 IsVisible="{Binding Path=VideoEncoding,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
@@ -200,6 +239,7 @@
                             </Image.Source>
                           </Image>
                         </Border>
+                        
                         <Border CornerRadius="10" Background="#1A000000" Margin="10"
                                 IsVisible="{Binding Path=AspectHeight,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
@@ -219,6 +259,7 @@
                             </Image.Source>
                           </Image>
                         </Border>
+                        
                         <Border CornerRadius="10" Background="#1A000000" Margin="10"
                                 IsVisible="{Binding Path=AspectRatio,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Grid HorizontalAlignment="Center">
