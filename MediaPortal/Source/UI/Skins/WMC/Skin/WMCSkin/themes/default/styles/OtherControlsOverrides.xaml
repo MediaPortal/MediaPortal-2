@@ -723,4 +723,26 @@
     </Setter>
   </Style>
 
+  <!-- ****************************** Notification area ********************************** -->
+
+  <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
+
+  <Style x:Key="NotificationControlStyle" TargetType="{x:Type ContentPresenter}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ContentPresenter}">
+          <StackPanel Context="{StaticResource NotificationsModel}" IsVisible="{Binding IsNotificationsHintVisible}" Orientation="Horizontal">
+            <Button Style="{ThemeResource NavigationButtonStyle}" Command="{Command GoToNotification}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="icon" Property="Opacity" Value="1"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>

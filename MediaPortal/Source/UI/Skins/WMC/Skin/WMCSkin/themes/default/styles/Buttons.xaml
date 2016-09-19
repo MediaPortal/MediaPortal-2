@@ -1362,6 +1362,32 @@
     </Setter>
   </Style>
 
+  <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
+
+  <Style x:Key="NavigationButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel>
+            <Grid DockPanel.Dock="Center">
+              <!-- Outer grid is needed because of DataContext used by Button -->
+              <Grid Context="{StaticResource NotificationsModel}">
+                <!-- Need to repeat the context here because the Button (ContentControl) sets the DataContext on the Content element -->
+                <Image x:Name="icon" Source="{Binding NotificationSymbolRelFilePath}" Width="50" Stretch="Uniform" Opacity="0.7"/>
+                <StackPanel Orientation="Horizontal" IsVisible="{Binding IsMoreThanOneNotificationAvailable}"
+                      HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                  <Label Content="(" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>
+                  <Label Content="{Binding NumNotificationsTotal}" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>
+                  <Label Content=")" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>
+                </StackPanel>
+              </Grid>
+            </Grid>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="NavigateBackButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>

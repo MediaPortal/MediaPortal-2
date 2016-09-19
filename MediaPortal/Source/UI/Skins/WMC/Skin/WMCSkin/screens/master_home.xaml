@@ -175,6 +175,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
+        <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
         <!--Grid x:Name="HeaderTextPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,50,0">
           <Label x:Name="HeaderLabel"
               FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
@@ -204,8 +207,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Control Grid.Column="1" Grid.Row="0" Style="{ThemeResource NotificationControlStyle}"
-          HorizontalAlignment="Right" VerticalAlignment="Center"/>
         <StackPanel x:Name="PlayerControls" Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
           <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
                   AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
