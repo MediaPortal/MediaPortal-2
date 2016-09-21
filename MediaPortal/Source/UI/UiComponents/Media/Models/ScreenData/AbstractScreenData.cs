@@ -31,6 +31,8 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.SecondaryFilter;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
+using System;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -56,6 +58,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _listHintProperty = null;
     protected NavigationData _navigationData = null;
     protected IItemsFilter _filter;
+    protected IEnumerable<Guid> _itemMias;
 
     protected object _syncObj = new object();
 
@@ -274,6 +277,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     /// <summary>
+    /// Returns the minimum mias that are guaranteed to be present in the items displayed by this screen.
+    /// </summary>
+    public IEnumerable<Guid> ItemMias
+    {
+      get { return _itemMias; }
+    }
+
+    /// <summary>
     /// Invalidates the underlaying view and reloads all sub views and items.
     /// </summary>
     public abstract void Reload();
@@ -282,6 +293,19 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Rebuilds the items list without invalidating the underlaying view.
     /// </summary>
     public abstract void UpdateItems();
+
+    /// <summary>
+    /// Whether this screen can handle items shown by the <paramref name="parentScreen"/>.
+    /// The default implementation checks whether at least one of the <see cref="ItemMias"/> is present in the <paramref name="parentScreen"/>'s <see cref="ItemMias"/>
+    /// or whether <see cref="ItemMias"/> is null on this or the parent screen.
+    /// Can be overriden in derived classes.
+    /// </summary>
+    /// <param name="parentScreen">The screen that is currently shown.</param>
+    /// <returns>True if this screen can handle items shown by the <paramref name="parentScreen"/></returns>
+    public virtual bool IsAvailable(AbstractScreenData parentScreen)
+    {
+      return _itemMias == null || parentScreen == null || parentScreen.ItemMias == null || _itemMias.Intersect(parentScreen.ItemMias).Count() > 0;
+    }
 
     /// <summary>
     /// Allows a secondary filter of the already loaded <see cref="Items"/> by the given <paramref name="search"/> term.

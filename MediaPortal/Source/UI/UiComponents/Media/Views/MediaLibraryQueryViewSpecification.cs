@@ -49,18 +49,20 @@ namespace MediaPortal.UiComponents.Media.Views
     protected bool _onlyOnline;
     protected int? _maxNumItems;
     protected int? _absNumItems;
+    protected IEnumerable<Guid> _filteredMias;
 
     #endregion
 
     #region Ctor
 
     public MediaLibraryQueryViewSpecification(string viewDisplayName, IFilter filter,
-        IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
+        IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline, IEnumerable<Guid> filteredMias) :
         base(viewDisplayName, necessaryMIATypeIDs, optionalMIATypeIDs)
     {
       _filter = filter;
       _query = new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs, filter);
       _onlyOnline = onlyOnline;
+      _filteredMias = filteredMias;
     }
 
     #endregion
@@ -101,21 +103,21 @@ namespace MediaPortal.UiComponents.Media.Views
       }
     }
 
-    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter)
+    public MediaLibraryQueryViewSpecification CreateSubViewSpecification(string viewDisplayName, IFilter filter, IEnumerable<Guid> filteredMias)
     {
+      bool combine = filteredMias == null || _filteredMias == null || filteredMias.Intersect(_filteredMias).Count() > 0;
       IFilter combinedFilter;
-      if (_filter == null)
+      if (_filter == null || !combine)
         combinedFilter = filter;
       else
       {
-        if (filter is RelationshipFilter)
-          combinedFilter = filter;
-        else if (filter is FilteredRelationshipFilter)
-          combinedFilter = filter;
+        if (filter is AbstractRelationshipFilter)
+          //TODO: Check why reversing the filter order is necessary for RelationshipFilters
+          combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, _filter });
         else
           combinedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { _filter, filter });
       }
-      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline)
+      return new MediaLibraryQueryViewSpecification(viewDisplayName, combinedFilter, _necessaryMIATypeIds, _optionalMIATypeIds, _onlyOnline, filteredMias)
       {
         MaxNumItems = _maxNumItems
       };
@@ -165,7 +167,7 @@ namespace MediaPortal.UiComponents.Media.Views
             subViewSpecifications = new List<ViewSpecification>(groups.Count);
             foreach (MLQueryResultGroup group in groups)
             {
-              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter);
+              MediaLibraryQueryViewSpecification subViewSpecification = CreateSubViewSpecification(string.Format("{0}", group.GroupKey), group.AdditionalFilter, _filteredMias);
               subViewSpecification.MaxNumItems = null;
               subViewSpecification._absNumItems = group.NumItemsInGroup;
               subViewSpecifications.Add(subViewSpecification);

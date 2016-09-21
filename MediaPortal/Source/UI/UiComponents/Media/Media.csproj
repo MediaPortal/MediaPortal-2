@@ -196,6 +196,7 @@
     <Compile Include="Models\Navigation\SeriesFilterItem.cs" />
     <Compile Include="Models\Navigation\EpisodeItem.cs" />
     <Compile Include="Models\MediaItemsActionModel.cs" />
+    <Compile Include="Models\ScreenData\AbstractAlbumFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
