@@ -69,6 +69,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _availableSortings = new List<Sorting.Sorting>
       {
         _defaultSorting,
+        new SeriesSortByDVDEpisode(),
         new SortByTitle(),
         new SortByFirstAiredDate(),
         new SortByDate(),
@@ -80,6 +81,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       {
         //_defaultGrouping,
         new SeriesSortByEpisode(),
+        new SeriesSortByDVDEpisode(),
         new SortByTitle(),
         new SortByFirstAiredDate(),
         new SortByDate(),

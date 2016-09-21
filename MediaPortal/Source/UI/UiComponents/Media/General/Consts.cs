@@ -351,6 +351,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SORT_BY_DATE = "[Media.SortByDate]";
     public const string RES_SORT_BY_ADDED_DATE = "[Media.SortByAddedDate]";
     public const string RES_SORT_BY_EPISODE = "[Media.SortByEpisode]";
+    public const string RES_SORT_BY_DVD_EPISODE = "[Media.SortByDVDEpisode]";
     public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
 
     public const string RES_NO_GROUPING = "[Media.NoGrouping]";
@@ -371,6 +372,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_GROUP_BY_FIRST_AIRED_DATE = "[Media.GroupByFirstAiredDate]";
     public const string RES_GROUP_BY_DATE = "[Media.GroupByDate]";
     public const string RES_GROUP_BY_EPISODE = "[Media.GroupByEpisode]";
+    public const string RES_GROUP_BY_DVD_EPISODE = "[Media.GroupByDVDEpisode]";
     public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";
 
     // Image and video size thresholds
