@@ -39,7 +39,7 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
-  public class LocalFanartProvider : IFanArtProvider
+  public class LocalSeriesFanartProvider : IFanArtProvider
   {
     private readonly static Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID };
     private readonly static ICollection<String> EXTENSIONS = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".png", ".tbn" };
@@ -69,8 +69,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaLibrary == null)
         return false;
 
-      IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, true);
+      IFilter filter = new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, mediaItemId);
+      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
       if (items == null || items.Count == 0)
         return false;
 
@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       try
       {
         var mediaItemPath = mediaIteamLocator.NativeResourcePath;
-        var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
+        var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
         var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString());
         var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
 
@@ -99,25 +99,28 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                where /* Allow same file name only for non-images, otherwise each image would be its own thumbnail */
-                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) ||
-                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "-poster" ||
-                      potentialFanArtFileNameWithoutExtension == "poster" ||
-                      potentialFanArtFileNameWithoutExtension == "folder"
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder"
+                select potentialFanArtFile);
+
+            if (fanArtType == FanArtTypes.Banner)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "banner"
                 select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.Logo)
               fanArtPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                    where potentialFanArtFileNameWithoutExtension == "logo"
-                    select potentialFanArtFile);
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "logo"
+                select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.ClearArt)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
                 where potentialFanArtFileNameWithoutExtension == "clearart"
                 select potentialFanArtFile);
 
@@ -125,10 +128,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             {
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                where potentialFanArtFileNameWithoutExtension == "backdrop" ||
-                      potentialFanArtFileNameWithoutExtension == "fanart" ||
-                      potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-fanart")
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart"
                 select potentialFanArtFile);
 
               if (directoryFsra.ResourceExists("ExtraFanArt/"))
@@ -143,7 +144,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       catch (Exception ex)
       {
 #if DEBUG
-        ServiceRegistration.Get<ILogger>().Warn("LocalFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
+        ServiceRegistration.Get<ILogger>().Warn("LocalSeriesFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
 #endif
       }
       result = files;
