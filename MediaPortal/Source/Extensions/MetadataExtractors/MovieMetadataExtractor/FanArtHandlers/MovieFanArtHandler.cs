@@ -262,7 +262,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           fileSystemPath = mediaItemLocater.NativeResourcePath.FileName;
           var mediaItemPath = mediaItemLocater.NativeResourcePath;
           var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString());
-          var collectionMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
+          var collectionMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
 
           //Movie fanart
           var fanArtPaths = new List<ResourcePath>();
