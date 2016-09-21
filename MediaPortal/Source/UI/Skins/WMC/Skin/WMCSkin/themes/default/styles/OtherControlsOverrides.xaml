@@ -27,7 +27,7 @@
   Workflow ActionIds that will be shown in MediaMenu by default. Other actions are excluded 
   Format has to be a ";" delimited list of Guids
   -->
-  <!--ResourceWrapper x:Key="ActionIdFilter">
+  <!--ResourceWrapper x:Key="ActionIdOthersFilter">
     03189090-a3c1-4346-9a84-4acd6725dde0;
     f400fbea-6e32-4735-be52-15dfdbb64fcc;
     b15ea757-905e-46fa-a71d-c132885c221e;
