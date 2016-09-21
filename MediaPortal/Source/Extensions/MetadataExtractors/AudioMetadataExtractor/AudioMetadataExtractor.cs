@@ -567,11 +567,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         //Check artists
         trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
         trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
-        if (trackInfo.Artists.Count > 0 && trackInfo.AlbumArtists.Count == 0)
-        {
-          //Presume first artist is album artist. Album searches mostly fail if no album artist is available.
-          trackInfo.AlbumArtists.Add(trackInfo.Artists[0]);
-        }
 
         AssignAlbumNameId(trackInfo);
 
