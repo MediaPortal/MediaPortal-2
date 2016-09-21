@@ -22,7 +22,9 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -32,6 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_AUDIO_SHOW_ITEMS, Consts.RES_SHOW_ALL_AUDIO_ITEMS_MENU_ITEM,
         Consts.RES_FILTER_AUDIO_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
+      _itemMias = new Guid[] { AudioAspect.ASPECT_ID };
     }
 
     public override AbstractItemsScreenData Derive()

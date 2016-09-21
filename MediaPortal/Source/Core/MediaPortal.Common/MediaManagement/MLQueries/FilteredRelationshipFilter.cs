@@ -30,15 +30,14 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   /// <summary>
   /// Filter which filters based on the relationship
   /// </summary>
-  public class FilteredRelationshipFilter : IFilter
+  public class FilteredRelationshipFilter : AbstractRelationshipFilter
   {
     protected IFilter _filter;
-    protected Guid _role;
 
-    public FilteredRelationshipFilter(Guid role, IFilter filter)
+    public FilteredRelationshipFilter(Guid role, IFilter filter) :
+      base(role)
     {
       _filter = filter;
-      _role = role;
     }
 
     [XmlIgnore]
@@ -46,13 +45,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _filter; }
       set { _filter = value; }
-    }
-
-    [XmlIgnore]
-    public Guid Role
-    {
-      get { return _role; }
-      set { _role = value; }
     }
 
     public override string ToString()
@@ -84,16 +76,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _filter; }
       set { _filter = value as IFilter; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlAttribute("Role")]
-    public Guid XML_Role
-    {
-      get { return _role; }
-      set { _role = value; }
     }
 
     #endregion

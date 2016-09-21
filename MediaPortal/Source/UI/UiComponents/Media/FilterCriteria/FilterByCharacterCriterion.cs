@@ -25,13 +25,14 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByCharacterCriterion : RelationshipMLFilterCriterion
   {
-    public FilterByCharacterCriterion() :
-      base(CharacterAspect.ROLE_CHARACTER, Consts.NECESSARY_CHARACTER_MIAS, Consts.OPTIONAL_CHARACTER_MIAS,
+    public FilterByCharacterCriterion(Guid linkedRole) :
+      base(CharacterAspect.ROLE_CHARACTER, linkedRole, Consts.NECESSARY_CHARACTER_MIAS, Consts.OPTIONAL_CHARACTER_MIAS,
         new SortInformation(CharacterAspect.ATTR_CHARACTER_NAME, SortDirection.Ascending))
     {
     }
