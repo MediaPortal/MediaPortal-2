@@ -704,14 +704,24 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+            
             <Image Source="PlayerControl\seekbar.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="0,-1,0,0"/>
             <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
               <Image Source="PlayerControl\Current.Position.Shadow.png" Width="55" Height="55" Stretch="Fill" Margin="-10"
                      VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
-            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                       RadiusX="3" RadiusY="3" Height="9" Fill="{ThemeResource ProgressBarFillColor}" Margin="17,0,25,0"/>
+            <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
+              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-90,-85,-70,0" Height="114">
+                <Image Source="PlayerControl\Time.Indicator.png" Height="114" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.9"/>
+                <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0" Content="{Binding CurrentTime}" Opacity="0.9"
+                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24" FontFamily="SegoeUIBold"
+                          Color="Black" FontSize="{ThemeResource SmallFontSize}"/>
+              </Grid>
+              <Rectangle  Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                          RadiusX="3.5" RadiusY="3.5" Height="9" Fill="{ThemeResource ProgressBarFillColor}" Margin="16,0,25,0"/>              
+            </Grid>
+
             <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
                 <Image Source="PlayerControl\Current.Position.png" Width="40" Height="40" Stretch="Fill"
