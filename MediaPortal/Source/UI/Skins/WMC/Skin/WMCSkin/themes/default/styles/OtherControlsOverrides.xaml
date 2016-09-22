@@ -719,9 +719,8 @@
                           Color="Black" FontSize="{ThemeResource SmallFontSize}"/>
               </Grid>
               <Rectangle  Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                          RadiusX="3.5" RadiusY="3.5" Height="9" Fill="{ThemeResource ProgressBarFillColor}" Margin="16,0,25,0"/>              
+                          RadiusX="3.5" RadiusY="3.5" Height="9" Fill="{ThemeResource ProgressBarFillColor}" Margin="16,0,25,0"/>
             </Grid>
-
             <StackPanel Orientation="Horizontal" Margin="-5,0,5,0">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
                 <Image Source="PlayerControl\Current.Position.png" Width="40" Height="40" Stretch="Fill"
