@@ -29,7 +29,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
 
@@ -96,11 +95,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
       }
 
-      if (!collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        return false;
+      if (collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        extractedLinkedAspects.Add(collectionAspects);
 
-      extractedLinkedAspects.Add(collectionAspects);
-      return true;
+      //Create custom collection
+      if(!string.IsNullOrEmpty(movieInfo.CollectionNameId))
+      {
+        MovieCollectionInfo customCollectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+
+        IDictionary<Guid, IList<MediaItemAspect>> customCollectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        customCollectionInfo.SetMetadata(customCollectionAspects);
+        if (customCollectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(customCollectionAspects);
+      }
+
+      return extractedLinkedAspects.Count > 0;
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
