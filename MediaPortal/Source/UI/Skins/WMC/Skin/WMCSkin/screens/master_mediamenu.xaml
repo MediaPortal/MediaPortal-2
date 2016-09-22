@@ -272,7 +272,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Grid.RenderTransform>
               <TranslateTransform Y="0"/>
             </Grid.RenderTransform>
-            <Border x:Name="DialogBorderOthers" Grid.Row="1" Grid.Column="0" Margin="10,0,67,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="3">
+            <Border Grid.Row="1" Grid.Column="0" Margin="10,0,67,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="3">
               <Border.BorderBrush>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
                   <GradientStop Color="#8CFFFFFF" Offset="0"/>
@@ -280,12 +280,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <GradientStop Color="#8CFFFFFF" Offset="1"/>
                 </LinearGradientBrush>
               </Border.BorderBrush>
-              <Border.Background>
-                <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-                  <GradientStop Color="#F2447da7" Offset="0"/>
-                  <GradientStop Color="#F2124273" Offset="1"/>
-                </LinearGradientBrush>
-              </Border.Background>
+              <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Stretch" RadiusX="4" RadiusY="4" Margin="-1">
+                <Rectangle.Fill>
+                  <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                    <GradientStop Color="#F2447da7" Offset="0"/>
+                    <GradientStop Color="#F2124273" Offset="1"/>
+                  </LinearGradientBrush>
+                </Rectangle.Fill>
+              </Rectangle>
             </Border>
             <ListView x:Name="OthersMenu" Grid.Row="1" Style="{ThemeResource SlideMenuListViewStyle}" Margin="20,30,90,30"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
