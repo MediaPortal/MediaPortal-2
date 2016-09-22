@@ -30,15 +30,14 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   /// <summary>
   /// Filter which filters based on the relationship
   /// </summary>
-  public class RelationshipFilter : IFilter
+  public class RelationshipFilter : AbstractRelationshipFilter
   {
-    protected Guid _role;
     protected Guid _linkedRole;
     protected Guid _linkedMediaItemId;
 
-    public RelationshipFilter(Guid role, Guid linkedRole, Guid linkedMediaItemId)
+    public RelationshipFilter(Guid role, Guid linkedRole, Guid linkedMediaItemId) :
+      base(role)
     {
-      _role = role;
       _linkedRole = linkedRole;
       _linkedMediaItemId = linkedMediaItemId;
     }
@@ -48,13 +47,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _linkedMediaItemId; }
       set { _linkedMediaItemId = value; }
-    }
-
-    [XmlIgnore]
-    public Guid Role
-    {
-      get { return _role; }
-      set { _role = value; }
     }
 
     [XmlIgnore]
@@ -80,16 +72,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _linkedMediaItemId; }
       set { _linkedMediaItemId = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlAttribute("Role")]
-    public Guid XML_Role
-    {
-      get { return _role; }
-      set { _role = value; }
     }
 
     /// <summary>

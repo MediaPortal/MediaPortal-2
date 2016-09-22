@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
@@ -30,6 +31,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public abstract class AbstractAudioFilterScreenData<T> : AbstractFiltersScreenData<T> where T : FilterItem, new()
   {
     protected AbstractAudioFilterScreenData(string screen, string menuItemLabel, string navbarSubViewNavigationDisplayLabel,
-        MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion) { }
+        MLFilterCriterion filterCriterion) : base(screen, menuItemLabel, navbarSubViewNavigationDisplayLabel, filterCriterion)
+    {
+      _itemMias = new[] { AudioAspect.ASPECT_ID };
+    }
   }
 }

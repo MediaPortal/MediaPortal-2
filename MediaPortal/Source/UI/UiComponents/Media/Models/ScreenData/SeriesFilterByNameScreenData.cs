@@ -22,23 +22,32 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesFilterByNameScreenData : AbstractSeriesFilterScreenData<SeriesFilterItem>
+  public class SeriesFilterByNameScreenData : AbstractFiltersScreenData<SeriesFilterItem>
   {
     public SeriesFilterByNameScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_NAME, Consts.RES_FILTER_BY_SERIES_NAME_MENU_ITEM,
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new FilterBySeriesCriterion())
     {
+      _itemMias = new[] { VideoAspect.ASPECT_ID };
     }
 
     public override AbstractFiltersScreenData<SeriesFilterItem> Derive()
     {
       return new SeriesFilterByNameScreenData();
+    }
+
+    //Special case for series screen, it can support series filters and episode filters
+    public override bool IsAvailable(AbstractScreenData parentScreen)
+    {
+      return base.IsAvailable(parentScreen) || parentScreen.ItemMias.Contains(SeriesAspect.ASPECT_ID);
     }
   }
 }

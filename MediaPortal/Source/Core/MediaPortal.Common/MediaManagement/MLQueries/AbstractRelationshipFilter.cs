@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -22,24 +22,44 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
+using System.Xml.Serialization;
 
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.Common.MediaManagement.MLQueries
 {
-  public class AudioFilterByAlbumArtistScreenData : AbstractAlbumFilterScreenData<ArtistFilterItem>
+  /// <summary>
+  /// Base class for filters that link items by role
+  /// </summary>
+  public abstract class AbstractRelationshipFilter : IFilter
   {
-    public AudioFilterByAlbumArtistScreenData() :
-      base(Consts.SCREEN_AUDIO_FILTER_BY_ALBUM_ARTIST, Consts.RES_FILTER_BY_ALBUM_ARTIST_MENU_ITEM,
-      Consts.RES_FILTER_ALBUM_ARTIST_NAVBAR_DISPLAY_LABEL, new FilterByArtistCriterion(AudioAlbumAspect.ROLE_ALBUM))
+    protected Guid _role;
+
+    public AbstractRelationshipFilter(Guid role)
     {
+      _role = role;
     }
 
-    public override AbstractFiltersScreenData<ArtistFilterItem> Derive()
+    [XmlIgnore]
+    public Guid Role
     {
-      return new AudioFilterByAlbumArtistScreenData();
+      get { return _role; }
+      set { _role = value; }
     }
+
+    #region Additional members for the XML serialization
+
+    internal AbstractRelationshipFilter() { }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("Role")]
+    public Guid XML_Role
+    {
+      get { return _role; }
+      set { _role = value; }
+    }
+
+    #endregion
   }
 }

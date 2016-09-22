@@ -390,6 +390,7 @@
   <string name="Media.SortByDate">Sort by recording date</string>
   <string name="Media.SortByAddedDate">Sort by added date</string>
   <string name="Media.SortByEpisode">Sort by episode</string>
+  <string name="Media.SortByDVDEpisode">Sort by dvd episode</string>
   <string name="Media.SortingBrowseDefault">Default sorting</string>
 
   <string name="Media.SwitchGroupingMenuItem">Grouping</string>
@@ -412,6 +413,7 @@
   <string name="Media.GroupByFirstAiredDate">Group by aired date</string>
   <string name="Media.GroupByDate">Group by recording date</string>
   <string name="Media.GroupByEpisode">Group by episode</string>
+  <string name="Media.GroupByDVDEpisode">Group by dvd episode</string>
 
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter</string>

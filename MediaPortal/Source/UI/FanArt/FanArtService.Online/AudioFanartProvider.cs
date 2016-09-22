@@ -60,6 +60,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       FanArtTypes.FanArt,
       FanArtTypes.Logo,
       FanArtTypes.Poster,
+      FanArtTypes.Cover,
       FanArtTypes.Thumbnail,
     };
 
@@ -91,6 +92,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
       List<string> fanArtFiles = new List<string>();
       fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), fanArtType));
+      if (fanArtFiles.Count == 0 && fanArtType == FanArtTypes.Poster)
+        fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), FanArtTypes.Cover));
 
       // Try fallback
       if (fanArtFiles.Count == 0 &&

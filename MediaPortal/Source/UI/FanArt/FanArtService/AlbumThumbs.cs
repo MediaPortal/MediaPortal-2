@@ -39,8 +39,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
   {
     private static readonly Guid[] NECESSARY_MIAS = new Guid[]
       {
-        AudioAspect.ASPECT_ID,
         ThumbnailLargeAspect.ASPECT_ID,
+      };
+    private static readonly Guid[] OPTIONAL_MIAS = new Guid[]
+      {
+        AudioAspect.ASPECT_ID,
+        AudioAlbumAspect.ASPECT_ID,
       };
 
     #region Implementation of IFanArtProvider
@@ -54,18 +58,18 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
     {
       result = null;
-      if (mediaType != FanArtMediaTypes.Album || fanArtType != FanArtTypes.Poster || string.IsNullOrEmpty(name))
+      if (mediaType != FanArtMediaTypes.Album || (fanArtType != FanArtTypes.Poster && fanArtType != FanArtTypes.Cover) || string.IsNullOrEmpty(name))
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
         return false;
 
-      IFilter filter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, name);
-      MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, filter)
+      IFilter filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, name),
+        new RelationalFilter(AudioAlbumAspect.ATTR_ALBUM, RelationalOperator.EQ, name));
+      MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter)
         {
           Limit = 1, // Only one needed
-          SortInformation = new List<SortInformation> { new SortInformation(AudioAspect.ATTR_ALBUM, SortDirection.Ascending) }
         };
 
       var items = mediaLibrary.Search(query, false, null, true);

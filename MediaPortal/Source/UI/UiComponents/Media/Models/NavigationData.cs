@@ -407,11 +407,11 @@ namespace MediaPortal.UiComponents.Media.Models
 
       // Try to load the prefered next screen from settings.
       if (LoadScreenHierarchy(CurrentScreenData.GetType().ToString(), out nextScreenName))
-        nextScreen = remainingScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
+        nextScreen = remainingScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName && s.IsAvailable(currentScreen));
 
       // Default way: always take the first of the available screens.
       if (nextScreen == null)
-        nextScreen = remainingScreens.First(s => s != currentScreen);
+        nextScreen = remainingScreens.First(s => s != currentScreen && s.IsAvailable(currentScreen));
 
       ScreenConfig nextScreenConfig;
       LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
@@ -506,8 +506,10 @@ namespace MediaPortal.UiComponents.Media.Models
     public IList<WorkflowAction> GetWorkflowActions(bool onlySearchScreens = false)
     {
       IList<WorkflowAction> actions = new List<WorkflowAction>(_availableScreens.Count);
+      AbstractScreenData parentScreen = _parent != null ? _parent.CurrentScreenData : null;
+      IEnumerable<AbstractScreenData> screens = parentScreen != null ? _availableScreens.Where(s => s.IsAvailable(parentScreen)) : _availableScreens;
       int ct = 0;
-      foreach (AbstractScreenData screen in _availableScreens)
+      foreach (AbstractScreenData screen in screens)
       {
         if (onlySearchScreens && !(screen is AbstractSearchScreenData))
           continue;
@@ -538,10 +540,10 @@ namespace MediaPortal.UiComponents.Media.Models
                   // WF-Manager updates the screen for us
                   workflowManager.NavigatePopToState(_baseWorkflowStateId, false);
               })
-          {
-            DisplayCategory = Consts.FILTERS_WORKFLOW_CATEGORY,
-            SortOrder = ct++.ToString(), // Sort in the order we have built up the filters
-          };
+        {
+          DisplayCategory = Consts.FILTERS_WORKFLOW_CATEGORY,
+          SortOrder = ct++.ToString(), // Sort in the order we have built up the filters
+        };
         actions.Add(action);
       }
       return actions;
