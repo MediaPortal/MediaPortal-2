@@ -58,15 +58,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
     {
       result = null;
-      if (mediaType != FanArtMediaTypes.Album || (fanArtType != FanArtTypes.Poster && fanArtType != FanArtTypes.Cover) || string.IsNullOrEmpty(name))
+      if ((mediaType != FanArtMediaTypes.Album && mediaType != FanArtMediaTypes.Audio) || 
+        (fanArtType != FanArtTypes.Poster && fanArtType != FanArtTypes.Cover) || 
+        string.IsNullOrEmpty(name))
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
         return false;
 
-      IFilter filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, name),
-        new RelationalFilter(AudioAlbumAspect.ATTR_ALBUM, RelationalOperator.EQ, name));
+      IFilter filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, new MediaItemIdFilter(new Guid(name)),
+        new RelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, new Guid(name)));
       MediaItemQuery query = new MediaItemQuery(NECESSARY_MIAS, OPTIONAL_MIAS, filter)
         {
           Limit = 1, // Only one needed

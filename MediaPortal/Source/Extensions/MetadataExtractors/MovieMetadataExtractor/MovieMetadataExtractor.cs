@@ -33,8 +33,8 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
+using System.IO;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -65,6 +65,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected MetadataExtractorMetadata _metadata;
     protected bool _onlyFanArt;
+    private static readonly ICollection<String> IMG_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".jpg", ".png", ".tbn" };
 
     #endregion
 
@@ -178,10 +179,88 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       OnlineMatcherService.FindAndUpdateMovie(movieInfo, forceQuickMode);
 
+      MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+      string collectionName;
+      if(CollectionFolderHasFanArt(lfsra, out collectionName))
+      {
+        collectionInfo.CollectionName = collectionName;
+        if (!collectionInfo.CollectionName.IsEmpty && string.IsNullOrEmpty(collectionInfo.NameId))
+        {
+          collectionInfo.NameId = BaseInfo.GetNameId(collectionInfo.CollectionName.Text);
+          if (collectionInfo.IsBaseInfoPresent)
+          {
+            movieInfo.CollectionName = collectionInfo.CollectionName;
+            movieInfo.CollectionNameId = collectionInfo.NameId;
+          }
+        }
+      }
+
       if (!_onlyFanArt)
         movieInfo.SetMetadata(extractedAspectData);
 
       return movieInfo.IsBaseInfoPresent;
+    }
+
+    private bool CollectionFolderHasFanArt(ILocalFsResourceAccessor lfsra, out string collectionName)
+    {
+      collectionName = null;
+
+      // File based access
+      try
+      {
+        using (lfsra.EnsureLocalFileSystemAccess())
+        {
+          string collectionMediaItemDirectoryPath;
+          if (Directory.GetParent(lfsra.LocalFileSystemPath) != null && Directory.GetParent(Directory.GetParent(lfsra.LocalFileSystemPath).FullName) != null)
+          {
+            DirectoryInfo dir = Directory.GetParent(Directory.GetParent(lfsra.LocalFileSystemPath).FullName);
+            collectionMediaItemDirectoryPath = dir.FullName;
+            collectionName = dir.Name;
+          }
+          else
+            return false;
+
+          var potentialFanArtFiles = GetPotentialFanArtFiles(collectionMediaItemDirectoryPath);
+
+          if ((from potentialFanArtFile in potentialFanArtFiles
+               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+               where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder"
+               select potentialFanArtFile).Count() > 0)
+            return true;
+
+          if ((from potentialFanArtFile in potentialFanArtFiles
+               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+               where potentialFanArtFileNameWithoutExtension == "banner"
+               select potentialFanArtFile).Count() > 0)
+            return true;
+
+          if ((from potentialFanArtFile in potentialFanArtFiles
+               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+               where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart"
+               select potentialFanArtFile).Count() > 0)
+            return true;
+
+          string fanArtFolder = Path.Combine(collectionMediaItemDirectoryPath, "ExtraFanArt");
+          if (Directory.Exists(fanArtFolder))
+            if (GetPotentialFanArtFiles(fanArtFolder).Count() > 0)
+              return true;
+        }
+      }
+      catch
+      {
+      }
+      return false;
+    }
+
+    private List<string> GetPotentialFanArtFiles(string folderName)
+    {
+      var result = new List<string>();
+      if (!Directory.Exists(folderName))
+        return result;
+      foreach (var file in Directory.GetFiles(folderName))
+        if (IMG_EXTENSIONS.Contains(Path.GetExtension(file)))
+          result.Add(file);
+      return result;
     }
 
     #endregion
