@@ -223,12 +223,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// </remarks>
     /// <param name="lineIndex">Index to scroll to.</param>
     /// <param name="first">Make the line with the given <paramref name="lineIndex"/> the first or last shown line.</param>
-    public virtual void SetScrollIndex(int lineIndex, bool first)
+    public void SetScrollIndex(int lineIndex, bool first)
     {
-      SetPartialScrollIndex(lineIndex, first);
+      SetScrollIndex(lineIndex, first, false);
     }
 
-    public virtual void SetPartialScrollIndex(double lineIndex, bool first)
+    /// <summary>
+    /// Sets the scrolling index to a value that the line with the given <paramref name="lineIndex"/> is the
+    /// first (in case <paramref name="first"/> is set to <c>true</c>) or last (<paramref name="first"/> is set to <c>false</c>)
+    /// visible line.
+    /// </summary>
+    /// <remarks>
+    /// The scroll index might be corrected by the layout system to a better value, if necessary.
+    /// </remarks>
+    /// <param name="lineIndex">Index to scroll to.</param>
+    /// <param name="first">Make the line with the given <paramref name="lineIndex"/> the first or last shown line.</param>
+    /// <param name="force">Whether the scroll should happen immediately and not be delayed/animated.</param>
+    public virtual void SetScrollIndex(double lineIndex, bool first, bool force)
     {
       int index = (int)lineIndex;
       float offset = (float)(lineIndex % 1);
@@ -847,9 +858,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           lastVisibleLine < 0 || lastVisibleLine >= numLines)
         return;
       if (index < lines[firstVisibleLine].StartIndex)
-        SetScrollIndex(index, true);
+        SetScrollIndex(index, true, true);
       else if (index > lines[lastVisibleLine].EndIndex)
-        SetScrollIndex(index, false);
+        SetScrollIndex(index, false, true);
     }
 
     public override void SaveUIState(IDictionary<string, object> state, string prefix)
@@ -864,7 +875,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       object first;
       int? iFirst;
       if (state.TryGetValue(prefix + "/FirstVisibleLine", out first) && (iFirst = first as int?).HasValue)
-        SetPartialScrollIndex(iFirst.Value, true);
+        SetScrollIndex(iFirst.Value, true, true);
     }
 
     #endregion

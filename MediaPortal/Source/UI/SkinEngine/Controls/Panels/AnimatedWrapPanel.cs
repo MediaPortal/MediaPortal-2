@@ -14,8 +14,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public const string SCROLL_EVENT = "AnimatedWrapPanel.Scroll";
 
     protected AbstractProperty _scrollOffsetMultiplierProperty;
-    protected float _startOffsetX;
-    protected float _diffOffsetX;
+    protected double _startOffsetX;
+    protected double _diffOffsetX;
     protected bool _scrollingToFirst;
 
     public AnimatedWrapPanel()
@@ -59,19 +59,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _scrollOffsetMultiplierProperty.SetValue(value); }
     }
 
-    public override void SetScrollIndex(int childIndex, bool first)
+    public override void SetScrollIndex(double childIndex, bool first, bool force)
     {
-      _startOffsetX = first ? _actualFirstVisibleLineIndex : _actualLastVisibleLineIndex;
-      _diffOffsetX = childIndex - _startOffsetX;
-      _scrollingToFirst = first;
-      FireEvent(SCROLL_EVENT, RoutingStrategyEnum.VisualTree);
+      if (force)
+        base.SetScrollIndex(childIndex, first, force);
+      else
+      {
+        _startOffsetX = first ? _actualFirstVisibleLineIndex : _actualLastVisibleLineIndex;
+        _diffOffsetX = childIndex - _startOffsetX;
+        _scrollingToFirst = first;
+        FireEvent(SCROLL_EVENT, RoutingStrategyEnum.VisualTree);
+      }
     }
 
     protected void OnMultiplierChanged(AbstractProperty property, object oldValue)
     {
       double multiplier = ScrollOffsetMultiplier;
       double newIndex = _startOffsetX + (_diffOffsetX * multiplier);
-      SetPartialScrollIndex(newIndex, _scrollingToFirst);
+      SetScrollIndex(newIndex, _scrollingToFirst, true);
     }
   }
 }
