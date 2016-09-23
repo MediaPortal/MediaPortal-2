@@ -65,7 +65,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (foundTracks != null)
           break;
       }
-      if (foundTracks == null)
+      if (foundTracks == null && trackSearch.AlbumArtists.Count > 0)
       {
         foreach (PersonInfo person in trackSearch.AlbumArtists)
         {
