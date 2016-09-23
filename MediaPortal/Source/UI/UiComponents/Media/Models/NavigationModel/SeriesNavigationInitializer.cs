@@ -26,9 +26,6 @@ using System.Collections.Generic;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using System.Linq;
-using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
