@@ -782,7 +782,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, true);
 
           if (updateTrackList) //Comparing all tracks can be quite time consuming
+          {
             MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
+            List<string> artists = new List<string>();
+            foreach (TrackInfo track in albumMatch.Tracks)
+            {
+              if (track.Artists.Count > 0)
+                if (artists.Contains(track.Artists[0].Name))
+                  artists.Add(track.Artists[0].Name);
+            }
+            if (albumMatch.Tracks.Count > 5 && (float)artists.Count > (float)albumMatch.Tracks.Count * 0.6 && !albumInfo.Compilation)
+            {
+              albumInfo.Compilation = true;
+              albumInfo.HasChanged = true;
+            }
+          }
+
+          if (albumInfo.Artists.Count > 0 && !albumInfo.Compilation &&
+              albumInfo.Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0)
+          {
+            albumInfo.Compilation = true;
+            albumInfo.HasChanged = true;
+          }
 
           //Store person matches
           foreach (PersonInfo person in albumInfo.Artists)
