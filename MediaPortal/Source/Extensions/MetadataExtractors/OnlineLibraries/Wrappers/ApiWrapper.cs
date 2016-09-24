@@ -1495,12 +1495,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="name1">Name 1</param>
     /// <param name="name2">Name 2</param>
     /// <returns><c>true</c> if similar or equal</returns>
-    protected bool IsSimilarOrEqual(string name1, string name2)
+    public static bool IsSimilarOrEqual(string name1, string name2)
     {
       return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2)) || StringUtils.GetLevenshteinDistance(name1, name2) <= MAX_LEVENSHTEIN_DIST;
     }
 
-    protected int GetLevenshteinDistance(MovieInfo movieOnline, MovieInfo movieSearch)
+    public static int GetLevenshteinDistance(MovieInfo movieOnline, MovieInfo movieSearch)
     {
       if (movieOnline.MovieName.IsEmpty || movieSearch.MovieName.IsEmpty)
         return MAX_LEVENSHTEIN_DIST + 1;
@@ -1515,7 +1515,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         );
     }
 
-    protected int GetLevenshteinDistance(EpisodeInfo episodeOnline, EpisodeInfo episodeSearch)
+    public static int GetLevenshteinDistance(EpisodeInfo episodeOnline, EpisodeInfo episodeSearch)
     {
       if (episodeOnline.EpisodeName.IsEmpty || episodeSearch.EpisodeName.IsEmpty)
         return MAX_LEVENSHTEIN_DIST + 1;
@@ -1524,7 +1524,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(episodeOnline.EpisodeName.Text), cleanedName);
     }
 
-    protected int GetLevenshteinDistance(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
+    public static int GetLevenshteinDistance(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
     {
       if (seriesOnline.SeriesName.IsEmpty || seriesSearch.SeriesName.IsEmpty)
         return MAX_LEVENSHTEIN_DIST + 1;
@@ -1539,7 +1539,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         );
     }
 
-    protected int GetLevenshteinDistance(PersonInfo personOnline, PersonInfo personSearch)
+    public static int GetLevenshteinDistance(PersonInfo personOnline, PersonInfo personSearch)
     {
       if (string.IsNullOrEmpty(personOnline.Name) || string.IsNullOrEmpty(personSearch.Name))
         return MAX_LEVENSHTEIN_DIST + 1;
@@ -1556,7 +1556,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         );
     }
 
-    protected int GetLevenshteinDistance(CharacterInfo characterOnline, CharacterInfo characterSearch)
+    public static int GetLevenshteinDistance(CharacterInfo characterOnline, CharacterInfo characterSearch)
     {
       if (string.IsNullOrEmpty(characterOnline.Name) || string.IsNullOrEmpty(characterSearch.Name))
         return MAX_LEVENSHTEIN_DIST + 1;
@@ -1565,7 +1565,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(characterOnline.Name), cleanedName);
     }
 
-    protected int GetLevenshteinDistance(CompanyInfo companyOnline, CompanyInfo companySearch)
+    public static int GetLevenshteinDistance(CompanyInfo companyOnline, CompanyInfo companySearch)
     {
       if (string.IsNullOrEmpty(companyOnline.Name) || string.IsNullOrEmpty(companySearch.Name))
         return MAX_LEVENSHTEIN_DIST + 1;
@@ -1576,7 +1576,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(companyOnline.Name), cleanedName);
     }
 
-    protected int GetLevenshteinDistance(TrackInfo trackOnline, TrackInfo trackSearch)
+    public static int GetLevenshteinDistance(TrackInfo trackOnline, TrackInfo trackSearch)
     {
       if (string.IsNullOrEmpty(trackOnline.TrackName) || string.IsNullOrEmpty(trackSearch.TrackName))
         return MAX_LEVENSHTEIN_DIST + 1;
@@ -1591,7 +1591,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return trackDistance;
     }
 
-    protected int GetLevenshteinDistance(AlbumInfo albumOnline, AlbumInfo albumSearch)
+    public static int GetLevenshteinDistance(AlbumInfo albumOnline, AlbumInfo albumSearch)
     {
       if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album))
         return MAX_LEVENSHTEIN_DIST + 1;
@@ -1615,7 +1615,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return StringUtils.GetLevenshteinDistance(RemoveCharacters(albumOnline.Album), cleanedName);
     }
 
-    protected bool NamesAreMostlyEqual(MovieInfo movieOnline, MovieInfo movieSearch)
+    public static bool NamesAreMostlyEqual(MovieInfo movieOnline, MovieInfo movieSearch)
     {
       if (movieOnline.MovieName.IsEmpty || movieSearch.MovieName.IsEmpty)
         return false;
@@ -1632,7 +1632,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    protected bool NamesAreMostlyEqual(EpisodeInfo episodeOnline, EpisodeInfo episodeSearch)
+    public static bool NamesAreMostlyEqual(EpisodeInfo episodeOnline, EpisodeInfo episodeSearch)
     {
       if (episodeOnline.EpisodeName.IsEmpty || episodeSearch.EpisodeName.IsEmpty)
         return false;
@@ -1640,7 +1640,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return BaseInfo.MatchNames(episodeOnline.EpisodeName.Text, episodeSearch.EpisodeName.Text);
     }
 
-    protected bool NamesAreMostlyEqual(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
+    public static bool NamesAreMostlyEqual(SeriesInfo seriesOnline, SeriesInfo seriesSearch)
     {
       if (seriesOnline.SeriesName.IsEmpty || seriesSearch.SeriesName.IsEmpty)
         return false;
@@ -1657,7 +1657,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    protected bool NamesAreMostlyEqual(PersonInfo personOnline, PersonInfo personSearch)
+    public static bool NamesAreMostlyEqual(PersonInfo personOnline, PersonInfo personSearch)
     {
       if (string.IsNullOrEmpty(personOnline.Name) || string.IsNullOrEmpty(personSearch.Name))
         return false;
@@ -1676,7 +1676,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    protected bool NamesAreMostlyEqual(CharacterInfo characterOnline, CharacterInfo characterSearch)
+    public static bool NamesAreMostlyEqual(CharacterInfo characterOnline, CharacterInfo characterSearch)
     {
       if (string.IsNullOrEmpty(characterOnline.Name) || string.IsNullOrEmpty(characterSearch.Name))
         return false;
@@ -1684,7 +1684,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return BaseInfo.MatchNames(characterOnline.Name, characterSearch.Name);
     }
 
-    protected bool NamesAreMostlyEqual(CompanyInfo companyOnline, CompanyInfo companySearch)
+    public static bool NamesAreMostlyEqual(CompanyInfo companyOnline, CompanyInfo companySearch)
     {
       if (string.IsNullOrEmpty(companyOnline.Name) || string.IsNullOrEmpty(companySearch.Name))
         return false;
@@ -1694,7 +1694,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return BaseInfo.MatchNames(companyOnline.Name, companySearch.Name);
     }
 
-    protected bool NamesAreMostlyEqual(TrackInfo trackOnline, TrackInfo trackSearch)
+    public static bool NamesAreMostlyEqual(TrackInfo trackOnline, TrackInfo trackSearch)
     {
       if (string.IsNullOrEmpty(trackOnline.TrackName) || string.IsNullOrEmpty(trackSearch.TrackName))
         return false;
@@ -1707,7 +1707,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return trackMatch;
     }
 
-    protected bool NamesAreMostlyEqual(AlbumInfo albumOnline, AlbumInfo albumSearch)
+    public static bool NamesAreMostlyEqual(AlbumInfo albumOnline, AlbumInfo albumSearch)
     {
       if (string.IsNullOrEmpty(albumOnline.Album) || string.IsNullOrEmpty(albumSearch.Album))
         return false;
@@ -1735,7 +1735,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="name">Name to clean up</param>
     /// <returns>Cleaned string</returns>
-    protected string RemoveCharacters(string name)
+    public static string RemoveCharacters(string name)
     {
       if (string.IsNullOrEmpty(name))
         return name;
