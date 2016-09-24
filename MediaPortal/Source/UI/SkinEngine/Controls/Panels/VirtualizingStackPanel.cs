@@ -153,13 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Layouting
 
-    /// <summary>
-    /// Combines logical and physical scrolling, allows you to scroll to a partial index.
-    /// e.g. If childIndex == 9.25 then the panel will scroll to child 9 plus a quarter of its size.
-    /// </summary>
-    /// <param name="childIndex">Index to scroll to.</param>
-    /// <param name="first">Make the child with the given <paramref name="childIndex"/> the first or last shown element.</param>
-    protected override void SetPartialScrollIndex(double childIndex, bool first)
+    public override void SetScrollIndex(double childIndex, bool first, bool force)
     {
       int index = (int)childIndex;
       float offset = (float)(childIndex % 1);
@@ -968,7 +962,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (item == null || !InVisualPath(item, currentElement))
         return false;
       //last item has focus, focus first item
-      SetPartialScrollIndex(0, true);
+      SetScrollIndex(0, true, true);
       item = GetItem(0, itemProvider, false);
       if (item != null)
         item.SetFocusPrio = SetFocusPriority.Default;
@@ -995,7 +989,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (item == null || !InVisualPath(item, currentElement))
         return false;
       //first item has focus, focus last item
-      SetPartialScrollIndex(maxIndex, false);
+      SetScrollIndex(maxIndex, false, true);
       item = GetItem(maxIndex, itemProvider, false);
       if (item != null)
         item.SetFocusPrio = SetFocusPriority.Default;
@@ -1037,7 +1031,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.LowerBound(ref index, 1);
           index = firstVisibleChildIndex - index;
           CalcHelper.Bound(ref index, 0, numItems - 1);
-          SetPartialScrollIndex(index, true);
+          SetScrollIndex(index, true, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -1091,7 +1085,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.LowerBound(ref index, 1);
           index = lastVisibleChildIndex + index;
           CalcHelper.Bound(ref index, 0, numItems - 1);
-          SetPartialScrollIndex(index, false);
+          SetScrollIndex(index, false, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -1145,7 +1139,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.LowerBound(ref index, 1);
           index = firstVisibleChildIndex - index;
           CalcHelper.Bound(ref index, 0, numItems - 1);
-          SetPartialScrollIndex(index, true);
+          SetScrollIndex(index, true, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -1199,7 +1193,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           CalcHelper.LowerBound(ref index, 1);
           index = lastVisibleChildIndex + index;
           CalcHelper.Bound(ref index, 0, numItems - 1);
-          SetPartialScrollIndex(index, false);
+          SetScrollIndex(index, false, true);
           FrameworkElement item = GetItem(index, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -1232,7 +1226,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
-      SetPartialScrollIndex(0, true);
+      SetScrollIndex(0, true, true);
       return true;
     }
 
@@ -1252,7 +1246,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
-      SetPartialScrollIndex(numItems - 1, false);
+      SetScrollIndex(numItems - 1, false, true);
       return true;
     }
 
