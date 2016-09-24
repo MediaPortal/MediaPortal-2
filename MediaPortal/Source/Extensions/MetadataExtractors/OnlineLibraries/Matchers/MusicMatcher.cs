@@ -241,41 +241,50 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound)
         {
+          bool albumMatch = false; //Only update album related info if they are equal
+          if (ApiWrapper<TImg, TLang>.NamesAreMostlyEqual(trackInfo.CloneBasicInstance<AlbumInfo>(), trackMatch.CloneBasicInstance<AlbumInfo>()))
+            albumMatch = true;
+
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AudioDbId, trackMatch.AudioDbId);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicBrainzId, trackMatch.MusicBrainzId);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.IsrcId, trackMatch.IsrcId);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.LyricId, trackMatch.LyricId);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.MusicIpId, trackMatch.MusicIpId);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.MvDbId, trackMatch.MvDbId);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAudioDbId, trackMatch.AlbumAudioDbId);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumCdDdId, trackMatch.AlbumCdDdId);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzDiscId, trackMatch.AlbumMusicBrainzDiscId);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzGroupId, trackMatch.AlbumMusicBrainzGroupId);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzId, trackMatch.AlbumMusicBrainzId);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAmazonId, trackMatch.AlbumAmazonId);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumItunesId, trackMatch.AlbumItunesId);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumUpcEanId, trackMatch.AlbumUpcEanId);
-
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, trackMatch.TrackName);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackLyrics, trackMatch.TrackLyrics);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackMatch.Album);
-
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.DiscNum, trackMatch.DiscNum);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.ReleaseDate, trackMatch.ReleaseDate);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalDiscs, trackMatch.TotalDiscs);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalTracks, trackMatch.TotalTracks);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, trackMatch.TrackNum);
-
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref trackInfo.Rating, trackMatch.Rating);
-
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
+
+          if (albumMatch)
+          {
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAudioDbId, trackMatch.AlbumAudioDbId);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumCdDdId, trackMatch.AlbumCdDdId);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzDiscId, trackMatch.AlbumMusicBrainzDiscId);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzGroupId, trackMatch.AlbumMusicBrainzGroupId);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumMusicBrainzId, trackMatch.AlbumMusicBrainzId);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumAmazonId, trackMatch.AlbumAmazonId);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumItunesId, trackMatch.AlbumItunesId);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref trackInfo.AlbumUpcEanId, trackMatch.AlbumUpcEanId);
+
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.Album, trackMatch.Album);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.DiscNum, trackMatch.DiscNum);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalDiscs, trackMatch.TotalDiscs);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TotalTracks, trackMatch.TotalTracks);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.TrackNum, trackMatch.TrackNum);
+          }
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists, true);
           MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists, true);
           MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers, true);
-          MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels, true);
+          if (albumMatch)
+          {
+            MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels, true);
+            if (trackInfo.AlbumArtists.Count == 0) //In some cases the album artists can be "Various Artist" and/or "Multiple Artists" or other variations
+              MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists, true);
+          }
 
           //Store person matches
           foreach (PersonInfo person in trackInfo.AlbumArtists)

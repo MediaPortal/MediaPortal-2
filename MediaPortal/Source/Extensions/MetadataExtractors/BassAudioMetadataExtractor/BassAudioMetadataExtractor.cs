@@ -179,7 +179,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           {
             trackInfo.Artists.Add(new PersonInfo()
             {
-              Name = artistName
+              Name = artistName,
+              Occupation = PersonAspect.OCCUPATION_ARTIST
             });
           }
 
@@ -190,18 +191,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           {
             trackInfo.AlbumArtists.Add(new PersonInfo()
             {
-              Name = artistName
+              Name = artistName,
+              Occupation = PersonAspect.OCCUPATION_ARTIST
             });
           }
 
           IEnumerable<string> composers = SplitTagEnum(tags.composer);
           composers = PatchID3v23Enumeration(composers);
           trackInfo.Composers = new List<PersonInfo>();
-          foreach (string artistName in ApplyAdditionalSeparator(composers))
+          foreach (string composerName in ApplyAdditionalSeparator(composers))
           {
             trackInfo.Composers.Add(new PersonInfo()
             {
-              Name = artistName
+              Name = composerName,
+              Occupation = PersonAspect.OCCUPATION_COMPOSER
             });
           }
 
