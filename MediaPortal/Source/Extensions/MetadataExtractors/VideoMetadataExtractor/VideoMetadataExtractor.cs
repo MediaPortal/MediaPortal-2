@@ -490,10 +490,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           {
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
           }
-          else
-          {
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
-          }
         }
 
         if (_ar.HasValue)
@@ -616,7 +612,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoStreamAspects))
         {
           string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
-          if (stereoType == VideoStreamAspect.TYPE_SD || stereoType == VideoStreamAspect.TYPE_HD || stereoType == VideoStreamAspect.TYPE_UHD)
+          if (string.IsNullOrEmpty(stereoType) || stereoType == VideoStreamAspect.TYPE_SD || 
+            stereoType == VideoStreamAspect.TYPE_HD || stereoType == VideoStreamAspect.TYPE_UHD)
           {
             int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
             int? width = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_WIDTH);
@@ -648,8 +645,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, ar);
               }
             }
-
-            
           }
         }
       }
