@@ -134,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Layouting
 
-    public override void SetPartialScrollIndex(double lineIndex, bool first)
+    public override void SetScrollIndex(double lineIndex, bool first, bool force)
     {
       int index = (int)lineIndex;
       float offset = (float)(lineIndex % 1);
@@ -610,11 +610,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         if (index < _arrangedLines[_actualFirstVisibleLineIndex].StartIndex)
         {
-          SetScrollIndex(line, true);
+          SetScrollIndex(line, true, true);
         }
         else if (index > _arrangedLines[_actualLastVisibleLineIndex].EndIndex)
         {
-          SetScrollIndex(line, false);
+          SetScrollIndex(line, false, true);
         }
       }
     }
@@ -772,7 +772,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // c) line index to scroll to
           int lineToScrollTo = firstVisibleLineIndex - numLinesToGoUp;
           if (lineToScrollTo < 0) lineToScrollTo = 0;
-          SetPartialScrollIndex(lineToScrollTo, true);
+          SetScrollIndex(lineToScrollTo, true, true);
           FrameworkElement item = GetItem(childIndexToSelect, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
@@ -824,7 +824,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           int highestPossibleLineIndex = itemProvider.NumItems / (lastVisibleLine.EndIndex - lastVisibleLine.StartIndex + 1);
           if (lastVisibleLineIndex + numLinesToGoDown > highestPossibleLineIndex) numLinesToGoDown = highestPossibleLineIndex - lastVisibleLineIndex;
           int lineToScrollTo = lastVisibleLineIndex + numLinesToGoDown;
-          SetPartialScrollIndex(lineToScrollTo, false);
+          SetScrollIndex(lineToScrollTo, false, true);
           // try to select a child at same horizontal position
           int childIndexToSelect = childIndex + ((lastVisibleLine.EndIndex - lastVisibleLine.StartIndex + 1) * numLinesToGoDown);
           if (childIndexToSelect > itemProvider.NumItems - 1) childIndexToSelect = itemProvider.NumItems - 1;
@@ -860,7 +860,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
-      SetPartialScrollIndex(0, true);
+      SetScrollIndex(0, true, true);
       return true;
     }
 
@@ -880,7 +880,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (item != null)
           item.SetFocusPrio = SetFocusPriority.Default;
       }
-      SetPartialScrollIndex(int.MaxValue, false);
+      SetScrollIndex(int.MaxValue, false, true);
       return true;
     }
 
@@ -917,7 +917,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item = GetItem(childIndex - lastLine.StartIndex, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
-          SetPartialScrollIndex(0, true);
+          SetScrollIndex(0, true, true);
           return true;
         }
       }
@@ -963,7 +963,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           item = GetItem(itemIndex, itemProvider, false);
           if (item != null)
             item.SetFocusPrio = SetFocusPriority.Default;
-          SetPartialScrollIndex(int.MaxValue, false);
+          SetScrollIndex(int.MaxValue, false, true);
           return true;
         }
       }

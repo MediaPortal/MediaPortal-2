@@ -186,18 +186,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// </remarks>
     /// <param name="childIndex">Index to scroll to.</param>
     /// <param name="first">Make the child with the given <paramref name="childIndex"/> the first or last shown element.</param>
-    public virtual void SetScrollIndex(int childIndex, bool first)
+    public void SetScrollIndex(int childIndex, bool first)
     {
-      SetPartialScrollIndex(childIndex, first);
+      SetScrollIndex(childIndex, first, false);
     }
 
     /// <summary>
-    /// Combines logical and physical scrolling, allows you to scroll to a partial index.
-    /// e.g. If childIndex == 9.25 then the panel will scroll to child 9 plus a quarter of its size.
+    /// Sets the scrolling index to a value that the child with the given <paramref name="childIndex"/> is the
+    /// first (in case <paramref name="first"/> is set to <c>true</c>) or last (<paramref name="first"/> is set to <c>false</c>)
+    /// visible child.
     /// </summary>
+    /// <remarks>
+    /// The scroll index might be corrected by the layout system to a better value, if necessary.
+    /// </remarks>
     /// <param name="childIndex">Index to scroll to.</param>
     /// <param name="first">Make the child with the given <paramref name="childIndex"/> the first or last shown element.</param>
-    protected virtual void SetPartialScrollIndex(double childIndex, bool first)
+    /// <param name="force">Whether the scroll should happen immediately and not be delayed/animated.</param>
+    public virtual void SetScrollIndex(double childIndex, bool first, bool force)
     {
       int index = (int)childIndex;
       float offset = (float)(childIndex % 1);
@@ -682,9 +687,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public override void BringIntoView(int index)
     {
       if (index < _actualFirstVisibleChildIndex)
-        SetScrollIndex(index, true);
+        SetScrollIndex(index, true, true);
       else if (index > _actualLastVisibleChildIndex)
-        SetScrollIndex(index, false);
+        SetScrollIndex(index, false, true);
     }
 
     public override void SaveUIState(IDictionary<string, object> state, string prefix)
@@ -699,7 +704,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       object first;
       int? iFirst;
       if (state.TryGetValue(prefix + "/FirstVisibleChild", out first) && (iFirst = first as int?).HasValue)
-        SetPartialScrollIndex(iFirst.Value, true);
+        SetScrollIndex(iFirst.Value, true, true);
     }
 
     #endregion
@@ -907,7 +912,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       if (visibleChildren.Count == 0)
         return false;
-      SetPartialScrollIndex(0, true);
+      SetScrollIndex(0, true, true);
       visibleChildren[0].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }
@@ -917,7 +922,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       if (visibleChildren.Count == 0)
         return false;
-      SetPartialScrollIndex(int.MaxValue, false);
+      SetScrollIndex(int.MaxValue, false, true);
       visibleChildren[visibleChildren.Count - 1].SetFocusPrio = SetFocusPriority.Default;
       return true;
     }
