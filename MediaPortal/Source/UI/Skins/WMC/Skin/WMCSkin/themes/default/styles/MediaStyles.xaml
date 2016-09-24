@@ -59,39 +59,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <!--DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                    <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
-                      <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                        <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                          <Control.IsVisible>
-                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                              <Binding Path="IsAudio"/>
-                              <Binding Path="IsMuted"/>
-                            </MultiBinding>
-                          </Control.IsVisible>
-                        </Control>
-                      </Grid>
-                      <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
-                      </Grid>
-                    </Grid>
-                    <Grid DockPanel.Dock="Center">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                      </Grid.ColumnDefinitions>
-                      <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                      </Grid.RowDefinitions>
-                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    </Grid>
-                  </DockPanel-->
                 </Grid>
               </ControlTemplate>
 
@@ -154,7 +121,7 @@
                       <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="0"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
-                      <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center"/>
+                      <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
                       <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
                           Command="{Command Stop}"/>
                       <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}"
@@ -169,7 +136,7 @@
                           Command="{Command SeekForward}"/>
                       <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}"
                           Command="{Command Next}"/>
-                      <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center"/>
+                      <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
                       <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="0"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
