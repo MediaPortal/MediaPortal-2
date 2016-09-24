@@ -139,7 +139,7 @@
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Grid.OpacityMask>
               <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                <GradientStop Color="Transparent" Offset="0" />
+                <GradientStop Color="Black" Offset="0" />
                 <GradientStop Color="Black" Offset="0.1" />
                 <GradientStop Color="Black" Offset="0.9" />
                 <GradientStop Color="Transparent" Offset="1" />
@@ -480,7 +480,6 @@
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
                   <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
-                  <!--Setter TargetName="ItemGroup" Property="Margin" Value="10,0,10,0"/-->
                   <Setter Property="StackPanel.ZIndex" Value="100.0"/>
                 </Trigger>
               </Button.Triggers>
@@ -499,7 +498,7 @@
       <Setter.Value>
         <ItemsPanelTemplate>
           <!--UniformGrid Columns="5" Rows="2" x:Name="ListItemsHost" IsItemsHost="True" Height="30"/-->
-          <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,400" Margin="0,0,-250,0">
+          <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="800,0" Margin="-795,0,-805,0">
             <AnimatedWrapPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                 <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 

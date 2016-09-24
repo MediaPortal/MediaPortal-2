@@ -76,8 +76,8 @@
                   </TransformGroup>
                 </StarRatingPanel.LayoutTransform>
               </StarRatingPanel>
-              <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" Margin="15,0,5,0" VerticalAlignment="Center"
-                     FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+              <Label x:Name="RatingCountLabel" Margin="15,0,5,0" VerticalAlignment="Center"
+                     FontSize="{ThemeResource SmallerFontSize}" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"
                      IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
@@ -95,8 +95,8 @@
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre" Opacity="0.5" FontSize="{ThemeResource SmallFontSize}"
-                   Content="{Binding Genres}" Color="{ThemeResource TextColor}" />
+            <Label x:Name="Genre"  FontSize="{ThemeResource SmallFontSize}"
+                   Content="{Binding Genres}" Opacity="1.1" Color="{ThemeResource MenuTextBackground}" />
           </Grid>
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
@@ -107,15 +107,15 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <StackPanel Orientation="Horizontal">
-              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
                     <Binding Path="Duration"/>
                   </MultiBinding>
                 </Label.Content>
               </Label>
-              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
+              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
             </StackPanel>
           </Grid>
@@ -140,9 +140,9 @@
             </Label.Content>
           </Label>
           <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="1"
-                   Wrap="True" Opacity="0.5" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,5,0"
+                   Wrap="True"  TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,5,0"
                    HorizontalAlignment="Stretch" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-                   Color="{ThemeResource TextColor}"/>          
+                   Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>          
         </Grid>
       </ControlTemplate>
     </media:EpisodeAspectWrapper.Template>

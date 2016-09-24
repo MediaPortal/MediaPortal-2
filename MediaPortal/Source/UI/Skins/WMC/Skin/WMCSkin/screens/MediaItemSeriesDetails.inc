@@ -35,10 +35,9 @@
   <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="1" Grid.Row="1" Margin="10,0,5,35">
     <media:SeriesAspectWrapper.Template>
       <ControlTemplate>
-        <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" 
-                 Wrap="True" Opacity="0.5" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}"
-                 HorizontalAlignment="Stretch" Content="{Binding Description}"
-                 Color="{ThemeResource TextColor}"/>
+        <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Opacity="1.2"
+                 Wrap="True" Color="{ThemeResource MenuTextBackground}" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}"
+                 HorizontalAlignment="Stretch" Content="{Binding Description}"/>
         </ControlTemplate>
     </media:SeriesAspectWrapper.Template>
   </media:SeriesAspectWrapper>
@@ -89,8 +88,8 @@
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
-                <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" Margin="15,0,5,0" VerticalAlignment="Center"
-                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                <Label x:Name="RatingCountLabel" Margin="15,0,5,0" VerticalAlignment="Center"
+                       FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextBackground}"
                        IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
                   <Label.Content>
                     <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
@@ -137,16 +136,16 @@
 
     <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
       <StackPanel Orientation="Horizontal">
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
-               Margin="0,0,8,0" Opacity="0.5"/>
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
-               Margin="0,0,8,0" Opacity="0.5"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
+               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
+               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
       <StackPanel Orientation="Horizontal">
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
-               Margin="0,0,8,0" Opacity="0.5"/>
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
-               Margin="0,0,8,0" Opacity="0.5"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
     </StackPanel>
 

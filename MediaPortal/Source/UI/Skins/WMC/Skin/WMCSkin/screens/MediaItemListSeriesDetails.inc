@@ -111,16 +111,16 @@
 
     <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
       <StackPanel Orientation="Horizontal">
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
-               Margin="0,0,8,0" Opacity="0.5"/>
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
-               Margin="0,0,8,0" Opacity="0.5"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
+               Margin="0,0,8,0" Opacity="1.2" Color="{ThemeResource MenuTextBackground}"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
+               Margin="0,0,8,0" Opacity="1.2" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
       <StackPanel Orientation="Horizontal">
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
-               Margin="0,0,8,0" Opacity="0.5"/>
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
-               Margin="0,0,8,0" Opacity="0.5"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+               Margin="0,0,8,0" Opacity="1.2" Color="{ThemeResource MenuTextBackground}"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+               Margin="0,0,8,0" Opacity="1.2" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
     </StackPanel>
 
@@ -135,9 +135,9 @@
             <RowDefinition Height="440"/>
           </Grid.RowDefinitions>
           <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="1"
-                   Wrap="True" Opacity="0.5" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,5,0"
+                   Wrap="True" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,5,0"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{Binding Description}"
-                   Color="{ThemeResource TextColor}"/>          
+                   Opacity="1.2" Color="{ThemeResource MenuTextBackground}"/>          
         </Grid>
       </ControlTemplate>
     </media:SeriesAspectWrapper.Template>

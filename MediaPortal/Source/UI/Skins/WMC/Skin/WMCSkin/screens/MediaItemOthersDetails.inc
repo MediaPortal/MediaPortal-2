@@ -47,15 +47,15 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <StackPanel Orientation="Horizontal">
-              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
                     <Binding Path="Duration"/>
                   </MultiBinding>
                 </Label.Content>
               </Label>
-              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
+              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
             </StackPanel>
           </Grid>
@@ -68,8 +68,8 @@
     <media:VideoAspectWrapper.Template>
       <ControlTemplate>
         <StackPanel Orientation="Horizontal">
-          <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                 Opacity="0.5" TextTrimming="WordEllipsis"
+          <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}" Opacity="1.2"
+                 Color="{ThemeResource MenuTextBackground}" TextTrimming="WordEllipsis"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label.Content>
               <Binding Path="StoryPlot"/>

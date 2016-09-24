@@ -35,10 +35,10 @@
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-              <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
-                     Margin="0,0,8,0" Opacity="0.5"/>
-              <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
-                     Margin="0,0,8,0" Opacity="0.5"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+                     Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+                     Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
             </StackPanel>
           </StackPanel>
       </ControlTemplate>
@@ -48,10 +48,9 @@
   <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="1" Grid.Row="1" Margin="10,0,5,35">
     <media:SeasonAspectWrapper.Template>
       <ControlTemplate>
-        <Label x:Name="Description" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" 
-                 Wrap="True" Opacity="0.5" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}"
-                 HorizontalAlignment="Stretch" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=Description}"
-                 Color="{ThemeResource TextColor}"/>
+        <Label x:Name="Description" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Opacity="1.2"
+                 Wrap="True" Color="{ThemeResource MenuTextBackground}" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}"
+                 HorizontalAlignment="Stretch" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=Description}"/>
         </ControlTemplate>
     </media:SeasonAspectWrapper.Template>
   </media:SeasonAspectWrapper>

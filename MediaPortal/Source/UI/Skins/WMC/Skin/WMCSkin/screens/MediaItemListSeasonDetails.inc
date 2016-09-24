@@ -52,10 +52,10 @@
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
           </StackPanel>
           <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
-                   Margin="0,0,8,0" Opacity="0.5"/>
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
-                   Margin="0,0,8,0" Opacity="0.5"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+                   Margin="0,0,8,0" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+                   Margin="0,0,8,0" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
           </StackPanel>
         </StackPanel>
       </ControlTemplate>
@@ -85,9 +85,9 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Label x:Name="Description" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="1"
-                   Wrap="True" Opacity="0.5" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,5,0"
+                   Wrap="True" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,5,0"
                    HorizontalAlignment="Stretch" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=Description}"
-                   Color="{ThemeResource TextColor}"/>
+                   Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
         </Grid>
       </ControlTemplate>
     </media:SeasonAspectWrapper.Template>

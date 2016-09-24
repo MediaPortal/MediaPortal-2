@@ -34,10 +34,10 @@
     </Image.OpacityMask>
   </Image>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0"  Grid.ColumnSpan="2" Grid.Row="1" Opacity="0.5" TextTrimming="WordEllipsis"
-        HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0"  Grid.ColumnSpan="2" Grid.Row="1" TextTrimming="WordEllipsis"
+        HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Opacity="1.2"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-        Color="{ThemeResource TextColor}" Margin="0,30,10,10"/>
+        Color="{ThemeResource MenuTextBackground}" Margin="0,30,10,10"/>
 
   <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
 
@@ -54,10 +54,10 @@
 
     <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableMovies}"
-               Margin="0,0,8,0" Opacity="0.5"/>
-        <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="[Media.MoviesItemsHeader]"
-               Margin="0,0,8,0" Opacity="0.5"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableMovies}"
+               Margin="0,0,8,0" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.MoviesItemsHeader]"
+               Margin="0,0,8,0" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
     </StackPanel>
 

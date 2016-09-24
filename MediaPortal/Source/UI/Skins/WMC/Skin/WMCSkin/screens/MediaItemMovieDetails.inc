@@ -19,19 +19,28 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Label x:Name="MediaItemName" Wrap="True" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="0,-15,0,0"
-    HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-    Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-    Color="{ThemeResource TextColor}"/>
+  <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                            Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="0,-15,0,0">
+    <media:MovieAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Label x:Name="MediaItemName" Wrap="True"
+            HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=Title}"
+            Color="{ThemeResource TextColor}"/>
+        </Grid>
+      </ControlTemplate>
+    </media:MovieAspectWrapper.Template>
+  </media:MovieAspectWrapper>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="0.5" TextTrimming="WordEllipsis"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="1.2" TextTrimming="WordEllipsis"
         HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-        Color="{ThemeResource TextColor}" Margin="10,0,5,35"/>
+        Color="{ThemeResource MenuTextBackground}" Margin="10,0,5,35"/>
 
   <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,0,30,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <StackPanel Orientation="Horizontal">
-      <!--media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+      <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -46,14 +55,14 @@
             </Grid>
           </ControlTemplate>
         </media:MediaAspectWrapper.Template>
-      </media:MediaAspectWrapper-->
+      </media:MediaAspectWrapper>
 
       <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center" >
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                          Grid.Column="0" Grid.Row="4" Margin="0,0,0,0">
+                          Margin="20,0,0,0">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                  Maximum="5" VerticalAlignment="Center"
                                  IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
@@ -68,8 +77,8 @@
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
-                <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}"  Margin="15,0,5,0" VerticalAlignment="Center"
-                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                <Label x:Name="RatingCountLabel" Margin="15,0,5,0" VerticalAlignment="Center" Opacity="1.2"
+                       FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextBackground}"
                        IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                   <Label.Content>
                     <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
@@ -86,8 +95,8 @@
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Genres}" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" Opacity="1.2"
+                Content="{Binding Genres}" Color="{ThemeResource MenuTextBackground}"/>
           </Grid>
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
@@ -99,11 +108,11 @@
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <StackPanel Orientation="Horizontal">
-                <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
+                <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
                        IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
-                       Content="{Binding Path=Runtime}" Color="{ThemeResource TextColor}"/>
-                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
-                       IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"/>                
+                       Content="{Binding Path=Runtime}" Opacity="1.2"/>
+                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
+                       IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="1.2"/>                
               </StackPanel>
             </Grid>
           </ControlTemplate>
