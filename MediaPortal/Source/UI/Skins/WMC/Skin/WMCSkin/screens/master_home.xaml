@@ -25,6 +25,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Header_Text (String): The text to be displayed as header
  - Client_Template (ConrolTemplate): Template for element to be shown in the client area.
 -->
+
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
