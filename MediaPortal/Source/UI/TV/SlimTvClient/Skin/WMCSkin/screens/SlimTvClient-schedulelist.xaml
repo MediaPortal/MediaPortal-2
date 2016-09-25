@@ -13,6 +13,19 @@
     <!-- SlimTvScheduleManagement model -->
     <Model x:Key="SlimTvScheduleManagement" Id="7610403A-4488-47A4-8C27-FD1FE833E52B"/>
 
+    <!-- Appearance of the background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+        <Grid.Background>
+          <VideoBrush Stream="0"/>
+        </Grid.Background>
+        <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png"/>
+      </Grid>
+    </ControlTemplate>
+
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,0,30,-180"
@@ -37,11 +50,11 @@
           <CheckBox Grid.Column="0" x:Name="EnableSeriesModeCheckbox" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
                     IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}"
                     Content="{Binding}" VerticalAlignment="Center" />
-          <Label x:Name="switchlabel" Grid.Column="1" Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Opacity="0.5"
-                 VerticalAlignment="Center" Margin="5" Height="50"/>
+          <Label x:Name="switchlabel" Grid.Column="1" Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource MenuTextBackground}" Opacity="1.1" 
+                 FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="0,6,5,4" Height="50"/>
           <Grid.Triggers>
             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-              <Setter TargetName="switchlabel" Property="Opacity" Value="1"/>
+              <Setter TargetName="switchlabel" Property="Color" Value="{ThemeResource TextColor}"/>
             </Trigger>
           </Grid.Triggers>
         </Grid>
@@ -75,10 +88,9 @@
                 </MultiBinding>
               </Label.Content>
             </Label>
-            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
-                 Opacity="0.4"/>
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                 FontFamily="DefaultBold" Opacity="0.4">
+            <Label Color="{ThemeResource MenuTextBackground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
+                 Opacity="1.2"/>
+            <Label Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Opacity="1.2">
               <Label.Content>
                 <Binding ElementName="ScheduleList" Path="ItemsCount" />
               </Label.Content>

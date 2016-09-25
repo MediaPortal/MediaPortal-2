@@ -619,10 +619,10 @@
             <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideSingleButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
             <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
             <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="False" Margin="5,0,15,0"
-                               Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
+                               Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform" Grid.ZIndex="3"/>
             <Image Grid.Column="1" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False" Margin="5,0,15,0"
-                               Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
-            <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonOverlayControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="3"/>
+                               Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform" Grid.ZIndex="3"/>
+            <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonOverlayControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="4"/>
           </Grid>
           <ControlTemplate.Triggers>
             <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
@@ -1140,23 +1140,54 @@
     </Setter>
   </Style>
 
+  <Style x:Key="PiPButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}" >
+          <Grid>
+            <Image Source="PIP.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding Path="!PiPEnabled"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PIP.FOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding Path="!PiPEnabled"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PIP.ON.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding Path="PiPEnabled"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PIP.ON.FOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding Path="PiPEnabled"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <ControlTemplate x:Key="PiPControlTemplate">
-    <Button x:Name="EnablePiPButton" Style="{StaticResource SmallButtonStyle}"
+    <Button x:Name="EnablePiPButton" Style="{StaticResource PiPButtonStyle}"
                     IsVisible="{Binding PiPAvailable}"
                     Command="{Command TogglePiP}">
-      <Button.Content>
-        <Image x:Name="PiPIndicatorImage">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0}?{1}:{2})">
-              <Binding Path="PiPEnabled"/>
-              <Binding Source="PIP_on.png"/>
-              <Binding Source="PIP_off.png"/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
-      </Button.Content>
     </Button>
   </ControlTemplate>
-
 
 </ResourceDictionary>

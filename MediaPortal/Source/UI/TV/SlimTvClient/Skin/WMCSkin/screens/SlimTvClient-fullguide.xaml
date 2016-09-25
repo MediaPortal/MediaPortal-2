@@ -16,13 +16,12 @@
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
     <tv:SlimTvGuideTimeFormatConverter x:Key="SlimTvGuideTimeFormatConverter" />
 
+    <!-- Appearance of the background -->
     <ControlTemplate x:Key="FanArtBackground_Template">
       <ControlTemplate.Resources>
-        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
-        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
         <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
       </ControlTemplate.Resources>
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
         <Grid.Background>
           <VideoBrush Stream="0"/>
         </Grid.Background>
