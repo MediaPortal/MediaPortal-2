@@ -26,7 +26,7 @@
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
           <Label x:Name="MediaItemName" Wrap="True"
             HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=Title}"
+            Content="{Binding Path=MovieName}"
             Color="{ThemeResource TextColor}"/>
         </Grid>
       </ControlTemplate>

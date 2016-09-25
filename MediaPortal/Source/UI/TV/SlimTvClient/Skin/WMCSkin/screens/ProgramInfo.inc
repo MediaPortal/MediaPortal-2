@@ -15,13 +15,16 @@
     </Grid.ColumnDefinitions>
 
     <StackPanel Orientation="Vertical" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" >
-      <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
-             Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+      <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+             Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+             IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
       <Label x:Name="ProgramEnd" Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-             Color="{ThemeResource TextColor}"/>
-      <Label x:Name="Channel" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+             IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
+      <Label x:Name="Channel" Content="{Binding ChannelName}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2" 
+             FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
       <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
-             Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
+             Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
                                     fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
@@ -37,16 +40,16 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-             Content="{Binding CurrentProgram.Title}" Margin="10,0,0,0" Grid.Column="0"
+      <Label x:Name="Program" Scroll="Auto" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+             Content="{Binding CurrentProgram.Title}" Margin="10,0,0,0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
              Color="{ThemeResource TextColor}"/>
-      <Label x:Name="SeriesLabel" Content="{Binding CurrentProgram.Series}" Opacity="0.5" Grid.Column="1"
-             Color="{ThemeResource TextColor}" Margin="10,0,10,0" TextTrimming="WordEllipsis"/>
+      <Label x:Name="SeriesLabel" Content="{Binding CurrentProgram.Series}" Opacity="1.3" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource MenuTextBackground}" Margin="10,0,10,0" TextTrimming="WordEllipsis"/>
     </Grid>
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-           Wrap="True" TextTrimming="WordEllipsis" Opacity="0.5"
+           Wrap="True" TextTrimming="WordEllipsis" Opacity="1.3" FontSize="{ThemeResource SmallFontSize}"
            Content="{Binding Path=CurrentProgram.Description}"
-           Color="{ThemeResource TextColor}" Margin="10,0,0,5" />
+           Color="{ThemeResource MenuTextBackground}" Margin="10,0,0,5" />
   </Grid>
 </DockPanel>

@@ -21,11 +21,16 @@
       <ControlTemplate.Resources>
         <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
       </ControlTemplate.Resources>
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
-        <Grid.Background>
-          <VideoBrush Stream="0"/>
-        </Grid.Background>
-        <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png"/>
+      <Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+          <Grid.Background>
+            <VideoBrush Stream="0"/>
+          </Grid.Background>
+          <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png"/>
+        </Grid>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableFanart}">
+          <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
+        </Grid>
       </Grid>
     </ControlTemplate>
 
@@ -58,9 +63,9 @@
 
           <Label Grid.Column="0" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                  Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.1"/>
+                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2"/>
           <Label Grid.Column="1" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.1">
+                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
             <Label.Content>
               <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.25">
                 <Binding Path="GuideStartTime"/>
@@ -69,7 +74,7 @@
             </Label.Content>
           </Label>
           <Label Grid.Column="2" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.1">
+                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
             <Label.Content>
               <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.5">
                 <Binding Path="GuideStartTime"/>
@@ -78,7 +83,7 @@
             </Label.Content>
           </Label>
           <Label Grid.Column="3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.1">
+                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
             <Label.Content>
               <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.75">
                 <Binding Path="GuideStartTime"/>
@@ -98,7 +103,7 @@
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}"
                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0" VerticalAlignment="Center"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"/>
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           <Grid.Triggers>
             <MultiTrigger>
               <MultiTrigger.Conditions>
