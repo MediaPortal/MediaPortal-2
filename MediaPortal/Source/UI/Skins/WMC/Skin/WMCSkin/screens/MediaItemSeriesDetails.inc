@@ -137,15 +137,15 @@
     <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
       <StackPanel Orientation="Horizontal">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
-               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
+               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
-               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
+               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
       </StackPanel>
       <StackPanel Orientation="Horizontal">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
-               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
+               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
-               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
+               Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
       </StackPanel>
     </StackPanel>
 
