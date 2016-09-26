@@ -19,12 +19,13 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="0,-15,0,0">
+  <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
+                              Grid.Column="0" Grid.Row="0" Margin="0,-15,0,0">
     <media:EpisodeAspectWrapper.Template>
       <ControlTemplate> 
-          <StackPanel Orientation="Horizontal">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                   VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <Label.Content>
                 <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
               </Label.Content>
@@ -34,7 +35,24 @@
     </media:EpisodeAspectWrapper.Template>
   </media:EpisodeAspectWrapper>
 
-  <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="1" Grid.Row="1" Margin="10,0,5,35">
+  <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                              Grid.Column="1" Grid.Row="0" Margin="10,-15,10,0">
+    <media:EpisodeAspectWrapper.Template>
+      <ControlTemplate>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Label x:Name="EpisodeNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                 VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label.Content>
+              <Binding Path="EpisodeName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+            </Label.Content>
+          </Label>
+        </StackPanel>
+      </ControlTemplate>
+    </media:EpisodeAspectWrapper.Template>
+  </media:EpisodeAspectWrapper>
+
+  <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
+                            Grid.Column="1" Grid.Row="1" Margin="10,0,5,35">
     <media:VideoAspectWrapper.Template>
       <ControlTemplate>
         <Label x:Name="Description" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" 
@@ -79,8 +97,8 @@
         <media:EpisodeAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Label x:Name="FirstAired" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"
-                     IsVisible="{Binding Path=FirstAired,Converter={StaticResource ReferenceToBoolConverter}}" 
+              <Label x:Name="FirstAired" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                     IsVisible="{Binding Path=FirstAired,Converter={StaticResource ReferenceToBoolConverter}}"
                      Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" />
             </Grid>
           </ControlTemplate>
