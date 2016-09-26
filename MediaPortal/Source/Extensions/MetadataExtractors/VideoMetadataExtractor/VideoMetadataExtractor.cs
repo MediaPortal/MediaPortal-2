@@ -424,6 +424,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           {
             stereoscopic = VideoStreamAspect.TYPE_TAB;
           }
+          else if (match.Groups[GROUP_STEREO].Value.EndsWith("MVC", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopic = VideoStreamAspect.TYPE_MVC;
+          }
         }
 
         int full3DTABMinHeight = 720 * 2;
@@ -456,6 +460,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             _height = _height.Value / 2;
             _ar = (float)_width.Value / (float)_height.Value;
           }
+          else if(stereoscopic != null)
+            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
           else if (_height.Value > 2000)
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
           else if (_height.Value > 700)
@@ -465,14 +471,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
         else if (_height.HasValue)
         {
-          if (stereoscopic == VideoStreamAspect.TYPE_SBS || stereoscopic == VideoStreamAspect.TYPE_HSBS)
-          {
+          if (stereoscopic != null)
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-          }
-          else if (stereoscopic == VideoStreamAspect.TYPE_TAB || stereoscopic == VideoStreamAspect.TYPE_HTAB)
-          {
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-          }
           else if (_height.Value > 2000)
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
           else if (_height.Value > 700)
@@ -482,14 +482,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
         else
         {
-          if (stereoscopic == VideoStreamAspect.TYPE_SBS || stereoscopic == VideoStreamAspect.TYPE_HSBS)
-          {
+          if (stereoscopic != null)
             videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-          }
-          else if (stereoscopic == VideoStreamAspect.TYPE_TAB || stereoscopic == VideoStreamAspect.TYPE_HTAB)
-          {
-            videoAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-          }
         }
 
         if (_ar.HasValue)
@@ -645,6 +639,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, ar);
               }
             }
+            else if (mode == MatroskaInfoReader.StereoMode.FieldSequentialModeLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.FieldSequentialModeRightEyeFirst)
+              videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_MVC);
           }
         }
       }

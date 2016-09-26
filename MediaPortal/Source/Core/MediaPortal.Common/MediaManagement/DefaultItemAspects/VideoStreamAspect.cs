@@ -39,6 +39,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string TYPE_SBS = "SBS";
     public static readonly string TYPE_HTAB = "HTAB";
     public static readonly string TYPE_TAB = "TAB";
+    public static readonly string TYPE_MVC = "MVC";
     public static readonly string TYPE_ANAGLYPH = "ANAGLYPH";
 
     /// <summary>
