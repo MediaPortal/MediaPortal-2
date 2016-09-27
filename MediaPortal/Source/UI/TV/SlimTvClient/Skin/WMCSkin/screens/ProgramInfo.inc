@@ -17,12 +17,12 @@
     <StackPanel Orientation="Vertical" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" >
       <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
              Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-             IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
+             IsVisible="{Binding Path=CurrentProgram.StartTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
       <Label x:Name="ProgramEnd" Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-             IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
+             IsVisible="{Binding Path=CurrentProgram.EndTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
       <Label x:Name="Channel" Content="{Binding ChannelName}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2" 
-             FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
+             FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=ChannelName,Converter={StaticResource ReferenceToBoolConverter}}"/>
       <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
              Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Image.Source>
