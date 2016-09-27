@@ -41,7 +41,6 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 using TagLib;
-using static MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.AudioMetadataExtractor;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -213,7 +212,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       try
       {
         ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
-        tag = TagLib.File.Create(new ResourceProviderFileAbstraction(lfsra));
+        tag = TagLib.File.Create(new AudioMetadataExtractor.ResourceProviderFileAbstraction(lfsra));
       }
       catch (CorruptFileException)
       {
