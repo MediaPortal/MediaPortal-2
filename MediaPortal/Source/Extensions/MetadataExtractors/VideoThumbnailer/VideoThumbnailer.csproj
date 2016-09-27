@@ -82,6 +82,10 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FFMpegLib\FFMpegLib.csproj">
+      <Project>{d2416e5a-cf6a-4b45-836d-02300d666127}</Project>
+      <Name>FFMpegLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">

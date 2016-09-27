@@ -32,9 +32,8 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Utilities.Process;
+using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 {
@@ -188,10 +187,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 
       try
       {
-        Task<ProcessExecutionResult> executionResult = null;
+        bool success;
         lock (FFMPEG_THROTTLE_LOCK)
-          executionResult = lfsra.ExecuteWithResourceAccessAsync(executable, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS);
-        if (executionResult.Result.Success && File.Exists(tempFileName))
+          success = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, PROCESS_TIMEOUT_MS).Result.Success;
+        if (success && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
@@ -202,7 +201,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         {
           // Calling EnsureLocalFileSystemAccess not necessary; only string operation
           ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
-          ServiceRegistration.Get<ILogger>().Debug("VideoThumbnailer: FFMpeg failure {0} dump:\n{1}", executionResult.Result.ExitCode, executionResult.Result.StandardError);
         }
       }
       catch (AggregateException ae)
