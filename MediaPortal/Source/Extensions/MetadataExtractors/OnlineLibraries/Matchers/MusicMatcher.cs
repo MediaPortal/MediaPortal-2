@@ -1126,7 +1126,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Album] = id;
           }
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is AlbumInfo)
@@ -1143,7 +1143,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = albumInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Album] = id;
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is CompanyInfo)
@@ -1159,7 +1159,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = companyInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.MusicLabel] = id;
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is PersonInfo)
@@ -1183,7 +1183,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtMediaType = FanArtMediaTypes.Writer;
             data.FanArtId[FanArtMediaTypes.Writer] = id;
           }
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       return false;
@@ -1319,7 +1319,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual bool VerifyFanArtImage(TImg image)
     {
-      return false;
+      return image != null;
     }
 
     protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string mediaItemId, string name, string fanartType)

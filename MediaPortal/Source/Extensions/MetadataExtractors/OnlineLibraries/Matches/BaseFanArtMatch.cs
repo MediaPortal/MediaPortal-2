@@ -37,6 +37,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// </summary>
     public T Id;
     /// <summary>
+    /// ID for downloading FanArt.
+    /// </summary>
+    public string FanArtDownloadId;
+    /// <summary>
     /// Contains the start time of download. If it is not <c>null</c> and <see cref="FanArtDownloadFinished"/> is <c>null</c>, download should be still
     /// in progress.
     /// </summary>

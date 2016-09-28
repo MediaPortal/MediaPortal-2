@@ -1471,7 +1471,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = seriesInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Series] = id;
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is SeasonInfo)
@@ -1499,7 +1499,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Undefined] = id;
           }
-          ScheduleDownload(data.Serialize());
+          ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is EpisodeInfo)
@@ -1531,7 +1531,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Undefined] = id;
           }
-          ScheduleDownload(data.Serialize());
+          ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is CompanyInfo)
@@ -1555,7 +1555,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtMediaType = FanArtMediaTypes.TVNetwork;
             data.FanArtId[FanArtMediaTypes.TVNetwork] = id;
           }
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is CharacterInfo)
@@ -1578,7 +1578,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Actor] = actorId;
           }
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is PersonInfo)
@@ -1607,7 +1607,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtMediaType = FanArtMediaTypes.Writer;
             data.FanArtId[FanArtMediaTypes.Writer] = id;
           }
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       return false;
