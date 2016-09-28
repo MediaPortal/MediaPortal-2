@@ -61,6 +61,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     public static String FormatProgramTime(this DateTime dateTime, CultureInfo cultureInfo = null)
     {
+      if (dateTime == DateTime.MinValue)
+        return string.Empty;
       cultureInfo = cultureInfo ?? CultureInfo.CurrentUICulture;
       if (GetDay(dateTime) != Today)
         return String.Format("{0} {1}",
