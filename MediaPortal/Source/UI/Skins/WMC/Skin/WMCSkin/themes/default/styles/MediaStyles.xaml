@@ -1540,7 +1540,7 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
         </Grid>
-        <Image x:Name="Thumb" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="0,0,0,0"
+        <Image x:Name="thumb" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="0,0,0,0"
                Source="{Binding MediaItem}">
         </Image>
         <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="6" BorderThickness="0"
