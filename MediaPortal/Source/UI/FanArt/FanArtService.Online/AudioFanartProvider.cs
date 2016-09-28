@@ -110,11 +110,28 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
         MediaItem mediaItem = items.First();
 
-        if (mediaType == FanArtMediaTypes.Audio)
+        if (mediaType == FanArtMediaTypes.Audio || mediaType == FanArtMediaTypes.Album)
         {
-          if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+          IList<MultipleMediaItemAspect> relationAspects;
+          if (fanArtType == FanArtTypes.FanArt)
           {
-            IList<MultipleMediaItemAspect> relationAspects;
+            //No FanArt exists for ALbum and Audio so use Artists
+            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+            {
+              //Artist fallback
+              foreach (MultipleMediaItemAspect relation in relationAspects)
+              {
+                if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
+                {
+                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                  if (fanArtFiles.Count > 0)
+                    break;
+                }
+              }
+            }
+          }
+          else if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+          {
             if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
             {
               //Album fallback
