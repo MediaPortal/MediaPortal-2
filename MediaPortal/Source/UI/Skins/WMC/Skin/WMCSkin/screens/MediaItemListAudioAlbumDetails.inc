@@ -4,13 +4,15 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  x:Name="MediaItemDetails" Margin="0,30,20,-200"
+  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,30,20,-200"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
   
-  <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+  <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <media:AudioAlbumAspectWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="800">
           <Grid.Resources>
             <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
           </Grid.Resources>
