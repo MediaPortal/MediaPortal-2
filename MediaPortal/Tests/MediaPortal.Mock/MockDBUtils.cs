@@ -54,11 +54,7 @@ namespace MediaPortal.Mock
       ServiceRegistration.Set<ISQLDatabase>(DATABASE);
       ServiceRegistration.Set<IDatabaseManager>(DATABASE_MANAGER);
 
-      ALIASES_READER = AddReader("SELECT MIAM_ID, IDENTIFIER, DATABASE_OBJECT_NAME FROM MIA_NAME_ALIASES");
-
-      AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION FROM MIA_TYPES");
-      AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION, CREATION_DATE FROM MIA_TYPES");
-      AddReader("SELECT MIAM_ID, CREATION_DATE FROM MIA_TYPES");
+      Reset();
     }
 
     public static DbType GetType(Type type)
@@ -74,6 +70,11 @@ namespace MediaPortal.Mock
     public static void Reset()
     {
       COMMANDS.Clear();
+      READERS.Clear();
+      ALIASES_READER = AddReader("SELECT MIAM_ID, IDENTIFIER, DATABASE_OBJECT_NAME FROM MIA_NAME_ALIASES");
+      AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION FROM MIA_TYPES");
+      AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION, CREATION_DATE FROM MIA_TYPES");
+      AddReader("SELECT MIAM_ID, CREATION_DATE FROM MIA_TYPES");
     }
 
     public static MockDatabase Database
