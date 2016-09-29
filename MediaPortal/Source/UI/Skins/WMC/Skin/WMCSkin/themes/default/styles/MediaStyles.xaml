@@ -1540,7 +1540,7 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
         </Grid>
-        <Image x:Name="Thumb" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="0,0,0,0"
+        <Image x:Name="thumb" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="0,0,0,0"
                Source="{Binding MediaItem}">
         </Image>
         <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="6" BorderThickness="0"
@@ -1580,9 +1580,16 @@
         </Rectangle.Fill>
       </Rectangle>
 
-      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" 
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Wrap="True" Content="{Binding Path=EpisodeName}"
              Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource VIDEO_COVER_WIDTH}">
+        <!--Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+            <Binding Path="{Binding Path=EpisodeNumber}"/>
+            <Binding Source=" - "/>
+            <Binding Path="{Binding Path=EpisodeName}"/>
+          </MultiBinding>
+        </Label.Content-->
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>

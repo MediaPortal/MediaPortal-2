@@ -26,7 +26,7 @@
           <Grid.Background>
             <VideoBrush Stream="0"/>
           </Grid.Background>
-          <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png"/>
+          <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
         </Grid>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableFanart}">
           <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
@@ -61,9 +61,24 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
-          <Label Grid.Column="0" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+          <Grid Grid.Column="0" Margin="-40,0,0,0" VerticalAlignment="Center">
+            <Grid.Resources>
+              <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation=" Horizontal">
+              <Button x:Name="ScrollBackwardButton" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
+                      Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
+              <Label Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                  Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2"/>
+                 VerticalAlignment="Center" Margin="1,0,1,0" Opacity="1.2"/>
+              <Button x:Name="ScrollForwardButton" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
+                      Command="{Command ScrollForward}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+
           <Label Grid.Column="1" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
                  VerticalAlignment="Center" Margin="7,0,0,0" Opacity="1.2">
             <Label.Content>
@@ -93,8 +108,7 @@
           </Label>
         </Grid>
 
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0">
-         <Grid Margin="20,0,20,0">
+        <Grid VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" Margin="0,0,20,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
@@ -102,7 +116,7 @@
           <Button x:Name="SearchButton" Grid.Column="0" Style="{ThemeResource SearchButtonStyle}" Margin="1,0,1,0" 
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}"
                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0" VerticalAlignment="Center"
+          <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0" VerticalAlignment="Center"
                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           <Grid.Triggers>
             <MultiTrigger>
@@ -110,75 +124,28 @@
                 <Condition Property="IsMouseOver" Value="False"/>
                 <Condition Property="IsKeyboardFocusWithin" Value="False"/>
               </MultiTrigger.Conditions>
-                <Setter TargetName="SearchLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
+              <Setter TargetName="SearchLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
             </MultiTrigger>
           </Grid.Triggers>
         </Grid>
-
-          <Grid x:Name="TimeControls" Margin="20,0,20,0" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <Grid.Resources>
-              <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="ScrollBackwardButton" Grid.Column="0" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
-                  Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
-
-            <!--Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" 
-                   FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,5,0"/-->
-            
-            <Button x:Name="ScrollForwardButton" Grid.Column="2" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
-                  Command="{Command ScrollForward}" VerticalAlignment="Center"/>
-            <Grid.Triggers>
-              <MultiTrigger>
-                <MultiTrigger.Conditions>
-                  <Condition Property="IsMouseOver" Value="False"/>
-                  <Condition Property="IsKeyboardFocusWithin" Value="False"/>
-                </MultiTrigger.Conditions>
-                <Setter TargetName="DateLabel" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
-              </MultiTrigger>
-            </Grid.Triggers>
-          </Grid>
-        </StackPanel>
-
 
         <Grid Margin="20,-70,20,0" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-
-          <!--Grid Margin="20,0,20,10" Grid.Column="0" Grid.Row="0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="SearchButton" Grid.Column="0" Style="{ThemeResource SearchButtonStyle}" Margin="1,0,1,0" 
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}"
-                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label x:Name="SearchLabel" Grid.Column="1" Content="[Media.SimpleSearchFilterMenuItem]" Margin="5,0,5,0"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-            <Grid.Triggers>
-              <MultiTrigger>
-                <MultiTrigger.Conditions>
-                  <Condition Property="IsMouseOver" Value="False"/>
-                  <Condition Property="IsKeyboardFocusWithin" Value="False"/>
-                </MultiTrigger.Conditions>
-                <Setter TargetName="SearchLabel" Property="Opacity" Value="0.5"/>
-              </MultiTrigger>
-            </Grid.Triggers>
-          </-->
         </Grid>
 
         <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Style="{ThemeResource EpgGridStyle}" Margin="0,0,0,20"/>
 
-        <Label x:Name="Time" Grid.Column="2" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right" Margin="0,-20,0,0"
+        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="2" Margin="0,-20,0,0" HorizontalAlignment="Right">
+          <!--Label x:Name="Date" FontSize="{ThemeResource SmallFontSize}"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+          <Label Content="  "/-->
+          <Label x:Name="Time" FontSize="{ThemeResource SmallFontSize}"
                Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
-
+        </StackPanel>
+        
         <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
                    Style="{ThemeResource ContentGroupBoxStyle}" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,0,-5">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
