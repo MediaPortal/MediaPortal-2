@@ -36,6 +36,10 @@ using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.MediaManagement;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Registry;
 
 namespace MediaPortal.Mock
 {
@@ -74,6 +78,15 @@ namespace MediaPortal.Mock
 
       logger.Debug("Registering ISystemResolver service");
       ServiceRegistration.Set<ISystemResolver>(new SystemResolver());
+
+      logger.Debug("ApplicationCore: Registering IMediaAccessor service");
+      ServiceRegistration.Set<IMediaAccessor>(new MediaAccessor());
+
+      logger.Debug("ApplicationCore: Registering IPluginManager service");
+      ServiceRegistration.Set<IPluginManager>(new Common.Services.PluginManager.PluginManager());
+
+      logger.Debug("ApplicationCore: Registering IRegistry service");
+      ServiceRegistration.Set<IRegistry>(new Common.Services.Registry.Registry());
 
       //logger.Debug("Registering IMediaItemAspectTypeRegistration service");
       //ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MockMediaItemAspectTypeRegistration());

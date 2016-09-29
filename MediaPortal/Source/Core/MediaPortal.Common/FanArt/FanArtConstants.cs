@@ -27,7 +27,6 @@ namespace MediaPortal.Common.FanArt
   public static class FanArtMediaTypes
   {
     public const string Undefined = "Undefined";
-    public const string Music = "Music";
     public const string Movie = "Movie";
     public const string MovieCollection = "MovieCollection";
     public const string Series = "Series";

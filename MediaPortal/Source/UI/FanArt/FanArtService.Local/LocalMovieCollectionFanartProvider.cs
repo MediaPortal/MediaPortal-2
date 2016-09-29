@@ -61,6 +61,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       result = null;
       Guid mediaItemId;
 
+      if (mediaType != FanArtMediaTypes.MovieCollection)
+        return false;
+
       // Don't try to load "fanart" for images
       if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtMediaTypes.Image)
         return false;

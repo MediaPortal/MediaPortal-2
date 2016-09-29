@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// <summary>
     /// Contains the Series ID for Downloading FanArt asynchronously.
     /// </summary>
-    protected UniqueEventedQueue<TId> _downloadQueue = new UniqueEventedQueue<TId>();
+    protected UniqueEventedQueue<string> _downloadQueue = new UniqueEventedQueue<string>();
     protected List<Thread> _downloadThreads = new List<Thread>(MAX_FANART_DOWNLOADERS);
     protected bool _downloadFanart = true;
     protected volatile bool _downloadAllowed = true;
@@ -137,17 +137,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       return true;
     }
 
-    protected bool ScheduleDownload(TId tvDbId, bool force = false)
+    protected bool ScheduleDownload(TId id, string downloadId, bool force = false)
     {
       if (!_downloadFanart)
         return true;
-      bool fanArtDownloaded = !force && CheckBeginDownloadFanArt(tvDbId);
+      bool fanArtDownloaded = !force && CheckBeginDownloadFanArt(id, downloadId);
       if (fanArtDownloaded)
         return true;
 
       lock (_downloadQueue.SyncObj)
       {
-        bool newEnqueued = _downloadQueue.TryEnqueue(tvDbId);
+        bool newEnqueued = _downloadQueue.TryEnqueue(downloadId);
         if (newEnqueued && _downloadThreads.Count < _downloadThreads.Capacity)
         {
           Thread downloader = new Thread(DownloadFanArtQueue) { Name = "FanArt Downloader " + _downloadThreads.Count, Priority = ThreadPriority.Lowest };
@@ -172,15 +172,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       _downloadThreads.Clear();
     }
 
-    protected bool CheckBeginDownloadFanArt(TId itemId)
+    protected bool CheckBeginDownloadFanArt(TId id, string downloadId)
     {
       bool fanArtDownloaded = false;
       lock (_syncObj)
       {
         // Load cache or create new list
         List<TMatch> matches = _storage.GetMatches();
-        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(itemId)))
+        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(id)))
         {
+          if (string.IsNullOrEmpty(match.FanArtDownloadId))
+            match.FanArtDownloadId = downloadId;
+
           // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
           if (match.FanArtDownloadFinished.HasValue)
             fanArtDownloaded = true;
@@ -209,22 +212,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     protected void ResumeDownloads()
     {
-
-      var downloadsToBeStarted = new HashSet<TId>();
+      var downloadsToBeStarted = new HashSet<TMatch>();
       lock (_syncObj)
       {
         var matches = _storage.GetMatches();
         foreach (TMatch match in matches.FindAll(m => m.FanArtDownloadStarted.HasValue && !m.FanArtDownloadFinished.HasValue ||
                                                       m.Id != null && !m.Id.Equals(default(TId)) && !m.FanArtDownloadStarted.HasValue))
         {
+          if (string.IsNullOrEmpty(match.FanArtDownloadId))
+          {
+            match.FanArtDownloadFinished = DateTime.Now;
+            continue;
+          }
           if (!match.FanArtDownloadStarted.HasValue)
             match.FanArtDownloadStarted = DateTime.Now;
-          downloadsToBeStarted.Add(match.Id);
+          downloadsToBeStarted.Add(match);
         }
         _storage.SaveMatches();
       }
-      foreach (var id in downloadsToBeStarted)
-        ScheduleDownload(id, true);
+      foreach (var match in downloadsToBeStarted)
+        ScheduleDownload(match.Id, match.FanArtDownloadId, true);
     }
 
     protected void DownloadFanArtQueue()
@@ -232,18 +239,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       while (_downloadAllowed)
       {
         _downloadQueue.OnEnqueued.WaitOne(1000);
-        TId itemId;
+        string downloadId;
         lock (_downloadQueue.SyncObj)
         {
           if (_downloadQueue.Count == 0)
             continue;
-          itemId = _downloadQueue.Dequeue();
+          downloadId = _downloadQueue.Dequeue();
         }
-        DownloadFanArt(itemId);
+        DownloadFanArt(downloadId);
       }
     }
 
-    protected abstract void DownloadFanArt(TId itemId);
+    protected abstract void DownloadFanArt(string downloadId);
 
     #region IDisposable members
 
