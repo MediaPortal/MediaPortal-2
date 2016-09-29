@@ -61,7 +61,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
     public DateTime? Released { get; set; }
 
     [DataMember(Name = "Episode")]
-    public int EpisodeNumber { get; set; }
+    public string EpisodeNumberStr
+    {
+      set
+      {
+        int episode;
+        if (int.TryParse(value, out episode))
+          EpisodeNumber = episode;
+      }
+    }
+
+    public int? EpisodeNumber { get; set; }
 
     [DataMember(Name = "imdbRating")]
     public string ImdbRating { get; set; }

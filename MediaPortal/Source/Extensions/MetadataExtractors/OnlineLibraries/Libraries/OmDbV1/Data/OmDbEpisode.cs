@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
@@ -70,10 +71,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
   public class OmDbEpisode : OmDbBaseItem
   {
     [DataMember(Name = "Season")]
-    public int SeasonNumber { get; set; }
+    public string SeasonNumberStr
+    {
+      set
+      {
+        int season;
+        if (int.TryParse(value, out season))
+          SeasonNumber = season;
+      }
+    }
+
+    public int? SeasonNumber { get; set; }
 
     [DataMember(Name = "Episode")]
-    public int EpisodeNumber { get; set; }
+    public string EpisodeNumberStr
+    {
+      set
+      {
+        int episode;
+        if (int.TryParse(value, out episode))
+          EpisodeNumber = episode;
+      }
+    }
+
+    public int? EpisodeNumber { get; set; }
 
     [DataMember(Name = "seriesID")]
     public string ImdbSeriesID { get; set; }

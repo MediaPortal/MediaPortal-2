@@ -86,7 +86,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           foreach (OmDbSeasonEpisode episode in season.Episodes)
           {
-            if (episodeSearch.EpisodeNumbers.Contains(episode.EpisodeNumber) || episodeSearch.EpisodeNumbers.Count == 0)
+            if ((episode.EpisodeNumber.HasValue  && episodeSearch.EpisodeNumbers.Contains(episode.EpisodeNumber.Value)) || episodeSearch.EpisodeNumbers.Count == 0)
             {
               if (episodes == null)
                 episodes = new List<EpisodeInfo>();
@@ -98,7 +98,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 SeasonNumber = episodeSearch.SeasonNumber.Value,
                 EpisodeName = new SimpleTitle(episode.Title, false),
               };
-              info.EpisodeNumbers.Add(episode.EpisodeNumber);
+              if(episode.EpisodeNumber.HasValue)
+                info.EpisodeNumbers.Add(episode.EpisodeNumber.Value);
               info.CopyIdsFrom(episodeSearch.CloneBasicInstance<SeriesInfo>());
               episodes.Add(info);
             }
@@ -354,7 +355,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               seasonDetail.Episodes[0].Released : default(DateTime?),
 
             SeasonNumber = episodeDetail.SeasonNumber,
-            EpisodeNumbers = new List<int>(new int[] { episodeDetail.EpisodeNumber }),
+            EpisodeNumbers = episodeDetail.EpisodeNumber.HasValue ? new List<int>(new int[] { episodeDetail.EpisodeNumber.Value }) : null,
             FirstAired = episodeDetail.Released,
             EpisodeName = new SimpleTitle(episodeDetail.Title, true),
             Summary = new SimpleTitle(episodeDetail.Plot, true),

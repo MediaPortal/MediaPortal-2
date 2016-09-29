@@ -50,7 +50,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
     public string Title { get; set; }
 
     [DataMember(Name = "Season")]
-    public int SeasonNumber { get; set; }
+    public string SeasonNumberStr
+    {
+      set
+      {
+        int season;
+        if (int.TryParse(value, out season))
+          SeasonNumber = season;
+      }
+    }
+
+    public int? SeasonNumber { get; set; }
 
     [DataMember(Name = "Episodes")]
     public List<OmDbSeasonEpisode> Episodes { get; set; }
