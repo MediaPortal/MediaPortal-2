@@ -20,7 +20,8 @@
           </Grid.ColumnDefinitions>
           
           <StackPanel Orientation="Vertical">    
-            <Label Content="{Binding Path=Album}"  Margin="0,0,-300,0" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallFontSize}"/>   
+            <Label Content="{Binding Path=Album}"  Margin="0,0,-500,0" Color="{ThemeResource TextColor}" Wrap="True"
+                   FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"/>   
             <Label Content="{Binding Path=Artists}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <StackPanel Orientation="Horizontal">
               <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
