@@ -61,6 +61,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       result = null;
       Guid mediaItemId;
 
+      if (mediaType != FanArtMediaTypes.Artist && mediaType != FanArtMediaTypes.Album && mediaType != FanArtMediaTypes.Audio)
+        return false;
+
       // Don't try to load "fanart" for images
       if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtMediaTypes.Image)
         return false;
@@ -69,10 +72,41 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaLibrary == null)
         return false;
 
-      IFilter filter = new RelationshipFilter(AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ARTIST, mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
-      if (items == null || items.Count == 0)
+      IFilter filter = null;
+      IList<MediaItem> items = null;
+
+      if (mediaType == FanArtMediaTypes.Artist)
+      {
+        filter = new RelationshipFilter(AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ARTIST, mediaItemId);
+        items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
+        if (items == null || items.Count == 0)
+          return false;
+      }
+      else if (fanArtType == FanArtTypes.FanArt)
+      {
+        if (mediaType == FanArtMediaTypes.Album)
+        {
+          //Might be a request for album FanArt which doesn't exist. Artist FanArt is used instead.
+          filter = new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, mediaItemId);
+          items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
+          if (items == null || items.Count == 0)
+            return false;
+        }
+        else if (mediaType == FanArtMediaTypes.Audio)
+        {
+          //Might be a request for track FanArt which doesn't exist. Artist FanArt is used instead.
+          List<Guid> necessaryMias = new List<Guid>(NECESSARY_MIAS);
+          necessaryMias.Add(AudioAspect.ASPECT_ID);
+          filter = new MediaItemIdFilter(mediaItemId);
+          items = mediaLibrary.Search(new MediaItemQuery(necessaryMias, filter), false, null, false);
+          if (items == null || items.Count == 0)
+            return false;
+        }
+      }
+      else
+      {
         return false;
+      }
 
       MediaItem mediaItem = items.First();
       var mediaIteamLocator = mediaItem.GetResourceLocator();

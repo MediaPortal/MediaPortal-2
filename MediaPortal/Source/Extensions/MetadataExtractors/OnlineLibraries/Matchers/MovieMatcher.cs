@@ -987,7 +987,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = movieInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Movie] = id;
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is MovieCollectionInfo)
@@ -1004,7 +1004,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = movieCollectionInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.MovieCollection] = id;
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is CompanyInfo)
@@ -1020,7 +1020,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = companyInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Company] = id;
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is CharacterInfo)
@@ -1043,7 +1043,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Actor] = actorId;
           }
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       else if (info is PersonInfo)
@@ -1072,7 +1072,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtMediaType = FanArtMediaTypes.Writer;
             data.FanArtId[FanArtMediaTypes.Writer] = id;
           }
-          return ScheduleDownload(data.Serialize());
+          return ScheduleDownload(id, data.Serialize());
         }
       }
       return false;
@@ -1227,7 +1227,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual bool VerifyFanArtImage(TImg image)
     {
-      return false;
+      return image != null;
     }
 
     protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, string mediaItemId, string name, string fanartType)

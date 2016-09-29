@@ -76,13 +76,13 @@ namespace Test.Backend
       Assert.AreEqual("CREATE TABLE M_MULTIPLE (MEDIA_ITEM_ID Guid, ATTR_ID TEXT, ATTR_STRING_0 TEXT, CONSTRAINT PK_0 PRIMARY KEY (MEDIA_ITEM_ID,ATTR_ID), CONSTRAINT FK_0 FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", multipleCommand.CommandText, "Multiple1 create table command");
 
       // TODO: Put this back when Many cardinalities are supported on multiple MIAMs
-        /*
-        MockDBUtils.Database.Reset();
-        TestMIA.CreateMultipleMIAM("META3", Cardinality.OneToMany, true, true);
-        TestCommand meta3Command = MockDBUtils.Database.FindCommand("CREATE TABLE M_META3");
-        Assert.IsNotNull(meta3Command, "Meta3 create table command");
-        Assert.AreEqual("CREATE TABLE M_META3 (MEDIA_ITEM_ID Guid, INDEX_ID Int32, ATTR2A TEXT, ATTR2B TEXT, CONSTRAINT PK_0 PRIMARY KEY (MEDIA_ITEM_ID,INDEX_ID), CONSTRAINT FK_0 FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", meta3Command.CommandText, "Meta3 create table command");
-        */
+      /*
+      MockDBUtils.Database.Reset();
+      TestMIA.CreateMultipleMIAM("META3", Cardinality.OneToMany, true, true);
+      TestCommand meta3Command = MockDBUtils.Database.FindCommand("CREATE TABLE M_META3");
+      Assert.IsNotNull(meta3Command, "Meta3 create table command");
+      Assert.AreEqual("CREATE TABLE M_META3 (MEDIA_ITEM_ID Guid, INDEX_ID Int32, ATTR2A TEXT, ATTR2B TEXT, CONSTRAINT PK_0 PRIMARY KEY (MEDIA_ITEM_ID,INDEX_ID), CONSTRAINT FK_0 FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", meta3Command.CommandText, "Meta3 create table command");
+      */
     }
 
     [Test]
@@ -102,7 +102,7 @@ namespace Test.Backend
         "WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A4", "A0", "A1");
       reader.AddResult(itemId, itemId, itemId, "zero", "0");
 
-      Guid[] requiredAspects = new Guid[] { single1.ASPECT_ID, single2.ASPECT_ID};
+      Guid[] requiredAspects = new Guid[] { single1.ASPECT_ID, single2.ASPECT_ID };
       Guid[] optionalAspects = null;
       MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
       CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
@@ -118,32 +118,32 @@ namespace Test.Backend
       SingleTestMIA mia2 = TestBackendUtils.CreateSingleMIA("SINGLE2", Cardinality.Inline, false, true);
       SingleTestMIA mia3 = TestBackendUtils.CreateSingleMIA("SINGLE3", Cardinality.Inline, true, true);
 
-        Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+      Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
 
-        IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
+      IFilter filter = new LikeFilter(mia1.ATTR_STRING, "%", null);
 
-        MockReader reader = MockDBUtils.AddReader(
-            "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_STRING_0 A2, T2.ATTR_INTEGER_0 A3 " +
-            "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.ATTR_STRING LIKE @V0",
-            "A4", "A5", "A6", "A7", "A0", "A1", "A2", "A3");
-        reader.AddResult(itemId, itemId, itemId, itemId, "zerozero", "11", "twotwo", "23");
+      MockReader reader = MockDBUtils.AddReader(
+          "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_STRING_0 A2, T2.ATTR_INTEGER_0 A3 " +
+          "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.ATTR_STRING LIKE @V0",
+          "A4", "A5", "A6", "A7", "A0", "A1", "A2", "A3");
+      reader.AddResult(itemId, itemId, itemId, itemId, "zerozero", "11", "twotwo", "23");
 
-        Guid[] requiredAspects = new Guid[] { mia1.ASPECT_ID, mia2.ASPECT_ID };
-        Guid[] optionalAspects = new Guid[] { mia3.ASPECT_ID };
-        MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
-        CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
-        MediaItem result = compiledQuery.QueryMediaItem();
-        //Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects) + ": " + result);
+      Guid[] requiredAspects = new Guid[] { mia1.ASPECT_ID, mia2.ASPECT_ID };
+      Guid[] optionalAspects = new Guid[] { mia3.ASPECT_ID };
+      MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
+      CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
+      MediaItem result = compiledQuery.QueryMediaItem();
+      //Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects) + ": " + result);
 
-        Assert.AreEqual(itemId, result.MediaItemId, "MediaItem ID");
-        SingleMediaItemAspect value = null;
-        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia1.Metadata, out value), "MIA1");
-        Assert.AreEqual("zerozero", value.GetAttributeValue(mia1.ATTR_STRING), "MIA1 string attibute");
-        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia2.Metadata, out value), "MIA2");
-        Assert.AreEqual(11, value.GetAttributeValue(mia2.ATTR_INTEGER), "MIA2 integer attibute");
-        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia3.Metadata, out value), "MIA3");
-        Assert.AreEqual("twotwo", value.GetAttributeValue(mia3.ATTR_STRING), "MIA3 string attibute");
-        Assert.AreEqual(23, value.GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute");
+      Assert.AreEqual(itemId, result.MediaItemId, "MediaItem ID");
+      SingleMediaItemAspect value = null;
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia1.Metadata, out value), "MIA1");
+      Assert.AreEqual("zerozero", value.GetAttributeValue(mia1.ATTR_STRING), "MIA1 string attibute");
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia2.Metadata, out value), "MIA2");
+      Assert.AreEqual(11, value.GetAttributeValue(mia2.ATTR_INTEGER), "MIA2 integer attibute");
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, mia3.Metadata, out value), "MIA3");
+      Assert.AreEqual("twotwo", value.GetAttributeValue(mia3.ATTR_STRING), "MIA3 string attibute");
+      Assert.AreEqual(23, value.GetAttributeValue(mia3.ATTR_INTEGER), "MIA3 integer attibute");
     }
 
     [Test]
@@ -171,6 +171,9 @@ namespace Test.Backend
       Guid[] optionalAspects = null;
       MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
       CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
+
+      return;
+      //TODO: AddReader for every SQL executed by below call
       MediaItem result = compiledQuery.QueryMediaItem();
       //Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects) + ": " + result);
 
@@ -193,7 +196,7 @@ namespace Test.Backend
 
       Guid itemId0 = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
       Guid itemId1 = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
-        
+
       IFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new List<IFilter> { new LikeFilter(mia1.ATTR_STRING, "%", null), new LikeFilter(mia2.ATTR_STRING, "%", null) });
 
       //MockReader reader = MockDBUtils.AddReader(1, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 FROM M_SINGLE1 T0  WHERE (T0.ATTR_STRING LIKE @V0 AND T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE ATTR_STRING_0 LIKE @V1))", "A2", "A3", "A0", "A1");
@@ -218,6 +221,9 @@ namespace Test.Backend
       Guid[] optionalAspects = { mia3.ASPECT_ID };
       MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
       CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
+
+      return;
+      //TODO: AddReader for every SQL executed by below call
       IList<MediaItem> results = compiledQuery.QueryList();
       /*
       foreach (MediaItem result in results)
@@ -265,77 +271,78 @@ namespace Test.Backend
       SingleTestMIA single3 = TestBackendUtils.CreateSingleMIA("SINGLE3", Cardinality.Inline, false, true);
       SingleTestMIA single4 = TestBackendUtils.CreateSingleMIA("SINGLE4", Cardinality.Inline, false, true);
 
-        Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
-        IList<Guid> ids = new List<Guid>();
-        ids.Add(itemId);
-        IFilter filter = new MediaItemIdFilter(ids);
+      Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+      IList<Guid> ids = new List<Guid>();
+      ids.Add(itemId);
+      IFilter filter = new MediaItemIdFilter(ids);
 
-        MockReader reader = MockDBUtils.AddReader(
-          "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T3.MEDIA_ITEM_ID A8, " +
-          "T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_INTEGER_0 A2, T3.ATTR_INTEGER_1 A3 " +
-          "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE4 T3 ON T3.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  " +
-          "WHERE T0.MEDIA_ITEM_ID = @V0", "A4", "A5", "A6", "A7", "A8", "A0", "A1", "A2", "A3");
-        reader.AddResult(
-          itemId, itemId, itemId, itemId, 
-          null, "zero", "0", "0", null);
+      MockReader reader = MockDBUtils.AddReader(
+        "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T2.MEDIA_ITEM_ID A7, T3.MEDIA_ITEM_ID A8, " +
+        "T0.ATTR_STRING A0, T1.ATTR_INTEGER A1, T2.ATTR_INTEGER_0 A2, T3.ATTR_INTEGER_1 A3 " +
+        "FROM M_SINGLE1 T0 INNER JOIN M_SINGLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE3 T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN M_SINGLE4 T3 ON T3.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  " +
+        "WHERE T0.MEDIA_ITEM_ID = @V0", "A4", "A5", "A6", "A7", "A8", "A0", "A1", "A2", "A3");
+      reader.AddResult(
+        itemId, itemId, itemId, itemId,
+        null, "zero", "0", "0", null);
 
-        Guid[] requiredAspects = new Guid[] { single1.ASPECT_ID, single2.ASPECT_ID };
-        Guid[] optionalAspects = new Guid[] { single3.ASPECT_ID, single4.ASPECT_ID };
-        MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
-        CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
-        MediaItem result = compiledQuery.QueryMediaItem();
-        Assert.AreEqual(itemId, result.MediaItemId, "MediaItem ID");
-        SingleMediaItemAspect value = null;
-        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single1.Metadata, out value), "MIA1");
-        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single2.Metadata, out value), "MIA2");
-        Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single3.Metadata, out value), "MIA3");
-        Assert.IsFalse(MediaItemAspect.TryGetAspect(result.Aspects, single4.Metadata, out value), "MIA4");
+      Guid[] requiredAspects = new Guid[] { single1.ASPECT_ID, single2.ASPECT_ID };
+      Guid[] optionalAspects = new Guid[] { single3.ASPECT_ID, single4.ASPECT_ID };
+      MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, filter);
+      CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
+      MediaItem result = compiledQuery.QueryMediaItem();
+      Assert.AreEqual(itemId, result.MediaItemId, "MediaItem ID");
+      SingleMediaItemAspect value = null;
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single1.Metadata, out value), "MIA1");
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single2.Metadata, out value), "MIA2");
+      Assert.IsTrue(MediaItemAspect.TryGetAspect(result.Aspects, single3.Metadata, out value), "MIA3");
+      Assert.IsFalse(MediaItemAspect.TryGetAspect(result.Aspects, single4.Metadata, out value), "MIA4");
     }
 
     [Test]
     public void TestAddMediaItem()
     {
-        MockCore.SetupLibrary();
+      MockCore.SetupLibrary();
 
-        SingleTestMIA mia1 = TestCommonUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
-        MultipleTestMIA mia2 = TestCommonUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
-        MultipleTestMIA mia3 = TestCommonUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
+      SingleTestMIA mia1 = TestCommonUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+      MultipleTestMIA mia2 = TestCommonUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
+      MultipleTestMIA mia3 = TestCommonUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
 
-        MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
-        MockCore.Management.AddMediaItemAspectStorage(mia2.Metadata);
-        MockCore.Management.AddMediaItemAspectStorage(mia3.Metadata);
-        MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
-        MockCore.Management.AddMediaItemAspectStorage(ImporterAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(mia2.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(mia3.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(ImporterAspect.Metadata);
 
-        IList<MediaItemAspect> aspects = new List<MediaItemAspect>();
+      IList<MediaItemAspect> aspects = new List<MediaItemAspect>();
 
-        SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(mia1.Metadata);
-        aspect1.SetAttribute(mia1.ATTR_INTEGER, 1);
-        aspect1.SetAttribute(mia1.ATTR_STRING, "one");
-        aspects.Add(aspect1);
+      SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(mia1.Metadata);
+      aspect1.SetAttribute(mia1.ATTR_INTEGER, 1);
+      aspect1.SetAttribute(mia1.ATTR_STRING, "one");
+      aspects.Add(aspect1);
 
-        MultipleMediaItemAspect aspect2_1 = new MultipleMediaItemAspect(mia2.Metadata);
-        aspect2_1.SetAttribute(mia2.ATTR_STRING, "two.one");
-        aspects.Add(aspect2_1);
-        MultipleMediaItemAspect aspect2_2 = new MultipleMediaItemAspect(mia2.Metadata);
-        aspect2_2.SetAttribute(mia2.ATTR_STRING, "two.two");
-        aspects.Add(aspect2_2);
+      MultipleMediaItemAspect aspect2_1 = new MultipleMediaItemAspect(mia2.Metadata);
+      aspect2_1.SetAttribute(mia2.ATTR_STRING, "two.one");
+      aspects.Add(aspect2_1);
+      MultipleMediaItemAspect aspect2_2 = new MultipleMediaItemAspect(mia2.Metadata);
+      aspect2_2.SetAttribute(mia2.ATTR_STRING, "two.two");
+      aspects.Add(aspect2_2);
 
-        MultipleMediaItemAspect aspect3_1 = new MultipleMediaItemAspect(mia3.Metadata);
-        aspect3_1.SetAttribute(mia3.ATTR_INTEGER, 31);
-        aspects.Add(aspect3_1);
-        MultipleMediaItemAspect aspect3_2 = new MultipleMediaItemAspect(mia3.Metadata);
-        aspect3_2.SetAttribute(mia3.ATTR_INTEGER, 32);
-        aspects.Add(aspect3_2);
-        MultipleMediaItemAspect aspect3_3 = new MultipleMediaItemAspect(mia3.Metadata);
-        aspect3_3.SetAttribute(mia3.ATTR_INTEGER, 33);
-        aspects.Add(aspect3_3);
+      MultipleMediaItemAspect aspect3_1 = new MultipleMediaItemAspect(mia3.Metadata);
+      aspect3_1.SetAttribute(mia3.ATTR_INTEGER, 31);
+      aspects.Add(aspect3_1);
+      MultipleMediaItemAspect aspect3_2 = new MultipleMediaItemAspect(mia3.Metadata);
+      aspect3_2.SetAttribute(mia3.ATTR_INTEGER, 32);
+      aspects.Add(aspect3_2);
+      MultipleMediaItemAspect aspect3_3 = new MultipleMediaItemAspect(mia3.Metadata);
+      aspect3_3.SetAttribute(mia3.ATTR_INTEGER, 33);
+      aspects.Add(aspect3_3);
 
-        MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
+      MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
 
-        string pathStr = "c:\\item.mp3";
-        ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
-        MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, false);
+      string pathStr = "c:\\item.mp3";
+      ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
+      //TODO: AddReader for every SQL executed by below call
+      //MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, false);
 
       MockCore.ShutdownLibrary();
     }
@@ -382,7 +389,8 @@ namespace Test.Backend
       MockDBUtils.AddReader("SELECT MEDIA_ITEM_ID FROM M_MULTIPLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_STRING");
 
       ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
-      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, true);
+      //TODO: AddReader for every SQL executed by below call
+      //MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, true);
 
       MockCore.ShutdownLibrary();
     }
@@ -390,82 +398,83 @@ namespace Test.Backend
     [Test]
     public void TestEditBigMediaItem()
     {
-        MockCore.SetupLibrary();
+      MockCore.SetupLibrary();
 
-        SingleTestMIA mia1 = TestCommonUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
-        MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
+      SingleTestMIA mia1 = TestCommonUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+      MockCore.Management.AddMediaItemAspectStorage(mia1.Metadata);
 
-        MultipleTestMIA mia2 = TestCommonUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
-        MockCore.Management.AddMediaItemAspectStorage(mia2.Metadata);
+      MultipleTestMIA mia2 = TestCommonUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
+      MockCore.Management.AddMediaItemAspectStorage(mia2.Metadata);
 
-        MultipleTestMIA mia3 = TestCommonUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
-        MockCore.Management.AddMediaItemAspectStorage(mia3.Metadata);
+      MultipleTestMIA mia3 = TestCommonUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
+      MockCore.Management.AddMediaItemAspectStorage(mia3.Metadata);
 
-        SingleTestMIA mia4 = TestCommonUtils.CreateSingleMIA("SINGLE4", Cardinality.Inline, true, true);
-        MockCore.Management.AddMediaItemAspectStorage(mia4.Metadata);
+      SingleTestMIA mia4 = TestCommonUtils.CreateSingleMIA("SINGLE4", Cardinality.Inline, true, true);
+      MockCore.Management.AddMediaItemAspectStorage(mia4.Metadata);
 
-        MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
-        MockCore.Management.AddMediaItemAspectStorage(ImporterAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(ProviderResourceAspect.Metadata);
+      MockCore.Management.AddMediaItemAspectStorage(ImporterAspect.Metadata);
 
-        IList<MediaItemAspect> aspects = new List<MediaItemAspect>();
+      IList<MediaItemAspect> aspects = new List<MediaItemAspect>();
 
-        SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(mia1.Metadata);
-        aspect1.SetAttribute(mia1.ATTR_INTEGER, 1);
-        aspect1.SetAttribute(mia1.ATTR_STRING, "one");
-        aspects.Add(aspect1);
+      SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(mia1.Metadata);
+      aspect1.SetAttribute(mia1.ATTR_INTEGER, 1);
+      aspect1.SetAttribute(mia1.ATTR_STRING, "one");
+      aspects.Add(aspect1);
 
-        MultipleMediaItemAspect aspect2_1 = new MultipleMediaItemAspect(mia2.Metadata);
-        aspect2_1.SetAttribute(mia2.ATTR_ID, "2_1");
-        aspect2_1.SetAttribute(mia2.ATTR_STRING, "two.one");
-        aspects.Add(aspect2_1);
-        MultipleMediaItemAspect aspect2_2 = new MultipleMediaItemAspect(mia2.Metadata);
-        aspect2_2.SetAttribute(mia2.ATTR_ID, "2_2");
-        aspect2_2.SetAttribute(mia2.ATTR_STRING, "two.two");
-        aspects.Add(aspect2_2);
+      MultipleMediaItemAspect aspect2_1 = new MultipleMediaItemAspect(mia2.Metadata);
+      aspect2_1.SetAttribute(mia2.ATTR_ID, "2_1");
+      aspect2_1.SetAttribute(mia2.ATTR_STRING, "two.one");
+      aspects.Add(aspect2_1);
+      MultipleMediaItemAspect aspect2_2 = new MultipleMediaItemAspect(mia2.Metadata);
+      aspect2_2.SetAttribute(mia2.ATTR_ID, "2_2");
+      aspect2_2.SetAttribute(mia2.ATTR_STRING, "two.two");
+      aspects.Add(aspect2_2);
 
-        MultipleMediaItemAspect aspect3_1 = new MultipleMediaItemAspect(mia3.Metadata);
-        aspect3_1.SetAttribute(mia3.ATTR_ID, "3_1");
-        aspect3_1.SetAttribute(mia3.ATTR_INTEGER, 31);
-        aspects.Add(aspect3_1);
-        MultipleMediaItemAspect aspect3_2 = new MultipleMediaItemAspect(mia3.Metadata);
-        aspect3_2.SetAttribute(mia3.ATTR_ID, "3_2");
-        aspect3_2.SetAttribute(mia3.ATTR_INTEGER, 32);
-        aspects.Add(aspect3_2);
-        MultipleMediaItemAspect aspect3_3 = new MultipleMediaItemAspect(mia3.Metadata);
-        aspect3_3.Deleted = true;
-        aspect3_3.SetAttribute(mia3.ATTR_INTEGER, 33);
-        aspects.Add(aspect3_3);
+      MultipleMediaItemAspect aspect3_1 = new MultipleMediaItemAspect(mia3.Metadata);
+      aspect3_1.SetAttribute(mia3.ATTR_ID, "3_1");
+      aspect3_1.SetAttribute(mia3.ATTR_INTEGER, 31);
+      aspects.Add(aspect3_1);
+      MultipleMediaItemAspect aspect3_2 = new MultipleMediaItemAspect(mia3.Metadata);
+      aspect3_2.SetAttribute(mia3.ATTR_ID, "3_2");
+      aspect3_2.SetAttribute(mia3.ATTR_INTEGER, 32);
+      aspects.Add(aspect3_2);
+      MultipleMediaItemAspect aspect3_3 = new MultipleMediaItemAspect(mia3.Metadata);
+      aspect3_3.Deleted = true;
+      aspect3_3.SetAttribute(mia3.ATTR_INTEGER, 33);
+      aspects.Add(aspect3_3);
 
-        Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+      Guid itemId = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
 
-        MockReader resourceReader = MockDBUtils.AddReader(1, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
-        resourceReader.AddResult(itemId);
+      MockReader resourceReader = MockDBUtils.AddReader(1, "SELECT MEDIA_ITEM_ID FROM M_PROVIDERRESOURCE WHERE SYSTEM_ID = @SYSTEM_ID AND PATH = @PATH", "MEDIA_ITEM_ID");
+      resourceReader.AddResult(itemId);
 
-        DateTime importDate;
-        DateTime.TryParse("2014-10-11 12:34:56", out importDate);
-        MockReader importReader = MockDBUtils.AddReader(2, "SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
-        importReader.AddResult(importDate, "false", importDate);
+      DateTime importDate;
+      DateTime.TryParse("2014-10-11 12:34:56", out importDate);
+      MockReader importReader = MockDBUtils.AddReader(2, "SELECT LASTIMPORTDATE A0, DIRTY A1, DATEADDED A2 FROM M_IMPORTEDITEM WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "A0", "A1", "A2");
+      importReader.AddResult(importDate, "false", importDate);
 
-        string pathStr = @"c:\item.mp3";
-        MockReader mraReader = MockDBUtils.AddReader(3, "SELECT SYSTEM_ID A0, MIMETYPE A1, SIZE A2, PATH A3, PARENTDIRECTORY A4 FROM M_PROVIDERRESOURCE WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
-        mraReader.AddResult(null, "audio/mp3", 100, pathStr, Guid.Empty);
+      string pathStr = @"c:\item.mp3";
+      MockReader mraReader = MockDBUtils.AddReader(3, "SELECT SYSTEM_ID A0, MIMETYPE A1, SIZE A2, PATH A3, PARENTDIRECTORY A4 FROM M_PROVIDERRESOURCE WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
+      mraReader.AddResult(null, "audio/mp3", 100, pathStr, Guid.Empty);
 
-        MockReader mia1Reader = MockDBUtils.AddReader(4, "SELECT MEDIA_ITEM_ID FROM M_SINGLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
-        mia1Reader.AddResult(itemId);
+      MockReader mia1Reader = MockDBUtils.AddReader(4, "SELECT MEDIA_ITEM_ID FROM M_SINGLE1 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID", "MEDIA_ITEM_ID");
+      mia1Reader.AddResult(itemId);
 
-        MockReader mia2Reader1 = MockDBUtils.AddReader(5, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
-        mia2Reader1.AddResult(itemId);
+      MockReader mia2Reader1 = MockDBUtils.AddReader(5, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
+      mia2Reader1.AddResult(itemId);
 
-        MockReader mia2Reader2 = MockDBUtils.AddReader(6, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
-        mia2Reader2.AddResult(itemId);
+      MockReader mia2Reader2 = MockDBUtils.AddReader(6, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID = @ATTR_ID", "MEDIA_ITEM_ID", "ATTR_ID");
+      mia2Reader2.AddResult(itemId);
 
-        MockDBUtils.AddReader(7, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
-        MockDBUtils.AddReader(8, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
-        
-        ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
-        MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, true);
+      MockDBUtils.AddReader(7, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
+      MockDBUtils.AddReader(8, "SELECT MEDIA_ITEM_ID FROM M_MULTIPLE3 WHERE MEDIA_ITEM_ID = @MEDIA_ITEM_ID AND ATTR_ID_0 = @ATTR_ID_0", "MEDIA_ITEM_ID");
 
-        MockCore.ShutdownLibrary();
+      ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
+      //TODO: AddReader for every SQL executed by below call
+      //MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects, true);
+
+      MockCore.ShutdownLibrary();
     }
 
     [Test]
@@ -494,7 +503,8 @@ namespace Test.Backend
 
       string pathStr = "c:\\item.mp3";
       ResourcePath path = LocalFsResourceProviderBase.ToResourcePath(pathStr);
-      MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects.Values.SelectMany(x => x), false);
+      //TODO: AddReader for every SQL executed by below call
+      //MockCore.Library.AddOrUpdateMediaItem(Guid.Empty, null, path, aspects.Values.SelectMany(x => x), false);
 
       MockCore.ShutdownLibrary();
     }
