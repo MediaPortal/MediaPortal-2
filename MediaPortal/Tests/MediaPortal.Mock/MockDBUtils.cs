@@ -75,6 +75,7 @@ namespace MediaPortal.Mock
       AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION FROM MIA_TYPES");
       AddReader("SELECT MIAM_ID, MIAM_SERIALIZATION, CREATION_DATE FROM MIA_TYPES");
       AddReader("SELECT MIAM_ID, CREATION_DATE FROM MIA_TYPES");
+      MockCore.Reset();
     }
 
     public static MockDatabase Database
@@ -92,6 +93,14 @@ namespace MediaPortal.Mock
       get { return DATABASE_MANAGER; }
     }
 
+    private static string NormalizeSQL(string sql)
+    {
+      for (int i = 0; i < 10; i++)
+        sql = sql.Replace("_" + i, "");
+
+      return sql;
+    }
+
     public static MockReader AddReader(string command, params string[] columns)
     {
       return AddReader(-1, command, columns);
@@ -104,6 +113,7 @@ namespace MediaPortal.Mock
 
     public static MockReader AddReader(string command, MockReader reader)
     {
+      command = NormalizeSQL(command);
       IList<MockReader> readerList;
       if (!READERS.TryGetValue(command, out readerList))
       {
@@ -116,6 +126,7 @@ namespace MediaPortal.Mock
 
     public static MockReader GetReader(string sql, string formatterSql)
     {
+      sql = NormalizeSQL(sql);
       IList<MockReader> readerList;
       if (!READERS.TryGetValue(sql, out readerList))
       {
