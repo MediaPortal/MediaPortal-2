@@ -20,17 +20,18 @@
   </Grid.ColumnDefinitions>
 
   <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
-                              Grid.Column="0" Grid.Row="0" Margin="0,-15,0,0">
+                              Grid.Column="0" Grid.Row="0" Margin="0,-15,10,0">
     <media:EpisodeAspectWrapper.Template>
       <ControlTemplate> 
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                   Wrap="True" TextTrimming="CharacterEllipsis"
                    VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <Label.Content>
                 <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
               </Label.Content>
             </Label>
-          </StackPanel>
+          </Grid>
       </ControlTemplate>
     </media:EpisodeAspectWrapper.Template>
   </media:EpisodeAspectWrapper>
