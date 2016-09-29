@@ -7,8 +7,7 @@
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,30,20,-200"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
   
-  <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:AudioAlbumAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
@@ -71,7 +70,7 @@
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
                 <Label x:Name="RatingCountLabel" Color="{ThemeResource MenuTextBackground}" VerticalAlignment="Center"
-                       FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0"
+                       FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0" Opacity="1.3"
                        IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                   <Label.Content>
                     <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
@@ -80,11 +79,11 @@
               </StackPanel>
             </StackPanel>
 
-            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1" Content="{Binding Genres}" Opacity="1.2"
+            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1" Content="{Binding Genres}" Opacity="1.3"
                    Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
 
             <StackPanel Orientation="Horizontal">
-              <Label x:Name="NumTracks" Content="{Binding NumTracks}" Opacity="1.2"
+              <Label x:Name="NumTracks" Content="{Binding NumTracks}" Opacity="1.3"
                      Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
               <Label x:Name="NumTrackLabel" Content=" Track(s)" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
                      IsVisible="{Binding Path=NumTracks,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="1.2"/>
@@ -92,7 +91,7 @@
           </StackPanel>
           
           <Label x:Name="Description" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,40,0,20" TextTrimming="WordEllipsis"
-                 HorizontalAlignment="Stretch" Wrap="True" Opacity="1.2"
+                 HorizontalAlignment="Stretch" Wrap="True" Opacity="1.3"
                  Content="{Binding Path=Description}"  FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"/>
 
         </Grid>

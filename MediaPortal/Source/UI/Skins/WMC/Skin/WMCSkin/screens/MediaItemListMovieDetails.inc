@@ -34,10 +34,10 @@
     </Image.OpacityMask>
   </Image>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0"  Grid.ColumnSpan="2" Grid.Row="1" Opacity="0.5" TextTrimming="WordEllipsis"
-        HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0"  Grid.ColumnSpan="2" Grid.Row="1"  TextTrimming="WordEllipsis"
+        HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-        Color="{ThemeResource TextColor}" Margin="0,30,10,10"/>
+        Margin="0,30,10,10"/>
 
   <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
 
@@ -74,7 +74,7 @@
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
-                <Label x:Name="RatingCountLabel" Opacity="1.2" Color="{ThemeResource MenuTextBackground}" Margin="15,2,5,1" 
+                <Label x:Name="RatingCountLabel" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" Margin="15,2,5,1" 
                        FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"
                        IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                   <Label.Content>
@@ -110,7 +110,7 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Genres}" Opacity="1.2" Color="{ThemeResource MenuTextBackground}"/>
+                Content="{Binding Genres}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
           </Grid>
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
@@ -122,10 +122,10 @@
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <StackPanel Orientation="Horizontal">
-                <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.2" Color="{ThemeResource MenuTextBackground}"
+                <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
                        IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
                        Content="{Binding Path=Runtime}"/>
-                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="1.2" Color="{ThemeResource MenuTextBackground}" 
+                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" 
                        IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"/>
               </StackPanel>
             </Grid>
