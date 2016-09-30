@@ -325,6 +325,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         return false;
       }
+      else if(newRating.RatingValue < 0)
+      {
+        return false;
+      }
       else if(currentRating.IsEmpty)
       {
         currentRating = newRating;
