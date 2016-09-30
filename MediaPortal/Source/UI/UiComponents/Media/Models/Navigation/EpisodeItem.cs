@@ -45,7 +45,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       Series = episodeInfo.SeriesName.Text;
       EpisodeName = episodeInfo.EpisodeName.Text;
       Season = episodeInfo.SeasonNumber.ToString();
-      EpisodeNumber = episodeInfo.FormatString(string.Format("{{{0}}}", EpisodeInfo.EPISODENUM_INDEX));
+      EpisodeNumber = string.Join(", ", episodeInfo.EpisodeNumbers);
+      if (episodeInfo.DvdEpisodeNumbers.Count > 0)
+        DVDEpisodeNumber = string.Join(", ", episodeInfo.DvdEpisodeNumbers);
+      else
+        DVDEpisodeNumber = EpisodeNumber;
 
       // Use the short string without series name here
       SimpleTitle = episodeInfo.ToShortString();
@@ -73,6 +77,16 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_SERIES_EPISODE_NUM]; }
       set { SetLabel(Consts.KEY_SERIES_EPISODE_NUM, value); }
+    }
+
+    /// <summary>
+    /// Gets a formatted string of the episode number. If a single video contains multiple episodes, they will be 
+    /// concatenated like '01, 02'.
+    /// </summary>
+    public string DVDEpisodeNumber
+    {
+      get { return this[Consts.KEY_SERIES_DVD_EPISODE_NUM]; }
+      set { SetLabel(Consts.KEY_SERIES_DVD_EPISODE_NUM, value); }
     }
 
     public string EpisodeName

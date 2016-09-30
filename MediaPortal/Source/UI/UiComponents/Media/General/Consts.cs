@@ -528,6 +528,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_SERIES_NAME = "SeriesName";
     public const string KEY_SERIES_SEASON = "SeriesSeason";
     public const string KEY_SERIES_EPISODE_NUM = "SeriesEpisodeNum";
+    public const string KEY_SERIES_DVD_EPISODE_NUM = "SeriesDVDEpisodeNum";
     public const string KEY_SERIES_EPISODE_NAME = "SeriesEpisodeName";
     public const string KEY_NUM_EPISODES = "NumEpisodes";
     public const string KEY_NUM_SEASONS = "NumSeasons";
