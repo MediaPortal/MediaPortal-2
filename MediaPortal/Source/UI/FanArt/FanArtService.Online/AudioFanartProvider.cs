@@ -96,8 +96,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), FanArtTypes.Cover));
 
       // Try fallback
-      if (fanArtFiles.Count == 0 &&
-        (mediaType == FanArtMediaTypes.Audio))
+      if (fanArtFiles.Count == 0 && (mediaType == FanArtMediaTypes.Audio || mediaType == FanArtMediaTypes.Album))
       {
         IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
         if (mediaLibrary == null)
@@ -110,39 +109,36 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
         MediaItem mediaItem = items.First();
 
-        if (mediaType == FanArtMediaTypes.Audio || mediaType == FanArtMediaTypes.Album)
+        IList<MultipleMediaItemAspect> relationAspects;
+        if (fanArtType == FanArtTypes.FanArt)
         {
-          IList<MultipleMediaItemAspect> relationAspects;
-          if (fanArtType == FanArtTypes.FanArt)
+          //No FanArt exists for ALbum and Audio so use Artists
+          if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
           {
-            //No FanArt exists for ALbum and Audio so use Artists
-            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+            //Artist fallback
+            foreach (MultipleMediaItemAspect relation in relationAspects)
             {
-              //Artist fallback
-              foreach (MultipleMediaItemAspect relation in relationAspects)
+              if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
               {
-                if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
-                {
-                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
-                  if (fanArtFiles.Count > 0)
-                    break;
-                }
+                fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                if (fanArtFiles.Count > 0)
+                  break;
               }
             }
           }
-          else if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+        }
+        else if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
           {
-            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+            //Album fallback
+            foreach (MultipleMediaItemAspect relation in relationAspects)
             {
-              //Album fallback
-              foreach (MultipleMediaItemAspect relation in relationAspects)
+              if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == AudioAlbumAspect.ROLE_ALBUM)
               {
-                if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == AudioAlbumAspect.ROLE_ALBUM)
-                {
-                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
-                  if (fanArtFiles.Count > 0)
-                    break;
-                }
+                fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                if (fanArtFiles.Count > 0)
+                  break;
               }
             }
           }
