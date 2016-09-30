@@ -77,7 +77,7 @@
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
-                <Label x:Name="RatingCountLabel" Margin="15,0,5,0" VerticalAlignment="Center" Opacity="1.2"
+                <Label x:Name="RatingCountLabel" Margin="15,0,5,0" VerticalAlignment="Center" Opacity="1.3"
                        FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextBackground}"
                        IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                   <Label.Content>
@@ -95,7 +95,7 @@
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" Opacity="1.2"
+            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3"
                 Content="{Binding Genres}" Color="{ThemeResource MenuTextBackground}"/>
           </Grid>
         </ControlTemplate>
@@ -110,9 +110,10 @@
               <StackPanel Orientation="Horizontal">
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
                        IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
-                       Content="{Binding Path=Runtime}" Opacity="1.2"/>
-                <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
-                       IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="1.2"/>                
+                       Content="{Binding Path=Runtime}" Opacity="1.3"/>
+                <Label Content=" " IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
+                       IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="1.3"/>                
               </StackPanel>
             </Grid>
           </ControlTemplate>

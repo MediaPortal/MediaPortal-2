@@ -111,15 +111,17 @@
 
     <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
       <StackPanel Orientation="Horizontal">
-        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableSeasons}"
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Seasons}"
                Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
+               IsVisible="{Binding Path=Seasons,Converter={StaticResource ReferenceToBoolConverter}}"
                Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
       <StackPanel Orientation="Horizontal">
-        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Episodes}"
                Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+               IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
                Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
     </StackPanel>

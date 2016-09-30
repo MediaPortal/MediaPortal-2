@@ -26,7 +26,7 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioTitleLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+                Content="[Media.AudioTitleLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto"
                 Content="{Binding TrackName}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -44,7 +44,7 @@
             </Grid.ColumnDefinitions>
 
             <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioArtistsLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+                Content="[Media.AudioArtistsLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Artists}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -61,7 +61,7 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="TrackLabel" Grid.Row="0" Grid.Column="0"
-                   Content="[Media.AudioTrackLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+                   Content="[Media.AudioTrackLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="Track" Grid.Row="0" Grid.Column="1"
                    Content="{Binding Path=Track}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -78,7 +78,7 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="DurationLabel" Grid.Row="0" Grid.Column="0"
-                   Content="[Media.AudioDurationLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+                   Content="[Media.AudioDurationLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="Duration" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                    Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=mm\:ss}"/>
           </Grid>
@@ -95,7 +95,7 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="AlbumLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioAlbumLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+                Content="[Media.AudioAlbumLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="Album" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Album}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -112,7 +112,7 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="AlbumArtistsLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioAlbumArtistsLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+                Content="[Media.AudioAlbumArtistsLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="AlbumArtists" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Path=AlbumArtists}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -129,7 +129,7 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>            
             <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioGenresLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+                Content="[Media.AudioGenresLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="Genres" Grid.Row="0" Grid.Column="1"
                 Content="{Binding Genres}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
           </Grid>
@@ -146,7 +146,7 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioYearLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+                Content="[Media.AudioYearLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                 Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
           </Grid>
