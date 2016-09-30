@@ -428,6 +428,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           {
             stereoscopic = VideoStreamAspect.TYPE_MVC;
           }
+          else if (match.Groups[GROUP_STEREO].Value.EndsWith("ANAGLYPH", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopic = VideoStreamAspect.TYPE_ANAGLYPH;
+          }
         }
 
         int full3DTABMinHeight = 720 * 2;

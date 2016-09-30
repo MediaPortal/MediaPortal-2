@@ -37,7 +37,7 @@ namespace Test.Common
   public class TestMediaItem
   {
     [TestFixtureSetUp]
-    public void OneTimeSetUp()
+    public void SetUp()
     {
       IMediaItemAspectTypeRegistration miatr = new TestMediaItemAspectTypeRegistration();
       ServiceRegistration.Set(miatr);

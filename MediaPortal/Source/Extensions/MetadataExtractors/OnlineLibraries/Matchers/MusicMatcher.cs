@@ -797,7 +797,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             foreach (TrackInfo track in albumMatch.Tracks)
             {
               if (track.Artists.Count > 0)
-                if (artists.Contains(track.Artists[0].Name))
+                if (!artists.Contains(track.Artists[0].Name))
                   artists.Add(track.Artists[0].Name);
             }
             if (albumMatch.Tracks.Count > 5 && (float)artists.Count > (float)albumMatch.Tracks.Count * 0.6 && !albumInfo.Compilation)
