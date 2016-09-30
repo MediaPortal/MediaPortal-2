@@ -64,10 +64,13 @@
                    IsVisible="{Binding Path=Genres,Converter={StaticResource ReferenceToBoolConverter}}"
                    Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>   
             
-            <StackPanel Orientation="Horizontal" IsVisible="{Binding Path=NumTracks,Converter={StaticResource ReferenceToBoolConverter}}">
-              <Label x:Name="NumTracks" Content="{Binding NumTracks}" 
+            <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
+                        IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label x:Name="NumTracks" Content="{Binding Tracks}" 
                      Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
-              <Label x:Name="NumTrackLabel" Content=" Track(s)" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=NumTracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
+              <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
+              <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}" 
+                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
             </StackPanel> 
           </StackPanel>
 
