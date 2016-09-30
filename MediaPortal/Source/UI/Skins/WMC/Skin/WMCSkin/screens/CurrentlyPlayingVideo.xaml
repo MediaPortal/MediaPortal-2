@@ -143,8 +143,8 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="StoryPlot" Wrap="True" Margin="40" Opacity="0.5" TextTrimming="WordEllipsis"
-                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                <Label x:Name="StoryPlot" Wrap="True" Margin="40" TextTrimming="WordEllipsis" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" 
                        Content="{Binding VideoStoryPlot}"/>
               </Grid>
 
@@ -158,12 +158,27 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-                  <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Subtitles[0].Language}"
-                           Margin="0,0,8,0" Opacity="0.5"/>
-                  <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Content="{Binding VideoStreams[0].AspectRatio}"
-                           Margin="0,0,8,0" Opacity="0.5"/>
+                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Subtitles[0].Language}"
+                         Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding VideoStreams[0].AspectRatio}"
+                         Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
                 </StackPanel>
 
+              </Grid>
+
+              <!-- Cast+Crew INFO TAB -->
+              <Grid Grid.Row="1" Grid.Column="1" IsVisible="{Binding ElementName=CastCrew, Path=IsChecked}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--ListView Grid.Row="0" Grid.Column="0" x:Name="ActorList" ItemsSource="{Binding Path=VideoActors, Converter={StaticResource StringSplitConverter}}"
+                          HorizontalAlignment="Center" VerticalAlignment="Stretch" Style="{ThemeResource XXXListStyle}"
+                          Margin="10,5,10,5" /-->
+                <Label Margin="20,5,10,5" Content="{Binding Path=VideoActors}" Wrap="True"
+                       Opacity="1.3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
               </Grid>
 
               <!-- GENERAL INFO TAB -->
