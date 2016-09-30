@@ -156,15 +156,15 @@ namespace Test.Backend
       ids.Add(itemId);
       IFilter filter = new MediaItemIdFilter(ids);
 
-      MockReader multipleReader1 = MockDBUtils.AddReader(1, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID_6 A0, T0.ATTR_STRING_9 A1 FROM M_MULTIPLE1_0 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A0", "A1");
+      MockReader multipleReader1 = MockDBUtils.AddReader(1, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_STRING A1 FROM M_MULTIPLE1 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A0", "A1");
       multipleReader1.AddResult(itemId, itemId, "1_1", "oneone");
 
-      MockReader multipleReader2 = MockDBUtils.AddReader(2, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID_7 A0, T0.ATTR_INTEGER_7 A1 FROM M_MULTIPLE2_1 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A0", "A1");
+      MockReader multipleReader2 = MockDBUtils.AddReader(2, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_INTEGER A1 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID = @V0", "A2", "A3", "A0", "A1");
       multipleReader2.AddResult(itemId, itemId, "2_1", 21);
       multipleReader2.AddResult(itemId, itemId, "2_2", 22);
 
-      MockReader multipleReader3 = MockDBUtils.AddReader(3, "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T0.ATTR_ID_6 A0, T0.ATTR_STRING_9 A1, T1.ATTR_ID_7 A2, T1.ATTR_INTEGER_7 A3 FROM M_MULTIPLE1_0 T0 "+
-        "INNER JOIN M_MULTIPLE2_1 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID = @V0", "A4");
+      MockReader multipleReader3 = MockDBUtils.AddReader(3, "SELECT T0.MEDIA_ITEM_ID A4, T0.MEDIA_ITEM_ID A5, T1.MEDIA_ITEM_ID A6, T0.ATTR_ID A0, T0.ATTR_STRING A1, T1.ATTR_ID A2, T1.ATTR_INTEGER A3 FROM M_MULTIPLE1 T0 "+
+        "INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID = @V0", "A4");
       multipleReader3.AddResult(itemId, itemId, itemId, "1_1", "oneone", "1_1", 11);
       multipleReader3.AddResult(itemId, itemId, itemId, "2_2", "twotwo", "2_2", 22);
 
