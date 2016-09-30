@@ -82,11 +82,12 @@
             <Label x:Name="Genres" Grid.Row="0" Grid.Column="1" Content="{Binding Genres}" Opacity="1.3"
                    Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
 
-            <StackPanel Orientation="Horizontal">
-              <Label x:Name="NumTracks" Content="{Binding NumTracks}" Opacity="1.3"
-                     Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
-              <Label x:Name="NumTrackLabel" Content=" Track(s)" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"
-                     IsVisible="{Binding Path=NumTracks,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="1.2"/>
+            <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+              <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Episodes}"
+                     Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+                     IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
+                     Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
             </StackPanel>
           </StackPanel>
           
