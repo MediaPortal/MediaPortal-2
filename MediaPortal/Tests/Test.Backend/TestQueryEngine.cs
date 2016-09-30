@@ -126,7 +126,7 @@ namespace Test.Backend
       //Console.WriteLine("Bind vars [{0}]", string.Join(",", bindVars));
 
       Assert.AreEqual(new List<object> {"test"," IN(",
-        "SELECT ","MEDIA_ITEM_ID"," FROM ","M_META1_1"," WHERE ","ATTR_STRING_3"," LIKE ","@V0",")"
+        "SELECT ","MEDIA_ITEM_ID"," FROM ","M_META1"," WHERE ","ATTR_STRING"," LIKE ","@V0",")"
         }, parts, "Parts");
       Assert.AreEqual(new List<BindVar> { new BindVar("V0", "%", typeof(string)) }, bindVars, "Bind vars");
     }
@@ -201,8 +201,8 @@ namespace Test.Backend
       Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
-      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1_3 T0 INNER JOIN M_META2_2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
-        " WHERE T0.ATTR_STRING_6 LIKE @V0", statementStr, "Statement");
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
+        " WHERE T0.ATTR_STRING LIKE @V0", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar> { new BindVar("V0", "%", typeof(string)) }, bindVars, "Bind vars");
     }
 
@@ -236,8 +236,8 @@ namespace Test.Backend
       Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new string[] { }, attributeAliases, "Attribute aliases");
-      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1_2 T0 INNER JOIN M_META2_1 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
-        " WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_META1_2 WHERE ATTR_STRING_4 LIKE @V0)", statementStr, "Statement");
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
+        " WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_META1 WHERE ATTR_STRING LIKE @V0)", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar> { new BindVar("V0", "%", typeof(string)) }, bindVars, "Bind vars");
     }
 
@@ -273,8 +273,8 @@ namespace Test.Backend
       Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
-      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_SINGLE1 T0 INNER JOIN M_MULTI1 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
-        " WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTI1 WHERE ATTR_STRING_11 LIKE @V0) AND T0.ATTR_STRING_10 LIKE @V1", statementStr, "Statement");
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_SINGLE1 T0 INNER JOIN M_MULTI1 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID "+
+        "FROM M_MULTI1 WHERE ATTR_STRING_0 LIKE @V0) AND T0.ATTR_STRING LIKE @V1", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar>
             {
                 new BindVar("V0", "%", typeof(string)),
@@ -318,7 +318,7 @@ namespace Test.Backend
       Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
-      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1_4 T0 INNER JOIN M_META2_3 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
         " WHERE T0.MEDIA_ITEM_ID IN(SELECT R1.MEDIA_ITEM_ID FROM M_RELATIONSHIP R1 WHERE R1.LINKEDID=@V0 AND R1.ROLE=@V1 AND R1.LINKEDROLE=@V2 UNION SELECT R2.LINKEDID "+
         "FROM M_RELATIONSHIP R2 WHERE R2.MEDIA_ITEM_ID=@V0 AND R2.LINKEDROLE=@V1 AND R2.ROLE=@V2)", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar>
@@ -362,7 +362,8 @@ namespace Test.Backend
       Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new string[] { }, attributeAliases, "Attribute aliases");
-      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE (T0.ATTR_STRING LIKE @V0 AND T1.ATTR_STRING_0 LIKE @V1)", statementStr, "Statement");
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
+        " WHERE (T0.ATTR_STRING LIKE @V0 AND T1.ATTR_STRING_0 LIKE @V1)", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar>
       {
           new BindVar("V0", "%", typeof(string)),

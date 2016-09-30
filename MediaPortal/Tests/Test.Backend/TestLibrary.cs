@@ -66,7 +66,7 @@ namespace Test.Backend
       MockCommand singleCommand = MockDBUtils.FindCommand("CREATE TABLE M_SINGLE");
       Assert.IsNotNull(singleCommand, "Single create table command");
       // Columns and objects will be what we asked for
-      Assert.AreEqual("CREATE TABLE M_SINGLE1 (MEDIA_ITEM_ID Guid, ATTR_STRING TEXT, ATTR_INTEGER Int32, CONSTRAINT PK PRIMARY KEY (MEDIA_ITEM_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", singleCommand.CommandText, "Single1 create table command");
+      Assert.AreEqual("CREATE TABLE M_SINGLE (MEDIA_ITEM_ID Guid, ATTR_STRING TEXT, ATTR_INTEGER Int32, CONSTRAINT PK PRIMARY KEY (MEDIA_ITEM_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", singleCommand.CommandText, "Single1 create table command");
 
       MockDBUtils.Reset();
       TestBackendUtils.CreateMultipleMIA("MULTIPLE", Cardinality.Inline, true, false);
