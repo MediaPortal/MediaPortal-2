@@ -21,14 +21,14 @@
   </Grid.ColumnDefinitions>
   
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-         HorizontalAlignment="Stretch" Opacity="0.5" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+         HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-         Color="{ThemeResource TextColor}" Margin="0,50,0,5"/>
+         Opacity="1.3" Color="{ThemeResource MenuTextBackground}" Margin="0,50,0,5"/>
 
   <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="0" HorizontalAlignment="Left">
     
     <Label x:Name="MediaItemName" Wrap="True" Margin="0"
-           HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
+           HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
            Color="{ThemeResource TextColor}"/>
     
@@ -81,15 +81,16 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <StackPanel Orientation="Horizontal">
-              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
                     <Binding Path="Duration"/>
                   </MultiBinding>
                 </Label.Content>
               </Label>
-              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
+              <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+              <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
             </StackPanel>
           </Grid>

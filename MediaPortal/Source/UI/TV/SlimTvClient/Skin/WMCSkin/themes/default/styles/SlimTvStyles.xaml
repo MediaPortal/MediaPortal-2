@@ -976,10 +976,10 @@
           </Image.FallbackSource>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" 
-             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-      <!--Label x:Name="Duration" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Margin="0,0,10,0"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/-->
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Margin="0,0,10,0"
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <!--StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2">
         <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
                      Color="{ThemeResource TextColor}">

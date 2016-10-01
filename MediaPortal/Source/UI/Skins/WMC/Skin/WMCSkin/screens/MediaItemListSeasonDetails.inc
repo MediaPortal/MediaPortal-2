@@ -12,15 +12,14 @@
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="Auto"/>
-    <RowDefinition Height="Auto"/>
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="540"/>
+    <ColumnDefinition Width="620"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Image Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="0,10,10,0" Height="210">
+  <Image Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill" Margin="0,10,10,0" Height="280" Width="190">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                           Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}">

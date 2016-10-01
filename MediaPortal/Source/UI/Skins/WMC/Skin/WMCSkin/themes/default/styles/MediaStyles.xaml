@@ -957,7 +957,7 @@
         </Border.Background>
       </Border>
       <!--Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"/-->
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
              Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="NumItems" Content="{Binding NumItems}"
              HorizontalAlignment="Right" VerticalAlignment="Bottom"
