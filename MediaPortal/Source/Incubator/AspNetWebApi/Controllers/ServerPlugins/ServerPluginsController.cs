@@ -32,7 +32,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetWebApi.Utils;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace MediaPortal.Plugins.AspNetWebApi.Controllers.ServerPlugins

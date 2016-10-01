@@ -29,11 +29,12 @@ using System.Reflection;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetServer;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.FileProviders;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.StaticFiles;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Newtonsoft.Json.Serialization;
 
 namespace MediaPortal.Plugins.MP2Web
 {
@@ -62,11 +63,23 @@ namespace MediaPortal.Plugins.MP2Web
           });
 
           services.AddMvc()
+            // https://weblog.west-wind.com/posts/2016/Jun/27/Upgrading-to-ASPNET-Core-RTM-from-RC2
+            // In the RTM release Microsoft has changed the default serialization behavior so that all properties are automatically
+            // camel cased - or really changed to have a lower case first letter (ie. "BirthDate" becomes "birthDate" and
+            // "Birthdate" becomes "birthdate")
+            .AddJsonOptions(options =>
+            {
+              var resolver = options.SerializerSettings.ContractResolver;
+              var res = resolver as DefaultContractResolver;
+              if (res != null) res.NamingStrategy = null;  // <<!-- this removes the camelcasing
+            })
             // We need to add a physical file provider to the plugin directory of AspNetServerSample to make sure that the Razor-engine
             // finds the view files (which need to be copied to the plugin directory via build.targets and need to be in the default
             // folders as defined by Razor: [PluginDirectory]\Views\[ControllerName]
             // ToDo: In later versions of MvcRazorOptions, FileProvider was made a List so we can .Clear() and .Add our FileProvider
-            .AddRazorOptions(options => options.FileProvider = new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
+            .AddRazorOptions(options => options.FileProviders.Add(new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))))
+            // This line is important to register the controllers from this webApp. If this is missing, no controller can be reached / no route gets generated
+            .AddApplicationPart(this.GetType().Assembly);
         },
         configureApp: app =>
         {

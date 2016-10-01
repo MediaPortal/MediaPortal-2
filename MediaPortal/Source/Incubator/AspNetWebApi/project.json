@@ -2,9 +2,9 @@
   "version": "1.0.0-*",
   "description": "AspNet WebApi for MP2",
   "authors": [ "MJGraf" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+  "packOptions": {
+    "tags": [ "" ]
+  },
   "frameworks": {
     "net451": {
       "dependencies": {
@@ -18,7 +18,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.AspNet.Mvc": "6.0.0-rc2-16707",
+    "Microsoft.AspNetCore.Mvc": "1.0.1",
     "AspNetServer": "1.0.0-*"
   }
 }

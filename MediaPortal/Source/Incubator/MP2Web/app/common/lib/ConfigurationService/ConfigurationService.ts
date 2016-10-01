@@ -23,7 +23,6 @@ export class ConfigurationService {
       url: API_GET_CONFIG
     })).map(res => res.json()).subscribe(res => {
       this.config = res;
-
       // send the loaded event
       this.loadedEvent.emit(null);
       console.log("ConfigurationService: Data Loaded");

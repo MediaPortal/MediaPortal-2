@@ -33,8 +33,8 @@ namespace MediaPortal.Plugins.AspNetServer
   {
     #region Consts
 
-    public const string WEB_LISTENER = "Microsoft.AspNet.Server.WebListener";
-    public const string KESTREL = "Microsoft.AspNet.Server.Kestrel";
+    public const string WEB_LISTENER = "Microsoft.AspNetCore.Server.WebListener";
+    public const string KESTREL = "Microsoft.AspNetCore.Server.Kestrel";
     public static readonly string[] SUPPORTED_SERVERS =
     {
       WEB_LISTENER,

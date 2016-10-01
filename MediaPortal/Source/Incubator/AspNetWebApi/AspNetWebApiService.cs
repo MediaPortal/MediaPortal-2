@@ -28,11 +28,10 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetServer;
 using MediaPortal.Plugins.AspNetWebApi.Json;
-using Microsoft.AspNet.Builder;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.Http.Internal;
-using Microsoft.AspNet.Mvc.Formatters;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Serialization;
 
 namespace MediaPortal.Plugins.AspNetWebApi
 {
@@ -65,14 +64,22 @@ namespace MediaPortal.Plugins.AspNetWebApi
           var httpContextAccessor = new HttpContextAccessor();
           services.AddSingleton<IHttpContextAccessor>(httpContextAccessor);
 
-          services.AddCaching();
+          services.AddMemoryCache();
 
-          services.AddMvc(options =>
-          {
-            var jsonOutputFormatter = new JsonOutputFormatter { SerializerSettings = { ContractResolver = new MediaItemResolver(httpContextAccessor) } };
-            options.OutputFormatters.RemoveType<JsonOutputFormatter>();
-            options.OutputFormatters.Insert(0, jsonOutputFormatter);
-          });
+          services.AddMvc()
+            .AddJsonOptions(options =>
+            {
+              options.SerializerSettings.ContractResolver = new MediaItemResolver(httpContextAccessor);
+              // https://weblog.west-wind.com/posts/2016/Jun/27/Upgrading-to-ASPNET-Core-RTM-from-RC2
+              // In the RTM release Microsoft has changed the default serialization behavior so that all properties are automatically
+              // camel cased - or really changed to have a lower case first letter (ie. "BirthDate" becomes "birthDate" and
+              // "Birthdate" becomes "birthdate")
+              var resolver = options.SerializerSettings.ContractResolver;
+              var res = (DefaultContractResolver)resolver;
+              res.NamingStrategy = null;  // <<!-- this removes the camelcasing
+            })
+            // This line is important to register the controllers from this webApp. If this is missing, no controller can be reached / no route gets generated
+            .AddApplicationPart(this.GetType().Assembly);
           services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
         },
         configureApp: app =>

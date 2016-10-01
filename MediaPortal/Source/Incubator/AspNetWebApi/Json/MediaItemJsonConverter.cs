@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.Common.MediaManagement;
-using Microsoft.AspNet.Http;
-using Microsoft.AspNet.Http.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.AspNetWebApi.Json

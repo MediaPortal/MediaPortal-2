@@ -27,6 +27,8 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MediaPortal.Plugins.AspNetServer.PlatformServices
@@ -40,7 +42,7 @@ namespace MediaPortal.Plugins.AspNetServer.PlatformServices
   /// the "Web"-Application may also be AspNetServer.dll so that ApplicationBasePath may have to return
   /// the respective plugin directory; same applies to ApplicationName. No idea what it right here.
   /// </remarks>
-  public class MP2ApplicationEnvironment : IApplicationEnvironment
+  public class MP2HostingEnvironment : IHostingEnvironment
   {
     public string ApplicationBasePath
     {
@@ -50,8 +52,11 @@ namespace MediaPortal.Plugins.AspNetServer.PlatformServices
       }
     }
 
+    public string EnvironmentName { get; set; }
+
     public string ApplicationName
     {
+      set { }
       get
       {
         return Assembly.GetEntryAssembly()?.GetName().Name;
@@ -74,5 +79,10 @@ namespace MediaPortal.Plugins.AspNetServer.PlatformServices
         return string.IsNullOrEmpty(frameworkName) ? null : new FrameworkName(frameworkName);
       }
     }
+
+    public string WebRootPath { get; set; }
+    public IFileProvider WebRootFileProvider { get; set; }
+    public string ContentRootPath { get; set; }
+    public IFileProvider ContentRootFileProvider { get; set; }
   }
 }

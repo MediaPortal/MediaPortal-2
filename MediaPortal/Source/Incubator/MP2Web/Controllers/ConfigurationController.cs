@@ -30,7 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.AspNetWebApi;
 using MediaPortal.Plugins.MP2Web.WebAppConfiguration;
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 

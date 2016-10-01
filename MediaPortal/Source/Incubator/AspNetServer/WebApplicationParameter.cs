@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using Microsoft.AspNet.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MediaPortal.Plugins.AspNetServer

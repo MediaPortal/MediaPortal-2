@@ -49,6 +49,7 @@ export class AppComponent {
          */
         this.configurationServiceLoadedSubscription = this.configurationService.getLoadedChangeEmitter().subscribe(() => {
             console.log("AppComponent: Config loaded");
+            console.log(this.configurationService.config);
             this.setup();
         });
 
@@ -65,6 +66,7 @@ export class AppComponent {
         /*
          Router setup
          */
+        console.log(this.configurationService.config.Routes);
         this.routes = this.configurationService.config.Routes;
         this.buildRoutes();
         this.router.config(this.routerRoutes);
@@ -102,6 +104,7 @@ export class AppComponent {
     Build the route definitions for the actual AngularJS Router
      */
     buildRoutes() {
+        console.log(this.routes);
         for (var i = 0; i < this.routes.length; i++) {
             // no dropdown
             if (this.routes[i].Pages == null || this.routes[i].Pages.length == 0) {

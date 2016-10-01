@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(Configuration)\net451\$(ProjectName).dll" />
+    <PluginFiles Include="$(TargetDir)$(Configuration)\net451\*.dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
   

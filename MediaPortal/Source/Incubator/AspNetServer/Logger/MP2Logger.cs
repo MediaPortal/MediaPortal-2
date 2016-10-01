@@ -91,17 +91,66 @@ namespace MediaPortal.Plugins.AspNetServer.Logger
         return;
 
       string message;
-      var values = state as ILogValues;
+      var values = state; //as ILogValues;
       if (formatter != null)
         message = formatter(state, exception);
       else if (values != null)
       {
-        message = LogFormatter.FormatLogValues(values);
+        //message = LogFormatter.FormatLogValues(values);
+        message = formatter(state, exception);
         if (exception != null)
           message += Environment.NewLine + exception;
       }
-      else 
-        message = LogFormatter.Formatter(state, exception);
+      else
+        //message = LogFormatter.Formatter(state, exception);
+        message = formatter(state, exception);
+
+      if (string.IsNullOrEmpty(message))
+        return;
+
+      // MP2's ILogger does not know a log level "Trace". We translate this into "Debug" so that no messages are lost.
+      switch (logLevel)
+      {
+        case AspNetLogLevel.Trace:
+          _logger.Debug(LOG_FORMAT, _webApplicationName, _categoryName, message);
+          break;
+        case AspNetLogLevel.Debug:
+          _logger.Debug(LOG_FORMAT, _webApplicationName, _categoryName, message);
+          break;
+        case AspNetLogLevel.Information:
+          _logger.Info(LOG_FORMAT, _webApplicationName, _categoryName, message);
+          break;
+        case AspNetLogLevel.Warning:
+          _logger.Warn(LOG_FORMAT, _webApplicationName, _categoryName, message);
+          break;
+        case AspNetLogLevel.Error:
+          _logger.Error(LOG_FORMAT, _webApplicationName, _categoryName, message);
+          break;
+        case AspNetLogLevel.Critical:
+          _logger.Critical(LOG_FORMAT, _webApplicationName, _categoryName, message);
+          break;
+      }
+    }
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    {
+      if (!IsEnabled(logLevel))
+        return;
+
+      string message;
+      var values = state; //as ILogValues;
+      if (formatter != null)
+        message = formatter(state, exception);
+      else if (values != null)
+      {
+        //message = LogFormatter.FormatLogValues(values);
+        message = formatter(state, exception);
+        if (exception != null)
+          message += Environment.NewLine + exception;
+      }
+      else
+        //message = LogFormatter.Formatter(state, exception);
+        message = formatter(state, exception);
 
       if (string.IsNullOrEmpty(message))
         return;
@@ -149,6 +198,12 @@ namespace MediaPortal.Plugins.AspNetServer.Logger
           return _logLevel >= MP2LogLevel.Critical;
       }
       return false;
+    }
+
+    public IDisposable BeginScope<TState>(TState state)
+    {
+      //throw new NotImplementedException();
+      return null;
     }
 
     public IDisposable BeginScopeImpl(object state)

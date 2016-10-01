@@ -14,9 +14,11 @@
     <PluginFiles Include="$(TargetDir)$(Configuration)\net451\*.pdb" />
   </ItemGroup>
 
+  <!--
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)\SlimTv.Interfaces.dll" />
   </ItemGroup>
+  -->
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />

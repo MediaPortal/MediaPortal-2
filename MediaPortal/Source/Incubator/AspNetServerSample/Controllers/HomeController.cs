@@ -22,7 +22,7 @@
 
 #endregion
 
-using Microsoft.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MediaPortal.Plugins.AspNetServerSample.Controllers
 {
