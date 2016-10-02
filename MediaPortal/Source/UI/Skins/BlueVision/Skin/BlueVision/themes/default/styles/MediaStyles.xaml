@@ -2163,7 +2163,7 @@
                 <Binding.Source>
                   <ControlTemplate TargetType="{x:Type ListView}">
                     <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource GradientListScrollViewerStyle}"
-                        HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                       <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                     </ScrollViewer>
                   </ControlTemplate>
@@ -2207,7 +2207,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="60,60" Margin="0,0,120,0">
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,120" Margin="0,0,120,0">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
