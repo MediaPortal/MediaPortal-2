@@ -845,7 +845,8 @@ namespace MediaPortal.UI.Players.Video
 
     /// <summary>
     /// Helper method to try a lookup of missing LCID from stream names. It compares the given <paramref name="streamName"/> 
-    /// with the available <see cref="CultureInfo.ThreeLetterISOLanguageName"/> and <see cref="CultureInfo.TwoLetterISOLanguageName"/>.
+    /// with the available <see cref="CultureInfo.ThreeLetterISOLanguageName"/>, <see cref="CultureInfo.TwoLetterISOLanguageName"/>
+    /// and <see cref="CultureInfo.EnglishName"/>
     /// </summary>
     /// <param name="streamName">Stream name to check.</param>
     /// <returns>Found LCID or <c>0</c></returns>
