@@ -855,14 +855,15 @@ namespace MediaPortal.UI.Players.Video
         return 0;
 
       int len = streamName.Length;
-      if (len < 2 || len > 3)
+      if (len < 2)
         return 0;
 
       streamName = streamName.ToLowerInvariant();
       CultureInfo culture = CultureInfo.GetCultures(CultureTypes.SpecificCultures).FirstOrDefault
         (c =>
           len == 3 && c.ThreeLetterISOLanguageName == streamName ||
-          len == 2 && c.TwoLetterISOLanguageName == streamName
+          len == 2 && c.TwoLetterISOLanguageName == streamName ||
+          len > 3 && c.EnglishName.StartsWith(streamName, StringComparison.InvariantCultureIgnoreCase)
         );
       return culture == null ? 0 : culture.LCID;
     }
