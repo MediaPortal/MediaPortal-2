@@ -67,11 +67,7 @@ namespace MediaPortal.UI.Players.Video
     {
       Video = 0,
       Audio = 1,
-      Subtitle = 2,
       MatroskaEdition = 18,
-      VsFilterSubtitle = 6590016,
-      VsFilterSubtitleOptions = 6590025,
-      DirectVobSubtitle = 6590033,
     }
 
     #endregion

@@ -92,11 +92,6 @@ namespace MediaPortal.UI.Players.Video
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
 
-    // Auto loading version of VSFilter
-    public const string VSFILTER_CLSID = "{9852A670-F845-491b-9BE6-EBD841B8A613}";
-    public const string VSFILTER_NAME = "xy-VSFilter";
-    public const string VSFILTER_FILENAME = "VSFilter.dll";
-
     #endregion
 
     #region Variables
@@ -188,32 +183,12 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddSubtitleFilter(bool isSourceFilterPresent)
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      if (settings.EnableMpcHcSubtitleEngine)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding MPC-HC subtitle engine", PlayerTitle);
-        AddMpcHcSubtitleEngine();
-      }
-      else
-      {
-        var vsFilter = FilterLoader.LoadFilterFromDll(VSFILTER_FILENAME, new Guid(VSFILTER_CLSID), true);
-        if (vsFilter == null)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, VSFILTER_NAME);
-          return;
-        }
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding {1} subtitle engine", PlayerTitle, VSFILTER_NAME);
-        _graphBuilder.AddFilter(vsFilter, VSFILTER_NAME);
-      }
-    }
-
-    protected void AddMpcHcSubtitleEngine()
-    {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       int preferredSubtitleLcid = settings.PreferredSubtitleLanguage;
-
       var fileSystemResourceAccessor = _resourceAccessor as IFileSystemResourceAccessor;
+
       if (fileSystemResourceAccessor != null)
       {
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding MPC-HC subtitle engine", PlayerTitle);
         SubtitleStyle defStyle = new SubtitleStyle();
         defStyle.Load();
         MpcSubtitles.SetDefaultStyle(ref defStyle, false);
@@ -222,7 +197,10 @@ namespace MediaPortal.UI.Players.Video
         string filename = fileSystemResourceAccessor.ResourcePathName;
 
         MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", preferredSubtitleLcid);
-        MpcSubtitles.SetEnable(true);
+        if (settings.EnableSubtitles)
+        {
+          MpcSubtitles.SetEnable(true);
+        }
       }
     }
 
@@ -538,18 +516,15 @@ namespace MediaPortal.UI.Players.Video
         return false;
 
       BaseStreamInfoHandler audioStreams;
-      BaseStreamInfoHandler subtitleStreams;
       BaseStreamInfoHandler titleStreams;
       lock (SyncObj)
       {
         audioStreams = _streamInfoAudio;
-        subtitleStreams = _streamInfoSubtitles;
         titleStreams = _streamInfoTitles;
       }
-      if (forceRefresh || audioStreams == null || subtitleStreams == null || titleStreams == null)
+      if (forceRefresh || audioStreams == null || titleStreams == null)
       {
         audioStreams = new StreamInfoHandler();
-        subtitleStreams = new StreamInfoHandler();
         titleStreams = new StreamInfoHandler();
 
         // Release stream selectors
@@ -618,17 +593,6 @@ namespace MediaPortal.UI.Players.Video
                   audioStreams.AddUnique(currentStream);
                 }
                 break;
-              case StreamGroup.Subtitle:
-                {
-                  currentStream.IsAutoSubtitle = currentStream.Name.ToLowerInvariant().Contains(FORCED_SUBTITLES);
-                  subtitleStreams.AddUnique(currentStream, true);
-                }
-                break;
-              case StreamGroup.VsFilterSubtitle:
-              case StreamGroup.VsFilterSubtitleOptions:
-              case StreamGroup.DirectVobSubtitle:
-                subtitleStreams.AddUnique(currentStream, true);
-                break;
               case StreamGroup.MatroskaEdition: // This is a MKV Edition handled by Haali splitter
                 titleStreams.AddUnique(currentStream, true);
                 break;
@@ -645,15 +609,9 @@ namespace MediaPortal.UI.Players.Video
           }
         }
 
-        VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-        if (settings.EnableMpcHcSubtitleEngine)
-        {
-          // MPC engine uses it's own way to enumerate subs. It will replace the existing list by a new one.
-          subtitleStreams = new MpcStreamInfoHandler();
-        }
-
+        // MPC engine uses it's own way to enumerate subs.
+        BaseStreamInfoHandler subtitleStreams = new MpcStreamInfoHandler();
         SetPreferredSubtitle_intern(ref subtitleStreams);
-
         SetPreferedAudio_intern(ref audioStreams, false);
 
         lock (SyncObj)
