@@ -38,7 +38,7 @@
 
           <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
                  TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-                 Content="{Binding Description}" Color="{ThemeResource TextColor}" Margin="-10,0,5,25"/>
+                 Content="{Binding Description}" Color="{ThemeResource TextColor}" Margin="0,0,5,25"/>
         </Grid>
       </ControlTemplate>
     </media:SeriesAspectWrapper.Template>

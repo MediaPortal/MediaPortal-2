@@ -7,11 +7,12 @@
   <ResourceWrapper x:Key="MEDIA_THUMB_Audio" Resource="175"/>
   <ResourceWrapper x:Key="MEDIA_AUDIO_WIDTH" Resource="170"/>
   <ResourceWrapper x:Key="MEDIA_AUDIO_HEIGHT" Resource="162"/>
-  
+  <ResourceWrapper x:Key="MEDIA_AUDIO_COVER" Resource="363"/>
+
   <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="220"/>
-  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="408"/>
+  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="380"/>
   <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="115"/>
-  <ResourceWrapper x:Key="MEDIA_COVER_WIDTH" Resource="280"/>
+  <ResourceWrapper x:Key="MEDIA_COVER_WIDTH" Resource="285"/>
 
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="150"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="82.5"/>
