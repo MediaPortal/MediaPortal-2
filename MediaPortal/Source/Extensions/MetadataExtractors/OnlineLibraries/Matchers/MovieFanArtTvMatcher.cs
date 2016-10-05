@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
 
     #endregion
-
+    
     #region Init
 
     public MovieFanArtTvMatcher() : 
@@ -78,9 +78,57 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("MovieFanArtTvMatcher: Error initializing wrapper", ex);
+        ServiceRegistration.Get<ILogger>().Error(Id + ": Error initializing wrapper", ex);
       }
       return false;
+    }
+
+    #endregion
+
+    #region Metadata updaters
+
+    public override bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    #endregion
+
+    #region External match storage
+
+    public override void StoreActorMatch(PersonInfo person)
+    {
+    }
+
+    public override void StoreDirectorMatch(PersonInfo person)
+    {
+    }
+
+    public override void StoreWriterMatch(PersonInfo person)
+    {
+    }
+
+    public override void StoreCharacterMatch(CharacterInfo character)
+    {
+    }
+
+    public override void StoreCompanyMatch(CompanyInfo company)
+    {
     }
 
     #endregion

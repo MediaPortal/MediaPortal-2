@@ -42,7 +42,7 @@ using System.Reflection;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class MusicMatcher<TImg, TLang> : BaseMatcher<TrackMatch, string>
+  public abstract class MusicMatcher<TImg, TLang> : BaseMatcher<TrackMatch, string>, IMusicMatcher
   {
     public class MusicMatcherSettings
     {
@@ -56,6 +56,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "MusicMatches.xml");
       _maxCacheDuration = maxCacheDuration;
+      _id = GetType().Name;
 
       _artistMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ArtistMatches.xml"));
       _composerMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ComposerMatches.xml"));
@@ -68,6 +69,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public override bool Init()
     {
+      if (!_enabled)
+        return false;
+
       if (_wrapper != null)
         return true;
 
@@ -113,6 +117,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private string _matchesSettingsFile;
     private string _configFile;
     private TimeSpan _maxCacheDuration;
+    private bool _enabled = true;
+    private bool _primary = false;
+    private string _id = null;
 
     private SimpleNameMatcher _artistMatcher;
     private SimpleNameMatcher _composerMatcher;
@@ -120,29 +127,50 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private SimpleNameMatcher _albumMatcher;
 
     /// <summary>
-    /// Contains the initialized MovieWrapper.
+    /// Contains the initialized ApiWrapper.
     /// </summary>
     protected ApiWrapper<TImg, TLang> _wrapper = null;
 
     #endregion
 
+    #region Properties
+
+    public bool Enabled
+    {
+      get { return _enabled; }
+      set { _enabled = value; }
+    }
+
+    public bool Primary
+    {
+      get { return _primary; }
+      set { _primary = value; }
+    }
+
+    public string Id
+    {
+      get { return _id; }
+    }
+
+    #endregion
+
     #region External match storage
 
-    public void StoreArtistMatch(PersonInfo person)
+    public virtual void StoreArtistMatch(PersonInfo person)
     {
       string id;
       if (GetPersonId(person, out id))
         _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
     }
 
-    public void StoreComposerMatch(PersonInfo person)
+    public virtual void StoreComposerMatch(PersonInfo person)
     {
       string id;
       if (GetPersonId(person, out id))
         _composerMatcher.StoreNameMatch(id, person.Name, person.Name);
     }
 
-    public void StoreMusicLabelMatch(CompanyInfo company)
+    public virtual void StoreMusicLabelMatch(CompanyInfo company)
     {
       string id;
       if (GetCompanyId(company, out id))
@@ -191,7 +219,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             (!string.IsNullOrEmpty(m.ArtistName) && trackInfo.Artists.Count > 0 ? trackInfo.Artists[0].Name.Equals(m.ArtistName, StringComparison.OrdinalIgnoreCase) : true) &&
             (!string.IsNullOrEmpty(m.AlbumName) && !string.IsNullOrEmpty(trackInfo.Album) ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : true) &&
             ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum) || trackInfo.TrackNum <= 0 || m.TrackNum <= 0)));
-          Logger.Debug(GetType().Name + ": Try to lookup movie \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
+          Logger.Debug(_id + ": Try to lookup track \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
 
           trackMatch = CloneProperties(trackInfo);
           if (match != null)
@@ -201,7 +229,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //If Id was found in cache the online track info is probably also in the cache
               if (_wrapper.UpdateFromOnlineMusicTrack(trackMatch, language, true))
               {
-                Logger.Debug(GetType().Name + ": Found track {0} in cache", trackInfo.ToString());
+                Logger.Debug(_id + ": Found track {0} in cache", trackInfo.ToString());
                 matchFound = true;
               }
             }
@@ -215,7 +243,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (!matchFound && !forceQuickMode)
           {
-            Logger.Debug(GetType().Name + ": Search for track {0} online", trackInfo.ToString());
+            Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
 
             //Try to update track information from online source if online Ids are present
             if (!_wrapper.UpdateFromOnlineMusicTrack(trackMatch, language, false))
@@ -326,7 +354,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        Logger.Debug(GetType().Name + ": Exception while processing movie {0}", ex, trackInfo.ToString());
+        Logger.Debug(_id + ": Exception while processing track {0}", ex, trackInfo.ToString());
         return false;
       }
     }
@@ -392,7 +420,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (!forceQuickMode)
             {
-              Logger.Debug(GetType().Name + ": Search for person {0} online", person.ToString());
+              Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
               //Try to update person information from online source if online Ids are present
               if (!_wrapper.UpdateFromOnlineMusicTrackPerson(trackMatch, person, language, false))
@@ -417,7 +445,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
-            Logger.Debug(GetType().Name + ": Found person {0} in cache", person.ToString());
+            Logger.Debug(_id + ": Found person {0} in cache", person.ToString());
             updated = true;
           }
         }
@@ -480,7 +508,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        Logger.Debug(GetType().Name + ": Exception while processing persons {0}", ex, trackInfo.ToString());
+        Logger.Debug(_id + ": Exception while processing persons {0}", ex, trackInfo.ToString());
         return false;
       }
     }
@@ -525,7 +553,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (!forceQuickMode)
             {
-              Logger.Debug(GetType().Name + ": Search for person {0} online", person.ToString());
+              Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
               //Try to update person information from online source if online Ids are present
               if (!_wrapper.UpdateFromOnlineMusicTrackAlbumPerson(albumMatch, person, language, false))
@@ -550,7 +578,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
-            Logger.Debug(GetType().Name + ": Found person {0} in cache", person.ToString());
+            Logger.Debug(_id + ": Found person {0} in cache", person.ToString());
             updated = true;
           }
         }
@@ -586,7 +614,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        Logger.Debug(GetType().Name + ": Exception while processing persons {0}", ex, albumInfo.ToString());
+        Logger.Debug(_id + ": Exception while processing persons {0}", ex, albumInfo.ToString());
         return false;
       }
     }
@@ -631,7 +659,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (!forceQuickMode)
             {
-              Logger.Debug(GetType().Name + ": Search for company {0} online", company.ToString());
+              Logger.Debug(_id + ": Search for company {0} online", company.ToString());
 
               //Try to update company information from online source if online Ids are present
               if (!_wrapper.UpdateFromOnlineMusicTrackAlbumCompany(albumMatch, company, language, false))
@@ -656,7 +684,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
-            Logger.Debug(GetType().Name + ": Found company {0} in cache", company.ToString());
+            Logger.Debug(_id + ": Found company {0} in cache", company.ToString());
             updated = true;
           }
         }
@@ -692,7 +720,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        Logger.Debug(GetType().Name + ": Exception while processing companies {0}", ex, albumInfo.ToString());
+        Logger.Debug(_id + ": Exception while processing companies {0}", ex, albumInfo.ToString());
         return false;
       }
     }
@@ -731,7 +759,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           if (!forceQuickMode)
           {
-            Logger.Debug(GetType().Name + ": Search for album {0} online", albumInfo.ToString());
+            Logger.Debug(_id + ": Search for album {0} online", albumInfo.ToString());
 
             //Try to update company information from online source if online Ids are present
             if (!_wrapper.UpdateFromOnlineMusicTrackAlbum(albumMatch, language, false))
@@ -752,7 +780,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
         else
         {
-          Logger.Debug(GetType().Name + ": Found album {0} in cache", albumInfo.ToString());
+          Logger.Debug(_id + ": Found album {0} in cache", albumInfo.ToString());
           updated = true;
         }
 
@@ -841,7 +869,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        Logger.Debug(GetType().Name + ": Exception while processing collection {0}", ex, albumInfo.ToString());
+        Logger.Debug(_id + ": Exception while processing collection {0}", ex, albumInfo.ToString());
         return false;
       }
     }
@@ -907,7 +935,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        Logger.Debug(GetType().Name + ": Exception while processing person {0}", ex, person.ToString());
+        Logger.Debug(_id + ": Exception while processing person {0}", ex, person.ToString());
         return false;
       }
     }
@@ -1087,7 +1115,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
       if (threadPool != null)
       {
-        Logger.Debug(GetType().Name + ": Refreshing local cache");
+        Logger.Debug(_id + ": Refreshing local cache");
         threadPool.Add(() =>
         {
           if (_wrapper != null)
@@ -1224,7 +1252,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           foreach (string fanArtType in fanArtTypes)
             FanArtCache.InitFanArtCount(data.MediaItemId, fanArtType);
 
-          Logger.Debug(GetType().Name + " Download: Started for media item {0}", name);
+          Logger.Debug(_id + " Download: Started for media item {0}", name);
           ApiWrapperImageCollection<TImg> images = null;
           string Id = "";
           if (data.FanArtMediaType == FanArtMediaTypes.Audio)
@@ -1235,7 +1263,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               if (_wrapper.GetFanArt(trackInfo, language, data.FanArtMediaType, out images) == false)
               {
-                Logger.Debug(GetType().Name + " Download: Failed getting images for track ID {0} [{1}]", Id, name);
+                Logger.Debug(_id + " Download: Failed getting images for track ID {0} [{1}]", Id, name);
                 return;
               }
             }
@@ -1248,7 +1276,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               if (_wrapper.GetFanArt(albumInfo, language, data.FanArtMediaType, out images) == false)
               {
-                Logger.Debug(GetType().Name + " Download: Failed getting images for album ID {0} [{1}]", Id, name);
+                Logger.Debug(_id + " Download: Failed getting images for album ID {0} [{1}]", Id, name);
                 return;
               }
             }
@@ -1264,7 +1292,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
               {
-                Logger.Debug(GetType().Name + " Download: Failed getting images for music person ID {0} [{1}]", Id, name);
+                Logger.Debug(_id + " Download: Failed getting images for music person ID {0} [{1}]", Id, name);
                 return;
               }
             }
@@ -1280,14 +1308,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
               {
-                Logger.Debug(GetType().Name + " Download: Failed getting images for music company ID {0} [{1}]", Id, name);
+                Logger.Debug(_id + " Download: Failed getting images for music company ID {0} [{1}]", Id, name);
                 return;
               }
             }
           }
           if (images != null)
           {
-            Logger.Debug(GetType().Name + " Download: Downloading images for ID {0} [{1}]", Id, name);
+            Logger.Debug(_id + " Download: Downloading images for ID {0} [{1}]", Id, name);
 
             SaveFanArtImages(images.Id, images.Backdrops, data.MediaItemId, data.Name, FanArtTypes.FanArt);
             SaveFanArtImages(images.Id, images.Posters, data.MediaItemId, data.Name, FanArtTypes.Poster);
@@ -1302,7 +1330,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               SaveFanArtImages(images.Id, images.Logos, data.MediaItemId, data.Name, FanArtTypes.Logo);
             }
 
-            Logger.Debug(GetType().Name + " Download: Finished saving images for ID {0} [{1}]", Id, name);
+            Logger.Debug(_id + " Download: Finished saving images for ID {0} [{1}]", Id, name);
           }
         }
         finally
@@ -1313,7 +1341,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        Logger.Debug(GetType().Name + " Download: Exception downloading images for {0}", ex, name);
+        Logger.Debug(_id + " Download: Exception downloading images for {0}", ex, name);
       }
     }
 
@@ -1347,16 +1375,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
             else
             {
-              Logger.Warn(GetType().Name + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
+              Logger.Warn(_id + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
             }
           }
         }
-        Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
+        Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
         return idx;
       }
       catch (Exception ex)
       {
-        Logger.Debug(GetType().Name + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
+        Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
         return 0;
       }
     }

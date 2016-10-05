@@ -77,6 +77,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #endregion
 
+    #region External match storage
+
+    public override void StoreCompanyMatch(CompanyInfo company)
+    {
+    }
+
+    public override void StoreTvNetworkMatch(CompanyInfo company)
+    {
+    }
+
+    #endregion
+
+    #region Metadata updaters
+
+    public override bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    #endregion
+
     #region Translators
 
     protected override bool SetSeriesId(SeriesInfo series, string id)

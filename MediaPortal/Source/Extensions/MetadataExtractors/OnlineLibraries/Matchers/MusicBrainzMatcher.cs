@@ -60,6 +60,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public MusicBrainzMatcher() :
       base(CACHE_PATH, MAX_MEMCACHE_DURATION)
     {
+      //TODO: Disabled for now. Very slow response times (up to 30 seconds, maybe more).
+      Enabled = false;
     }
 
     public override bool InitWrapper(bool useHttps)

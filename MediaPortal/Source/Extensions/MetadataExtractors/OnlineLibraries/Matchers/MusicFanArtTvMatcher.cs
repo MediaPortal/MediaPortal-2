@@ -85,6 +85,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #endregion
 
+    #region External match storage
+
+    public override void StoreArtistMatch(PersonInfo person)
+    { }
+
+    public override void StoreComposerMatch(PersonInfo person)
+    { }
+
+    public override void StoreMusicLabelMatch(CompanyInfo company)
+    { }
+
+    #endregion
+
+    #region Metadata updaters
+
+    public override bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    #endregion
+
     #region Translators
 
     protected override bool GetTrackAlbumId(AlbumInfo album, out string id)

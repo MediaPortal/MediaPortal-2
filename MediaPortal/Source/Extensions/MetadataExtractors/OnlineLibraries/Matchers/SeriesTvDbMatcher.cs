@@ -73,6 +73,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public SeriesTvDbMatcher() :
       base(CACHE_PATH, MAX_MEMCACHE_DURATION)
     {
+      Primary = true;
     }
 
     public override bool InitWrapper(bool useHttps)

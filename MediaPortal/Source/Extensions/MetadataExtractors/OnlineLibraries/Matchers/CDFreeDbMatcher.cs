@@ -74,6 +74,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return false;
     }
 
+    public override bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode)
+    {
+      if (!string.IsNullOrEmpty(trackInfo.AlbumCdDdId))
+      {
+        return base.FindAndUpdateTrack(trackInfo, forceQuickMode);
+      }
+      return false;
+    }
+
     #endregion
 
     #region Translators
