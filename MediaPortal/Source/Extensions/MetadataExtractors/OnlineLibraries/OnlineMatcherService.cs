@@ -133,7 +133,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         sw.Restart();
         success |= matcher.FindAndUpdateTrack(trackInfo, matcher.Primary ? false : forceQuickMode);
+#if DEBUG
         Logger.Debug("FindAndUpdateTrack: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
+#endif
       }
       return success;
     }
@@ -146,7 +148,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         sw.Restart();
         success |= matcher.FindAndUpdateTrackPerson(trackInfo, personInfo, forceQuickMode);
+#if DEBUG
         Logger.Debug("FindAndUpdateTrackPerson: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
+#endif
       }
       return success;
     }
@@ -159,7 +163,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         sw.Restart();
         success |= matcher.UpdateAlbumPersons(albumInfo, occupation, forceQuickMode);
+#if DEBUG
         Logger.Debug("UpdateAlbumPersons: Media item {0} processed by {1} ({2} ms)", albumInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
+#endif
       }
       return success;
     }
@@ -172,7 +178,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         sw.Restart();
         success |= matcher.UpdateTrackPersons(trackInfo, occupation, forceQuickMode);
+#if DEBUG
         Logger.Debug("UpdateTrackPersons: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
+#endif
       }
       return success;
     }
@@ -185,7 +193,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         sw.Restart();
         success |= matcher.UpdateAlbumCompanies(albumInfo, companyType, forceQuickMode);
+#if DEBUG
         Logger.Debug("UpdateAlbumCompanies: Media item {0} processed by {1} ({2} ms)", albumInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
+#endif
       }
       return success;
     }
@@ -198,7 +208,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         sw.Restart();
         success |= matcher.UpdateAlbum(albumInfo, updateTrackList, matcher.Primary ? false : forceQuickMode);
+#if DEBUG
         Logger.Debug("UpdateAlbum: Media item {0} processed by {1} ({2} ms)", albumInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
+#endif
       }
 
       if (updateTrackList)
@@ -226,7 +238,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         sw.Restart();
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+#if DEBUG
         Logger.Debug("DownloadAudioFanArt: Media item {0} processed by {1} ({2} ms)", mediaItemId.ToString(), matcher.Id, sw.ElapsedMilliseconds);
+#endif
       }
       return success;
     }
