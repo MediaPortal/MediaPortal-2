@@ -32,6 +32,8 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -40,6 +42,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
     private CheckedItemCache<TrackInfo> _checkCache = new CheckedItemCache<TrackInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private bool _includeDetails = true;
+
+    public TrackArtistRelationshipExtractor()
+    {
+      _includeDetails = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>().IncludeArtistDetails;
+    }
 
     public bool BuildRelationship
     {
@@ -69,6 +77,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
+
+      if (!_includeDetails)
+        return false;
+
+      if (BaseInfo.IsVirtualResource(aspects))
+        return false;
 
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))

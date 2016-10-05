@@ -178,6 +178,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       };
 
       SeriesYearPattern = new SerializableRegex(@"(?<series>.*)[( .-_]+(?<year>\d{4})", RegexOptions.IgnoreCase);
+
+      IncludeActorDetails = true;
+      IncludeCharacterDetails = true;
+      IncludeDirectorDetails = true;
+      IncludeWriterDetails = true;
+      IncludeTVNetworkDetails = true;
+      IncludeProductionCompanyDetails = true;
     }
 
     #region Public properties
@@ -212,6 +219,42 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool OnlyLocalMedia { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Actor details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeActorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Character details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeCharacterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Director details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeDirectorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Writer details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeWriterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, TV Network details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeTVNetworkDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Production company details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeProductionCompanyDetails { get; set; }
 
     #endregion
   }

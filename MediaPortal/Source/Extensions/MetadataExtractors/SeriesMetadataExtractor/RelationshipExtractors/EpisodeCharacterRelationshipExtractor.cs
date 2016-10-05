@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -40,6 +41,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
     private CheckedItemCache<EpisodeInfo> _checkCache = new CheckedItemCache<EpisodeInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    private bool _includeDetails = true;
+
+    public EpisodeCharacterRelationshipExtractor()
+    {
+      _includeDetails = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>().IncludeCharacterDetails;
+    }
 
     public bool BuildRelationship
     {
@@ -70,7 +77,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
+      if (!_includeDetails)
+        return false;
+
       if (forceQuickMode)
+        return false;
+
+      if (BaseInfo.IsVirtualResource(aspects))
         return false;
 
       EpisodeInfo episodeInfo = new EpisodeInfo();

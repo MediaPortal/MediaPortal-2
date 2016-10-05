@@ -64,6 +64,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
     protected List<string> _unsplittableAddditionalSeparatorValues = new List<string>(DEFAULT_UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES);
     protected List<string> _audioExtensions = new List<string>(DEFAULT_AUDIO_FILE_EXTENSIONS);
 
+    public AudioMetadataExtractorSettings()
+    {
+      IncludeArtistDetails = true;
+      IncludeComposerDetails = true;
+      IncludeMusicLabelDetails = true;
+    }
+
     /// <summary>
     /// Returns a list of strings of the form "AC/DC". Each string must contain at least one "/" character.
     /// </summary>
@@ -152,5 +159,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool OnlyLocalMedia { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Artists details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeArtistDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Composer details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeComposerDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Music Label details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeMusicLabelDetails { get; set; }
   }
 }

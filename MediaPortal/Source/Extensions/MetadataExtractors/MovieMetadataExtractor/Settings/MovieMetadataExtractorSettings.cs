@@ -41,6 +41,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         new SerializableRegex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase),
       };
+
+      IncludeActorDetails = true;
+      IncludeCharacterDetails = true;
+      IncludeDirectorDetails = true;
+      IncludeWriterDetails = true;
+      IncludeProductionCompanyDetails = true;
     }
 
     #region Public properties
@@ -63,6 +69,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool OnlyLocalMedia { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Actor details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeActorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Character details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeCharacterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Director details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeDirectorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Writer details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeWriterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Production company details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeProductionCompanyDetails { get; set; }
 
     #endregion
   }
