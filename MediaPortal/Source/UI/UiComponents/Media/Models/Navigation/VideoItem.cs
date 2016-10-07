@@ -45,25 +45,29 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       base.Update(mediaItem);
       SimpleTitle = Title;
+      SingleMediaItemAspect videoAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
+        StoryPlot = (string)videoAspect[VideoAspect.ATTR_STORYPLOT];
+
       VideoStreams = new ItemsList();
       AudioStreams = new ItemsList();
       Subtitles = new ItemsList();
-      IList<MultipleMediaItemAspect> videoAspects;
-      IList<MultipleMediaItemAspect> audioAspects;
+      IList<MultipleMediaItemAspect> videoStreamAspects;
+      IList<MultipleMediaItemAspect> audioStreamAspects;
       IList<MultipleMediaItemAspect> subtitleAspects;
       Dictionary<int, VideoStreamItem> videoStreams = new Dictionary<int, VideoStreamItem>();
       Dictionary<int, List<VideoAudioStreamItem>> videoAudioStreams = new Dictionary<int, List<VideoAudioStreamItem>>();
       Dictionary<int, List<SubtitleItem>> subtitleStreams = new Dictionary<int, List<SubtitleItem>>();
       MediaItemAspect.TryGetAspects(mediaItem.Aspects, SubtitleAspect.Metadata, out subtitleAspects);
-      if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out videoAspects) &&
-        MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioStreamAspect.Metadata, out audioAspects))
+      if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out videoStreamAspects) &&
+        MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioStreamAspect.Metadata, out audioStreamAspects))
       {
         List<string> videoEncodings = new List<string>();
         List<string> audioEncodings = new List<string>();
-        foreach (MultipleMediaItemAspect videoAspect in videoAspects)
+        foreach (MultipleMediaItemAspect videoStreamAspect in videoStreamAspects)
         {
-          int? part = (int?)videoAspect[VideoStreamAspect.ATTR_VIDEO_PART];
-          int? partSet = (int?)videoAspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
+          int? part = (int?)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_PART];
+          int? partSet = (int?)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
           if (partSet.HasValue)
           {
             if (!videoStreams.ContainsKey(partSet.Value))
@@ -92,56 +96,56 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           long? samplerate = null;
           if (!part.HasValue || part.Value < 0)
           {
-            dur = (long?)videoAspect[VideoStreamAspect.ATTR_DURATION];
-            aspectRatio = (float?)videoAspect[VideoStreamAspect.ATTR_ASPECTRATIO];
-            type = (string)videoAspect[VideoStreamAspect.ATTR_VIDEO_TYPE];
-            bitrate = (long?)videoAspect[VideoStreamAspect.ATTR_VIDEOBITRATE];
-            fps = (float?)videoAspect[VideoStreamAspect.ATTR_FPS];
-            height = (int?)videoAspect[VideoStreamAspect.ATTR_HEIGHT];
-            width = (int?)videoAspect[VideoStreamAspect.ATTR_WIDTH];
-            encoding = (string)videoAspect[VideoStreamAspect.ATTR_VIDEOENCODING];
+            dur = (long?)videoStreamAspect[VideoStreamAspect.ATTR_DURATION];
+            aspectRatio = (float?)videoStreamAspect[VideoStreamAspect.ATTR_ASPECTRATIO];
+            type = (string)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_TYPE];
+            bitrate = (long?)videoStreamAspect[VideoStreamAspect.ATTR_VIDEOBITRATE];
+            fps = (float?)videoStreamAspect[VideoStreamAspect.ATTR_FPS];
+            height = (int?)videoStreamAspect[VideoStreamAspect.ATTR_HEIGHT];
+            width = (int?)videoStreamAspect[VideoStreamAspect.ATTR_WIDTH];
+            encoding = (string)videoStreamAspect[VideoStreamAspect.ATTR_VIDEOENCODING];
             parts = 0;
           }
           else if (partSet.HasValue)
           {
-            IEnumerable<MultipleMediaItemAspect> aspectList = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            IEnumerable<MultipleMediaItemAspect> aspectList = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_DURATION] != null);
             if (aspectList.Any())
               dur = aspectList.Sum(a => (long)a[VideoStreamAspect.ATTR_DURATION]);
 
-            aspectList = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            aspectList = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_ASPECTRATIO] != null);
             if (aspectList.Any())
               aspectRatio = aspectList.Max(a => (float)a[VideoStreamAspect.ATTR_ASPECTRATIO]);
 
-            aspectList = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            aspectList = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_VIDEOBITRATE] != null);
             if (aspectList.Any())
               bitrate = aspectList.Max(a => (long)a[VideoStreamAspect.ATTR_VIDEOBITRATE]);
 
-            aspectList = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            aspectList = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_FPS] != null);
             if (aspectList.Any())
               fps = aspectList.Max(a => (float)a[VideoStreamAspect.ATTR_FPS]);
 
-            aspectList = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            aspectList = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_HEIGHT] != null);
             if (aspectList.Any())
               height = aspectList.Max(a => (int)a[VideoStreamAspect.ATTR_HEIGHT]);
 
-            aspectList = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            aspectList = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_WIDTH] != null);
             if (aspectList.Any())
               width = aspectList.Max(a => (int)a[VideoStreamAspect.ATTR_WIDTH]);
 
-            aspectList = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            aspectList = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_VIDEO_PART] != null);
             if (aspectList.Any())
               parts = aspectList.Max(a => (int)a[VideoStreamAspect.ATTR_VIDEO_PART]);
 
-            encoding = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            encoding = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_VIDEOENCODING] != null).Select(a => (string)a[VideoStreamAspect.ATTR_VIDEOENCODING]).FirstOrDefault();
-            type = videoAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+            type = videoStreamAspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
               a[VideoStreamAspect.ATTR_VIDEO_TYPE] != null).Select(a => (string)a[VideoStreamAspect.ATTR_VIDEO_TYPE]).FirstOrDefault();
           }
 
@@ -188,14 +192,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           videoStreams[partSet.Value].Parts = parts;
           videoStreams[partSet.Value].VideoEncoding = encoding;
 
-          string videoEnc = (string)videoAspect[VideoStreamAspect.ATTR_VIDEOENCODING];
+          string videoEnc = (string)videoStreamAspect[VideoStreamAspect.ATTR_VIDEOENCODING];
           if (!string.IsNullOrEmpty(videoEnc))
             if (!videoEncodings.Contains(videoEnc))
               videoEncodings.Add(videoEnc);
 
-          foreach (MultipleMediaItemAspect audioAspect in audioAspects)
+          foreach (MultipleMediaItemAspect audioStreamAspect in audioStreamAspects)
           {
-            if ((int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] == (int)audioAspect[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX])
+            if ((int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] == (int)audioStreamAspect[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX])
             {
               VideoAudioStreamItem audioItem = new VideoAudioStreamItem();
               audioItem.Set = partSet.Value;
@@ -206,32 +210,32 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               samplerate = null;
               if (!part.HasValue || part.Value < 0)
               {
-                channels = (int?)audioAspect[VideoAudioStreamAspect.ATTR_AUDIOCHANNELS];
-                language = (string)audioAspect[VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE];
-                bitrate = (long?)audioAspect[VideoAudioStreamAspect.ATTR_AUDIOBITRATE];
-                encoding = (string)audioAspect[VideoAudioStreamAspect.ATTR_AUDIOENCODING];
-                samplerate = (long?)audioAspect[VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE];
+                channels = (int?)audioStreamAspect[VideoAudioStreamAspect.ATTR_AUDIOCHANNELS];
+                language = (string)audioStreamAspect[VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE];
+                bitrate = (long?)audioStreamAspect[VideoAudioStreamAspect.ATTR_AUDIOBITRATE];
+                encoding = (string)audioStreamAspect[VideoAudioStreamAspect.ATTR_AUDIOENCODING];
+                samplerate = (long?)audioStreamAspect[VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE];
               }
               else if (partSet.HasValue)
               {
-                IEnumerable<MultipleMediaItemAspect> aspectList = audioAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                IEnumerable<MultipleMediaItemAspect> aspectList = audioStreamAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                   a[VideoAudioStreamAspect.ATTR_AUDIOCHANNELS] != null);
                 if (aspectList.Any())
                   channels = aspectList.Max(a => (int)a[VideoAudioStreamAspect.ATTR_AUDIOCHANNELS]);
 
-                aspectList = audioAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                aspectList = audioStreamAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                   a[VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE] != null);
                 if (aspectList.Any())
                   samplerate = aspectList.Max(a => (long)a[VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE]);
 
-                aspectList = audioAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                aspectList = audioStreamAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                   a[VideoAudioStreamAspect.ATTR_AUDIOBITRATE] != null);
                 if (aspectList.Any())
                   bitrate = aspectList.Max(a => (long)a[VideoAudioStreamAspect.ATTR_AUDIOBITRATE]);
 
-                language = audioAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                language = audioStreamAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                   a[VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE] != null).Select(a => (string)a[VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE]).FirstOrDefault();
-                encoding = audioAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                encoding = audioStreamAspects.Where(a => (int)a[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                   a[VideoAudioStreamAspect.ATTR_AUDIOENCODING] != null).Select(a => (string)a[VideoAudioStreamAspect.ATTR_AUDIOENCODING]).FirstOrDefault();
               }
 
@@ -263,7 +267,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
               audioItem.Language = language;
               videoAudioStreams[partSet.Value].Add(audioItem);
 
-              string audioEnc = (string)audioAspect[VideoAudioStreamAspect.ATTR_AUDIOENCODING];
+              string audioEnc = (string)audioStreamAspect[VideoAudioStreamAspect.ATTR_AUDIOENCODING];
               if (!string.IsNullOrEmpty(audioEnc))
                 if (!audioEncodings.Contains(audioEnc))
                   audioEncodings.Add(audioEnc);
@@ -274,7 +278,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           {
             foreach (MultipleMediaItemAspect subtitleAspect in subtitleAspects)
             {
-              if ((int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] == (int)subtitleAspect[SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX])
+              if ((int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] == (int)subtitleAspect[SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX])
               {
                 SubtitleItem subtitleItem = new SubtitleItem();
                 subtitleItem.Set = partSet.Value;
@@ -293,13 +297,13 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
                 }
                 else if (partSet.HasValue)
                 {
-                  isDefault = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                  isDefault = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                     a[SubtitleAspect.ATTR_DEFAULT] != null).Select(a => (bool)a[SubtitleAspect.ATTR_DEFAULT]).FirstOrDefault();
-                  isForced = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                  isForced = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                     a[SubtitleAspect.ATTR_FORCED] != null).Select(a => (bool)a[SubtitleAspect.ATTR_FORCED]).FirstOrDefault();
-                  type = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                  type = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                     a[SubtitleAspect.ATTR_SUBTITLE_FORMAT] != null).Select(a => (string)a[SubtitleAspect.ATTR_SUBTITLE_FORMAT]).FirstOrDefault();
-                  language = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
+                  language = subtitleAspects.Where(a => (int)a[SubtitleAspect.ATTR_RESOURCE_INDEX] == (int)videoStreamAspect[VideoStreamAspect.ATTR_RESOURCE_INDEX] &&
                     a[SubtitleAspect.ATTR_SUBTITLE_LANGUAGE] != null).Select(a => (string)a[SubtitleAspect.ATTR_SUBTITLE_LANGUAGE]).FirstOrDefault();
                 }
 
@@ -341,6 +345,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_VIDEO_ENCODING]; }
       set { SetLabel(Consts.KEY_VIDEO_ENCODING, value); }
+    }
+
+    public string StoryPlot
+    {
+      get { return this[Consts.KEY_STORY_PLOT]; }
+      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
     }
 
     public ItemsList Subtitles { get; set; }

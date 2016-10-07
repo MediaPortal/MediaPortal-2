@@ -340,7 +340,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
         MediaItem = video.MediaItem;
         FanArtName = video.MediaItem.MediaItemId.ToString();
         SimpleTitle = video.SimpleTitle;
-        ItemDescription = string.Empty;
+        ItemDescription = video.StoryPlot;
         return;
       }
       AlbumFilterItem albumItem = SelectedItem as AlbumFilterItem;
