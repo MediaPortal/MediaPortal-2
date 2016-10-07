@@ -94,11 +94,5 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       get { return this[Consts.KEY_SERIES_EPISODE_NAME]; }
       set { SetLabel(Consts.KEY_SERIES_EPISODE_NAME, value); }
     }
-
-    public string StoryPlot
-    {
-      get { return this[Consts.KEY_STORY_PLOT]; }
-      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
-    }
   }
 }
