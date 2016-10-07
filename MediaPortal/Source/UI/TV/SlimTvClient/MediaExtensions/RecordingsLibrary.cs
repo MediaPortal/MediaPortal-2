@@ -100,6 +100,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         EpisodeAspect.ASPECT_ID,
         AudioAspect.ASPECT_ID,
         VideoAspect.ASPECT_ID,
+        VideoStreamAspect.ASPECT_ID,
+        VideoAudioStreamAspect.ASPECT_ID,
         ImageAspect.ASPECT_ID
       }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 
