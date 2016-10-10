@@ -5,6 +5,7 @@
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:latestmedia="clr-namespace:MediaPortal.UiComponents.Media.Models;assembly=Media"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
@@ -25,14 +26,6 @@
         Storyboard.TargetName="OSDInfoArea" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor1}"/>
     </ColorAnimationUsingKeyFrames>
-    <!--<ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
-        Storyboard.TargetName="OSDInfoArea" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor2}"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
-        Storyboard.TargetName="OSDInfoArea" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor3}"/>
-    </ColorAnimationUsingKeyFrames>-->
   </Storyboard>
 
   <Style x:Key="PrimaryVideoOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -957,8 +950,8 @@
         </Border.Background>
       </Border>
       <!--Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"/-->
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
-             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Stretch" Wrap="True" TextTrimming="CharacterEllipsis"
+             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,5,5,45"/>
       <Label x:Name="NumItems" Content="{Binding NumItems}"
              HorizontalAlignment="Right" VerticalAlignment="Bottom"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,5,5"/>
@@ -3043,7 +3036,7 @@
           <ScrollViewer CanContentScroll="True" Margin="5"
                         HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
@@ -3051,23 +3044,23 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" Height="280">
-            <AnimatedWrapPanel.Resources>
+          <AnimatedStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal">
+            <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                 <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
-                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="CoverListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
               </Storyboard>
-            </AnimatedWrapPanel.Resources>
-            <AnimatedWrapPanel.Triggers>
-              <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
                 <EventTrigger.Actions>
                   <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
                 </EventTrigger.Actions>
               </EventTrigger>
-            </AnimatedWrapPanel.Triggers>
-          </AnimatedWrapPanel>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
 
-          <!--UniformGrid x:Name="ListItemsHost" Columns="{x:Static latestmedia:LatestMediaModel.QUERY_LIMIT}" IsItemsHost="True" /-->
+            <!--UniformGrid x:Name="ListItemsHost" Columns="{x:Static latestmedia:LatestMediaModel.QUERY_LIMIT}" IsItemsHost="True" /-->
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

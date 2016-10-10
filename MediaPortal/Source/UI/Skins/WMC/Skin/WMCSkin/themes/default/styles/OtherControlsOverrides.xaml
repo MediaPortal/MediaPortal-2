@@ -473,7 +473,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <DockPanel x:Name="ItemGroup" Width="430" Height="45">
-            <Button Style="{ThemeResource ButtonWideStyle}" Margin="20,0,5,0" DockPanel.Dock="Left"
+            <Button Style="{ThemeResource TopMenuButtonWideStyle}" Margin="20,0,5,0" DockPanel.Dock="Left"
                             Command="{DynamicResource ResourceKey=Menu_Command}"
                                IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
               <Button.Triggers>

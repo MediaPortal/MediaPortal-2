@@ -26,11 +26,10 @@
          Opacity="1.3" Color="{ThemeResource MenuTextBackground}" Margin="0,50,0,5"/>
 
   <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="0" HorizontalAlignment="Left">
-    
-    <Label x:Name="MediaItemName" Wrap="True" Margin="0"
+    <Label x:Name="MediaItemName" Wrap="True" Margin="0" TextTrimming="WordEllipsis"
            HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
-           Color="{ThemeResource TextColor}"/>
+           Color="{ThemeResource TextColor}" VerticalAlignment="Stretch"/>
     
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:SeriesAspectWrapper.Template>
@@ -61,15 +60,15 @@
         <ControlTemplate>
           <Label x:Name="Channel" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                  FontSize="{ThemeResource SmallFontSize}"
-                 Content="{Binding Channel}" Opacity="0.5" Color="{ThemeResource TextColor}"/>
+                 Content="{Binding Channel}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
 
-    <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+    <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Margin="0,20,0,0">
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="ProgramStart" Scroll="Auto" Opacity="0.5" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+          <Label x:Name="ProgramStart" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                 Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                 Color="{ThemeResource TextColor}"/>
         </ControlTemplate>
@@ -102,8 +101,8 @@
                               MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Genre" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              Content="{Binding Genres}" Color="{ThemeResource TextColor}" Opacity="0.5" />
+          <Label x:Name="Genre" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" TextTrimming="WordEllipsis" Wrap="True"
+              Content="{Binding Genres}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
         </ControlTemplate>
       </media:VideoAspectWrapper.Template>
     </media:VideoAspectWrapper>

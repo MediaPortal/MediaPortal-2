@@ -24,9 +24,9 @@
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="ProgramStart" Scroll="Auto" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          <Label x:Name="ProgramStart" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
@@ -55,7 +55,8 @@
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
           <Label x:Name="Channel" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Content="{Binding Channel}" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+                 Content="{Binding Channel}" FontSize="{ThemeResource SmallFontSize}"
+                 Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>

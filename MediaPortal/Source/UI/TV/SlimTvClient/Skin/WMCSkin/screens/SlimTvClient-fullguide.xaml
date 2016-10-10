@@ -26,7 +26,7 @@
           <Grid.Background>
             <VideoBrush Stream="0"/>
           </Grid.Background>
-          <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
+          <Image Stretch="Fill" Opacity="1" Source="Background_GridView.png"/>
         </Grid>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableFanart}">
           <Image Stretch="Fill" Opacity="1" Source="Background_epg.png"/>
@@ -143,7 +143,7 @@
                Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
           <Label Content="  "/-->
           <Label x:Name="Time" FontSize="{ThemeResource SmallFontSize}"
-               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource MenuTextBackground}" Opacity="1.2"/>
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
         </StackPanel>
         
         <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
