@@ -73,8 +73,8 @@
   <string name="Media.FilterCharacterNavbarDisplayLabel">Roll: {0}</string>
   <string name="Media.FilterDirectorNavbarDisplayLabel">Regissör: {0}</string>
   <string name="Media.FilterWriterNavbarDisplayLabel">Författare: {0}</string>
-  <string name="Media.FilterCompanyNavbarDisplayLabel">Produktionsbolag</string>
-  <string name="Media.FilterTvNetworkNavbarDisplayLabel">TV-bolag</string>
+  <string name="Media.FilterCompanyNavbarDisplayLabel">Produktionsbolag: {0}</string>
+  <string name="Media.FilterTvNetworkNavbarDisplayLabel">TV-bolag: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Genre: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">År: {0}</string>
   <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Språk: {0}</string>
