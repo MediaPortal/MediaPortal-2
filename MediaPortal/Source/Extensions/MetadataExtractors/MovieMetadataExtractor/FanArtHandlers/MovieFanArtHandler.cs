@@ -72,7 +72,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public MovieFanArtHandler()
     {
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Movie FanArt handler");
-
     }
 
     public Guid[] FanArtAspects
@@ -114,18 +113,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       if (aspects.ContainsKey(MovieAspect.ASPECT_ID))
       {
+        if (BaseInfo.IsVirtualResource(aspects))
+          return;
+
         MovieInfo movieInfo = new MovieInfo();
         movieInfo.FromMetadata(aspects);
-        FanArtCache.InitFanArtCache(mediaItemId.ToString(), movieInfo.ToString());
-        ExtractLocalImages(aspects, mediaItemId, collectionMediaItemId);
-        OnlineMatcherService.DownloadMovieFanArt(mediaItemId, movieInfo);
+        MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+        ExtractLocalImages(aspects, mediaItemId, collectionMediaItemId, movieInfo.ToString(), collectionInfo.ToString());
+        if(!MovieMetadataExtractor.SkipFanArtDownload)
+          OnlineMatcherService.DownloadMovieFanArt(mediaItemId, movieInfo);
 
         //Take advantage of the audio language being known and download collection too
         if (collectionMediaItemId.HasValue && !_checkCache.Contains(collectionMediaItemId.Value))
         {
-          MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-          FanArtCache.InitFanArtCache(collectionMediaItemId.Value.ToString(), collectionInfo.ToString());
-          OnlineMatcherService.DownloadSeriesFanArt(collectionMediaItemId.Value, collectionInfo);
+          if (!MovieMetadataExtractor.SkipFanArtDownload)
+            OnlineMatcherService.DownloadSeriesFanArt(collectionMediaItemId.Value, collectionInfo);
           _checkCache.Contains(collectionMediaItemId.Value);
         }
       }
@@ -133,25 +135,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         PersonInfo personInfo = new PersonInfo();
         personInfo.FromMetadata(aspects);
-        FanArtCache.InitFanArtCache(mediaItemId.ToString(), personInfo.ToString());
         if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR || personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR ||
           personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
-          OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, personInfo);
+        {
+          if (!MovieMetadataExtractor.SkipFanArtDownload)
+            OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, personInfo);
+        }
       }
       else if (aspects.ContainsKey(CharacterAspect.ASPECT_ID))
       {
         CharacterInfo characterInfo = new CharacterInfo();
         characterInfo.FromMetadata(aspects);
-        FanArtCache.InitFanArtCache(mediaItemId.ToString(), characterInfo.ToString());
-        OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, characterInfo);
+        if (!MovieMetadataExtractor.SkipFanArtDownload)
+          OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, characterInfo);
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
       {
         CompanyInfo companyInfo = new CompanyInfo();
         companyInfo.FromMetadata(aspects);
-        FanArtCache.InitFanArtCache(mediaItemId.ToString(), companyInfo.ToString());
         if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
-          OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, companyInfo);
+        {
+          if (!MovieMetadataExtractor.SkipFanArtDownload)
+            OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, companyInfo);
+        }
       }
     }
 
@@ -166,26 +172,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
-    private void ExtractLocalImages(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? movieMediaItemId, Guid? collectionMediaItemId)
+    private void ExtractLocalImages(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? movieMediaItemId, Guid? collectionMediaItemId, string movieName, string collectionName)
     {
+      if (BaseInfo.IsVirtualResource(aspects))
+        return;
+
       IResourceLocator mediaItemLocater = GetResourceLocator(aspects);
-      if (mediaItemLocater.NativeResourcePath.IsNetworkResource) //No need to add it to cache if already locally available
+      ExtractFolderImages(mediaItemLocater, movieMediaItemId, collectionMediaItemId, movieName, collectionName);
+      using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
       {
-        ExtractFolderImages(mediaItemLocater, movieMediaItemId, collectionMediaItemId);
-        using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
-          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
           {
-            using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-            {
-              ExtractMkvImages(rah.LocalFsResourceAccessor, movieMediaItemId);
-            }
+            ExtractMkvImages(rah.LocalFsResourceAccessor, movieMediaItemId, movieName);
           }
         }
       }
     }
 
-    private void ExtractMkvImages(ILocalFsResourceAccessor lfsra, Guid? movieMediaItemId)
+    private void ExtractMkvImages(ILocalFsResourceAccessor lfsra, Guid? movieMediaItemId, string movieTitle)
     {
       if (!movieMediaItemId.HasValue)
         return;
@@ -226,6 +232,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
                   return;
 
+                FanArtCache.InitFanArtCache(mediaItemId, movieTitle);
                 string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
                   "File." + pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
                 if (!File.Exists(cacheFile))
@@ -250,7 +257,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
     }
 
-    private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? movieMediaItemId, Guid? collectionMediaItemId)
+    private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? movieMediaItemId, Guid? collectionMediaItemId, string movieTitle, string collectionTitle)
     {
       string fileSystemPath = string.Empty;
 
@@ -262,6 +269,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           fileSystemPath = mediaItemLocater.NativeResourcePath.FileName;
           var mediaItemPath = mediaItemLocater.NativeResourcePath;
           var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString());
+          var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
           var collectionMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
 
           //Movie fanart
@@ -272,7 +280,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           var clearArtPaths = new List<ResourcePath>();
           if (movieMediaItemId.HasValue)
           {
-            using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, mediaItemPath).CreateAccessor())
+            using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
             {
               var directoryFsra = directoryRa as IFileSystemResourceAccessor;
               if (directoryFsra != null)
@@ -317,15 +325,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               }
             }
             foreach (ResourcePath posterPath in posterPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, posterPath, FanArtTypes.Poster, movieMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Poster, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath logoPath in logoPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, logoPath, FanArtTypes.Logo, movieMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, logoPath, FanArtTypes.Logo, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath clearArtPath in clearArtPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, clearArtPath, FanArtTypes.ClearArt, movieMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, clearArtPath, FanArtTypes.ClearArt, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath bannerPath in bannerPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, bannerPath, FanArtTypes.Banner, movieMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, movieMediaItemId.Value, movieTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, fanartPath, FanArtTypes.FanArt, movieMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, movieMediaItemId.Value, movieTitle);
           }
 
           //Collection fanart
@@ -367,11 +375,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               }
             }
             foreach (ResourcePath posterPath in posterPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, posterPath, FanArtTypes.Poster, collectionMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Poster, collectionMediaItemId.Value, collectionTitle);
             foreach (ResourcePath bannerPath in bannerPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, bannerPath, FanArtTypes.Banner, collectionMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, collectionMediaItemId.Value, collectionTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, fanartPath, FanArtTypes.FanArt, collectionMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, collectionMediaItemId.Value, collectionTitle);
           }
         }
       }
@@ -396,7 +404,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return result;
     }
 
-    private void SaveFolderFile(string systemId, ResourcePath file, string fanartType, Guid parentId)
+    private void SaveFolderFile(IResourceLocator mediaItemLocater, ResourcePath file, string fanartType, Guid parentId, string title)
     {
       string mediaItemId = parentId.ToString().ToUpperInvariant();
       FanArtCache.InitFanArtCount(mediaItemId, fanartType);
@@ -405,24 +413,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
           return;
 
-        string cacheFile = GetCacheFileName(mediaItemId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
-        if (!File.Exists(cacheFile))
+        if (MovieMetadataExtractor.CacheOfflineFanArt && mediaItemLocater.NativeResourcePath.IsNetworkResource) //No need to add it to cache if already locally available
         {
-          using (var fileRa = new ResourceLocator(systemId, file).CreateAccessor())
+          FanArtCache.InitFanArtCache(mediaItemId, title);
+          string cacheFile = GetCacheFileName(mediaItemId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
+          if (!File.Exists(cacheFile))
           {
-            var fileFsra = fileRa as IFileSystemResourceAccessor;
-            if (fileFsra != null)
+            using (var fileRa = new ResourceLocator(mediaItemLocater.NativeSystemId, file).CreateAccessor())
             {
-              using (Stream ms = fileFsra.OpenRead())
+              var fileFsra = fileRa as IFileSystemResourceAccessor;
+              if (fileFsra != null)
               {
-                using (Image img = Image.FromStream(ms, true, true))
+                using (Stream ms = fileFsra.OpenRead())
                 {
-                  img.Save(cacheFile);
-                  countLock.Count++;
+                  using (Image img = Image.FromStream(ms, true, true))
+                  {
+                    img.Save(cacheFile);
+                    countLock.Count++;
+                  }
                 }
               }
             }
           }
+        }
+        else
+        {
+          //Also count local FanArt
+          countLock.Count++;
         }
       }
     }
