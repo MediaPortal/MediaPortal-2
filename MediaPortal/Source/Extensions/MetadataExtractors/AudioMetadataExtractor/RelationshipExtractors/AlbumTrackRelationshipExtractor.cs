@@ -73,6 +73,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (forceQuickMode)
         return false;
 
+      if (AudioMetadataExtractor.OnlyLocalMedia)
+        return false;
+
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(aspects))
         return false;
@@ -80,10 +83,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (_checkCache.IsItemChecked(albumInfo))
         return false;
 
-      OnlineMatcherService.UpdateAlbum(albumInfo, true, forceQuickMode);
+      if (!AudioMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.UpdateAlbum(albumInfo, true, forceQuickMode);
 
       if (albumInfo.Tracks.Count == 0)
         return false;
+
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < albumInfo.Tracks.Count)
+        albumInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!albumInfo.HasChanged && !forceQuickMode)
         return false;

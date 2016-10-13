@@ -145,7 +145,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public SeriesMetadataExtractorSettings()
     {
       // Init default replacements
-      Replacements = new List<Replacement>
+      Replacements = new Replacement[]
       {
         new Replacement { Enabled = false, BeforeMatch = true, Pattern = "720p", ReplaceBy = "", IsRegex = false },
         new Replacement { Enabled = false, BeforeMatch = true, Pattern = "1080i", ReplaceBy = "", IsRegex = false },
@@ -155,7 +155,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       };
 
       // Init default patterns.
-      SeriesPatterns = new List<MatchPattern>
+      SeriesPatterns = new MatchPattern[]
       {
         // Filename only pattern
         // Series\Season...\S01E01* or Series\Season...\1x01*
@@ -178,35 +178,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       };
 
       SeriesYearPattern = new SerializableRegex(@"(?<series>.*)[( .-_]+(?<year>\d{4})", RegexOptions.IgnoreCase);
-
-      IncludeActorDetails = true;
-      IncludeCharacterDetails = true;
-      IncludeDirectorDetails = true;
-      IncludeWriterDetails = true;
-      IncludeTVNetworkDetails = true;
-      IncludeProductionCompanyDetails = true;
     }
 
     #region Public properties
 
     /// <summary>
-    /// If <c>true</c>, the SeriesMetadataExtractor does not store any information in the MediaLibrary but just downloads fanart.
-    /// Useful if all metadata is available e.g. via nfo-files and must not be overwritten.
+    /// If <c>true</c>, no online searches will be done for metadata.
     /// </summary>
     [Setting(SettingScope.Global, false)]
-    public bool OnlyFanArt { get; set; }
+    public bool SkipOnlineSearches { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, no FanArt is downloaded.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool SkipFanArtDownload { get; set; }
 
     /// <summary>
     /// Gets a list of matching replacements which can be extended by users.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<Replacement> Replacements { get; set; }
+    public Replacement[] Replacements { get; set; }
 
     /// <summary>
     /// Gets a list of matching patterns which can be extended by users.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<MatchPattern> SeriesPatterns { get; set; }
+    public MatchPattern[] SeriesPatterns { get; set; }
 
     /// <summary>
     /// Regular expression used to find a year in the series name
@@ -219,6 +217,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool OnlyLocalMedia { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of FanArt placed on network drives to allow browsing when they are offline.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool CacheOfflineFanArt { get; set; }
 
     /// <summary>
     /// If <c>true</c>, Actor details will be fetched from online sources.

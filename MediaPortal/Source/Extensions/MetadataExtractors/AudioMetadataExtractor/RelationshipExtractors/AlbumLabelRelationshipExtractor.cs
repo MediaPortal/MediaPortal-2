@@ -42,12 +42,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
     private CheckedItemCache<AlbumInfo> _checkCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
-    private bool _includeDetails = true;
-
-    public AlbumLabelRelationshipExtractor()
-    {
-      _includeDetails = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>().IncludeMusicLabelDetails;
-    }
 
     public bool BuildRelationship
     {
@@ -78,7 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      if (!_includeDetails)
+      if (!AudioMetadataExtractor.IncludeMusicLabelDetails)
         return false;
 
       if (forceQuickMode)
@@ -91,27 +85,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (_checkCache.IsItemChecked(albumInfo))
         return false;
 
-      OnlineMatcherService.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
+      if (!AudioMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
 
       if (albumInfo.MusicLabels.Count == 0)
         return false;
 
-      bool relationshipFound = false;
-      IList<MultipleMediaItemAspect> relationships;
-      if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships))
-      {
-        foreach (MultipleMediaItemAspect relationship in relationships)
-        {
-          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == LinkedRole ||
-            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == LinkedRole)
-          {
-            relationshipFound = true;
-            break;
-          }
-        }
-      }
-
-      if (!relationshipFound)
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < albumInfo.MusicLabels.Count)
         albumInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!albumInfo.HasChanged && !forceQuickMode)
@@ -121,8 +101,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       foreach (CompanyInfo company in albumInfo.MusicLabels)
       {
+        company.AssignNameId();
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         company.SetMetadata(companyAspects);
+        if (albumInfo.HasChanged)
+          BaseInfo.SetMetadataChanged(companyAspects);
 
         if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(companyAspects);

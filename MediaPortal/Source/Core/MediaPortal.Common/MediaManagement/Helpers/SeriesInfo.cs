@@ -68,6 +68,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string ImdbId = null;
     public int TvMazeId = 0;
     public int TvRageId = 0;
+    public string NameId = null;
 
     public SimpleTitle SeriesName = null;
     public string OriginalName = null;
@@ -136,6 +137,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public override void AssignNameId()
+    {
+      if (!SeriesName.IsEmpty)
+      {
+        if (FirstAired.HasValue)
+          NameId = SeriesName.Text + "(" + FirstAired.Value.Year + ")";
+        else
+          NameId = SeriesName.Text;
+        NameId = GetNameId(NameId);
+      }
+    }
+
     #region Members
 
     /// <summary>
@@ -173,6 +186,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, MovieDbId.ToString());
       if (TvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_SERIES, TvMazeId.ToString());
       if (TvRageId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_SERIES, TvRageId.ToString());
+      if (!string.IsNullOrEmpty(NameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_SERIES, NameId);
 
       if (Popularity > 0f) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_POPULARITY, Popularity);
       if (Score > 0d) MediaItemAspect.SetAttribute(aspectData, SeriesAspect.ATTR_SCORE, Score);
@@ -199,6 +213,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
+      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
       if (aspectData.ContainsKey(SeriesAspect.ASPECT_ID))
       {
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_ORIG_SERIES_NAME, out OriginalName);
@@ -237,6 +252,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_SERIES, out id))
           TvRageId = Convert.ToInt32(id);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out ImdbId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_SERIES, out NameId);
 
         //Brownard 17.06.2016
         //The returned type of the collection differs on the server and client.
@@ -300,6 +316,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_SERIES, out id))
           TvRageId = Convert.ToInt32(id);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out ImdbId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_SERIES, out NameId);
 
         return true;
       }
@@ -319,6 +336,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_SERIES, out id))
           TvRageId = Convert.ToInt32(id);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out ImdbId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_SERIES, out NameId);
 
         if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
         {
@@ -356,6 +374,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_SERIES, out id))
           TvRageId = Convert.ToInt32(id);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out ImdbId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_SERIES, out NameId);
 
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
@@ -421,6 +440,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         TvdbId = otherSeries.TvdbId;
         TvMazeId = otherSeries.TvMazeId;
         TvRageId = otherSeries.TvRageId;
+        NameId = otherSeries.NameId;
         return true;
       }
       else if (otherInstance is SeasonInfo)
@@ -431,6 +451,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         TvdbId = seriesSeason.SeriesTvdbId;
         TvMazeId = seriesSeason.SeriesTvMazeId;
         TvRageId = seriesSeason.SeriesTvRageId;
+        NameId = seriesSeason.SeriesNameId;
         return true;
       }
       else if (otherInstance is EpisodeInfo)
@@ -441,6 +462,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         TvdbId = seriesEpisode.SeriesTvdbId;
         TvMazeId = seriesEpisode.SeriesTvMazeId;
         TvRageId = seriesEpisode.SeriesTvRageId;
+        NameId = seriesEpisode.SeriesNameId;
         return true;
       }
       return false;
@@ -472,6 +494,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return TvRageId == other.TvRageId;
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
+        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
+
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
         MatchNames(SeriesName.Text, other.SeriesName.Text) && FirstAired.HasValue && other.FirstAired.HasValue &&
         FirstAired.Value == other.FirstAired.Value)

@@ -32,7 +32,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -41,12 +40,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
     private CheckedItemCache<MovieInfo> _checkCache = new CheckedItemCache<MovieInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
-    private bool _includeDetails = true;
-
-    public MovieActorRelationshipExtractor()
-    {
-      _includeDetails = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>().IncludeActorDetails;
-    }
 
     public bool BuildRelationship
     {
@@ -77,7 +70,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      if (!_includeDetails)
+      if (!MovieMetadataExtractor.IncludeActorDetails)
         return false;
 
       if (forceQuickMode)
@@ -93,27 +86,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (_checkCache.IsItemChecked(movieInfo))
         return false;
 
-      OnlineMatcherService.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_ACTOR, forceQuickMode);
+      if (!MovieMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_ACTOR, forceQuickMode);
 
       if (movieInfo.Actors.Count == 0)
         return false;
 
-      bool relationshipFound = false;
-      IList<MultipleMediaItemAspect> relationships;
-      if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships))
-      {
-        foreach (MultipleMediaItemAspect relationship in relationships)
-        {
-          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == LinkedRole ||
-            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == LinkedRole)
-          {
-            relationshipFound = true;
-            break;
-          }
-        }
-      }
-
-      if (!relationshipFound)
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < movieInfo.Actors.Count)
         movieInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!movieInfo.HasChanged && !forceQuickMode)
@@ -123,8 +102,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       foreach (PersonInfo person in movieInfo.Actors)
       {
+        person.AssignNameId();
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         person.SetMetadata(personAspects);
+        if (movieInfo.HasChanged)
+          BaseInfo.SetMetadataChanged(personAspects);
 
         if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(personAspects);

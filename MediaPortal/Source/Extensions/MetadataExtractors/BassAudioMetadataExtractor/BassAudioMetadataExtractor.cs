@@ -258,10 +258,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           }
         }
 
-        OnlineMatcherService.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        if(!SkipOnlineSearches)
+          OnlineMatcherService.FindAndUpdateTrack(trackInfo, forceQuickMode);
 
-        if (!_onlyFanArt)
-          trackInfo.SetMetadata(extractedAspectData);
+        trackInfo.SetMetadata(extractedAspectData);
 
         return trackInfo.IsBaseInfoPresent;
       }

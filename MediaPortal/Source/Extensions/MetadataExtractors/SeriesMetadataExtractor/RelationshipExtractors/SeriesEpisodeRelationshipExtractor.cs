@@ -74,6 +74,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (forceQuickMode)
         return false;
 
+      if (SeriesMetadataExtractor.OnlyLocalMedia)
+        return false;
+
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
@@ -81,10 +84,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (_checkCache.IsItemChecked(seriesInfo))
         return false;
 
-      OnlineMatcherService.UpdateSeries(seriesInfo, true, false);
+      if (!SeriesMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.UpdateSeries(seriesInfo, true, false);
 
       if (seriesInfo.Episodes.Count == 0)
         return false;
+
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < seriesInfo.Episodes.Count)
+        seriesInfo.HasChanged = true; //Force save for new episodes
 
       if (!seriesInfo.HasChanged && !forceQuickMode)
         return false;
@@ -94,6 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       for (int i = 0; i < seriesInfo.Episodes.Count; i++)
       {
         EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
+        episodeInfo.SeriesNameId = seriesInfo.NameId;
 
         IDictionary<Guid, IList<MediaItemAspect>> episodeAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         episodeInfo.SetMetadata(episodeAspects);

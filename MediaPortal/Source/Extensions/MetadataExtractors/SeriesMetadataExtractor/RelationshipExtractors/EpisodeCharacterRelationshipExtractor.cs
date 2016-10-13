@@ -41,12 +41,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
     private CheckedItemCache<EpisodeInfo> _checkCache = new CheckedItemCache<EpisodeInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
-    private bool _includeDetails = true;
-
-    public EpisodeCharacterRelationshipExtractor()
-    {
-      _includeDetails = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>().IncludeCharacterDetails;
-    }
 
     public bool BuildRelationship
     {
@@ -77,7 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       extractedLinkedAspects = null;
 
-      if (!_includeDetails)
+      if (!SeriesMetadataExtractor.IncludeCharacterDetails)
         return false;
 
       if (forceQuickMode)
@@ -93,27 +87,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (_checkCache.IsItemChecked(episodeInfo))
         return false;
 
-      OnlineMatcherService.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
+      if (!SeriesMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
 
       if (episodeInfo.Characters.Count == 0)
         return false;
 
-      bool relationshipFound = false;
-      IList<MultipleMediaItemAspect> relationships;
-      if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships))
-      {
-        foreach (MultipleMediaItemAspect relationship in relationships)
-        {
-          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == LinkedRole ||
-            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == LinkedRole)
-          {
-            relationshipFound = true;
-            break;
-          }
-        }
-      }
-
-      if (!relationshipFound)
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < episodeInfo.Characters.Count)
         episodeInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!episodeInfo.HasChanged && !forceQuickMode)
@@ -123,8 +103,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       foreach (CharacterInfo character in episodeInfo.Characters)
       {
+        character.AssignNameId();
         IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         character.SetMetadata(characterAspects);
+        if (episodeInfo.HasChanged)
+          BaseInfo.SetMetadataChanged(characterAspects);
 
         if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(characterAspects);

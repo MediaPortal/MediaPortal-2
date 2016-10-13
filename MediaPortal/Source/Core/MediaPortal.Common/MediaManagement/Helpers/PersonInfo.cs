@@ -92,10 +92,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return true;
         if (!string.IsNullOrEmpty(ImdbId))
           return true;
-        if (!string.IsNullOrEmpty(NameId))
-          return true;
 
         return false;
+      }
+    }
+
+    public override void AssignNameId()
+    {
+      if (!string.IsNullOrEmpty(Name))
+      {
+        //Give the person a fallback Id so it will always be created
+        NameId = GetNameId(Name);
       }
     }
 
@@ -140,7 +147,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!aspectData.ContainsKey(PersonAspect.ASPECT_ID))
         return false;
-
+      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_PERSON_NAME, out Name);
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_ORIGIN, out Orign);
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_OCCUPATION, out Occupation);

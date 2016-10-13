@@ -38,6 +38,7 @@ using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {
@@ -69,7 +70,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> IMAGE_FILE_EXTENSIONS = new List<string>();
-
+    protected SettingsChangeWatcher<ImageMetadataExtractorSettings> _settingWatcher;
     protected MetadataExtractorMetadata _metadata;
 
     #endregion Protected fields and classes
@@ -101,9 +102,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
                 ImageAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
+      _settingWatcher = new SettingsChangeWatcher<ImageMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
     }
 
     #endregion Ctor
+
+    #region Settings
+
+    public static bool IncludeGeoLocationDetails { get; private set; }
+
+    private void LoadSettings()
+    {
+      IncludeGeoLocationDetails = _settingWatcher.Settings.IncludeGeoLocationDetails;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
+    }
+
+    #endregion
 
     #region Protected methods
 
@@ -184,7 +205,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
             imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
 
-            if (!forceQuickMode)
+            if (IncludeGeoLocationDetails && !forceQuickMode && string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)))
             {
               CivicAddress locationInfo;
               if (GeoLocationService.Instance.TryLookup(new GeoCoordinate(exif.Latitude.Value, exif.Longitude.Value), out locationInfo))
@@ -195,6 +216,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               }
             }
           }
+
+          byte[] thumbData;
+          // We only want to create missing thumbnails here, so check for existing ones first
+          if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumbData) && thumbData != null)
+            return true;
 
           using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
@@ -207,7 +233,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-              byte[] thumbData;
               ImageType imageType;
               if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);

@@ -29,7 +29,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
 {
   public class AudioMetadataExtractorSettings
   {
-    protected readonly static List<string> DEFAULT_UNSPLITTABLE_ID3V23_VALUES = new List<string>
+    protected readonly static string[] DEFAULT_UNSPLITTABLE_ID3V23_VALUES = new string[]
       {
           "AC/DC",
           "De/Vision",
@@ -37,9 +37,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
 
     protected readonly static char DEFAULT_ADDITIONAL_SEPARATOR = ';';
 
-    protected readonly static List<string> DEFAULT_UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
+    protected readonly static string[] DEFAULT_UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new string[0];
 
-    protected readonly static List<string> DEFAULT_AUDIO_FILE_EXTENSIONS = new List<string>
+    protected readonly static string[] DEFAULT_AUDIO_FILE_EXTENSIONS = new string[]
       {
           ".ape",
           ".flac",
@@ -58,17 +58,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
           ".dff",
       };
 
-    protected List<string> _unsplittableID3v23Values = new List<string>(DEFAULT_UNSPLITTABLE_ID3V23_VALUES);
+    protected string[] _unsplittableID3v23Values;
     protected bool _useAdditionalSeparator;
-    protected char _additionalSeparator = DEFAULT_ADDITIONAL_SEPARATOR;
-    protected List<string> _unsplittableAddditionalSeparatorValues = new List<string>(DEFAULT_UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES);
-    protected List<string> _audioExtensions = new List<string>(DEFAULT_AUDIO_FILE_EXTENSIONS);
+    protected char _additionalSeparator;
+    protected string[] _unsplittableAddditionalSeparatorValues;
+    protected string[] _audioExtensions;
 
     public AudioMetadataExtractorSettings()
     {
-      IncludeArtistDetails = true;
-      IncludeComposerDetails = true;
-      IncludeMusicLabelDetails = true;
+      _unsplittableID3v23Values = DEFAULT_UNSPLITTABLE_ID3V23_VALUES;
+      _unsplittableAddditionalSeparatorValues = DEFAULT_UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES;
+      _audioExtensions = DEFAULT_AUDIO_FILE_EXTENSIONS;
+      _additionalSeparator = DEFAULT_ADDITIONAL_SEPARATOR;
     }
 
     /// <summary>
@@ -82,7 +83,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
     /// Also values with more than one "/" in their name are supported.
     /// </remarks>
     [Setting(SettingScope.Global)]
-    public List<string> UnsplittableID3v23Values
+    public string[] UnsplittableID3v23Values
     {
       get { return _unsplittableID3v23Values; }
       set { _unsplittableID3v23Values = value; }
@@ -131,7 +132,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
     /// List of values, which contain one or more <see cref="AdditionalSeparator"/> values and nevertheless must not be splitted.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<string> UnsplittableAddditionalSeparatorValues
+    public string[] UnsplittableAddditionalSeparatorValues
     {
       get { return _unsplittableAddditionalSeparatorValues; }
       set { _unsplittableAddditionalSeparatorValues = value; }
@@ -141,24 +142,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
     /// Audio extensions for which the <see cref="AudioMetadataExtractor"/> should be used.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<string> AudioExtensions
+    public string[] AudioExtensions
     {
       get { return _audioExtensions; }
       set { _audioExtensions = value; }
     }
 
     /// <summary>
-    /// If <c>true</c>, the AudioMetadataExtractor does not store any information from online sources but just downloads fanart.
-    /// Useful if all metadata is available e.g. via tags and must not be overwritten.
+    /// If <c>true</c>, no online searches will be done for metadata.
     /// </summary>
     [Setting(SettingScope.Global, false)]
-    public bool OnlyFanArt { get; set; }
+    public bool SkipOnlineSearches { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, no FanArt is downloaded.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool SkipFanArtDownload { get; set; }
 
     /// <summary>
     /// If <c>true</c>, the AudioMetadataExtractor does not fetch any information for missing local album tracks.
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool OnlyLocalMedia { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of FanArt placed on network drives to allow browsing when they are offline.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool CacheOfflineFanArt { get; set; }
 
     /// <summary>
     /// If <c>true</c>, Artists details will be fetched from online sources.

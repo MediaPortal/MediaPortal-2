@@ -79,10 +79,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!_albumCache.TryGetCheckedItem(trackInfo.CloneBasicInstance<AlbumInfo>(), out albumInfo))
       {
         albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-        AssignAlbumNameId(albumInfo);
-        OnlineMatcherService.UpdateAlbum(albumInfo, false, forceQuickMode);
+        if (!AudioMetadataExtractor.SkipOnlineSearches)
+          OnlineMatcherService.UpdateAlbum(albumInfo, false, forceQuickMode);
         _albumCache.TryAddCheckedItem(albumInfo);
       }
+
+      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
+        albumInfo.HasChanged = true; //Force save if no relationship exists
+
+      if (!albumInfo.HasChanged && !forceQuickMode)
+        return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
@@ -101,24 +107,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         MediaItemAspect.SetAttribute(albumAspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, data);
       }
 
+      if (albumInfo.HasChanged)
+        BaseInfo.SetMetadataChanged(albumAspects);
+      albumInfo.HasChanged = false; //Reset change status of cached instance
+
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
       extractedLinkedAspects.Add(albumAspects);
       return true;
-    }
-
-    private void AssignAlbumNameId(AlbumInfo albumInfo)
-    {
-      if (!string.IsNullOrEmpty(albumInfo.Album) && string.IsNullOrEmpty(albumInfo.NameId))
-      {
-        //Give the album a fallback Id so it will always be created
-        if (albumInfo.Artists.Count > 0)
-          albumInfo.NameId = albumInfo.Artists[0].Name + ":" + albumInfo.Album;
-        else
-          albumInfo.NameId = albumInfo.Album;
-        albumInfo.NameId = BaseInfo.GetNameId(albumInfo.NameId);
-      }
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

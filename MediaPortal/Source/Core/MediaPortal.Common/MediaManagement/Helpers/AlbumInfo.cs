@@ -115,10 +115,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return true;
         if (!string.IsNullOrEmpty(ItunesId))
           return true;
-        if (!string.IsNullOrEmpty(NameId))
-          return true;
 
         return false;
+      }
+    }
+
+    public override void AssignNameId()
+    {
+      if (!string.IsNullOrEmpty(Album))
+      {
+        //Give the album a fallback Id so it will always be created
+        if (Artists.Count > 0)
+          NameId = Artists[0].Name + ":" + Album;
+        else
+          NameId = Album;
+        NameId = GetNameId(NameId);
       }
     }
 
@@ -172,6 +183,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
+      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
       if (aspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
       {
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, out Album);

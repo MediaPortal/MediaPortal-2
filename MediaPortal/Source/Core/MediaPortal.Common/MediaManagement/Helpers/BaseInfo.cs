@@ -158,6 +158,63 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
+    public static bool HasRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspectData, Guid linkedRole)
+    {
+      bool relationshipFound = false;
+      IList<MultipleMediaItemAspect> relationships;
+      if (MediaItemAspect.TryGetAspects(aspectData, RelationshipAspect.Metadata, out relationships))
+      {
+        foreach (MultipleMediaItemAspect relationship in relationships)
+        {
+          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == linkedRole ||
+            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == linkedRole)
+          {
+            relationshipFound = true;
+            break;
+          }
+        }
+      }
+      return relationshipFound;
+    }
+
+    public static int CountRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspectData, Guid linkedRole)
+    {
+      int count = 0;
+      IList<MultipleMediaItemAspect> relationships;
+      if (MediaItemAspect.TryGetAspects(aspectData, RelationshipAspect.Metadata, out relationships))
+      {
+        foreach (MultipleMediaItemAspect relationship in relationships)
+        {
+          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == linkedRole ||
+            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == linkedRole)
+          {
+            count++;
+          }
+        }
+      }
+      return count;
+    }
+
+    public static bool HasMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      SingleMediaItemAspect importerAspect;
+      if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
+      {
+        return importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
+      }
+      return false;
+    }
+
+    public static void SetMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      SingleMediaItemAspect importerAspect;
+      if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
+      {
+        //Set to dirty to mark it as changed
+        importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
+      }
+    }
+
     public static string GetNameId(string name)
     {
       if (!string.IsNullOrEmpty(name))
@@ -174,6 +231,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
 
     public abstract bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+
+    public abstract void AssignNameId();
 
     public virtual bool FromString(string name)
     {

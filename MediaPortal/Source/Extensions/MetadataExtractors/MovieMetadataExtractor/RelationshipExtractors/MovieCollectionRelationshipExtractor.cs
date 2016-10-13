@@ -81,13 +81,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!_collectionCache.TryGetCheckedItem(movieInfo.CloneBasicInstance<MovieCollectionInfo>(), out collectionInfo))
       {
         collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-        OnlineMatcherService.UpdateCollection(collectionInfo, false, false);
+        if (!MovieMetadataExtractor.SkipOnlineSearches)
+          OnlineMatcherService.UpdateCollection(collectionInfo, false, false);
         _collectionCache.TryAddCheckedItem(collectionInfo);
       }
+
+      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
+        collectionInfo.HasChanged = true; //Force save if no relationship exists
+
+      if (!collectionInfo.HasChanged && !forceQuickMode)
+        return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       collectionInfo.SetMetadata(collectionAspects);
+      if (collectionInfo.HasChanged)
+        BaseInfo.SetMetadataChanged(collectionAspects);
+      collectionInfo.HasChanged = false; //Reset change status on cached instance
 
       bool movieVirtual = true;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
@@ -99,12 +109,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         extractedLinkedAspects.Add(collectionAspects);
 
       //Create custom collection
-      if(!string.IsNullOrEmpty(movieInfo.CollectionNameId))
+      if (!string.IsNullOrEmpty(movieInfo.CollectionNameId))
       {
         MovieCollectionInfo customCollectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
 
         IDictionary<Guid, IList<MediaItemAspect>> customCollectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         customCollectionInfo.SetMetadata(customCollectionAspects);
+        BaseInfo.SetMetadataChanged(customCollectionAspects);
+
         if (customCollectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(customCollectionAspects);
       }

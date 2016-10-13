@@ -45,6 +45,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int TvMazeId = 0;
     public string MusicBrainzId = null;
     public long AudioDbId = 0;
+    public string NameId = null;
 
     /// <summary>
     /// Gets or sets the company name.
@@ -86,6 +87,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public override void AssignNameId()
+    {
+      if (!string.IsNullOrEmpty(Name))
+      {
+        NameId = GetNameId(Name);
+      }
+    }
+
     #region Members
 
     /// <summary>
@@ -112,6 +121,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_NETWORK, MusicBrainzId);
         if (AudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_NETWORK, AudioDbId.ToString());
         if (TvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_NETWORK, TvMazeId.ToString());
+        if (!string.IsNullOrEmpty(NameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_NETWORK, NameId);
       }
       else
       {
@@ -121,6 +131,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (!string.IsNullOrEmpty(MusicBrainzId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_COMPANY, MusicBrainzId);
         if (AudioDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_COMPANY, AudioDbId.ToString());
         if (TvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_COMPANY, TvMazeId.ToString());
+        if (!string.IsNullOrEmpty(NameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COMPANY, NameId);
       }
 
       SetThumbnailMetadata(aspectData);
@@ -132,7 +143,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!aspectData.ContainsKey(CompanyAspect.ASPECT_ID))
         return false;
-
+      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
       MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_NAME, out Name);
       MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_COMPANY_TYPE, out Type);
 
@@ -153,6 +164,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           TvMazeId = Convert.ToInt32(id);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_NETWORK, out ImdbId);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_NETWORK, out MusicBrainzId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_NETWORK, out NameId);
       }
       else
       {
@@ -167,6 +179,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           TvMazeId = Convert.ToInt32(id);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_COMPANY, out ImdbId);
         MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_COMPANY, out MusicBrainzId);
+        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COMPANY, out NameId);
       }
 
       byte[] data;
@@ -197,6 +210,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MusicBrainzId = otherCompany.MusicBrainzId;
         TvdbId = otherCompany.TvdbId;
         TvMazeId = otherCompany.TvMazeId;
+        NameId = otherCompany.NameId;
         return true;
       }
       return false;
@@ -224,6 +238,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return AudioDbId == other.AudioDbId;
       if (!string.IsNullOrEmpty(MusicBrainzId) && !string.IsNullOrEmpty(other.MusicBrainzId) && Type == other.Type)
         return string.Equals(MusicBrainzId, other.MusicBrainzId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
+        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name) && Type == other.Type)
         return true;
 

@@ -39,6 +39,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int TvdbId = 0;
     public int MovieDbId = 0;
     public int TvMazeId = 0;
+    public string NameId = null;
     /// <summary>
     /// Gets or sets the character name.
     /// </summary>
@@ -56,6 +57,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int ActorMovieDbId = 0;
     public int ActorTvMazeId = 0;
     public int ActorTvRageId = 0;
+    public string ActorNameId = null;
     public string ActorName = null;
 
     public override bool IsBaseInfoPresent
@@ -97,6 +99,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public override void AssignNameId()
+    {
+      if (!string.IsNullOrEmpty(Name))
+      {
+        NameId = GetNameId(Name);
+      }
+      if (!string.IsNullOrEmpty(ActorName))
+      {
+        ActorNameId = GetNameId(ActorName);
+      }
+    }
+
     #region Members
 
     /// <summary>
@@ -116,12 +130,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (TvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_CHARACTER, TvdbId.ToString());
       if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_CHARACTER, MovieDbId.ToString());
       if (TvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_CHARACTER, TvMazeId.ToString());
+      if (!string.IsNullOrEmpty(NameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_CHARACTER, NameId);
 
       if (ActorTvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_PERSON, ActorTvdbId.ToString());
       if (ActorMovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_PERSON, ActorMovieDbId.ToString());
       if (ActorTvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_PERSON, ActorTvMazeId.ToString());
       if (ActorTvRageId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_PERSON, ActorTvRageId.ToString());
       if (!string.IsNullOrEmpty(ActorImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_PERSON, ActorImdbId);
+      if (!string.IsNullOrEmpty(ActorNameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_PERSON, ActorNameId);
 
       SetThumbnailMetadata(aspectData);
 
@@ -132,7 +148,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!aspectData.ContainsKey(CharacterAspect.ASPECT_ID))
         return false;
-
+      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
       MediaItemAspect.TryGetAttribute(aspectData, CharacterAspect.ATTR_CHARACTER_NAME, out Name);
       MediaItemAspect.TryGetAttribute(aspectData, CharacterAspect.ATTR_ACTOR_NAME, out ActorName);
 
@@ -143,6 +159,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MovieDbId = Convert.ToInt32(id);
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_CHARACTER, out id))
         TvMazeId = Convert.ToInt32(id);
+      MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_CHARACTER, out NameId);
 
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_PERSON, out id))
         ActorTvdbId = Convert.ToInt32(id);
@@ -153,6 +170,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_PERSON, out id))
         ActorTvRageId = Convert.ToInt32(id);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_PERSON, out ActorImdbId);
+      MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_PERSON, out ActorNameId);
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
@@ -184,6 +202,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MovieDbId = otherCharacter.MovieDbId;
         TvdbId = otherCharacter.TvdbId;
         TvMazeId = otherCharacter.TvMazeId;
+        NameId = otherCharacter.NameId;
 
         return true;
       }
@@ -200,6 +219,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.TvdbId = ActorTvdbId;
         info.TvMazeId = ActorTvMazeId;
         info.TvRageId = ActorTvRageId;
+        info.NameId = ActorNameId;
 
         info.Name = ActorName;
         info.Occupation = PersonAspect.OCCUPATION_ACTOR;
@@ -232,6 +252,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return ActorTvRageId == other.ActorTvRageId;
       if (!string.IsNullOrEmpty(ActorImdbId) && !string.IsNullOrEmpty(other.ActorImdbId))
         return string.Equals(ActorImdbId, other.ActorImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(ActorNameId) && !string.IsNullOrEmpty(other.ActorNameId))
+        return string.Equals(ActorNameId, other.ActorNameId, StringComparison.InvariantCultureIgnoreCase);
 
       if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) && !MatchNames(ActorName, other.ActorName))
         return false;
@@ -241,6 +263,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return MovieDbId == other.MovieDbId;
       if (TvMazeId > 0 && other.TvMazeId > 0)
         return TvMazeId == other.TvMazeId;
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
+        return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
+
       if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name) && MatchNames(Name, other.Name))
         return true;
       if (!string.IsNullOrEmpty(ActorName) && !string.IsNullOrEmpty(other.ActorName) &&

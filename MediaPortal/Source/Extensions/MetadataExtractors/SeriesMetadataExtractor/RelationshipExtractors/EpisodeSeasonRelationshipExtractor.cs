@@ -82,11 +82,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!_seasonCache.TryGetCheckedItem(episodeInfo.CloneBasicInstance<SeasonInfo>(), out seasonInfo))
       {
         seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
-        OnlineMatcherService.UpdateSeason(seasonInfo, forceQuickMode);
+        if (!SeriesMetadataExtractor.SkipOnlineSearches)
+          OnlineMatcherService.UpdateSeason(seasonInfo, forceQuickMode);
         _seasonCache.TryAddCheckedItem(seasonInfo);
       }
 
       if (seasonInfo.SeriesName.IsEmpty)
+        return false;
+
+      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
+        seasonInfo.HasChanged = true; //Force save if no relationship exists
+
+      if (!seasonInfo.HasChanged && !forceQuickMode)
         return false;
 
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
@@ -98,6 +105,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         MediaItemAspect.SetAttribute(seasonAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
       }
+
+      if (seasonInfo.HasChanged)
+        BaseInfo.SetMetadataChanged(seasonAspects);
+      seasonInfo.HasChanged = false; //Reset change status of cached instance
 
       if (!seasonAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;

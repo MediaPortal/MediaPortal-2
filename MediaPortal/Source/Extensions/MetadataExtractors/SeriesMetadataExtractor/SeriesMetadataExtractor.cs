@@ -31,9 +31,11 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -64,7 +66,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
     protected MetadataExtractorMetadata _metadata;
-    protected bool _onlyFanArt;
+    protected SettingsChangeWatcher<SeriesMetadataExtractorSettings> _settingWatcher;
 
     #endregion
 
@@ -87,7 +89,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 MediaAspect.Metadata,
                 EpisodeAspect.Metadata
               });
-      _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>().OnlyFanArt;
+      _settingWatcher = new SettingsChangeWatcher<SeriesMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
+    }
+
+    #endregion
+
+    #region Settings
+
+    public static bool SkipOnlineSearches { get; private set; }
+    public static bool SkipFanArtDownload { get; private set; }
+    public static bool CacheOfflineFanArt { get; private set; }
+    public static bool IncludeActorDetails { get; private set; }
+    public static bool IncludeCharacterDetails { get; private set; }
+    public static bool IncludeDirectorDetails { get; private set; }
+    public static bool IncludeWriterDetails { get; private set; }
+    public static bool IncludeProductionCompanyDetails { get; private set; }
+    public static bool IncludeTVNetworkDetails { get; private set; }
+    public static bool OnlyLocalMedia { get; private set; }
+
+    private void LoadSettings()
+    {
+      SkipOnlineSearches = _settingWatcher.Settings.SkipOnlineSearches;
+      SkipFanArtDownload = _settingWatcher.Settings.SkipFanArtDownload;
+      CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
+      IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
+      IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
+      IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
+      IncludeWriterDetails = _settingWatcher.Settings.IncludeWriterDetails;
+      IncludeProductionCompanyDetails = _settingWatcher.Settings.IncludeProductionCompanyDetails;
+      IncludeTVNetworkDetails = _settingWatcher.Settings.IncludeTVNetworkDetails;
+      OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
     }
 
     #endregion
@@ -162,6 +201,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
       }
 
+      episodeInfo.AssignNameId();
+
       if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
       {
         //Reset string to prefer online texts
@@ -170,10 +211,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         episodeInfo.Summary.DefaultLanguage = true;
       }
 
-      OnlineMatcherService.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+      if(!SkipOnlineSearches)
+        OnlineMatcherService.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
 
-      if (!_onlyFanArt)
-        episodeInfo.SetMetadata(extractedAspectData);
+      episodeInfo.SetMetadata(extractedAspectData);
 
       return episodeInfo.IsBaseInfoPresent;
     }

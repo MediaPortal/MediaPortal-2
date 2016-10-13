@@ -74,6 +74,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (forceQuickMode)
         return false;
 
+      if (MovieMetadataExtractor.OnlyLocalMedia)
+        return false;
+
       MovieCollectionInfo collectionInfo = new MovieCollectionInfo();
       if (!collectionInfo.FromMetadata(aspects))
         return false;
@@ -81,10 +84,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (_checkCache.IsItemChecked(collectionInfo))
         return false;
 
-      OnlineMatcherService.UpdateCollection(collectionInfo, true, forceQuickMode);
+      if (!MovieMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.UpdateCollection(collectionInfo, true, forceQuickMode);
 
       if (collectionInfo.Movies.Count == 0)
         return false;
+
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < collectionInfo.Movies.Count)
+        collectionInfo.HasChanged = true; //Force save for new movies
 
       if (!collectionInfo.HasChanged && !forceQuickMode)
         return false;
