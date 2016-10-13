@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common.Settings;
-using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -31,9 +30,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
   {
     protected bool _onlyBasicFanArt = false;
     protected bool _useHttps = true;
-    protected List<MatcherSetting> _musicMatchers = new List<MatcherSetting>();
-    protected List<MatcherSetting> _seriesMatchers = new List<MatcherSetting>();
-    protected List<MatcherSetting> _movieMatchers = new List<MatcherSetting>();
+    protected MatcherSetting[] _musicMatchers = new MatcherSetting[0];
+    protected MatcherSetting[] _seriesMatchers = new MatcherSetting[0];
+    protected MatcherSetting[] _movieMatchers = new MatcherSetting[0];
 
     //Only download basic FanArt like backdrops, banners, posters and thumbnails
     //Not DiscArt,  ClearArt, Logos etc. 
@@ -54,7 +53,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     //Music matcher settings
     [Setting(SettingScope.Global)]
-    public List<MatcherSetting> MusicMatchers
+    public MatcherSetting[] MusicMatchers
     {
       get { return _musicMatchers; }
       set { _musicMatchers = value; }
@@ -62,7 +61,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     //Series matcher settings
     [Setting(SettingScope.Global)]
-    public List<MatcherSetting> SeriesMatchers
+    public MatcherSetting[] SeriesMatchers
     {
       get { return _seriesMatchers; }
       set { _seriesMatchers = value; }
@@ -70,7 +69,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     //Movie matcher settings
     [Setting(SettingScope.Global)]
-    public List<MatcherSetting> MovieMatchers
+    public MatcherSetting[] MovieMatchers
     {
       get { return _movieMatchers; }
       set { _movieMatchers = value; }
