@@ -72,6 +72,8 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public const int QUERY_LIMIT = 5;
 
+    private static bool _showVirtual = false;
+
     public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
 
     public ItemsList AllItems { get; private set; }
@@ -95,6 +97,9 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         return;
       }
+
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      _showVirtual = settings.ShowVirtual;
 
       ItemsList list = new ItemsList();
       FillList(contentDirectory, Consts.NECESSARY_MOVIES_MIAS, list, item => new MovieItem(item));
@@ -127,10 +132,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      bool showVirtual = settings.ShowVirtual;
-
-      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
+      var items = contentDirectory.Search(query, false, userProfile, _showVirtual);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {
