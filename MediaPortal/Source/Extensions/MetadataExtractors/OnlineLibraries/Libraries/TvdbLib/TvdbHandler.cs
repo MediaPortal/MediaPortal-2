@@ -765,34 +765,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
                                                    + "the cache has to be initialisee");
       }
 
-
-
       if (interval == Interval.Automatic)
       {
-        //MakeUpdate(TvDbUtils.UpdateInterval.month);
-        //return true;
         TimeSpan timespanLastUpdate = (DateTime.Now - _loadedData.LastUpdated);
-        //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvdbLinks.UpdateInterval.day));
-        if (timespanLastUpdate < new TimeSpan(1, 0, 0, 0))
-        {//last update is less than a day ago -> make a daily update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.day));
-          return UpdateAllSeries(Interval.Day, zipped, false);
-        }
-        if (timespanLastUpdate < new TimeSpan(7, 0, 0, 0))
-        {//last update is less than a week ago -> make a weekly update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.week));
-          return UpdateAllSeries(Interval.Week, zipped, false);
-        }
-        if (timespanLastUpdate < new TimeSpan(31, 0, 0, 0) ||
-            _loadedData.LastUpdated == new DateTime())//lastUpdated not available -> make longest possible upgrade
-        {//last update is less than a month ago -> make a monthly update
-          //MakeUpdate(TvdbLinks.CreateUpdateLink(_apiKey, TvDbUtils.UpdateInterval.month));
+        if (_loadedData.LastUpdated == DateTime.MinValue)
+        {//lastUpdated not available -> make longest possible upgrade
+         //todo: Make a full update -> full update deosn't make sense... (do a complete re-scan?)
           return UpdateAllSeries(Interval.Month, zipped, true);
         }
-        //todo: Make a full update -> full update deosn't make sense... (do a complete re-scan?)
-        Log.Warn("The last update occured longer than a month ago, to avoid data inconsistency, all cached series "
-                 + "and episode informations is downloaded again");
-        return UpdateAllSeries(Interval.Month, zipped, true);
+        if (timespanLastUpdate > new TimeSpan(31, 0, 0, 0))
+        {//last update is over 1 month ago -> make a monthly update
+          Log.Warn("The last update occured longer than a month ago, to avoid data inconsistency, all cached series "
+         + "and episode informations is downloaded again");
+          return UpdateAllSeries(Interval.Month, zipped, true);
+        }
+        if (timespanLastUpdate > new TimeSpan(29, 0, 0, 0))
+        {//last update is more than a month ago -> make a monthly update
+          return UpdateAllSeries(Interval.Month, zipped, true);
+        }
+        if (timespanLastUpdate > new TimeSpan(7, 0, 0, 0))
+        {//last update is more than a week ago -> make a weekly update
+          return UpdateAllSeries(Interval.Week, zipped, false);
+        }
+        if (timespanLastUpdate > new TimeSpan(1, 0, 0, 0))
+        {//last update is more than a day ago -> make a daily update
+          return UpdateAllSeries(Interval.Day, zipped, false);
+        }
+        return false;
       }
       if (interval == Interval.Day)
         return UpdateAllSeries(interval, zipped, false);
