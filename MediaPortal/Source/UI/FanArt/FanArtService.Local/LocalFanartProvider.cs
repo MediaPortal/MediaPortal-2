@@ -61,8 +61,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       result = null;
       Guid mediaItemId;
 
-      // Don't try to load "fanart" for images
-      if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtMediaTypes.Image)
+      if (!Guid.TryParse(name, out mediaItemId))
+        return false;
+
+      if (mediaType == FanArtMediaTypes.Image && fanArtType != FanArtTypes.FanArt)
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
@@ -123,17 +125,22 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
             if (fanArtType == FanArtTypes.FanArt)
             {
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                where potentialFanArtFileNameWithoutExtension == "backdrop" ||
-                      potentialFanArtFileNameWithoutExtension == "fanart" ||
-                      potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-fanart")
-                select potentialFanArtFile);
+              if (mediaType == FanArtMediaTypes.Image)
+                fanArtPaths.Add(mediaIteamLocator.NativeResourcePath);
+              else
+              {
+                fanArtPaths.AddRange(
+                  from potentialFanArtFile in potentialFanArtFiles
+                  let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                  where potentialFanArtFileNameWithoutExtension == "backdrop" ||
+                        potentialFanArtFileNameWithoutExtension == "fanart" ||
+                        potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-fanart")
+                  select potentialFanArtFile);
 
-              if (directoryFsra.ResourceExists("ExtraFanArt/"))
-                using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
-                  fanArtPaths.AddRange(GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
+                if (directoryFsra.ResourceExists("ExtraFanArt/"))
+                  using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
+                    fanArtPaths.AddRange(GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
+              }
             }
 
             files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
