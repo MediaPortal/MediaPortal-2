@@ -38,6 +38,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
   class TvMazeWrapper : ApiWrapper<TvMazeImageCollection, string>
   {
     protected TvMazeApiV1 _tvMazeHandler;
+    protected TimeSpan _cacheTimeout = TimeSpan.FromHours(12);
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -556,6 +557,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       try
       {
+        if (DateTime.Now - lastRefresh <= _cacheTimeout)
+          return false;
+
         List<int> changedItems = new List<int>();
         Dictionary<int, DateTime> seriesChangeDates = _tvMazeHandler.GetSeriesChangeDates();
         foreach (var change in seriesChangeDates)
