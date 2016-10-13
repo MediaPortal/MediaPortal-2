@@ -35,9 +35,10 @@
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-              <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableEpisodes}"
+              <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Episodes}"
                      Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
               <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+                     IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
                      Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
             </StackPanel>
           </StackPanel>

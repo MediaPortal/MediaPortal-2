@@ -453,7 +453,7 @@
           <Grid.OpacityMask>
             <VisualBrush>
               <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="18" BorderThickness="0" BorderBrush="Black"/>
+                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
               </VisualBrush.Visual>
             </VisualBrush>
           </Grid.OpacityMask>
@@ -681,7 +681,7 @@
           <Grid.OpacityMask>
             <VisualBrush>
               <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="18" BorderThickness="0" BorderBrush="Black"/>
+                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
               </VisualBrush.Visual>
             </VisualBrush>
           </Grid.OpacityMask>
@@ -843,13 +843,14 @@
           <Grid.OpacityMask>
             <VisualBrush>
               <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="18" BorderThickness="0" BorderBrush="Black"/>
+                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
               </VisualBrush.Visual>
             </VisualBrush>
           </Grid.OpacityMask>
           <Image Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Movies" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
             </Image.Source>
             <Image.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1021,7 +1022,7 @@
           <Grid.OpacityMask>
             <VisualBrush>
               <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="18" BorderThickness="0" BorderBrush="Black"/>
+                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
               </VisualBrush.Visual>
             </VisualBrush>
           </Grid.OpacityMask>
@@ -1382,15 +1383,11 @@
         <RowDefinition Height="175"/>
       </Grid.RowDefinitions>
 
-      <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_23}" />
-      <!-- SHADOW -->
-
       <Grid>
         <Grid.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="{StaticResource LargeRadius}" BorderThickness="0" BorderBrush="Black"/>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.OpacityMask>
@@ -1420,61 +1417,18 @@
   <ControlTemplate x:Key="CoverViewAudioItemTemplate">
     <Grid x:Name="ItemControl" Margin="3,0,3,0" >
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="325"/>
+        <ColumnDefinition Width="{StaticResource MEDIA_AUDIO_COVER}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="325"  />
-        <RowDefinition Height="270"  />
+        <RowDefinition Height="{StaticResource MEDIA_AUDIO_COVER}"/>
       </Grid.RowDefinitions>
-
-      <Image Grid.Row="1" Width="320" Height="300" Stretch="Fill" FallbackSource="Audio_square.png" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,15,0,0" 
-               Source="{Binding MediaItem}" Opacity="0.7" RenderTransformOrigin="0.5,0.5" >
-        <Image.OpacityMask>
-          <ImageBrush ImageSource="MediaItem_Reflexion.png" />
-        </Image.OpacityMask>
-        <Image.RenderTransform>
-          <ScaleTransform ScaleY="-1"/>
-        </Image.RenderTransform>
-      </Image>
-
-      <Image Grid.Row="0" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="-13,-13,-13,-13" Opacity="0.8">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="MediaItem_focus_audio.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
-
-      <Grid Grid.Row="0" Margin="-4,-4,-4,-3" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="28" />
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="28" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="28" />
-              <RowDefinition Height="*"  />
-              <RowDefinition Height="28" />
-            </Grid.RowDefinitions>
-            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
-            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
-            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
-            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
-            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
-            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
-            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
-            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
-            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
-      </Grid>
-        
-      <Grid Width="325" Height="325" Grid.Row="0">
+       
+      <Grid Grid.Row="0">
         <Grid>
           <Grid.OpacityMask>
             <VisualBrush>
               <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="18" BorderThickness="0" BorderBrush="Black"/>
+                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
               </VisualBrush.Visual>
             </VisualBrush>
           </Grid.OpacityMask>
@@ -1633,14 +1587,12 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="175"/>
       </Grid.RowDefinitions>
-      <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_23}" />
-      <!-- SHADOW -->
+
       <Grid>
         <Grid.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="{StaticResource LargeRadius}" BorderThickness="0" BorderBrush="Black"/>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.OpacityMask>
@@ -1670,64 +1622,18 @@
     <ControlTemplate x:Key="CoverViewAlbumItemTemplate">
     <Grid x:Name="ItemControl" Margin="3,0,3,0" >
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="325"/>
+        <ColumnDefinition Width="{StaticResource MEDIA_AUDIO_COVER}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="325"  />
-        <RowDefinition Height="270"  />
+        <RowDefinition Height="{StaticResource MEDIA_AUDIO_COVER}"/>
       </Grid.RowDefinitions>
-
-      <Image Grid.Row="1" Width="320" Height="300" Stretch="Fill" FallbackSource="Audio_square.png" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,15,0,0" 
-             Opacity="0.7" RenderTransformOrigin="0.5,0.5" >
-        <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
-        </Image.Source>
-        <Image.OpacityMask>
-          <ImageBrush ImageSource="MediaItem_Reflexion.png" />
-        </Image.OpacityMask>
-        <Image.RenderTransform>
-          <ScaleTransform ScaleY="-1"/>
-        </Image.RenderTransform>
-      </Image>
-
-      <Image Grid.Row="0" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="-13,-13,-13,-13" Opacity="0.8">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="MediaItem_focus_audio.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
-
-      <Grid Grid.Row="0" Margin="-4,-4,-4,-3" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="28" />
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="28" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="28" />
-              <RowDefinition Height="*"  />
-              <RowDefinition Height="28" />
-            </Grid.RowDefinitions>
-            <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
-            <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
-            <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
-            <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
-            <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
-            <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
-            <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
-            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
-            <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
-      </Grid>
-        
-      <Grid Width="325" Height="325" Grid.Row="0">
+       
+      <Grid Grid.Row="0">
         <Grid>
           <Grid.OpacityMask>
             <VisualBrush>
               <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="18" BorderThickness="0" BorderBrush="Black"/>
+                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
               </VisualBrush.Visual>
             </VisualBrush>
           </Grid.OpacityMask>
@@ -1735,6 +1641,13 @@
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
             </Image.Source>
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.8"/>
+              </MultiBinding>
+            </Image.Opacity>
           </Image>
           <Image HorizontalAlignment="Left" VerticalAlignment="Top">
             <Image.Source>
@@ -1865,10 +1778,6 @@
 
   <ControlTemplate x:Key="GridViewImageItemTemplate">
     <Grid Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center" Width="193" Height="128">
-
-      <!-- SHADOW -->
-      <Control Style="{ThemeResource Shadow_3_23}" />
-      <!-- SHADOW -->
 
       <Grid>
         <Grid.OpacityMask>
@@ -2163,7 +2072,7 @@
                 <Binding.Source>
                   <ControlTemplate TargetType="{x:Type ListView}">
                     <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource GradientListScrollViewerStyle}"
-                        HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                       <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                     </ScrollViewer>
                   </ControlTemplate>
@@ -2173,10 +2082,10 @@
               <Binding>
                 <Binding.Source>
                   <ControlTemplate TargetType="{x:Type ListView}">
-                    <ScrollViewer CanContentScroll="True" Margin="5,0,5,5" Style="{ThemeResource GradientScrollViewerStyle}"
+                    <ScrollViewer CanContentScroll="True" Margin="0,0,0,5" Style="{ThemeResource GradientScrollViewerStyle}"
                                   HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                      <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                      <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="30,0,30,0"/>
                     </ScrollViewer>
                   </ControlTemplate>
                 </Binding.Source>
@@ -2207,7 +2116,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="60,60" Margin="0,0,120,0">
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,120" Margin="0,0,120,0">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
@@ -2230,7 +2139,7 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" LoopScroll="True" ScrollMargin="240,350" Margin="-150,0,-100,0"-->
-                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" LoopScroll="True" ScrollMargin="480,590" Margin="-300,0,-200,0">
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" LoopScroll="True" ScrollMargin="590,0" Margin="-390,0,-360,0">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 

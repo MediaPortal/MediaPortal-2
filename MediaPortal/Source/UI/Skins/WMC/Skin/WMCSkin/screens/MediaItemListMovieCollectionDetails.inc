@@ -54,9 +54,10 @@
 
     <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding AvailableMovies}"
+        <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Movies}"
                Margin="0,0,8,0" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.MoviesItemsHeader]"
+               IsVisible="{Binding Path=Movies,Converter={StaticResource ReferenceToBoolConverter}}"
                Margin="0,0,8,0" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
     </StackPanel>

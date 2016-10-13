@@ -24,9 +24,9 @@
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="ProgramStart" Scroll="Auto" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          <Label x:Name="ProgramStart" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
@@ -35,15 +35,16 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <StackPanel Orientation="Horizontal">
-              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
                     <Binding Path="Duration"/>
                   </MultiBinding>
                 </Label.Content>
               </Label>
-              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="0.5" Color="{ThemeResource TextColor}"
+              <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+              <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
             </StackPanel>
           </Grid>
@@ -54,7 +55,8 @@
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
           <Label x:Name="Channel" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Content="{Binding Channel}" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+                 Content="{Binding Channel}" FontSize="{ThemeResource SmallFontSize}"
+                 Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
@@ -85,22 +87,21 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
     <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" FontSize="{ThemeResource SmallFontSize}"
-           HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}"
+           HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"/>
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:SeriesAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Episode" Margin="10,0,10,0" Opacity="0.5" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+          <Label x:Name="Episode" Margin="10,0,10,0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                  TextTrimming="WordEllipsis" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Content="{Binding Series}" Color="{ThemeResource TextColor}"/>
+                 Content="{Binding Series}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" />
         </ControlTemplate>
       </media:SeriesAspectWrapper.Template>
     </media:SeriesAspectWrapper>
   </Grid>
    
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="0.5"
-         Scroll="Auto" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
-         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-         Color="{ThemeResource TextColor}" Margin="0,0,10,25"/>
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+         TextTrimming="WordEllipsis" HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
+         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,0,10,25"/>
 
 </Grid>
