@@ -70,11 +70,5 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       get { return this[Consts.KEY_MOVIE_COLLECTION]; }
       set { SetLabel(Consts.KEY_MOVIE_COLLECTION, value); }
     }
-
-    public string StoryPlot
-    {
-      get { return this[Consts.KEY_STORY_PLOT]; }
-      set { SetLabel(Consts.KEY_STORY_PLOT, value); }
-    }
   }
 }
