@@ -51,6 +51,7 @@ protected AbstractProperty _streamIndexProperty;
 protected AbstractProperty _videoTypeProperty;
 protected AbstractProperty _partNumProperty;
 protected AbstractProperty _partSetNumProperty;
+protected AbstractProperty _partSetNameProperty;
 protected AbstractProperty _durationProperty;
 protected AbstractProperty _audioStreamCountProperty;
 protected AbstractProperty _videoEncodingProperty;
@@ -120,6 +121,17 @@ public int? PartSetNum
 {
   get { return (int?) _partSetNumProperty.GetValue(); }
   set { _partSetNumProperty.SetValue(value); }
+}
+
+public AbstractProperty PartSetNameProperty
+{
+  get{ return _partSetNameProperty; }
+}
+
+public string PartSetName
+{
+  get { return (string) _partSetNameProperty.GetValue(); }
+  set { _partSetNameProperty.SetValue(value); }
 }
 
 public AbstractProperty DurationProperty
@@ -254,6 +266,7 @@ public VideoStreamAspectWrapper()
   _videoTypeProperty = new SProperty(typeof(string));
   _partNumProperty = new SProperty(typeof(int?));
   _partSetNumProperty = new SProperty(typeof(int?));
+  _partSetNameProperty = new SProperty(typeof(string));
   _durationProperty = new SProperty(typeof(long?));
   _audioStreamCountProperty = new SProperty(typeof(int?));
   _videoEncodingProperty = new SProperty(typeof(string));
@@ -318,6 +331,7 @@ public void Init(MediaItem mediaItem)
   VideoType = (string) aspects[AspectIndex][VideoStreamAspect.ATTR_VIDEO_TYPE];
   PartNum = (int?) aspects[AspectIndex][VideoStreamAspect.ATTR_VIDEO_PART];
   PartSetNum = (int?) aspects[AspectIndex][VideoStreamAspect.ATTR_VIDEO_PART_SET];
+  PartSetName = (string) aspects[AspectIndex][VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME];
   Duration = (long?) aspects[AspectIndex][VideoStreamAspect.ATTR_DURATION];
   AudioStreamCount = (int?) aspects[AspectIndex][VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT];
   VideoEncoding = (string) aspects[AspectIndex][VideoStreamAspect.ATTR_VIDEOENCODING];
@@ -336,6 +350,7 @@ public void SetEmpty()
   VideoType = null;
   PartNum = null;
   PartSetNum = null;
+  PartSetName = null;
   Duration = null;
   AudioStreamCount = null;
   VideoEncoding = null;

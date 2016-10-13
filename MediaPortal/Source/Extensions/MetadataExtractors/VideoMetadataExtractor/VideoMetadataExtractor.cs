@@ -1132,6 +1132,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
+    protected void UpdateSetName(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, int partNum)
+    {
+      IList<MultipleMediaItemAspect> videoStreamAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoStreamAspects))
+      {
+        string title = null;
+        if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
+          title = ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
+
+        string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
+        int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
+        int? width = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_WIDTH);
+
+        List<string> suffixes = new List<string>();
+        if (partNum > 0)
+          suffixes.Add("Multiple Parts");
+        if (!string.IsNullOrEmpty(stereoType))
+          suffixes.Add(stereoType);
+        if (height.HasValue && width.HasValue)
+          suffixes.Add(string.Format("{0}x{1}", width.Value, height.Value));
+
+        videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, title + (suffixes.Count > 0 ? " (" + string.Join(", ", suffixes) + ")" : ""));
+      }
+    }
+
     /// <summary>
     /// Helper method that contains overrides for video detection for certain formats, because video count information is not always correct.
     /// </summary>
@@ -1160,7 +1185,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           refresh = true;
 
         VideoResult result = null;
-        List<string> partSets = new List<string>();
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra == null)
           return false;
@@ -1201,11 +1225,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
               if (lfsra != null)
               {
-                result.UpdateMetadata(extractedAspectData, lfsra, -1, -1);
+                result.UpdateMetadata(extractedAspectData, lfsra, -1, 0);
 
                 ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
                 ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
                 ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
+
+                UpdateSetName(lfsra, extractedAspectData, -1);
               }
               return true;
             }
@@ -1221,12 +1247,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           {
             if (int.TryParse(match.Groups[GROUP_DISC].Value, out multipart))
             {
-              multipartSet = partSets.IndexOf(match.Groups[GROUP_FILE].Value) + 1;
-              if (multipartSet == 0)
-              {
-                multipartSet = partSets.Count + 1;
-                partSets.Add(match.Groups[GROUP_FILE].Value);
-              }
+              //Will be merged so indicate that is it a set
+              multipartSet = -1;
             }
           }
 
@@ -1265,6 +1287,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                     ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
                     ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
                     ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
+
+                    UpdateSetName(lfsra, extractedAspectData, multipart);
 
                     //Initial add of all subtitles because they might have been skipped
                     //during merging as no video item is available for the merge

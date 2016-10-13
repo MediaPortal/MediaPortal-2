@@ -74,6 +74,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       set { AdditionalProperties[Consts.KEY_SET] = value; }
     }
 
+    public string SetName
+    {
+      get { return (string)AdditionalProperties[Consts.KEY_SET_NAME]; }
+      set { AdditionalProperties[Consts.KEY_SET_NAME] = value; }
+    }
+
     public int? Parts
     {
       get { return (int?)AdditionalProperties[Consts.KEY_PARTS]; }
