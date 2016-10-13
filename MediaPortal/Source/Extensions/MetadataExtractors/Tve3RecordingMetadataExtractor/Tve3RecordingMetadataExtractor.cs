@@ -270,6 +270,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
 
         string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))

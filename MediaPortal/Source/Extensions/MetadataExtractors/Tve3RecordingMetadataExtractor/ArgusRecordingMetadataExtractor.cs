@@ -231,7 +231,19 @@ namespace MediaPortal.Extensions.MetadataExtractors
             recording = (Argus.Recording)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
+        // Force MimeType
+        IList<MultipleMediaItemAspect> providerAspects;
+        MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerAspects);
+        foreach (MultipleMediaItemAspect aspect in providerAspects)
+        {
+          aspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/arg");
+        }
+
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
+
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, recording.Title);
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(recording.Title));
 
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new[] { recording.Category });
 
