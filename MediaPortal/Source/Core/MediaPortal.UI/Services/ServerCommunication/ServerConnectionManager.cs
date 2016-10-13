@@ -41,7 +41,8 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.ServerCommunication.Settings;
 using MediaPortal.UI.Shares;
 using UPnP.Infrastructure.CP;
-using RelocationMode=MediaPortal.Common.MediaManagement.RelocationMode;
+using RelocationMode = MediaPortal.Common.MediaManagement.RelocationMode;
+using System.Threading;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
@@ -118,7 +119,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       #region IImportResultHandler implementation
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh)
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, CancellationToken cancelToken)
       {
         try
         {

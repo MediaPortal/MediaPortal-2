@@ -89,27 +89,36 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <returns><see cref="PendingImportResourceNewGen"/> after processing</returns>
     private async Task<PendingImportResourceNewGen> ProcessMediaItem(PendingImportResourceNewGen importResource)
     {
-      try
+      using (CancellationTokenSource cancelToken = new CancellationTokenSource())
       {
-        // ReSharper disable once PossibleInvalidOperationException
-        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation.JobType);
+        try
+        {
+          // ReSharper disable once PossibleInvalidOperationException
+          await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation.JobType, cancelToken.Token);
 
-        if (ImportJobInformation.JobType == ImportJobType.Refresh)
-          if(importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
-            await DeleteUnderPath(importResource.PendingResourcePath);
+          if (ImportJobInformation.JobType == ImportJobType.Refresh)
+          {
+            if (importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
+              await DeleteUnderPath(importResource.PendingResourcePath);
+            //Throttle import to allow better client response times
+            await Task.Delay(1000);
+          }
 
-        importResource.IsValid = false;
-        return importResource;
-      }
-      catch (TaskCanceledException)
-      {
-        return importResource;
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
-        importResource.IsValid = false;
-        return importResource;
+          importResource.IsValid = false;
+          return importResource;
+        }
+        catch (TaskCanceledException)
+        {
+          cancelToken.Cancel();
+          return importResource;
+        }
+        catch (Exception ex)
+        {
+          cancelToken.Cancel();
+          ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
+          importResource.IsValid = false;
+          return importResource;
+        }
       }
     }
 

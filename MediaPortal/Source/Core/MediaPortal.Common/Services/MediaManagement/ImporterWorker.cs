@@ -372,8 +372,11 @@ namespace MediaPortal.Common.Services.MediaManagement
       if (aspects == null)
         // No metadata could be extracted
         return false;
-      resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), false);
-      resultHandler.DeleteUnderPath(path);
+      using (CancellationTokenSource cancelToken = new CancellationTokenSource())
+      {
+        resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), false, cancelToken.Token);
+        resultHandler.DeleteUnderPath(path);
+      }
       return true;
     }
 
@@ -433,7 +436,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               mia,
               da,
           });
-        return resultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects, false);
+        return resultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects, false, CancellationToken.None);
       }
       return directoryItem.MediaItemId;
     }

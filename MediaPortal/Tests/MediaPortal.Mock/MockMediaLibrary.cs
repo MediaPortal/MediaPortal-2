@@ -28,6 +28,7 @@ using MediaPortal.Backend.Services.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using System.Threading;
 
 namespace MediaPortal.Mock
 {
@@ -44,15 +45,15 @@ namespace MediaPortal.Mock
 
     public bool UpdateRelationshipsEnabled { get; set; }
 
-    protected override void Reconcile(Guid mediaItemId, bool isRefresh)
+    protected override void Reconcile(Guid mediaItemId, bool isRefresh, CancellationToken cancelToken)
     {
-      UpdateRelationships(mediaItemId, true);
+      UpdateRelationships(mediaItemId, true, cancelToken);
     }
 
-    protected override void UpdateRelationships(Guid mediaItemId, bool isRefresh)
+    protected override void UpdateRelationships(Guid mediaItemId, bool isRefresh, CancellationToken cancelToken)
     {
       if (UpdateRelationshipsEnabled)
-        base.UpdateRelationships(mediaItemId, isRefresh);
+        base.UpdateRelationships(mediaItemId, isRefresh, cancelToken);
       else
         ServiceRegistration.Get<ILogger>().Debug("Update relationships is disabled");
     }
