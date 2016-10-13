@@ -51,14 +51,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\MusicBrainz\");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
     #endregion
 
     #region Init
 
     public MusicBrainzMatcher() :
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION)
+      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
       //TODO: Disabled for now. Very slow response times (up to 30 seconds, maybe more).
       Enabled = false;
@@ -196,6 +196,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               if (imageType.Equals(imgType, StringComparison.InvariantCultureIgnoreCase))
               {
+                FanArtCache.InitFanArtCache(mediaItemId, name);
                 if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
                 {
                   countLock.Count++;

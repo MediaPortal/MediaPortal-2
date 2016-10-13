@@ -51,12 +51,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public SeriesMatcher(string cachePath, TimeSpan maxCacheDuration)
+    public SeriesMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
     {
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "SeriesMatches.xml");
       _maxCacheDuration = maxCacheDuration;
       _id = GetType().Name;
+      _cacheRefreshable = cacheRefreshable;
 
       _actorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ActorMatches.xml"));
       _directorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "DirectorMatches.xml"));
@@ -126,6 +127,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private bool _enabled = true;
     private bool _primary = false;
     private string _id = null;
+    private bool _cacheRefreshable;
 
     private SimpleNameMatcher _companyMatcher;
     private SimpleNameMatcher _networkMatcher;
@@ -156,6 +158,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public string Id
     {
       get { return _id; }
+    }
+
+    public bool CacheRefreshable
+    {
+      get { return _cacheRefreshable; }
     }
 
     #endregion
@@ -273,7 +280,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           episodeMatch = CloneProperties(episodeInfo);
           if (match != null)
           {
-            if (SetSeriesId(episodeMatch, match.Id))
+            if (!CacheRefreshable)
+            {
+              //Match was found but cache is still the same
+              return false;
+            }
+            else if (SetSeriesId(episodeMatch, match.Id))
             {
               seriesMatchFound = true;
             }
@@ -430,7 +442,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           if (_seriesNameMatcher.GetNameMatch(seriesInfo.SeriesName.Text, out id))
           {
-            if (!SetSeriesId(seriesInfo, id))
+            if (!CacheRefreshable)
+            {
+              //Match was found but cache is still the same
+              return false;
+            }
+            else if (!SetSeriesId(seriesInfo, id))
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this series by name only failed so stop trying.
@@ -1453,28 +1470,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual void RefreshCache()
     {
-      string dateFormat = "MMddyyyyHHmm";
-      if (string.IsNullOrEmpty(_config.LastRefresh))
-        _config.LastRefresh = DateTime.Now.ToString(dateFormat);
-
-      DateTime lastRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
-
-      if (DateTime.Now - lastRefresh <= _maxCacheDuration)
-        return;
-
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
-      if (threadPool != null)
+      if (CacheRefreshable)
       {
-        Logger.Debug(_id + ": Refreshing local cache");
-        threadPool.Add(() =>
-        {
-          if (_wrapper != null)
-            _wrapper.RefreshCache(lastRefresh);
-        });
-      }
+        string dateFormat = "MMddyyyyHHmm";
+        if (string.IsNullOrEmpty(_config.LastRefresh))
+          _config.LastRefresh = DateTime.Now.ToString(dateFormat);
 
-      _config.LastRefresh = DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
-      SaveConfig();
+        DateTime lastRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
+
+        if (DateTime.Now - lastRefresh <= _maxCacheDuration)
+          return;
+
+        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+        if (threadPool != null)
+        {
+          Logger.Debug(_id + ": Refreshing local cache");
+          threadPool.Add(() =>
+          {
+            if (_wrapper != null)
+            {
+              if(_wrapper.RefreshCache(lastRefresh))
+                _config.LastRefresh = DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
+            }
+          });
+        }
+        SaveConfig();
+      }
     }
 
     #endregion
@@ -1485,7 +1506,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
-      FanArtCache.InitFanArtCache(mediaItemId.ToString().ToUpperInvariant(), info.ToString());
       if (info is SeriesInfo)
       {
         SeriesInfo seriesInfo = info as SeriesInfo;
@@ -1883,6 +1903,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               continue;
             if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;
+            FanArtCache.InitFanArtCache(mediaItemId, name);
             if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
             {
               countLock.Count++;

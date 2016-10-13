@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
     #endregion
 
@@ -71,7 +71,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public SeriesTvDbMatcher() :
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION)
+      base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
       Primary = true;
     }
@@ -261,6 +261,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             // We need the image only loaded once, later we will access the cache directly
             try
             {
+              FanArtCache.InitFanArtCache(mediaItemId, name);
               tvdbBanner.CachePath = Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType);
               tvdbBanner.LoadBanner();
               tvdbBanner.UnloadBanner(true);

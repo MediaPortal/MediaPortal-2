@@ -51,12 +51,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public MusicMatcher(string cachePath, TimeSpan maxCacheDuration)
+    public MusicMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
     {
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "MusicMatches.xml");
       _maxCacheDuration = maxCacheDuration;
       _id = GetType().Name;
+      _cacheRefreshable = cacheRefreshable;
 
       _artistMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ArtistMatches.xml"));
       _composerMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ComposerMatches.xml"));
@@ -120,6 +121,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private bool _enabled = true;
     private bool _primary = false;
     private string _id = null;
+    private bool _cacheRefreshable;
 
     private SimpleNameMatcher _artistMatcher;
     private SimpleNameMatcher _composerMatcher;
@@ -150,6 +152,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public string Id
     {
       get { return _id; }
+    }
+
+    public bool CacheRefreshable
+    {
+      get { return _cacheRefreshable; }
     }
 
     #endregion
@@ -224,7 +231,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           trackMatch = CloneProperties(trackInfo);
           if (match != null)
           {
-            if (SetTrackId(trackMatch, match.Id))
+            if (!CacheRefreshable)
+            {
+              //Match was found but cache is still the same
+              return false;
+            }
+            else if (SetTrackId(trackMatch, match.Id))
             {
               //If Id was found in cache the online track info is probably also in the cache
               if (_wrapper.UpdateFromOnlineMusicTrack(trackMatch, language, true))
@@ -741,7 +753,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           if (_albumMatcher.GetNameMatch(albumInfo.Album, out id))
           {
-            if (!SetTrackAlbumId(albumInfo, id))
+            if (!CacheRefreshable)
+            {
+              //Match was found but cache is still the same
+              return false;
+            }
+            else if (!SetTrackAlbumId(albumInfo, id))
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this album by name only failed so stop trying.
@@ -1103,27 +1120,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual void RefreshCache()
     {
-      string dateFormat = "MMddyyyyHHmm";
-      if (string.IsNullOrEmpty(_config.LastRefresh))
-        _config.LastRefresh = DateTime.Now.ToString(dateFormat);
-
-      DateTime lastRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
-
-      if (DateTime.Now - lastRefresh <= _maxCacheDuration)
-        return;
-
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
-      if (threadPool != null)
+      if (CacheRefreshable)
       {
-        Logger.Debug(_id + ": Refreshing local cache");
-        threadPool.Add(() =>
-        {
-          if (_wrapper != null)
-            _wrapper.RefreshCache(lastRefresh);
-        });
-      }
+        string dateFormat = "MMddyyyyHHmm";
+        if (string.IsNullOrEmpty(_config.LastRefresh))
+          _config.LastRefresh = DateTime.Now.ToString(dateFormat);
 
-      _config.LastRefresh = DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
+        DateTime lastRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
+
+        if (DateTime.Now - lastRefresh <= _maxCacheDuration)
+          return;
+
+        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
+        if (threadPool != null)
+        {
+          Logger.Debug(_id + ": Refreshing local cache");
+          threadPool.Add(() =>
+          {
+            if (_wrapper != null)
+            {
+              if(_wrapper.RefreshCache(lastRefresh))
+                _config.LastRefresh = DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
+            }
+          });
+        }
+      }
       SaveConfig();
     }
 
@@ -1135,7 +1156,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
-      FanArtCache.InitFanArtCache(mediaItemId.ToString().ToUpperInvariant(), info.ToString());
       if (info is TrackInfo)
       {
         TrackInfo trackInfo = info as TrackInfo;
@@ -1368,6 +1388,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               continue;
             if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
               break;
+            FanArtCache.InitFanArtCache(mediaItemId, name);
             if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
             {
               countLock.Count++;

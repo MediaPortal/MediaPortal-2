@@ -48,14 +48,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
-    private static readonly TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
     #endregion
 
     #region Init
 
     public MovieTheMovieDbMatcher() :
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION)
+      base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
       Primary = true;
     }
