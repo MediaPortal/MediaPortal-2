@@ -200,15 +200,15 @@
                   </EventTrigger.Actions>
                 </EventTrigger>
               </wmc:SubItemsContentPresenter.Triggers>
-              <!--ScrollContentPresenter.OpacityMask>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="Transparent" Offset="0.01" />
-                                    <GradientStop Color="Black" Offset="0.15" />
-                                    <GradientStop Color="Black" Offset="0.85" />
-                                    <GradientStop Color="Transparent" Offset="0.99" />
-                                </LinearGradientBrush>
-                            </ScrollContentPresenter.OpacityMask-->
             </wmc:SubItemsContentPresenter>
+            <!--Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="Transparent" Offset="0.01" />
+                <GradientStop Color="Black" Offset="0.15" />
+                <GradientStop Color="Black" Offset="0.85" />
+                <GradientStop Color="Transparent" Offset="0.99" />
+              </LinearGradientBrush>
+            </-->
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -336,7 +336,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource AutoCenterScrollViewerStyle}" 
-                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           </ScrollViewer>
         </ControlTemplate>

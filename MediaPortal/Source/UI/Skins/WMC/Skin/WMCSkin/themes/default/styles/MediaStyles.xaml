@@ -834,7 +834,7 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
+      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5,0,5,0">
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Source="FilterSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
@@ -2429,7 +2429,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image x:Name="thumb" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" Stretch="Fill">
+      <Image x:Name="thumb" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" Stretch="Fill" FallbackSource="image.png">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -2574,15 +2574,11 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="200"/>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
         <Label x:Name="FileTypeTitle" Grid.Column="0" Content="File type: " FontSize="{ThemeResource SmallFontSize}" 
                FontFamily="SegoeUIBold" Color="{StaticResource MenuTextBackground}"/>
         <Label x:Name="FileType" Grid.Column="1" Content="{Binding Extension}" FontSize="{ThemeResource SmallFontSize}"
                FontFamily="SegoeUIBold" Color="{StaticResource MenuTextBackground}"/>
-        <!--Label x:Name="MimeTypeTitle" Grid.Column="2" Content="Mime type: " FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/>
-        <Label x:Name="MimeType" Grid.Column="3" Content="{Binding MimeType}" FontSize="{ThemeResource SmallFontSize}" Color="{StaticResource MediaDetailsColor}"/-->
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -2604,7 +2600,7 @@
             <GradientStop Color="#FF124273" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
-        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="ImageLarge.png" Margin="7"/>
+        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="7"/>
       </Border>
     </Grid>
   </ControlTemplate>
@@ -2641,9 +2637,7 @@
           </LinearGradientBrush>
         </Border.Background>
       </Border>
-      <Image Name="thumb" Stretch="Uniform" Grid.Row="1" Source="{Binding MediaItem}" FallbackSource="ImageLarge.png" Margin="7"/>
-      <Image Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}"
-             Source="image.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Image Name="thumb" Stretch="Uniform" Grid.Row="1" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="7"/>
 
       <Rectangle Grid.Row="1" Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                  RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
