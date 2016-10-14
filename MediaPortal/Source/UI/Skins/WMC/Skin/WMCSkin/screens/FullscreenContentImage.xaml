@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    x:Name="FullscreenContentImageScreen"
+    >
+  <Grid
+      x:Name="FullscreenLayoutGrid"
+      Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"
+      > <!-- Model = VideoPlayer model -->
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+  
+    <mp_special_controls:PlayerControl x:Name="FullscreenImage" Grid.Column="0" Grid.Row="0"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Image Stretch="Uniform" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" SkinNeutralAR="True">
+          <Image.Source>
+            <ImagePlayerImageSource Stream="0"
+                Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
+                TransitionDuration="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256},Path=PlayerUIContributor.TransitionDuration,Mode=OneWay}"
+                TransitionInOut="False" />
+          </Image.Source>
+        </Image>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
+
+    <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="40"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="40"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+          IsVisible="{Binding !IsOSDVisible}"/>
+    </Grid>
+    <!-- BackgroundPipLayoutGrid -->
+    <Grid x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding IsOSDVisible}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.Column="1"
+          LastChildFill="false">
+        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+            Style="{ThemeResource PrimaryImageOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+      </DockPanel>
+    </Grid>
+
+    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
+  </Grid>
+</Screen>
