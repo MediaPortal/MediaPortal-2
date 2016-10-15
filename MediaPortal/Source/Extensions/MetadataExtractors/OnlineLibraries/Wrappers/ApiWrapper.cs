@@ -281,7 +281,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (movies.Count == 0)
           movies.Where(s => NamesAreMostlyEqual(s, movieSearch)).ToList();
 
-        if (movies.Count > 1)
+        if (PreferredLanguage != null && movies.Count > 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", movieSearch, movies.Count, PreferredLanguage);
           movies = movies.FindAll(s => s.Languages.Contains(PreferredLanguage.ToString()) || s.Languages.Count == 0);
@@ -593,7 +593,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (series.Count == 0)
           series = series.Where(s => NamesAreMostlyEqual(s, seriesSearch)).ToList();
 
-        if (series.Count > 1)
+        if (PreferredLanguage != null && series.Count > 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", seriesSearch, series.Count, PreferredLanguage);
           series = series.FindAll(s => s.Languages.Contains(PreferredLanguage.ToString()) || s.Languages.Count == 0);
@@ -1188,7 +1188,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (checkValue == AudioValueToCheck.Discs)
               exactMatches = exactMatches.FindAll(t => t.DiscNum > 0 || t.TotalDiscs > 0);
 
-            if (checkValue == AudioValueToCheck.Language)
+            if (checkValue == AudioValueToCheck.Language && PreferredLanguage != null)
             {
               exactMatches = exactMatches.FindAll(t => t.Languages.Contains(PreferredLanguage.ToString()) || t.Languages.Count == 0);
               if (exactMatches.Count == 0)
@@ -1356,7 +1356,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (checkValue == AudioValueToCheck.Discs)
               exactMatches = exactMatches.FindAll(a => a.DiscNum > 0 || a.TotalDiscs > 0);
 
-            if (checkValue == AudioValueToCheck.Language)
+            if (checkValue == AudioValueToCheck.Language && PreferredLanguage != null)
             {
               exactMatches = exactMatches.FindAll(a => a.Languages.Contains(PreferredLanguage.ToString()) || a.Languages.Count == 0);
               if (exactMatches.Count == 0)

@@ -100,6 +100,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
+        episodeSearch.CopyIdsFrom(seriesSearch);
       }
 
       if (episodeSearch.SeriesTvdbId > 0 && episodeSearch.SeasonNumber.HasValue)
