@@ -27,7 +27,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Localization;
@@ -39,6 +38,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using MediaPortal.Extensions.OnlineLibraries.Libraries;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -243,7 +243,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             (movieInfo.ReleaseDate.HasValue && m.Year == movieInfo.ReleaseDate.Value.Year || !movieInfo.ReleaseDate.HasValue || m.Year == 0));
           Logger.Debug(_id + ": Try to lookup movie \"{0}\" from cache: {1}", movieInfo, match != null && !string.IsNullOrEmpty(match.Id));
 
-          movieMatch = CloneProperties(movieInfo);
+          movieMatch = movieInfo.Clone();
           if (match != null)
           {
             if(!CacheRefreshable)
@@ -315,9 +315,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Score, movieMatch.Score);
 
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref movieInfo.Rating, movieMatch.Rating);
-
+          if (movieInfo.Genres.Count == 0)
+            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres, true);
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards, true);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres, true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
@@ -390,7 +390,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
         bool updated = false;
-        MovieInfo movieMatch = CloneProperties(movieInfo);
+        MovieInfo movieMatch = movieInfo.Clone();
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ACTOR)
         {
@@ -576,7 +576,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
         bool updated = false;
-        MovieInfo movieMatch = CloneProperties(movieInfo);
+        MovieInfo movieMatch = movieInfo.Clone();
         foreach (CharacterInfo character in movieMatch.Characters)
         {
           string id;
@@ -665,7 +665,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
         bool updated = false;
-        MovieInfo movieMatch = CloneProperties(movieInfo);
+        MovieInfo movieMatch = movieInfo.Clone();
         List<CompanyInfo> companies = new List<CompanyInfo>();
         if (companyType == CompanyAspect.COMPANY_PRODUCTION)
         {
@@ -771,7 +771,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(movieCollectionInfo.Languages);
         bool updated = false;
-        MovieCollectionInfo movieCollectionMatch = CloneProperties(movieCollectionInfo);
+        MovieCollectionInfo movieCollectionMatch = movieCollectionInfo.Clone();
         movieCollectionMatch.Movies.Clear();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineMovieCollection(movieCollectionMatch, language, true))
@@ -817,44 +817,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #endregion
 
     #region Metadata update helpers
-
-    private T CloneProperties<T>(T obj)
-    {
-      if (obj == null)
-        return default(T);
-      Type type = obj.GetType();
-
-      if (type.IsValueType || type == typeof(string))
-      {
-        return obj;
-      }
-      else if (type.IsArray)
-      {
-        Type elementType = obj.GetType().GetElementType();
-        var array = obj as Array;
-        Array arrayCopy = Array.CreateInstance(elementType, array.Length);
-        for (int i = 0; i < array.Length; i++)
-        {
-          arrayCopy.SetValue(CloneProperties(array.GetValue(i)), i);
-        }
-        return (T)Convert.ChangeType(arrayCopy, obj.GetType());
-      }
-      else if (type.IsClass)
-      {
-        T newInstance = (T)Activator.CreateInstance(obj.GetType());
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public |
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (FieldInfo field in fields)
-        {
-          object fieldValue = field.GetValue(obj);
-          if (fieldValue == null)
-            continue;
-          field.SetValue(newInstance, CloneProperties(fieldValue));
-        }
-        return newInstance;
-      }
-      return default(T);
-    }
 
     private void StoreMovieMatch(MovieInfo movieSearch, MovieInfo movieMatch)
     {

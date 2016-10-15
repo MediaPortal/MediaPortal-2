@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
@@ -38,7 +39,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -277,7 +277,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             (episodeSeries.FirstAired.HasValue && m.Year == episodeSeries.FirstAired.Value.Year || !episodeSeries.FirstAired.HasValue || m.Year == 0));
           Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
 
-          episodeMatch = CloneProperties(episodeInfo);
+          episodeMatch = episodeInfo.Clone();
           if (match != null)
           {
             if (!CacheRefreshable)
@@ -360,8 +360,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers, true);
           episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers, true);
-
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
+          if(episodeInfo.Genres.Count == 0)
+            episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
@@ -458,7 +458,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
         bool updated = false;
-        SeriesInfo seriesMatch = CloneProperties(seriesInfo);
+        SeriesInfo seriesMatch = seriesInfo.Clone();
         seriesMatch.Seasons.Clear();
         seriesMatch.Episodes.Clear();
         //Try updating from cache
@@ -532,8 +532,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Score, seriesMatch.Score);
 
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref seriesInfo.Rating, seriesMatch.Rating);
-
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres, true);
+          if(seriesInfo.Genres.Count == 0)
+            seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres, true);
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Awards, seriesMatch.Awards, true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
@@ -604,7 +604,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(seasonInfo.Languages);
         bool updated = false;
-        SeasonInfo seasonMatch = CloneProperties(seasonInfo);
+        SeasonInfo seasonMatch = seasonInfo.Clone();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineSeriesSeason(seasonMatch, language, true))
         {
@@ -666,7 +666,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
         bool updated = false;
-        SeriesInfo seriesMatch = CloneProperties(seriesInfo);
+        SeriesInfo seriesMatch = seriesInfo.Clone();
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ACTOR)
         {
@@ -773,7 +773,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
         bool updated = false;
-        SeriesInfo seriesMatch = CloneProperties(seriesInfo);
+        SeriesInfo seriesMatch = seriesInfo.Clone();
         foreach (CharacterInfo character in seriesMatch.Characters)
         {
           string id;
@@ -862,7 +862,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
         bool updated = false;
-        SeriesInfo seriesMatch = CloneProperties(seriesInfo);
+        SeriesInfo seriesMatch = seriesInfo.Clone();
         List<CompanyInfo> companies = new List<CompanyInfo>();
         if (companyType == CompanyAspect.COMPANY_PRODUCTION)
         {
@@ -1008,7 +1008,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
         bool updated = false;
-        EpisodeInfo episodeMatch = CloneProperties(episodeInfo);
+        EpisodeInfo episodeMatch = episodeInfo.Clone();
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ACTOR)
         {
@@ -1203,7 +1203,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
         bool updated = false;
-        EpisodeInfo episodeMatch = CloneProperties(episodeInfo);
+        EpisodeInfo episodeMatch = episodeInfo.Clone();
         foreach (CharacterInfo character in episodeMatch.Characters)
         {
           string id;
@@ -1295,51 +1295,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata update helpers
 
-    private T CloneProperties<T>(T obj)
-    {
-      if (obj == null)
-        return default(T);
-      Type type = obj.GetType();
-
-      if (type.IsValueType || type == typeof(string))
-      {
-        return obj;
-      }
-      else if (type.IsArray)
-      {
-        Type elementType = obj.GetType().GetElementType();
-        var array = obj as Array;
-        Array arrayCopy = Array.CreateInstance(elementType, array.Length);
-        for (int i = 0; i < array.Length; i++)
-        {
-          arrayCopy.SetValue(CloneProperties(array.GetValue(i)), i);
-        }
-        return (T)Convert.ChangeType(arrayCopy, obj.GetType());
-      }
-      else if (type.IsClass)
-      {
-        T newInstance = (T)Activator.CreateInstance(obj.GetType());
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public |
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (FieldInfo field in fields)
-        {
-          object fieldValue = field.GetValue(obj);
-          if (fieldValue == null)
-            continue;
-          field.SetValue(newInstance, CloneProperties(fieldValue));
-        }
-        return newInstance;
-      }
-      return default(T);
-    }
-
     private void StoreSeriesMatch(SeriesInfo seriesSearch, SeriesInfo seriesMatch)
     {
       if (seriesSearch.SeriesName.IsEmpty)
         return;
 
       string idValue = null;
-      if (seriesMatch == null || !GetSeriesId(seriesSearch, out idValue) || seriesMatch.SeriesName.IsEmpty)
+      if (seriesMatch == null || !GetSeriesId(seriesMatch, out idValue) || seriesMatch.SeriesName.IsEmpty)
       {
         _storage.TryAddMatch(new SeriesMatch()
         {

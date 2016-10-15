@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
@@ -38,7 +39,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -228,7 +228,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum) || trackInfo.TrackNum <= 0 || m.TrackNum <= 0)));
           Logger.Debug(_id + ": Try to lookup track \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
 
-          trackMatch = CloneProperties(trackInfo);
+          trackMatch = trackInfo.Clone();
           if (match != null)
           {
             if (!CacheRefreshable)
@@ -295,7 +295,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackLyrics, trackMatch.TrackLyrics);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.ReleaseDate, trackMatch.ReleaseDate);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref trackInfo.Rating, trackMatch.Rating);
-          trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
+          if (trackInfo.Genres.Count == 0)
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
 
           if (albumMatch)
           {
@@ -381,7 +382,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(trackInfo.Languages);
         bool updated = false;
-        TrackInfo trackMatch = CloneProperties(trackInfo);
+        TrackInfo trackMatch = trackInfo.Clone();
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ARTIST)
         {
@@ -535,7 +536,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(albumInfo.Languages);
         bool updated = false;
-        AlbumInfo albumMatch = CloneProperties(albumInfo);
+        AlbumInfo albumMatch = albumInfo.Clone();
         List<PersonInfo> persons = new List<PersonInfo>();
         if (occupation == PersonAspect.OCCUPATION_ARTIST)
         {
@@ -641,7 +642,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(albumInfo.Languages);
         bool updated = false;
-        AlbumInfo albumMatch = CloneProperties(albumInfo);
+        AlbumInfo albumMatch = albumInfo.Clone();
         List<CompanyInfo> companies = new List<CompanyInfo>();
         if (companyType == CompanyAspect.COMPANY_MUSIC_LABEL)
         {
@@ -769,7 +770,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         TLang language = FindBestMatchingLanguage(albumInfo.Languages);
         bool updated = false;
-        AlbumInfo albumMatch = CloneProperties(albumInfo);
+        AlbumInfo albumMatch = albumInfo.Clone();
         albumMatch.Tracks.Clear();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineMusicTrackAlbum(albumMatch, language, true))
@@ -827,7 +828,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref albumInfo.Rating, albumMatch.Rating);
 
-          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
+          if(albumInfo.Genres.Count == 0)
+            albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
@@ -960,44 +962,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #endregion
 
     #region Metadata update helpers
-
-    private T CloneProperties<T>(T obj)
-    {
-      if (obj == null)
-        return default(T);
-      Type type = obj.GetType();
-
-      if (type.IsValueType || type == typeof(string))
-      {
-        return obj;
-      }
-      else if (type.IsArray)
-      {
-        Type elementType = obj.GetType().GetElementType();
-        var array = obj as Array;
-        Array arrayCopy = Array.CreateInstance(elementType, array.Length);
-        for (int i = 0; i < array.Length; i++)
-        {
-          arrayCopy.SetValue(CloneProperties(array.GetValue(i)), i);
-        }
-        return (T)Convert.ChangeType(arrayCopy, obj.GetType());
-      }
-      else if (type.IsClass)
-      {
-        T newInstance = (T)Activator.CreateInstance(obj.GetType());
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public |
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (FieldInfo field in fields)
-        {
-          object fieldValue = field.GetValue(obj);
-          if (fieldValue == null)
-            continue;
-          field.SetValue(newInstance, CloneProperties(fieldValue));
-        }
-        return newInstance;
-      }
-      return default(T);
-    }
 
     private string GetUniqueTrackName(TrackInfo trackInfo)
     {
