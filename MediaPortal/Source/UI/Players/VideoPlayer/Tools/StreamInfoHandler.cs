@@ -106,6 +106,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         StreamInfo subStream = new StreamInfo(null, i, subtitleTrackName, lcid);
         AddUnique(subStream);
       }
+      AddUnique(new StreamInfo(null, subtitleCount+1, "No subtitles", 0));
     }
 
     public override bool EnableStream(string selectedStream)
