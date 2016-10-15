@@ -138,6 +138,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public MovieInfo Clone()
+    {
+      return CloneProperties(this);
+    }
+
     #region Members
 
     /// <summary>

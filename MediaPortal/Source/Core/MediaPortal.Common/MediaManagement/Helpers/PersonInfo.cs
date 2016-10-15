@@ -106,6 +106,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public PersonInfo Clone()
+    {
+      return CloneProperties(this);
+    }
+
     #region Members
 
     /// <summary>

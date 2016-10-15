@@ -81,6 +81,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public MovieCollectionInfo Clone()
+    {
+      return CloneProperties(this);
+    }
+
     #region Members
 
     /// <summary>

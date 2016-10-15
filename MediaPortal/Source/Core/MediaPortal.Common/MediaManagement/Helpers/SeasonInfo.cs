@@ -150,6 +150,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
     }
 
+    public SeasonInfo Clone()
+    {
+      return CloneProperties(this);
+    }
+
     #region Members
 
     /// <summary>
@@ -354,7 +359,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.TvRageId = SeriesTvRageId;
         info.NameId = SeriesNameId;
 
-        SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
+        info.SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
         return (T)(object)info;
       }
       return default(T);

@@ -155,7 +155,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!string.IsNullOrEmpty(Album))
       {
-        //Give the album a fallback Id so it will always be created
         if (AlbumArtists.Count > 0)
           AlbumNameId = AlbumArtists[0].Name + ":" + Album;
         else
@@ -178,6 +177,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           NameId = GetNameId(NameId);
         }
       }
+    }
+
+    public TrackInfo Clone()
+    {
+      return CloneProperties(this);
     }
 
     #region Members

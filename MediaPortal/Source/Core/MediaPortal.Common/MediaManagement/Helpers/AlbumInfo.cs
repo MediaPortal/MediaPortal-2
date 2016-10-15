@@ -133,6 +133,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public AlbumInfo Clone()
+    {
+      return CloneProperties(this);
+    }
+
     #region Members
 
     /// <summary>

@@ -32,6 +32,7 @@ using System.Text.RegularExpressions;
 using DuoVia.FuzzyStrings;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.ResourceAccess;
+using System.Reflection;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -215,19 +216,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
-    public static string GetNameId(string name)
-    {
-      if (!string.IsNullOrEmpty(name))
-      {
-        string nameId = name.Trim();
-        nameId = CleanString(nameId);
-        nameId = CleanupWhiteSpaces(nameId);
-        nameId = nameId.Replace(" ", "").ToLowerInvariant();
-        return nameId;
-      }
-      return null;
-    }
-
     public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
 
     public abstract bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
@@ -246,6 +234,57 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public virtual T CloneBasicInstance<T>()
     {
+      return default(T);
+    }
+
+    protected string GetNameId(string name)
+    {
+      if (!string.IsNullOrEmpty(name))
+      {
+        string nameId = name.Trim();
+        nameId = CleanString(nameId);
+        nameId = CleanupWhiteSpaces(nameId);
+        nameId = nameId.Replace(" ", "").ToLowerInvariant();
+        return nameId;
+      }
+      return null;
+    }
+
+    protected T CloneProperties<T>(T obj)
+    {
+      if (obj == null)
+        return default(T);
+      Type type = obj.GetType();
+
+      if (type.IsValueType || type == typeof(string))
+      {
+        return obj;
+      }
+      else if (type.IsArray)
+      {
+        Type elementType = obj.GetType().GetElementType();
+        var array = obj as Array;
+        Array arrayCopy = Array.CreateInstance(elementType, array.Length);
+        for (int i = 0; i < array.Length; i++)
+        {
+          arrayCopy.SetValue(CloneProperties(array.GetValue(i)), i);
+        }
+        return (T)Convert.ChangeType(arrayCopy, obj.GetType());
+      }
+      else if (type.IsClass)
+      {
+        T newInstance = (T)Activator.CreateInstance(obj.GetType());
+        FieldInfo[] fields = type.GetFields(BindingFlags.Public |
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+        foreach (FieldInfo field in fields)
+        {
+          object fieldValue = field.GetValue(obj);
+          if (fieldValue == null)
+            continue;
+          field.SetValue(newInstance, CloneProperties(fieldValue));
+        }
+        return newInstance;
+      }
       return default(T);
     }
 

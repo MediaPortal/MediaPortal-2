@@ -95,6 +95,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public CompanyInfo Clone()
+    {
+      return CloneProperties(this);
+    }
+
     #region Members
 
     /// <summary>

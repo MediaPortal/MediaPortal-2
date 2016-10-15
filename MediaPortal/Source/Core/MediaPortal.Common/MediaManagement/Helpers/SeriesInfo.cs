@@ -149,6 +149,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public SeriesInfo Clone()
+    {
+      return CloneProperties(this);
+    }
+
     #region Members
 
     /// <summary>

@@ -202,8 +202,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesNameId = SeriesName.Text + "(" + SeriesFirstAired.Value.Year + ")";
         else
           SeriesNameId = SeriesName.Text;
-        SeriesNameId = BaseInfo.GetNameId(SeriesNameId);
+        SeriesNameId = GetNameId(SeriesNameId);
       }
+    }
+
+    public EpisodeInfo Clone()
+    {
+      return CloneProperties(this);
     }
 
     #region Members
