@@ -36,6 +36,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
+    private static readonly string[] RELATIONSHIP_SEARCH_PRIORITY = { ExternalIdentifierAspect.TYPE_ALBUM };
     private CheckedItemCache<TrackInfo> _checkCache = new CheckedItemCache<TrackInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
     private CheckedItemCache<AlbumInfo> _albumCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
@@ -64,6 +65,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public string[] RelationshipTypePriority
+    {
+      get
+      {
+        return RELATIONSHIP_SEARCH_PRIORITY;
+      }
+    }
+
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
@@ -80,7 +89,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       {
         albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
         if (!AudioMetadataExtractor.SkipOnlineSearches)
-          OnlineMatcherService.UpdateAlbum(albumInfo, false, forceQuickMode);
+          OnlineMatcherService.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
         _albumCache.TryAddCheckedItem(albumInfo);
       }
 

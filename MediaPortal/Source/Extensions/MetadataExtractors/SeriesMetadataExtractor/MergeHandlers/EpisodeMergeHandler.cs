@@ -29,7 +29,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using System.IO;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 
@@ -40,6 +39,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     #region Constants
 
     private static readonly Guid[] MERGE_ASPECTS = { EpisodeAspect.ASPECT_ID };
+    private static readonly string[] RELATIONSHIP_SEARCH_PRIORITY = { ExternalIdentifierAspect.TYPE_EPISODE, ExternalIdentifierAspect.TYPE_SEASON, ExternalIdentifierAspect.TYPE_SERIES };
 
     /// <summary>
     /// GUID string for the episode merge handler.
@@ -71,6 +71,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public MergeHandlerMetadata Metadata
     {
       get { return _metadata; }
+    }
+
+    public string[] RelationshipTypePriority
+    {
+      get
+      {
+        return RELATIONSHIP_SEARCH_PRIORITY;
+      }
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

@@ -86,6 +86,14 @@ namespace MediaPortal.Mock
         return true;
       }
     }
+
+    public string[] RelationshipTypePriority
+    {
+      get
+      {
+        return new string[] { ExternalType };
+      }
+    }
   }
 
   public class MockRelationshipExtractor : IRelationshipExtractor

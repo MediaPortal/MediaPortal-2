@@ -38,6 +38,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
+    private static readonly string[] RELATIONSHIP_SEARCH_PRIORITY = { ExternalIdentifierAspect.TYPE_COLLECTION };
     private CheckedItemCache<MovieInfo> _checkCache = new CheckedItemCache<MovieInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
     private CheckedItemCache<MovieCollectionInfo> _collectionCache = new CheckedItemCache<MovieCollectionInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
@@ -66,6 +67,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
+    public string[] RelationshipTypePriority
+    {
+      get
+      {
+        return RELATIONSHIP_SEARCH_PRIORITY;
+      }
+    }
+
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
@@ -82,7 +91,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
         if (!MovieMetadataExtractor.SkipOnlineSearches)
-          OnlineMatcherService.UpdateCollection(collectionInfo, false, false);
+          OnlineMatcherService.Instance.UpdateCollection(collectionInfo, false, false);
         _collectionCache.TryAddCheckedItem(collectionInfo);
       }
 
@@ -137,7 +146,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.FromMetadata(linkedAspects))
         return false;
 
-      if (!OnlineMatcherService.UpdateCollection(collectionInfo, true, true))
+      if (!OnlineMatcherService.Instance.UpdateCollection(collectionInfo, true, true))
         return false;
 
       MovieInfo movieInfo = new MovieInfo();

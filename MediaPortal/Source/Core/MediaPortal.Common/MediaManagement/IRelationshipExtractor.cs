@@ -60,6 +60,11 @@ namespace MediaPortal.Common.MediaManagement
     bool BuildRelationship { get; }
 
     /// <summary>
+    /// The priority of relationship types to use when searching for existing media items.
+    /// </summary>
+    string[] RelationshipTypePriority { get; }
+
+    /// <summary>
     /// Part 1 of the relationship building - try to build a relationship
     /// from a group of aspects with Role to another group of aspects Linked Role
     /// </summary>

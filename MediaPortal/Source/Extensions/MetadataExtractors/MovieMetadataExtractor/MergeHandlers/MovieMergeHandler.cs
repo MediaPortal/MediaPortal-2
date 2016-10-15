@@ -40,6 +40,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     #region Constants
 
     private static readonly Guid[] MERGE_ASPECTS = { MovieAspect.ASPECT_ID };
+    private static readonly string[] RELATIONSHIP_SEARCH_PRIORITY = { ExternalIdentifierAspect.TYPE_MOVIE };
 
     /// <summary>
     /// GUID string for the movie merge handler.
@@ -71,6 +72,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public MergeHandlerMetadata Metadata
     {
       get { return _metadata; }
+    }
+
+    public string[] RelationshipTypePriority
+    {
+      get
+      {
+        return RELATIONSHIP_SEARCH_PRIORITY;
+      }
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

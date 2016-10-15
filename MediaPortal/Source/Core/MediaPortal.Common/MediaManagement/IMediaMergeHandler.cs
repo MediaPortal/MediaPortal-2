@@ -43,6 +43,11 @@ namespace MediaPortal.Common.MediaManagement
     Guid[] MergeableAspects { get; }
 
     /// <summary>
+    /// The priority of relationship types to use when searching for existing media items.
+    /// </summary>
+    string[] RelationshipTypePriority { get; }
+
+    /// <summary>
     /// Some resources cannot exist on their own and must be merged
     /// </summary>
     bool RequiresMerge(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects);
