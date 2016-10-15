@@ -148,12 +148,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
         ExtractLocalImages(aspects, albumMediaItemId, artistMediaItemIds, albumInfo.ToString(), trackInfo.Artists.Select(a => a.Name).ToList());
         if(!AudioMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.DownloadAudioFanArt(mediaItemId, trackInfo);
+          OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, trackInfo);
 
         if (albumMediaItemId.HasValue && !_checkCache.Contains(albumMediaItemId.Value))
         {
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.DownloadAudioFanArt(albumMediaItemId.Value, albumInfo);
+            OnlineMatcherService.Instance.DownloadAudioFanArt(albumMediaItemId.Value, albumInfo);
           _checkCache.Add(albumMediaItemId.Value);
         }
       }
@@ -164,7 +164,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST || personInfo.Occupation == PersonAspect.OCCUPATION_COMPOSER)
         {
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.DownloadAudioFanArt(mediaItemId, personInfo);
+            OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, personInfo);
         }
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
@@ -174,7 +174,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (companyInfo.Type == CompanyAspect.COMPANY_MUSIC_LABEL)
         {
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.DownloadAudioFanArt(mediaItemId, companyInfo);
+            OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, companyInfo);
         }
       }
     }

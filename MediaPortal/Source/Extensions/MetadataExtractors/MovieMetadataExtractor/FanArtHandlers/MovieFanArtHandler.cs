@@ -121,13 +121,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
         ExtractLocalImages(aspects, mediaItemId, collectionMediaItemId, movieInfo.ToString(), collectionInfo.ToString());
         if(!MovieMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.DownloadMovieFanArt(mediaItemId, movieInfo);
+          OnlineMatcherService.Instance.DownloadMovieFanArt(mediaItemId, movieInfo);
 
         //Take advantage of the audio language being known and download collection too
         if (collectionMediaItemId.HasValue && !_checkCache.Contains(collectionMediaItemId.Value))
         {
           if (!MovieMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.DownloadSeriesFanArt(collectionMediaItemId.Value, collectionInfo);
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(collectionMediaItemId.Value, collectionInfo);
           _checkCache.Contains(collectionMediaItemId.Value);
         }
       }
@@ -139,7 +139,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
         {
           if (!MovieMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, personInfo);
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, personInfo);
         }
       }
       else if (aspects.ContainsKey(CharacterAspect.ASPECT_ID))
@@ -147,7 +147,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         CharacterInfo characterInfo = new CharacterInfo();
         characterInfo.FromMetadata(aspects);
         if (!MovieMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, characterInfo);
+          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, characterInfo);
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
       {
@@ -156,7 +156,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
         {
           if (!MovieMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, companyInfo);
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, companyInfo);
         }
       }
     }
