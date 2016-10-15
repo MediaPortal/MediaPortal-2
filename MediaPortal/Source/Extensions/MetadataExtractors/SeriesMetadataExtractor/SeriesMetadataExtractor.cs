@@ -139,8 +139,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      EpisodeInfo episodeInfo = new EpisodeInfo();
+      bool refresh = false;
       if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        refresh = true;
+
+      EpisodeInfo episodeInfo = new EpisodeInfo();
+      if (refresh)
       {
         episodeInfo.FromMetadata(extractedAspectData);
       }
@@ -189,7 +193,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
       }
 
-      // Lookup online information (incl. fanart)
       IList<MultipleMediaItemAspect> audioAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
       {
@@ -203,18 +206,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       episodeInfo.AssignNameId();
 
-      if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
+      if (SkipOnlineSearches && !SkipFanArtDownload)
       {
-        //Reset string to prefer online texts
-        episodeInfo.EpisodeName.DefaultLanguage = true;
-        episodeInfo.SeriesName.DefaultLanguage = true;
-        episodeInfo.Summary.DefaultLanguage = true;
+        EpisodeInfo tempInfo = episodeInfo.Clone();
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(tempInfo, forceQuickMode);
+        episodeInfo.CopyIdsFrom(tempInfo);
+        episodeInfo.HasChanged = tempInfo.HasChanged;
       }
-
-      if(!SkipOnlineSearches)
-        OnlineMatcherService.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
-
+      else if (!SkipOnlineSearches)
+      {
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+      }
       episodeInfo.SetMetadata(extractedAspectData);
+      if (episodeInfo.HasChanged)
+        BaseInfo.SetMetadataChanged(extractedAspectData);
 
       return episodeInfo.IsBaseInfoPresent;
     }

@@ -141,8 +141,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      MovieInfo movieInfo = new MovieInfo();
+      bool refresh = false;
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+        refresh = true;
+
+      MovieInfo movieInfo = new MovieInfo();
+      if (refresh)
       {
         movieInfo.FromMetadata(extractedAspectData);
       }
@@ -203,40 +207,46 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      if (!movieInfo.IsBaseInfoPresent || !movieInfo.HasExternalId)
+      if (!refresh)
       {
-        //Reset string to prefer online texts
-        movieInfo.CollectionName.DefaultLanguage = true;
-        movieInfo.MovieName.DefaultLanguage = true;
-        movieInfo.Summary.DefaultLanguage = true;
+        MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
+        MP4Matcher.ExtractFromTags(lfsra, movieInfo);
       }
 
-      MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
-      MP4Matcher.ExtractFromTags(lfsra, movieInfo);
-
       movieInfo.AssignNameId();
-
-      if(!SkipOnlineSearches)
-        OnlineMatcherService.FindAndUpdateMovie(movieInfo, forceQuickMode);
-
-      //Create custom collection (overrides online collection)
-      MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-      string collectionName;
-      if(string.IsNullOrEmpty(collectionInfo.NameId) && CollectionFolderHasFanArt(lfsra, out collectionName))
+      if (!refresh)
       {
-        collectionInfo = new MovieCollectionInfo();
-        collectionInfo.CollectionName = collectionName;
-        if (!collectionInfo.CollectionName.IsEmpty)
+        //Create custom collection (overrides online collection)
+        MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+        string collectionName;
+        if (string.IsNullOrEmpty(collectionInfo.NameId) && CollectionFolderHasFanArt(lfsra, out collectionName))
         {
-          collectionInfo.AssignNameId();
-          if (collectionInfo.IsBaseInfoPresent)
+          collectionInfo = new MovieCollectionInfo();
+          collectionInfo.CollectionName = collectionName;
+          if (!collectionInfo.CollectionName.IsEmpty)
           {
-            movieInfo.CollectionName = collectionInfo.CollectionName;
-            movieInfo.CopyIdsFrom(collectionInfo);
+            collectionInfo.AssignNameId();
+            if (collectionInfo.IsBaseInfoPresent)
+            {
+              movieInfo.CollectionName = collectionInfo.CollectionName;
+              movieInfo.CopyIdsFrom(collectionInfo);
+              movieInfo.HasChanged = true;
+            }
           }
         }
       }
 
+      if (SkipOnlineSearches && !SkipFanArtDownload)
+      {
+        MovieInfo tempInfo = movieInfo.Clone();
+        OnlineMatcherService.Instance.FindAndUpdateMovie(tempInfo, forceQuickMode);
+        movieInfo.CopyIdsFrom(tempInfo);
+        movieInfo.HasChanged = tempInfo.HasChanged;
+      }
+      else if (!SkipOnlineSearches)
+      {
+        OnlineMatcherService.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
+      }
       movieInfo.SetMetadata(extractedAspectData);
       if (movieInfo.HasChanged)
         BaseInfo.SetMetadataChanged(extractedAspectData);

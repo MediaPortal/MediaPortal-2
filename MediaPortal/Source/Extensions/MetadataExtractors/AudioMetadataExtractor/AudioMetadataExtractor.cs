@@ -368,10 +368,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!HasAudioExtension(fileName))
         return false;
 
+      bool refresh = false;
+      if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+        refresh = true;
+
       try
       {
         TrackInfo trackInfo = new TrackInfo();
-        if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+        if (refresh)
         {
           trackInfo.FromMetadata(extractedAspectData);
         }
@@ -594,24 +598,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           }
         }
 
-        //Check artists
-        trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
-        trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
+        if (!refresh)
+        {
+          //Check artists
+          trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
+          trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
+
+          foreach (PersonInfo person in trackInfo.Artists)
+            OnlineMatcherService.Instance.StoreAudioPersonMatch(person);
+          foreach (PersonInfo person in trackInfo.AlbumArtists)
+            OnlineMatcherService.Instance.StoreAudioPersonMatch(person);
+        }
 
         trackInfo.AssignNameId();
 
         AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
 
-        //Online search
-        foreach (PersonInfo person in trackInfo.Artists)
-          OnlineMatcherService.StoreAudioPersonMatch(person);
-        foreach (PersonInfo person in trackInfo.AlbumArtists)
-          OnlineMatcherService.StoreAudioPersonMatch(person);
-
-        if (!SkipOnlineSearches)
-          OnlineMatcherService.FindAndUpdateTrack(trackInfo, forceQuickMode);
-
+        if(SkipOnlineSearches && !SkipFanArtDownload)
+        {
+          TrackInfo tempInfo = trackInfo.Clone();
+          OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, forceQuickMode);
+          trackInfo.CopyIdsFrom(tempInfo);
+          trackInfo.HasChanged = tempInfo.HasChanged;
+        }
+        else if(!SkipOnlineSearches)
+        {
+           OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        }
         trackInfo.SetMetadata(extractedAspectData);
+        if (trackInfo.HasChanged)
+          BaseInfo.SetMetadataChanged(extractedAspectData);
 
         return trackInfo.IsBaseInfoPresent;
       }
