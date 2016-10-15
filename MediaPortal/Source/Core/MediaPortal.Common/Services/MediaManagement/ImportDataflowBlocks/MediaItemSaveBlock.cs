@@ -49,6 +49,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #endregion
 
+    #region Variables
+
+    private readonly CancellationToken _ct;
+
+    #endregion
+
     #region Constructor
 
     /// <summary>
@@ -71,6 +77,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       BLOCK_NAME, false, parentImportJobController)
     {
+      _ct = ct;
     }
 
     #endregion
@@ -89,36 +96,31 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <returns><see cref="PendingImportResourceNewGen"/> after processing</returns>
     private async Task<PendingImportResourceNewGen> ProcessMediaItem(PendingImportResourceNewGen importResource)
     {
-      using (CancellationTokenSource cancelToken = new CancellationTokenSource())
+      try
       {
-        try
-        {
-          // ReSharper disable once PossibleInvalidOperationException
-          await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation.JobType, cancelToken.Token);
+        // ReSharper disable once PossibleInvalidOperationException
+        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, _ct);
 
-          if (ImportJobInformation.JobType == ImportJobType.Refresh)
-          {
-            if (importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
-              await DeleteUnderPath(importResource.PendingResourcePath);
-            //Throttle import to allow better client response times
-            await Task.Delay(1000);
-          }
+        if (ImportJobInformation.JobType == ImportJobType.Refresh)
+        {
+          if (importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
+            await DeleteUnderPath(importResource.PendingResourcePath);
+          //Throttle import to allow better client response times
+          await Task.Delay(1000);
+        }
 
-          importResource.IsValid = false;
-          return importResource;
-        }
-        catch (TaskCanceledException)
-        {
-          cancelToken.Cancel();
-          return importResource;
-        }
-        catch (Exception ex)
-        {
-          cancelToken.Cancel();
-          ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
-          importResource.IsValid = false;
-          return importResource;
-        }
+        importResource.IsValid = false;
+        return importResource;
+      }
+      catch (TaskCanceledException)
+      {
+        return importResource;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
+        importResource.IsValid = false;
+        return importResource;
       }
     }
 

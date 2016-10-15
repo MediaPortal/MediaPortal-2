@@ -359,7 +359,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
-    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, ImportJobType jobType, CancellationToken cancelToken)
+    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, ImportJobInformation jobInfo, CancellationToken cancelToken)
     {
       while (true)
       {
@@ -367,7 +367,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           await Activated.WaitAsync();
           // ReSharper disable PossibleMultipleEnumeration
-          return _importResultHandler.UpdateMediaItem(parentDirectoryId, path, updatedAspects, jobType == ImportJobType.Refresh, cancelToken);
+          return _importResultHandler.UpdateMediaItem(parentDirectoryId, path, updatedAspects, jobInfo.JobType == ImportJobType.Refresh, jobInfo.BasePath, cancelToken);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
