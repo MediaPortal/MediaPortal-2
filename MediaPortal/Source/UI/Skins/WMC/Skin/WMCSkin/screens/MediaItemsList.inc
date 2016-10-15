@@ -73,10 +73,8 @@
           </MultiBinding>
         </Label.Content>
       </Label>
-      <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
-             Opacity="0.4"/>
-      <Label Color="{ThemeResource TextColor}" Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}"
-             Opacity="0.4"/>
+      <Label Content="| " FontSize="{ThemeResource SmallerFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+      <Label Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
       <StackPanel.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                  Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
