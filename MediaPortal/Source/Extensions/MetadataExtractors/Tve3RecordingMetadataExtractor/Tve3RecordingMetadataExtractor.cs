@@ -102,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
         if (episodeInfo.IsBaseInfoPresent)
         {
-          OnlineMatcherService.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
