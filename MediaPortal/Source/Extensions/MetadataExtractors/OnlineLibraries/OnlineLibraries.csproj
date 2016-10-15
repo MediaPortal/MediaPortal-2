@@ -70,6 +70,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Libraries\Common\Data\DownloadData.cs" />
+    <Compile Include="Libraries\IOnlineMatcherService.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ChangeCollection.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Change.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Network.cs" />
@@ -294,9 +295,9 @@
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSeasonSearch.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeriesSearchResult.cs" />
     <Compile Include="Libraries\TvMazeV1\TvMazeApiV1.cs" />
-    <Compile Include="Matchers\IMovieMatcher.cs" />
-    <Compile Include="Matchers\ISeriesMatcher.cs" />
-    <Compile Include="Matchers\IMusicMatcher.cs" />
+    <Compile Include="Libraries\IMovieMatcher.cs" />
+    <Compile Include="Libraries\ISeriesMatcher.cs" />
+    <Compile Include="Libraries\IMusicMatcher.cs" />
     <Compile Include="Matchers\MusicMatcher.cs" />
     <Compile Include="Matchers\IdMapper.cs" />
     <Compile Include="Matchers\SimpleNameMatcher.cs" />

@@ -1398,7 +1398,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               Thumbnail = person.Thumb,
               Order = person.Order
             };
-            OnlineMatcherService.StoreMoviePersonMatch(info);
+            OnlineMatcherService.Instance.StoreMoviePersonMatch(info);
           }
         }
 
@@ -1428,7 +1428,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             Name = _stubs[0].Director,
             Occupation = PersonAspect.OCCUPATION_DIRECTOR,
           };
-          OnlineMatcherService.StoreMoviePersonMatch(info);
+          OnlineMatcherService.Instance.StoreMoviePersonMatch(info);
         }
 
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });

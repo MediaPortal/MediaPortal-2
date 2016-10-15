@@ -28,6 +28,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System;
 using System.Collections.Generic;
@@ -38,14 +39,23 @@ namespace MediaPortal.Extensions.OnlineLibraries
   /// <summary>
   /// <see cref="OnlineMatcherService"/> searches for metadata from online sources.
   /// </summary>
-  public class OnlineMatcherService
+  public class OnlineMatcherService : IOnlineMatcherService
   {
-    private static List<IMusicMatcher> MUSIC_MATCHERS = new List<IMusicMatcher>();
-    private static List<ISeriesMatcher> SERIES_MATCHERS = new List<ISeriesMatcher>();
-    private static List<IMovieMatcher> MOVIE_MATCHERS = new List<IMovieMatcher>();
-    private static SettingsChangeWatcher<OnlineLibrarySettings> SETTINGS_CHANGE_WATCHER = null;
+    private List<IMusicMatcher> MUSIC_MATCHERS = new List<IMusicMatcher>();
+    private List<ISeriesMatcher> SERIES_MATCHERS = new List<ISeriesMatcher>();
+    private List<IMovieMatcher> MOVIE_MATCHERS = new List<IMovieMatcher>();
+    private SettingsChangeWatcher<OnlineLibrarySettings> SETTINGS_CHANGE_WATCHER = null;
 
-    static OnlineMatcherService()
+    #region Static instance
+
+    public static IOnlineMatcherService Instance
+    {
+      get { return ServiceRegistration.Get<IOnlineMatcherService>(); }
+    }
+
+    #endregion
+
+    public OnlineMatcherService()
     {
       MUSIC_MATCHERS.Add(MusicTheAudioDbMatcher.Instance);
       MUSIC_MATCHERS.Add(CDFreeDbMatcher.Instance);
@@ -72,7 +82,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       SETTINGS_CHANGE_WATCHER.SettingsChanged += SettingsChanged;
     }
 
-    private static void LoadSettings()
+    private void LoadSettings()
     {
       OnlineLibrarySettings settings = ServiceRegistration.Get<ISettingsManager>().Load<OnlineLibrarySettings>();
       foreach (MatcherSetting setting in settings.MusicMatchers)
@@ -104,7 +114,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    private static void SaveSettings()
+    private void SaveSettings()
     {
       OnlineLibrarySettings settings = ServiceRegistration.Get<ISettingsManager>().Load<OnlineLibrarySettings>();
       List<MatcherSetting> list = new List<MatcherSetting>();
@@ -143,14 +153,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
-    private static void SettingsChanged(object sender, EventArgs e)
+    private void SettingsChanged(object sender, EventArgs e)
     {
       LoadSettings();
     }
 
     #region Audio
 
-    public static bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode)
+    public bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -162,10 +172,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("FindAndUpdateTrack: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("FindAndUpdateTrack: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode)
+    public bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -177,10 +190,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("FindAndUpdateTrackPerson: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("FindAndUpdateTrackPerson: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool forceQuickMode)
+    public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -192,10 +208,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateAlbumPersons: Media item {0} processed by {1} ({2} ms)", albumInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateAlbumPersons: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forceQuickMode)
+    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -207,10 +226,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateTrackPersons: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateTrackPersons: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool forceQuickMode)
+    public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -222,10 +244,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateAlbumCompanies: Media item {0} processed by {1} ({2} ms)", albumInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateAlbumCompanies: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode)
+    public bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -252,10 +277,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //}
         }
       }
+#if DEBUG
+      Logger.Info("UpdateAlbum: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
+    public bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -267,10 +295,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("DownloadAudioFanArt: Media item {0} processed by {1} ({2} ms)", mediaItemId.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("DownloadAudioFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static void StoreAudioPersonMatch(PersonInfo person)
+    public void StoreAudioPersonMatch(PersonInfo person)
     {
       if (person.Occupation == PersonAspect.OCCUPATION_ARTIST)
       {
@@ -288,7 +319,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public static void StoreAudioCompanyMatch(CompanyInfo company)
+    public void StoreAudioCompanyMatch(CompanyInfo company)
     {
       if (company.Type == CompanyAspect.COMPANY_MUSIC_LABEL)
       {
@@ -303,7 +334,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Movie
 
-    public static bool FindAndUpdateMovie(MovieInfo movieInfo, bool forceQuickMode)
+    public bool FindAndUpdateMovie(MovieInfo movieInfo, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -315,10 +346,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("FindAndUpdateMovie: Media item {0} processed by {1} ({2} ms)", movieInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("FindAndUpdateMovie: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode)
+    public bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -330,10 +364,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdatePersons: Media item {0} processed by {1} ({2} ms)", movieInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdatePersons: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
+    public bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -345,10 +382,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateCharacters: Media item {0} processed by {1} ({2} ms)", movieInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateCharacters: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool forceQuickMode)
+    public bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -375,10 +415,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //}
         }
       }
+#if DEBUG
+      Logger.Info("UpdateCollection: Media item {0} processed ({1} ms)", collectionInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode)
+    public bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -390,10 +433,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateCompanies: Media item {0} processed by {1} ({2} ms)", movieInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateCompanies: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
+    public bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -405,10 +451,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("DownloadMovieFanArt: Media item {0} processed by {1} ({2} ms)", mediaItemId.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("DownloadMovieFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static void StoreMoviePersonMatch(PersonInfo person)
+    public void StoreMoviePersonMatch(PersonInfo person)
     {
       if (person.Occupation == PersonAspect.OCCUPATION_ACTOR)
       {
@@ -433,7 +482,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public static void StoreMovieCharacterMatch(CharacterInfo character)
+    public void StoreMovieCharacterMatch(CharacterInfo character)
     {
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
       {
@@ -441,7 +490,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public static void StoreMovieCompanyMatch(CompanyInfo company)
+    public void StoreMovieCompanyMatch(CompanyInfo company)
     {
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
       {
@@ -453,7 +502,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Series
 
-    public static bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode)
+    public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -465,10 +514,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("FindAndUpdateEpisode: Media item {0} processed by {1} ({2} ms)", episodeInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("FindAndUpdateEpisode: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode)
+    public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -480,10 +532,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateEpisodePersons: Media item {0} processed by {1} ({2} ms)", episodeInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateEpisodePersons: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode)
+    public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -495,10 +550,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateEpisodeCharacters: Media item {0} processed by {1} ({2} ms)", episodeInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateEpisodeCharacters: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode)
+    public bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -510,10 +568,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateSeason: Media item {0} processed by {1} ({2} ms)", seasonInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateSeason: Media item {0} processed ({1} ms)", seasonInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
+    public bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -541,10 +602,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //}
         }
       }
+#if DEBUG
+      Logger.Info("UpdateSeries: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)
+    public bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -556,10 +620,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateSeriesPersons: Media item {0} processed by {1} ({2} ms)", seriesInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateSeriesPersons: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode)
+    public bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -571,10 +638,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateSeriesCharacters: Media item {0} processed by {1} ({2} ms)", seriesInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateSeriesCharacters: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
+    public bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -586,10 +656,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("UpdateSeriesCompanies: Media item {0} processed by {1} ({2} ms)", seriesInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("UpdateSeriesCompanies: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
+    public bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       Stopwatch sw = new Stopwatch();
       bool success = false;
@@ -601,10 +674,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
         Logger.Debug("DownloadSeriesFanArt: Media item {0} processed by {1} ({2} ms)", mediaItemId.ToString(), matcher.Id, sw.ElapsedMilliseconds);
 #endif
       }
+#if DEBUG
+      Logger.Info("DownloadSeriesFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
+#endif
       return success;
     }
 
-    public static void StoreSeriesPersonMatch(PersonInfo person)
+    public void StoreSeriesPersonMatch(PersonInfo person)
     {
       if (person.Occupation == PersonAspect.OCCUPATION_ACTOR)
       {
@@ -629,7 +705,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public static void StoreSeriesCharacterMatch(CharacterInfo character)
+    public void StoreSeriesCharacterMatch(CharacterInfo character)
     {
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
@@ -637,7 +713,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public static void StoreSeriesCompanyMatch(CompanyInfo company)
+    public void StoreSeriesCompanyMatch(CompanyInfo company)
     {
       if (company.Type == CompanyAspect.COMPANY_PRODUCTION)
       {

@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Common.MediaManagement.Helpers;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Matchers
+namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
   public interface IMovieMatcher
   {
