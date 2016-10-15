@@ -43,6 +43,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
     {
       if (!Enabled)
         return;
+
+      _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
       foreach(MatcherSetting setting in settings.MusicMatchers)

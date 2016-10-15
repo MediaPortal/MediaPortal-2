@@ -43,9 +43,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
     {
       if (!Enabled)
         return;
+
+      _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
-      foreach(MatcherSetting setting in settings.MusicMatchers)
+      foreach(MatcherSetting setting in settings.MovieMatchers)
       {
         if (setting.Id.Equals("MovieOmDbMatcher", StringComparison.InvariantCultureIgnoreCase))
         {
@@ -79,7 +81,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
       int selectedNo = 0;
-      foreach (MatcherSetting setting in settings.MusicMatchers)
+      foreach (MatcherSetting setting in settings.MovieMatchers)
       {
         if (setting.Id.Equals("MovieOmDbMatcher", StringComparison.InvariantCultureIgnoreCase))
         {

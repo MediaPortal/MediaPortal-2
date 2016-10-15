@@ -117,10 +117,10 @@
         HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDESourcePrimary"/>
     <ConfigSetting
-        Id="ServerSeriesMDEOnlineData"
-        Text="[Settings.ServerSettings.AudioMDESettings.ServerSeriesMDEOnlineData]"
-        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerSeriesMDEOnlineData.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEOnlineData"/>
+        Id="ServerAudioMDEOnlineData"
+        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData]"
+        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEOnlineData"/>
     <ConfigSetting
         Id="ServerAudioMDEBrowseOffline"
         Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOffline]"
@@ -146,10 +146,10 @@
         HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDESourcePrimary"/>
     <ConfigSetting
-        Id="ServerSeriesMDEOnlineData"
-        Text="[Settings.ServerSettings.MovieMDESettings.ServerSeriesMDEOnlineData]"
-        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerSeriesMDEOnlineData.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEOnlineData"/>
+        Id="ServerMovieMDEOnlineData"
+        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData]"
+        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEOnlineData"/>
     <ConfigSetting
         Id="ServerMovieMDEBrowseOffline"
         Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOffline]"

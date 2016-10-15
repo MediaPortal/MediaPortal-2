@@ -39,6 +39,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       ConnectionMonitor.Instance.RegisterConfiguration(this);
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.MediaFanArt]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.Media]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.FanArt]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.None]"));
     }
 
@@ -50,10 +51,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       SeriesMetadataExtractorSettings settings = serverSettings.Load<SeriesMetadataExtractorSettings>();
       if (!settings.SkipOnlineSearches && !settings.SkipFanArtDownload)
         Selected = 0;
-      else if (!settings.SkipFanArtDownload)
+      else if (!settings.SkipOnlineSearches)
         Selected = 1;
-      else
+      else if (!settings.SkipFanArtDownload)
         Selected = 2;
+      else
+        Selected = 3;
     }
 
     public override void Save()
@@ -75,6 +78,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       {
         settings.SkipOnlineSearches = false;
         settings.SkipFanArtDownload = true;
+      }
+      else if (Selected == 2)
+      {
+        settings.SkipOnlineSearches = true;
+        settings.SkipFanArtDownload = false;
       }
       else
       {
