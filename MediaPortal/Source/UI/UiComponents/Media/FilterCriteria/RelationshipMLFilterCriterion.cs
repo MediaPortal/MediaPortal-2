@@ -71,8 +71,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
       IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
-
-      IFilter queryFilter = filter != null ? new FilteredRelationshipFilter(_role, filter) : null;
+      IFilter queryFilter;
+      if (filter != null)
+        queryFilter = new FilteredRelationshipFilter(_role, filter);
+      else
+        queryFilter = new RelationshipFilter(_role, _linkedRole, Guid.Empty);
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
       if (_sortInformation != null)
         query.SortInformation = new List<SortInformation> { _sortInformation };
@@ -83,7 +86,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         string name;
         MediaItemAspect.TryGetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, out name);
         result.Add(new FilterValue(name,
-          new RelationshipFilter(_linkedRole, _role, item.MediaItemId), //We do not know what the next filter will be
+          new RelationshipFilter(_linkedRole, _role, item.MediaItemId),
           null,
           item,
           this));
