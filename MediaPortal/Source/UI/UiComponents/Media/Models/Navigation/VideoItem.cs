@@ -68,7 +68,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         {
           int? part = (int?)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_PART];
           int? partSet = (int?)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
-          string partSetName = (string)videoAspect[VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME];
+          string partSetName = (string)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME];
           if (partSet.HasValue)
           {
             if (!videoStreams.ContainsKey(partSet.Value))
