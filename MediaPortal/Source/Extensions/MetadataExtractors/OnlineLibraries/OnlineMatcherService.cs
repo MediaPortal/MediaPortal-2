@@ -22,6 +22,10 @@
 
 #endregion
 
+#if DEBUG
+  //#define ONLINE_TIMING
+#endif
+
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -162,17 +166,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.FindAndUpdateTrack(trackInfo, matcher.Primary ? false : forceQuickMode);
-#if DEBUG
-        Logger.Debug("FindAndUpdateTrack: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("FindAndUpdateTrack: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -180,17 +183,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.FindAndUpdateTrackPerson(trackInfo, personInfo, forceQuickMode);
-#if DEBUG
-        Logger.Debug("FindAndUpdateTrackPerson: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("FindAndUpdateTrackPerson: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -198,17 +200,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateAlbumPersons(albumInfo, occupation, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateAlbumPersons: Media item {0} processed by {1} ({2} ms)", albumInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateAlbumPersons: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -216,17 +217,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateTrackPersons(trackInfo, occupation, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateTrackPersons: Media item {0} processed by {1} ({2} ms)", trackInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateTrackPersons: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -234,17 +234,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateAlbumCompanies(albumInfo, companyType, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateAlbumCompanies: Media item {0} processed by {1} ({2} ms)", albumInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateAlbumCompanies: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -252,15 +251,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateAlbum(albumInfo, updateTrackList, matcher.Primary ? false : forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateAlbum: Media item {0} processed by {1} ({2} ms)", albumInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
 
       if (updateTrackList)
@@ -277,7 +275,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //}
         }
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateAlbum: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -285,17 +283,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
-#if DEBUG
-        Logger.Debug("DownloadAudioFanArt: Media item {0} processed by {1} ({2} ms)", mediaItemId.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("DownloadAudioFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -336,17 +333,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool FindAndUpdateMovie(MovieInfo movieInfo, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.FindAndUpdateMovie(movieInfo, matcher.Primary ? false : forceQuickMode);
-#if DEBUG
-        Logger.Debug("FindAndUpdateMovie: Media item {0} processed by {1} ({2} ms)", movieInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("FindAndUpdateMovie: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -354,17 +350,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdatePersons(movieInfo, occupation, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdatePersons: Media item {0} processed by {1} ({2} ms)", movieInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdatePersons: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -372,17 +367,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateCharacters(movieInfo, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateCharacters: Media item {0} processed by {1} ({2} ms)", movieInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateCharacters: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -390,15 +384,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateCollection(collectionInfo, updateMovieList, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateCollection: Media item {0} processed by {1} ({2} ms)", collectionInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
 
       if (updateMovieList)
@@ -415,7 +408,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //}
         }
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateCollection: Media item {0} processed ({1} ms)", collectionInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -423,17 +416,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateCompanies(movieInfo, companyType, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateCompanies: Media item {0} processed by {1} ({2} ms)", movieInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateCompanies: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -441,17 +433,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
-#if DEBUG
-        Logger.Debug("DownloadMovieFanArt: Media item {0} processed by {1} ({2} ms)", mediaItemId.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("DownloadMovieFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -504,17 +495,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.FindAndUpdateEpisode(episodeInfo, matcher.Primary ? false : forceQuickMode);
-#if DEBUG
-        Logger.Debug("FindAndUpdateEpisode: Media item {0} processed by {1} ({2} ms)", episodeInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("FindAndUpdateEpisode: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -522,17 +512,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateEpisodePersons(episodeInfo, occupation, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateEpisodePersons: Media item {0} processed by {1} ({2} ms)", episodeInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateEpisodePersons: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -540,17 +529,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateEpisodeCharacters: Media item {0} processed by {1} ({2} ms)", episodeInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateEpisodeCharacters: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -558,17 +546,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateSeason(seasonInfo, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateSeason: Media item {0} processed by {1} ({2} ms)", seasonInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateSeason: Media item {0} processed ({1} ms)", seasonInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -576,15 +563,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateSeries(seriesInfo, updateEpisodeList, matcher.Primary ? false : forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateSeries: Media item {0} processed by {1} ({2} ms)", seriesInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
 
       if (updateEpisodeList)
@@ -602,7 +588,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //}
         }
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateSeries: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -610,17 +596,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateSeriesPersons(seriesInfo, occupation, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateSeriesPersons: Media item {0} processed by {1} ({2} ms)", seriesInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateSeriesPersons: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -628,17 +613,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateSeriesCharacters: Media item {0} processed by {1} ({2} ms)", seriesInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateSeriesCharacters: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -646,17 +630,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.UpdateSeriesCompanies(seriesInfo, companyType, forceQuickMode);
-#if DEBUG
-        Logger.Debug("UpdateSeriesCompanies: Media item {0} processed by {1} ({2} ms)", seriesInfo.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("UpdateSeriesCompanies: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
@@ -664,17 +647,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
+#if ONLINE_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
       {
-        sw.Restart();
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
-#if DEBUG
-        Logger.Debug("DownloadSeriesFanArt: Media item {0} processed by {1} ({2} ms)", mediaItemId.ToString(), matcher.Id, sw.ElapsedMilliseconds);
-#endif
       }
-#if DEBUG
+#if ONLINE_TIMING
       Logger.Info("DownloadSeriesFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
 #endif
       return success;
