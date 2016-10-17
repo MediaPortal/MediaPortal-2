@@ -17,11 +17,11 @@
         <RemotePayload
                   CertificatePublicKey="70E450EF45A7F579112248987E26294ACCDC3D2F"
                   CertificateThumbprint="F8A563CC68F5C1501337A38404F81CC9E1567A14"
-                  Description="Dokan Library 1.0.0.103 Bundle"
-                  Hash="B405B0AE2297D99D9D93D8B93DBC930B81C27660"
-                  ProductName="Dokan Library 1.0.0.103 Bundle"
-                  Size="5273368"
-                  Version="1.0.0.103" />
+                  Description="Dokan Library 1.0.0.5000 Bundle"
+                  Hash="24710ef4e000f12c5525414a04e4863439d28fd8"
+                  ProductName="Dokan Library 1.0.0.5000 Bundle"
+                  Size="5799384"
+                  Version="1.0.0.5000" />
       </ExePackage>
     </PackageGroup>
 
