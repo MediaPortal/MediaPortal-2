@@ -82,7 +82,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
       try
       {
         IResourceAccessor metaFileAccessor;
-        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
+        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
+          return false;
 
         // Handle series information
         EpisodeInfo episodeInfo = new EpisodeInfo();
@@ -107,7 +108,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
-        return true;
+        return episodeInfo.IsBaseInfoPresent && episodeInfo.HasChanged;
       }
       catch (Exception e)
       {
@@ -207,6 +208,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
           }
         }
       }
+      episodeInfo.HasChanged = true;
       return episodeInfo;
     }
 
@@ -222,7 +224,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
       try
       {
         IResourceAccessor metaFileAccessor;
-        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
+        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
+          return false;
+        if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
+          return false;
 
         Argus.Recording recording;
         using (metaFileAccessor)

@@ -116,7 +116,7 @@ namespace MediaPortal.Media.MetadataExtractors
           return false;
 
         if (extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
-          return true;
+          return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {

@@ -87,6 +87,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
         if (!AudioMetadataExtractor.SkipOnlineSearches)
           OnlineMatcherService.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
+        albumInfo.HasChanged = false; //Reset change status of cached instance
         _albumCache.TryAddCheckedItem(albumInfo);
       }
 
@@ -115,7 +116,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       if (albumInfo.HasChanged)
         BaseInfo.SetMetadataChanged(albumAspects);
-      albumInfo.HasChanged = false; //Reset change status of cached instance
 
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;

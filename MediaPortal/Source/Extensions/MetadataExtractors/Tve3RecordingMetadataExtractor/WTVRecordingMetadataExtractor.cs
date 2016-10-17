@@ -87,6 +87,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (TryGet(metadata, TAG_EPISODENAME, out tmpString))
         episodeInfo.EpisodeName.Text = tmpString;
 
+      episodeInfo.HasChanged = true;
       return episodeInfo;
     }
 
@@ -116,7 +117,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (episodeInfo.IsBaseInfoPresent)
           episodeInfo.SetMetadata(extractedAspectData);
       }
-      return episodeInfo.IsBaseInfoPresent;
+      return episodeInfo.IsBaseInfoPresent && episodeInfo.HasChanged;
     }
   }
 
@@ -217,6 +218,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
       {
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
+        if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
+          return false;
+
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           return ExtractMetadata(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode);
 

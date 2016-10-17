@@ -89,6 +89,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
         if (!MovieMetadataExtractor.SkipOnlineSearches)
           OnlineMatcherService.Instance.UpdateCollection(collectionInfo, false, false);
+        collectionInfo.HasChanged = false; //Reset change status on cached instance
         _collectionCache.TryAddCheckedItem(collectionInfo);
       }
 
@@ -104,7 +105,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       if (collectionInfo.HasChanged)
         BaseInfo.SetMetadataChanged(collectionAspects);
-      collectionInfo.HasChanged = false; //Reset change status on cached instance
 
       bool movieVirtual = true;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))

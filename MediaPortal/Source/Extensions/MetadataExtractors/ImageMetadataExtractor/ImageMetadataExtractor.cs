@@ -212,21 +212,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             }
           }
 
-          double? latitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LATITUDE);
-          double? longitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LONGITUDE);
-          if (IncludeGeoLocationDetails && !forceQuickMode && 
-            string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)) &&
-            latitude.HasValue && longitude.HasValue)
-          {
-            CivicAddress locationInfo;
-            if (GeoLocationService.Instance.TryLookup(new GeoCoordinate(latitude.Value, longitude.Value), out locationInfo))
-            {
-              imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
-              imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
-              imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
-            }
-          }
-
           byte[] thumbData;
           // We only want to create missing thumbnails here, so check for existing ones first
           if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumbData) && thumbData != null)
@@ -238,18 +223,57 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
             if (localFsResourcePath != null)
             {
-              // In quick mode only allow thumbs taken from cache.
-              bool cachedOnly = forceQuickMode;
-
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, true, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }
           }
+          return true;
         }
-        return true;
+        else
+        {
+          bool updated = false;
+          double? latitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LATITUDE);
+          double? longitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LONGITUDE);
+          if (IncludeGeoLocationDetails && !forceQuickMode &&
+            string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)) &&
+            latitude.HasValue && longitude.HasValue)
+          {
+            CivicAddress locationInfo;
+            if (GeoLocationService.Instance.TryLookup(new GeoCoordinate(latitude.Value, longitude.Value), out locationInfo))
+            {
+              imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
+              imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
+              imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
+              updated = true;
+            }
+          }
+
+          byte[] thumbData;
+          // We only want to create missing thumbnails here, so check for existing ones first
+          if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumbData) && thumbData != null)
+            return updated;
+
+          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
+          {
+            string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
+            if (localFsResourcePath != null)
+            {
+              // Thumbnail extraction
+              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+              ImageType imageType;
+              if (generator.GetThumbnail(localFsResourcePath, false, out thumbData, out imageType))
+              {
+                MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+                updated = true;
+              }
+            }
+          }
+          return updated;
+        }
       }
       catch (Exception e)
       {

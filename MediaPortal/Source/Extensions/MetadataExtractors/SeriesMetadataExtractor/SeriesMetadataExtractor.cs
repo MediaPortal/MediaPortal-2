@@ -33,9 +33,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
-using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -217,6 +215,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
       }
+
+      if (!episodeInfo.HasChanged && !forceQuickMode)
+        return false;
+
       episodeInfo.SetMetadata(extractedAspectData);
       if (episodeInfo.HasChanged)
         BaseInfo.SetMetadataChanged(extractedAspectData);

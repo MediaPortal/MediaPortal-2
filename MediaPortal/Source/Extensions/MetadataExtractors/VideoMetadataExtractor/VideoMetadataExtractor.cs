@@ -729,7 +729,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
               if (resourcePath.Equals(lfsra.CanonicalLocalResourcePath))
               {
-                return true;
+                return false;
               }
             }
           }

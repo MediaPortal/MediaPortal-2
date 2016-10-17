@@ -90,6 +90,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
         if (!SeriesMetadataExtractor.SkipOnlineSearches)
           OnlineMatcherService.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+        seasonInfo.HasChanged = false; //Reset change status of cached instance
         _seasonCache.TryAddCheckedItem(seasonInfo);
       }
 
@@ -114,7 +115,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       if (seasonInfo.HasChanged)
         BaseInfo.SetMetadataChanged(seasonAspects);
-      seasonInfo.HasChanged = false; //Reset change status of cached instance
 
       if (!seasonAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;

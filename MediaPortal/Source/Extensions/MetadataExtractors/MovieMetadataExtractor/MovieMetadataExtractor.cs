@@ -247,6 +247,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         OnlineMatcherService.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
       }
+
+      if (!movieInfo.HasChanged && !forceQuickMode)
+        return false;
+
       movieInfo.SetMetadata(extractedAspectData);
       if (movieInfo.HasChanged)
         BaseInfo.SetMetadataChanged(extractedAspectData);

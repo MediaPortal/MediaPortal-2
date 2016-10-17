@@ -508,7 +508,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-        return true;
+        return false;
 
       // The following is bad practice as it wastes one ThreadPool thread.
       // ToDo: Once the IMetadataExtractor interface is updated to support async operations, call TryExtractMetadataAsync directly
