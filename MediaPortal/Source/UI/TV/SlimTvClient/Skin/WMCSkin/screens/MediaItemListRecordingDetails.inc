@@ -45,7 +45,8 @@
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
           <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-               Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center" Height="80" Margin="-20,0,0,0">
+               Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center" Height="80" Margin="-20,0,0,0"
+               IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
                             fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>

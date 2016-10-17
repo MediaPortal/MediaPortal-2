@@ -67,7 +67,7 @@
           <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoWidth}" Margin="0,10,0,0" 
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                  Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"
-                 IsVisible="{Binding Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
+                 IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
                                         fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
