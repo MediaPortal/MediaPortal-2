@@ -22,6 +22,10 @@
 
 #endregion
 
+#if DEBUG
+  //#define IMPORT_TIMING
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1196,6 +1200,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       Stopwatch sw = new Stopwatch();
       sw.Start();
+
       //Logger.Debug("Adding to {0} on {1} in {2}:\n{3}", parentDirectoryId, systemId, path, MediaItemAspect.GetInfo(mediaItemAspects, _miaManagement.ManagedMediaItemAspectTypes));
 
       // TODO: Avoid multiple write operations to the same media item
@@ -1260,11 +1265,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           Logger.Info("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName), mergedMediaItem.Value, sw.ElapsedMilliseconds);
           return mergedMediaItem.Value;
         }
-#if DEBUG
+#if IMPORT_TIMING
         Logger.Info("AddOrUpdateMediaItem: Merge check of media item {0} with name {1} ({2}) complete ({3} ms)", wasCreated ? "[new]" : mediaItemId.Value.ToString(), name ?? "[null]", Path.GetFileName(path.FileName), sw.ElapsedMilliseconds);
         sw.Restart();
 #endif
-
         if (wasCreated)
         {
           mediaItemId = AddMediaItem(database, transaction, newMediaItemId);
@@ -1323,17 +1327,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Commit();
 
         Logger.Debug("Committed media item {0} with name {1} ({2}) ({3} ms)", mediaItemId.Value, name ?? "[null]", Path.GetFileName(path.FileName), sw.ElapsedMilliseconds);
-#if DEBUG
+#if IMPORT_TIMING
         Logger.Info("AddOrUpdateMediaItem: Media item {0} with name {1} ({2}) committed ({3} ms)", mediaItemId.Value, name ?? "[null]", Path.GetFileName(path.FileName), sw.ElapsedMilliseconds);
-        sw.Reset();
+        sw.Restart();
 #endif
 
         if (reconcile)
           Reconcile(mediaItemId.Value, isRefresh, cancelToken);
 
-#if DEBUG
+#if IMPORT_TIMING
         Logger.Info("AddOrUpdateMediaItem: Media item {0} with name {1} ({2}) reconciled ({3} ms)", mediaItemId.Value, name ?? "[null]", Path.GetFileName(path.FileName), sw.ElapsedMilliseconds);
-        sw.Reset();
+        sw.Restart();
 #endif
 
         if (cancelToken.IsCancellationRequested)
@@ -1373,6 +1377,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh, CancellationToken cancelToken)
     {
+#if IMPORT_TIMING
+      Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       // TODO: Avoid multiple write operations to the same media item
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -1393,9 +1401,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
         }
         transaction.Commit();
+#if IMPORT_TIMING
+        Logger.Info("UpdateMediaItem: Merged media item {0} aspects updated ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
+        sw.Restart();
+#endif
 
-        if(reconcile)
+        if (reconcile)
           Reconcile(mediaItemId, isRefresh, cancelToken);
+#if IMPORT_TIMING
+        Logger.Info("UpdateMediaItem: Media item {0} reconciled ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
+#endif
       }
       catch (Exception e)
       {
@@ -1472,46 +1487,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private bool MatchExistingItem(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, out Guid existingMediaItemId, out IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      IList<MultipleMediaItemAspect> externalAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
+      IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects).ToList();
+      if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
       {
-        foreach (string externalType in mergeHandler.RelationshipTypePriority)
+        //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
+        //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
+        optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
+      }
+      IFilter[] filters = mergeHandler.GetSearchFilters(extractedAspects);
+      foreach (IFilter filter in filters)
+      {
+        IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
+        foreach (MediaItem existingItem in existingItems)
         {
-          foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+          //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+          if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
           {
-            string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
-            string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
-            string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
-            if (externalType != type)
-              continue;
-
-            // Search using external identifiers
-            BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new[]
-                  {
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
-                });
-            //Logger.Debug("Searching for existing items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", mergeHandler.MergeableAspects.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-
-            IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects).ToList();
-            if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
-            {
-              //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
-              //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
-              optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
-            }
-            IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
-            foreach (MediaItem existingItem in existingItems)
-            {
-              //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-              if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
-              {
-                existingMediaItemId = existingItem.MediaItemId;
-                existingAspects = existingItem.Aspects;
-                return true;
-              }
-            }
+            existingMediaItemId = existingItem.MediaItemId;
+            existingAspects = existingItem.Aspects;
+            return true;
           }
         }
       }
@@ -1547,12 +1541,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       if (cancelToken.IsCancellationRequested || ShuttingDown)
         return;
-
+#if IMPORT_TIMING
       Stopwatch sw = new Stopwatch();
+      sw.Start();
+#endif
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
 
       Logger.Debug("Updating relationships for {0}", mediaItemId);
-      MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
+      IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.ToList();
+      MediaItem item = Search(new MediaItemQuery(null, optionalAspectIds, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
       if (item == null)
       {
         // Item deleted on the main thread before the reconciler thread processes it - could happen?
@@ -1560,9 +1557,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         return;
       }
       //Logger.Debug("Found item {0} with [{1}]", item.MediaItemId, string.Join(",", item.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+#if IMPORT_TIMING
+      Logger.Info("UpdateRelationships: Media item {0} found ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
+      sw.Restart();
+#endif
 
       // TODO: What happens to MIAs that the reconciler automatically adds which have been removed manually by the user?
-
       foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
       {
         foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
@@ -1570,12 +1570,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (cancelToken.IsCancellationRequested || ShuttingDown)
             return;
 
-          sw.Restart();
           UpdateRelationship(roleExtractor, mediaItemId, item.Aspects, isRefresh, cancelToken);
         }
       }
-#if DEBUG
-      Logger.Info("UpdateRelationships: Media item {0} processed ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
+#if IMPORT_TIMING
+      Logger.Info("UpdateRelationships: Media item {0} relationships updated ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
+      sw.Restart();
 #endif
 
       if (cancelToken.IsCancellationRequested || ShuttingDown)
@@ -1584,14 +1584,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       using (ITransaction transaction = database.BeginTransaction())
       {
-        sw.Restart();
-
         //Update parents
         UpdateVirtualParents(database, transaction, mediaItemId);
         UpdateAllParentPlayUserData(database, transaction, mediaItemId);
 
         transaction.Commit();
-#if DEBUG
+#if IMPORT_TIMING
         Logger.Info("UpdateRelationships: Media item {0} update parents ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
 #endif
       }
@@ -1636,75 +1634,58 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private bool MatchExternalItem(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> extractedItem, IList<Guid> linkedRoleAspectIds, bool isRefresh, CancellationToken cancelToken)
     {
+#if IMPORT_TIMING
       Stopwatch sw = new Stopwatch();
-      IList<MultipleMediaItemAspect> externalAspects;
+#endif
 
-      if (MediaItemAspect.TryGetAspects(extractedItem, ExternalIdentifierAspect.Metadata, out externalAspects))
+      // Any potential linked item must contain all of LinkedRoleAspects
+      IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds).ToList();
+      if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
       {
-        foreach (string externalType in roleExtractor.RelationshipTypePriority)
+        //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
+        //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
+        optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
+      }
+      IFilter[] filters = roleExtractor.GetSearchFilters(extractedItem);
+      foreach(IFilter filter in filters)
+      {
+        //Logger.Debug("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+#if IMPORT_TIMING
+        sw.Restart();
+#endif
+        IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds, filter), false, null, true);
+#if IMPORT_TIMING
+        Logger.Info("MatchExternalItem: Searched for items related to media item {0} and found {1} items from filter {2} ({3} ms)", mediaItemId, externalItems.Count, filter.ToString(), sw.ElapsedMilliseconds);
+        sw.Restart();
+#endif
+        foreach (MediaItem externalItem in externalItems)
         {
-          foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+          //Logger.Debug("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+          if (roleExtractor.TryMatch(extractedItem, externalItem.Aspects))
           {
-            string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
-            string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
-            string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
-            if (type != externalType)
-              continue;
+            //Logger.Debug("Merging extracted item with [{2}] into external item {0} with [{1}]", externalItem.MediaItemId,
+            //  string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)),
+            //  string.Join(",", extractedItem.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
 
-            // Search using external identifiers
-            BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new[]
-                  {
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
-                });
-            //Logger.Debug("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-            // Any potential linked item must contain all of LinkedRoleAspects
-            IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds).ToList();
-            if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
-            {
-              //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
-              //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
-              optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
-            }
-            sw.Restart();
-            IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds, filter), false, null, true);
-#if DEBUG
-            Logger.Info("MatchExternalItem: Searched for items similar to media item {0} and found {1} items from source {2} ({3} ms)", mediaItemId, externalItems.Count, source, sw.ElapsedMilliseconds);
+            AddRelationship(roleExtractor, mediaItemId, aspects, extractedItem);
+
+            //Update virtual flag
+            object isVirtual = externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue(MediaAspect.ATTR_ISVIRTUAL);
+            if (isVirtual != null)
+              extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, isVirtual);
+
+            UpdateMediaItem(externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x), true, isRefresh, cancelToken);
+            CollectFanArt(externalItem.MediaItemId);
+#if IMPORT_TIMING
+            Logger.Info("MatchExternalItem: Merged media item {0} with found item ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
 #endif
-            sw.Restart();
-            foreach (MediaItem externalItem in externalItems)
-            {
-              //Logger.Debug("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-              if (roleExtractor.TryMatch(extractedItem, externalItem.Aspects))
-              {
-                //Logger.Debug("Merging extracted item with [{2}] into external item {0} with [{1}]", externalItem.MediaItemId,
-                //  string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)),
-                //  string.Join(",", extractedItem.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-
-                AddRelationship(roleExtractor, mediaItemId, aspects, extractedItem);
-
-                //Update virtual flag
-                object isVirtual = externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue(MediaAspect.ATTR_ISVIRTUAL);
-                if (isVirtual != null)
-                  extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, isVirtual);
-
-                UpdateMediaItem(externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x), true, isRefresh, cancelToken);
-                CollectFanArt(externalItem.MediaItemId);
-#if DEBUG
-                Logger.Info("MatchExternalItem: Merged media item {0} with found item ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
-#endif
-
-                return true;
-              }
-            }
+            return true;
           }
         }
-#if DEBUG
+#if IMPORT_TIMING
         Logger.Info("MatchExternalItem: Media item {0} was not merged with any found item ({1} ms)", mediaItemId, sw.ElapsedMilliseconds);
 #endif
       }
-
       return false;
     }
 
