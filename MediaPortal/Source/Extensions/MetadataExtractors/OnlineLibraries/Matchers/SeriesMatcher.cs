@@ -430,10 +430,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
       //So changes to these lists will only be stored if something else has changed.
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors, true);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters, true);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors, true);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers, true);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors, episodeInfo.Actors.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters, episodeInfo.Characters.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors, episodeInfo.Directors.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers, episodeInfo.Writers.Count == 0);
     }
 
     public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
@@ -546,10 +546,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks, true);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies, true);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors, true);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters, true);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks, seriesInfo.Networks.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies, seriesInfo.ProductionCompanies.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors, seriesInfo.Actors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters, seriesInfo.Characters.Count == 0);
 
           MetadataUpdater.SetOrUpdateList(seriesInfo.Seasons, seriesMatch.Seasons, true);
 

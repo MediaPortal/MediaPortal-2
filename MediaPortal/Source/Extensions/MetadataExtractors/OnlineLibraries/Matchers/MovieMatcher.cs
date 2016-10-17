@@ -321,11 +321,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors, true);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters, true);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors, true);
-          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies, true);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers, true);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors, movieInfo.Actors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters, movieInfo.Characters.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors, movieInfo.Directors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies, movieInfo.ProductionCompanies.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers, movieInfo.Writers.Count == 0);
 
           //Store person matches
           foreach (PersonInfo person in movieInfo.Actors)

@@ -318,13 +318,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists, true);
-          MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers, true);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists, trackInfo.Artists.Count == 0);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers, trackInfo.Composers.Count == 0);
           if (albumMatch)
           {
-            MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels, true);
-            if (trackInfo.AlbumArtists.Count == 0) //In some cases the album artists can be "Various Artist" and/or "Multiple Artists" or other variations
-              MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists, true);
+            MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels, trackInfo.MusicLabels.Count == 0);
+            //In some cases the album artists can be "Various Artist" and/or "Multiple Artists" or other variations
+            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists, trackInfo.AlbumArtists.Count == 0);
           }
 
           //Store person matches
@@ -834,8 +834,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists, true);
-          MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, true);
+          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists, albumInfo.Artists.Count == 0);
+          MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, albumInfo.MusicLabels.Count == 0);
 
           if (updateTrackList) //Comparing all tracks can be quite time consuming
           {
