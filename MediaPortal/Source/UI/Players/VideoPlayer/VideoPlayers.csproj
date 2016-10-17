@@ -74,7 +74,6 @@
     <Compile Include="Settings\Configuration\AudioCodecLATMAAC.cs" />
     <Compile Include="Settings\Configuration\AudioPreferMultiChannel.cs" />
     <Compile Include="Settings\Configuration\Subtitles.cs" />
-    <Compile Include="Settings\Configuration\MpcHcSubtitleEngine.cs" />
     <Compile Include="Settings\Configuration\VideoHEVCCodec.cs" />
     <Compile Include="Settings\Configuration\VideoAVCCodec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
