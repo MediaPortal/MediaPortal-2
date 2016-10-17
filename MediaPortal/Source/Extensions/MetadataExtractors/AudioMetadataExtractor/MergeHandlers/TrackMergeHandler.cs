@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -39,7 +40,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     #region Constants
 
     private static readonly Guid[] MERGE_ASPECTS = { AudioAspect.ASPECT_ID };
-    private static readonly string[] RELATIONSHIP_SEARCH_PRIORITY = { ExternalIdentifierAspect.TYPE_TRACK, ExternalIdentifierAspect.TYPE_ALBUM };
 
     /// <summary>
     /// GUID string for the track merge handler.
@@ -73,12 +73,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return _metadata; }
     }
 
-    public string[] RelationshipTypePriority
+    public IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      get
-      {
-        return RELATIONSHIP_SEARCH_PRIORITY;
-      }
+      return IAudioRelationshipExtractor.GetTrackSearchFilters(extractedAspects);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

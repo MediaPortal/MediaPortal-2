@@ -33,14 +33,14 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesActorRelationshipExtractor : IRelationshipRoleExtractor, ISeriesRelationshipExtractor
+  class SeriesActorRelationshipExtractor : ISeriesRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
-    private static readonly string[] RELATIONSHIP_SEARCH_PRIORITY = { ExternalIdentifierAspect.TYPE_PERSON };
     private CheckedItemCache<SeriesInfo> _checkCache = new CheckedItemCache<SeriesInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public bool BuildRelationship
@@ -68,12 +68,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string[] RelationshipTypePriority
+    public IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      get
-      {
-        return RELATIONSHIP_SEARCH_PRIORITY;
-      }
+      return GetPersonSearchFilters(extractedAspects);
     }
 
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
@@ -158,7 +155,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return index >= 0;
     }
 
-    public void ClearCache()
+    public override void ClearCache()
     {
       _checkCache.ClearCache();
     }

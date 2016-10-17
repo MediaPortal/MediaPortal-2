@@ -28,6 +28,8 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Mock
 {
@@ -51,7 +53,6 @@ namespace MediaPortal.Mock
       ServiceRegistration.Get<ILogger>().Debug("No match for {0} / {1} / {2} / {3} / {4}", Role, LinkedRole, ExternalSource, ExternalType, ExternalId);
 
       extractedLinkedAspects = null;
-
       return false;
     }
 
@@ -87,12 +88,39 @@ namespace MediaPortal.Mock
       }
     }
 
-    public string[] RelationshipTypePriority
+    public IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      get
+      List<IFilter> searchFilters = new List<IFilter>();
+      IList<MultipleMediaItemAspect> externalAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
       {
-        return new string[] { ExternalType };
+        foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+        {
+          string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+          string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+          string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+          if (searchFilters.Count == 0)
+          {
+            searchFilters.Add(new BooleanCombinationFilter(BooleanOperator.And, new[]
+            {
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
+              }));
+          }
+          else
+          {
+            searchFilters[0] = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, searchFilters[0],
+            new BooleanCombinationFilter(BooleanOperator.And, new[]
+            {
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
+            }));
+          }
+        }
       }
+      return searchFilters.ToArray();
     }
   }
 

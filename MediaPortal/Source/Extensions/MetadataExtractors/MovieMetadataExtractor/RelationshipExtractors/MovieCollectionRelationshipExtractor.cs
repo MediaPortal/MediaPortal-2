@@ -31,14 +31,14 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
-  class MovieCollectionRelationshipExtractor : IRelationshipRoleExtractor, IMovieRelationshipExtractor
+  class MovieCollectionRelationshipExtractor : IMovieRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
-    private static readonly string[] RELATIONSHIP_SEARCH_PRIORITY = { ExternalIdentifierAspect.TYPE_COLLECTION };
     private CheckedItemCache<MovieInfo> _checkCache = new CheckedItemCache<MovieInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
     private CheckedItemCache<MovieCollectionInfo> _collectionCache = new CheckedItemCache<MovieCollectionInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
@@ -67,12 +67,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string[] RelationshipTypePriority
+    public IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      get
-      {
-        return RELATIONSHIP_SEARCH_PRIORITY;
-      }
+      return GetMovieCollectionSearchFilters(extractedAspects);
     }
 
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
@@ -104,6 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       collectionInfo.SetMetadata(collectionAspects);
+
       if (collectionInfo.HasChanged)
         BaseInfo.SetMetadataChanged(collectionAspects);
       collectionInfo.HasChanged = false; //Reset change status on cached instance
@@ -164,7 +162,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return index >= 0;
     }
 
-    public void ClearCache()
+    public override void ClearCache()
     {
       _checkCache.ClearCache();
       _collectionCache.ClearCache();

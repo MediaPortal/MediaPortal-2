@@ -31,14 +31,14 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
-  class MovieCollectionMovieRelationshipExtractor : IRelationshipRoleExtractor, IMovieRelationshipExtractor
+  class MovieCollectionMovieRelationshipExtractor : IMovieRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
-    private static readonly string[] RELATIONSHIP_SEARCH_PRIORITY = { ExternalIdentifierAspect.TYPE_MOVIE };
     private CheckedItemCache<MovieCollectionInfo> _checkCache = new CheckedItemCache<MovieCollectionInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public bool BuildRelationship
@@ -68,12 +68,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public string[] RelationshipTypePriority
+    public IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      get
-      {
-        return RELATIONSHIP_SEARCH_PRIORITY;
-      }
+      return GetMovieSearchFilters(extractedAspects);
     }
 
     public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
@@ -159,7 +156,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return index >= 0;
     }
 
-    public void ClearCache()
+    public override void ClearCache()
     {
       _checkCache.ClearCache();
     }

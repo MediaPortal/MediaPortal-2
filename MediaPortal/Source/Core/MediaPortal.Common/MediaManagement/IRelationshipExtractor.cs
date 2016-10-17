@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
 
@@ -60,9 +61,11 @@ namespace MediaPortal.Common.MediaManagement
     bool BuildRelationship { get; }
 
     /// <summary>
-    /// The priority of relationship types to use when searching for existing media items.
+    /// Get optimized filters that can be used to find a direct matches to any existing media item
     /// </summary>
-    string[] RelationshipTypePriority { get; }
+    /// <param name="extractedAspects"></param>
+    /// <returns></returns>
+    IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects);
 
     /// <summary>
     /// Part 1 of the relationship building - try to build a relationship
