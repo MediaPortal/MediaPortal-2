@@ -336,39 +336,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound && episodeMatch != null)
         {
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, episodeMatch.ImdbId);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.MovieDbId, episodeMatch.MovieDbId);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvdbId, episodeMatch.TvdbId);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvMazeId, episodeMatch.TvMazeId);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvRageId, episodeMatch.TvRageId);
-
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, episodeMatch.SeriesImdbId);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesMovieDbId, episodeMatch.SeriesMovieDbId);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, episodeMatch.SeriesTvdbId);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvMazeId, episodeMatch.SeriesTvMazeId);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvRageId, episodeMatch.SeriesTvRageId);
-
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, episodeMatch.EpisodeName);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, episodeMatch.Summary);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, episodeMatch.SeriesName);
-
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodeMatch.FirstAired);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episodeMatch.SeasonNumber);
-          MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, episodeMatch.SeriesFirstAired);
-
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.Rating, episodeMatch.Rating);
-
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers, true);
-          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers, true);
-          if(episodeInfo.Genres.Count == 0)
-            episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
-
-          //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
-          //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors, true);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters, true);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors, true);
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers, true);
+          MergeEpisodes(episodeInfo, episodeMatch);
 
           //Store person matches
           foreach (PersonInfo person in episodeInfo.Actors)
@@ -429,6 +397,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
+    private void MergeEpisodes(EpisodeInfo episodeInfo, EpisodeInfo episodeMatch)
+    {
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.ImdbId, episodeMatch.ImdbId);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.MovieDbId, episodeMatch.MovieDbId);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvdbId, episodeMatch.TvdbId);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvMazeId, episodeMatch.TvMazeId);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.TvRageId, episodeMatch.TvRageId);
+
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, episodeMatch.SeriesImdbId);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesMovieDbId, episodeMatch.SeriesMovieDbId);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, episodeMatch.SeriesTvdbId);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvMazeId, episodeMatch.SeriesTvMazeId);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvRageId, episodeMatch.SeriesTvRageId);
+
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, episodeMatch.EpisodeName);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.Summary, episodeMatch.Summary);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, episodeMatch.SeriesName);
+
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.FirstAired, episodeMatch.FirstAired);
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeasonNumber, episodeMatch.SeasonNumber);
+      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, episodeMatch.SeriesFirstAired);
+
+      episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.Rating, episodeMatch.Rating);
+
+      if (episodeInfo.EpisodeNumbers.Count == 0)
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers, true);
+      if (episodeInfo.DvdEpisodeNumbers.Count == 0)
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers, true);
+      if (episodeInfo.Genres.Count == 0)
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
+
+      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+      //So changes to these lists will only be stored if something else has changed.
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors, true);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters, true);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors, true);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers, true);
+    }
+
     public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
     {
       try
@@ -442,12 +449,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           if (_seriesNameMatcher.GetNameMatch(seriesInfo.SeriesName.Text, out id))
           {
-            if (!CacheRefreshable)
-            {
-              //Match was found but cache is still the same
-              return false;
-            }
-            else if (!SetSeriesId(seriesInfo, id))
+            //Next episode can still be extracted from current cache
+            //if (!CacheRefreshable)
+            //{
+            //  //Match was found but cache is still the same
+            //  return false;
+            //}
+            if (!SetSeriesId(seriesInfo, id))
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this series by name only failed so stop trying.
@@ -546,7 +554,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateList(seriesInfo.Seasons, seriesMatch.Seasons, true);
 
           if (updateEpisodeList) //Comparing all episodes can be quite time consuming
-            MetadataUpdater.SetOrUpdateList(seriesInfo.Episodes, seriesMatch.Episodes, true);
+          {
+            for (int matchIndex = 0; matchIndex < seriesMatch.Episodes.Count; matchIndex++)
+            {
+              int existing = seriesInfo.Episodes.IndexOf(seriesMatch.Episodes[matchIndex]);
+              if (existing >= 0)
+              {
+                MergeEpisodes(seriesInfo.Episodes[existing], seriesMatch.Episodes[matchIndex]);
+              }
+              else
+              {
+                seriesInfo.Episodes.Add(seriesMatch.Episodes[matchIndex]);
+              }
+            }
+            seriesInfo.Episodes.Sort();
+          }
 
           //Store person matches
           foreach (PersonInfo person in seriesInfo.Actors)
