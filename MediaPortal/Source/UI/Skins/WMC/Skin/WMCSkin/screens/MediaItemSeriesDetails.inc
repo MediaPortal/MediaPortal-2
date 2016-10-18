@@ -103,24 +103,6 @@
       </media:SeriesAspectWrapper>
     </StackPanel>
 
-    <!--media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
-          <media:MediaAspectWrapper.Template>
-            <ControlTemplate>
-              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Margin="-5,0,15,0" >
-                  <Image.Source>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                      <Binding Path="PlayCount"/>
-                      <Binding Source=""/>
-                      <Binding Source="unwatched_icon.png"/>
-                    </MultiBinding>
-                  </Image.Source>
-                </Image>
-              </Grid>
-            </ControlTemplate>
-          </media:MediaAspectWrapper.Template>
-        </media:MediaAspectWrapper-->
-
     <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
       <StackPanel Orientation="Horizontal">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Seasons}"
@@ -138,6 +120,19 @@
       </StackPanel>
     </StackPanel>
 
-  </StackPanel>
-      
+    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" HorizontalAlignment="Right">
+      <media:UserDataWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="85" Height="85" Margin="0,-25,10,0" >
+              <Image.Source>
+                <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+              </Image.Source>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </media:UserDataWrapper.Template>
+    </media:UserDataWrapper>
+
+  </StackPanel>   
 </Grid>

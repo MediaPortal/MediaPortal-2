@@ -19,7 +19,7 @@
     <ColumnDefinition Width="540"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
-  
+
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
          HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
@@ -30,7 +30,7 @@
            HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
            Color="{ThemeResource TextColor}" VerticalAlignment="Stretch"/>
-    
+
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:SeriesAspectWrapper.Template>
         <ControlTemplate>
@@ -40,12 +40,13 @@
         </ControlTemplate>
       </media:SeriesAspectWrapper.Template>
     </media:SeriesAspectWrapper>
-      
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" HorizontalAlignment="Left">
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
           <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-               Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center" Height="80" Margin="-20,0,0,0">
+               Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center" Height="80" Margin="-20,0,0,0"
+               IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
                             fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
@@ -108,46 +109,42 @@
     </media:VideoAspectWrapper>
   </StackPanel>
 
-    <tv:RecordingAspectWrapper Grid.Row="0" Grid.Column="1"
-                             MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
-      <tv:RecordingAspectWrapper.Template>
-        <ControlTemplate>
-            <Image DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" MaxHeight="280">
-             <Image.Source>
-                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" HorizontalTextureAlignment="Right" VerticalTextureAlignment="Top"
-                          FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}"/>
-                </Image.Source>
-                <Image.OpacityMask>
-                  <VisualBrush>
-                    <VisualBrush.Visual>
-                      <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-                    </VisualBrush.Visual>
-                  </VisualBrush>
-              </Image.OpacityMask>
-            </Image>
-        </ControlTemplate>
-      </tv:RecordingAspectWrapper.Template>
-    </tv:RecordingAspectWrapper>
-
-  <!--media:MediaAspectWrapper Grid.Row="3" Grid.Column="2" Margin="0,0,0,0"
-                            MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:MediaAspectWrapper.Template>
+  <tv:RecordingAspectWrapper Grid.Row="0" Grid.Column="1"
+                           MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+    <tv:RecordingAspectWrapper.Template>
       <ControlTemplate>
-        <Image HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-               Width="37" Height="24" Stretch="Uniform"  >
+        <Image DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+             Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" MaxHeight="280">
           <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source=""/>
-              <Binding Source="unwatched_icon.png"/>
-            </MultiBinding>
+            <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" HorizontalTextureAlignment="Right" VerticalTextureAlignment="Top"
+                      FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}"/>
           </Image.Source>
+          <Image.OpacityMask>
+            <VisualBrush>
+              <VisualBrush.Visual>
+                <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+              </VisualBrush.Visual>
+            </VisualBrush>
+          </Image.OpacityMask>
         </Image>
       </ControlTemplate>
-    </media:MediaAspectWrapper.Template>
-</media:MediaAspectWrapper-->
+    </tv:RecordingAspectWrapper.Template>
+  </tv:RecordingAspectWrapper>
 
+  <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                     Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+    <media:UserDataWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,75,30,0" >
+            <Image.Source>
+              <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </ControlTemplate>
+    </media:UserDataWrapper.Template>
+  </media:UserDataWrapper>
 
 </Grid>

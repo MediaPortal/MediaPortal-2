@@ -56,9 +56,9 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       get { return _playPercentageProperty; }
     }
 
-    public int PlayPercentage
+    public int? PlayPercentage
     {
-      get { return (int)_playPercentageProperty.GetValue(); }
+      get { return (int?)_playPercentageProperty.GetValue(); }
       set { _playPercentageProperty.SetValue(value); }
     }
 
@@ -67,9 +67,9 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       get { return _playCountProperty; }
     }
 
-    public int PlayCount
+    public int? PlayCount
     {
-      get { return (int)_playCountProperty.GetValue(); }
+      get { return (int?)_playCountProperty.GetValue(); }
       set { _playCountProperty.SetValue(value); }
     }
 
@@ -90,8 +90,8 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public UserDataWrapper()
     {
-      _playPercentageProperty = new SProperty(typeof(int));
-      _playCountProperty = new SProperty(typeof(int));
+      _playPercentageProperty = new SProperty(typeof(int?));
+      _playCountProperty = new SProperty(typeof(int?));
       _mediaItemProperty = new SProperty(typeof(MediaItem));
       _mediaItemProperty.Attach(MediaItemChanged);
     }
@@ -178,8 +178,8 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public void SetEmpty()
     {
-      PlayCount = 0;
-      PlayPercentage = 0;
+      PlayCount = null;
+      PlayPercentage = null;
     }
 
 
