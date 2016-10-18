@@ -317,8 +317,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       RelationshipFilter relationshipFilter = filter as RelationshipFilter;
       if (relationshipFilter != null)
       {
-        BindVar linkedMediaItemVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationshipFilter.LinkedMediaItemId, typeof(Guid));
-        resultBindVars.Add(linkedMediaItemVar);
+        BindVar linkedMediaItemVar = null;
+        if (relationshipFilter.LinkedMediaItemId != Guid.Empty)
+        {
+          linkedMediaItemVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationshipFilter.LinkedMediaItemId, typeof(Guid));
+          resultBindVars.Add(linkedMediaItemVar);
+        }
         BindVar roleVar = null;
         if (relationshipFilter.Role != Guid.Empty)
         {
@@ -340,8 +344,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(" FROM ");
         resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
         resultParts.Add(" R1");
-        resultParts.Add(" WHERE R1." + miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
-        resultParts.Add("=@" + linkedMediaItemVar.Name);
+        if (linkedMediaItemVar != null)
+        {
+          resultParts.Add(" WHERE R1." + miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID));
+          resultParts.Add("=@" + linkedMediaItemVar.Name);
+        }
+        else
+        {
+          resultParts.Add(" WHERE 1=1");
+        }
         if (roleVar != null)
         {
           resultParts.Add(" AND R1.");
@@ -362,8 +373,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(" FROM ");
         resultParts.Add(miaManagement.GetMIATableName(RelationshipAspect.Metadata));
         resultParts.Add(" R2");
-        resultParts.Add(" WHERE R2." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-        resultParts.Add("=@" + linkedMediaItemVar.Name);
+        if (linkedMediaItemVar != null)
+        {
+          resultParts.Add(" WHERE R2." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add("=@" + linkedMediaItemVar.Name);
+        }
+        else
+        {
+          resultParts.Add(" WHERE 1=1");
+        }
         if (roleVar != null)
         {
           resultParts.Add(" AND R2.");
