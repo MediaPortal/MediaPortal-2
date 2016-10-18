@@ -106,10 +106,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       foreach (CompanyInfo company in seriesInfo.ProductionCompanies)
       {
         company.AssignNameId();
+        company.HasChanged = seriesInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         company.SetMetadata(companyAspects);
-        if (seriesInfo.HasChanged)
-          BaseInfo.SetMetadataChanged(companyAspects);
 
         if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(companyAspects);

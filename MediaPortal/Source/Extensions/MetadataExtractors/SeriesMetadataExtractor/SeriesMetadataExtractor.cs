@@ -220,8 +220,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       episodeInfo.SetMetadata(extractedAspectData);
-      if (episodeInfo.HasChanged)
-        BaseInfo.SetMetadataChanged(extractedAspectData);
 
       return episodeInfo.IsBaseInfoPresent;
     }

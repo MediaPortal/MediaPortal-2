@@ -103,10 +103,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       foreach (PersonInfo person in albumInfo.Artists)
       {
         person.AssignNameId();
+        person.HasChanged = albumInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         person.SetMetadata(personAspects);
-        if (albumInfo.HasChanged)
-          BaseInfo.SetMetadataChanged(personAspects);
 
         if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(personAspects);

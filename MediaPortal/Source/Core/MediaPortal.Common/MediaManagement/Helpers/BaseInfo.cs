@@ -58,6 +58,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     private bool _hasThumbnail = false;
     private bool _hasChanged = false;
+    private DateTime? _lastChange = null;
 
     public bool HasThumbnail
     {
@@ -69,6 +70,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       get { return _hasChanged; }
       set { _hasChanged = value; }
+    }
+
+    public DateTime? LastChanged
+    {
+      get { return _lastChange; }
+      set { _lastChange = value; }
     }
 
     public abstract bool IsBaseInfoPresent { get; }
@@ -196,23 +203,28 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return count;
     }
 
-    public static bool HasMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    protected void GetMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       SingleMediaItemAspect importerAspect;
       if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
       {
-        return importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
+        _hasChanged = importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
+        _lastChange = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_LAST_IMPORT_DATE);
       }
-      return false;
     }
 
-    public static void SetMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    protected void SetMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       SingleMediaItemAspect importerAspect;
       if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
       {
-        //Set to dirty to mark it as changed
-        importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
+        if (_hasChanged)
+        {
+          //Set to dirty to mark it as changed
+          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, _hasChanged);
+          _lastChange = DateTime.Now;
+          importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, _lastChange);
+        }
       }
     }
 

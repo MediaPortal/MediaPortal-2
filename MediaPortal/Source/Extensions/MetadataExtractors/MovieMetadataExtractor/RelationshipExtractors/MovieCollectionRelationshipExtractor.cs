@@ -103,9 +103,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       collectionInfo.SetMetadata(collectionAspects);
 
-      if (collectionInfo.HasChanged)
-        BaseInfo.SetMetadataChanged(collectionAspects);
-
       bool movieVirtual = true;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
       {
@@ -121,8 +118,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         MovieCollectionInfo customCollectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
 
         IDictionary<Guid, IList<MediaItemAspect>> customCollectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        customCollectionInfo.HasChanged = true;
         customCollectionInfo.SetMetadata(customCollectionAspects);
-        BaseInfo.SetMetadataChanged(customCollectionAspects);
 
         if (customCollectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(customCollectionAspects);

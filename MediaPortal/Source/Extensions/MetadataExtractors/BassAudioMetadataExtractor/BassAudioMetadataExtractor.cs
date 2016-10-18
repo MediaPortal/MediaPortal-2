@@ -265,8 +265,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           return false;
 
         trackInfo.SetMetadata(extractedAspectData);
-        if (trackInfo.HasChanged)
-          BaseInfo.SetMetadataChanged(extractedAspectData);
 
         return trackInfo.IsBaseInfoPresent;
       }

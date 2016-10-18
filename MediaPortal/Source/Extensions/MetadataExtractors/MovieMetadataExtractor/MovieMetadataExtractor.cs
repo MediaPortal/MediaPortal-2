@@ -252,8 +252,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       movieInfo.SetMetadata(extractedAspectData);
-      if (movieInfo.HasChanged)
-        BaseInfo.SetMetadataChanged(extractedAspectData);
 
       return movieInfo.IsBaseInfoPresent;
     }

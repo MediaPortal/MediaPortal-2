@@ -126,6 +126,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (string.IsNullOrEmpty(Name)) return false;
 
+      SetMetadataChanged(aspectData);
+
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Name));
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, false); //Always based on physical media
@@ -153,7 +155,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!aspectData.ContainsKey(CharacterAspect.ASPECT_ID))
         return false;
-      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
+
+      GetMetadataChanged(aspectData);
+
       MediaItemAspect.TryGetAttribute(aspectData, CharacterAspect.ATTR_CHARACTER_NAME, out Name);
       MediaItemAspect.TryGetAttribute(aspectData, CharacterAspect.ATTR_ACTOR_NAME, out ActorName);
 

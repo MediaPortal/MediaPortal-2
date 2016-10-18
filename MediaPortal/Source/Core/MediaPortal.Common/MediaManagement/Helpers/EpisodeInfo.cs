@@ -222,6 +222,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!IsBaseInfoPresent)
         return false;
 
+      SetMetadataChanged(aspectData);
+
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(EpisodeName.Text));
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, IsVirtualResource(aspectData));
@@ -274,7 +276,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!aspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         return false;
-      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
+
+      GetMetadataChanged(aspectData);
+
       MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, out SeasonNumber);
       MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out FirstAired);
 

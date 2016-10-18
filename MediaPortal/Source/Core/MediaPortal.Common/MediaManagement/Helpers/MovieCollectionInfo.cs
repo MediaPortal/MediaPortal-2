@@ -96,6 +96,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (CollectionName.IsEmpty) return false;
 
+      SetMetadataChanged(aspectData);
+
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(CollectionName.Text));
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
@@ -112,7 +114,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
-      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
+      GetMetadataChanged(aspectData);
+
       if (aspectData.ContainsKey(MovieCollectionAspect.ASPECT_ID))
       {
         string tempString;

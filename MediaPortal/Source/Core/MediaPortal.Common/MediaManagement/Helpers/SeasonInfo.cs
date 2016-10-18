@@ -165,6 +165,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (SeriesName.IsEmpty || !SeasonNumber.HasValue) return false;
 
+      SetMetadataChanged(aspectData);
+
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(ToString()));
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadata extractors
@@ -197,7 +199,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
-      HasChanged = BaseInfo.HasMetadataChanged(aspectData);
+      GetMetadataChanged(aspectData);
+
       if (aspectData.ContainsKey(SeasonAspect.ASPECT_ID))
       {
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SEASON, out SeasonNumber);

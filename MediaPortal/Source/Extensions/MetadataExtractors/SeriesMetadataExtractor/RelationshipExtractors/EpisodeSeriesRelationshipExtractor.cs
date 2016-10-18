@@ -109,9 +109,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
       }
 
-      if (seriesInfo.HasChanged)
-        BaseInfo.SetMetadataChanged(seriesAspects);
-
       if (!seriesAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 

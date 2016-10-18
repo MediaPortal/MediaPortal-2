@@ -109,10 +109,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       foreach (CharacterInfo character in episodeInfo.Characters)
       {
         character.AssignNameId();
+        character.HasChanged = episodeInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         character.SetMetadata(characterAspects);
-        if (episodeInfo.HasChanged)
-          BaseInfo.SetMetadataChanged(characterAspects);
 
         if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(characterAspects);

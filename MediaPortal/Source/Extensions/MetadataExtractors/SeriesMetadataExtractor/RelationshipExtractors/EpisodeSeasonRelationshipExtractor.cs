@@ -113,9 +113,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         MediaItemAspect.SetAttribute(seasonAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
       }
 
-      if (seasonInfo.HasChanged)
-        BaseInfo.SetMetadataChanged(seasonAspects);
-
       if (!seasonAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 

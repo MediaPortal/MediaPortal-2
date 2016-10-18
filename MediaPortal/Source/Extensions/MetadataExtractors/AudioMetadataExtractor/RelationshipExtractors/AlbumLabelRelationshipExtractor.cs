@@ -106,10 +106,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       foreach (CompanyInfo company in albumInfo.MusicLabels)
       {
         company.AssignNameId();
+        company.HasChanged = albumInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         company.SetMetadata(companyAspects);
-        if (albumInfo.HasChanged)
-          BaseInfo.SetMetadataChanged(companyAspects);
 
         if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(companyAspects);
