@@ -158,6 +158,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       series = null;
       List<TvdbSearchResult> foundSeries = _tvdbHandler.SearchSeries(seriesSearch.SeriesName.Text, language);
+      if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
+        foundSeries = _tvdbHandler.SearchSeries(seriesSearch.AlternateName, language);
       if (foundSeries == null) return false;
       series = foundSeries.Select(s => new SeriesInfo
       {

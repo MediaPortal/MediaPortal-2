@@ -94,6 +94,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
+        episodeSearch.CopyIdsFrom(seriesSearch);
       }
 
       if (episodeSearch.SeriesMovieDbId > 0 && episodeSearch.SeasonNumber.HasValue)
@@ -146,6 +147,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       series = null;
       List<SeriesSearchResult> foundSeries = _movieDbHandler.SearchSeries(seriesSearch.SeriesName.Text, language);
+      if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
+        foundSeries = _movieDbHandler.SearchSeries(seriesSearch.AlternateName, language);
       if (foundSeries == null) return false;
       series = foundSeries.Select(s => new SeriesInfo()
       {

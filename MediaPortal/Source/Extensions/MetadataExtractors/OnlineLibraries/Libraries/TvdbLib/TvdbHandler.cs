@@ -304,7 +304,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     public List<TvdbSearchResult> SearchSeries(String name)
     {
       List<TvdbSearchResult> retSeries = _downloader.DownloadSearchResults(name);
-
+      if (retSeries != null && retSeries.Count == 0)
+        return null;
       return retSeries;
     }
 
@@ -317,6 +318,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     public List<TvdbSearchResult> SearchSeries(String name, TvdbLanguage language)
     {
       List<TvdbSearchResult> retSeries = _downloader.DownloadSearchResults(name, language);
+      if (retSeries != null && retSeries.Count == 0)
+        return null;
       return retSeries;
     }
 

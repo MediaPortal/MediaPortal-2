@@ -130,6 +130,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series = null;
       List<OmDbSearchItem> foundSeries = _omDbHandler.SearchSeries(seriesSearch.SeriesName.Text,
         seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year : 0);
+      if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
+        foundSeries = _omDbHandler.SearchSeries(seriesSearch.AlternateName, 
+          seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year : 0);
+      if (foundSeries == null && seriesSearch.FirstAired.HasValue)
+        foundSeries = _omDbHandler.SearchSeries(seriesSearch.SeriesName.Text, 0);
+      if (foundSeries == null && seriesSearch.FirstAired.HasValue && !string.IsNullOrEmpty(seriesSearch.AlternateName))
+        foundSeries = _omDbHandler.SearchSeries(seriesSearch.AlternateName, 0);
       if (foundSeries == null) return false;
       series = foundSeries.Select(s => new SeriesInfo()
       {

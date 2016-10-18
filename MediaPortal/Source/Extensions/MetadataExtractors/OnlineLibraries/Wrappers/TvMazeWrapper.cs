@@ -62,6 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
+        episodeSearch.CopyIdsFrom(seriesSearch);
       }
 
       if (episodeSearch.SeriesTvMazeId > 0 && episodeSearch.SeasonNumber.HasValue)
@@ -114,6 +115,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       series = null;
       List<TvMazeSeries> foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.SeriesName.Text);
+      if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
+        foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.AlternateName);
       if (foundSeries == null) return false;
       series = foundSeries.Select(s => new SeriesInfo()
       {
