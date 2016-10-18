@@ -50,7 +50,8 @@
                          Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,20" HorizontalAlignment="Right" VerticalAlignment="Bottom">
     <media:UserDataWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+              IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
           <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="85" Height="85" Margin="0,-25,40,-20" >
             <Image.Source>
               <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
