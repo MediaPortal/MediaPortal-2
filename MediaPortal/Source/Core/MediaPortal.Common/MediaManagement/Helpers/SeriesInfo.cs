@@ -71,6 +71,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string NameId = null;
 
     public SimpleTitle SeriesName = null;
+    public string AlternateName = null;
     public string OriginalName = null;
     /// <summary>
     /// Gets or sets the first aired date of series.

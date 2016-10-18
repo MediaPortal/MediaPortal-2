@@ -231,7 +231,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (movies.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", movieSearch, movies.Count);
-        var exactMatches = movies.FindAll(s => s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0);
+        var exactMatches = movies.FindAll(s => !s.MovieName.IsEmpty && 
+          (s.MovieName.IsEmpty && s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -420,7 +421,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", episodeSearch, episodes.Count);
-        var exactMatches = episodes.FindAll(e => e.EpisodeName.Text == episodeSearch.EpisodeName.Text || GetLevenshteinDistance(e, episodeSearch) == 0);
+        var exactMatches = episodes.FindAll(e => !e.EpisodeName.IsEmpty && (e.EpisodeName.Text == episodeSearch.EpisodeName.Text || GetLevenshteinDistance(e, episodeSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
@@ -543,7 +544,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (series.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", seriesSearch, series.Count);
-        var exactMatches = series.FindAll(s => s.SeriesName.Text == seriesSearch.SeriesName.Text || s.OriginalName == seriesSearch.OriginalName || GetLevenshteinDistance(s, seriesSearch) == 0);
+        var exactMatches = series.FindAll(s => !s.SeriesName.IsEmpty && 
+          (s.SeriesName.Text == seriesSearch.SeriesName.Text || s.OriginalName == seriesSearch.SeriesName.Text || GetLevenshteinDistance(s, seriesSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
@@ -1144,7 +1146,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (tracks.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", trackSearch, tracks.Count);
-        var exactMatches = tracks.FindAll(t => t.TrackName == trackSearch.TrackName || GetLevenshteinDistance(t, trackSearch) == 0);
+        var exactMatches = tracks.FindAll(t => !string.IsNullOrEmpty(t.TrackName) && (t.TrackName == trackSearch.TrackName || GetLevenshteinDistance(t, trackSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
@@ -1312,7 +1314,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (albums.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", albumSearch, albums.Count);
-        var exactMatches = albums.FindAll(t => t.Album == albumSearch.Album || GetLevenshteinDistance(t, albumSearch) == 0);
+        var exactMatches = albums.FindAll(t => !string.IsNullOrEmpty(t.Album) && (t.Album == albumSearch.Album || GetLevenshteinDistance(t, albumSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);

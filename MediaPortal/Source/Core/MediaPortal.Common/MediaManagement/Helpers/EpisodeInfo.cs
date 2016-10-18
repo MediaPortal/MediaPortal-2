@@ -103,6 +103,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the series title.
     /// </summary>
     public SimpleTitle SeriesName = null;
+    public string SeriesAlternateName = null;
     public DateTime? SeriesFirstAired = null;
     /// <summary>
     /// Gets or sets the episode title.
@@ -475,6 +476,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           TvRageId = SeriesTvRageId,
           NameId = SeriesNameId,
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage),
+          AlternateName = SeriesAlternateName,
           FirstAired = SeriesFirstAired
         };
         info.Languages.AddRange(Languages);
