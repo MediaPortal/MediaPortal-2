@@ -248,6 +248,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         OnlineMatcherService.Instance.FindAndUpdateMovie(movieInfo, forceQuickMode);
       }
 
+      if (!SkipOnlineSearches && !movieInfo.HasExternalId)
+        return false;
+
       if (!movieInfo.HasChanged && !forceQuickMode)
         return false;
 
