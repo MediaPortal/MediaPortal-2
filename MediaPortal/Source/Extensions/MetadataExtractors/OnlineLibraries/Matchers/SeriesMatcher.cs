@@ -106,6 +106,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Constants
 
     public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
+    private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
 
     protected override string MatchesSettingsFile
     {
@@ -128,6 +129,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private bool _primary = false;
     private string _id = null;
     private bool _cacheRefreshable;
+    private DateTime? _lastCacheRefresh;
+    private DateTime _lastCacheCheck = DateTime.MinValue;
 
     private SimpleNameMatcher _companyMatcher;
     private SimpleNameMatcher _networkMatcher;
@@ -287,6 +290,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
             else if (SetSeriesId(episodeMatch, match.Id))
             {
+              if (episodeInfo.LastChanged > _lastCacheRefresh)
+                return false;
+
               seriesMatchFound = true;
             }
             else if (string.IsNullOrEmpty(seriesId))
@@ -461,6 +467,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //Searching for this series by name only failed so stop trying.
               return false;
             }
+            else if (CacheRefreshable && seriesInfo.LastChanged > _lastCacheRefresh)
+              return false;
           }
         }
 
@@ -1457,24 +1465,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (CacheRefreshable)
       {
         string dateFormat = "MMddyyyyHHmm";
-        if (string.IsNullOrEmpty(_config.LastRefresh))
-          _config.LastRefresh = DateTime.Now.ToString(dateFormat);
+        if (!_lastCacheRefresh.HasValue)
+        {
+          if (string.IsNullOrEmpty(_config.LastRefresh))
+            _config.LastRefresh = DateTime.Now.ToString(dateFormat);
 
-        DateTime lastRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
+          _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
+        }
 
-        if (DateTime.Now - lastRefresh <= _maxCacheDuration)
+        if (DateTime.Now - _lastCacheCheck <= CACHE_CHECK_INTERVAL)
           return;
+
+        _lastCacheCheck = DateTime.Now;
 
         IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
         if (threadPool != null)
         {
-          Logger.Debug(_id + ": Refreshing local cache");
+          Logger.Debug(_id + ": Checking local cache");
           threadPool.Add(() =>
           {
             if (_wrapper != null)
             {
-              if(_wrapper.RefreshCache(lastRefresh))
-                _config.LastRefresh = DateTime.Now.ToString(dateFormat, CultureInfo.InvariantCulture);
+              if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+              {
+                _lastCacheRefresh = DateTime.Now;
+                _config.LastRefresh = _lastCacheRefresh.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+              }
             }
           });
         }
