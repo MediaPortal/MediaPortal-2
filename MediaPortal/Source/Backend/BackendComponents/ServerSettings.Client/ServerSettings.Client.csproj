@@ -66,6 +66,13 @@
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEBrowseOffline.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDESourcePrimary.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDESourceEnable.cs" />
+    <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxThumbs.cs" />
+    <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxPosters.cs" />
+    <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxClearArts.cs" />
+    <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxDiscArts.cs" />
+    <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxLogos.cs" />
+    <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxBanners.cs" />
+    <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxBackdrops.cs" />
     <Compile Include="Settings\Configuration\ImageMDE\ServerImageMDEGeoLocation.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEFilter.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEOnlineData.cs" />

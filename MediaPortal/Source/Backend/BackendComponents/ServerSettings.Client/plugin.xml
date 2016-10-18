@@ -102,6 +102,10 @@
         Id="ImageMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.ImageMDESettings]"/>
+  <ConfigSection
+        Id="FanArtSettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.FanArtSettings]"/>
   </Register>
 
   <!-- Audio importer settings -->
@@ -198,6 +202,45 @@
         Text="[Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation]"
         HelpText="[Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerImageMDEGeoLocation"/>
+  </Register>
+  
+  <!-- FanArt importer settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/FanArtSettings">
+    <ConfigSetting
+        Id="ServerFanArtMaxBackdrops"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxBackdrops"/>
+    <ConfigSetting
+        Id="ServerFanArtMaxPosters"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxPosters]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxPosters.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxPosters"/>
+    <ConfigSetting
+        Id="ServerFanArtMaxBanners"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBanners]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBanners.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxBanners"/>
+    <ConfigSetting
+        Id="ServerFanArtMaxThumbs"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxThumbs"/>
+    <ConfigSetting
+        Id="ServerFanArtMaxClearArts"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxClearArts]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxClearArts.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxClearArts"/>
+  <ConfigSetting
+        Id="ServerFanArtMaxDiscArts"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxDiscArts"/>
+  <ConfigSetting
+        Id="ServerFanArtMaxLogos"
+        Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos]"
+        HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxLogos"/>
   </Register>
 
   <!-- Contents of '/Shares' section -->

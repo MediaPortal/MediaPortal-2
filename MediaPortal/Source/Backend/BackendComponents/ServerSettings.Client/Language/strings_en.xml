@@ -75,4 +75,19 @@
   <string name="Settings.ServerSettings.ImageMDESettings">Image import settings</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Lookup geolocation details</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Enables whether geolocation should be found from geographic coordinates stored in image.</string>
+  <string name="Settings.ServerSettings.FanArtSettings">FanArt maximum settings</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops">Maximum number of backdrops</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help">The maximum number of backdrops to have available. A higher number of backdrops will require more disk space.</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxPosters">Maximum number of posters</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxPosters.Help">The maximum number of posters to have available. A higher number of posters will require more disk space.</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBanners">Maximum number of banners</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBanners.Help">The maximum number of banners to have available. A higher number of banners will require more disk space.</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs">Maximum number of thumbnails</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs.Help">The maximum number of thumbnails to have available. A higher number of thumbnails will require more disk space.</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxClearArts">Maximum number of ClearArt images</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxClearArts.Help">The maximum number of ClearArt images to have available. A higher number of ClearArt images will require more disk space.</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts">Maximum number of DiscArt images</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts.Help">The maximum number of DiscArt images to have available. A higher number of DiscArt images will require more disk space.</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos">Maximum number of logos</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help">The maximum number of logos to have available. A higher number of logos will require more disk space.</string>
 </resources>
