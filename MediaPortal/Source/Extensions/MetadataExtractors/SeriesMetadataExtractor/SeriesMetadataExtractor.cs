@@ -191,6 +191,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
       }
 
+      if(string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
+      {
+        var mediaItemPath = lfsra.CanonicalLocalResourcePath;
+        var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+        episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
+      }
+
       IList<MultipleMediaItemAspect> audioAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
       {
@@ -215,6 +222,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
       }
+
+      if (!SkipOnlineSearches && !episodeInfo.HasExternalId)
+        return false;
 
       if (!episodeInfo.HasChanged && !forceQuickMode)
         return false;
