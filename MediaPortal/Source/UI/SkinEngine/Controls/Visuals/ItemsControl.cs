@@ -35,7 +35,7 @@ using MediaPortal.Utilities.DeepCopy;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
-
+using SharpDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -58,6 +58,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemsCountProperty;
     protected AbstractProperty _isEmptyProperty;
     protected AbstractProperty _groupingValueProviderProperty;
+    protected AbstractProperty _restoreFocusProperty;
 
     protected ItemCollection _items;
     protected bool _preventItemsPreparation = false; // Prevent preparation before we are fully initialized - optimization
@@ -68,6 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected bool _panelTemplateApplied = false; // Set to true as soon as the ItemsPanel style is applied on the items presenter
     protected Panel _itemsHostPanel = null; // Our instanciated items host panel
 
+    protected FrameworkElement _restoreFocusElement = null;
     protected FrameworkElement _lastFocusedElement = null; // Needed for focus tracking/update of current item
     protected ISelectableItemContainer _lastSelectedItem = null; // Needed for updating of the selected item
 
@@ -102,6 +104,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _currentItemProperty = new SProperty(typeof(object), null);
       _itemsCountProperty = new SProperty(typeof(int), 0);
       _isEmptyProperty = new SProperty(typeof(bool), false);
+      _restoreFocusProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -152,6 +155,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       GroupHeaderTemplate = copyManager.GetCopy(c.GroupHeaderTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
       DataStringProvider = copyManager.GetCopy(c.DataStringProvider);
+      RestoreFocus = c.RestoreFocus;
       _lastSelectedItem = copyManager.GetCopy(c._lastSelectedItem);
       Attach();
       _preventItemsPreparation = false;
@@ -517,6 +521,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _itemsCountProperty.SetValue(value); }
     }
 
+    public AbstractProperty RestoreFocusProperty
+    {
+      get { return _restoreFocusProperty; }
+    }
+
+    public bool RestoreFocus
+    {
+      get { return (bool)_restoreFocusProperty.GetValue(); }
+      set { _restoreFocusProperty.SetValue(value); }
+    }
+
     public bool IsItemsPrepared
     {
       get { return _itemsHostPanel != null; }
@@ -538,6 +553,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DoFireEvent(eventName);
       if (eventName == LOSTFOCUS_EVENT || eventName == GOTFOCUS_EVENT)
         UpdateCurrentItem();
+    }
+
+    public override void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
+    {
+      base.AddPotentialFocusableElements(startingRect, elements);
+      if (RestoreFocus && _restoreFocusElement != null && elements.Contains(_restoreFocusElement))
+      {
+        elements.Clear();
+        elements.Add(_restoreFocusElement);
+      }
     }
 
     /// <summary>
@@ -582,6 +607,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ISelectableItemContainer container = element as ISelectableItemContainer;
         if (container != null)
           container.Selected = true; // Triggers an update of our _lastSelectedItem
+        _restoreFocusElement = focusedElement;
       }
       if (newCurrentItem != lastCurrentItem)
       {
