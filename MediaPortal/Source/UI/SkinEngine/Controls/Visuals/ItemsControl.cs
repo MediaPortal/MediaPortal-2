@@ -449,10 +449,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void AddPotentialFocusableElements(RectangleF? startingRect, ICollection<FrameworkElement> elements)
     {
-      if (RestoreFocus && _restoreFocusElement != null)
+      base.AddPotentialFocusableElements(startingRect, elements);
+      if (RestoreFocus && _restoreFocusElement != null && elements.Contains(_restoreFocusElement))
+      {
+        elements.Clear();
         elements.Add(_restoreFocusElement);
-      else
-        base.AddPotentialFocusableElements(startingRect, elements);
+      }
     }
 
     /// <summary>
