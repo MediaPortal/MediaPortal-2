@@ -552,7 +552,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <DockPanel x:Name="ItemGroup">
             <Button Style="{ThemeResource ButtonWideStyle}" Margin="20,2,5,2" DockPanel.Dock="Center"
-                    Command="{DynamicResource ResourceKey=Menu_Command}"
+                    Command="{DynamicResource ResourceKey=Menu_Command}" IsEnabled="{Binding Enabled}"
                     SetFocus="{Binding Path=Selected,Mode=OneTime}">
               <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">

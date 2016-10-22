@@ -73,6 +73,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="Loop scroll test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-loopscroll}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="List restore focus test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-listview-restore-focus}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <DockPanel LastChildFill="False">
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="List restore focus test"
+        Color="{ThemeResource TextColor}" Wrap="True"/>
+    <Label DockPanel.Dock="Top" HorizontalAlignment="Center"
+        Content="This screen shows two different list views. The left uses normal focus handling, the right uses 'RestoreFocus'. When focus moves back into the list, the left list should focus the closest item, the right list should focus the item that last had the focus."
+        Wrap="True" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    <Grid x:Name="ContentPanel" DockPanel.Dock="Center" SetFocusPrio="DefaultHigh"
+        HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="400"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="400"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <ListView x:Name="NoRestore" Grid.Column="0" Grid.Row="0" Style="{ThemeResource MenuListViewStyle}"
+       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <ListViewItem>A</ListViewItem>
+        <ListViewItem>B</ListViewItem>
+        <ListViewItem>C</ListViewItem>
+        <ListViewItem>D</ListViewItem>
+        <ListViewItem>E</ListViewItem>
+      </ListView>
+
+      <ListView x:Name="TestLoop" Grid.Column="2" Grid.Row="0" Style="{ThemeResource MenuListViewStyle}"
+       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" RestoreFocus="True">
+        <ListViewItem>A</ListViewItem>
+        <ListViewItem>B</ListViewItem>
+        <ListViewItem>C</ListViewItem>
+        <ListViewItem>D</ListViewItem>
+        <ListViewItem>E</ListViewItem>
+      </ListView>
+
+    </Grid>
+  </DockPanel>
+
+</Screen>
