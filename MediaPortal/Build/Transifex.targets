@@ -12,7 +12,7 @@
 
     <!-- Transifex Client -->
     <TransifexClientExePath>$(TransifexDir)\tx.exe</TransifexClientExePath>
-    <TransifexClientDownloadUrl>http://files.transifex.com/transifex-client/0.10/tx.exe</TransifexClientDownloadUrl>
+    <TransifexClientDownloadUrl>http://files.transifex.com/transifex-client/0.11/tx.exe</TransifexClientDownloadUrl>
 
     <!-- Transifex Helper -->
     <TransifexHelperDir Condition="$(TransifexHelperDir) == ''">$(ProjectRoot)\Tools\TransifexHelper</TransifexHelperDir>

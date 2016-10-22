@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -159,11 +160,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public int Count
     {
-      get
-      {
-        lock (_syncObj)
-          return _elements.Count;
-      }
+      get { return _elements.Count; }
     }
 
     public bool IsReadOnly

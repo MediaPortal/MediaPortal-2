@@ -455,7 +455,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       DeallocateCursor();
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          cursorBounds.Left - 0.5f, cursorBounds.Top - 0.5f, cursorBounds.Right - 0.5f, cursorBounds.Bottom - 0.5f,
+          cursorBounds.Left /*- 0.5f*/, cursorBounds.Top /*- 0.5f*/, cursorBounds.Right /*- 0.5f*/, cursorBounds.Bottom /*- 0.5f*/,
           0, 0, 0, 0, zPos, Color);
 
       if (_cursorBrushInvalid && _cursorBrush != null)

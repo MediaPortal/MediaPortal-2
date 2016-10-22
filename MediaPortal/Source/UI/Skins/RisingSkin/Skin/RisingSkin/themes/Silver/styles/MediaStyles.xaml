@@ -115,7 +115,7 @@
                         </RadialGradientBrush>
                       </Border.Background>
                       <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                        Value="{Binding Path=PercentPlayed}"/>
+                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
                     </Border>
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 
@@ -274,7 +274,7 @@
                         </RadialGradientBrush>
                       </Border.Background>
                       <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                        Value="{Binding Path=PercentPlayed}"/>
+                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
                     </Border>
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="2" Grid.Row="0" 

@@ -31,11 +31,13 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
   public abstract class AbstractSortByComparableValueAttribute<T> : Sorting where T : struct , IComparable<T>
   {
     protected string _displayName;
+    protected string _groupByDisplayName;
     protected MediaItemAspectMetadata.AttributeSpecification _sortAttr;
 
-    protected AbstractSortByComparableValueAttribute(string displayName, MediaItemAspectMetadata.AttributeSpecification sortAttr)
+    protected AbstractSortByComparableValueAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.AttributeSpecification sortAttr)
     {
       _displayName = displayName;
+      _groupByDisplayName = groupByDisplayName;
       _sortAttr = sortAttr;
     }
 
@@ -56,6 +58,22 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         return ObjectUtils.Compare(valX, valY);
       }
       return 0;
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return _groupByDisplayName; }
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      MediaItemAspect aspect;
+      Guid aspectId = _sortAttr.ParentMIAM.AspectId;
+      if (item.Aspects.TryGetValue(aspectId, out aspect))
+      {
+        return aspect.GetAttributeValue(_sortAttr);
+      }
+      return null;
     }
   }
 }

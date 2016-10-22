@@ -2105,7 +2105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       col.Alpha *= (float) Opacity;
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left /*- 0.5f*/, bounds.Top /*- 0.5f*/, bounds.Right /*- 0.5f*/, bounds.Bottom /*- 0.5f*/,
           bounds.Left / width, bounds.Top / height, bounds.Right / width, bounds.Bottom / height,
           zPos, col);
 
@@ -2156,7 +2156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       col.Alpha *= (float) Opacity;
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left /*- 0.5f*/, bounds.Top /*- 0.5f*/, bounds.Right /*- 0.5f*/, bounds.Bottom /*- 0.5f*/,
           0.0f, 0.0f, 1.0f, 1.0f,
           zPos, col);
 

@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="Controls\EpgGrid.cs" />
     <Compile Include="Controls\SlimTvDateFormatConverter.cs" />
+    <Compile Include="Controls\SlimTvGuideTimeFormatConverter.cs" />
     <Compile Include="Extensions\ExtendedSchedule.cs" />
     <Compile Include="Extensions\ProgramExample.cs" />
     <Compile Include="Helpers\ChannelContext.cs" />
@@ -176,7 +177,6 @@
     <Content Include="Skin\default\screens\CurrentlyPlayingTv.xaml" />
     <Content Include="Skin\default\screens\FullScreenContentTv.xaml" />
     <Content Include="Language\strings_en.xml" />
-    <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml" />
     <Content Include="Skin\default\screens\SlimTvClient-guide.xaml" />
     <Content Include="Skin\default\screens\ProgramInfo.inc" />
     <Content Include="Skin\default\screens\DialogProgramActions.xaml" />
@@ -452,6 +452,71 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\superlayers\ChannelZapOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\MediaItemRecordingDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListRecordingDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\ProgramInfoMain.inc" />
+    <Content Include="Skin\WMCSkin\screens\ProgramInfoSchedule.inc" />
+    <Content Include="Skin\WMCSkin\screens\ProgramInfo.inc" />
+    <Content Include="Skin\WMCSkin\screens\ProgramInfoSlim.inc" />
+    <Content Include="Skin\WMCSkin\screens\SlimTvClient-fullguide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\SlimTvColors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\SlimTvConsts.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\SlimTvStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SlimTvClient-guide.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SlimTvClient-schedulelist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SlimTvClient-programsearch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SlimTvClient-extschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SlimTvClient-main.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\RecordingsShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

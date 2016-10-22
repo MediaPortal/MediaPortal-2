@@ -12,6 +12,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     public const string SCROLL_EVENT = "AnimatedScrollContentPresenter.Scroll";
     protected AbstractProperty _scrollOffsetMultiplierProperty;
+    protected AbstractProperty _enableAnimationsProperty;
     protected float _startOffsetX;
     protected float _startOffsetY;
     protected float _diffOffsetX;
@@ -23,17 +24,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Attach();
     }
 
-    protected new void Init()
+    void Init()
     {
       _scrollOffsetMultiplierProperty = new SProperty(typeof(double), 0d);
+      _enableAnimationsProperty = new SProperty(typeof(bool), true);
     }
 
-    protected new void Attach()
+    void Attach()
     {
       _scrollOffsetMultiplierProperty.Attach(OnMultiplierChanged);
     }
 
-    protected new void Detach()
+    void Detach()
     {
       _scrollOffsetMultiplierProperty.Detach(OnMultiplierChanged);
     }
@@ -44,6 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       var ascp = (AnimatedScrollContentPresenter)source;
       ScrollOffsetMultiplier = ascp.ScrollOffsetMultiplier;
+      EnableAnimations = ascp.EnableAnimations;
       Attach();
     }
 
@@ -58,8 +61,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _scrollOffsetMultiplierProperty.SetValue(value); }
     }
 
+    public AbstractProperty EnableAnimationsProperty
+    {
+      get { return _enableAnimationsProperty; }
+    }
+
+    public bool EnableAnimations
+    {
+      get { return (bool)_enableAnimationsProperty.GetValue(); }
+      set { _enableAnimationsProperty.SetValue(value); }
+    }
+
     public override void SetScrollOffset(float scrollOffsetX, float scrollOffsetY)
     {
+      if (!EnableAnimations)
+      {
+        base.SetScrollOffset(scrollOffsetX, scrollOffsetY);
+        return;
+      }
       _startOffsetX = _scrollOffsetX;
       _startOffsetY = _scrollOffsetY;
       _diffOffsetX = scrollOffsetX - _startOffsetX;

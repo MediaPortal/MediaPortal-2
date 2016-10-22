@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    x:Name="ImageBackgroundScreen"
+    >
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <mp_special_controls:PlayerControl x:Name="BackgroundImage" Grid.Column="0" Grid.Row="0"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Image Stretch="Uniform" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" SkinNeutralAR="True">
+          <Image.Source>
+            <ImagePlayerImageSource Stream="0"
+                Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
+                TransitionInOut="False" />
+          </Image.Source>
+        </Image>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
+        
+    <Grid Grid.Column="0" Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDRightMargin}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDBottomMargin}"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Control x:Name="BackgroundPiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"/>
+    </Grid>
+  </Grid>
+</Screen>

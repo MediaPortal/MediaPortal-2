@@ -1,0 +1,482 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{874401F8-1283-4C20-8EFA-FD0EE7AD53A8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.UiComponents.WMCSkin</RootNamespace>
+    <AssemblyName>WMCSkin</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Actions\SkinSettingsAction.cs" />
+    <Compile Include="Controls\HomeMenuContentPresenter.cs" />
+    <Compile Include="Controls\SubItemsContentPresenter.cs" />
+    <Compile Include="Converters\ItemsListActionFilter.cs" />
+    <Compile Include="Models\HomeMenuActionProxy.cs" />
+    <Compile Include="Models\HomeMenuModel.cs" />
+    <Compile Include="Models\NavigationList.cs" />
+    <Compile Include="Models\NestedItem.cs" />
+    <Compile Include="Models\SkinSettingsModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
+    <Compile Include="Settings\SkinChangeMonitor.cs" />
+    <Compile Include="Settings\WMCSkinSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="Skin\WMCSkin\fonts\default-font.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4EFocus.png" />
+    <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4ENofocus.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer3.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer4.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer5.png" />
+    <Content Include="Skin\WMCSkin\images\Effects\Layer6.png" />
+    <Content Include="Skin\WMCSkin\images\HOME.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\HOME.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\DIVIDER.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GOBACK.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GOBACK.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GOBACK.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GOBACK.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MENU.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MINUS.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MINUS.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MINUS.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTE.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTE.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTE.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTEON.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTEON.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\MUTEON.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLAY.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLAY.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLAY.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLAY.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLUS.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLUS.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PLUS.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\STARTMENU.LAUNCH.SKITTLE.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\preview.png" />
+    <Content Include="Skin\WMCSkin\images\RECORD.SERIES.PNG" />
+    <Content Include="Skin\WMCSkin\images\RECORD.SINGLE.PNG" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\0.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\1.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\10.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\11.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\12.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\13.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\14.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\15.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\16.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\17.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\18.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\19.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\2.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\20.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\21.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\22.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\23.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\24.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\25.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\26.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\27.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\28.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\29.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\3.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\30.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\31.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\32.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\33.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\34.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\35.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\36.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\37.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\38.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\39.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\4.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\40.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\41.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\42.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\43.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\44.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\45.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\46.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\47.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\5.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\6.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\7.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\8.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\9.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\na.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\permission.txt" />
+    <Content Include="Skin\WMCSkin\images\Weather\128x128\WEATHERALERT.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\0.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\1.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\10.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\11.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\12.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\13.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\14.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\15.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\16.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\17.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\18.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\19.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\2.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\20.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\21.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\22.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\23.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\24.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\25.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\26.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\27.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\28.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\29.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\3.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\30.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\31.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\32.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\33.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\34.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\35.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\36.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\37.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\38.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\39.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\4.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\40.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\41.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\42.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\43.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\44.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\45.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\46.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\47.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\5.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\6.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\7.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\8.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\9.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\na.png" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\permission.txt" />
+    <Content Include="Skin\WMCSkin\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\WMCSkin\screens\LatestMedia.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListImageDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListAudioDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemAudioDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemImageDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemListOthersDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemOthersDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListSeriesDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemSeriesDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MultiListDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MultiDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\weather.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
+    <Content Include="Skin\WMCSkin\skin.xml" />
+    <Content Include="Skin\WMCSkin\themes\default\images\FilterLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\FilterSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\VideoLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\VideoSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\AudioLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\AudioSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\NavigationLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\NavigationSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\ImageLarge.png" />
+    <Content Include="Skin\WMCSkin\themes\default\images\ImageSmall.png" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Colors.xaml" />
+    <Content Include="Skin\WMCSkin\workflow\wmc-actions.xml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Consts.xaml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\default\images\preview.png" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\OtherControlsOverrides.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\theme.xml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Buttons.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="Skin\WMCSkin\fonts\eurof55.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\EuroFurence.desc" />
+    <Content Include="Skin\WMCSkin\fonts\mayatypeui.desc" />
+    <Content Include="Skin\WMCSkin\fonts\mayatypelight.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\mayatypeui.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\mayatypeuitvg.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\RitzyNormal.desc" />
+    <Content Include="Skin\WMCSkin\fonts\RitzyNormal.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\SansBetween.desc" />
+    <Content Include="Skin\WMCSkin\fonts\SansBetween.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\SketchyTimes.desc" />
+    <Content Include="Skin\WMCSkin\fonts\SketchyTimes.ttf" />
+    <None Include="Skin\WMCSkin\fonts\seguisb.ttf" />
+    <Content Include="Skin\WMCSkin\fonts\seguisb.desc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\home.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_home.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_homemenu.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\AnalogClock.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\OSD.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Graphics.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_bare.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\default\styles\MediaStyles.xaml" />
+    <Content Include="Skin\WMCSkin\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\default\styles\MediaConsts.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_menu.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Incubator\HomeEditor\HomeEditor.csproj">
+      <Project>{8a94cde9-eda2-4dd7-b860-0421e578055c}</Project>
+      <Name>HomeEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
+      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
+      <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
+      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
+      <Name>SkinBase</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\master_dialog_bare.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\master_mediamenu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SimpleShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\SimpleFilterItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\video-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\configuration-section.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\BusyCursor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\superlayers\SkipStepOSD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\image-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\backgrounds\default-background.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\shares_config_choose_system.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\shares_config_remove_shares.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\dialogSystemState.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\SystemStateStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\WeatherStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\NewsFeeds.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\NewsItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\NewsStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\Animations.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+  <Import Project="..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets'))" />
+  </Target>
+</Project>

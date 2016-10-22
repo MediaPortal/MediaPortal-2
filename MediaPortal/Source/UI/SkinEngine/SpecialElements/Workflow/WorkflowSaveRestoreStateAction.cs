@@ -3,19 +3,15 @@
 /*
     Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
-
     This file is part of MediaPortal 2
-
     MediaPortal 2 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     MediaPortal 2 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -51,7 +47,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
 
     public void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      WorkflowSaveRestoreStateAction w = (WorkflowSaveRestoreStateAction) source;
+      WorkflowSaveRestoreStateAction w = (WorkflowSaveRestoreStateAction)source;
       _targetObject = copyManager.GetCopy(w._targetObject);
     }
 
@@ -80,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
       {
         // Mapping of context variable name -> UI state
         IDictionary<string, IDictionary<string, object>> state =
-            (IDictionary<string, IDictionary<string, object>>) _context.GetContextVariable(_contextVariable, false);
+            (IDictionary<string, IDictionary<string, object>>)_context.GetContextVariable(_contextVariable, false);
         if (state == null)
           return;
         Screen screen = targetElement.Screen;
@@ -105,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Workflow
 
         // Mapping of context variable name -> UI state
         IDictionary<string, IDictionary<string, object>> state =
-            (IDictionary<string, IDictionary<string, object>>) _context.GetContextVariable(_contextVariable, false) ??
+            (IDictionary<string, IDictionary<string, object>>)_context.GetContextVariable(_contextVariable, false) ??
             new Dictionary<string, IDictionary<string, object>>(10);
         Screen screen = targetElement.Screen;
         string screenName = screen == null ? "ScreenState" : screen.ResourceName;

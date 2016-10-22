@@ -371,6 +371,27 @@
   <string name="Media.SortByEpisode">Sort by episode</string>
   <string name="Media.SortingBrowseDefault">Default sorting</string>
 
+  <string name="Media.SwitchGroupingMenuItem">Grouping</string>
+  <string name="Media.SwitchGroupingDialogTitle">Grouping</string>
+  <string name="Media.NoGrouping">No grouping</string>
+  <string name="Media.GroupByTitle">Group by title</string>
+  <string name="Media.GroupByAlbumTrack">Group by album and track</string>
+  <string name="Media.GroupByGenre">Group by genre</string>
+  <string name="Media.GroupByAlbum">Group by album and title</string>
+  <string name="Media.GroupByTrack">Group by track</string>
+  <string name="Media.GroupByArtist">Group by artist</string>
+  <string name="Media.GroupByYear">Group by year</string>
+  <string name="Media.GroupBySize">Group by size</string>
+  <string name="Media.GroupBySystem">Group by system</string>
+  <string name="Media.GroupByActor">Group by actor</string>
+  <string name="Media.GroupByDirector">Group by director</string>
+  <string name="Media.GroupByWriter">Group by writer</string>
+  <string name="Media.GroupByDuration">Group by duration</string>
+  <string name="Media.GroupByAspectRatio">Group by aspect ratio</string>
+  <string name="Media.GroupByFirstAiredDate">Group by aired date</string>
+  <string name="Media.GroupByDate">Group by recording date</string>
+  <string name="Media.GroupByEpisode">Group by episode</string>
+
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter</string>
 

@@ -10,7 +10,7 @@
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Mobiltelefon/SMS-Eingabestil verwenden</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Bildschirmschoner aktivieren</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Legt fest, ob der Bildschirmschoner verwendet werden soll</string>
-  <string name="Settings.Appearance.System.ScreenSaverTimeout">Wartezeit für Bildschirmschoner</string>
+  <string name="Settings.Appearance.System.ScreenSaverTimeout">Bildschirmschoner-Zeitüberschreitung</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Legt die Zeitspanne seit der letzen Benutzereingabe in Minuten fest, nach der der Bildschirmschoner angezeigt wird</string>
   <string name="Settings.Appearance.System.Antialiasing">GUI-Kantenglättung</string>
   <string name="Settings.Appearance.System.Antialiasing.Help">Kantenglättung verbessert die Darstellung der Oberfläche, kann aber die Performance der Videowiedergabe beeinflussen</string>
@@ -20,12 +20,12 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Ändert das Aussehen und Verhalten von MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Thema wechseln</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Ändert das Aussehen der aktuellen Oberfläche</string>
-  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Oberflächentöne aktivieren</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Sound-Effekte des Skin aktivieren</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">Legt fest, ob Oberflächentöne abgespielt werden sollen</string>
   <string name="Settings.Players">Abspieler</string>
   <string name="Settings.Players.Rendering">Ausgabe</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Standard-Ansichtsverhältnis</string>
-  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Legt das Ansichtsverhältnis fest, mit dem der Video-Player standardmäßig startet</string>
+  <string name="Settings.Players.Rendering.DefaultGeometry.Help">Legt das Standard-Ansichtsverhältnis des Video-Players fest</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Windows-Energieoptionen konfigurieren</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.Help">Deaktiviert das automatische Herunterfahren/Energiesparen bzw. die Bildschirmabschaltung während MediaPortal 2 läuft</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.None">Alle Energiesparstufen zulassen</string>

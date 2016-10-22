@@ -338,93 +338,93 @@
     </Setter>
   </Style>
 
-  <Style x:Key="ProgramGuideButtonControlStyle" TargetType="{x:Type Control}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="#E0101010" Stroke="{ThemeResource ButtonStrokeColor}"/>
-            <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
-            <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
-          </DockPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
+    <Style x:Key="ProgramGuideButtonControlStyle" TargetType="{x:Type Control}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <DockPanel Name="ButtonControlRectangle">
+                        <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="#E0101010" Stroke="{ThemeResource ButtonStrokeColor}"/>
+                        <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
+                        <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <!--
+    <!--
   ProgramGuideButtonStyle is used as style for a single Program in MultiChannelGuide
   It's basically the DefaultButtonStyle without the Margin for ButtonControlStyle, 
   which would lead to incorrect Layout for short Programs (minimum Width).
   -->
-  <Style x:Key="ProgramGuideButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="3,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="tvguide_recordserie_button.png" IsVisible="False"
+    <Style x:Key="ProgramGuideButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </TransformGroup>
+                        </Grid.RenderTransform>
+                        <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                        <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="3,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="tvguide_recordserie_button.png" IsVisible="False"
                    Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <!-- Handling of different program states -->
-            <DataTrigger Binding="{Binding IsRunning}" Value="True">
-              <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Program.IsScheduled}" Value="True">
-              <Setter TargetName="ButtonOverlay" Property="Fill" Value="{ThemeResource ProgramScheduledFill}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
-              <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
-            </DataTrigger>
-            <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="ButtonHover" Property="Fill" Value="{ThemeResource FocusedButtonGradient3Color}"/>
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!-- Handling of different program states -->
+                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                            <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Program.IsScheduled}" Value="True">
+                            <Setter TargetName="ButtonOverlay" Property="Fill" Value="{ThemeResource ProgramScheduledFill}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
+                            <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                        <Trigger Property="HasFocus" Value="True">
+                            <Setter TargetName="ButtonHover" Property="Fill" Value="{ThemeResource FocusedButtonGradient3Color}"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
+                                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
+                                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-  <!-- An item list container represented by a ProgramGuideButtonStyle, scrolling its "ItemLabel" label when focused -->
+    <!-- An item list container represented by a ProgramGuideButtonStyle, scrolling its "ItemLabel" label when focused -->
   <Style x:Key="ProgramGuideItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
@@ -734,7 +734,7 @@
       <Setter.Value>
         <ControlTemplate>
           <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Binding Command}">
-            <Grid x:Name="ChannelHeader" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+            <Grid x:Name="ChannelHeader" RenderTransformOrigin="0.5,0.5">
               <Grid.ColumnDefinitions>
                 <!-- Channel Logo -->
                 <ColumnDefinition Width="{ThemeResource ChannelLogoSmall}"/>
@@ -750,7 +750,7 @@
                 </TransformGroup>
               </Grid.RenderTransform>
 
-              <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Stretch="Uniform">
+              <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoSmall}" Stretch="Uniform" Margin="0,4,0,0">
                 <Image.Source>
                   <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                 </Image.Source>

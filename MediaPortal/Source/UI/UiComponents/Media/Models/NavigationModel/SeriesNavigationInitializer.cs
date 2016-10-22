@@ -66,6 +66,16 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SortByDate(),
         new SortBySystem(),
       };
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+      {
+        //_defaultGrouping,
+        new SeriesSortByEpisode(),
+        new SortByTitle(),
+        new SortByFirstAiredDate(),
+        new SortByDate(),
+        new SortBySystem(),
+      };
     }
   }
 }

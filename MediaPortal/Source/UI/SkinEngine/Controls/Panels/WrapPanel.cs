@@ -104,6 +104,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected AbstractProperty _orientationProperty;
     protected AbstractProperty _loopScrollProperty;
+    protected AbstractProperty _scrollMarginProperty;
     protected float _totalHeight;
     protected float _totalWidth;
 
@@ -117,6 +118,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected int _actualFirstVisibleLineIndex = 0;
     protected int _actualLastVisibleLineIndex = -1;
     protected int _originalFirstVisibleChildIndex = 0;
+
+    //Includes additional lines that are rendered within the scroll margin
+    protected int _actualFirstRenderedLineIndex;
+    protected int _actualLastRenderedLineIndex;
 
     protected float _pendingPhysicalOffset = 0;
     protected float _actualPhysicalOffset = 0;
@@ -142,16 +147,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       _orientationProperty = new SProperty(typeof(Orientation), Orientation.Horizontal);
       _loopScrollProperty = new SProperty(typeof(bool), false);
+      _scrollMarginProperty = new SProperty(typeof(Thickness), new Thickness());
     }
 
     void Attach()
     {
       _orientationProperty.Attach(OnCompleteLayoutGetsInvalid);
+      _scrollMarginProperty.Attach(OnMeasureGetsInvalid);
     }
 
     void Detach()
     {
       _orientationProperty.Detach(OnCompleteLayoutGetsInvalid);
+      _scrollMarginProperty.Detach(OnMeasureGetsInvalid);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -161,6 +169,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       WrapPanel p = (WrapPanel) source;
       Orientation = p.Orientation;
       LoopScroll = p.LoopScroll;
+      ScrollMargin = p.ScrollMargin;
       Attach();
     }
 
@@ -191,6 +200,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _loopScrollProperty.SetValue(value); }
     }
 
+    public AbstractProperty ScrollMarginProperty
+    {
+      get { return _scrollMarginProperty; }
+    }
+    
+    public Thickness ScrollMargin
+    {
+      get { return (Thickness)_scrollMarginProperty.GetValue(); }
+      set { _scrollMarginProperty.SetValue(value); }
+    }
+
     #region Layouting
 
     /// <summary>
@@ -214,10 +234,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       float offset = (float)(lineIndex % 1);
       lock (_renderLock)
       {
-        if (_pendingScrollIndex == lineIndex && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
+        if (_pendingScrollIndex == index && _pendingPhysicalOffset == offset && _scrollToFirst == first ||
             (!_pendingScrollIndex.HasValue && _actualPhysicalOffset == offset &&
-             ((_scrollToFirst && _actualFirstVisibleLineIndex == lineIndex) ||
-              (!_scrollToFirst && _actualLastVisibleLineIndex == lineIndex))))
+             ((_scrollToFirst && _actualFirstVisibleLineIndex == index) ||
+              (!_scrollToFirst && _actualLastVisibleLineIndex == index))))
           return;
         _pendingScrollIndex = index;
         _pendingPhysicalOffset = offset;
@@ -357,9 +377,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         float actualExtendsInOrientationDirection = GetExtendsInOrientationDirection(Orientation, actualSize);
         // For Orientation == vertical, this is ActualWidth, for horizontal it is ActualHeight
         float actualExtendsInNonOrientationDirection = GetExtendsInNonOrientationDirection(Orientation, actualSize);
+        //Determing scroll margins in scroll direction
+        float scrollMarginBefore;
+        float scrollMarginAfter;
+        GetScrollMargin(out scrollMarginBefore, out scrollMarginAfter);
         // Hint: We cannot skip the arrangement of lines above _actualFirstVisibleLineIndex or below _actualLastVisibleLineIndex
         // because the rendering and focus system also needs the bounds of the currently invisible children
-        float startPosition = 0;
+        float startPosition = scrollMarginBefore;
 
         //Percentage of child size to offset child positions
         float physicalOffset = _actualPhysicalOffset;
@@ -398,7 +422,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // 1) Calculate scroll indices
         if (_doScroll)
         { // Calculate last visible child
-          float spaceLeft = actualExtendsInNonOrientationDirection;
+          //Substract scroll margins from avalable space, additional items in the margin will be added later
+          float spaceLeft = actualExtendsInNonOrientationDirection - scrollMarginBefore - scrollMarginAfter;
           if (invertLayouting)
           {
             CalcHelper.Bound(ref _actualLastVisibleLineIndex, 0, _arrangedLines.Count - 1);
@@ -475,6 +500,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           _actualLastVisibleLineIndex = _arrangedLines.Count - 1;
         }
 
+        _actualFirstRenderedLineIndex = _actualFirstVisibleLineIndex;
+        _actualLastRenderedLineIndex = _actualLastVisibleLineIndex;
+        //calculate additional lines in the scroll margin
+        float inactiveSpaceLeft = scrollMarginBefore;
+        while (_actualFirstRenderedLineIndex > 0)
+        {
+          inactiveSpaceLeft -= _arrangedLines[_actualFirstRenderedLineIndex - 1].TotalExtendsInNonOrientationDirection;
+          if (inactiveSpaceLeft + DELTA_DOUBLE < 0)
+            break;
+          _actualFirstRenderedLineIndex--;
+        }
+        inactiveSpaceLeft = scrollMarginAfter;
+        while (_actualLastRenderedLineIndex < _arrangedLines.Count - 1)
+        {
+          inactiveSpaceLeft -= _arrangedLines[_actualLastRenderedLineIndex + 1].TotalExtendsInNonOrientationDirection;
+          if (inactiveSpaceLeft + DELTA_DOUBLE < 0)
+            break;
+          _actualLastRenderedLineIndex++;
+        }
+
         // 2) Calculate start position
         for (int i = 0; i < _actualFirstVisibleLineIndex; i++)
         {
@@ -509,11 +554,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
       else
       {
-        _actualFirstVisibleLineIndex = 0;
-        _actualLastVisibleLineIndex = -1;
+        _actualFirstVisibleLineIndex = _actualFirstRenderedLineIndex = 0;
+        _actualLastVisibleLineIndex = _actualLastRenderedLineIndex = -1;
       }
       if (fireScrolled)
         InvokeScrolled();
+    }
+
+    protected void GetScrollMargin(out float widthBefore, out float widthAfter)
+    {
+      Thickness thickness = ScrollMargin ?? new Thickness();
+      if (Orientation == Orientation.Vertical)
+      {
+        widthBefore = thickness.Left;
+        widthAfter = thickness.Right;
+      }
+      else
+      {
+        widthBefore = thickness.Top;
+        widthAfter = thickness.Bottom;
+      }
     }
 
     protected void InvokeScrolled()
@@ -804,7 +864,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       object first;
       int? iFirst;
       if (state.TryGetValue(prefix + "/FirstVisibleLine", out first) && (iFirst = first as int?).HasValue)
-        SetScrollIndex(iFirst.Value, true);
+        SetPartialScrollIndex(iFirst.Value, true);
     }
 
     #endregion
@@ -813,11 +873,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override IEnumerable<FrameworkElement> GetRenderedChildren()
     {
-      if (_actualFirstVisibleLineIndex < 0 || _actualLastVisibleLineIndex < _actualFirstVisibleLineIndex)
+      if (_actualFirstRenderedLineIndex < 0 || _actualLastRenderedLineIndex < _actualFirstRenderedLineIndex)
         return new List<FrameworkElement>();
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-      int start = _arrangedLines[_actualFirstVisibleLineIndex].StartIndex;
-      int end = _arrangedLines[_actualLastVisibleLineIndex].EndIndex;
+      int start = _arrangedLines[_actualFirstRenderedLineIndex].StartIndex;
+      int end = _arrangedLines[_actualLastRenderedLineIndex].EndIndex;
       return visibleChildren.Skip(start).Take(end - start + 1);
     }
 

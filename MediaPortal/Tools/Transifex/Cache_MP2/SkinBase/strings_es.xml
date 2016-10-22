@@ -101,6 +101,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Modo de zoom</string>
   <string name="Players.ChoosePlayerEffect">Efecto</string>
+  <string name="Players.ChoosePlayerSubtitle">Subtítulo</string>
   <string name="Settings.Appearance">Aspecto</string>
   <string name="Settings.Appearance.Skin">Piel</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Formato de la fecha</string>

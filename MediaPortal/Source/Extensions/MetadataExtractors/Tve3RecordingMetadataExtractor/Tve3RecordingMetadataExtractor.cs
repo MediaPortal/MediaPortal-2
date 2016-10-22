@@ -175,6 +175,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     static Tve3RecordingMetadataExtractor()
     {
+      MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Video);
 
       // All non-default media item aspects must be registered

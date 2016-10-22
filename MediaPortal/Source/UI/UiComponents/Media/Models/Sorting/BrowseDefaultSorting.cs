@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -38,6 +39,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public override string DisplayName
     {
       get { return Consts.RES_SORTING_BROWSE_DEFAULT; }
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return String.Empty; }
     }
 
     public override int Compare(MediaItem x, MediaItem y)
@@ -91,6 +97,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     protected int CompareDifferentTypes(MediaItemAspect aspectX, MediaItemAspect aspectY)
     {
       return aspectX != null ? 1 : -1;
+    }
+
+    public override object GetGroupByValue(MediaItem item)
+    {
+      return null;
     }
   }
 }

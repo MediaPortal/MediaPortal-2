@@ -35,5 +35,10 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       get { return Consts.RES_SORT_BY_GENRE; }
     }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_GENRE; }
+    }
   }
 }

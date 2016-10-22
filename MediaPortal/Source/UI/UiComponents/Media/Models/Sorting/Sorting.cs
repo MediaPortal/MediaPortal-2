@@ -30,6 +30,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
   public abstract class Sorting : IComparer<MediaItem>
   {
     public abstract string DisplayName { get; }
+    public abstract string GroupByDisplayName { get; }
     public abstract int Compare(MediaItem x, MediaItem y);
+    public abstract object GetGroupByValue(MediaItem item);
   }
 }

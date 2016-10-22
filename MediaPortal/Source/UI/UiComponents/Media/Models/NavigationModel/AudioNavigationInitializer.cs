@@ -72,6 +72,20 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new SortByYear(),
           new SortBySystem(),
         };
+
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new AudioSortByAlbumTrack(),
+          new SortByTitle(),
+          new AudioSortByFirstGenre(),
+          new AudioSortByFirstArtist(),
+          new AudioSortByAlbum(),
+          new AudioSortByTrack(),
+          new SortByYear(),
+          new SortBySystem(),
+        };
     }
   }
 }

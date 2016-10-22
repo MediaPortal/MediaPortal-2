@@ -479,12 +479,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public void Tune(IChannel channel)
     {
-      // Avoid subsequent tune requests to same channel, it will only cause delays.
-      if (ChannelContext.IsSameChannel(channel, _lastTunedChannel))
-        return;
-
       // Specical case of this model, which is also used as normal backing model for OSD, where no WorkflowManager action was performed.
       if (!_isInitialized) InitModel();
+
+      // Avoid subsequent tune requests to same channel, it will only cause delays.
+      if (ChannelContext.IsSameChannel(channel, _tvHandler.GetChannel(SlotIndex)))
+        return;
 
       if (SlotPlayer != null)
         SlotPlayer.Pause();

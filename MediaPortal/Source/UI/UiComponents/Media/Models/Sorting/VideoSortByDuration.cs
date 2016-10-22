@@ -29,6 +29,6 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortByDuration : AbstractSortByComparableValueAttribute<long>
   {
-    public VideoSortByDuration() : base(Consts.RES_SORT_BY_DURATION, VideoAspect.ATTR_DURATION) {}
+    public VideoSortByDuration() : base(Consts.RES_SORT_BY_DURATION, Consts.RES_GROUP_BY_DURATION, VideoAspect.ATTR_DURATION) { }
   }
 }

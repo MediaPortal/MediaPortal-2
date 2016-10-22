@@ -48,8 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   {
     public const string MODEL_ID_STR = "5054408D-C2A9-451f-A702-E84AFCD29C10";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
-
-    protected double _visibleHours;
+    
     protected double _bufferHours = 1.5;
     protected double _programWidthFactor = 6;
     protected double _programsStartOffset = 370;
@@ -59,10 +58,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public SlimTvMultiChannelGuideModel()
     {
       _programActionsDialogName = "DialogProgramActionsFull"; // for MultiChannelGuide we need another dialog
-
-      // User defined layout settings.
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
-      _visibleHours = settings.EpgVisibleHours;
     }
 
     #endregion
@@ -70,6 +65,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #region Protected fields
 
     protected AbstractProperty _guideStartTimeProperty = null;
+    protected AbstractProperty _visibleHoursProperty = null;
     protected AbstractProperty _channelNameProperty = null;
 
     protected DateTime _bufferStartTime;
@@ -78,7 +74,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public DateTime GuideEndTime
     {
-      get { return GuideStartTime.AddHours(_visibleHours); }
+      get { return GuideStartTime.AddHours(VisibleHours); }
     }
 
     #endregion
@@ -128,6 +124,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _guideStartTimeProperty; }
     }
 
+    public double VisibleHours
+    {
+      get { return (double)_visibleHoursProperty.GetValue(); }
+      set { _visibleHoursProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VisibleHoursProperty
+    {
+      get { return _visibleHoursProperty; }
+    }
+
     public void ScrollForward()
     {
       Scroll(TimeSpan.FromDays(1));
@@ -156,6 +163,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         DateTime startDate = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
         _guideStartTimeProperty = new WProperty(typeof(DateTime), startDate);
+        // User defined layout settings.
+        var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+        _visibleHoursProperty = new WProperty(typeof(double), settings.EpgVisibleHours);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
       }
       base.InitModel();
@@ -402,6 +412,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       base.EnterModelContext(oldContext, newContext);
       // Init viewport to start with current time.
       GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      VisibleHours = settings.EpgVisibleHours;
       _bufferStartTime = _bufferEndTime = DateTime.MinValue;
       UpdateChannels();
       UpdatePrograms();

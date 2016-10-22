@@ -104,7 +104,7 @@ namespace MediaPortal.Common.MediaManagement
     /// Returns a resource locator instance for this item.
     /// </summary>
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
-    public IResourceLocator GetResourceLocator()
+    public virtual IResourceLocator GetResourceLocator()
     {
       MediaItemAspect providerAspect;
       if (!_aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerAspect))

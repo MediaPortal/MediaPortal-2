@@ -74,6 +74,21 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new VideoSortByAspectRatio(),
           new SortBySystem(),
         };
+
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new SortByTitle(),
+          new SortByYear(),
+          new VideoSortByFirstGenre(),
+          new VideoSortByDuration(),
+          new VideoSortByFirstActor(),
+          new VideoSortByFirstDirector(),
+          new VideoSortByFirstWriter(),
+          new VideoSortBySize(),
+          new VideoSortByAspectRatio()
+        };
     }
   }
 }

@@ -43,6 +43,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models.Navigation
       MediaItemAspect recordingAspect;
       if (mediaItem.Aspects.TryGetValue(RecordingAspect.ASPECT_ID, out recordingAspect))
       {
+        SimpleTitle = Title;
         Channel = (string)recordingAspect[RecordingAspect.ATTR_CHANNEL];
         StartTime = (DateTime?)recordingAspect[RecordingAspect.ATTR_STARTTIME];
         EndTime = (DateTime?)recordingAspect[RecordingAspect.ATTR_ENDTIME];

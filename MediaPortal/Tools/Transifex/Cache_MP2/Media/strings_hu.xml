@@ -88,7 +88,7 @@
   <string name="Media.MediaItemsHeader">Média elemek</string>
   <string name="Media.VideoItemsHeader">Videók</string>
   <string name="Media.AudioItemsHeader">Audió elemek</string>
-  <string name="Media.SeriesItemsHeader">Epizódok</string>
+  <string name="Media.EpisodeItemsHeader">Epizódok</string>
   <string name="Media.MoviesItemsHeader">Filmek</string>
   <string name="Media.ImageItemsHeader">Képek</string>
   <string name="Media.SimpleSearchHeader">Egyszerű keresés</string>
@@ -121,6 +121,7 @@
   <string name="Media.AudioRootViewName">Audió</string>
   <string name="Media.VideosRootViewName">Videók</string>
   <string name="Media.SeriesRootViewName">Sorozatok</string>
+  <string name="Media.EpisodeRootViewName">Epizód</string>
   <string name="Media.ImagesRootViewName">Képek</string>
   <string name="Media.SimpleSearchViewName">Egyszerű keresés</string>
   <!--General strings used in views-->
@@ -246,4 +247,7 @@
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Engedélyezze ezt a beállítást, hogy a MediaPortal automatikusan bezárja a lejátszókat amikor befejeződött</string>
   <string name="Settings.Players.InstantSkipPercent">Azonnali ugrás százaléka</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Válassza ki, hogy a videó időtartamának hány százalékát kívánja átugrani azonnal</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>
