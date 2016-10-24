@@ -41,17 +41,17 @@ namespace MediaPortal.Mock
     public Guid[] LinkedRoleAspects { get; set; }
     public Guid[] MatchAspects { get; set; }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       string id;
       MockCore.ShowMediaAspects(aspects, MockCore.Library.GetManagedMediaItemAspectMetadata());
       if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalSource, ExternalType, out id) && ExternalId == id)
       {
         ServiceRegistration.Get<ILogger>().Debug("Matched {0} / {1} / {2} / {3} / {4}", Role, LinkedRole, ExternalSource, ExternalType, ExternalId);
-        extractedLinkedAspects = new List<RelationshipItem>();
+        extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
         foreach (IDictionary<Guid, IList<MediaItemAspect>> data in Data)
         {
-          extractedLinkedAspects.Add(new RelationshipItem(data, Guid.Empty));
+          extractedLinkedAspects.Add(data);
         }
         return true;
       }
@@ -104,32 +104,32 @@ namespace MediaPortal.Mock
           string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
           string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
           string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
-          if (searchFilters.Count == 0)
+          searchFilters.Add(new BooleanCombinationFilter(BooleanOperator.And, new[]
           {
-            searchFilters.Add(new BooleanCombinationFilter(BooleanOperator.And, new[]
-            {
-                new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
-                new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
-                new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
-              }));
-          }
-          else
-          {
-            searchFilters[0] = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, searchFilters[0],
-            new BooleanCombinationFilter(BooleanOperator.And, new[]
-            {
-                new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
-                new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
-                new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
-            }));
-          }
+            new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+            new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+            new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id)
+          }));
         }
       }
-      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, searchFilters.ToArray());
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, searchFilters);
     }
 
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
+      ICollection<string> identifiers = new List<string>();
+      IList<MultipleMediaItemAspect> externalAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
+      {
+        foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+        {
+          string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+          string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+          string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+          identifiers.Add(string.Format("{0} | {1} | {2}", source, type, id));
+        }
+      }
+      return identifiers;
     }
   }
 

@@ -22,21 +22,21 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class EpisodeSeasonRelationshipExtractor : ISeriesRelationshipExtractor, IRelationshipRoleExtractor
+  class EpisodeSeasonRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
@@ -73,10 +73,45 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetSeasonSearchFilter(extractedAspects);
+      SingleMediaItemAspect seasonAspect;
+      if (!MediaItemAspect.TryGetAspect(extractedAspects, SeasonAspect.Metadata, out seasonAspect))
+        return null;
+
+      IFilter seasonFilter = RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_SEASON);
+      IFilter seriesFilter = RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_SERIES);
+      if (seriesFilter == null)
+        return seasonFilter;
+
+      int? seasonNumber = seasonAspect.GetAttributeValue<int?>(SeasonAspect.ATTR_SEASON);
+      IFilter seasonNumberFilter = seasonNumber.HasValue ?
+        new RelationalFilter(SeasonAspect.ATTR_SEASON, RelationalOperator.EQ, seasonNumber.Value) : null;
+
+      seriesFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, seriesFilter, seasonNumberFilter);
+
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, seasonFilter, seriesFilter);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      SingleMediaItemAspect seasonAspect;
+      if (!MediaItemAspect.TryGetAspect(extractedAspects, SeasonAspect.Metadata, out seasonAspect))
+        return new List<string>();
+
+      ICollection<string> seasonIdentifiers = RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_SEASON);
+      ICollection<string> seriesIdentifiers = RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_SERIES);
+      if (seriesIdentifiers == null || seriesIdentifiers.Count == 0)
+        return seasonIdentifiers;
+
+      int? seasonNumber = seasonAspect.GetAttributeValue<int?>(SeasonAspect.ATTR_SEASON);
+      string seasonSuffix = seasonNumber.HasValue ? "S" + seasonNumber.Value : string.Empty;
+
+      foreach (string seriesIdentifier in seriesIdentifiers)
+        seasonIdentifiers.Add(seriesIdentifier + seasonSuffix);
+
+      return seasonIdentifiers;
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
@@ -84,16 +119,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      if (CheckCacheContains(episodeInfo))
-        return false;
-
-      SeasonInfo cachedSeason;
-      Guid seasonId;
       SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
-      if (TryGetInfoFromCache(seasonInfo, out cachedSeason, out seasonId))
-        seasonInfo = cachedSeason;
-      else if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateSeason(seasonInfo, importOnly);
+      if (!SeriesMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.Instance.UpdateSeason(seasonInfo, false);
 
       if (seasonInfo.SeriesName.IsEmpty)
         return false;
@@ -101,28 +129,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         seasonInfo.HasChanged = true; //Force save if no relationship exists
 
-      if (!seasonInfo.HasChanged && !importOnly)
+      if (!seasonInfo.HasChanged)
         return false;
 
-      AddToCheckCache(episodeInfo);
-
-      extractedLinkedAspects = new List<RelationshipItem>();
+      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seasonInfo.SetMetadata(seasonAspects);
 
       bool episodeVirtual = true;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out episodeVirtual))
-      {
         MediaItemAspect.SetAttribute(seasonAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
-      }
 
       if (!seasonAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
-      if (seasonId != Guid.Empty)
-        extractedLinkedAspects.Add(new RelationshipItem(seasonAspects, seasonId));
-      else
-        extractedLinkedAspects.Add(new RelationshipItem(seasonAspects, Guid.Empty));
+      extractedLinkedAspects.Add(seasonAspects);
       return true;
     }
 
@@ -157,13 +178,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       index = episodeNums.First();
       return index > 0;
-    }
-
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-      SeasonInfo season = new SeasonInfo();
-      season.FromMetadata(extractedAspects);
-      AddToCache(extractedItemId, season, false);
     }
 
     internal static ILogger Logger

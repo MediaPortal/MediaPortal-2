@@ -22,21 +22,21 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesActorRelationshipExtractor : ISeriesRelationshipExtractor, IRelationshipRoleExtractor
+  class SeriesActorRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
@@ -73,30 +73,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetPersonSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(PersonAspect.ASPECT_ID))
+        return null;
+      return RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      if (!extractedAspects.ContainsKey(PersonAspect.ASPECT_ID))
+        return new List<string>();
+      return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
       if (!SeriesMetadataExtractor.IncludeActorDetails)
         return false;
 
-      if (importOnly)
-        return false;
-
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
-        return false;
-
-      if (CheckCacheContains(seriesInfo))
         return false;
 
       int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.UpdateSeriesPersons(seriesInfo, PersonAspect.OCCUPATION_ACTOR, importOnly);
+        OnlineMatcherService.Instance.UpdateSeriesPersons(seriesInfo, PersonAspect.OCCUPATION_ACTOR, false);
         count = seriesInfo.Actors.Where(p => p.HasExternalId).Count();
         if (!seriesInfo.IsRefreshed)
           seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
@@ -115,10 +118,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seriesInfo.HasChanged)
         return false;
 
-      AddToCheckCache(seriesInfo);
-
-      extractedLinkedAspects = new List<RelationshipItem>();
-      foreach (PersonInfo person in seriesInfo.Actors)
+      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      foreach (PersonInfo person in seriesInfo.Actors.Take(SeriesMetadataExtractor.MaximumActorCount))
       {
         person.AssignNameId();
         person.HasChanged = seriesInfo.HasChanged;
@@ -126,13 +127,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         person.SetMetadata(personAspects);
 
         if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        {
-          Guid existingId;
-          if (TryGetIdFromCache(person, out existingId))
-            extractedLinkedAspects.Add(new RelationshipItem(personAspects, existingId));
-          else
-            extractedLinkedAspects.Add(new RelationshipItem(personAspects, Guid.Empty));
-        }
+            extractedLinkedAspects.Add(personAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }
@@ -172,13 +167,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       index = nameList.IndexOf(name);
       return index >= 0;
-    }
-
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-      PersonInfo person = new PersonInfo();
-      person.FromMetadata(extractedAspects);
-      AddToCache(extractedItemId, person);
     }
 
     internal static ILogger Logger

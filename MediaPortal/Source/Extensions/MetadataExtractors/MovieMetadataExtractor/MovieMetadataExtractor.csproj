@@ -68,7 +68,6 @@
     <Compile Include="Matchers\MatroskaMatcher.cs" />
     <Compile Include="Matchers\MovieNameMatcher.cs" />
     <Compile Include="Matchers\NfoReader.cs" />
-    <Compile Include="RelationshipExtractors\IMovieRelationshipExtractor.cs" />
     <Compile Include="Settings\MovieMetadataExtractorSettings.cs" />
     <Compile Include="RelationshipExtractors\MovieCollectionRelationshipExtractor.cs" />
     <Compile Include="MergeHandlers\MovieMergeHandler.cs" />

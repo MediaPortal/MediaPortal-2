@@ -122,6 +122,7 @@
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
     <Compile Include="Genres\GenreSettings.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
+    <Compile Include="MediaManagement\RelationshipExtractorUtils.cs" />
     <Compile Include="MediaManagement\RelationshipType.cs" />
     <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
     <Compile Include="MediaManagement\RelationshipItem.cs" />
@@ -152,6 +153,8 @@
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ImporterWorkerDataflowBlockBase.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemLoadBlock.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\RelationshipCache.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\RelationshipExtractorBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemSaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MetadataExtractorBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportJobNewGen.cs" />
@@ -456,6 +459,7 @@
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
     <Compile Include="UPnP\UPnPDtDictionary.cs" />
     <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
+    <Compile Include="UPnP\UPnPDtRelationshipItemEnumeration.cs" />
     <Compile Include="UPnP\UPnPSystemResumeHelper.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />

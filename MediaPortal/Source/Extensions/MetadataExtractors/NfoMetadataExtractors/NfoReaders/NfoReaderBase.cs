@@ -156,15 +156,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
-    /// <param name="importOnly">If <c>true</c>, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If <c>true</c>, no long lasting operations such as parsing pictures are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the NfoMetadataExtractor</param>
-    protected NfoReaderBase(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
+    /// 
+    protected NfoReaderBase(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
     {
       _debugLogger = debugLogger;
       _miNumber = miNumber;
-      _importOnly = importOnly;
       _forceQuickMode = forceQuickMode;
       _httpDownloadClient = httpClient;
       _settings = settings;
@@ -651,8 +650,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     protected async Task<byte[]> ParseSimpleImageAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       if (_forceQuickMode)
-        return null;
-      if (_importOnly)
         return null;
 
       var imageFileString = ParseSimpleString(element);

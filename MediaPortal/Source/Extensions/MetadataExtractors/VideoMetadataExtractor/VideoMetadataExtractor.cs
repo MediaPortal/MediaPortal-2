@@ -412,7 +412,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-        
+
         if (!refresh)
         {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
@@ -614,11 +614,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           int providerIndex = -1;
           IList<MultipleMediaItemAspect> providerResourceAspects = new List<MultipleMediaItemAspect>();
-          if(MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
+          if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
           {
-            for(int idx = 0; idx <providerResourceAspects.Count; idx++)
+            for (int idx = 0; idx < providerResourceAspects.Count; idx++)
             {
-              if(providerResourceAspects[idx].GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) == lfsra.CanonicalLocalResourcePath.Serialize())
+              if (providerResourceAspects[idx].GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) == lfsra.CanonicalLocalResourcePath.Serialize())
               {
                 providerIndex = idx;
                 providerResourceAspects[idx].SetAttribute(ProviderResourceAspect.ATTR_SIZE, lfsra.Size);
@@ -670,7 +670,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       try
       {
@@ -709,7 +709,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoStreamAspects))
         {
           string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
-          if (string.IsNullOrEmpty(stereoType) || stereoType == VideoStreamAspect.TYPE_SD || 
+          if (string.IsNullOrEmpty(stereoType) || stereoType == VideoStreamAspect.TYPE_SD ||
             stereoType == VideoStreamAspect.TYPE_HD || stereoType == VideoStreamAspect.TYPE_UHD)
           {
             int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
@@ -753,7 +753,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       try
       {
@@ -789,12 +789,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         // In quick mode only allow thumbs taken from cache.
-        bool cachedOnly = importOnly || forceQuickMode;
+        bool cachedOnly = forceQuickMode;
 
         // Thumbnail extraction
         IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
@@ -1238,19 +1238,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
-        bool refresh = false;
-        if (extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
-          refresh = true;
-
-        VideoResult result = null;
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra == null)
           return false;
-        if (!refresh && !fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
+
+        VideoResult result = null;
+        if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
         {
           IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
           if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
@@ -1290,9 +1287,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 result.UpdateMetadata(extractedAspectData, lfsra, -1, 0, false);
                 try
                 {
-                  ExtractMatroskaTags(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                  ExtractMp4Tags(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                  ExtractThumbnailData(lfsra, extractedAspectData, importOnly, forceQuickMode);
+                  ExtractMatroskaTags(lfsra, extractedAspectData);
+                  ExtractMp4Tags(lfsra, extractedAspectData);
+                  ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
                 }
                 catch (Exception ex)
                 {
@@ -1325,13 +1322,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               }
             }
 
-            if (refresh)
+            using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
             {
-              using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
-              {
-                // Before we start evaluating the file, check if it is a video at all
-                if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
-                  return false;
+              // Before we start evaluating the file, check if it is a video at all
+              if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
+                return false;
 
                 result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
                 if (result != null)
@@ -1350,45 +1345,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 }
               }
             }
-            else
+            using (Stream stream = fsra.OpenRead())
+              result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
+
+            if (result != null)
             {
-              using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
+              using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
               {
-                // Before we start evaluating the file, check if it is a video at all
-                if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
-                  return false;
-
-                result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
-              }
-              using (Stream stream = fsra.OpenRead())
-                result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
-
-              if (result != null)
-              {
-                using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+                ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
+                if (lfsra != null)
                 {
-                  ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
-                  if (lfsra != null)
+                  result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false);
+                  try
                   {
-                    result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false);
-                    try
-                    {
-                      ExtractMatroskaTags(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                      ExtractMp4Tags(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                      ExtractThumbnailData(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                    }
-                    catch (Exception ex)
-                    {
-                      ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
-                    }
-                    UpdateSetName(lfsra, extractedAspectData, multipart);
-
-                    //Initial add of all subtitles because they have been skipped during import
-                    if(!forceQuickMode)
-                      FindExternalSubtitles(lfsra, extractedAspectData);
-
-                    return true;
+                    ExtractMatroskaTags(lfsra, extractedAspectData);
+                    ExtractMp4Tags(lfsra, extractedAspectData);
+                    ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
                   }
+                  catch (Exception ex)
+                  {
+                    ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+                  }
+                  UpdateSetName(lfsra, extractedAspectData, multipart);
+
+                  //Initial add of all subtitles because they have been skipped during import
+                  if (!forceQuickMode)
+                    FindExternalSubtitles(lfsra, extractedAspectData);
+
+                  return true;
                 }
               }
             }

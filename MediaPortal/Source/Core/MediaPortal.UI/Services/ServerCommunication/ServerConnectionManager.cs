@@ -22,16 +22,14 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
@@ -39,11 +37,13 @@ using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.ServerCommunication.Settings;
 using MediaPortal.UI.Shares;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UPnP.Infrastructure.CP;
 using RelocationMode = MediaPortal.Common.MediaManagement.RelocationMode;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
@@ -132,7 +132,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       #region IImportResultHandler implementation
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
@@ -144,11 +144,23 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
           return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects).Result;
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
+      {
+        try
+        {
+          return _contentDirectory.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
         }
         catch (Exception)
         {

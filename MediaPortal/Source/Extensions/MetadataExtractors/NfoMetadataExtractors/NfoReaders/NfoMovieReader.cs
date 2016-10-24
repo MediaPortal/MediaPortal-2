@@ -97,8 +97,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="readFileDetails">If true, file details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoMovieReader(ILogger debugLogger, long miNumber, bool videoOnly, bool importOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
-      : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
+    public NfoMovieReader(ILogger debugLogger, long miNumber, bool videoOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
+      : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
       _movieSettings = settings;
       _readFileDetails = readFileDetails;

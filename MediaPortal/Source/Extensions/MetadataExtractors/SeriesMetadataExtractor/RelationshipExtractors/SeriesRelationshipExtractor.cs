@@ -27,9 +27,11 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.MediaManagement.TransientAspects;
 using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -239,5 +241,50 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       get { return _extractors; }
     }
+
+    #region Episode IFilter
+
+    public static IFilter GetEpisodeSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      SingleMediaItemAspect episodeAspect;
+      if (!MediaItemAspect.TryGetAspect(extractedAspects, EpisodeAspect.Metadata, out episodeAspect))
+        return null;
+
+      IFilter episodeFilter = RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_EPISODE);
+      IFilter seriesFilter = RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_SERIES);
+      if (seriesFilter == null)
+        return episodeFilter;
+
+      int? seasonNumber = episodeAspect.GetAttributeValue<int?>(EpisodeAspect.ATTR_SEASON);
+      IFilter seasonNumberFilter = seasonNumber.HasValue ?
+        new RelationalFilter(EpisodeAspect.ATTR_SEASON, RelationalOperator.EQ, seasonNumber.Value) : null;
+
+      IEnumerable<int> episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+      IFilter episodeNumberFilter = episodeNumbers != null && episodeNumbers.Any() ?
+        new RelationalFilter(EpisodeAspect.ATTR_EPISODE, RelationalOperator.EQ, episodeNumbers.First()) : null;
+
+      seriesFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, seriesFilter, seasonNumberFilter, episodeNumberFilter);
+
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, episodeFilter, seriesFilter);
+    }
+
+    #endregion
+
+    #region TempAspect storage/retrieval
+
+    public static void UpdateEpisodeSeries(IDictionary<Guid, IList<MediaItemAspect>> aspects, EpisodeInfo info)
+    {
+      if (aspects.ContainsKey(TempSeriesAspect.ASPECT_ID))
+      {
+        if (info.TvdbId <= 0)
+          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_TVDBID, out info.SeriesTvdbId);
+        if (info.SeriesName.IsEmpty)
+          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_NAME, out info.SeriesName.Text);
+        if (!info.FirstAired.HasValue)
+          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_PREMIERED, out info.SeriesFirstAired);
+      }
+    }
+
+    #endregion
   }
 }

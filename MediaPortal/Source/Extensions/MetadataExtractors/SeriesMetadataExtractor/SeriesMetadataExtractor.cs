@@ -22,22 +22,22 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
-using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.Services.Settings;
-using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
-using MediaPortal.Common.Messaging;
-using System.Threading;
 using MediaPortal.Common.MediaManagement.TransientAspects;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
+using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -132,15 +132,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 fanartHandler.ClearCache();
             }
             break;
-          case ImporterWorkerMessaging.MessageType.ImportCompleted:
-            if (Interlocked.Decrement(ref _importerCount) == 0)
-            {
-              IRelationshipExtractor relationshipExtractor;
-              if (ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.TryGetValue(SeriesRelationshipExtractor.METADATAEXTRACTOR_ID, out relationshipExtractor))
-                foreach (ISeriesRelationshipExtractor extractor in relationshipExtractor.RoleExtractors)
-                  extractor.ClearCache();
-            }
-            break;
         }
       }
     }
@@ -154,7 +145,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public static bool CacheOfflineFanArt { get; private set; }
     public static bool CacheLocalFanArt { get; private set; }
     public static bool IncludeActorDetails { get; private set; }
+    public static int MaximumActorCount { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
+    public static int MaximumCharacterCount { get; private set; }
     public static bool IncludeDirectorDetails { get; private set; }
     public static bool IncludeWriterDetails { get; private set; }
     public static bool IncludeProductionCompanyDetails { get; private set; }
@@ -163,17 +156,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     private void LoadSettings()
     {
-      SkipOnlineSearches = _settingWatcher.Settings.SkipOnlineSearches;
-      SkipFanArtDownload = _settingWatcher.Settings.SkipFanArtDownload;
-      CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
-      CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
-      IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
-      IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
-      IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
-      IncludeWriterDetails = _settingWatcher.Settings.IncludeWriterDetails;
-      IncludeProductionCompanyDetails = _settingWatcher.Settings.IncludeProductionCompanyDetails;
-      IncludeTVNetworkDetails = _settingWatcher.Settings.IncludeTVNetworkDetails;
-      OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
+      SeriesMetadataExtractorSettings settings = _settingWatcher.Settings;
+      SkipOnlineSearches = settings.SkipOnlineSearches;
+      SkipFanArtDownload = settings.SkipFanArtDownload;
+      CacheOfflineFanArt = settings.CacheOfflineFanArt;
+      CacheLocalFanArt = settings.CacheLocalFanArt;
+      IncludeActorDetails = settings.IncludeActorDetails;
+      MaximumActorCount = settings.MaximumActorCount;
+      IncludeCharacterDetails = settings.IncludeCharacterDetails;
+      MaximumCharacterCount = settings.MaximumCharacterCount;
+      IncludeDirectorDetails = settings.IncludeDirectorDetails;
+      IncludeWriterDetails = settings.IncludeWriterDetails;
+      IncludeProductionCompanyDetails = settings.IncludeProductionCompanyDetails;
+      IncludeTVNetworkDetails = settings.IncludeTVNetworkDetails;
+      OnlyLocalMedia = settings.OnlyLocalMedia;
     }
 
     private void SettingsChanged(object sender, EventArgs e)
@@ -185,42 +181,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     #region Protected methods
 
-    protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
-        return false; //Subtitles can only be imported not refreshed
-
-      bool refresh = false;
-      if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-        refresh = true;
-
       EpisodeInfo episodeInfo = new EpisodeInfo();
-      if (refresh)
-      {
-        episodeInfo.FromMetadata(extractedAspectData);
-      }
-      ISeriesRelationshipExtractor.UpdateEpisodeSeries(extractedAspectData, episodeInfo);
-      if (!episodeInfo.IsBaseInfoPresent)
-      {
-        string title = null;
-        int seasonNumber;
-        SingleMediaItemAspect episodeAspect;
-        MediaItemAspect.TryGetAspect(extractedAspectData, EpisodeAspect.Metadata, out episodeAspect);
-        IEnumerable<int> episodeNumbers;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME, out title) &&
-            MediaItemAspect.TryGetAttribute(extractedAspectData, EpisodeAspect.ATTR_SEASON, out seasonNumber) &&
-            (episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE)) != null)
-        {
-          episodeInfo.SeriesName = title;
-          episodeInfo.SeasonNumber = seasonNumber;
-          episodeInfo.EpisodeNumbers.Clear();
-          episodeNumbers.ToList().ForEach(n => episodeInfo.EpisodeNumbers.Add(n));
-        }
-      }
+      episodeInfo.FromMetadata(extractedAspectData);
+      SeriesRelationshipExtractor.UpdateEpisodeSeries(extractedAspectData, episodeInfo);
 
       // If there was no complete match, yet, try to get extended information out of matroska files)
       if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
@@ -283,13 +252,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         EpisodeInfo tempInfo = episodeInfo.Clone();
-        OnlineMatcherService.Instance.FindAndUpdateEpisode(tempInfo, importOnly);
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(tempInfo, false);
         episodeInfo.CopyIdsFrom(tempInfo);
         episodeInfo.HasChanged = tempInfo.HasChanged;
       }
       else if (!SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, false);
       }
 
       //Send it to the videos section
@@ -305,23 +274,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         else if (!episodeInfo.EpisodeName.IsEmpty)
           episodeInfo.EpisodeNameSort = BaseInfo.GetSortTitle(episodeInfo.EpisodeName.Text);
       }
-
-      if (refresh)
-      {
-        if((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_ACTOR) && episodeInfo.Actors.Count > 0) ||
-          (IncludeCharacterDetails && !BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ROLE_CHARACTER) && episodeInfo.Characters.Count > 0) ||
-          (IncludeDirectorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_DIRECTOR) && episodeInfo.Directors.Count > 0) ||
-          (IncludeWriterDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_WRITER) && episodeInfo.Writers.Count > 0) ||
-          (!BaseInfo.HasRelationship(extractedAspectData, SeriesAspect.ROLE_SERIES) && !episodeInfo.SeriesName.IsEmpty) ||
-          (!BaseInfo.HasRelationship(extractedAspectData, SeasonAspect.ROLE_SEASON) && episodeInfo.SeasonNumber.HasValue))
-        {
-          episodeInfo.HasChanged = true;
-        }
-      }
-
-      if (!episodeInfo.HasChanged && !importOnly)
-        return false;
-
       episodeInfo.SetMetadata(extractedAspectData);
 
       return episodeInfo.IsBaseInfoPresent;
@@ -336,7 +288,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -347,7 +299,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData, importOnly);
+          return ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData);
       }
       catch (Exception e)
       {

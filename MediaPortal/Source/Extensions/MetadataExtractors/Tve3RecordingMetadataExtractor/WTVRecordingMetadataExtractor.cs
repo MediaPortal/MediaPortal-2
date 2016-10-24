@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return episodeInfo;
     }
 
-    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (!CanExtract(lfsra, extractedAspectData))
         return false;
@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (episodeInfo.IsBaseInfoPresent)
       {
         if (!forceQuickMode)
-          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
+          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, false);
         if (episodeInfo.IsBaseInfoPresent)
           episodeInfo.SetMetadata(extractedAspectData);
       }
@@ -216,7 +216,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -226,7 +226,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
           return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractMetadata(rah.LocalFsResourceAccessor, extractedAspectData, importOnly, forceQuickMode);
+          return ExtractMetadata(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode);
 
       }
       catch (Exception e)
@@ -238,7 +238,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (!CanExtract(lfsra, extractedAspectData))
         return false;

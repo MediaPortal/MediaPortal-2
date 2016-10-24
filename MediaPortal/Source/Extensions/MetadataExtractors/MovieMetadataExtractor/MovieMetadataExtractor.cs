@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
-    public const  double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
+    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
 
@@ -128,15 +128,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 fanartHandler.ClearCache();
             }
             break;
-          case ImporterWorkerMessaging.MessageType.ImportCompleted:
-            if (Interlocked.Decrement(ref _importerCount) == 0)
-            {
-              IRelationshipExtractor relationshipExtractor;
-              if (ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.TryGetValue(MovieRelationshipExtractor.METADATAEXTRACTOR_ID, out relationshipExtractor))
-                foreach (IMovieRelationshipExtractor extractor in relationshipExtractor.RoleExtractors)
-                  extractor.ClearCache();
-            }
-            break;
         }
       }
     }
@@ -179,7 +170,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     #region Private methods
 
-    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    private bool ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
@@ -189,18 +180,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
-        return false; //Subtitles can only be imported not refreshed
-
-      bool refresh = false;
-      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
-        refresh = true;
-
       MovieInfo movieInfo = new MovieInfo();
-      if (refresh)
-      {
+      if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
         movieInfo.FromMetadata(extractedAspectData);
-      }
 
       if (movieInfo.MovieName.IsEmpty)
       {
@@ -293,50 +275,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      if (importOnly)
+      try
       {
-        try
-        {
-          MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
-          MP4Matcher.ExtractFromTags(lfsra, movieInfo);
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
-        }
+        MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
+        MP4Matcher.ExtractFromTags(lfsra, movieInfo);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
       }
 
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         MovieInfo tempInfo = movieInfo.Clone();
-        OnlineMatcherService.Instance.FindAndUpdateMovie(tempInfo, importOnly);
+        OnlineMatcherService.Instance.FindAndUpdateMovie(tempInfo, false);
         movieInfo.CopyIdsFrom(tempInfo);
         movieInfo.HasChanged = tempInfo.HasChanged;
       }
       else if (!SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.FindAndUpdateMovie(movieInfo, importOnly);
+        OnlineMatcherService.Instance.FindAndUpdateMovie(movieInfo, false);
       }
 
       //Send it to the videos section
       if (!SkipOnlineSearches && !movieInfo.HasExternalId)
         return false;
 
-      if (importOnly)
+      //Create custom collection (overrides online collection)
+      MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+      string collectionName;
+      if (string.IsNullOrEmpty(collectionInfo.NameId) && CollectionFolderHasFanArt(lfsra, out collectionName))
       {
-        //Create custom collection (overrides online collection)
-        MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-        string collectionName;
-        if (string.IsNullOrEmpty(collectionInfo.NameId) && CollectionFolderHasFanArt(lfsra, out collectionName))
+        collectionInfo = new MovieCollectionInfo();
+        collectionInfo.CollectionName = collectionName;
+        if (!collectionInfo.CollectionName.IsEmpty)
         {
-          collectionInfo = new MovieCollectionInfo();
-          collectionInfo.CollectionName = collectionName;
-          if (!collectionInfo.CollectionName.IsEmpty)
-          {
-            movieInfo.CollectionName = collectionInfo.CollectionName;
-            movieInfo.CopyIdsFrom(collectionInfo); //Reset ID's
-            movieInfo.HasChanged = true;
-          }
+          movieInfo.CollectionName = collectionInfo.CollectionName;
+          movieInfo.CopyIdsFrom(collectionInfo); //Reset ID's
+          movieInfo.HasChanged = true;
         }
       }
       movieInfo.AssignNameId();
@@ -350,22 +326,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         else
           movieInfo.MovieNameSort = BaseInfo.GetSortTitle(title);
       }
-
-      if (refresh)
-      {
-        if ((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_ACTOR) && movieInfo.Actors.Count > 0) ||
-          (IncludeCharacterDetails && !BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ROLE_CHARACTER) && movieInfo.Characters.Count > 0) ||
-          (IncludeDirectorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_DIRECTOR) && movieInfo.Directors.Count > 0) ||
-          (IncludeWriterDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_WRITER) && movieInfo.Writers.Count > 0) ||
-          (IncludeProductionCompanyDetails && !BaseInfo.HasRelationship(extractedAspectData, CompanyAspect.ROLE_COMPANY) && movieInfo.ProductionCompanies.Count > 0))
-        {
-          movieInfo.HasChanged = true;
-        }
-      }
-
-      if (!movieInfo.HasChanged && !importOnly)
-        return false;
-
       movieInfo.SetMetadata(extractedAspectData);
 
       return movieInfo.IsBaseInfoPresent;
@@ -442,7 +402,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -452,7 +412,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData, importOnly);
+          return ExtractMovieData(rah.LocalFsResourceAccessor, extractedAspectData);
       }
       catch (Exception e)
       {

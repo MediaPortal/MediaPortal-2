@@ -96,14 +96,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var result = new HashSet<PendingImportResourceNewGen> { importResource };
       try
       {
-        ICollection<IFileSystemResourceAccessor> files = new HashSet<IFileSystemResourceAccessor>();
+        ICollection<IFileSystemResourceAccessor> files;
         ICollection<IFileSystemResourceAccessor> stubFiles = new HashSet<IFileSystemResourceAccessor>();
         IDictionary<ResourcePath, DateTime> path2LastImportDate = new Dictionary<ResourcePath, DateTime>();
         IDictionary<ResourcePath, Guid> path2MediaItem = new Dictionary<ResourcePath, Guid>();
         IEnumerable<MediaItem> mediaItems = null;
         if (importResource.IsSingleResource)
         {
-          files.Add(importResource.ResourceAccessor);
+          files = new HashSet<IFileSystemResourceAccessor> { importResource.ResourceAccessor };
           MediaItem mi = await LoadLocalItem(importResource.PendingResourcePath, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, null);
           if (mi != null)
           {
@@ -140,10 +140,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
                   //If last refresh is equal to added date, it has never been through the refresh cycle, so set low last change date
                   //All media items must be added because the paths are later used to delete no longer existing media items
                   var lastImportDate = mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE);
-                  var addedDate = mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED);
-                  if ((lastImportDate - addedDate).TotalSeconds <= 5)
-                    path2LastImportDate.Add(path, DateTime.MinValue);
-                  else if (mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY)) //If it is dirty, refresh is needed
+                  if (mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY)) //If it is dirty, refresh is needed
                     path2LastImportDate.Add(path, DateTime.MinValue);
                   else
                     path2LastImportDate.Add(path, lastImportDate);

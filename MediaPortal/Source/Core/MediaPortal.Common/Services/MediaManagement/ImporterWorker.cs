@@ -369,7 +369,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
       ResourcePath path = mediaItemAccessor.CanonicalLocalResourcePath;
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, path);
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, importOnly, forceQuickMode);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, forceQuickMode);
       if (aspects == null)
         // No metadata could be extracted
         return false;
@@ -377,7 +377,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         try
         {
-          resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), importJob.JobType == ImportJobType.Refresh, importJob.BasePath, cancelToken.Token);
+          resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), importJob.JobType == ImportJobType.Refresh, importJob.BasePath);
           resultHandler.DeleteUnderPath(path);
         }
         catch
@@ -445,7 +445,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               mia,
               da,
           });
-        return resultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects, importJob.JobType == ImportJobType.Refresh, importJob.BasePath, CancellationToken.None);
+        return resultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects, importJob.JobType == ImportJobType.Refresh, importJob.BasePath);
       }
       return directoryItem.MediaItemId;
     }

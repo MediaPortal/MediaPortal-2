@@ -22,21 +22,21 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesCharacterRelationshipExtractor : ISeriesRelationshipExtractor, IRelationshipRoleExtractor
+  class SeriesCharacterRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
@@ -73,30 +73,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetCharacterSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(CharacterAspect.ASPECT_ID))
+        return null;
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+        RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_CHARACTER),
+        RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON));
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      List<string> identifiers = new List<string>();
+      if (extractedAspects.ContainsKey(CharacterAspect.ASPECT_ID))
+      {
+        identifiers.AddRange(RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_CHARACTER));
+        identifiers.AddRange(RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON));
+      }
+      return identifiers;
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
       extractedLinkedAspects = null;
 
       if (!SeriesMetadataExtractor.IncludeCharacterDetails)
         return false;
 
-      if (importOnly)
-        return false;
-
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
-        return false;
-
-      if (CheckCacheContains(seriesInfo))
         return false;
 
       int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.UpdateSeriesCharacters(seriesInfo, importOnly);
+        OnlineMatcherService.Instance.UpdateSeriesCharacters(seriesInfo, false);
         count = seriesInfo.Characters.Where(p => p.HasExternalId).Count();
         if (!seriesInfo.IsRefreshed)
           seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
@@ -115,10 +124,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seriesInfo.HasChanged)
         return false;
 
-      AddToCheckCache(seriesInfo);
-
-      extractedLinkedAspects = new List<RelationshipItem>();
-      foreach (CharacterInfo character in seriesInfo.Characters)
+      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      foreach (CharacterInfo character in seriesInfo.Characters.Take(SeriesMetadataExtractor.MaximumCharacterCount))
       {
         character.AssignNameId();
         character.HasChanged = seriesInfo.HasChanged;
@@ -126,13 +133,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         character.SetMetadata(characterAspects);
 
         if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        {
-          Guid existingId;
-          if (TryGetIdFromCache(character, out existingId))
-            extractedLinkedAspects.Add(new RelationshipItem(characterAspects, existingId));
-          else
-            extractedLinkedAspects.Add(new RelationshipItem(characterAspects, Guid.Empty));
-        }
+          extractedLinkedAspects.Add(characterAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }
@@ -172,13 +173,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       index = nameList.IndexOf(name);
       return index >= 0;
-    }
-
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-      CharacterInfo character = new CharacterInfo();
-      character.FromMetadata(extractedAspects);
-      AddToCache(extractedItemId, character);
     }
 
     internal static ILogger Logger

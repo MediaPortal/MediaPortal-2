@@ -22,15 +22,15 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.Threading;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using Newtonsoft.Json;
-using System.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
@@ -46,8 +46,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// </summary>
     public bool EnableCompression { get; set; }
 
-    private ReaderWriterLockSlim _jsonLock = new ReaderWriterLockSlim();
-    private ReaderWriterLockSlim _fileLock = new ReaderWriterLockSlim();
+    private KeyedAsyncReaderWriterLock<string> _jsonLock = new KeyedAsyncReaderWriterLock<string>();
+    private KeyedAsyncReaderWriterLock<string> _fileLock = new KeyedAsyncReaderWriterLock<string>();
 
     public Downloader()
     {
@@ -62,15 +62,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <param name="url">Url to download</param>
     /// <param name="saveCacheFile">Optional name for saving response to cache</param>
     /// <returns>Downloaded object</returns>
-    public TE Download<TE>(string url, string saveCacheFile = null)
+    public TE Download<TE>(string url, string saveCacheFile = null, bool allowCached = true)
     {
-      string json = DownloadJSON(url);
-      if (string.IsNullOrEmpty(json))
-        return default(TE);
-      //Console.WriteLine("JSON: {0}", json);
-      if (!string.IsNullOrEmpty(saveCacheFile))
-        WriteCache(saveCacheFile, json);
-      return JsonConvert.DeserializeObject<TE>(json);
+      var writeLock = !string.IsNullOrEmpty(saveCacheFile) ? _jsonLock.WriterLock(saveCacheFile) : null;
+      using (writeLock)
+      {
+        if (allowCached)
+        {
+          TE cached = ReadCacheInternal<TE>(saveCacheFile);
+          if (cached != null)
+            return cached;
+        }
+
+        string json = DownloadJSON(url);
+        if (string.IsNullOrEmpty(json))
+          return default(TE);
+        //Console.WriteLine("JSON: {0}", json);
+        if (!string.IsNullOrEmpty(saveCacheFile))
+          WriteCache(saveCacheFile, json);
+        return JsonConvert.DeserializeObject<TE>(json);
+      }
     }
 
     /// <summary>
@@ -102,13 +113,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns><c>true</c> if successful</returns>
     public bool DownloadFile(string url, string downloadFile)
     {
+      if (string.IsNullOrEmpty(downloadFile))
+        return false;
       if (File.Exists(downloadFile))
         return true;
-      try
+
+      using (_fileLock.WriterLock(downloadFile))
       {
         try
         {
-          _fileLock.EnterWriteLock();
           if (File.Exists(downloadFile))
             return true;
           using (WebClient webClient = new CompressionWebClient())
@@ -121,10 +134,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           return false;
         }
       }
-      finally
-      {
-        _fileLock.ExitWriteLock();
-      }
     }
 
     /// <summary>
@@ -136,25 +145,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     {
       if (string.IsNullOrEmpty(cachePath))
         return;
-
-      try
+      using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
       {
-        _jsonLock.EnterWriteLock();
-        if (string.IsNullOrEmpty(cachePath))
-          return;
-        using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
+        using (StreamWriter sw = new StreamWriter(fs))
         {
-          using (StreamWriter sw = new StreamWriter(fs))
-          {
-            sw.Write(json);
-            sw.Close();
-          }
-          fs.Close();
+          sw.Write(json);
+          sw.Close();
         }
-      }
-      finally
-      {
-        _jsonLock.ExitWriteLock();
+        fs.Close();
       }
     }
 
@@ -169,25 +167,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       if (string.IsNullOrEmpty(cacheFile))
         return default(TE);
 
+      using (_jsonLock.ReaderLock(cacheFile))
+        return ReadCacheInternal<TE>(cacheFile);
+    }
+
+    protected TE ReadCacheInternal<TE>(string cacheFile)
+    {
       try
       {
-        try
-        {
-          _jsonLock.EnterReadLock();
-          if (string.IsNullOrEmpty(cacheFile))
-            return default(TE);
-          string json = File.ReadAllText(cacheFile, Encoding.UTF8);
-          return JsonConvert.DeserializeObject<TE>(json);
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading cache {0} ({1})", cacheFile, ex.Message);
+        if (string.IsNullOrEmpty(cacheFile) || !File.Exists(cacheFile))
           return default(TE);
-        }
+        string json = File.ReadAllText(cacheFile, Encoding.UTF8);
+        return JsonConvert.DeserializeObject<TE>(json);
       }
-      finally
+      catch (Exception ex)
       {
-        _jsonLock.ExitReadLock();
+        ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading cache {0} ({1})", cacheFile, ex.Message);
+        return default(TE);
       }
     }
 
@@ -202,28 +198,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       if (string.IsNullOrEmpty(cacheFile))
         return false;
 
-      try
+      using (_jsonLock.ReaderLock(cacheFile))
       {
         try
         {
-          _jsonLock.EnterReadLock();
-          if (string.IsNullOrEmpty(cacheFile))
-            return false;
           FileInfo info = new FileInfo(cacheFile);
-          if ((DateTime.Now - info.CreationTime).TotalDays > maxAgeInDays)
-            return true;
-
-          return false;
+          return info.Exists && (DateTime.Now - info.CreationTime).TotalDays > maxAgeInDays;
         }
         catch (Exception ex)
         {
           ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when determining cache {0} age ({1})", cacheFile, ex.Message);
           return false;
         }
-      }
-      finally
-      {
-        _jsonLock.ExitReadLock();
       }
     }
 
@@ -237,14 +223,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       if (string.IsNullOrEmpty(cacheFile))
         return true;
 
-      try
+      using (_jsonLock.WriterLock(cacheFile))
       {
         try
         {
-          _jsonLock.EnterWriteLock();
-          if (string.IsNullOrEmpty(cacheFile))
-            return true;
-
           File.Delete(cacheFile);
           return true;
         }
@@ -253,10 +235,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when determining cache {0} age ({1})", cacheFile, ex.Message);
           return false;
         }
-      }
-      finally
-      {
-        _jsonLock.ExitWriteLock();
       }
     }
 
@@ -267,14 +245,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns>File contents</returns>
     public byte[] ReadDownloadedFile(string downloadedFile)
     {
-      if (File.Exists(downloadedFile))
+      if (!File.Exists(downloadedFile))
         return null;
-      try
+
+      using (_fileLock.ReaderLock(downloadedFile))
       {
         try
         {
-          _fileLock.EnterReadLock();
-          if (File.Exists(downloadedFile))
+          if (!File.Exists(downloadedFile))
             return null;
           return File.ReadAllBytes(downloadedFile);
         }
@@ -283,10 +261,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading file {0} ({1})", downloadedFile, ex.Message);
           return null;
         }
-      }
-      finally
-      {
-        _fileLock.ExitReadLock();
       }
     }
   }

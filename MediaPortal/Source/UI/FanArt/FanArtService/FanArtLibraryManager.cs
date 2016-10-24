@@ -194,8 +194,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         MediaLibraryMessaging.MessageType messageType = (MediaLibraryMessaging.MessageType)message.MessageType;
         if (messageType == MediaLibraryMessaging.MessageType.MediaItemsAddedOrUpdated)
         {
-          MediaItem item = (MediaItem)message.MessageData[MediaLibraryMessaging.PARAM];
-          ScheduleFanArtCollection(item.MediaItemId, item.Aspects);
+          IEnumerable<MediaItem> items = message.MessageData[MediaLibraryMessaging.PARAM] as IEnumerable<MediaItem>;
+          if (items != null)
+            foreach (MediaItem item in items)
+              ScheduleFanArtCollection(item.MediaItemId, item.Aspects);
         }
         else if (messageType == MediaLibraryMessaging.MessageType.MediaItemsDeleted)
         {

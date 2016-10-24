@@ -367,6 +367,17 @@ namespace MediaPortal.Common.SystemCommunication
         Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects);
 
     /// <summary>
+    /// Reconciles the relationshipItemsand adds a RelationshipAspect for each reconciled item to aspects and adds them to
+    /// the database.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the media item to add the relationships to.</param>
+    /// <param name="mediaItemAspects">Aspects to add the relationships to.</param>
+    /// <param name="relationshipItems">Enumeration of relations to reconcile and add relationships for.</param>
+    /// <returns></returns>
+    IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
+      IEnumerable<RelationshipItem> relationshipItems);
+
+    /// <summary>
     /// Deletes all media items in the content directory whose resource path starts with the given <paramref name="path"/>.
     /// If <paramref name="inclusive"/> is set to <c>true</c>, the media item with exactly the given path will be deleted too.
     /// The complicated contract is necessary because we also have media items for directories which are tracked too.
