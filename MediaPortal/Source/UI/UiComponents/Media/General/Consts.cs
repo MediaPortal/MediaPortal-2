@@ -651,13 +651,13 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
           EpisodeAspect.ASPECT_ID,
-          VideoStreamAspect.ASPECT_ID,
-          VideoAudioStreamAspect.ASPECT_ID,
           ImporterAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_EPISODE_MIAS = new Guid[]
       {
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID
       };
 
