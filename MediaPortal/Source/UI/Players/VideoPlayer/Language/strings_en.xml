@@ -28,6 +28,8 @@
   <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Select if Closed Captions should be enabled by default</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtitles</string>
   <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Select if subtitles should be enabled by default</string>
+  <string name="Settings.Players.VideoPlayer.EnableMpcHcSubtitleEngine">Enable MPC-HC subtitle engine</string>
+  <string name="Settings.Players.VideoPlayer.EnableMpcHcSubtitleEngine.Help">Select if the MPC-HC engine should be used for subtitles</string>  
 
   <string name="Playback.NotSpecified">Not specified</string>
   <string name="Playback.CaptionNormal">Normal Caption</string>

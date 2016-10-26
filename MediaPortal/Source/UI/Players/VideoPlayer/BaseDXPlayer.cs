@@ -67,11 +67,7 @@ namespace MediaPortal.UI.Players.Video
     {
       Video = 0,
       Audio = 1,
-      Subtitle = 2,
       MatroskaEdition = 18,
-      VsFilterSubtitle = 6590016,
-      VsFilterSubtitleOptions = 6590025,
-      DirectVobSubtitle = 6590033,
     }
 
     #endregion
@@ -237,6 +233,9 @@ namespace MediaPortal.UI.Players.Video
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding source filter", PlayerTitle);
         AddSourceFilter();
+
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
+        AddSubtitleFilter(true);
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Run graph", PlayerTitle);
 
@@ -441,10 +440,7 @@ namespace MediaPortal.UI.Players.Video
         int hr = _graphBuilder.AddFilter(sourceFilter, sourceFilter.Name);
         new HRESULT(hr).Throw();
 
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
-        AddSubtitleFilter();
-
-        using(DSFilter source2 = new DSFilter(sourceFilter))
+        using (DSFilter source2 = new DSFilter(sourceFilter))
           hr = source2.OutputPin.Render();
         new HRESULT(hr).Throw();
 
@@ -455,9 +451,10 @@ namespace MediaPortal.UI.Players.Video
     }
 
     /// <summary>
-    /// Adds subtitle filter if any.
+    /// Adds subtitle filter if any. The <paramref name="isSourceFilterPresent"/> is only used for special cases when the graph building is handled by derived classes.
     /// </summary>
-    protected virtual void AddSubtitleFilter()
+    /// <param name="isSourceFilterPresent">Indicates if the source filter already has been added to graph.</param>
+    protected virtual void AddSubtitleFilter(bool isSourceFilterPresent)
     {
     }
 
@@ -842,25 +839,28 @@ namespace MediaPortal.UI.Players.Video
 
     #region Audio streams
 
-    /// <summary>    /// Helper method to try a lookup of missing LCID from stream names. It compares the given <paramref name="streamName"/> 
-    /// with the available <see cref="CultureInfo.ThreeLetterISOLanguageName"/> and <see cref="CultureInfo.TwoLetterISOLanguageName"/>.
+    /// <summary>
+    /// Helper method to try a lookup of missing LCID from stream names. It compares the given <paramref name="streamName"/> 
+    /// with the available <see cref="CultureInfo.ThreeLetterISOLanguageName"/>, <see cref="CultureInfo.TwoLetterISOLanguageName"/>
+    /// and <see cref="CultureInfo.EnglishName"/>
     /// </summary>
     /// <param name="streamName">Stream name to check.</param>
     /// <returns>Found LCID or <c>0</c></returns>
-    protected int LookupLcidFromName(string streamName)
+    public static int LookupLcidFromName(string streamName)
     {
       if (string.IsNullOrEmpty(streamName))
         return 0;
 
       int len = streamName.Length;
-      if (len < 2 || len > 3)
+      if (len < 2)
         return 0;
 
       streamName = streamName.ToLowerInvariant();
       CultureInfo culture = CultureInfo.GetCultures(CultureTypes.SpecificCultures).FirstOrDefault
         (c =>
           len == 3 && c.ThreeLetterISOLanguageName == streamName ||
-          len == 2 && c.TwoLetterISOLanguageName == streamName
+          len == 2 && c.TwoLetterISOLanguageName == streamName ||
+          len > 3 && c.EnglishName.StartsWith(streamName, StringComparison.InvariantCultureIgnoreCase)
         );
       return culture == null ? 0 : culture.LCID;
     }
