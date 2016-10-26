@@ -204,7 +204,7 @@ namespace MediaPortal.UI.Players.Video
         IntPtr upDevice = SkinContext.Device.NativePointer;
         string filename = fileSystemResourceAccessor.ResourcePathName;
 
-        MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", preferredSubtitleLcid);
+        MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, GetSubtitlePath(), preferredSubtitleLcid);
         if (settings.EnableSubtitles)
         {
           MpcSubtitles.SetEnable(true);
@@ -212,6 +212,11 @@ namespace MediaPortal.UI.Players.Video
       }
 
       AddClosedCaptionsFilter();
+    }
+
+    protected virtual string GetSubtitlePath()
+    {
+      return @".\";
     }
 
     protected virtual void AddClosedCaptionsFilter()
