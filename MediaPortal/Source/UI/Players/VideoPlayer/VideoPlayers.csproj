@@ -17,7 +17,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>6608a3cd</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>2a1ab7fe</NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -162,7 +162,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets'))" />
     <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.32\build\MediaPortal.TsReader.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.32\build\MediaPortal.TsReader.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets'))" />
   </Target>
   <Import Project="..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.CCCP.3.0.0.1\build\MediaPortal.CCCP.targets')" />
   <Import Project="..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.32\build\MediaPortal.TsReader.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.TsReader.4.2.2.32\build\MediaPortal.TsReader.targets')" />
+  <Import Project="..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets" Condition="Exists('..\..\..\..\Packages\MediaPortal.MpcSubs.1.0.0.0\build\MediaPortal.MpcSubs.targets')" />
 </Project>
