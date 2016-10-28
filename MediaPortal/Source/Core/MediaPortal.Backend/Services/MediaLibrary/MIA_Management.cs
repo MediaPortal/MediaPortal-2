@@ -635,6 +635,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    public void CleanupAllOrphanedAttributeValues(ITransaction transaction, ICollection<MediaItemAspectMetadata> miaTypes)
+    {
+      foreach (MediaItemAspectMetadata miaType in miaTypes)
+        foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
+          switch (spec.Cardinality)
+          {
+            case Cardinality.Inline:
+            case Cardinality.OneToMany:
+              break;
+            case Cardinality.ManyToOne:
+              CleanupManyToOneOrphanedAttributeValues(transaction, spec);
+              break;
+            case Cardinality.ManyToMany:
+              CleanupManyToManyOrphanedAttributeValues(transaction, spec);
+              break;
+            default:
+              throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
+                  spec.Cardinality, spec.ParentMIAM.AspectId, spec.AttributeName));
+          }
+    }
+
     protected void CleanupAllManyToOneOrphanedAttributeValues(ITransaction transaction, MediaItemAspectMetadata miaType)
     {
       foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
@@ -1408,11 +1429,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", aspectId));
 
       MediaItemAspect result;
-	    if(miaType is MultipleMediaItemAspectMetadata)
+      if(miaType is MultipleMediaItemAspectMetadata)
         result = new MultipleMediaItemAspect((MultipleMediaItemAspectMetadata)miaType);
       else
         result = new SingleMediaItemAspect((SingleMediaItemAspectMetadata)miaType);
-	  
+    
       Namespace ns = new Namespace();
       string miaTableName = GetMIATableName(miaType);
       IList<string> terms = new List<string>();
@@ -1441,7 +1462,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
       // TODO: More where clause for multiple MIA
-	  
+    
       StringBuilder mainQueryBuilder = new StringBuilder("SELECT ");
       mainQueryBuilder.Append(StringUtils.Join(", ", terms));
       mainQueryBuilder.Append(" FROM ");
