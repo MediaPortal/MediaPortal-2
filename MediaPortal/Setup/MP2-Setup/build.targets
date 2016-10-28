@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 
-  <Import Project="$(MSBuildThisFileDirectory)Dokan\Dokan.targets" Condition="Exists('$(MSBuildThisFileDirectory)Dokan\Dokan.targets')" />
 
   <UsingTask TaskName="HeatDirectory"
     AssemblyFile="$(WixToolPath)WixUtilExtension.dll" />
 
   <Target Name="BeforeBuild">
-
-    <MsBuild Targets="_DownloadDokanInstaller" Projects="$(MSBuildThisFileFullPath)" Properties="Configuration=NOT_IMPORTANT" />
 
     <HeatDirectory
       Directory="$(SolutionDir)..\Bin\MP2-Client\bin\x86\$(Configuration)"
