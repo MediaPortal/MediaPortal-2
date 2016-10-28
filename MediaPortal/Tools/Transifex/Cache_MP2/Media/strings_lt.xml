@@ -336,4 +336,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">Atverti grotuvo strategiją</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategija, kaip naujai paleisti grotuvai bus išdėstyti tarp esamų atvirų grotuvų</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

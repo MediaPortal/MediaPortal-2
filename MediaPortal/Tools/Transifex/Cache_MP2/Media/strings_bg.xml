@@ -37,4 +37,6 @@
   <string name="Media.SwitchFilterMenuItem">Филтър</string>
   <string name="Media.SwitchFilterDialogTitle">Филтър</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

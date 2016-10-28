@@ -39,6 +39,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odpojiť sa od serveru</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Domáci server</string>
   <string name="ServerConnection.AttachedText.Before">MediaPortal 2 klient je pripojený k domácemu serveru</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">MediaPortal 2 klient nie je pripojený k domácemu serveru.</string>
   <string name="ServerConnection.HomeServerIsConnected">Domáci server je pripojený.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domáci server je odpojený.</string>

@@ -2,6 +2,7 @@
 <resources>
   <string name="Media.MyVideos">ڤیدیۆ</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="ServerConnection.AttachedText.After"></string>
   <!--{0} = server name, {1} = host name-->
   <!--For MP UI player subsystem-->
   <!--for example "Fullscreen TV"-->

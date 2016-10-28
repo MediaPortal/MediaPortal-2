@@ -336,4 +336,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">Spelerstrategie openen</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategie, hoe nieuw geopende spelers worden gepositioneerd naast al geopende spelers</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

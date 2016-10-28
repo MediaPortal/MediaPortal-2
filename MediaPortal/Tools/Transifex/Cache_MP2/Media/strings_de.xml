@@ -387,6 +387,8 @@
   <string name="Settings.Players.OpenPlayerStrategy">Playeröffnungs-Strategie</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Option, wie neu geöffnete Player unter anderen bereits geöffneten Playern positioniert werden</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

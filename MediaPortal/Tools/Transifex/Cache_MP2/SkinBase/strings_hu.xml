@@ -36,6 +36,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Szerverről leválasztás</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Otthoni Szerver</string>
   <string name="ServerConnection.AttachedText.Before">Ez a MediaPortal 2 kliens jelenleg az otthoni szerverhez van csatolva.</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Jelenleg, ez a MediaPortal 2 kliens nincs az otthoni szerverhez csatolva.</string>
   <string name="ServerConnection.HomeServerIsConnected">Jelenleg az otthoni szerverhez van kapcsolódva.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Jelenleg nincs az otthoni szerverhez kapcsolódva.</string>
