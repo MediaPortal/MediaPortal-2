@@ -22,18 +22,16 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeasonSeriesRelationshipExtractor : IRelationshipRoleExtractor, ISeriesRelationshipExtractor
+  class SeasonSeriesRelationshipExtractor : ISeriesRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
-    private CheckedItemCache<SeasonInfo> _checkCache = new CheckedItemCache<SeasonInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
-    private CheckedItemCache<SeriesInfo> _seriesCache = new CheckedItemCache<SeriesInfo>(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public bool BuildRelationship
     {
@@ -60,7 +58,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      return GetSeriesSearchFilter(extractedAspects);
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
@@ -68,18 +71,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seasonInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(seasonInfo))
+      if (!AddToCheckCache(seasonInfo))
         return false;
 
-      SeriesInfo seriesInfo;
-      if (!_seriesCache.TryGetCheckedItem(seasonInfo.CloneBasicInstance<SeriesInfo>(), out seriesInfo))
-      {
-        seriesInfo = seasonInfo.CloneBasicInstance<SeriesInfo>();
-        OnlineMatcherService.UpdateSeries(seriesInfo, false, forceQuickMode);
-        _seriesCache.TryAddCheckedItem(seriesInfo);
-      }
+      Guid seriesId;
+      SeriesInfo seriesInfo = seasonInfo.CloneBasicInstance<SeriesInfo>();
+      if (TryGetIdFromSeriesCache(seriesInfo, out seriesId))
+        seriesInfo = GetFromSeriesCache(seriesId);
+      else if (!SeriesMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.Instance.UpdateSeries(seriesInfo, false, forceQuickMode);
 
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
+        seriesInfo.HasChanged = true; //Force save if no relationship exists
+
+      if (!seriesInfo.HasChanged && !forceQuickMode)
+        return false;
+
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seriesInfo.SetMetadata(seriesAspects);
 
@@ -95,7 +104,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seriesAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
-      extractedLinkedAspects.Add(seriesAspects);
+      if (seriesId != Guid.Empty)
+        extractedLinkedAspects.Add(seriesAspects, seriesId);
+      else
+        extractedLinkedAspects.Add(seriesAspects, Guid.Empty);
       return true;
     }
 
@@ -109,10 +121,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return MediaItemAspect.TryGetAttribute(aspects, SeasonAspect.ATTR_SEASON, out index);
     }
 
-    public void ClearCache()
+    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      _checkCache.ClearCache();
-      _seriesCache.ClearCache();
+      SeriesInfo series = new SeriesInfo();
+      series.FromMetadata(extractedAspects);
+      AddToSeriesCache(extractedItemId, series);
     }
   }
 }

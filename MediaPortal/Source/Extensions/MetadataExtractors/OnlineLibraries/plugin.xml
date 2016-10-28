@@ -56,6 +56,9 @@
    <!--Geo Location Service-->
     <Service Id="GeoLocationService" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Libraries.IGeoLocationService"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.GeoLocationService"/>
+    <!--Online Matcher Service-->
+    <Service Id="OnlineMatcherService" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Libraries.IOnlineMatcherService"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.OnlineMatcherService"/>
   </Register>
 
 </Plugin>

@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
 
@@ -60,6 +61,21 @@ namespace MediaPortal.Common.MediaManagement
     bool BuildRelationship { get; }
 
     /// <summary>
+    /// Get optimized filter that can be used to find a direct match to any existing media item
+    /// </summary>
+    /// <param name="extractedAspects"></param>
+    /// <returns></returns>
+    IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects);
+
+    /// <summary>
+    /// Add extracted media item to cache so querying the database can be avoided
+    /// </summary>
+    /// <param name="extractedItemId"></param>
+    /// <param name="extractedAspects"></param>
+    /// <returns></returns>
+    void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects);
+
+    /// <summary>
     /// Part 1 of the relationship building - try to build a relationship
     /// from a group of aspects with Role to another group of aspects Linked Role
     /// </summary>
@@ -67,7 +83,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="extractedLinkedAspects"></param>
     /// <param name="forceQuickMode"></param>
     /// <returns></returns>
-    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode);
+    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode);
 
     /// <summary>
     /// Part 2 of the relationship building - if the extract was successful

@@ -30,16 +30,15 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
-using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
-  class AlbumLabelRelationshipExtractor : IRelationshipRoleExtractor, IAudioRelationshipExtractor
+  class AlbumLabelRelationshipExtractor : IAudioRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
-    private CheckedItemCache<AlbumInfo> _checkCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public bool BuildRelationship
     {
@@ -66,9 +65,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      return GetCompanySearchFilter(extractedAspects);
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
+
+      if (!AudioMetadataExtractor.IncludeMusicLabelDetails)
+        return false;
 
       if (forceQuickMode)
         return false;
@@ -77,44 +84,38 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(albumInfo))
+      if (!AddToCheckCache(albumInfo))
         return false;
 
-      OnlineMatcherService.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
+      if (!AudioMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, forceQuickMode);
 
       if (albumInfo.MusicLabels.Count == 0)
         return false;
 
-      bool relationshipFound = false;
-      IList<MultipleMediaItemAspect> relationships;
-      if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships))
-      {
-        foreach (MultipleMediaItemAspect relationship in relationships)
-        {
-          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == LinkedRole ||
-            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == LinkedRole)
-          {
-            relationshipFound = true;
-            break;
-          }
-        }
-      }
-
-      if (!relationshipFound)
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < albumInfo.MusicLabels.Count)
         albumInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!albumInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
 
       foreach (CompanyInfo company in albumInfo.MusicLabels)
       {
+        company.AssignNameId();
+        company.HasChanged = albumInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         company.SetMetadata(companyAspects);
 
         if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(companyAspects);
+        {
+          Guid existingId;
+          if (TryGetIdFromLabelCache(company, out existingId))
+            extractedLinkedAspects.Add(companyAspects, existingId);
+          else
+            extractedLinkedAspects.Add(companyAspects, Guid.Empty);
+        }
       }
       return extractedLinkedAspects.Count > 0;
     }
@@ -156,9 +157,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return index >= 0;
     }
 
-    public void ClearCache()
+    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      _checkCache.ClearCache();
+      CompanyInfo company = new CompanyInfo();
+      company.FromMetadata(extractedAspects);
+      AddToLabelCache(extractedItemId, company);
     }
 
     internal static ILogger Logger

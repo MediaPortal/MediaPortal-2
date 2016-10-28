@@ -51,14 +51,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArtTV\");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
     #endregion
 
     #region Init
 
     public MusicFanArtTvMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION)
+      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
     }
 
@@ -80,6 +80,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         ServiceRegistration.Get<ILogger>().Error("MusicFanArtTvMatcher: Error initializing wrapper", ex);
       }
+      return false;
+    }
+
+    #endregion
+
+    #region External match storage
+
+    public override void StoreArtistMatch(PersonInfo person)
+    { }
+
+    public override void StoreComposerMatch(PersonInfo person)
+    { }
+
+    public override void StoreMusicLabelMatch(CompanyInfo company)
+    { }
+
+    #endregion
+
+    #region Metadata updaters
+
+    public override bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode)
+    {
       return false;
     }
 

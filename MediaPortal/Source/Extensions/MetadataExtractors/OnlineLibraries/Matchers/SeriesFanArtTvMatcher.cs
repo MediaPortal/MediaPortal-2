@@ -51,14 +51,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArtTV\");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
     #endregion
 
     #region Init
 
     public SeriesFanArtTvMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION)
+      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
     }
 
@@ -80,6 +80,63 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         ServiceRegistration.Get<ILogger>().Error("SeriesFanArtTvMatcher: Error initializing wrapper", ex);
       }
+      return false;
+    }
+
+    #endregion
+
+    #region External match storage
+
+    public override void StoreActorMatch(PersonInfo person)
+    {
+    }
+
+    public override void StoreDirectorMatch(PersonInfo person)
+    {
+    }
+
+    public override void StoreWriterMatch(PersonInfo person)
+    {
+    }
+
+    public override void StoreCharacterMatch(CharacterInfo character)
+    {
+    }
+
+    public override void StoreCompanyMatch(CompanyInfo company)
+    {
+    }
+
+    public override void StoreTvNetworkMatch(CompanyInfo company)
+    {
+    }
+
+    #endregion
+
+    #region Metadata updaters
+
+    public override bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode)
+    {
       return false;
     }
 

@@ -100,6 +100,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
+        episodeSearch.CopyIdsFrom(seriesSearch);
       }
 
       if (episodeSearch.SeriesTvdbId > 0 && episodeSearch.SeasonNumber.HasValue)
@@ -157,16 +158,46 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       series = null;
       List<TvdbSearchResult> foundSeries = _tvdbHandler.SearchSeries(seriesSearch.SeriesName.Text, language);
+      if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
+        foundSeries = _tvdbHandler.SearchSeries(seriesSearch.AlternateName, language);
       if (foundSeries == null) return false;
-      series = foundSeries.Select(s => new SeriesInfo
+      series = new List<SeriesInfo>();
+      foreach (TvdbSearchResult found in foundSeries)
       {
-        TvdbId = s.Id,
-        ImdbId = s.ImdbId,
-        SeriesName = new SimpleTitle(s.SeriesName, false),
-        FirstAired = s.FirstAired,
-        Languages = new List<string>(new string[] { s.Language.Abbriviation })
-      }).ToList();
-
+        bool addSeries = true;
+        if (seriesSearch.SearchSeason.HasValue)
+        {
+          addSeries = false;
+          TvdbSeries seriesDetail = _tvdbHandler.GetSeries(found.Id, language, true, false, false);
+          if (seriesDetail.Episodes.Where(e => e.SeasonNumber == seriesSearch.SearchSeason).Count() > 0)
+          {
+            if (seriesSearch.SearchEpisode.HasValue)
+            {
+              if (seriesDetail.Episodes.Where(e => e.SeasonNumber == seriesSearch.SearchSeason &&
+                e.EpisodeNumber == seriesSearch.SearchEpisode.Value).Count() > 0)
+              {
+                addSeries = true;
+              }
+            }
+            else
+            {
+              addSeries = true;
+            }
+          }
+        }
+        if(addSeries)
+        {
+          series.Add(
+              new SeriesInfo
+              {
+                TvdbId = found.Id,
+                ImdbId = found.ImdbId,
+                SeriesName = new SimpleTitle(found.SeriesName, false),
+                FirstAired = found.FirstAired,
+                Languages = new List<string>(new string[] { found.Language.Abbriviation })
+              });
+        }
+      }
       return series.Count > 0;
     }
 

@@ -32,6 +32,7 @@ using MediaPortal.Common.ResourceAccess;
 using System.IO;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -73,6 +74,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      return IMovieRelationshipExtractor.GetMovieSearchFilter(extractedAspects);
+    }
+
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       if (!existingAspects.ContainsKey(MovieAspect.ASPECT_ID))
@@ -100,7 +106,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
         //Don't merge virtual resource
         string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        ResourcePath resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
+        ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
         if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
           return false;
 
@@ -116,9 +122,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         //Existing aspects
         IList<MultipleMediaItemAspect> existingProviderResourceAspects;
         MediaItemAspect.TryGetAspects(existingAspects, ProviderResourceAspect.Metadata, out existingProviderResourceAspects);
-
-        IList<MultipleMediaItemAspect> existingVideoAspects;
-        MediaItemAspect.TryGetAspects(existingAspects, VideoStreamAspect.Metadata, out existingVideoAspects);
 
         //Replace if existing is a virtual resource
         accessorPath = (string)existingProviderResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
@@ -154,21 +157,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           }
         }
         newResourceIndex++;
-
-        Dictionary<int, int> partSetMap = new Dictionary<int, int>();
-        int newPartSet = -1;
-        if (existingProviderResourceAspects != null)
-        {
-          foreach (MultipleMediaItemAspect videoStreamAspect in existingVideoAspects)
-          {
-            int mediaSet = videoStreamAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
-            if (newPartSet < mediaSet)
-            {
-              newPartSet = mediaSet;
-            }
-          }
-        }
-        newPartSet++;
 
         bool resourceExists = false; //Resource might already be added in the initial add
         foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
@@ -212,13 +200,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               int videoResourceIndex = videoAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX);
               if (videoResourceIndex == resouceIndex)
               {
-                int partSet = videoAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
-                if (!partSetMap.ContainsKey(partSet))
-                {
-                  partSetMap.Add(partSet, newPartSet);
-                  newPartSet++;
-                }
-
                 MultipleMediaItemAspect newVa = MediaItemAspect.CreateAspect(existingAspects, VideoStreamAspect.Metadata);
                 newVa.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, resourceIndexMap[videoResourceIndex]);
                 newVa.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_STREAM_INDEX));
@@ -232,7 +213,42 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 newVa.SetAttribute(VideoStreamAspect.ATTR_WIDTH, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH));
                 newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_TYPE));
                 newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART));
-                newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, partSetMap[partSet]);
+                newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART_SET));
+                newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME));
+              }
+            }
+          }
+
+          //Correct sets
+          Dictionary<string, int> setList = new Dictionary<string, int>();
+          MediaItemAspect.TryGetAspects(existingAspects, ProviderResourceAspect.Metadata, out existingProviderResourceAspects);
+          IList<MultipleMediaItemAspect> existingVideoAspects;
+          if (MediaItemAspect.TryGetAspects(existingAspects, VideoStreamAspect.Metadata, out existingVideoAspects))
+          {
+            foreach (MultipleMediaItemAspect videoStreamAspect in existingVideoAspects)
+            {
+              int newMediaSet = 0;
+              int mediaSet = videoStreamAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
+              if (mediaSet == 0)
+              {
+                videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, newMediaSet);
+                newMediaSet++;
+              }
+              else if (mediaSet == -1)
+              {
+                string filename = null;
+                foreach(MultipleMediaItemAspect pra in existingProviderResourceAspects)
+                {
+                  if (pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == videoStreamAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX))
+                  {
+                    accessorPath = (string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+                    resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
+                    filename = resourcePath.FileName;
+                    break;
+                  }
+                }
+
+                videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, GetMultipartSetNumber(ref setList, ref newMediaSet, filename));
               }
             }
           }
@@ -335,6 +351,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         ServiceRegistration.Get<ILogger>().Info("MovieMergeHandler: Exception merging resources (Text: '{0}')", e.Message);
         return false;
       }
+    }
+
+    private int GetMultipartSetNumber(ref Dictionary<string, int> setList, ref int setNumber, string name)
+    {
+      //Remove part number so different part can be compared
+      for(int partNumber = 1; partNumber < 5; partNumber++)
+      {
+        name = name.Replace(partNumber.ToString(), "0");
+      }
+      name = name.ToUpperInvariant();
+
+      if (setList.ContainsKey(name))
+        return setList[name];
+
+      setList.Add(name, setNumber);
+      setNumber++;
+      return setList[name];
     }
 
     public bool RequiresMerge(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)

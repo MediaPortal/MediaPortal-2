@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Settings;
-using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using System.Threading;
 
@@ -55,8 +53,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public MovieRelationshipExtractor()
     {
-      bool onlyLocalMedia = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>().OnlyLocalMedia;
-
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Movie relationship extractor");
 
       _extractors = new List<IRelationshipRoleExtractor>();
@@ -67,8 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       _extractors.Add(new MovieWriterRelationshipExtractor());
       _extractors.Add(new MovieCharacterRelationshipExtractor());
       _extractors.Add(new MovieProductionRelationshipExtractor());
-      if(!onlyLocalMedia)
-        _extractors.Add(new MovieCollectionMovieRelationshipExtractor());
+      _extractors.Add(new MovieCollectionMovieRelationshipExtractor());
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {

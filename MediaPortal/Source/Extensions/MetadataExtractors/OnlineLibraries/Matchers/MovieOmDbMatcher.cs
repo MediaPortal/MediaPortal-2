@@ -45,14 +45,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\OmDB\");
-    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
     #endregion
 
     #region Init
 
     public MovieOmDbMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION)
+      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
     }
 
@@ -69,9 +69,40 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("MovieOmDbMatcher: Error initializing wrapper", ex);
+        ServiceRegistration.Get<ILogger>().Error(Id + ": Error initializing wrapper", ex);
       }
       return false;
+    }
+
+    #endregion
+
+    #region Metadata updaters
+
+    public override bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    public override bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool forceQuickMode)
+    {
+      return false;
+    }
+
+    #endregion
+
+    #region External match storage
+
+    public override void StoreCharacterMatch(CharacterInfo character)
+    {
+    }
+
+    public override void StoreCompanyMatch(CompanyInfo company)
+    {
     }
 
     #endregion

@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
 
@@ -41,6 +42,13 @@ namespace MediaPortal.Common.MediaManagement
     /// Aspects that the media item being merged must have
     /// </summary>
     Guid[] MergeableAspects { get; }
+
+    /// <summary>
+    /// Get optimized filter that can be used to find a direct match to any existing media item
+    /// </summary>
+    /// <param name="extractedAspects"></param>
+    /// <returns></returns>
+    IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects);
 
     /// <summary>
     /// Some resources cannot exist on their own and must be merged

@@ -37,7 +37,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public MovieMetadataExtractorSettings()
     {
       // Init default patterns.
-      MovieYearPatterns = new List<SerializableRegex>
+      MovieYearPatterns = new SerializableRegex[]
       {
         new SerializableRegex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase),
       };
@@ -49,20 +49,61 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     /// Regular expression used to find title and year in the movie name
     /// </summary>
     [Setting(SettingScope.Global)]
-    public List<SerializableRegex> MovieYearPatterns { get; set; }
+    public SerializableRegex[] MovieYearPatterns { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, the MovieMetadataExtractor does not store any information in the MediaLibrary but just downloads fanart.
-    /// Useful if all metadata is available e.g. via nfo-files and must not be overwritten.
+    /// If <c>true</c>, no online searches will be done for metadata.
     /// </summary>
     [Setting(SettingScope.Global, false)]
-    public bool OnlyFanArt { get; set; }
+    public bool SkipOnlineSearches { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, no FanArt is downloaded.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool SkipFanArtDownload { get; set; }
 
     /// <summary>
     /// If <c>true</c>, the MovieMetadataExtractor does not fetch any information for missing movies in a collection.
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool OnlyLocalMedia { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of FanArt placed on network drives to allow browsing when they are offline.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool CacheOfflineFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Actor details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeActorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Character details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeCharacterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Director details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeDirectorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Writer details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeWriterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Production company details will be fetched from online sources.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeProductionCompanyDetails { get; set; }
 
     #endregion
   }

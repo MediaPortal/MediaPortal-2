@@ -31,8 +31,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public SimpleRating(double? rating)
     {
-      RatingValue = rating;
-      if(rating.HasValue)
+      if (rating.HasValue && rating.Value >= 0)
+        RatingValue = rating;
+      else
+        RatingValue = 0;
+      if (rating.HasValue)
         VoteCount = 1;
       else
         VoteCount = null;
@@ -40,7 +43,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public SimpleRating(double? rating, int? voteCount)
     {
-      RatingValue = rating;
+      if (rating.HasValue && rating.Value >= 0)
+        RatingValue = rating;
+      else
+        RatingValue = 0;
       VoteCount = null;
       if (rating.HasValue)
       {

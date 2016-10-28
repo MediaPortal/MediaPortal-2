@@ -68,11 +68,22 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         if (MovieDbId > 0)
           return true;
-        if (!string.IsNullOrEmpty(NameId))
-          return true;
 
         return false;
       }
+    }
+
+    public override void AssignNameId()
+    {
+      if (!CollectionName.IsEmpty)
+      {
+        NameId = GetNameId(CollectionName.Text);
+      }
+    }
+
+    public MovieCollectionInfo Clone()
+    {
+      return CloneProperties(this);
     }
 
     #region Members
@@ -84,6 +95,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (CollectionName.IsEmpty) return false;
+
+      SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(CollectionName.Text));
@@ -101,6 +114,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
+      GetMetadataChanged(aspectData);
+
       if (aspectData.ContainsKey(MovieCollectionAspect.ASPECT_ID))
       {
         string tempString;
@@ -193,6 +208,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return MovieDbId == other.MovieDbId;
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId))
         return string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase);
+
       if (!CollectionName.IsEmpty && !other.CollectionName.IsEmpty && CollectionName.Text == other.CollectionName.Text)
         return true;
 

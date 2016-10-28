@@ -72,7 +72,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public SeriesFanArtHandler()
     {
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Series FanArt handler");
-
     }
 
     public Guid[] FanArtAspects
@@ -118,25 +117,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
       {
+        if (BaseInfo.IsVirtualResource(aspects))
+          return;
+
         EpisodeInfo episodeInfo = new EpisodeInfo();
         episodeInfo.FromMetadata(aspects);
-        FanArtCache.InitFanArtCache(mediaItemId.ToString(), episodeInfo.ToString());
-        ExtractLocalImages(aspects, seriesMediaItemId, seasonMediaItemId);
-        OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, episodeInfo);
+        SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
+        SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
+        ExtractLocalImages(aspects, seriesMediaItemId, seasonMediaItemId, seriesInfo.ToString(), seasonInfo.ToString());
+        if(!SeriesMetadataExtractor.SkipFanArtDownload)
+          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, episodeInfo);
 
         //Take advantage of the audio language being known and download season and series too
         if (seasonMediaItemId.HasValue && !_checkCache.Contains(seasonMediaItemId.Value))
         {
-          SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
-          FanArtCache.InitFanArtCache(seasonMediaItemId.Value.ToString(), seasonInfo.ToString());
-          OnlineMatcherService.DownloadSeriesFanArt(seasonMediaItemId.Value, seasonInfo);
+          if (!SeriesMetadataExtractor.SkipFanArtDownload)
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(seasonMediaItemId.Value, seasonInfo);
           _checkCache.Add(seasonMediaItemId.Value);
         }
         if (seriesMediaItemId.HasValue && !_checkCache.Contains(seriesMediaItemId.Value))
         {
-          SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
-          FanArtCache.InitFanArtCache(seriesMediaItemId.Value.ToString(), seriesInfo.ToString());
-          OnlineMatcherService.DownloadSeriesFanArt(seriesMediaItemId.Value, seriesInfo);
+          if (!SeriesMetadataExtractor.SkipFanArtDownload)
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(seriesMediaItemId.Value, seriesInfo);
           _checkCache.Add(seriesMediaItemId.Value);
         }
       }
@@ -144,25 +146,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         PersonInfo personInfo = new PersonInfo();
         personInfo.FromMetadata(aspects);
-        FanArtCache.InitFanArtCache(mediaItemId.ToString(), personInfo.ToString());
         if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR || personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR ||
           personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
-          OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, personInfo);
+        {
+          if (!SeriesMetadataExtractor.SkipFanArtDownload)
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, personInfo);
+        }
       }
       else if (aspects.ContainsKey(CharacterAspect.ASPECT_ID))
       {
         CharacterInfo characterInfo = new CharacterInfo();
         characterInfo.FromMetadata(aspects);
-        FanArtCache.InitFanArtCache(mediaItemId.ToString(), characterInfo.ToString());
-        OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, characterInfo);
+        if (!SeriesMetadataExtractor.SkipFanArtDownload)
+          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, characterInfo);
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
       {
         CompanyInfo companyInfo = new CompanyInfo();
         companyInfo.FromMetadata(aspects);
-        FanArtCache.InitFanArtCache(mediaItemId.ToString(), companyInfo.ToString());
         if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION || companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
-          OnlineMatcherService.DownloadSeriesFanArt(mediaItemId, companyInfo);
+        {
+          if (!SeriesMetadataExtractor.SkipFanArtDownload)
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, companyInfo);
+        }
       }
     }
 
@@ -177,26 +183,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
-    private void ExtractLocalImages(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? seriesMediaItemId, Guid? seasonMediaItemId)
+    private void ExtractLocalImages(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? seriesMediaItemId, Guid? seasonMediaItemId, string seriesTitle, string seasonTitle)
     {
+      if (BaseInfo.IsVirtualResource(aspects))
+        return;
+
       IResourceLocator mediaItemLocater = GetResourceLocator(aspects);
-      if (mediaItemLocater.NativeResourcePath.IsNetworkResource) //No need to add it to cache if already locally available
+      ExtractFolderImages(mediaItemLocater, seriesMediaItemId, seasonMediaItemId, seriesTitle, seasonTitle);
+      using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
       {
-        ExtractFolderImages(mediaItemLocater, seriesMediaItemId, seasonMediaItemId);
-        using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
+        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
-          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
           {
-            using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-            {
-              ExtractMkvImages(rah.LocalFsResourceAccessor, seriesMediaItemId);
-            }
+            ExtractMkvImages(rah.LocalFsResourceAccessor, seriesMediaItemId, seriesTitle);
           }
         }
       }
     }
 
-    private void ExtractMkvImages(ILocalFsResourceAccessor lfsra, Guid? seriesMediaItemId)
+    private void ExtractMkvImages(ILocalFsResourceAccessor lfsra, Guid? seriesMediaItemId, string seriesTitle)
     {
       if (!seriesMediaItemId.HasValue)
         return;
@@ -237,6 +243,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
                   return;
 
+                FanArtCache.InitFanArtCache(mediaItemId, seriesTitle);
                 string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
                   "File." + pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
                 if (!File.Exists(cacheFile))
@@ -261,7 +268,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
     }
 
-    private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? seriesMediaItemId, Guid? seasonMediaItemId)
+    private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? seriesMediaItemId, Guid? seasonMediaItemId, string seriesTitle, string seasonTitle)
     {
       string fileSystemPath = string.Empty;
 
@@ -326,15 +333,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               }
             }
             foreach (ResourcePath posterPath in posterPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, posterPath, FanArtTypes.Poster, seriesMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Poster, seriesMediaItemId.Value, seriesTitle);
             foreach (ResourcePath logoPath in logoPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, logoPath, FanArtTypes.Logo, seriesMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, logoPath, FanArtTypes.Logo, seriesMediaItemId.Value, seriesTitle);
             foreach (ResourcePath clearArtPath in clearArtPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, clearArtPath, FanArtTypes.ClearArt, seriesMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, clearArtPath, FanArtTypes.ClearArt, seriesMediaItemId.Value, seriesTitle);
             foreach (ResourcePath bannerPath in bannerPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, bannerPath, FanArtTypes.Banner, seriesMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, seriesMediaItemId.Value, seriesTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, fanartPath, FanArtTypes.FanArt, seriesMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, seriesMediaItemId.Value, seriesTitle);
           }
 
           //Season fanart
@@ -376,11 +383,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               }
             }
             foreach (ResourcePath posterPath in posterPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, posterPath, FanArtTypes.Poster, seasonMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Poster, seasonMediaItemId.Value, seasonTitle);
             foreach (ResourcePath bannerPath in bannerPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, bannerPath, FanArtTypes.Banner, seasonMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, seasonMediaItemId.Value, seasonTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
-              SaveFolderFile(mediaItemLocater.NativeSystemId, fanartPath, FanArtTypes.FanArt, seasonMediaItemId.Value);
+              SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, seasonMediaItemId.Value, seasonTitle);
           }
         }
       }
@@ -405,7 +412,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return result;
     }
 
-    private void SaveFolderFile(string systemId, ResourcePath file, string fanartType, Guid parentId)
+    private void SaveFolderFile(IResourceLocator mediaItemLocater, ResourcePath file, string fanartType, Guid parentId, string title)
     {
       string mediaItemId = parentId.ToString().ToUpperInvariant();
       FanArtCache.InitFanArtCount(mediaItemId, fanartType);
@@ -414,24 +421,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
           return;
 
-        string cacheFile = GetCacheFileName(mediaItemId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
-        if (!File.Exists(cacheFile))
+        if (SeriesMetadataExtractor.CacheOfflineFanArt && mediaItemLocater.NativeResourcePath.IsNetworkResource) //No need to add it to cache if already locally available
         {
-          using (var fileRa = new ResourceLocator(systemId, file).CreateAccessor())
+          FanArtCache.InitFanArtCache(mediaItemId, title);
+          string cacheFile = GetCacheFileName(mediaItemId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
+          if (!File.Exists(cacheFile))
           {
-            var fileFsra = fileRa as IFileSystemResourceAccessor;
-            if (fileFsra != null)
+            using (var fileRa = new ResourceLocator(mediaItemLocater.NativeSystemId, file).CreateAccessor())
             {
-              using (Stream ms = fileFsra.OpenRead())
+              var fileFsra = fileRa as IFileSystemResourceAccessor;
+              if (fileFsra != null)
               {
-                using (Image img = Image.FromStream(ms, true, true))
+                using (Stream ms = fileFsra.OpenRead())
                 {
-                  img.Save(cacheFile);
-                  countLock.Count++;
+                  using (Image img = Image.FromStream(ms, true, true))
+                  {
+                    img.Save(cacheFile);
+                    countLock.Count++;
+                  }
                 }
               }
             }
           }
+        }
+        else
+        {
+          //Also count local FanArt
+          countLock.Count++;
         }
       }
     }

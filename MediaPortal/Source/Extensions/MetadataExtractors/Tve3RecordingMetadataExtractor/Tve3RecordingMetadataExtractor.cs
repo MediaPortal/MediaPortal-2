@@ -102,11 +102,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
         if (episodeInfo.IsBaseInfoPresent)
         {
-          OnlineMatcherService.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
-        return true;
+        return episodeInfo.IsBaseInfoPresent && episodeInfo.HasChanged;
       }
       catch (Exception e)
       {
@@ -234,6 +234,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (int.TryParse(tmpString, out episodeNum))
           episodeInfo.EpisodeNumbers.Add(episodeNum);
       }
+      episodeInfo.HasChanged = true;
       return episodeInfo;
     }
 
@@ -260,7 +261,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
       try
       {
         IResourceAccessor metaFileAccessor;
-        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
+        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
+          return false;
+        if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
+          return false;
 
         Tags tags;
         using (metaFileAccessor)
@@ -270,6 +274,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
 
         string value;
         if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))

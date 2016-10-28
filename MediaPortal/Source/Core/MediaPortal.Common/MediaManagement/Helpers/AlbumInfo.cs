@@ -115,11 +115,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return true;
         if (!string.IsNullOrEmpty(ItunesId))
           return true;
-        if (!string.IsNullOrEmpty(NameId))
-          return true;
 
         return false;
       }
+    }
+
+    public override void AssignNameId()
+    {
+      if (!string.IsNullOrEmpty(Album))
+      {
+        //Give the album a fallback Id so it will always be created
+        if (Artists.Count > 0)
+          NameId = Artists[0].Name + ":" + Album;
+        else
+          NameId = Album;
+        NameId = GetNameId(NameId);
+      }
+    }
+
+    public AlbumInfo Clone()
+    {
+      return CloneProperties(this);
     }
 
     #region Members
@@ -131,6 +147,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (string.IsNullOrEmpty(Album)) return false;
+
+      SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
@@ -172,6 +190,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
+      GetMetadataChanged(aspectData);
+
       if (aspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
       {
         MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, out Album);

@@ -209,8 +209,19 @@ namespace MediaPortal.Extensions.OnlineLibraries
                 {
                   object currentVal = field.GetValue(currentObj);
                   object newVal = field.GetValue(newObj);
-                  changed |= SetOrUpdateValue(ref currentVal, newVal);
-                  field.SetValue(currentObj, currentVal);
+                  if (Nullable.GetUnderlyingType(field.FieldType) != null)
+                  {
+                    if (currentVal == null && newVal != null)
+                    {
+                      field.SetValue(currentObj, newVal);
+                      changed = true;
+                    }
+                  }
+                  else
+                  {
+                    changed |= SetOrUpdateValue(ref currentVal, newVal);
+                    field.SetValue(currentObj, currentVal);
+                  }
                 }
               }
             }
@@ -358,6 +369,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         currentNumber = newNumber;
         return true;
+      }
+      else if (Nullable.GetUnderlyingType(currentNumber.GetType()) != null)
+      {
+        if (currentNumber == null && newNumber != null)
+        {
+          currentNumber = newNumber;
+          return true;
+        }
       }
       else if (currentNumber is DateTime || newNumber is DateTime)
       {

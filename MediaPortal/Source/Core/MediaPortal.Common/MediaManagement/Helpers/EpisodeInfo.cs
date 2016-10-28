@@ -97,11 +97,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int SeriesMovieDbId = 0;
     public int SeriesTvMazeId = 0;
     public int SeriesTvRageId = 0;
+    public string SeriesNameId = null;
 
     /// <summary>
     /// Gets or sets the series title.
     /// </summary>
     public SimpleTitle SeriesName = null;
+    public string SeriesAlternateName = null;
     public DateTime? SeriesFirstAired = null;
     /// <summary>
     /// Gets or sets the episode title.
@@ -193,6 +195,23 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
+    public override void AssignNameId()
+    {
+      if (!SeriesName.IsEmpty)
+      {
+        if (SeriesFirstAired.HasValue)
+          SeriesNameId = SeriesName.Text + "(" + SeriesFirstAired.Value.Year + ")";
+        else
+          SeriesNameId = SeriesName.Text;
+        SeriesNameId = GetNameId(SeriesNameId);
+      }
+    }
+
+    public EpisodeInfo Clone()
+    {
+      return CloneProperties(this);
+    }
+
     #region Members
 
     /// <summary>
@@ -203,6 +222,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!IsBaseInfoPresent)
         return false;
+
+      SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(EpisodeName.Text));
@@ -225,6 +246,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (SeriesMovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_SERIES, SeriesMovieDbId.ToString());
       if (SeriesTvMazeId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVMAZE, ExternalIdentifierAspect.TYPE_SERIES, SeriesTvMazeId.ToString());
       if (SeriesTvRageId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_SERIES, SeriesTvRageId.ToString());
+      if (!string.IsNullOrEmpty(SeriesNameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_SERIES, SeriesNameId);
 
       if (!Rating.IsEmpty)
       {
@@ -255,6 +277,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (!aspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         return false;
+
+      GetMetadataChanged(aspectData);
 
       MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, out SeasonNumber);
       MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out FirstAired);
@@ -295,6 +319,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TVRAGE, ExternalIdentifierAspect.TYPE_SERIES, out id))
         SeriesTvRageId = Convert.ToInt32(id);
       MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_SERIES, out SeriesImdbId);
+      MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_SERIES, out SeriesNameId);
 
       //Brownard 17.06.2016
       //The returned type of the collection differs on the server and client.
@@ -404,6 +429,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         SeriesTvdbId = episodeSeries.TvdbId;
         SeriesTvMazeId = episodeSeries.TvMazeId;
         SeriesTvRageId = episodeSeries.TvRageId;
+        SeriesNameId = episodeSeries.NameId;
         return true;
       }
       else if (otherInstance is SeasonInfo)
@@ -414,6 +440,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         SeriesTvdbId = episodeSeason.SeriesTvdbId;
         SeriesTvMazeId = episodeSeason.SeriesTvMazeId;
         SeriesTvRageId = episodeSeason.SeriesTvRageId;
+        SeriesNameId = episodeSeason.SeriesNameId;
         return true;
       }
       else if (otherInstance is EpisodeInfo)
@@ -430,6 +457,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         SeriesTvdbId = otherEpisode.SeriesTvdbId;
         SeriesTvMazeId = otherEpisode.SeriesTvMazeId;
         SeriesTvRageId = otherEpisode.SeriesTvRageId;
+        SeriesNameId = otherEpisode.SeriesNameId;
         return true;
       }
       return false;
@@ -446,8 +474,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           TvdbId = SeriesTvdbId,
           TvMazeId = SeriesTvMazeId,
           TvRageId = SeriesTvRageId,
+          NameId = SeriesNameId,
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage),
-          FirstAired = SeriesFirstAired
+          AlternateName = SeriesAlternateName,
+          FirstAired = SeriesFirstAired,
+          SearchSeason = SeasonNumber,
+          SearchEpisode = EpisodeNumbers.Count > 0 ? (int?)EpisodeNumbers[0] : null,
         };
         info.Languages.AddRange(Languages);
         return (T)(object)info;
@@ -462,6 +494,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesTvdbId = SeriesTvdbId,
           SeriesTvMazeId = SeriesTvMazeId,
           SeriesTvRageId = SeriesTvRageId,
+          SeriesNameId = SeriesNameId,
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage)
         };
         info.Languages.AddRange(Languages);
@@ -493,6 +526,22 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return TvRageId == other.TvRageId;
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+
+      if (SeriesTvdbId > 0 && other.SeriesTvdbId > 0 && SeriesTvdbId != other.SeriesTvdbId)
+        return false;
+      if (SeriesMovieDbId > 0 && other.SeriesMovieDbId > 0 && SeriesMovieDbId != other.SeriesMovieDbId)
+        return false;
+      if (SeriesTvMazeId > 0 && other.SeriesTvMazeId > 0 && SeriesTvMazeId != other.SeriesTvMazeId)
+        return false;
+      if (SeriesTvRageId > 0 && other.SeriesTvRageId > 0 && SeriesTvRageId != other.SeriesTvRageId)
+        return false;
+      if (!string.IsNullOrEmpty(SeriesImdbId) && !string.IsNullOrEmpty(other.SeriesImdbId) && 
+        !string.Equals(SeriesImdbId, other.SeriesImdbId, StringComparison.InvariantCultureIgnoreCase))
+        return false;
+      if (!string.IsNullOrEmpty(SeriesNameId) && !string.IsNullOrEmpty(other.SeriesNameId) && 
+        !string.Equals(SeriesNameId, other.SeriesNameId, StringComparison.InvariantCultureIgnoreCase))
+        return false;
+
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
         SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value == other.SeasonNumber.Value &&
         EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.First() == other.EpisodeNumbers.First())

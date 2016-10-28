@@ -38,6 +38,7 @@ using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {
@@ -69,7 +70,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> IMAGE_FILE_EXTENSIONS = new List<string>();
-
+    protected SettingsChangeWatcher<ImageMetadataExtractorSettings> _settingWatcher;
     protected MetadataExtractorMetadata _metadata;
 
     #endregion Protected fields and classes
@@ -101,9 +102,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
                 ImageAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
+      _settingWatcher = new SettingsChangeWatcher<ImageMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
     }
 
     #endregion Ctor
+
+    #region Settings
+
+    public static bool IncludeGeoLocationDetails { get; private set; }
+
+    private void LoadSettings()
+    {
+      IncludeGeoLocationDetails = _settingWatcher.Settings.IncludeGeoLocationDetails;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
+    }
+
+    #endregion
 
     #region Protected methods
 
@@ -134,10 +155,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       if (!HasImageExtension(fileName))
         return false;
 
+      bool refresh = false;
+      if (extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))
+        refresh = true;
+
       try
       {
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-        if (!extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))
+        if (!refresh)
         {
           MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
@@ -157,44 +182,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 
         MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
         mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
-
         MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.Metadata);
 
-        // Extract EXIF information from media item.
-        using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))
-        {
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, ProviderPathHelper.GetFileNameWithoutExtension(fileName));
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : fsra.LastChanged);
-          mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
-
-          if (exif.PixXDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int)exif.PixXDim);
-          if (exif.PixYDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_HEIGHT, (int)exif.PixYDim);
-          imageAspect.SetAttribute(ImageAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
-          imageAspect.SetAttribute(ImageAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
-          if (exif.ExposureBias.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_BIAS, ((double)exif.ExposureBias).ToString());
-          imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_TIME, exif.ExposureTime);
-          imageAspect.SetAttribute(ImageAspect.ATTR_FLASH_MODE, StringUtils.TrimToNull(exif.FlashMode));
-          if (exif.FNumber.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double)exif.FNumber));
-          imageAspect.SetAttribute(ImageAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
-          imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32)(exif.OrientationType ?? 0));
-          imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
-
-          if (exif.Latitude.HasValue && exif.Longitude.HasValue)
+        if (!refresh)
+        { 
+          // Extract EXIF information from media item.
+          using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))
           {
-            imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
-            imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
+            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, ProviderPathHelper.GetFileNameWithoutExtension(fileName));
+            mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : fsra.LastChanged);
+            mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
 
-            if (!forceQuickMode)
+            if (exif.PixXDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int)exif.PixXDim);
+            if (exif.PixYDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_HEIGHT, (int)exif.PixYDim);
+            imageAspect.SetAttribute(ImageAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
+            imageAspect.SetAttribute(ImageAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
+            if (exif.ExposureBias.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_BIAS, ((double)exif.ExposureBias).ToString());
+            imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_TIME, exif.ExposureTime);
+            imageAspect.SetAttribute(ImageAspect.ATTR_FLASH_MODE, StringUtils.TrimToNull(exif.FlashMode));
+            if (exif.FNumber.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double)exif.FNumber));
+            imageAspect.SetAttribute(ImageAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
+            imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32)(exif.OrientationType ?? 0));
+            imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
+
+            if (exif.Latitude.HasValue && exif.Longitude.HasValue)
             {
-              CivicAddress locationInfo;
-              if (GeoLocationService.Instance.TryLookup(new GeoCoordinate(exif.Latitude.Value, exif.Longitude.Value), out locationInfo))
-              {
-                imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
-                imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
-                imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
-              }
+              imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
+              imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
             }
           }
+
+          byte[] thumbData;
+          // We only want to create missing thumbnails here, so check for existing ones first
+          if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumbData) && thumbData != null)
+            return true;
 
           using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
           using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
@@ -202,19 +223,57 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
             if (localFsResourcePath != null)
             {
-              // In quick mode only allow thumbs taken from cache.
-              bool cachedOnly = forceQuickMode;
-
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-              byte[] thumbData;
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, true, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }
           }
+          return true;
         }
-        return true;
+        else
+        {
+          bool updated = false;
+          double? latitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LATITUDE);
+          double? longitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LONGITUDE);
+          if (IncludeGeoLocationDetails && !forceQuickMode &&
+            string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)) &&
+            latitude.HasValue && longitude.HasValue)
+          {
+            CivicAddress locationInfo;
+            if (GeoLocationService.Instance.TryLookup(new GeoCoordinate(latitude.Value, longitude.Value), out locationInfo))
+            {
+              imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
+              imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
+              imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
+              updated = true;
+            }
+          }
+
+          byte[] thumbData;
+          // We only want to create missing thumbnails here, so check for existing ones first
+          if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumbData) && thumbData != null)
+            return updated;
+
+          using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
+          {
+            string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
+            if (localFsResourcePath != null)
+            {
+              // Thumbnail extraction
+              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+              ImageType imageType;
+              if (generator.GetThumbnail(localFsResourcePath, false, out thumbData, out imageType))
+              {
+                MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+                updated = true;
+              }
+            }
+          }
+          return updated;
+        }
       }
       catch (Exception e)
       {

@@ -231,27 +231,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (movies.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", movieSearch, movies.Count);
-        var exactMatches = movies.FindAll(s => s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0);
+
+        // Try to match the year, if available
+        if (movieSearch.ReleaseDate.HasValue)
+        {
+          var yearFiltered = movies.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == movieSearch.ReleaseDate.Value.Year);
+          if (yearFiltered.Count == 1)
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
+            movies = yearFiltered;
+            return true;
+          }
+          else if(yearFiltered.Count > 0)
+          {
+            movies = yearFiltered;
+          }
+        }
+
+        var exactMatches = movies.FindAll(s => !s.MovieName.IsEmpty && 
+          (s.MovieName.IsEmpty && s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
           movies = exactMatches;
           return true;
-        }
-
-        if (exactMatches.Count > 1)
-        {
-          // Try to match the year, if available
-          if (movieSearch.ReleaseDate.HasValue)
-          {
-            var yearFiltered = exactMatches.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == movieSearch.ReleaseDate.Value.Year);
-            if (yearFiltered.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
-              movies = yearFiltered;
-              return true;
-            }
-          }
         }
 
         exactMatches = movies.FindAll(s => NamesAreMostlyEqual(s, movieSearch));
@@ -262,29 +265,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        if (exactMatches.Count > 1)
+        if (PreferredLanguage != null && exactMatches.Count > 1)
         {
-          // Try to match the year, if available
-          if (movieSearch.ReleaseDate.HasValue)
-          {
-            var yearFiltered = exactMatches.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == movieSearch.ReleaseDate.Value.Year);
-            if (yearFiltered.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
-              movies = yearFiltered;
-              return true;
-            }
-          }
-        }
-
-        movies = movies.Where(s => GetLevenshteinDistance(s, movieSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (movies.Count == 0)
-          movies.Where(s => NamesAreMostlyEqual(s, movieSearch)).ToList();
-
-        if (movies.Count > 1)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", movieSearch, movies.Count, PreferredLanguage);
-          movies = movies.FindAll(s => s.Languages.Contains(PreferredLanguage.ToString()) || s.Languages.Count == 0);
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", movieSearch, exactMatches.Count, PreferredLanguage);
+          movies = exactMatches.FindAll(s => s.Languages.Contains(PreferredLanguage.ToString()) || s.Languages.Count == 0);
         }
 
         if (movies.Count > 1)
@@ -420,7 +404,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", episodeSearch, episodes.Count);
-        var exactMatches = episodes.FindAll(e => e.EpisodeName.Text == episodeSearch.EpisodeName.Text || GetLevenshteinDistance(e, episodeSearch) == 0);
+        var exactMatches = episodes.FindAll(e => !e.EpisodeName.IsEmpty && (e.EpisodeName.Text == episodeSearch.EpisodeName.Text || GetLevenshteinDistance(e, episodeSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
@@ -435,14 +419,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        episodes = episodes.Where(e => GetLevenshteinDistance(e, episodeSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (episodes.Count == 0)
-          episodes = episodes.Where(e => NamesAreMostlyEqual(e, episodeSearch)).ToList();
-
-        if (episodes.Count > 1)
+        if (exactMatches.Count > 1)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", episodeSearch, episodes.Count, PreferredLanguage);
-          episodes = episodes.FindAll(s => s.Languages.Contains(PreferredLanguage.ToString()) || s.Languages.Count == 0);
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", episodeSearch, exactMatches.Count, PreferredLanguage);
+          episodes = exactMatches.FindAll(s => s.Languages.Contains(PreferredLanguage.ToString()) || s.Languages.Count == 0);
         }
 
         if (episodes.Count > 1)
@@ -543,27 +523,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (series.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", seriesSearch, series.Count);
-        var exactMatches = series.FindAll(s => s.SeriesName.Text == seriesSearch.SeriesName.Text || s.OriginalName == seriesSearch.OriginalName || GetLevenshteinDistance(s, seriesSearch) == 0);
+
+        // Try to match the year, if available
+        if (seriesSearch.FirstAired.HasValue)
+        {
+          var yearFiltered = series.FindAll(s => s.FirstAired.HasValue && s.FirstAired.Value.Year == seriesSearch.FirstAired.Value.Year);
+          if (yearFiltered.Count == 1)
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
+            series = yearFiltered;
+            return true;
+          }
+          else if (yearFiltered.Count > 0)
+          {
+            series = yearFiltered;
+          }
+        }
+
+        var exactMatches = series.FindAll(s => !s.SeriesName.IsEmpty && 
+          (s.SeriesName.Text == seriesSearch.SeriesName.Text || s.OriginalName == seriesSearch.SeriesName.Text || GetLevenshteinDistance(s, seriesSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
           series = exactMatches;
           return true;
-        }
-
-        if (exactMatches.Count > 1)
-        {
-          // Try to match the year, if available
-          if (seriesSearch.FirstAired.HasValue)
-          {
-            var yearFiltered = exactMatches.FindAll(s => s.FirstAired.HasValue && s.FirstAired.Value.Year == seriesSearch.FirstAired.Value.Year);
-            if (yearFiltered.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
-              series = yearFiltered;
-              return true;
-            }
-          }
         }
 
         exactMatches = series.FindAll(s => NamesAreMostlyEqual(s, seriesSearch));
@@ -574,34 +557,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        if (exactMatches.Count > 1)
+        if (PreferredLanguage != null && exactMatches.Count > 1)
         {
-          // Try to match the year, if available
-          if (seriesSearch.FirstAired.HasValue)
-          {
-            var yearFiltered = exactMatches.FindAll(s => s.FirstAired.HasValue && s.FirstAired.Value.Year == seriesSearch.FirstAired.Value.Year);
-            if (yearFiltered.Count == 1)
-            {
-              ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
-              series = yearFiltered;
-              return true;
-            }
-          }
-        }
-
-        series = series.Where(s => GetLevenshteinDistance(s, seriesSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (series.Count == 0)
-          series = series.Where(s => NamesAreMostlyEqual(s, seriesSearch)).ToList();
-
-        if (series.Count > 1)
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", seriesSearch, series.Count, PreferredLanguage);
-          series = series.FindAll(s => s.Languages.Contains(PreferredLanguage.ToString()) || s.Languages.Count == 0);
+          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for exact name \"{0}\" ({1}). Try to find match for preferred language {2}.", seriesSearch, exactMatches.Count, PreferredLanguage);
+          series = exactMatches.FindAll(s => s.Languages.Contains(PreferredLanguage.ToString()) || s.Languages.Count == 0);
         }
 
         if (series.Count > 1)
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", seriesSearch, series.Count);
-
       }
       return series.Count == 1;
     }
@@ -798,10 +761,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
-        persons = persons.Where(p => GetLevenshteinDistance(p, personSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (persons.Count == 0)
-          persons = persons.Where(p => NamesAreMostlyEqual(p, personSearch)).ToList();
-
         if (persons.Count > 1)
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", personSearch, persons.Count);
 
@@ -933,10 +892,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        characters = characters.Where(p => GetLevenshteinDistance(p, characterSearch) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (characters.Count == 0)
-          characters = characters.Where(p => NamesAreMostlyEqual(p, characterSearch)).ToList();
-
         if (characters.Count > 1)
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", characterSearch, characters.Count);
 
@@ -1059,10 +1014,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        companies = companies.Where(c => GetLevenshteinDistance(c, companySearch) <= MAX_LEVENSHTEIN_DIST).ToList();
-        if (companies.Count == 0)
-          companies = companies.Where(c => NamesAreMostlyEqual(c, companySearch)).ToList();
-
         if (companies.Count > 1)
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches found for \"{0}\" (count: {1})", companySearch, companies.Count);
 
@@ -1144,7 +1095,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (tracks.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", trackSearch, tracks.Count);
-        var exactMatches = tracks.FindAll(t => t.TrackName == trackSearch.TrackName || GetLevenshteinDistance(t, trackSearch) == 0);
+        var exactMatches = tracks.FindAll(t => !string.IsNullOrEmpty(t.TrackName) && (t.TrackName == trackSearch.TrackName || GetLevenshteinDistance(t, trackSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", trackSearch);
@@ -1188,7 +1139,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (checkValue == AudioValueToCheck.Discs)
               exactMatches = exactMatches.FindAll(t => t.DiscNum > 0 || t.TotalDiscs > 0);
 
-            if (checkValue == AudioValueToCheck.Language)
+            if (checkValue == AudioValueToCheck.Language && PreferredLanguage != null)
             {
               exactMatches = exactMatches.FindAll(t => t.Languages.Contains(PreferredLanguage.ToString()) || t.Languages.Count == 0);
               if (exactMatches.Count == 0)
@@ -1312,7 +1263,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (albums.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", albumSearch, albums.Count);
-        var exactMatches = albums.FindAll(t => t.Album == albumSearch.Album || GetLevenshteinDistance(t, albumSearch) == 0);
+        var exactMatches = albums.FindAll(t => !string.IsNullOrEmpty(t.Album) && (t.Album == albumSearch.Album || GetLevenshteinDistance(t, albumSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
@@ -1356,7 +1307,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (checkValue == AudioValueToCheck.Discs)
               exactMatches = exactMatches.FindAll(a => a.DiscNum > 0 || a.TotalDiscs > 0);
 
-            if (checkValue == AudioValueToCheck.Language)
+            if (checkValue == AudioValueToCheck.Language && PreferredLanguage != null)
             {
               exactMatches = exactMatches.FindAll(a => a.Languages.Contains(PreferredLanguage.ToString()) || a.Languages.Count == 0);
               if (exactMatches.Count == 0)

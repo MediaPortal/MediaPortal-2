@@ -78,15 +78,22 @@ namespace MediaPortal.Common.FanArt
       {
         mediaItemId = mediaItemId.ToUpperInvariant();
         string cacheFolder = Path.Combine(FANART_CACHE_PATH, mediaItemId);
-        string cacheFile = Path.Combine(cacheFolder, FileUtils.GetSafeFilename(title.Trim().ToUpperInvariant() + ".mpcache"));
+        string cacheFile = null;
+        if(!string.IsNullOrEmpty(title))
+          cacheFile = Path.Combine(cacheFolder, FileUtils.GetSafeFilename(title.Trim().ToUpperInvariant() + ".mpcache"));
         if (!Directory.Exists(cacheFolder))
         {
           Directory.CreateDirectory(cacheFolder);
-          File.AppendAllText(cacheFile, title);
+          if (cacheFile != null)
+          {
+            File.AppendAllText(cacheFile, title);
+            File.SetAttributes(cacheFile, FileAttributes.Normal);
+          }
         }
-        else if (!File.Exists(cacheFile))
+        else if (cacheFile != null && !File.Exists(cacheFile))
         {
           File.AppendAllText(cacheFile, title);
+          File.SetAttributes(cacheFile, FileAttributes.Normal);
         }
       }
     }
@@ -111,16 +118,29 @@ namespace MediaPortal.Common.FanArt
     {
       try
       {
+        string folderPath = Path.Combine(FANART_CACHE_PATH, mediaItemId);
         mediaItemId = mediaItemId.ToUpperInvariant();
         int maxTries = 3;
-        if (Directory.Exists(Path.Combine(FANART_CACHE_PATH, mediaItemId)))
+        if (Directory.Exists(folderPath))
         {
           for (int i = 0; i < maxTries; i++)
           {
             try
             {
-              if (Directory.Exists(Path.Combine(FANART_CACHE_PATH, mediaItemId)))
-                Directory.Delete(Path.Combine(FANART_CACHE_PATH, mediaItemId), true);
+              if (Directory.Exists(folderPath))
+              {
+                //Make sure file permissions are correct
+                foreach(string cacheFile in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
+                {
+                  try
+                  {
+                    File.SetAttributes(cacheFile, FileAttributes.Normal);
+                  }
+                  catch
+                  { }
+                }
+                Directory.Delete(folderPath, true);
+              }
               return;
             }
             catch

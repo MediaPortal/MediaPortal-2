@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Settings;
-using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using System.Threading;
 
@@ -55,8 +53,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public SeriesRelationshipExtractor()
     {
-      bool onlyLocalMedia = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>().OnlyLocalMedia;
-
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Series relationship extractor");
 
       _extractors = new List<IRelationshipRoleExtractor>();
@@ -75,8 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new SeriesNetworkRelationshipExtractor());
       _extractors.Add(new SeriesProductionRelationshipExtractor());
 
-      if(!onlyLocalMedia)
-        _extractors.Add(new SeriesEpisodeRelationshipExtractor());
+      _extractors.Add(new SeriesEpisodeRelationshipExtractor());
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {

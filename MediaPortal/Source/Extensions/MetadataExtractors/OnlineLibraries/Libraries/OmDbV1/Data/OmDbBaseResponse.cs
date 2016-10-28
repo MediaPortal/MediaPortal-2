@@ -38,11 +38,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
       {
         foreach(PropertyInfo property in properties)
         {
-          if(property.GetValue(this) is string)
+          if (property.CanRead && property.CanWrite)
           {
-            string val = (string)property.GetValue(this);
-            if (string.IsNullOrEmpty(val) || val.Equals("N/A", StringComparison.InvariantCultureIgnoreCase))
-              property.SetValue(this, null);
+            if (property.GetValue(this) is string)
+            {
+              string val = (string)property.GetValue(this);
+              if (string.IsNullOrEmpty(val) || val.Equals("N/A", StringComparison.InvariantCultureIgnoreCase))
+                property.SetValue(this, null);
+            }
           }
         }
       }
