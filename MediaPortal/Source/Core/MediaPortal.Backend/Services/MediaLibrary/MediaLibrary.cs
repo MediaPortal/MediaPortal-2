@@ -1439,9 +1439,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         //Don't merge virtual resource
         string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
-        if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
-          return null;
+        if (!string.IsNullOrEmpty(accessorPath))
+        {
+          ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
+          if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+            return null;
+        }
       }
 
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
