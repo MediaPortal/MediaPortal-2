@@ -74,9 +74,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return IMovieRelationshipExtractor.GetMovieSearchFilters(extractedAspects);
+      return IMovieRelationshipExtractor.GetMovieSearchFilter(extractedAspects);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
@@ -106,7 +106,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
         //Don't merge virtual resource
         string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        ResourcePath resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
+        ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
         if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
           return false;
 

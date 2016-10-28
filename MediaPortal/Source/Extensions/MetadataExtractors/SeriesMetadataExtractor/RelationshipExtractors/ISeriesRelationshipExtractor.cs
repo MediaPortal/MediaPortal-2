@@ -24,23 +24,285 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Caching;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
   public abstract class ISeriesRelationshipExtractor
   {
-    public abstract void ClearCache();
+    protected static MemoryCache _actorMemoryCache = null;
+    protected static MemoryCache _characterMemoryCache = null;
+    protected static MemoryCache _writerMemoryCache = null;
+    protected static MemoryCache _directorMemoryCache = null;
+    protected static MemoryCache _seriesMemoryCache = null;
+    protected static MemoryCache _seasonMemoryCache = null;
+    protected static MemoryCache _studioMemoryCache = null;
+    protected static MemoryCache _networkMemoryCache = null;
+    protected static CacheItemPolicy _cachePolicy = null;
 
-    public static IFilter[] GetSeriesSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    protected MemoryCache _checkMemoryCache = null;
+
+    static ISeriesRelationshipExtractor()
+    {
+      _actorMemoryCache = new MemoryCache("SeriesActorItemCache");
+      _characterMemoryCache = new MemoryCache("SeriesCharacterItemCache");
+      _writerMemoryCache = new MemoryCache("SeriesWriterItemCache");
+      _directorMemoryCache = new MemoryCache("SeriesDirectorItemCache");
+      _seriesMemoryCache = new MemoryCache("SeriesItemCache");
+      _seasonMemoryCache = new MemoryCache("SeriesSeasonItemCache");
+      _studioMemoryCache = new MemoryCache("SeriesStudioItemCache");
+      _networkMemoryCache = new MemoryCache("SeriesNetworkItemCache");
+
+      _cachePolicy = new CacheItemPolicy();
+      _cachePolicy.SlidingExpiration = TimeSpan.FromHours(SeriesMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+    }
+
+    public virtual void ClearCache()
+    {
+      if (_actorMemoryCache != null)
+        _actorMemoryCache.Trim(100);
+      if (_characterMemoryCache != null)
+        _characterMemoryCache.Trim(100);
+      if (_writerMemoryCache != null)
+        _writerMemoryCache.Trim(100);
+      if (_directorMemoryCache != null)
+        _directorMemoryCache.Trim(100);
+      if (_seriesMemoryCache != null)
+        _seriesMemoryCache.Trim(100);
+      if (_seasonMemoryCache != null)
+        _seasonMemoryCache.Trim(100);
+      if (_studioMemoryCache != null)
+        _studioMemoryCache.Trim(100);
+      if (_networkMemoryCache != null)
+        _networkMemoryCache.Trim(100);
+
+      if (_checkMemoryCache != null)
+        _checkMemoryCache.Trim(100);
+    }
+
+    protected virtual bool AddToActorCache(Guid mediaItemId, PersonInfo mediaItemInfo)
+    {
+      if (_actorMemoryCache == null)
+        return false;
+
+      return _actorMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    protected virtual bool TryGetIdFromActorCache(PersonInfo mediaItemInfo, out Guid mediaItemId)
+    {
+      mediaItemId = Guid.Empty;
+      if (_actorMemoryCache == null)
+        return false;
+
+      List<string> items = _actorMemoryCache.Where(mi => mediaItemInfo.Equals((PersonInfo)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+      {
+        mediaItemId = Guid.Parse(items[0]);
+        return _actorMemoryCache.Contains(items[0]);
+      }
+      return false;
+    }
+
+    protected virtual bool AddToCharacterCache(Guid mediaItemId, CharacterInfo mediaItemInfo)
+    {
+      if (_characterMemoryCache == null)
+        return false;
+
+      return _characterMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    protected virtual bool TryGetIdFromCharacterCache(CharacterInfo mediaItemInfo, out Guid mediaItemId)
+    {
+      mediaItemId = Guid.Empty;
+      if (_characterMemoryCache == null)
+        return false;
+
+      List<string> items = _characterMemoryCache.Where(mi => mediaItemInfo.Equals((CharacterInfo)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+      {
+        mediaItemId = Guid.Parse(items[0]);
+        return _characterMemoryCache.Contains(items[0]);
+      }
+      return false;
+    }
+
+    protected virtual bool AddToWriterCache(Guid mediaItemId, PersonInfo mediaItemInfo)
+    {
+      if (_writerMemoryCache == null)
+        return false;
+
+      return _writerMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    protected virtual bool TryGetIdFromWriterCache(PersonInfo mediaItemInfo, out Guid mediaItemId)
+    {
+      mediaItemId = Guid.Empty;
+      if (_writerMemoryCache == null)
+        return false;
+
+      List<string> items = _writerMemoryCache.Where(mi => mediaItemInfo.Equals((PersonInfo)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+      {
+        mediaItemId = Guid.Parse(items[0]);
+        return _writerMemoryCache.Contains(items[0]);
+      }
+      return false;
+    }
+
+    protected virtual bool AddToDirectorCache(Guid mediaItemId, PersonInfo mediaItemInfo)
+    {
+      if (_directorMemoryCache == null)
+        return false;
+
+      return _directorMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    protected virtual bool TryGetIdFromDirectorCache(PersonInfo mediaItemInfo, out Guid mediaItemId)
+    {
+      mediaItemId = Guid.Empty;
+      if (_directorMemoryCache == null)
+        return false;
+
+      List<string> items = _directorMemoryCache.Where(mi => mediaItemInfo.Equals((PersonInfo)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+      {
+        mediaItemId = Guid.Parse(items[0]);
+        return _directorMemoryCache.Contains(items[0]);
+      }
+      return false;
+    }
+
+    protected virtual bool AddToSeriesCache(Guid mediaItemId, SeriesInfo mediaItemInfo)
+    {
+      if (_seriesMemoryCache == null)
+        return false;
+
+      return _seriesMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    protected virtual bool TryGetIdFromSeriesCache(SeriesInfo mediaItemInfo, out Guid mediaItemId)
+    {
+      mediaItemId = Guid.Empty;
+      if (_seriesMemoryCache == null)
+        return false;
+
+      List<string> items = _seriesMemoryCache.Where(mi => mediaItemInfo.Equals((SeriesInfo)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+      {
+        mediaItemId = Guid.Parse(items[0]);
+        return _seriesMemoryCache.Contains(items[0]);
+      }
+      return false;
+    }
+
+    protected virtual SeriesInfo GetFromSeriesCache(Guid mediaItemId)
+    {
+      if (_seriesMemoryCache == null)
+        return null;
+
+      return (SeriesInfo)_seriesMemoryCache[mediaItemId.ToString()];
+    }
+
+    protected virtual bool AddToSeasonCache(Guid mediaItemId, SeasonInfo mediaItemInfo)
+    {
+      if (_seasonMemoryCache == null)
+        return false;
+
+      return _seasonMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    protected virtual bool TryGetIdFromSeasonCache(SeasonInfo mediaItemInfo, out Guid mediaItemId)
+    {
+      mediaItemId = Guid.Empty;
+      if (_seasonMemoryCache == null)
+        return false;
+
+      List<string> items = _seasonMemoryCache.Where(mi => mediaItemInfo.Equals((SeasonInfo)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+      {
+        mediaItemId = Guid.Parse(items[0]);
+        return _seasonMemoryCache.Contains(items[0]);
+      }
+      return false;
+    }
+
+    protected virtual SeasonInfo GetFromSeasonCache(Guid mediaItemId)
+    {
+      if (_seasonMemoryCache == null)
+        return null;
+
+      return (SeasonInfo)_seasonMemoryCache[mediaItemId.ToString()];
+    }
+
+    protected virtual bool AddToStudioCache(Guid mediaItemId, CompanyInfo mediaItemInfo)
+    {
+      if (_studioMemoryCache == null)
+        return false;
+
+      return _studioMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    protected virtual bool TryGetIdFromStudioCache(CompanyInfo mediaItemInfo, out Guid mediaItemId)
+    {
+      mediaItemId = Guid.Empty;
+      if (_studioMemoryCache == null)
+        return false;
+
+      List<string> items = _studioMemoryCache.Where(mi => mediaItemInfo.Equals((CompanyInfo)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+      {
+        mediaItemId = Guid.Parse(items[0]);
+        return _studioMemoryCache.Contains(items[0]);
+      }
+      return false;
+    }
+
+    protected virtual bool AddToNetworkCache(Guid mediaItemId, CompanyInfo mediaItemInfo)
+    {
+      if (_networkMemoryCache == null)
+        return false;
+
+      return _networkMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    protected virtual bool TryGetIdFromNetworkCache(CompanyInfo mediaItemInfo, out Guid mediaItemId)
+    {
+      mediaItemId = Guid.Empty;
+      if (_networkMemoryCache == null)
+        return false;
+
+      List<string> items = _networkMemoryCache.Where(mi => mediaItemInfo.Equals((CompanyInfo)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+      {
+        mediaItemId = Guid.Parse(items[0]);
+        return _networkMemoryCache.Contains(items[0]);
+      }
+      return false;
+    }
+
+    protected virtual bool AddToCheckCache<T>(T mediaItemInfo)
+    {
+      if (_checkMemoryCache == null)
+        _checkMemoryCache = new MemoryCache(GetType().ToString() + "CheckCache");
+
+      List<string> items = _checkMemoryCache.Where(mi => mediaItemInfo.Equals((T)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+        return _checkMemoryCache.Add(items[0], mediaItemInfo, _cachePolicy);
+
+      return _checkMemoryCache.Add(mediaItemInfo.ToString(), mediaItemInfo, _cachePolicy);
+    }
+
+    public static IFilter GetSeriesSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> seriesFilters = new List<IFilter>();
       if (!extractedAspects.ContainsKey(SeriesAspect.ASPECT_ID))
-        return seriesFilters.ToArray();
+        return null;
 
       IList<MultipleMediaItemAspect> externalAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
@@ -74,14 +336,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-      return seriesFilters.ToArray();
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, seriesFilters.ToArray());
     }
 
-    public static IFilter[] GetSeasonSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public static IFilter GetSeasonSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> seasonFilters = new List<IFilter>();
       if (!extractedAspects.ContainsKey(SeasonAspect.ASPECT_ID))
-        return seasonFilters.ToArray();
+        return null;
 
       int seasonFilter = -1;
       int seriesFilter = -1;
@@ -163,14 +425,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-      return seasonFilters.ToArray();
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, seasonFilters.ToArray());
     }
 
-    public static IFilter[] GetEpisodeSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public static IFilter GetEpisodeSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> episodeFilters = new List<IFilter>();
       if (!extractedAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
-        return episodeFilters.ToArray();
+        return null;
 
       int episodeFilter = -1;
       int seriesFilter = -1;
@@ -261,14 +523,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-      return episodeFilters.ToArray();
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, episodeFilters.ToArray());
     }
 
-    public static IFilter[] GetCharacterSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public static IFilter GetCharacterSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> characterFilters = new List<IFilter>();
       if (!extractedAspects.ContainsKey(CharacterAspect.ASPECT_ID))
-        return characterFilters.ToArray();
+        return null;
 
       int characterFilter = -1;
       int personFilter = -1;
@@ -337,14 +599,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-      return characterFilters.ToArray();
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, characterFilters.ToArray());
     }
 
-    public static IFilter[] GetPersonSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public static IFilter GetPersonSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> personFilters = new List<IFilter>();
       if (!extractedAspects.ContainsKey(PersonAspect.ASPECT_ID))
-        return personFilters.ToArray();
+        return null;
 
       IList<MultipleMediaItemAspect> externalAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
@@ -378,14 +640,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-      return personFilters.ToArray();
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, personFilters.ToArray());
     }
 
-    public static IFilter[] GetCompanySearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public static IFilter GetCompanySearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> companyFilters = new List<IFilter>();
       if (!extractedAspects.ContainsKey(CompanyAspect.ASPECT_ID))
-        return companyFilters.ToArray();
+        return null;
 
       IList<MultipleMediaItemAspect> externalAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
@@ -419,14 +681,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-      return companyFilters.ToArray();
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, companyFilters.ToArray());
     }
 
-    public static IFilter[] GetTvNetworkSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public static IFilter GetTvNetworkSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> tvNetworkFilters = new List<IFilter>();
       if (!extractedAspects.ContainsKey(CompanyAspect.ASPECT_ID))
-        return tvNetworkFilters.ToArray();
+        return null;
 
       IList<MultipleMediaItemAspect> externalAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
@@ -460,7 +722,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-      return tvNetworkFilters.ToArray();
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, tvNetworkFilters.ToArray());
     }
   }
 }

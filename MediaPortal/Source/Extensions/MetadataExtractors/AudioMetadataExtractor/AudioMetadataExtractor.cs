@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
-    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 1;
+    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
 
@@ -624,6 +624,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         else if(!SkipOnlineSearches)
         {
            OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+        }
+
+        if (refresh)
+        {
+          if (!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Artists.Count > 0)
+          {
+            trackInfo.HasChanged = true;
+          }
         }
 
         if (!trackInfo.HasChanged && !forceQuickMode)

@@ -29,7 +29,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
@@ -39,8 +38,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
-    private CheckedItemCache<MovieInfo> _checkCache = new CheckedItemCache<MovieInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
-    private CheckedItemCache<MovieCollectionInfo> _collectionCache = new CheckedItemCache<MovieCollectionInfo>(MovieMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public bool BuildRelationship
     {
@@ -67,12 +64,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetMovieCollectionSearchFilters(extractedAspects);
+      return GetMovieCollectionSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
@@ -80,18 +77,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(movieInfo))
-        return false;
-
-      MovieCollectionInfo collectionInfo;
-      if (!_collectionCache.TryGetCheckedItem(movieInfo.CloneBasicInstance<MovieCollectionInfo>(), out collectionInfo))
-      {
-        collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-        if (!MovieMetadataExtractor.SkipOnlineSearches)
-          OnlineMatcherService.Instance.UpdateCollection(collectionInfo, false, false);
-        collectionInfo.HasChanged = false; //Reset change status on cached instance
-        _collectionCache.TryAddCheckedItem(collectionInfo);
-      }
+      Guid collectionId;
+      MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+      if (TryGetIdFromCollectionCache(collectionInfo, out collectionId))
+        collectionInfo = GetFromCollectionCache(collectionId);
+      else if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
+        OnlineMatcherService.Instance.UpdateCollection(collectionInfo, false, false);
 
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         collectionInfo.HasChanged = true; //Force save if no relationship exists
@@ -99,30 +90,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      collectionInfo.SetMetadata(collectionAspects);
-
-      bool movieVirtual = true;
-      if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
+      
+      if (collectionId != Guid.Empty)
       {
-        MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
+        collectionInfo.SetMetadata(collectionAspects);
+
+        bool movieVirtual = true;
+        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
+        {
+          MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
+        }
+
+        if (collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(collectionAspects, collectionId);
       }
-
-      if (collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        extractedLinkedAspects.Add(collectionAspects);
-
-      //Create custom collection
-      if (!string.IsNullOrEmpty(movieInfo.CollectionNameId))
+      else
       {
-        MovieCollectionInfo customCollectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+        //Create custom collection
+        if (!string.IsNullOrEmpty(movieInfo.CollectionNameId) && !collectionInfo.HasExternalId)
+        {
+          collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+          collectionInfo.HasChanged = true;
+        }
+        collectionInfo.SetMetadata(collectionAspects);
 
-        IDictionary<Guid, IList<MediaItemAspect>> customCollectionAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        customCollectionInfo.HasChanged = true;
-        customCollectionInfo.SetMetadata(customCollectionAspects);
+        bool movieVirtual = true;
+        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out movieVirtual))
+        {
+          MediaItemAspect.SetAttribute(collectionAspects, MediaAspect.ATTR_ISVIRTUAL, movieVirtual);
+        }
 
-        if (customCollectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(customCollectionAspects);
+        if (collectionAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(collectionAspects, Guid.Empty);
       }
 
       return extractedLinkedAspects.Count > 0;
@@ -159,10 +161,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return index >= 0;
     }
 
-    public override void ClearCache()
+    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      _checkCache.ClearCache();
-      _collectionCache.ClearCache();
+      MovieCollectionInfo collection = new MovieCollectionInfo();
+      collection.FromMetadata(extractedAspects);
+      AddToCollectionCache(extractedItemId, collection);
     }
 
     internal static ILogger Logger

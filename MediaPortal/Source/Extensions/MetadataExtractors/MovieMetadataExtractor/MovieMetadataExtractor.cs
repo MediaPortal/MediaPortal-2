@@ -31,11 +31,9 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.OnlineLibraries;
 using System.IO;
-using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
@@ -58,7 +56,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
-    public const  double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 1;
+    public const  double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
 
@@ -213,29 +211,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         MP4Matcher.ExtractFromTags(lfsra, movieInfo);
       }
 
-      movieInfo.AssignNameId();
-      if (!refresh)
-      {
-        //Create custom collection (overrides online collection)
-        MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-        string collectionName;
-        if (string.IsNullOrEmpty(collectionInfo.NameId) && CollectionFolderHasFanArt(lfsra, out collectionName))
-        {
-          collectionInfo = new MovieCollectionInfo();
-          collectionInfo.CollectionName = collectionName;
-          if (!collectionInfo.CollectionName.IsEmpty)
-          {
-            collectionInfo.AssignNameId();
-            if (collectionInfo.IsBaseInfoPresent)
-            {
-              movieInfo.CollectionName = collectionInfo.CollectionName;
-              movieInfo.CopyIdsFrom(collectionInfo);
-              movieInfo.HasChanged = true;
-            }
-          }
-        }
-      }
-
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         MovieInfo tempInfo = movieInfo.Clone();
@@ -250,6 +225,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       if (!SkipOnlineSearches && !movieInfo.HasExternalId)
         return false;
+
+      if (!refresh)
+      {
+        //Create custom collection (overrides online collection)
+        MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
+        string collectionName;
+        if (string.IsNullOrEmpty(collectionInfo.NameId) && CollectionFolderHasFanArt(lfsra, out collectionName))
+        {
+          collectionInfo = new MovieCollectionInfo();
+          collectionInfo.CollectionName = collectionName;
+          if (!collectionInfo.CollectionName.IsEmpty)
+          {
+            movieInfo.CollectionName = collectionInfo.CollectionName;
+            movieInfo.CopyIdsFrom(collectionInfo); //Reset ID's
+            movieInfo.HasChanged = true;
+          }
+        }
+      }
+      movieInfo.AssignNameId();
+
+      if (refresh)
+      {
+        if ((!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && movieInfo.Characters.Count > 0) ||
+          (!BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ASPECT_ID) && movieInfo.Actors.Count > 0) ||
+          (!BaseInfo.HasRelationship(extractedAspectData, CompanyAspect.ASPECT_ID) && movieInfo.ProductionCompanies.Count > 0))
+        {
+          movieInfo.HasChanged = true;
+        }
+      }
 
       if (!movieInfo.HasChanged && !forceQuickMode)
         return false;

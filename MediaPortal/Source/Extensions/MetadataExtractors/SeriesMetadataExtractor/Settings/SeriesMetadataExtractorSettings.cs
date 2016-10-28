@@ -90,6 +90,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         if (!string.IsNullOrEmpty(Pattern) && RegexOptions.HasValue)
           _regex = new Regex(Pattern, RegexOptions.Value);
+        else if(!string.IsNullOrEmpty(Pattern))
+          _regex = new Regex(Pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
         var regex = _regex;
         if (regex != null)
@@ -99,7 +101,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
       else
       {
-        textToReplace = textToReplace.Replace(Pattern, ReplaceBy);
+        if(RegexOptions.HasValue)
+          textToReplace = Regex.Replace(textToReplace, Pattern, ReplaceBy, RegexOptions.Value);
+        else
+          textToReplace = Regex.Replace(textToReplace, Pattern, ReplaceBy, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
       }
       return true;
     }
@@ -147,11 +152,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       // Init default replacements
       Replacements = new Replacement[]
       {
-        new Replacement { Enabled = false, BeforeMatch = true, Pattern = "720p", ReplaceBy = "", IsRegex = false },
-        new Replacement { Enabled = false, BeforeMatch = true, Pattern = "1080i", ReplaceBy = "", IsRegex = false },
-        new Replacement { Enabled = false, BeforeMatch = true, Pattern = "1080p", ReplaceBy = "", IsRegex = false },
-        new Replacement { Enabled = false, BeforeMatch = true, Pattern = "x264", ReplaceBy = "", IsRegex = false },
-        new Replacement { Enabled = false, BeforeMatch = true, Pattern = @"(?<!(?:S\d+.?E\\d+\-E\d+.*|S\d+.?E\d+.*|\s\d+x\d+.*))P[ar]*t\s?(\d+)(\s?of\s\d{1,2})?", ReplaceBy = "S01E${1}", IsRegex = true },
+        new Replacement { Enabled = true, BeforeMatch = true, Pattern = "720p", ReplaceBy = "", IsRegex = false },
+        new Replacement { Enabled = true, BeforeMatch = true, Pattern = "1080i", ReplaceBy = "", IsRegex = false },
+        new Replacement { Enabled = true, BeforeMatch = true, Pattern = "1080p", ReplaceBy = "", IsRegex = false },
+        new Replacement { Enabled = true, BeforeMatch = true, Pattern = "x264", ReplaceBy = "", IsRegex = false },
+        new Replacement { Enabled = true, BeforeMatch = true, Pattern = @"(?<!(?:S\d+.?E\\d+\-E\d+.*|S\d+.?E\d+.*|\s\d+x\d+.*))P[ar]*t[\s|\.|\-|_]?(\d+)(\s?of\s\d{1,2})?", ReplaceBy = "S01E${1}", IsRegex = true },
       };
 
       // Init default patterns.
@@ -201,7 +206,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public Replacement[] Replacements { get; set; }
 
     /// <summary>
-    /// Gets a list of matching patterns which can be extended by users.
+    /// Gets a list of series matching patterns which can be extended by users.
     /// </summary>
     [Setting(SettingScope.Global)]
     public MatchPattern[] SeriesPatterns { get; set; }

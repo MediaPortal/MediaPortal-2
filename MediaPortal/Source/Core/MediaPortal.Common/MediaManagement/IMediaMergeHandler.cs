@@ -44,11 +44,11 @@ namespace MediaPortal.Common.MediaManagement
     Guid[] MergeableAspects { get; }
 
     /// <summary>
-    /// Get optimized filters that can be used to find a direct matches to any existing media item
+    /// Get optimized filter that can be used to find a direct match to any existing media item
     /// </summary>
     /// <param name="extractedAspects"></param>
     /// <returns></returns>
-    IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects);
+    IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects);
 
     /// <summary>
     /// Some resources cannot exist on their own and must be merged

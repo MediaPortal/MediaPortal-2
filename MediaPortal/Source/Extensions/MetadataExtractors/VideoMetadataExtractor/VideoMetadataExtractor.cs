@@ -1139,7 +1139,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         string title = null;
         if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
-          title = ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
+          title = BaseInfo.CleanupWhiteSpaces(ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName));
 
         string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
         int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
@@ -1147,7 +1147,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
         List<string> suffixes = new List<string>();
         if (partNum > 0)
-          suffixes.Add("Multiple Parts");
+          suffixes.Add("Multi-part");
         if (!string.IsNullOrEmpty(stereoType))
           suffixes.Add(stereoType);
         if (height.HasValue && width.HasValue)

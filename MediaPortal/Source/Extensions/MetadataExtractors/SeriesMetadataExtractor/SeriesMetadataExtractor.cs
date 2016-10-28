@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
-    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 1;
+    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
 
@@ -225,6 +225,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       if (!SkipOnlineSearches && !episodeInfo.HasExternalId)
         return false;
+
+      if(refresh)
+      {
+        if((!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Characters.Count > 0) ||
+          (!BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ASPECT_ID) && episodeInfo.Actors.Count > 0))
+        {
+          episodeInfo.HasChanged = true;
+        }
+      }
 
       if (!episodeInfo.HasChanged && !forceQuickMode)
         return false;
