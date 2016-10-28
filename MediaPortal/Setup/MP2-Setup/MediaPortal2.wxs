@@ -29,7 +29,6 @@
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
     <PropertyRef Id="LaunchConditionsFile" />
-    <PropertyRef Id="VCRedistFile" />
 
     <!--
     Source media for the installation.
