@@ -40,14 +40,18 @@ namespace MediaPortal.Mock
     public Guid LinkedRole { get; set; }
     public Guid[] LinkedRoleAspects { get; set; }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
     {
       string id;
       MockCore.ShowMediaAspects(aspects, MockCore.Library.GetManagedMediaItemAspectMetadata());
       if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalSource, ExternalType, out id) && ExternalId == id)
       {
         ServiceRegistration.Get<ILogger>().Debug("Matched {0} / {1} / {2} / {3} / {4}", Role, LinkedRole, ExternalSource, ExternalType, ExternalId);
-        extractedLinkedAspects = Data;
+        extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+        foreach (IDictionary<Guid, IList<MediaItemAspect>> data in Data)
+        {
+          extractedLinkedAspects.Add(data, Guid.Empty);
+        }
         return true;
       }
       ServiceRegistration.Get<ILogger>().Debug("No match for {0} / {1} / {2} / {3} / {4}", Role, LinkedRole, ExternalSource, ExternalType, ExternalId);
@@ -88,7 +92,7 @@ namespace MediaPortal.Mock
       }
     }
 
-    public IFilter[] GetSearchFilters(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> searchFilters = new List<IFilter>();
       IList<MultipleMediaItemAspect> externalAspects;
@@ -120,7 +124,11 @@ namespace MediaPortal.Mock
           }
         }
       }
-      return searchFilters.ToArray();
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, searchFilters.ToArray());
+    }
+
+    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
     }
   }
 
