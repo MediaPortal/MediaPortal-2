@@ -68,7 +68,6 @@
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />
     <Compile Include="FanArt\FanArtSettings.cs" />
-    <Compile Include="General\CheckedItemCache.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieCollectionAspect.cs" />

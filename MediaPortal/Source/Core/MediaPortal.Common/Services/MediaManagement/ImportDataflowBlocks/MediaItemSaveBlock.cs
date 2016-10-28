@@ -105,10 +105,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           if (importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
             await DeleteUnderPath(importResource.PendingResourcePath);
-          //Throttle import to allow better client response times
-          await Task.Delay(1000);
         }
 
+        importResource.Aspects.Clear();
         importResource.IsValid = false;
         return importResource;
       }
@@ -119,6 +118,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
+        importResource.Aspects.Clear();
         importResource.IsValid = false;
         return importResource;
       }
