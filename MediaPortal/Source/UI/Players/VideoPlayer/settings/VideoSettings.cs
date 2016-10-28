@@ -244,5 +244,10 @@ namespace MediaPortal.UI.Players.Video.Settings
       get { return _menuLCID == 0 ? ServiceRegistration.Get<ILocalization>().CurrentCulture.LCID : _menuLCID; }
       set { _menuLCID = value; }
     }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableMpcHcSubtitleEngine { get; set; }
+
   }
+
 }

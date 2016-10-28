@@ -48,7 +48,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.RawUrlResourceProvider
 
     public ResourcePath CanonicalLocalResourcePath
     {
-      get { return ResourcePath.BuildBaseProviderPath(RawUrlResourceProvider.RAW_URL_RESOURCE_PROVIDER_ID, RawUrlResourceProvider.ToProviderResourcePath(_rawUrl).Serialize()); }
+      get { return RawUrlResourceProvider.ToProviderResourcePath(_rawUrl); }
     }
 
     public IResourceAccessor Clone()

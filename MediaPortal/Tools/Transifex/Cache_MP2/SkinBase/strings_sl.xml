@@ -100,6 +100,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Način povečave</string>
   <string name="Players.ChoosePlayerEffect">Efekt</string>
+  <string name="Players.ChoosePlayerSubtitle">Podnapis</string>
   <string name="Settings.Appearance">Videz</string>
   <string name="Settings.Appearance.Skin">Izgled</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format datuma</string>
