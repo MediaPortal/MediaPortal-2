@@ -33,6 +33,7 @@ using DuoVia.FuzzyStrings;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.ResourceAccess;
 using System.Reflection;
+using System.Text;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -222,8 +223,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         {
           //Set to dirty to mark it as changed
           importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, _hasChanged);
-          _lastChange = DateTime.Now;
-          importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, _lastChange);
+          //_lastChange = DateTime.Now;
+          //importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, _lastChange);
         }
       }
     }
@@ -256,6 +257,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         string nameId = name.Trim();
         nameId = CleanString(nameId);
         nameId = CleanupWhiteSpaces(nameId);
+        byte[] tempBytes = Encoding.GetEncoding("ISO-8859-8").GetBytes(nameId);
+        nameId = Encoding.UTF8.GetString(tempBytes);
+        nameId = nameId.Replace("'", "");
         nameId = nameId.Replace(" ", "").ToLowerInvariant();
         return nameId;
       }

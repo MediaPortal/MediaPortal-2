@@ -136,6 +136,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           NameId = MovieName.Text;
         NameId = GetNameId(NameId);
       }
+      if (!CollectionName.IsEmpty)
+      {
+        CollectionNameId = GetNameId(CollectionName.Text);
+      }
     }
 
     public MovieInfo Clone()

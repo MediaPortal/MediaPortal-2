@@ -363,6 +363,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.NameId = SeriesNameId;
 
         info.SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
+        info.SearchSeason = SeasonNumber;
         return (T)(object)info;
       }
       return default(T);

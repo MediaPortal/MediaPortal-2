@@ -73,6 +73,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public SimpleTitle SeriesName = null;
     public string AlternateName = null;
     public string OriginalName = null;
+    public int? SearchSeason = null;
+    public int? SearchEpisode = null;
     /// <summary>
     /// Gets or sets the first aired date of series.
     /// </summary>
@@ -461,6 +463,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         TvMazeId = seriesSeason.SeriesTvMazeId;
         TvRageId = seriesSeason.SeriesTvRageId;
         NameId = seriesSeason.SeriesNameId;
+        SearchSeason = seriesSeason.SeasonNumber;
         return true;
       }
       else if (otherInstance is EpisodeInfo)
@@ -472,6 +475,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         TvMazeId = seriesEpisode.SeriesTvMazeId;
         TvRageId = seriesEpisode.SeriesTvRageId;
         NameId = seriesEpisode.SeriesNameId;
+        SearchSeason = seriesEpisode.SeasonNumber;
+        if(seriesEpisode.EpisodeNumbers.Count > 0)
+          SearchEpisode = seriesEpisode.EpisodeNumbers[0];
         return true;
       }
       return false;

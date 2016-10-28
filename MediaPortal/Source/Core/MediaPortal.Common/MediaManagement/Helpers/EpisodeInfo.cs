@@ -477,7 +477,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           NameId = SeriesNameId,
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage),
           AlternateName = SeriesAlternateName,
-          FirstAired = SeriesFirstAired
+          FirstAired = SeriesFirstAired,
+          SearchSeason = SeasonNumber,
+          SearchEpisode = EpisodeNumbers.Count > 0 ? (int?)EpisodeNumbers[0] : null,
         };
         info.Languages.AddRange(Languages);
         return (T)(object)info;
