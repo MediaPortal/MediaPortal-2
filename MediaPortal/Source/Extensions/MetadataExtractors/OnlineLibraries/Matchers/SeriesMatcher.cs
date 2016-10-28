@@ -283,15 +283,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           episodeMatch = episodeInfo.Clone();
           if (match != null)
           {
-            if (!CacheRefreshable)
-            {
-              //Match was found but cache is still the same
-              return false;
-            }
-            else if (SetSeriesId(episodeMatch, match.Id))
+            if (SetSeriesId(episodeMatch, match.Id))
             {
               if (episodeInfo.LastChanged > _lastCacheRefresh)
-                return false;
+                return true;
 
               seriesMatchFound = true;
             }
@@ -455,20 +450,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           if (_seriesNameMatcher.GetNameMatch(seriesInfo.SeriesName.Text, out id))
           {
-            //Next episode can still be extracted from current cache
-            //if (!CacheRefreshable)
-            //{
-            //  //Match was found but cache is still the same
-            //  return false;
-            //}
             if (!SetSeriesId(seriesInfo, id))
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this series by name only failed so stop trying.
               return false;
             }
-            else if (CacheRefreshable && seriesInfo.LastChanged > _lastCacheRefresh)
-              return false;
+            else if (seriesInfo.LastChanged > _lastCacheRefresh)
+              return true;
           }
         }
 

@@ -103,6 +103,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
+    private const int MAX_PERSONS = 10;
 
     protected override string MatchesSettingsFile
     {
@@ -249,15 +250,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           movieMatch = movieInfo.Clone();
           if (match != null)
           {
-            if(!CacheRefreshable)
-            {
-              //Match was found but cache is still the same
-              return false;
-            }
-            else if (SetMovieId(movieMatch, match.Id))
+            if (SetMovieId(movieMatch, match.Id))
             {
               if (movieInfo.LastChanged > _lastCacheRefresh)
-                return false;
+                return true;
 
               //If Id was found in cache the online movie info is probably also in the cache
               if (_wrapper.UpdateFromOnlineMovie(movieMatch, language, true))
@@ -324,6 +320,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (movieInfo.Genres.Count == 0)
             movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres, true);
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards, true);
+
+          //Limit the number of persons
+          if(movieMatch.Actors.Count > MAX_PERSONS)
+            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Actors.Count - MAX_PERSONS);
+          if (movieMatch.Characters.Count > MAX_PERSONS)
+            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Characters.Count - MAX_PERSONS);
+          if (movieMatch.Directors.Count > MAX_PERSONS)
+            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Directors.Count - MAX_PERSONS);
+          if (movieMatch.Writers.Count > MAX_PERSONS)
+            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Writers.Count - MAX_PERSONS);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.

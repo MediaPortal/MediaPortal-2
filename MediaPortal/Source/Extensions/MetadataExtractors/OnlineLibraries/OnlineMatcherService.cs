@@ -22,10 +22,6 @@
 
 #endregion
 
-#if DEBUG
-  //#define ONLINE_TIMING
-#endif
-
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -36,7 +32,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -166,97 +162,58 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.FindAndUpdateTrack(trackInfo, matcher.Primary ? false : forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("FindAndUpdateTrack: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.FindAndUpdateTrackPerson(trackInfo, personInfo, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("FindAndUpdateTrackPerson: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateAlbumPersons(albumInfo, occupation, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateAlbumPersons: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateTrackPersons(trackInfo, occupation, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateTrackPersons: Media item {0} processed ({1} ms)", trackInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateAlbumCompanies(albumInfo, companyType, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateAlbumCompanies: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateAlbum(albumInfo, updateTrackList, matcher.Primary ? false : forceQuickMode);
       }
@@ -269,32 +226,22 @@ namespace MediaPortal.Extensions.OnlineLibraries
         for (int i = 0; i < albumInfo.Tracks.Count; i++)
         {
           //TrackInfo trackInfo = albumInfo.Tracks[i];
-          //foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+          //foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
           //{
           //  matcher.FindAndUpdateTrack(trackInfo, forceQuickMode);
           //}
         }
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateAlbum: Media item {0} processed ({1} ms)", albumInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
       }
-#if ONLINE_TIMING
-      Logger.Info("DownloadAudioFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
@@ -333,63 +280,38 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool FindAndUpdateMovie(MovieInfo movieInfo, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.FindAndUpdateMovie(movieInfo, matcher.Primary ? false : forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("FindAndUpdateMovie: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdatePersons(movieInfo, occupation, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdatePersons: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateCharacters(movieInfo, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateCharacters: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateCollection(collectionInfo, updateMovieList, forceQuickMode);
       }
@@ -402,49 +324,32 @@ namespace MediaPortal.Extensions.OnlineLibraries
         for (int i = 0; i < collectionInfo.Movies.Count; i++)
         {
           //MovieInfo movieInfo = collectionInfo.Movies[i];
-          //foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
+          //foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
           //{
           //  success |= matcher.FindAndUpdateMovie(movieInfo, forceQuickMode);
           //}
         }
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateCollection: Media item {0} processed ({1} ms)", collectionInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateCompanies(movieInfo, companyType, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateCompanies: Media item {0} processed ({1} ms)", movieInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
       }
-#if ONLINE_TIMING
-      Logger.Info("DownloadMovieFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
@@ -495,80 +400,48 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.FindAndUpdateEpisode(episodeInfo, matcher.Primary ? false : forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("FindAndUpdateEpisode: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateEpisodePersons(episodeInfo, occupation, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateEpisodePersons: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateEpisodeCharacters(episodeInfo, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateEpisodeCharacters: Media item {0} processed ({1} ms)", episodeInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeason(seasonInfo, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateSeason: Media item {0} processed ({1} ms)", seasonInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeries(seriesInfo, updateEpisodeList, matcher.Primary ? false : forceQuickMode);
       }
@@ -582,83 +455,52 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           //Gives more detail to the missing episodes but will be very slow
           //EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
-          //foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+          //foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
           //{
           //  success |= matcher.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
           //}
         }
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateSeries: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeriesPersons(seriesInfo, occupation, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateSeriesPersons: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeriesCharacters(seriesInfo, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateSeriesCharacters: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.UpdateSeriesCompanies(seriesInfo, companyType, forceQuickMode);
       }
-#if ONLINE_TIMING
-      Logger.Info("UpdateSeriesCompanies: Media item {0} processed ({1} ms)", seriesInfo.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 
     public bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
-#if ONLINE_TIMING
-      Stopwatch sw = new Stopwatch();
-      sw.Start();
-#endif
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
         success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
       }
-#if ONLINE_TIMING
-      Logger.Info("DownloadSeriesFanArt: Media item {0} processed ({1} ms)", mediaItemId.ToString(), sw.ElapsedMilliseconds);
-#endif
       return success;
     }
 

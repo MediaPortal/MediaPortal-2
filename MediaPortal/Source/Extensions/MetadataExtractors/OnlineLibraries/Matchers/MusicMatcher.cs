@@ -234,15 +234,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           trackMatch = trackInfo.Clone();
           if (match != null)
           {
-            if (!CacheRefreshable)
-            {
-              //Match was found but cache is still the same
-              return false;
-            }
-            else if (SetTrackId(trackMatch, match.Id))
+            if (SetTrackId(trackMatch, match.Id))
             {
               if (trackInfo.LastChanged > _lastCacheRefresh)
-                return false;
+                return true;
 
               //If Id was found in cache the online track info is probably also in the cache
               if (_wrapper.UpdateFromOnlineMusicTrack(trackMatch, language, true))
@@ -760,12 +755,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           if (_albumMatcher.GetNameMatch(albumInfo.Album, out id))
           {
-            if (!CacheRefreshable)
-            {
-              //Match was found but cache is still the same
-              return false;
-            }
-            else if (!SetTrackAlbumId(albumInfo, id))
+            if (!SetTrackAlbumId(albumInfo, id))
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this album by name only failed so stop trying.
@@ -773,7 +763,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
             else if (albumInfo.LastChanged > _lastCacheRefresh)
             {
-              return false;
+              return true;
             }
           }
         }
@@ -985,7 +975,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private void StoreTrackMatch(TrackInfo trackSearch, TrackInfo trackMatch)
     {
       string idValue = null;
-      if (trackMatch == null || !GetTrackId(trackSearch, out idValue) || string.IsNullOrEmpty(trackMatch.TrackName))
+      if (trackMatch == null || !GetTrackId(trackMatch, out idValue) || string.IsNullOrEmpty(trackMatch.TrackName))
       {
         //No match was found. Store search to avoid online search again
         _storage.TryAddMatch(new TrackMatch()
