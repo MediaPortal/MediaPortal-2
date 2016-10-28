@@ -17,10 +17,8 @@
   </Runtime>
 
   <DependsOn>
-    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>
-    <!-- ConfigurationManager -->
-    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>
-    <!-- Configuration plugin -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
   </DependsOn>
 
   <Register Location="/Services">
@@ -54,10 +52,10 @@
         HelpText="[Diagnostics.Settings.Diagnostics.AllLogsHelpText]"
         ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsLogLevelConfiguration"/>
     <ConfigSetting
-        Id="FocusSteeling"
-        Text="[Diagnostics.Settings.Image.FocusSteeling]"
-        HelpText="[Diagnostics.Settings.Image.FocusSteelingHelpText]"
-        ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsFocusSteelling"/>
+        Id="FocusStealing"
+        Text="[Diagnostics.Settings.Image.FocusStealing]"
+        HelpText="[Diagnostics.Settings.Image.FocusStealingHelpText]"
+        ClassName="MediaPortal.UiComponents.Diagnostics.Settings.Configuration.DiagnosticsSettingsFocusStealing"/>
     <ConfigSetting
         Id="LogCollector"
         Text="[Diagnostics.Settings.Collectlogs]"

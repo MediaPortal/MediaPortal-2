@@ -64,7 +64,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\ActivationMonitor.cs" />
     <Compile Include="Service\DiagnosticService.cs" />
-    <Compile Include="Service\FocusSteelingMonitor.cs" />
+    <Compile Include="Service\FocusStealingMonitor.cs" />
     <Compile Include="Service\LogMonitor.cs" />
     <Compile Include="Service\UserControls\UserControlLogMonitor.cs">
       <SubType>UserControl</SubType>
@@ -73,7 +73,7 @@
       <DependentUpon>UserControlLogMonitor.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings\Configuration\DiagnosticsSettingsCollectLog.cs" />
-    <Compile Include="Settings\Configuration\DiagnosticsSettingsFocusSteelling.cs" />
+    <Compile Include="Settings\Configuration\DiagnosticsSettingsFocusStealing.cs" />
     <Compile Include="Settings\Configuration\DiagnosticsSettingsLogLevelConfiguration.cs" />
     <Compile Include="Settings\Configuration\DiagnosticsSettingsOutputWindows.cs" />
     <Compile Include="Tools\FileSorter.cs" />
