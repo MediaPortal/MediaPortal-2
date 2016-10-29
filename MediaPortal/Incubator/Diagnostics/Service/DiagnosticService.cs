@@ -34,14 +34,14 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
   /// <summary>
   /// Provide Diagnostics toolbox:
   /// - Enable DEBUG logging in Client
-  /// - Enable logging of potential focus steeling
+  /// - Enable logging of potential focus stealing
   /// - Collect log files
   /// </summary>
   public class DiagnosticsHandler : IDisposable
   {
     #region Private Fields
 
-    private static FocusSteelingMonitor _focusSteelingInstance;
+    private static FocusStealingMonitor _focusStealingInstance;
     private static FormLogMonitor _logViewerInstance;
 
     #endregion Private Fields
@@ -49,11 +49,11 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
     #region Internal Properties
 
     /// <summary>
-    /// Guaranteed unique access to focus steeling mechanism
+    /// Guaranteed unique access to focus stealing mechanism
     /// </summary>
-    internal static FocusSteelingMonitor FocusSteelingInstance
+    internal static FocusStealingMonitor FocusStealingInstance
     {
-      get { return _focusSteelingInstance ?? (_focusSteelingInstance = new FocusSteelingMonitor()); }
+      get { return _focusStealingInstance ?? (_focusStealingInstance = new FocusStealingMonitor()); }
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service
 
     public void Dispose()
     {
-      FocusSteelingInstance.Dispose();
+      FocusStealingInstance.Dispose();
       LogViewerInstance.Dispose();
     }
 

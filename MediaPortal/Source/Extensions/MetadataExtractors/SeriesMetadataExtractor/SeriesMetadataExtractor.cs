@@ -31,9 +31,9 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
-    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 1;
+    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
 
@@ -64,7 +64,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
     protected MetadataExtractorMetadata _metadata;
-    protected bool _onlyFanArt;
+    protected SettingsChangeWatcher<SeriesMetadataExtractorSettings> _settingWatcher;
 
     #endregion
 
@@ -87,7 +87,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 MediaAspect.Metadata,
                 EpisodeAspect.Metadata
               });
-      _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>().OnlyFanArt;
+      _settingWatcher = new SettingsChangeWatcher<SeriesMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
+    }
+
+    #endregion
+
+    #region Settings
+
+    public static bool SkipOnlineSearches { get; private set; }
+    public static bool SkipFanArtDownload { get; private set; }
+    public static bool CacheOfflineFanArt { get; private set; }
+    public static bool IncludeActorDetails { get; private set; }
+    public static bool IncludeCharacterDetails { get; private set; }
+    public static bool IncludeDirectorDetails { get; private set; }
+    public static bool IncludeWriterDetails { get; private set; }
+    public static bool IncludeProductionCompanyDetails { get; private set; }
+    public static bool IncludeTVNetworkDetails { get; private set; }
+    public static bool OnlyLocalMedia { get; private set; }
+
+    private void LoadSettings()
+    {
+      SkipOnlineSearches = _settingWatcher.Settings.SkipOnlineSearches;
+      SkipFanArtDownload = _settingWatcher.Settings.SkipFanArtDownload;
+      CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
+      IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
+      IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
+      IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
+      IncludeWriterDetails = _settingWatcher.Settings.IncludeWriterDetails;
+      IncludeProductionCompanyDetails = _settingWatcher.Settings.IncludeProductionCompanyDetails;
+      IncludeTVNetworkDetails = _settingWatcher.Settings.IncludeTVNetworkDetails;
+      OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
     }
 
     #endregion
@@ -100,8 +137,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      EpisodeInfo episodeInfo = new EpisodeInfo();
+      bool refresh = false;
       if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        refresh = true;
+
+      EpisodeInfo episodeInfo = new EpisodeInfo();
+      if (refresh)
       {
         episodeInfo.FromMetadata(extractedAspectData);
       }
@@ -150,7 +191,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
       }
 
-      // Lookup online information (incl. fanart)
+      if(string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
+      {
+        var mediaItemPath = lfsra.CanonicalLocalResourcePath;
+        var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+        episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
+      }
+
       IList<MultipleMediaItemAspect> audioAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
       {
@@ -162,18 +209,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
       }
 
-      if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
+      episodeInfo.AssignNameId();
+
+      if (SkipOnlineSearches && !SkipFanArtDownload)
       {
-        //Reset string to prefer online texts
-        episodeInfo.EpisodeName.DefaultLanguage = true;
-        episodeInfo.SeriesName.DefaultLanguage = true;
-        episodeInfo.Summary.DefaultLanguage = true;
+        EpisodeInfo tempInfo = episodeInfo.Clone();
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(tempInfo, forceQuickMode);
+        episodeInfo.CopyIdsFrom(tempInfo);
+        episodeInfo.HasChanged = tempInfo.HasChanged;
+      }
+      else if (!SkipOnlineSearches)
+      {
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
       }
 
-      OnlineMatcherService.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+      if (!SkipOnlineSearches && !episodeInfo.HasExternalId)
+        return false;
 
-      if (!_onlyFanArt)
-        episodeInfo.SetMetadata(extractedAspectData);
+      if(refresh)
+      {
+        if((!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Characters.Count > 0) ||
+          (!BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ASPECT_ID) && episodeInfo.Actors.Count > 0))
+        {
+          episodeInfo.HasChanged = true;
+        }
+      }
+
+      if (!episodeInfo.HasChanged && !forceQuickMode)
+        return false;
+
+      episodeInfo.SetMetadata(extractedAspectData);
 
       return episodeInfo.IsBaseInfoPresent;
     }

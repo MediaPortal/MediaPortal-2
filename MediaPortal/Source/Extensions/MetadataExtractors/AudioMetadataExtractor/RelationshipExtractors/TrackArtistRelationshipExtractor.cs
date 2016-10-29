@@ -32,14 +32,14 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
-  class TrackArtistRelationshipExtractor : IRelationshipRoleExtractor, IAudioRelationshipExtractor
+  class TrackArtistRelationshipExtractor : IAudioRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
-    private CheckedItemCache<TrackInfo> _checkCache = new CheckedItemCache<TrackInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public bool BuildRelationship
     {
@@ -66,65 +66,59 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      return GetPersonSearchFilter(extractedAspects);
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
+
+      if (!AudioMetadataExtractor.IncludeArtistDetails)
+        return false;
+
+      if (BaseInfo.IsVirtualResource(aspects))
+        return false;
 
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(trackInfo))
+      if (!AddToCheckCache(trackInfo))
         return false;
 
-      OnlineMatcherService.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);
+      if (!AudioMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);
 
       if (trackInfo.Artists.Count == 0)
         return false;
 
-      bool relationshipFound = false;
-      IList<MultipleMediaItemAspect> relationships;
-      if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationships))
-      {
-        foreach (MultipleMediaItemAspect relationship in relationships)
-        {
-          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == LinkedRole ||
-            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == LinkedRole)
-          {
-            relationshipFound = true;
-            break;
-          }
-        }
-      }
-
-      if (!relationshipFound)
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < trackInfo.Artists.Count)
         trackInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!trackInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
 
       foreach (PersonInfo person in trackInfo.Artists)
       {
-        AssignArtistNameId(person);
-
+        person.AssignNameId();
+        person.HasChanged = trackInfo.HasChanged;
         IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         person.SetMetadata(personAspects);
 
         if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(personAspects);
+        {
+          Guid existingId;
+          if (TryGetIdFromArtistCache(person, out existingId))
+            extractedLinkedAspects.Add(personAspects, existingId);
+          else
+            extractedLinkedAspects.Add(personAspects, Guid.Empty);
+        }
       }
       return extractedLinkedAspects.Count > 0;
-    }
-
-    private void AssignArtistNameId(PersonInfo personInfo)
-    {
-      if (!string.IsNullOrEmpty(personInfo.Name))
-      {
-        //Give the artist a fallback Id so it will always be created
-        personInfo.NameId = BaseInfo.GetNameId(personInfo.Name);
-      }
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
@@ -164,9 +158,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return index >= 0;
     }
 
-    public void ClearCache()
+    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      _checkCache.ClearCache();
+      PersonInfo person = new PersonInfo();
+      person.FromMetadata(extractedAspects);
+      AddToArtistCache(extractedItemId, person);
     }
 
     internal static ILogger Logger

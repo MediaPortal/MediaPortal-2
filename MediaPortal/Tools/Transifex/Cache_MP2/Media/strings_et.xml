@@ -297,4 +297,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">Ava pleieri strateegia</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strateegia kuidas uued pleierid paigutada juba avatud pleierite suhtes</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

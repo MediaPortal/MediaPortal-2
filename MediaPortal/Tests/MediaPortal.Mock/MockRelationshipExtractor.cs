@@ -28,6 +28,8 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Mock
 {
@@ -38,20 +40,23 @@ namespace MediaPortal.Mock
     public Guid LinkedRole { get; set; }
     public Guid[] LinkedRoleAspects { get; set; }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
     {
       string id;
       MockCore.ShowMediaAspects(aspects, MockCore.Library.GetManagedMediaItemAspectMetadata());
       if (MediaItemAspect.TryGetExternalAttribute(aspects, ExternalSource, ExternalType, out id) && ExternalId == id)
       {
         ServiceRegistration.Get<ILogger>().Debug("Matched {0} / {1} / {2} / {3} / {4}", Role, LinkedRole, ExternalSource, ExternalType, ExternalId);
-        extractedLinkedAspects = Data;
+        extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+        foreach (IDictionary<Guid, IList<MediaItemAspect>> data in Data)
+        {
+          extractedLinkedAspects.Add(data, Guid.Empty);
+        }
         return true;
       }
       ServiceRegistration.Get<ILogger>().Debug("No match for {0} / {1} / {2} / {3} / {4}", Role, LinkedRole, ExternalSource, ExternalType, ExternalId);
 
       extractedLinkedAspects = null;
-
       return false;
     }
 
@@ -85,6 +90,45 @@ namespace MediaPortal.Mock
       {
         return true;
       }
+    }
+
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      List<IFilter> searchFilters = new List<IFilter>();
+      IList<MultipleMediaItemAspect> externalAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
+      {
+        foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+        {
+          string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+          string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+          string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+          if (searchFilters.Count == 0)
+          {
+            searchFilters.Add(new BooleanCombinationFilter(BooleanOperator.And, new[]
+            {
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
+              }));
+          }
+          else
+          {
+            searchFilters[0] = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, searchFilters[0],
+            new BooleanCombinationFilter(BooleanOperator.And, new[]
+            {
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
+                new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
+            }));
+          }
+        }
+      }
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, searchFilters.ToArray());
+    }
+
+    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
     }
   }
 

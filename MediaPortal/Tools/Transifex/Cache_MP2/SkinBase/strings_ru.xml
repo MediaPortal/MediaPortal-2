@@ -31,6 +31,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Отключиться от сервера</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ОсновнойСервер</string>
   <string name="ServerConnection.AttachedText.Before">Этот клиент MediaPortal 2 подключен к основному серверу</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Этот клиент MediaPortal 2 не подключен к основному серверу</string>
   <string name="ServerConnection.HomeServerIsConnected">Основной сервер подключен</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Основной сервер не подключен</string>

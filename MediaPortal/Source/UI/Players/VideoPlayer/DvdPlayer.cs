@@ -746,8 +746,8 @@ namespace MediaPortal.UI.Players.Video
       if (_dvdInfo == null || !_initialized)
         return false;
 
-      StreamInfoHandler audioStreams;
-      StreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler audioStreams;
+      BaseStreamInfoHandler subtitleStreams;
       lock (SyncObj)
       {
         audioStreams = _streamInfoAudio;
@@ -822,7 +822,7 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="audioStream">audio stream</param>
     public override void SetAudioStream(string audioStream)
     {
-      StreamInfoHandler audioStreams;
+      BaseStreamInfoHandler audioStreams;
       lock (SyncObj)
         audioStreams = _streamInfoAudio;
 
@@ -884,7 +884,7 @@ namespace MediaPortal.UI.Players.Video
 
     public override void SetSubtitle(string subtitle)
     {
-      StreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler subtitleStreams;
       lock (SyncObj)
         subtitleStreams = _streamInfoSubtitles;
 

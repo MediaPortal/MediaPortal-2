@@ -1039,7 +1039,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               Thumbnail = person.Thumb,
               Order = person.Order
             };
-            OnlineMatcherService.StoreSeriesPersonMatch(info);
+            OnlineMatcherService.Instance.StoreSeriesPersonMatch(info);
           }
         }
 
@@ -1066,7 +1066,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               Thumbnail = person.Thumb,
               Order = person.Order
             };
-            OnlineMatcherService.StoreSeriesPersonMatch(info);
+            OnlineMatcherService.Instance.StoreSeriesPersonMatch(info);
           }
         }
 

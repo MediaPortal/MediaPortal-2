@@ -1,4 +1,1 @@
-Client.Heat.wxs
-Server.Heat.wxs
-ServiceMonitor.Heat.wxs
-LogCollector.Heat.wxs
+*.Heat.wxs

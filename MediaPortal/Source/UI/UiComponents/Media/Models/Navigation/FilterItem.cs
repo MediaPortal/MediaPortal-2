@@ -22,12 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Settings;
+using System;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -36,12 +36,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class FilterItem : ContainerItem
   {
+    protected SettingsChangeWatcher<ViewSettings> _settingsWatcher;
+    protected bool _showVirtual = false; 
+
     public bool ShowVirtual
     {
       get
       {
-        ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-        return settings.ShowVirtual;
+        return _showVirtual;
       }
     }
 
@@ -49,10 +51,25 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       : base(numItems)
     {
       SimpleTitle = name;
+      InitSettingWatcher();
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
     }
 
     public FilterItem()
-    { }
+    {
+      InitSettingWatcher();
+    }
+
+    private void InitSettingWatcher()
+    {
+      _settingsWatcher = new SettingsChangeWatcher<ViewSettings>();
+      _settingsWatcher.SettingsChanged += SettingsChanged;
+      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
+    }
 
     public MediaItem MediaItem
     {

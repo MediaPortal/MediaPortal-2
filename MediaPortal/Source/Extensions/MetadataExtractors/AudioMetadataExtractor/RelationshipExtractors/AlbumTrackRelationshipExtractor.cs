@@ -29,16 +29,15 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
-  class AlbumTrackRelationshipExtractor : IRelationshipRoleExtractor, IAudioRelationshipExtractor
+  class AlbumTrackRelationshipExtractor : IAudioRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
-    private CheckedItemCache<AlbumInfo> _checkCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public bool BuildRelationship
     {
@@ -66,39 +65,54 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      return GetTrackSearchFilter(extractedAspects);
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
       if (forceQuickMode)
         return false;
 
+      if (AudioMetadataExtractor.OnlyLocalMedia)
+        return false;
+
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(albumInfo))
+      if (!AddToCheckCache(albumInfo))
         return false;
 
-      OnlineMatcherService.UpdateAlbum(albumInfo, true, forceQuickMode);
+      if (!AudioMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.Instance.UpdateAlbum(albumInfo, true, forceQuickMode);
 
       if (albumInfo.Tracks.Count == 0)
+        return false;
+
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < albumInfo.Tracks.Count)
+        albumInfo.HasChanged = true; //Force save if no relationship exists
+      else
         return false;
 
       if (!albumInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
 
       for (int i = 0; i < albumInfo.Tracks.Count; i++)
       {
         TrackInfo trackInfo = albumInfo.Tracks[i];
+        trackInfo.AlbumNameId = albumInfo.NameId;
 
         IDictionary<Guid, IList<MediaItemAspect>> trackAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         trackInfo.SetMetadata(trackAspects);
 
         if (trackAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(trackAspects);
+          extractedLinkedAspects.Add(trackAspects, Guid.Empty);
       }
       return extractedLinkedAspects.Count > 0;
     }
@@ -127,17 +141,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!MediaItemAspect.TryGetAspect(linkedAspects, AudioAspect.Metadata, out linkedAspect))
         return false;
 
-      int? trackNo = linkedAspect.GetAttributeValue<int?>(AudioAspect.ATTR_TRACK);
-      if (!trackNo.HasValue)
-        return false;
+      int disc = linkedAspect.GetAttributeValue<int>(AudioAspect.ATTR_DISCID);
+      int track = linkedAspect.GetAttributeValue<int>(AudioAspect.ATTR_TRACK);
+      if (disc <= 0)
+        disc = 1;
 
-      index = trackNo.Value;
-      return index >= 0;
+      index = disc * 1000 + track;
+      return true;
     }
 
-    public void ClearCache()
+    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      _checkCache.ClearCache();
     }
 
     internal static ILogger Logger

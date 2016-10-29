@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -36,15 +35,14 @@ using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.Graphics;
 using TagLib;
 using File = TagLib.File;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers;
 using System.Globalization;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -65,7 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
-    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 1;
+    public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
 
@@ -77,6 +75,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     protected static bool USE_ADDITIONAL_SEPARATOR;
     protected static char ADDITIONAL_SEPARATOR;
     protected static ICollection<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
+
+    protected SettingsChangeWatcher<AudioMetadataExtractorSettings> _settingWatcher;
 
     /// <summary>
     /// Audio file accessor class needed for our tag library implementation. This class maps
@@ -117,7 +117,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     }
 
     protected MetadataExtractorMetadata _metadata;
-    protected bool _onlyFanArt;
 
     #endregion
 
@@ -171,7 +170,38 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 AudioAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
-      _onlyFanArt = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>().OnlyFanArt;
+      _settingWatcher = new SettingsChangeWatcher<AudioMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
+    }
+
+    #endregion
+
+    #region Settings
+
+    public static bool SkipOnlineSearches { get; private set; }
+    public static bool SkipFanArtDownload { get; private set; }
+    public static bool CacheOfflineFanArt { get; private set; }
+    public static bool IncludeArtistDetails { get; private set; }
+    public static bool IncludeComposerDetails { get; private set; }
+    public static bool IncludeMusicLabelDetails { get; private set; }
+    public static bool OnlyLocalMedia { get; private set; }
+
+    private void LoadSettings()
+    {
+      SkipOnlineSearches = _settingWatcher.Settings.SkipOnlineSearches;
+      SkipFanArtDownload = _settingWatcher.Settings.SkipFanArtDownload;
+      CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
+      IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
+      IncludeComposerDetails = _settingWatcher.Settings.IncludeComposerDetails;
+      IncludeMusicLabelDetails = _settingWatcher.Settings.IncludeMusicLabelDetails;
+      OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
     }
 
     #endregion
@@ -338,10 +368,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!HasAudioExtension(fileName))
         return false;
 
+      bool refresh = false;
+      if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+        refresh = true;
+
       try
       {
         TrackInfo trackInfo = new TrackInfo();
-        if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+        if (refresh)
         {
           trackInfo.FromMetadata(extractedAspectData);
         }
@@ -564,30 +598,46 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           }
         }
 
-        //Check artists
-        trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
-        trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
+        if (!refresh)
+        {
+          //Check artists
+          trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
+          trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
 
-        AssignAlbumNameId(trackInfo);
+          foreach (PersonInfo person in trackInfo.Artists)
+            OnlineMatcherService.Instance.StoreAudioPersonMatch(person);
+          foreach (PersonInfo person in trackInfo.AlbumArtists)
+            OnlineMatcherService.Instance.StoreAudioPersonMatch(person);
+        }
 
-        if (_onlyFanArt)
-          trackInfo.SetMetadata(extractedAspectData);
+        trackInfo.AssignNameId();
 
         AudioCDMatcher.GetDiscMatchAndUpdate(mediaItemAccessor.ResourcePathName, trackInfo);
 
-        //Online search
-        foreach (PersonInfo person in trackInfo.Artists)
+        if(SkipOnlineSearches && !SkipFanArtDownload)
         {
-          OnlineMatcherService.StoreAudioPersonMatch(person);
+          TrackInfo tempInfo = trackInfo.Clone();
+          OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, forceQuickMode);
+          trackInfo.CopyIdsFrom(tempInfo);
+          trackInfo.HasChanged = tempInfo.HasChanged;
         }
-        foreach (PersonInfo person in trackInfo.AlbumArtists)
+        else if(!SkipOnlineSearches)
         {
-          OnlineMatcherService.StoreAudioPersonMatch(person);
+           OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
         }
-        OnlineMatcherService.FindAndUpdateTrack(trackInfo, forceQuickMode);
 
-        if (!_onlyFanArt)
-          trackInfo.SetMetadata(extractedAspectData);
+        if (refresh)
+        {
+          if (!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Artists.Count > 0)
+          {
+            trackInfo.HasChanged = true;
+          }
+        }
+
+        if (!trackInfo.HasChanged && !forceQuickMode)
+          return false;
+
+        trackInfo.SetMetadata(extractedAspectData);
 
         return trackInfo.IsBaseInfoPresent;
       }
@@ -645,54 +695,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return resolvedList;
     }
 
-    private void AssignAlbumNameId(TrackInfo trackInfo)
-    {
-      if (!string.IsNullOrEmpty(trackInfo.Album))
-      {
-        //Give the album a fallback Id so it will always be created
-        if (trackInfo.AlbumArtists.Count > 0)
-          trackInfo.AlbumNameId = trackInfo.AlbumArtists[0].Name + ":" + trackInfo.Album;
-        else
-          trackInfo.AlbumNameId = trackInfo.Album;
-        trackInfo.AlbumNameId = BaseInfo.GetNameId(trackInfo.AlbumNameId);
-      }
-    }
-
     private string GuessCodec(string description, string filename)
     {
-      string extension = DosPathHelper.GetExtension(filename).ToUpperInvariant();
-
-      if (description.IndexOf("AIFF Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "AIFF";
-      if (description.IndexOf("Audio APE", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "APE";
-      if (description.IndexOf("DSF Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "DSF";
-      if (description.IndexOf("Flac Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "FLAC";
-      if (description.IndexOf("MusePack", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "MPC";
-      if (description.IndexOf("WavPack", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "WV";
-      if (description.IndexOf("Vorbis", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "VORBIS";
-      if (description.IndexOf("Opus", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "OPUS";
-      if (description.IndexOf("MPEG Version", StringComparison.InvariantCultureIgnoreCase) >= 0)
-      {
-        if (description.IndexOf("Layer 1", StringComparison.InvariantCultureIgnoreCase) >= 0)
-          return "MP1";
-        if (description.IndexOf("Layer 2", StringComparison.InvariantCultureIgnoreCase) >= 0)
-          return "MP2";
-        if (description.IndexOf("Layer 3", StringComparison.InvariantCultureIgnoreCase) >= 0)
-          return "MP3";
-      }
-      if (description.IndexOf("AAC", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "AAC";
-      if (description.IndexOf("Windows Media Audio", StringComparison.InvariantCultureIgnoreCase) >= 0)
-        return "WMA";
-
-      return null;
+      //string extension = DosPathHelper.GetExtension(filename).ToUpperInvariant();
+      return description;
     }
 
     #endregion

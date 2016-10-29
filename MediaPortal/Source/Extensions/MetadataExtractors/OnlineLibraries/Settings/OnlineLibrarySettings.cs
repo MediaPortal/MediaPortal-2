@@ -30,9 +30,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
   {
     protected bool _onlyBasicFanArt = false;
     protected bool _useHttps = true;
+    protected MatcherSetting[] _musicMatchers = new MatcherSetting[0];
+    protected MatcherSetting[] _seriesMatchers = new MatcherSetting[0];
+    protected MatcherSetting[] _movieMatchers = new MatcherSetting[0];
 
     //Only download basic FanArt like backdrops, banners, posters and thumbnails
-    //FanArt DiscArt,  ClearArt, Logos etc. 
+    //Not DiscArt,  ClearArt, Logos etc. 
     [Setting(SettingScope.Global)]
     public bool OnlyBasicFanArt
     {
@@ -46,6 +49,30 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       get { return _useHttps; }
       set { _useHttps = value; }
+    }
+
+    //Music matcher settings
+    [Setting(SettingScope.Global)]
+    public MatcherSetting[] MusicMatchers
+    {
+      get { return _musicMatchers; }
+      set { _musicMatchers = value; }
+    }
+
+    //Series matcher settings
+    [Setting(SettingScope.Global)]
+    public MatcherSetting[] SeriesMatchers
+    {
+      get { return _seriesMatchers; }
+      set { _seriesMatchers = value; }
+    }
+
+    //Movie matcher settings
+    [Setting(SettingScope.Global)]
+    public MatcherSetting[] MovieMatchers
+    {
+      get { return _movieMatchers; }
+      set { _movieMatchers = value; }
     }
   }
 }

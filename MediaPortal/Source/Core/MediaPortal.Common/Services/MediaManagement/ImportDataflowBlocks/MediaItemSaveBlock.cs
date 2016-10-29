@@ -49,6 +49,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #endregion
 
+    #region Variables
+
+    private readonly CancellationToken _ct;
+
+    #endregion
+
     #region Constructor
 
     /// <summary>
@@ -71,6 +77,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       BLOCK_NAME, false, parentImportJobController)
     {
+      _ct = ct;
     }
 
     #endregion
@@ -92,12 +99,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         // ReSharper disable once PossibleInvalidOperationException
-        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation.JobType);
+        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, _ct);
 
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
-          if(importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
+        {
+          if (importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
             await DeleteUnderPath(importResource.PendingResourcePath);
+        }
 
+        importResource.Aspects.Clear();
         importResource.IsValid = false;
         return importResource;
       }
@@ -108,6 +118,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
+        importResource.Aspects.Clear();
         importResource.IsValid = false;
         return importResource;
       }

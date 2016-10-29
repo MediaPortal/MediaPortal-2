@@ -25,9 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common;
-using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
 using MediaPortal.Common.Messaging;
 using System.Threading;
 
@@ -56,8 +53,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public AudioRelationshipExtractor()
     {
-      bool onlyLocalMedia = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>().OnlyLocalMedia;
-
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Audio relationship extractor");
 
       _extractors = new List<IRelationshipRoleExtractor>();
@@ -67,8 +62,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       _extractors.Add(new TrackComposerRelationshipExtractor());
       _extractors.Add(new AlbumArtistRelationshipExtractor());
       _extractors.Add(new AlbumLabelRelationshipExtractor());
-      if(!onlyLocalMedia)
-        _extractors.Add(new AlbumTrackRelationshipExtractor());
+      _extractors.Add(new AlbumTrackRelationshipExtractor());
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {

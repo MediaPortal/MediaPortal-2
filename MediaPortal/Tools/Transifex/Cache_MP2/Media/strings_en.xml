@@ -430,8 +430,6 @@
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategy, how newly opened players will be positioned among already open players</string>
 
   <!-- Secondary filters -->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

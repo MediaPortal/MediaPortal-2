@@ -223,4 +223,6 @@
   <string name="Media.SortByEpisode">Ordenar por eposódio</string>
   <string name="Settings.Players">Reprodutores</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

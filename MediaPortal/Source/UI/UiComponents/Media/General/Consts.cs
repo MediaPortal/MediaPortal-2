@@ -502,6 +502,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_FORCED = "Forced";
     public const string KEY_PARTS = "Parts";
     public const string KEY_SET = "Set";
+    public const string KEY_SET_NAME = "SetName";
     public const string KEY_BITRATE = "BitRate";
     public const string KEY_ASPECTRATIO = "AspctRatio";
     public const string KEY_FPS = "FPS";
@@ -651,13 +652,13 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
           EpisodeAspect.ASPECT_ID,
-          VideoStreamAspect.ASPECT_ID,
-          VideoAudioStreamAspect.ASPECT_ID,
           ImporterAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_EPISODE_MIAS = new Guid[]
       {
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID
       };
 
@@ -676,13 +677,13 @@ namespace MediaPortal.UiComponents.Media.General
           MediaAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
           MovieAspect.ASPECT_ID,
-          VideoStreamAspect.ASPECT_ID,
-          VideoAudioStreamAspect.ASPECT_ID,
           ImporterAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_MOVIES_MIAS = new Guid[]
       {
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID
       };
 

@@ -11810,7 +11810,7 @@ namespace DirectShow.BaseClasses
 
         #region IAMStreamSelect Members
 
-        public int Count(out int pcStreams)
+        public virtual int Count(out int pcStreams)
         {
             pcStreams = 0;
             if (m_pFileParser == null) return VFW_E_NOT_CONNECTED;
@@ -11818,7 +11818,7 @@ namespace DirectShow.BaseClasses
             return NOERROR;
         }
 
-        public int Info(int lIndex, IntPtr ppmt, IntPtr pdwFlags, IntPtr plcid, IntPtr pdwGroup, IntPtr ppszName, IntPtr ppObject, IntPtr ppUnk)
+        public virtual int Info(int lIndex, IntPtr ppmt, IntPtr pdwFlags, IntPtr plcid, IntPtr pdwGroup, IntPtr ppszName, IntPtr ppObject, IntPtr ppUnk)
         {
             SplitterOutputPin _selected = null;
             int _index = lIndex;
@@ -11908,7 +11908,7 @@ namespace DirectShow.BaseClasses
             return NOERROR;
         }
 
-        public int Enable(int lIndex, AMStreamSelectEnableFlags dwFlags)
+        public virtual int Enable(int lIndex, AMStreamSelectEnableFlags dwFlags)
         {
             if (dwFlags == AMStreamSelectEnableFlags.DisableAll)
             {

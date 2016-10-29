@@ -39,6 +39,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">התנתק משרת</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">שרת ביתי</string>
   <string name="ServerConnection.AttachedText.Before">קליינט מדיה פורטל 2 זה מחובר כרגע לשרת ביתי</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">כרגע קליינט מדיה פורטל 2 זה אינו מחובר לשרת ביתי</string>
   <string name="ServerConnection.HomeServerIsConnected">השרת הביתי כרגע מחובר</string>
   <string name="ServerConnection.HomeServerIsNotConnected">השרת הביתי כרגע מנותק</string>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="HomeEditor.OthersMenuItem">Extra</string>
+  <string name="HomeEditor.Configuration">Sätt upp startsidan</string>
+  <string name="HomeEditor.Configuration.Header">Startsidans grupper</string>
+  <string name="HomeEditor.Configuration.Help">Ändra startsidans grupper</string>
+  <string name="HomeEditor.Configuration.Label">Startsidans grupper</string>
+  <string name="HomeEditor.Configuration.AddGroup">Lägg till grupp</string>
+  <string name="HomeEditor.Configuration.GroupEdit.Header">Ändra grupp</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Header">Ta bort grupp</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Label">Välj vilka grupper du vill ta bort</string>
+  <string name="HomeEditor.Configuration.DisplayName">Visningsnamn</string>
+  <string name="HomeEditor.Configuration.RestoreDefaults">Återställ till förvalda värden</string>
+  
+  <string name="HomeEditor.Configuration.GroupEdit.Label">Grupphändelser</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Header">Ändra händelse</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Header">Ta bort händelse</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Label">Välj vilken händelse du vill ta bort</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Label">Välj händelse</string>
+  <string name="HomeEditor.Configuration.AddAction">Lägg till händelse</string>
+</resources>

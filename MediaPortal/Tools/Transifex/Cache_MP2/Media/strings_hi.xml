@@ -45,4 +45,6 @@
   <string name="Media.SwitchFilterDialogTitle">फ़िल्टर</string>
   <string name="Settings.Players">प्लेयर</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

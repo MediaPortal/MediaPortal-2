@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odjavi se s strežnika</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Domači strežnik</string>
   <string name="ServerConnection.AttachedText.Before">Ta MediaPortal odjemalec je trenutno prijavljen na strežnik</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Ta MediaPortal odjemalec trenutno ni prijavljen na strežnik</string>
   <string name="ServerConnection.HomeServerIsConnected">Domači strežnik je trenutno povezan</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domači strežnik je trenutno nepovezan</string>
@@ -100,6 +101,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Način povečave</string>
   <string name="Players.ChoosePlayerEffect">Efekt</string>
+  <string name="Players.ChoosePlayerSubtitle">Podnapis</string>
   <string name="Settings.Appearance">Videz</string>
   <string name="Settings.Appearance.Skin">Izgled</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Format datuma</string>

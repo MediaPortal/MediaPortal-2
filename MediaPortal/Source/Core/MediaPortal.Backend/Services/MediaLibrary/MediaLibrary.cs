@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -52,6 +51,7 @@ using RelocationMode = MediaPortal.Backend.MediaLibrary.RelocationMode;
 using MediaPortal.Backend.Services.UserProfileDataManagement;
 using System.IO;
 using MediaPortal.Common.UserProfileDataManagement;
+using System.Diagnostics;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -131,11 +131,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh)
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
       {
         try
         {
-          return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, updatedAspects, isRefresh);
+          lock (_parent._shareDeleteSync[basePath])
+          {
+            return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, updatedAspects, true, isRefresh, cancelToken);
+          }
         }
         catch (Exception)
         {
@@ -252,6 +255,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
               importerWorker.ScheduleImport(_share.BaseResourcePath, _share.MediaCategories, true);
+
+              Logger.Info("MediaLibrary: Share watcher triggered import for path {0}", _share.BaseResourcePath);
             }
           }
         }
@@ -303,7 +308,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, List<Guid>> _virtualRoleHierarchy = new Dictionary<Guid, List<Guid>>();
     protected Dictionary<Guid, List<ChildCountDefinition>> _virtualRoleHierarchyChildCount = new Dictionary<Guid, List<ChildCountDefinition>>();
     protected Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
-    protected object opsSync = new object();
+    protected Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
 
     #endregion
 
@@ -1184,11 +1189,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
     {
-      return AddOrUpdateMediaItem(parentDirectoryId, systemId, path, null, mediaItemAspects, true, isRefresh);
+      return AddOrUpdateMediaItem(parentDirectoryId, systemId, path, null, mediaItemAspects, true, isRefresh, CancellationToken.None);
     }
 
-    private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh)
+    private string GetMediaItemTitle(IEnumerable<MediaItemAspect> mediaItemAspects, string defaultTitle)
     {
+      foreach (MediaItemAspect mia in mediaItemAspects)
+      {
+        if (mia.Metadata.AspectId == MediaAspect.ASPECT_ID)
+        {
+          return mia.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+        }
+      }
+      return defaultTitle;
+    }
+
+    private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh, CancellationToken cancelToken)
+    {
+      Stopwatch swImport = new Stopwatch();
+      swImport.Start();
+
       //Logger.Debug("Adding to {0} on {1} in {2}:\n{3}", parentDirectoryId, systemId, path, MediaItemAspect.GetInfo(mediaItemAspects, _miaManagement.ManagedMediaItemAspectTypes));
 
       // TODO: Avoid multiple write operations to the same media item
@@ -1196,128 +1216,39 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        Guid? mediaItemId = GetMediaItemId(transaction, systemId, path);
-        string name = path.FileName;
-        foreach (MediaItemAspect mia in mediaItemAspects)
+        bool merged;
+        string name = GetMediaItemTitle(mediaItemAspects, path.FileName);
+        Guid? mediaItemId = AddOrUpdateMediaItem(database, transaction, parentDirectoryId, systemId, path, newMediaItemId, mediaItemAspects, out merged);
+        if (!mediaItemId.HasValue || mediaItemId.Value == Guid.Empty)
         {
-          if (mia.Metadata.AspectId == MediaAspect.ASPECT_ID)
-          {
-            name = mia.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
-            break;
-          }
+          transaction.Rollback();
+          return Guid.Empty;
         }
-        Logger.Debug("Adding media item {0} with name {1} ({2})", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName));
-        
-        DateTime now = DateTime.Now;
-        MediaItemAspect pra;
-        MediaItemAspect importerAspect;
-        bool wasCreated = !mediaItemId.HasValue;
-        if (wasCreated)
-        {
-          pra = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
-          pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-          pra.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
-          pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
-          pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
-          pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
-
-          importerAspect = new SingleMediaItemAspect(ImporterAspect.Metadata);
-          importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
-        }
-        else
-        {
-          importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ImporterAspect.ASPECT_ID);
-          pra = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ProviderResourceAspect.ASPECT_ID);
-        }
-
-        Guid? mergedMediaItem = MergeWithExisting(database, transaction, mediaItemId, mediaItemAspects, pra);
-        if (mergedMediaItem != null)
-        {
-          if (mergedMediaItem == Guid.Empty)
-          {
-            transaction.Rollback();
-
-            Logger.Info("Media item {0} with name {1} ({2}) cannot be saved. Needs to be merged", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName));
-
-            return Guid.Empty;
-          }
-
-          if (mediaItemId.HasValue && mergedMediaItem.Value != mediaItemId.Value)
-          {
-            DeleteMediaItemAndReleationships(transaction, mediaItemId.Value);
-          }
-
-          //Aspects were merged into an existing media item. Discard the remaining aspects
-          transaction.Commit();
-
-          Logger.Info("Media item {0} with name {1} ({2}) was merged into {3}", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName), mergedMediaItem.Value);
-          return mergedMediaItem.Value;
-        }
-
-        if (wasCreated)
-        {
-          mediaItemId = AddMediaItem(database, transaction, newMediaItemId);
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
-        }
-        importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
-        importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
-
-        _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, wasCreated);
-
-        // Update
-        foreach (MediaItemAspect mia in mediaItemAspects)
-        {
-          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
-            // Simply skip unknown MIA types. All types should have been added before import.
-            continue;
-          if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
-          {
-            // Only allow certain attributes to be overridden
-            mia.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID));
-            string resourcePath = mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-            if (string.IsNullOrEmpty(resourcePath))
-              mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
-            object resourcePrimary = mia.GetAttributeValue<object>(ProviderResourceAspect.ATTR_PRIMARY);
-            if (resourcePrimary == null)
-              mia.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, pra.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY));
-            mia.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, pra.GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
-
-            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
-          }
-          else if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
-          { // Those aspects are managed by the MediaLibrary
-            // When merging media items this aspect could by present so just ignore it
-            // Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update ImporterAspect");
-          }
-        }
-        foreach (MediaItemAspect mia in mediaItemAspects)
-        {
-          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
-            // Simply skip unknown MIA types. All types should have been added before import.
-            continue;
-          if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
-            //Already stored
-            continue;
-          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
-            //Already stored
-            continue;
-          if (mia.Deleted)
-            _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia.Metadata.AspectId);
-          else if (wasCreated)
-            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
-          else
-            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
-        }
-
         transaction.Commit();
+        
+        if (!merged)
+        {
+          MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId.Value)), false, null, true).FirstOrDefault();
+          if (item != null)
+          {
+            if (reconcile)
+              Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
 
-        Logger.Info("Committed media item {0} with name {1} ({2})", mediaItemId.Value, name ?? "[null]", Path.GetFileName(path.FileName));
+            if (cancelToken.IsCancellationRequested)
+            {
+              //Delete media item so it can be reimported later
+              transaction = database.BeginTransaction();
+              DeleteMediaItemAndReleationships(transaction, mediaItemId.Value);
+              transaction.Commit();
+              Logger.Info("Deleted media item {0} with name {1} ({2}) so it can be reimported ({3} ms)", mediaItemId.Value, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+              return Guid.Empty;
+            }
 
-        if (reconcile)
-          Reconcile(mediaItemId.Value, isRefresh);
+            CollectFanArt(item.MediaItemId, item.Aspects);
+          }
 
-        CollectFanArt(mediaItemId.Value);
-
+          Logger.Info("Media item {0} with name {1} ({2}) imported ({3} ms)", mediaItemId.Value, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+        }
         return mediaItemId.Value;
       }
       catch (Exception e)
@@ -1328,48 +1259,167 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    protected virtual void Reconcile(Guid mediaItemId, bool isRefresh)
+    private Guid AddOrUpdateMediaItem(ISQLDatabase database, ITransaction transaction, Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, out bool merged)
     {
-      UpdateRelationships(mediaItemId, isRefresh);
+      Stopwatch swImport = new Stopwatch();
+      swImport.Start();
+      merged = false;
+      string name = GetMediaItemTitle(mediaItemAspects, path.FileName);
+      Guid? mediaItemId = GetMediaItemId(transaction, systemId, path);
+      mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
+      Logger.Debug("Adding media item {0} with name {1} ({2})", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName));
+
+      DateTime now = DateTime.Now;
+      MediaItemAspect pra;
+      MediaItemAspect importerAspect;
+      bool wasCreated = !mediaItemId.HasValue;
+      if (wasCreated)
+      {
+        pra = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
+        pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+        pra.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+        pra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
+        pra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
+        pra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, parentDirectoryId);
+
+        importerAspect = new SingleMediaItemAspect(ImporterAspect.Metadata);
+        importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
+      }
+      else
+      {
+        importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ImporterAspect.ASPECT_ID);
+        pra = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ProviderResourceAspect.ASPECT_ID);
+      }
+
+      Guid? mergedMediaItem = MergeWithExisting(database, transaction, mediaItemId, mediaItemAspects, pra);
+      if (mergedMediaItem != null)
+      {
+        merged = true;
+        if (mergedMediaItem == Guid.Empty)
+        {
+          Logger.Info("Media item {0} with name {1} ({2}) cannot be saved. Needs to be merged ({3} ms)", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+
+          return Guid.Empty;
+        }
+
+        if (mediaItemId.HasValue && mergedMediaItem.Value != mediaItemId.Value)
+        {
+          DeleteMediaItemAndReleationships(transaction, mediaItemId.Value);
+        }
+
+        Logger.Info("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName), mergedMediaItem.Value, swImport.ElapsedMilliseconds);
+        return mergedMediaItem.Value;
+      }
+
+      if (wasCreated)
+      {
+        mediaItemId = AddMediaItem(database, transaction, newMediaItemId);
+        _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
+      }
+      importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
+      importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
+
+      _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, wasCreated);
+
+      // Update
+      foreach (MediaItemAspect mia in mediaItemAspects)
+      {
+        if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+          // Simply skip unknown MIA types. All types should have been added before import.
+          continue;
+        if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+        {
+          // Only allow certain attributes to be overridden
+          mia.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID));
+          string resourcePath = mia.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          if (string.IsNullOrEmpty(resourcePath))
+            mia.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+          object resourcePrimary = mia.GetAttributeValue<object>(ProviderResourceAspect.ATTR_PRIMARY);
+          if (resourcePrimary == null)
+            mia.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, pra.GetAttributeValue<bool>(ProviderResourceAspect.ATTR_PRIMARY));
+          mia.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, pra.GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
+
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
+        }
+        else if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+        { // Those aspects are managed by the MediaLibrary
+          // When merging media items this aspect could by present so just ignore it
+          // Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update ImporterAspect");
+        }
+      }
+      foreach (MediaItemAspect mia in mediaItemAspects)
+      {
+        if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+          // Simply skip unknown MIA types. All types should have been added before import.
+          continue;
+        if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+          //Already stored
+          continue;
+        if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+          //Already stored
+          continue;
+        if (mia.Deleted)
+          _miaManagement.RemoveMIA(transaction, mediaItemId.Value, mia.Metadata.AspectId);
+        else if (wasCreated)
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
+        else
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
+      }
+
+      return mediaItemId.Value;
+    }
+
+    protected virtual void Reconcile(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> mediaItemAspects, bool isRefresh, CancellationToken cancelToken)
+    {
+      UpdateRelationships(mediaItemId, mediaItemAspects, isRefresh, cancelToken);
       Logger.Debug("Reconciled media item {0}", mediaItemId);
     }
 
     public void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
     {
-      UpdateMediaItem(mediaItemId, mediaItemAspects, false, isRefresh);
+      UpdateMediaItem(mediaItemId, mediaItemAspects, false, isRefresh, CancellationToken.None);
     }
 
-    private void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh)
+    private void UpdateMediaItem(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh, CancellationToken cancelToken)
     {
       // TODO: Avoid multiple write operations to the same media item
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        foreach (MediaItemAspect mia in mediaItemAspects)
-        {
-          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
-            // Simply skip unknown MIA types. All types should have been added before update.
-            continue;
-          if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID ||
-              mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
-          { // Those aspects are managed by the MediaLibrary
-            //Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
-            continue;
-          }
-          // Let MIA management decide if it's and add or update
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
-        }
+        UpdateMediaItem(database, transaction, mediaItemId, mediaItemAspects);
         transaction.Commit();
-
-        if(reconcile)
-          Reconcile(mediaItemId, isRefresh);
       }
       catch (Exception e)
       {
         Logger.Error("MediaLibrary: Error updating media item with id '{0}'", e, mediaItemId);
         transaction.Rollback();
         throw;
+      }
+
+      if (reconcile)
+      {
+        MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
+        Reconcile(mediaItemId, item.Aspects, isRefresh, cancelToken);
+      }
+    }
+
+    private void UpdateMediaItem(ISQLDatabase database, ITransaction transaction, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
+      foreach (MediaItemAspect mia in mediaItemAspects)
+      {
+        if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+          // Simply skip unknown MIA types. All types should have been added before update.
+          continue;
+        if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID ||
+            mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+        { // Those aspects are managed by the MediaLibrary
+          //Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update either ImporterAspect or ProviderResourceAspect");
+          continue;
+        }
+        // Let MIA management decide if it's and add or update
+        _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
       }
     }
 
@@ -1384,6 +1434,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         extractedAspects[aspect.Metadata.AspectId].Add(aspect);
       }
 
+      IList<MultipleMediaItemAspect> providerResourceAspects = null;
+      if (MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
+      {
+        //Don't merge virtual resource
+        string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+        if (!string.IsNullOrEmpty(accessorPath))
+        {
+          ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
+          if (resourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+            return null;
+        }
+      }
+
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (IMediaMergeHandler mergeHandler in mediaAccessor.LocalMergeHandlers.Values)
       {
@@ -1396,9 +1459,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (found && existingMediaItemId != extractedMediaItemId)
           {
             Logger.Debug("Found mergeable media item {0}", existingMediaItemId);
-
-            IList<MultipleMediaItemAspect> providerResourceAspects;
-            if (MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
+            if (providerResourceAspects != null)
             {
               foreach (MultipleMediaItemAspect aspect in providerResourceAspects)
               {
@@ -1440,41 +1501,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private bool MatchExistingItem(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, out Guid existingMediaItemId, out IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
-      IList<MultipleMediaItemAspect> externalAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspects, ExternalIdentifierAspect.Metadata, out externalAspects))
+      IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects).ToList();
+      if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
       {
-        foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+        //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
+        //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
+        optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
+      }
+      IFilter filter = mergeHandler.GetSearchFilter(extractedAspects);
+      if (filter != null)
+      {
+        IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
+        foreach (MediaItem existingItem in existingItems)
         {
-          string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
-          string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
-          string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
-
-          // Search using external identifiers
-          BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new[]
-                {
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
-                });
-          //Logger.Debug("Searching for existing items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", mergeHandler.MergeableAspects.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-
-          IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(mergeHandler.MergeableAspects).ToList();
-          if(optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
+          //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+          if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
           {
-            //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
-            //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
-            optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
-          }
-          IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
-          foreach (MediaItem existingItem in existingItems)
-          {
-            //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-            if (mergeHandler.TryMatch(extractedAspects, existingItem.Aspects))
-            {
-              existingMediaItemId = existingItem.MediaItemId;
-              existingAspects = existingItem.Aspects;
-              return true;
-            }
+            existingMediaItemId = existingItem.MediaItemId;
+            existingAspects = existingItem.Aspects;
+            return true;
           }
         }
       }
@@ -1483,10 +1528,46 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return false;
     }
 
+    private IEnumerable<MediaItemAspect> RemoveInverseRelationships(IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      List<MediaItemAspect> aspects = new List<MediaItemAspect>(mediaItemAspects);
+      for(int i = 0; i < aspects.Count; i++)
+      {
+        if (aspects[i].Metadata.AspectId == RelationshipAspect.ASPECT_ID)
+        {
+          //Remove reversed relations because they should not be saved
+          bool relationshipValid = false;
+          foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+          {
+            foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
+            {
+              if (aspects[i].GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == roleExtractor.Role &&
+                aspects[i].GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == roleExtractor.LinkedRole &&
+                roleExtractor.BuildRelationship)
+              {
+                relationshipValid = true;
+                break;
+              }
+            }
+            if (relationshipValid)
+              break;
+          }
+          if (!relationshipValid)
+          {
+            aspects.RemoveAt(i);
+            i--;
+          }
+        }
+      }
+      return aspects;
+    }
+
     private void UpdateMergedMediaItem(ISQLDatabase database, ITransaction transaction, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       try
       {
+        mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
         foreach (MediaItemAspect mia in mediaItemAspects)
         {
           if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
@@ -1506,46 +1587,41 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    protected virtual void UpdateRelationships(Guid mediaItemId, bool isRefresh)
+    protected virtual void UpdateRelationships(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> mediaItemAspects, bool isRefresh, CancellationToken cancelToken)
     {
-      if (ShuttingDown == true)
+      if (cancelToken.IsCancellationRequested || ShuttingDown)
         return;
 
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-
       Logger.Debug("Updating relationships for {0}", mediaItemId);
-      MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId)), false, null, true).FirstOrDefault();
-      if (item == null)
-      {
-        // Item deleted on the main thread before the reconciler thread processes it - could happen?
-        Logger.Warn("Cannot find {0}", mediaItemId);
-        return;
-      }
-      //Logger.Debug("Found item {0} with [{1}]", item.MediaItemId, string.Join(",", item.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
 
       // TODO: What happens to MIAs that the reconciler automatically adds which have been removed manually by the user?
-
       foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
       {
         foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
         {
-          if(ShuttingDown == false)
-            UpdateRelationship(roleExtractor, mediaItemId, item.Aspects, isRefresh);
+          if (cancelToken.IsCancellationRequested || ShuttingDown)
+            return;
+
+          UpdateRelationship(roleExtractor, mediaItemId, mediaItemAspects, isRefresh, cancelToken);
         }
       }
+
+      if (cancelToken.IsCancellationRequested || ShuttingDown)
+        return;
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       using (ITransaction transaction = database.BeginTransaction())
       {
+        UpdateMediaItem(database, transaction, mediaItemId, mediaItemAspects.Values.SelectMany(x => x));
         //Update parents
         UpdateVirtualParents(database, transaction, mediaItemId);
         UpdateAllParentPlayUserData(database, transaction, mediaItemId);
-
         transaction.Commit();
       }
     }
 
-    private void UpdateRelationship(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, bool isRefresh)
+    private void UpdateRelationship(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, bool isRefresh, CancellationToken cancelToken)
     {
       IList<Guid> roleAspectIds = new List<Guid>(roleExtractor.RoleAspects);
       roleAspectIds.Add(MediaAspect.ASPECT_ID);
@@ -1557,98 +1633,113 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (roleAspectIds.Except(aspects.Keys).Any())
         return;
 
-      ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedItems;
+      IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedItems;
       if (!roleExtractor.TryExtractRelationships(aspects, out extractedItems, !isRefresh))
       {
         Logger.Debug("Extractor {0} extracted {1} media items from media item {2}", roleExtractor.GetType().Name, 0, mediaItemId);
         return;
       }
-      Logger.Debug("Extractor {0} extracted {1} media items from media item {2}", roleExtractor.GetType().Name, extractedItems == null ? 0: extractedItems.Count, mediaItemId);
+      Logger.Debug("Extractor {0} extracted {1} media items from media item {2}", roleExtractor.GetType().Name, extractedItems == null ? 0 : extractedItems.Count, mediaItemId);
 
-      // Match the extracted aspect data to any items already in the library
-      foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedItem in extractedItems)
+      HashSet<Guid> updatedItems = new HashSet<Guid>();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      using (ITransaction transaction = database.BeginTransaction())
       {
-        if (ShuttingDown == true)
-          return;
-
-        bool found = MatchExternalItem(roleExtractor, mediaItemId, aspects, extractedItem, linkedRoleAspectIds, isRefresh);
-        if (!found)
+        // Match the extracted aspect data to any items already in the library
+        foreach (var extractedItem in extractedItems)
         {
-          Guid newMediaItemId = NewMediaItemId();
-          Logger.Debug("Adding new media item for extracted item {0}", newMediaItemId);
-          AddRelationship(roleExtractor, mediaItemId, aspects, extractedItem);
-          AddOrUpdateMediaItem(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(newMediaItemId), newMediaItemId, extractedItem.Values.SelectMany(x => x), true, isRefresh);
+          if (cancelToken.IsCancellationRequested || ShuttingDown)
+            return;
+
+          Guid? matchedMediaItemId;
+          bool found = MatchExternalItem(database, transaction, roleExtractor, mediaItemId, aspects, extractedItem.Value, extractedItem.Key, linkedRoleAspectIds, isRefresh, cancelToken, out matchedMediaItemId);
+          if (!found)
+          {
+            Guid newMediaItemId = NewMediaItemId();
+            Logger.Debug("Adding new media item for extracted item {0}", newMediaItemId);
+            bool merged;
+            IEnumerable<MediaItemAspect> extractedAspects = extractedItem.Key.Values.SelectMany(x => x);
+            newMediaItemId = AddOrUpdateMediaItem(database, transaction, Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(newMediaItemId), newMediaItemId, extractedAspects, out merged);
+            if (newMediaItemId != Guid.Empty)
+            {
+              AddRelationship(roleExtractor, newMediaItemId, aspects, extractedItem.Key);
+              roleExtractor.CacheExtractedItem(newMediaItemId, extractedItem.Key);
+              if (!merged)
+                updatedItems.Add(newMediaItemId);
+            }
+          }
+          else if (matchedMediaItemId.HasValue)
+          {
+            updatedItems.Add(matchedMediaItemId.Value);
+          }
         }
+        transaction.Commit();
+      }
+
+      IList<MediaItem> items = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(updatedItems)), false, null, true);
+      foreach (MediaItem item in items)
+      {
+        Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
+        CollectFanArt(item.MediaItemId, item.Aspects);
       }
     }
 
-    private bool MatchExternalItem(IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> extractedItem, IList<Guid> linkedRoleAspectIds, bool isRefresh)
+    private bool MatchExternalItem(ISQLDatabase database, ITransaction transaction, IRelationshipRoleExtractor roleExtractor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid extractedMediaItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedItem, IList<Guid> linkedRoleAspectIds, bool isRefresh, CancellationToken cancelToken, out Guid? matchedMediaItemId)
     {
-      IList<MultipleMediaItemAspect> externalAspects;
-
-      if (MediaItemAspect.TryGetAspects(extractedItem, ExternalIdentifierAspect.Metadata, out externalAspects))
+      matchedMediaItemId = null;
+      if (extractedMediaItemId != Guid.Empty)
       {
-        foreach (MultipleMediaItemAspect externalAspect in externalAspects)
+        AddRelationship(roleExtractor, extractedMediaItemId, aspects, extractedItem);
+        return true;
+      }
+      else
+      { 
+        // Any potential linked item must contain all of LinkedRoleAspects
+        IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds).ToList();
+        if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
         {
-          string source = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
-          string type = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
-          string id = externalAspect.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
-
-          // Search using external identifiers
-          BooleanCombinationFilter filter = new BooleanCombinationFilter(BooleanOperator.And, new[]
-                {
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, source),
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, type),
-                  new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, id),
-                });
+          //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
+          //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
+          optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
+        }
+        IFilter filter = roleExtractor.GetSearchFilter(extractedItem);
+        if (filter != null)
+        {
           //Logger.Debug("Searching for external items matching {0} / {1} / {2} with [{3}]", source, type, id, string.Join(",", linkedRoleAspectIds.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
-          // Any potential linked item must contain all of LinkedRoleAspects
-          IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(linkedRoleAspectIds).ToList();
-          if (optionalAspectIds.Contains(RelationshipAspect.ASPECT_ID))
-          {
-            //Because relationships are loaded for both parties in the relationship (one the inverse of the other) saving the aspects will cause a duplication of the relationship.
-            //So don't load it to avoid duplication. Merging will still work because the existing relationship is already persisted.
-            optionalAspectIds.Remove(RelationshipAspect.ASPECT_ID);
-          }
-          IList<MediaItem> externalItems = Search(new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds, filter), false, null, true);
+          IList<MediaItem> externalItems = Search(database, transaction, new MediaItemQuery(linkedRoleAspectIds, optionalAspectIds, filter), false, null, true);
           foreach (MediaItem externalItem in externalItems)
           {
             //Logger.Debug("Checking external item {0} with [{1}]", externalItem.MediaItemId, string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
             if (roleExtractor.TryMatch(extractedItem, externalItem.Aspects))
             {
-              //Logger.Debug("Merging extracted item with [{2}] into external item {0} with [{1}]", externalItem.MediaItemId,
-              //  string.Join(",", externalItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)),
-              //  string.Join(",", extractedItem.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
+              AddRelationship(roleExtractor, externalItem.MediaItemId, aspects, extractedItem);
+              matchedMediaItemId = externalItem.MediaItemId; //Reconcile because it might have changed
 
-              AddRelationship(roleExtractor, mediaItemId, aspects, extractedItem);
-
-              //Update virtual flag
-              object isVirtual = externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue(MediaAspect.ATTR_ISVIRTUAL);
-              if(isVirtual != null)
-                extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, isVirtual);
-
-              UpdateMediaItem(externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x), true, isRefresh);
-              CollectFanArt(externalItem.MediaItemId);
-
+              bool? isVirtual = externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue<bool?>(MediaAspect.ATTR_ISVIRTUAL);
+              if (isVirtual.HasValue && !isVirtual.Value)
+                extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, isVirtual.Value); //Update virtual flag so it's not reset by the update
+              
+              UpdateMediaItem(database, transaction, externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x));
+              roleExtractor.CacheExtractedItem(externalItem.MediaItemId, extractedItem);
               return true;
             }
           }
         }
       }
-
       return false;
     }
 
-    private void AddRelationship(IRelationshipRoleExtractor roleExtractor, Guid itemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
+    private bool AddRelationship(IRelationshipRoleExtractor roleExtractor, Guid itemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, IDictionary<Guid, IList<MediaItemAspect>> linkedAspects)
     {
       if (!roleExtractor.BuildRelationship)
-        return;
+        return false;
 
       int index;
       if (!roleExtractor.TryGetRelationshipIndex(aspects, linkedAspects, out index))
         index = 0;
       //Logger.Debug("Adding a {0} / {1} relationship linked to {2} at {3}", roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);
-      MediaItemAspect.AddOrUpdateRelationship(linkedAspects, roleExtractor.LinkedRole, roleExtractor.Role, itemId, index);
+      MediaItemAspect.AddOrUpdateRelationship(aspects, roleExtractor.Role, roleExtractor.LinkedRole, itemId, index);
+      return true;
     }
 
     private void DeleteMediaItemAndReleationships(ITransaction transaction, Guid mediaItemId)
@@ -1703,6 +1794,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           foreach (Guid relationId in relations)
             DeleteOrphan(database, transaction, relationId);
 
+          _miaManagement.CleanupAllOrphanedAttributeValues(transaction, GetManagedMediaItemAspectMetadata().Values);
           DeleteFanArt(mediaItemId);
         }
       }
@@ -1948,22 +2040,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return false;
     }
 
-    private bool CollectFanArt(Guid mediaItemId)
+    private bool CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       try
       {
-        MediaItemIdFilter filter = new MediaItemIdFilter(mediaItemId);
-        IList<Guid> reqiuredAspectIds = new List<Guid>() { MediaAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
-        IList<Guid> optionalAspectIds = GetManagedMediaItemAspectMetadata().Keys.Except(reqiuredAspectIds).ToList();
-        IList<MediaItem> fanartItems = Search(new MediaItemQuery(reqiuredAspectIds, optionalAspectIds, filter), false, null, true);
-        if (fanartItems.Count == 0)
-          return false;
-
-        IDictionary<Guid, IList<MediaItemAspect>> aspects = fanartItems.First().Aspects;
-        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-
         Logger.Debug("Scheduling FanArt downloads for {0}", mediaItemId);
-
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         foreach (IMediaFanArtHandler handler in mediaAccessor.LocalFanArtHandlers.Values)
         {
           IList<Guid> aspectIds = new List<Guid>(handler.FanArtAspects);
@@ -2494,7 +2576,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (item == null)
         return;
       SingleMediaItemAspect mediaAspect;
-	    MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out mediaAspect);
+      MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out mediaAspect);
       mediaAspect.SetAttribute(MediaAspect.ATTR_LASTPLAYED, DateTime.Now);
       if (watched)
       {
@@ -2606,8 +2688,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         try
         {
-          ShareWatcher watcher = new ShareWatcher(share, this, false);
+          ShareWatcher watcher = null;
+          try
+          {
+            watcher = new ShareWatcher(share, this, false);
+          }
+          catch (Exception e)
+          {
+            Logger.Debug("MediaLibrary: Error initializing share watcher for {0}", e, share.BaseResourcePath);
+            Logger.Warn("MediaLibrary: Share watcher cannot be used for path {0}", share.BaseResourcePath);
+            return;
+          }
           _shareWatchers.Add(share.ShareId, watcher);
+          _shareDeleteSync.Add(share.BaseResourcePath, new object());
         }
         catch (Exception e)
         {
@@ -2665,6 +2758,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         ShareWatcher watcher = new ShareWatcher(share, this, false);
         _shareWatchers.Add(share.ShareId, watcher);
+        _shareDeleteSync.Add(share.BaseResourcePath, new object());
       }
       catch (Exception e)
       {
@@ -2690,28 +2784,32 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
 
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
-      try
+      lock (_shareDeleteSync[share.BaseResourcePath])
       {
-        using (IDbCommand command = MediaLibrary_SubSchema.DeleteSharesCommand(transaction, new Guid[] {shareId}))
-          command.ExecuteNonQuery();
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        ITransaction transaction = database.BeginTransaction();
+        try
+        {
+          using (IDbCommand command = MediaLibrary_SubSchema.DeleteSharesCommand(transaction, new Guid[] { shareId }))
+            command.ExecuteNonQuery();
 
-        DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath, true);
+          DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath, true);
 
-        transaction.Commit();
+          transaction.Commit();
 
-        _shareWatchers[shareId].Dispose();
-        _shareWatchers.Remove(shareId);
+          _shareWatchers[shareId].Dispose();
+          _shareWatchers.Remove(shareId);
 
-        ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
+          ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
+        }
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error removing share '{0}'", e, shareId);
+          transaction.Rollback();
+          throw;
+        }
       }
-      catch (Exception e)
-      {
-        Logger.Error("MediaLibrary: Error removing share '{0}'", e, shareId);
-        transaction.Rollback();
-        throw;
-      }
+      _shareDeleteSync.Remove(share.BaseResourcePath);
     }
 
     public void RemoveSharesOfSystem(string systemId)
@@ -2732,15 +2830,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         transaction.Commit();
 
-        if(systemId == _localSystemId)
+        foreach (Guid shareId in _shareWatchers.Keys)
         {
-          foreach (Guid shareId in _shareWatchers.Keys)
-          {
-            _shareWatchers[shareId].Dispose();
-          }
-          _shareWatchers.Clear();
+          _shareWatchers[shareId].Dispose();
         }
-        
+        _shareWatchers.Clear();
+        _shareDeleteSync.Clear();
+
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
       catch (Exception e)

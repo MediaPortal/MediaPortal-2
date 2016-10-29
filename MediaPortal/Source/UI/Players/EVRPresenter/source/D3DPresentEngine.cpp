@@ -185,8 +185,12 @@ HRESULT D3DPresentEngine::CreateVideoSamples(IMFMediaType *pFormat, VideoSampleL
     m_ArY = m_Height;
   }
 
-  hr = videoType.GetFourCC((DWORD*)&d3dFormat);
-  CHECK_HR(hr, "D3DPresentEngine::CreateVideoSamples VideoType::GetFourCC() failed");
+  //hr = videoType.GetFourCC((DWORD*)&d3dFormat);
+  //CHECK_HR(hr, "D3DPresentEngine::CreateVideoSamples VideoType::GetFourCC() failed");
+
+  // Morpheus_xx, 2016-08-14: we force a format without alpha channel here, because rendering subtitles with MPC-HC engine expects this format. Actually I can't imagine a video format
+  // that actually delivers alpha channel information.
+  d3dFormat = D3DFMT_X8R8G8B8;
 
   for (int i = 0; i < NUM_PRESENTER_BUFFERS; i++)
   {

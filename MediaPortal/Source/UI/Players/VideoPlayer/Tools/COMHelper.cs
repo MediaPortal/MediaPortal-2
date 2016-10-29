@@ -100,7 +100,12 @@ namespace MediaPortal.UI.Players.Video.Tools
       //Get a pointer to the DllGetClassObject function
       IntPtr dllGetClassObjectPtr = Utilities.SystemAPI.NativeMethods.GetProcAddress(dllHandle, "DllGetClassObject");
       if (dllGetClassObjectPtr == IntPtr.Zero)
+      {
+        int error = Marshal.GetLastWin32Error();
+
         return null;
+      }
+        
 
       // Convert the function pointer to a .net delegate.
       DllGetClassObject dllGetClassObject = (DllGetClassObject) Marshal.GetDelegateForFunctionPointer(dllGetClassObjectPtr, typeof(DllGetClassObject));

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.ResourceAccess;
+using System.Threading;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -39,7 +40,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="updatedAspects">Enumeration of updated media item aspects.</param>
     /// <returns>Id of the media item which has been added or updated.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh);
+    Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken);
 
     /// <summary>
     /// Deletes the media item of the given location located on the local system.

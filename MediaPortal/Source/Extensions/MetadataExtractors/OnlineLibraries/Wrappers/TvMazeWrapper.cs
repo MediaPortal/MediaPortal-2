@@ -38,6 +38,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
   class TvMazeWrapper : ApiWrapper<TvMazeImageCollection, string>
   {
     protected TvMazeApiV1 _tvMazeHandler;
+    protected TimeSpan _cacheTimeout = TimeSpan.FromHours(12);
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -61,6 +62,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
+        episodeSearch.CopyIdsFrom(seriesSearch);
       }
 
       if (episodeSearch.SeriesTvMazeId > 0 && episodeSearch.SeasonNumber.HasValue)
@@ -113,6 +115,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       series = null;
       List<TvMazeSeries> foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.SeriesName.Text);
+      if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.OriginalName))
+        foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.OriginalName);
+      if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
+        foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.AlternateName);
       if (foundSeries == null) return false;
       series = foundSeries.Select(s => new SeriesInfo()
       {
@@ -123,21 +129,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         SeriesName = new SimpleTitle(s.Name, true),
         FirstAired = s.Premiered,
       }).ToList();
-
-      if (series.Count == 0)
-      {
-        foundSeries = _tvMazeHandler.SearchSeries(seriesSearch.OriginalName);
-        if (foundSeries == null) return false;
-        series = foundSeries.Select(s => new SeriesInfo()
-        {
-          TvMazeId = s.Id,
-          ImdbId = s.Externals.ImDbId,
-          TvdbId = s.Externals.TvDbId ?? 0,
-          TvRageId = s.Externals.TvRageId ?? 0,
-          SeriesName = new SimpleTitle(s.Name, true),
-          FirstAired = s.Premiered,
-        }).ToList();
-      }
       return series.Count > 0;
     }
 
@@ -556,6 +547,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       try
       {
+        if (DateTime.Now - lastRefresh <= _cacheTimeout)
+          return false;
+
         List<int> changedItems = new List<int>();
         Dictionary<int, DateTime> seriesChangeDates = _tvMazeHandler.GetSeriesChangeDates();
         foreach (var change in seriesChangeDates)

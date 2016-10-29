@@ -78,6 +78,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateMultipleAttributeSpecification("PartSetNum", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
+    /// Contains the name of the set if any.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_VIDEO_PART_SET_NAME =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("PartSetName", 100, Cardinality.Inline, false);
+
+    /// <summary>
     /// Duration in seconds.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_DURATION =
@@ -134,6 +140,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_VIDEO_TYPE,
             ATTR_VIDEO_PART,
             ATTR_VIDEO_PART_SET,
+            ATTR_VIDEO_PART_SET_NAME,
             ATTR_DURATION,
             ATTR_AUDIOSTREAMCOUNT,
             ATTR_VIDEOENCODING,

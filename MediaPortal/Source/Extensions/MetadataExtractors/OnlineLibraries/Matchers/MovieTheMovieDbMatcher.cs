@@ -48,34 +48,35 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
-    private static readonly TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
     #endregion
 
     #region Init
 
-    public MovieTheMovieDbMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION)
-          {
-        }
+    public MovieTheMovieDbMatcher() :
+      base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
+    {
+      Primary = true;
+    }
 
     public override bool InitWrapper(bool useHttps)
     {
       try
-    {
+      {
         TheMovieDbWrapper wrapper = new TheMovieDbWrapper();
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
         wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
         if (wrapper.Init(CACHE_PATH, useHttps))
-      {
+        {
           _wrapper = wrapper;
-        return true;
+          return true;
+        }
       }
-    }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("MovieTheMovieDbMatcher: Error initializing wrapper", ex);
+        ServiceRegistration.Get<ILogger>().Error(Id + ": Error initializing wrapper", ex);
       }
       return false;
     }
@@ -95,7 +96,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     }
 
     protected override bool GetMovieId(MovieInfo movie, out string id)
-          {
+    {
       id = null;
       if (movie.MovieDbId > 0)
         id = movie.MovieDbId.ToString();
@@ -157,7 +158,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     }
 
     protected override bool GetPersonId(PersonInfo person, out string id)
-      {
+    {
       id = null;
       if (person.MovieDbId > 0)
         id = person.MovieDbId.ToString();
@@ -179,7 +180,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region FanArt
 
     protected override bool VerifyFanArtImage(ImageItem image)
-      {
+    {
       if (image.Language == null || image.Language == _wrapper.PreferredLanguage)
         return true;
       return false;

@@ -39,6 +39,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Искључи на сервер</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Кућни сервер</string>
   <string name="ServerConnection.AttachedText.Before">Овај МедиајПортал 2 клијент је тренутно накачен на кућни сервер</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Тренутно, овај Медија Портал 2 није накачен на кућни сервер</string>
   <string name="ServerConnection.HomeServerIsConnected">Кућни сервер је тренутно прикључен.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Кућни сервер није тренутно прикључен.</string>

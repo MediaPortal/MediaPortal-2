@@ -29,9 +29,9 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using System.IO;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -71,6 +71,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public MergeHandlerMetadata Metadata
     {
       get { return _metadata; }
+    }
+
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      return IAudioRelationshipExtractor.GetTrackSearchFilter(extractedAspects);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

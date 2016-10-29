@@ -32,6 +32,8 @@ using System.Text.RegularExpressions;
 using DuoVia.FuzzyStrings;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.ResourceAccess;
+using System.Reflection;
+using System.Text;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -57,6 +59,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     private bool _hasThumbnail = false;
     private bool _hasChanged = false;
+    private DateTime? _lastChange = null;
 
     public bool HasThumbnail
     {
@@ -68,6 +71,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       get { return _hasChanged; }
       set { _hasChanged = value; }
+    }
+
+    public DateTime? LastChanged
+    {
+      get { return _lastChange; }
+      set { _lastChange = value; }
     }
 
     public abstract bool IsBaseInfoPresent { get; }
@@ -158,22 +167,73 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return true;
     }
 
-    public static string GetNameId(string name)
+    public static bool HasRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspectData, Guid linkedRole)
     {
-      if (!string.IsNullOrEmpty(name))
+      bool relationshipFound = false;
+      IList<MultipleMediaItemAspect> relationships;
+      if (MediaItemAspect.TryGetAspects(aspectData, RelationshipAspect.Metadata, out relationships))
       {
-        string nameId = name.Trim();
-        nameId = CleanString(nameId);
-        nameId = CleanupWhiteSpaces(nameId);
-        nameId = nameId.Replace(" ", "").ToLowerInvariant();
-        return nameId;
+        foreach (MultipleMediaItemAspect relationship in relationships)
+        {
+          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == linkedRole ||
+            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == linkedRole)
+          {
+            relationshipFound = true;
+            break;
+          }
+        }
       }
-      return null;
+      return relationshipFound;
+    }
+
+    public static int CountRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspectData, Guid linkedRole)
+    {
+      int count = 0;
+      IList<MultipleMediaItemAspect> relationships;
+      if (MediaItemAspect.TryGetAspects(aspectData, RelationshipAspect.Metadata, out relationships))
+      {
+        foreach (MultipleMediaItemAspect relationship in relationships)
+        {
+          if (relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_LINKED_ROLE) == linkedRole ||
+            relationship.GetAttributeValue<Guid>(RelationshipAspect.ATTR_ROLE) == linkedRole)
+          {
+            count++;
+          }
+        }
+      }
+      return count;
+    }
+
+    protected void GetMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      SingleMediaItemAspect importerAspect;
+      if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
+      {
+        _hasChanged = importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
+        _lastChange = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_LAST_IMPORT_DATE);
+      }
+    }
+
+    protected void SetMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      SingleMediaItemAspect importerAspect;
+      if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
+      {
+        if (_hasChanged)
+        {
+          //Set to dirty to mark it as changed
+          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, _hasChanged);
+          //_lastChange = DateTime.Now;
+          //importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, _lastChange);
+        }
+      }
     }
 
     public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
 
     public abstract bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+
+    public abstract void AssignNameId();
 
     public virtual bool FromString(string name)
     {
@@ -187,6 +247,60 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public virtual T CloneBasicInstance<T>()
     {
+      return default(T);
+    }
+
+    protected string GetNameId(string name)
+    {
+      if (!string.IsNullOrEmpty(name))
+      {
+        string nameId = name.Trim();
+        nameId = CleanString(nameId);
+        nameId = CleanupWhiteSpaces(nameId);
+        byte[] tempBytes = Encoding.GetEncoding("ISO-8859-8").GetBytes(nameId);
+        nameId = Encoding.UTF8.GetString(tempBytes);
+        nameId = nameId.Replace("'", "");
+        nameId = nameId.Replace(" ", "").ToLowerInvariant();
+        return nameId;
+      }
+      return null;
+    }
+
+    protected T CloneProperties<T>(T obj)
+    {
+      if (obj == null)
+        return default(T);
+      Type type = obj.GetType();
+
+      if (type.IsValueType || type == typeof(string))
+      {
+        return obj;
+      }
+      else if (type.IsArray)
+      {
+        Type elementType = obj.GetType().GetElementType();
+        var array = obj as Array;
+        Array arrayCopy = Array.CreateInstance(elementType, array.Length);
+        for (int i = 0; i < array.Length; i++)
+        {
+          arrayCopy.SetValue(CloneProperties(array.GetValue(i)), i);
+        }
+        return (T)Convert.ChangeType(arrayCopy, obj.GetType());
+      }
+      else if (type.IsClass)
+      {
+        T newInstance = (T)Activator.CreateInstance(obj.GetType());
+        FieldInfo[] fields = type.GetFields(BindingFlags.Public |
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+        foreach (FieldInfo field in fields)
+        {
+          object fieldValue = field.GetValue(obj);
+          if (fieldValue == null)
+            continue;
+          field.SetValue(newInstance, CloneProperties(fieldValue));
+        }
+        return newInstance;
+      }
       return default(T);
     }
 

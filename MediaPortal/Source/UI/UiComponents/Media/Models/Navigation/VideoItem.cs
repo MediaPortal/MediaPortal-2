@@ -68,12 +68,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         {
           int? part = (int?)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_PART];
           int? partSet = (int?)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
+          string partSetName = (string)videoStreamAspect[VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME];
           if (partSet.HasValue)
           {
             if (!videoStreams.ContainsKey(partSet.Value))
             {
               videoStreams.Add(partSet.Value, new VideoStreamItem());
               videoStreams[partSet.Value].Set = partSet.Value;
+              videoStreams[partSet.Value].SetName = partSetName;
               videoAudioStreams.Add(partSet.Value, new List<VideoAudioStreamItem>());
               subtitleStreams.Add(partSet.Value, new List<SubtitleItem>());
             }

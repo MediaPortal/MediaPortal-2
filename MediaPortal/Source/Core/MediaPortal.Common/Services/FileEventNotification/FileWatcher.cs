@@ -305,8 +305,6 @@ namespace MediaPortal.Common.Services.FileEventNotification
       try
       {
         _watcher = InitializeFileSystemWatcher(_watchedPath.Path.FullName);
-        _watcher.IncludeSubdirectories = true;
-        _watcher.EnableRaisingEvents = true;
         _watching = true;
         _notifyTimer = new SystemTimer(EventsConsolidationInterval);
         _notifyTimer.Elapsed += NotifyTimer_Elapsed;
@@ -347,6 +345,8 @@ namespace MediaPortal.Common.Services.FileEventNotification
       watcher.Renamed += FileSystemEventHandler;
       watcher.Error += ErrorEventHandler;
       watcher.Disposed += FileSystemWatcher_Disposed;
+      watcher.EnableRaisingEvents = true;
+      GC.KeepAlive(watcher);
       return watcher;
     }
 
@@ -490,7 +490,49 @@ namespace MediaPortal.Common.Services.FileEventNotification
     {
       // An error occured, disable the watch.
       if (sender == _watcher)
-        DisableWatch();
+      {
+        if(!HandleNotAccessibleError((FileSystemWatcher)sender, e))
+          DisableWatch();
+      }
+    }
+
+    private bool HandleNotAccessibleError(FileSystemWatcher source, ErrorEventArgs e)
+    {
+      int maxAttempts = 120;
+      int timeOut = 1500;
+      int attempt = 0;
+      while ((!Directory.Exists(source.Path) || source.EnableRaisingEvents == false) && attempt < maxAttempts)
+      {
+        attempt += 1;
+        try
+        {
+          if (_watcher == null)
+            return false;
+
+          source.EnableRaisingEvents = false;
+          if (!Directory.Exists(source.Path))
+          {
+            Thread.Sleep(timeOut);
+          }
+          else
+          {
+            // ReInitialize the Component
+            string path = source.Path;
+            source.Dispose();
+            source = null;
+
+            InitializeFileSystemWatcher(path);
+            _watching = true;
+            return true;
+          }
+        }
+        catch
+        {
+          source.EnableRaisingEvents = false;
+          Thread.Sleep(timeOut);
+        }
+      }
+      return false;
     }
 
     /// <summary>

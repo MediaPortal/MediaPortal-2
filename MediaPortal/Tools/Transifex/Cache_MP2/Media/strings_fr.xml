@@ -384,6 +384,8 @@
   <string name="Settings.Players.OpenPlayerStrategy">Gestion concernant  l\'ouverture d\'un lecteur</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Gestion de la place du lecteur nouvellement ouvert, parmi les lecteurs déjà ouverts</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

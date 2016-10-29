@@ -34,4 +34,6 @@
   <!--Video Player time units-->
   <string name="Settings.Players">Người phát</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

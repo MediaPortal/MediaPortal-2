@@ -27,17 +27,15 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
-  class TrackAlbumRelationshipExtractor : IRelationshipRoleExtractor, IAudioRelationshipExtractor
+  class TrackAlbumRelationshipExtractor : IAudioRelationshipExtractor, IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
-    private CheckedItemCache<TrackInfo> _checkCache = new CheckedItemCache<TrackInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
-    private CheckedItemCache<AlbumInfo> _albumCache = new CheckedItemCache<AlbumInfo>(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
 
     public bool BuildRelationship
     {
@@ -64,7 +62,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects, bool forceQuickMode)
+    public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      return GetAlbumSearchFilter(extractedAspects);
+    }
+
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
     {
       extractedLinkedAspects = null;
 
@@ -72,19 +75,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      if (_checkCache.IsItemChecked(trackInfo))
+      if (!AddToCheckCache(trackInfo))
         return false;
 
-      AlbumInfo albumInfo;
-      if (!_albumCache.TryGetCheckedItem(trackInfo.CloneBasicInstance<AlbumInfo>(), out albumInfo))
-      {
-        albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-        AssignAlbumNameId(albumInfo);
-        OnlineMatcherService.UpdateAlbum(albumInfo, false, forceQuickMode);
-        _albumCache.TryAddCheckedItem(albumInfo);
-      }
+      Guid albumId;
+      AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
+      if (TryGetIdFromAlbumCache(albumInfo, out albumId))
+        albumInfo = GetFromAlbumCache(albumId);
+      else if (!AudioMetadataExtractor.SkipOnlineSearches)
+        OnlineMatcherService.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
 
-      extractedLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
+        albumInfo.HasChanged = true; //Force save if no relationship exists
+
+      if (!albumInfo.HasChanged && !forceQuickMode)
+        return false;
+
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);
 
@@ -104,21 +111,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
-      extractedLinkedAspects.Add(albumAspects);
+      if(albumId != Guid.Empty)
+        extractedLinkedAspects.Add(albumAspects, albumId);
+      else
+        extractedLinkedAspects.Add(albumAspects, Guid.Empty);
       return true;
-    }
-
-    private void AssignAlbumNameId(AlbumInfo albumInfo)
-    {
-      if (!string.IsNullOrEmpty(albumInfo.Album) && string.IsNullOrEmpty(albumInfo.NameId))
-      {
-        //Give the album a fallback Id so it will always be created
-        if (albumInfo.Artists.Count > 0)
-          albumInfo.NameId = albumInfo.Artists[0].Name + ":" + albumInfo.Album;
-        else
-          albumInfo.NameId = albumInfo.Album;
-        albumInfo.NameId = BaseInfo.GetNameId(albumInfo.NameId);
-      }
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
@@ -136,15 +133,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       int disc = aspect.GetAttributeValue<int>(AudioAspect.ATTR_DISCID);
       int track = aspect.GetAttributeValue<int>(AudioAspect.ATTR_TRACK);
+      if (disc <= 0)
+        disc = 1;
 
-      index = disc * 100 + track;
+      index = disc * 1000 + track;
       return true;
     }
 
-    public void ClearCache()
+    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      _checkCache.ClearCache();
-      _albumCache.ClearCache();
+      AlbumInfo album = new AlbumInfo();
+      album.FromMetadata(extractedAspects);
+      AddToAlbumCache(extractedItemId, album);
     }
   }
 }

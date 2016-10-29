@@ -25,9 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data;
 using System.IO;
@@ -203,7 +200,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       //TODO: Split CDDB ID into disc id and genre?
-      string genre = null;
       string discId = null;
 
       FreeDBCDInfoDetail discInfo;
@@ -241,7 +237,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       //TODO: Split CDDB ID into disc id and genre?
-      string genre = null;
       string discId = null;
 
       FreeDBCDInfoDetail discInfo;
