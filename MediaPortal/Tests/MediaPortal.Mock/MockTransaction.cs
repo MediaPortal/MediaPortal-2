@@ -49,6 +49,11 @@ namespace MediaPortal.Mock
       get { throw new NotImplementedException(); }
     }
 
+    public void Begin(IsolationLevel level)
+    {
+      ServiceRegistration.Get<ILogger>().Info("Beginning");
+    }
+
     public void Commit()
     {
       ServiceRegistration.Get<ILogger>().Info("Committing");
