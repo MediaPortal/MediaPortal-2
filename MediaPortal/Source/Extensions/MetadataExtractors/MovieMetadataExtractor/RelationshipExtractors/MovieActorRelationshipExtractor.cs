@@ -87,7 +87,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      if (!AddToCheckCache(movieInfo))
+      if (CheckCacheContains(movieInfo))
         return false;
 
       if (!MovieMetadataExtractor.SkipOnlineSearches)
@@ -102,8 +102,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      AddToCheckCache(movieInfo);
 
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       foreach (PersonInfo person in movieInfo.Actors)
       {
         person.AssignNameId();

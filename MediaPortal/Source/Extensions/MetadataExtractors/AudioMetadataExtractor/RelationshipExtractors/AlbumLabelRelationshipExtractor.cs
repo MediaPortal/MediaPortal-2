@@ -84,7 +84,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumInfo.FromMetadata(aspects))
         return false;
 
-      if (!AddToCheckCache(albumInfo))
+      if (CheckCacheContains(albumInfo))
         return false;
 
       if (!AudioMetadataExtractor.SkipOnlineSearches)
@@ -99,8 +99,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      AddToCheckCache(albumInfo);
 
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       foreach (CompanyInfo company in albumInfo.MusicLabels)
       {
         company.AssignNameId();
