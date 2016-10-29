@@ -53,8 +53,8 @@
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
-    <Reference Include="taglib-sharp, Version=2.1.0.1, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
-      <HintPath>..\..\..\..\Packages\MediaPortal.TagLib.2.1.0.1\lib\net45\taglib-sharp.dll</HintPath>
+    <Reference Include="taglib-sharp, Version=2.1.0.2, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
+      <HintPath>..\..\..\..\Packages\MediaPortal.TagLib.2.1.0.2\lib\net45\taglib-sharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -108,7 +108,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
