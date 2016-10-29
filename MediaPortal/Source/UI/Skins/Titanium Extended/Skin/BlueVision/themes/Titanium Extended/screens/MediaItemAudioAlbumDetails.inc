@@ -4,7 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails"
+  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" MinHeight="630"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
@@ -101,7 +101,7 @@
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                           FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;380}"/>
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource}"/>
     </Image.Source>
     <Image.OpacityMask >
       <ImageBrush ImageSource="music_filmstrip_mask.png"/>

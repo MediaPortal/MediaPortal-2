@@ -1478,14 +1478,16 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" >
-        <Label x:Name="NumberLabel" Content="{Binding EpisodeNumber}" FontSize="{ThemeResource SmallFontSize}" 
-               FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"/>
-        <Label Content=" - " FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
-        </Label>
-        <Label x:Name="ItemLabel" Content="{Binding EpisodeName}" FontSize="{ThemeResource SmallFontSize}" 
-               FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"/>
-      </StackPanel>
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+             Grid.Row="0" Grid.Column="1" Color="{ThemeResource MediaItemUnwatchedColor}">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+            <Binding Path="EpisodeNumber"/>
+            <Binding Source=" - "/>
+            <Binding Path="EpisodeName"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
       <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
     </Grid>

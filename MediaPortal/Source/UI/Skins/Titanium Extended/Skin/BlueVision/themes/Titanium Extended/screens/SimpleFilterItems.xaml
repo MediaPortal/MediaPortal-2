@@ -28,8 +28,10 @@
           </Control.TemplateControl>
         </Control>
         
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" Width="1080"
-          Template="{Binding Source={DynamicResource Media_Details_Template}}">
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" Width="1080">
+          <Control.TemplateControl>
+            <Include Source="screens\MultiDetails.inc"/>
+          </Control.TemplateControl>
           <Control.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
@@ -37,8 +39,10 @@
         </Control>
 
         <!--The width needs to be "1"! In case of "0" the grid is invisible, >"1" results into right side shifted covers with CoverLayout-->
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" Width="1"
-                 Template="{Binding Source={DynamicResource Cover_Details_Template}}">
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" Width="1">
+          <Control.TemplateControl>
+            <Include Source="screens\MultiDetailsCover.inc"/>
+          </Control.TemplateControl>
           <Control.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
@@ -51,12 +55,6 @@
           </Control.TemplateControl>
         </Control>
       </Grid>
-    </ControlTemplate>
-
-    <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
-
-    <ControlTemplate x:Key="Alternative_Footer_Template">
-      <Include Source="screens\MultiDetails.inc"/>
     </ControlTemplate>
 
   </Include.Resources>

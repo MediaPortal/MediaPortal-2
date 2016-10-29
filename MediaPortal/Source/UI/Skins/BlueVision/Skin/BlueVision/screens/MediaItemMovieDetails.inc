@@ -16,7 +16,7 @@
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="350"/>
+    <ColumnDefinition Width="380"/>
   </Grid.ColumnDefinitions>
 
   <Label x:Name="MediaItemName" Wrap="True" Grid.Column="0" Grid.Row="0" Margin="-10,-15,0,0"
@@ -28,7 +28,7 @@
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
         TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-        Color="{ThemeResource TextColor}" Margin="-10,0,5,25"/>
+        Color="{ThemeResource TextColor}" Margin="-10,0,35,25"/>
 
   <StackPanel Grid.Column="1" Grid.Row="1" Margin="10,0,-20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 

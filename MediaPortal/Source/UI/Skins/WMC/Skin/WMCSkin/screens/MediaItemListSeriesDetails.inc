@@ -141,7 +141,6 @@
                Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
     </StackPanel>
-
   </StackPanel>
   
   <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch"

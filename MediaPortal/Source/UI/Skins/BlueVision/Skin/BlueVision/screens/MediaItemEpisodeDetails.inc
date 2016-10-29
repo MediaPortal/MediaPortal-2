@@ -16,7 +16,7 @@
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="350"/>
+    <ColumnDefinition Width="380"/>
   </Grid.ColumnDefinitions>
 
   <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
@@ -63,7 +63,7 @@
           <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"
                 TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                 Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-                Color="{ThemeResource TextColor}" Margin="-10,0,5,25"/>
+                Color="{ThemeResource TextColor}" Margin="-10,0,35,25"/>
         </Grid>
         </ControlTemplate>
     </media:SeriesAspectWrapper.Template>

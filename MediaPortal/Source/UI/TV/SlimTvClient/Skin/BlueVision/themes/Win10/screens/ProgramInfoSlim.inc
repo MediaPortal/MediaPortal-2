@@ -37,10 +37,9 @@
 
     <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" >
       <Label x:Name="Program" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-             Content="{Binding CurrentProgram.Title}" Margin="0,0,0,0"
-             Color="{ThemeResource TextColor}"/>
-      <Label x:Name="SeriesLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Series]}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+             Content="{Binding CurrentProgram.Title}" Margin="0,0,0,0" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="SeriesLabel" Grid.Column="0" Grid.Row="1" Content="{Binding CurrentProgram.Series}"
+             Color="{ThemeResource TextColor}" Margin="5,0,0,0" VerticalAlignment="Center"/>
     </StackPanel>
 
     <Label Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Top"

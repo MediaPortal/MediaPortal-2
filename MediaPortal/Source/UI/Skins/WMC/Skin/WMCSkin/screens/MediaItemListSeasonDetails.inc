@@ -100,10 +100,10 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Label x:Name="Description" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="1"
-                   Wrap="True" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,5,0"
-                   HorizontalAlignment="Stretch" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=Description}"
-                   Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+          <Label x:Name="Description"  Grid.Row="1" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 Wrap="True" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Margin="0,5,5,0"
+                 HorizontalAlignment="Stretch" Content="{Binding Description}"
+                 Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
         </Grid>
       </ControlTemplate>
     </media:SeasonAspectWrapper.Template>

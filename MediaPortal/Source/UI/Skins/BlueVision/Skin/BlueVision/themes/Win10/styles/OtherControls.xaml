@@ -48,7 +48,7 @@
                         <GradientStop Color="#00000000" Offset="0"/>
                         <GradientStop Color="#FF000000" Offset="0.2"/>
                         <GradientStop Color="#FF000000" Offset="0.8"/>
-                        <GradientStop Color="#00000000" Offset="0.94"/>
+                        <GradientStop Color="#00000000" Offset="0.95"/>
                       </LinearGradientBrush>
                     </Rectangle.Fill>
                   </Rectangle>
@@ -731,9 +731,15 @@
         </Rectangle>
                    
         <!-- Item label -->
-        <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding [Name]}"
-               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
-      </Grid>
+      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
+               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="5,0,5,0">
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="ItemLabel" Property="FontFamily" Value="DefaultBold"/> 
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
+    </Grid>
   </DataTemplate>
 
   <!-- ***************************** ListView styles ********************************* -->

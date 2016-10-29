@@ -262,10 +262,16 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FSCWindowButtons.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemImageDetails.inc" />
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieCollectionDetails.inc" />
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieCollectionDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieDetailsCover.inc" />
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeriesDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeriesDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemsList.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -288,6 +294,21 @@
     <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\TITANLIGHT.TTF" />
     <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\TITANMEDIUM.TTF" />
     <None Include="Skin\BlueVision\themes\Titanium Extended\fonts\TITANSMALL.TTF" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemAudioAlbumDetails.inc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemAudioAlbumDetailsCover.inc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemAudioDetailsCover.inc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemImageDetailsCover.inc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemMovieCollectionDetailsCover.inc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemEpisodeDetails.inc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeasonDetails.inc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemEpisodeDetailsCover.inc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeasonDetailsCover.inc" />
+    <None Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemSeriesDetailsCover.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetailsCover.inc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -327,9 +348,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\backgrounds\video-background.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\AudioShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\BrowseMediaNavigation.xaml">
@@ -383,18 +401,6 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MoviesFilterByCollection.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MoviesShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesFilterByName.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesFilterBySeason.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SharesOverview.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -432,9 +438,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SimpleShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\VideoShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\AnalogClock.xaml">
