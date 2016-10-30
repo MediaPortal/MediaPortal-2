@@ -67,7 +67,7 @@
           <media:SeasonAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" HorizontalAlignment="Left">
-                <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="0,0,0,0" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                   <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" Content="[Media.SeasonRootViewName]"/>
                   <Label x:Name="SeasonNumber" Color="{ThemeResource TextColor}">
                     <Label.Content>
@@ -82,7 +82,14 @@
         </media:SeasonAspectWrapper>
       </Grid>
 
-      <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+      <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
+                  Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center">
+        <Label Content="{Binding Episodes}" Margin="0,0,8,0" Color="{ThemeResource TextColor}"/>
+        <Label Content="[Media.EpisodeItemsHeader]" Margin="0,0,8,0" Color="{ThemeResource TextColor}"
+               IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"/>
+      </StackPanel>
+      
+      <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
         <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
           <media:MediaAspectWrapper.Template>
             <ControlTemplate>
@@ -102,23 +109,7 @@
         </media:MediaAspectWrapper>
       </Grid>
 
-      <Grid Grid.Row="2" Grid.Column="0">
-        <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
-          <media:UserDataWrapper.Template>
-            <ControlTemplate>
-              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Label Color="{ThemeResource TextColor}">
-                  <Label.Content>
-                    <Binding Path="PlayPercentage"/>
-                  </Label.Content>
-                </Label>
-              </Grid>
-            </ControlTemplate>
-          </media:UserDataWrapper.Template>
-        </media:UserDataWrapper>
-      </Grid>
-
-      <Grid HorizontalAlignment="Left" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center">
+      <Grid HorizontalAlignment="Left" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Center">
         <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
           <media:SeasonAspectWrapper.Template>
             <ControlTemplate>

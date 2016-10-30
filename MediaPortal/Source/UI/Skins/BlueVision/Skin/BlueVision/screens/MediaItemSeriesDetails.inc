@@ -58,16 +58,17 @@
       </Grid.ColumnDefinitions>
 
       <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
-        <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
-          <media:SeriesAspectWrapper.Template>
+        <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+          <media:MediaAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Label x:Name="FirstAired"
-                  Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>
+                <Label x:Name="Year" HorizontalAlignment="Left" Color="{ThemeResource TextColor}"
+                       IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"
+                       Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
               </Grid>
             </ControlTemplate>
-          </media:SeriesAspectWrapper.Template>
-        </media:SeriesAspectWrapper>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
       </Grid>
 
       <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -90,33 +91,33 @@
         </media:MediaAspectWrapper>
       </Grid>
 
-      <Grid Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">
+      <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical" 
+                  DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+        <StackPanel Orientation="Horizontal">
+          <Label Content="{Binding Seasons}" Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="1.3"/>
+          <Label Content="[Media.SeasonItemsHeader]" Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="1.3"
+                 IsVisible="{Binding Path=Seasons,Converter={StaticResource ReferenceToBoolConverter}}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <Label Content="{Binding Episodes}" Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="1.3"/>
+          <Label Content="[Media.EpisodeItemsHeader]" Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="1.3"
+                 IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"/>
+        </StackPanel>
+      </StackPanel>
+      
+      <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center">
         <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
           <media:VideoAspectWrapper.Template>
             <ControlTemplate>
               <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Label x:Name="Genre"  Margin="0,0,-10,0"
-                       Content="{Binding Genres}" Color="{ThemeResource TextColor}" />
+                <Label x:Name="Genre"  Margin="0,0,0,0" Content="{Binding Genres}" Color="{ThemeResource TextColor}" />
               </Grid>
             </ControlTemplate>
           </media:VideoAspectWrapper.Template>
         </media:VideoAspectWrapper>
       </Grid>
 
-      <Grid Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">
-        <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-          <media:VideoAspectWrapper.Template>
-            <ControlTemplate>
-              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Label x:Name="Duration"
-                       Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm\:ss}" Color="{ThemeResource TextColor}"/>
-              </Grid>
-            </ControlTemplate>
-          </media:VideoAspectWrapper.Template>
-        </media:VideoAspectWrapper>
-      </Grid>
-
-      <Grid HorizontalAlignment="Left" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center">
+      <Grid HorizontalAlignment="Left" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center">
         <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
           <media:SeriesAspectWrapper.Template>
             <ControlTemplate>
@@ -140,5 +141,4 @@
     </Grid>
 
   </StackPanel>
-
 </Grid>

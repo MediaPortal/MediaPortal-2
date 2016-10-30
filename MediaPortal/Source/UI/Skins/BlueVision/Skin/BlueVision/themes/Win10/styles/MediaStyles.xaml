@@ -31,9 +31,9 @@
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding SimpleTitle}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="NumItems" Grid.Column="1" Content="{Binding NumItems}"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </DataTemplate>
 
@@ -120,7 +120,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewFilterItemTemplate">
+  <ControlTemplate x:Key="ListViewFilterItemTemplate">
     <Grid x:Name="ItemControl" Margin="3,2,3,2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
@@ -680,18 +680,11 @@
   <ControlTemplate x:Key="GridViewMovieFilterItemTemplate">
     <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
       <Grid>
-        <Border CornerRadius="0" Background="#ff333333" Opacity="1" Margin="0" BorderThickness="0"> </Border>
+        <Border CornerRadius="0" Background="#ff333333" Opacity="1" Margin="0" BorderThickness="0"></Border>
         <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" FallbackSource="VideoLarge.png">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
         <Image HorizontalAlignment="Left" VerticalAlignment="Top">
           <Image.Source>
@@ -705,56 +698,97 @@
       </Grid>
     </Grid>
   </ControlTemplate>
-  
+
+  <ControlTemplate x:Key="CoverViewMovieFilterItemTemplate">
+    <Grid x:Name="ItemControl" Margin="3" >
+      <Border Background="#BF666666" BorderThickness="0" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}"/>
+      <Image Stretch="Fill" Height="{ThemeResource MEDIA_COVERFLOW_HEIGHT}" Width="{ThemeResource MEDIA_COVERFLOW_WIDTH}" 
+             FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+        </Image.Source>
+      </Image>
+      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="UnwatchedTab_small.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
+        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </ControlTemplate>
+
   <ControlTemplate x:Key="ListViewMovieFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="8,0,8,0">
+    <Grid x:Name="ItemControl" Width="550">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="50"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,5,0"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold">
-        <Label.Opacity>
+      <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+        </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-25,2,-20,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+        </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-45,2,-40,2"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+        </Image.Source>
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+        </Image.IsVisible>
+      </Image>
+
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0"
+             Content="{Binding SimpleTitle}" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis" Wrap="False" >
+        <Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="White"/>
+            <Binding Source="#FFCCCCCC"/>
+          </MultiBinding>
+        </Label.Color>
+      </Label>
+
+      <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Fill" Width="36" Height="23" Grid.Row="0" Grid.Column="2" Margin="5">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source=""/>
+            <Binding Source="unwatched_icon.png"/>
+          </MultiBinding>
+        </Image.Source>
+        <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="1.0"/>
-            <Binding Source="0.6"/>
+            <Binding Source="0.8"/>
           </MultiBinding>
-        </Label.Opacity>
-      </Label>
+        </Image.Opacity>
+      </Image>
 
-      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,10,0"
-               Template="{ThemeResource GridViewMovieFilterItemTemplate}" RenderTransformOrigin="0.5,0.5"
-               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Control.LayoutTransform>
-          <ScaleTransform>
-            <ScaleTransform.ScaleX>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
-                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
-                <Binding Source="0.5"/>
-                <Binding Source="0.7"/>
-                <Binding Source="1"/>
-              </MultiBinding>
-            </ScaleTransform.ScaleX>
-            <ScaleTransform.ScaleY>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
-                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
-                <Binding Source="0.5"/>
-                <Binding Source="0.7"/>
-                <Binding Source="1"/>
-              </MultiBinding>
-            </ScaleTransform.ScaleY>
-          </ScaleTransform>
-        </Control.LayoutTransform>
-      </Control>
-
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" HorizontalAlignment="Right"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1478,7 +1512,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ListViewMovieFilterItemTemplate}"/>
           <Binding Source="{StaticResource GridViewMovieFilterItemTemplate}"/>
-          <!--<Binding Source="{StaticResource CoverViewMovieFilterItemTemplate}"/>-->
+          <Binding Source="{StaticResource CoverViewMovieFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -1721,7 +1755,7 @@
                   <ControlTemplate TargetType="{x:Type ListView}">
                     <ScrollViewer CanContentScroll="True" Margin="25,5,5,5" Style="{ThemeResource HorizontalGradientScrollViewerStyle}"
                                   HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                      <ItemsPresenter VerticalAlignment="Bottom" HorizontalAlignment="Stretch"/>
+                      <ItemsPresenter VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Width="1900"/>
                     </ScrollViewer>
                   </ControlTemplate>
                 </Binding.Source>
