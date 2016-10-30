@@ -68,9 +68,9 @@
                   Name="vcredist140_x86.exe"
                   DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist140_x86.exe"
                   InstallCommand="/passive /norestart"
-                  InstallCondition="(NOT MFC140_Version_x86 >= v14.0.23026.0) OR NOT MFC140_Version_x86"
+                  InstallCondition="(NOT MFC140_Version_x86 >= v14.0.24215.0) OR NOT MFC140_Version_x86"
                   Protocol="burn">
-        <RemotePayload Description="Microsoft Visual C++ 2015 Redistributable (x86) - 14.0.23026" ProductName="Microsoft Visual C++ 2015 Redistributable (x86) - 14.0.23026" Size="14456872" Version="14.0.23918.0" Hash="BFB74E498C44D3A103CA3AA2831763FB417134D1"/>
+        <RemotePayload Description="Microsoft Visual C++ 2015 Redistributable (x86) - 14.0.24215" ProductName="Microsoft Visual C++ 2015 Redistributable (x86) - 14.0.24215" Size="14456872" Version="14.0.24215.0" Hash="72211BD2E7DFC91EA7C8FAC549C49C0543BA791B"/>
       </ExePackage>
     </PackageGroup>
   </Fragment>
