@@ -536,9 +536,7 @@
     <Content Include="References\zlib1.dll" />
     <Content Include="Resources\FreeImage.dll" />
     <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
     <None Include="Skin\default\shaders\blur.fx" />
     <None Include="Skin\default\shaders\dialogbg.fx" />
     <None Include="Skin\default\shaders\effects\denoise.fx" />
@@ -619,11 +617,4 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <Import Project="..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets" Condition="Exists('..\..\..\Packages\SharpDX.2.6.3\build\SharpDX.targets')" />
-  <Import Project="..\..\..\Packages\FreeImage.3.16.0\build\FreeImage.targets" Condition="Exists('..\..\..\Packages\FreeImage.3.16.0\build\FreeImage.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\Packages\FreeImage.3.16.0\build\FreeImage.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Packages\FreeImage.3.16.0\build\FreeImage.targets'))" />
-  </Target>
 </Project>
