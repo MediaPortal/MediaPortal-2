@@ -67,6 +67,6 @@
 
   <!-- Footer Details -->
   <ResourceWrapper x:Key="MultiDetailsFooterHeight" Resource="210"/>
-  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="0"/>
+  <ResourceWrapper x:Key="MultiDetailsFooterMargin" Resource="0,0,-45,0"/>
   
 </ResourceDictionary>

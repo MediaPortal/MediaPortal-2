@@ -120,7 +120,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="ListViewFilterItemTemplate">
+  <ControlTemplate x:Key="GridViewFilterItemTemplate">
     <Grid x:Name="ItemControl" Margin="3,2,3,2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource GRIDVIEW_FILTER_WIDTH}"/>
@@ -333,13 +333,6 @@
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
         <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
           <Image.Source>
@@ -362,13 +355,6 @@
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
         </Image.Source>
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
-          </MultiBinding>
-        </Image.Opacity>
       </Image>
       <Image HorizontalAlignment="Left" VerticalAlignment="Top">
         <Image.Source>
@@ -396,7 +382,6 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-
 
       <media:SeasonAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
         <media:SeasonAspectWrapper.Template>
@@ -484,13 +469,6 @@
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
         <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
           <Image.Source>
@@ -513,13 +491,6 @@
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
         </Image.Source>
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
-          </MultiBinding>
-        </Image.Opacity>
       </Image>
       <Image HorizontalAlignment="Left" VerticalAlignment="Top">
         <Image.Source>
@@ -620,13 +591,6 @@
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
                HorizontalAlignment="Center" VerticalAlignment="Center">
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
         <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
           <Image.Source>
@@ -662,13 +626,6 @@
             <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
                                 Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
           </Image.Source>
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
@@ -948,13 +905,6 @@
             <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
                                 Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
           </Image.Source>
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>      
@@ -975,13 +925,6 @@
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
                HorizontalAlignment="Center" VerticalAlignment="Center">
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
         <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
           <Image.Source>
@@ -1149,13 +1092,6 @@
       <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
       <Grid>
         <Image x:Name="ItemTypeAudio" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="Audio_square.png">
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
         <Image HorizontalAlignment="Left" VerticalAlignment="Top">
           <Image.Source>
@@ -1173,15 +1109,8 @@
 
   <ControlTemplate x:Key="CoverViewAudioItemTemplate">
     <Grid x:Name="ItemControl" Margin="3" Height="{ThemeResource AUDIO_COVERFLOW}" Width="{ThemeResource AUDIO_COVERFLOW}" >
-          <Image Stretch="Fill" FallbackSource="Audio_square.png" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}">
-            <Image.Opacity>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                <Binding Source="1.0"/>
-                <Binding Source="0.7"/>
-              </MultiBinding>
-            </Image.Opacity>            
-          </Image>
+      <Image Stretch="Fill" FallbackSource="Audio_square.png" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}">
+      </Image>
           <Image HorizontalAlignment="Left" VerticalAlignment="Top">
             <Image.Source>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
@@ -1281,13 +1210,6 @@
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
           </Image.Source>
-          <Image.Opacity>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="1.0"/>
-              <Binding Source="0.7"/>
-            </MultiBinding>
-          </Image.Opacity>
         </Image>
       </Grid>
     </Grid>
@@ -1296,17 +1218,10 @@
   <ControlTemplate x:Key="CoverViewAlbumItemTemplate">
     <Grid x:Name="ItemControl" Margin="3" Height="{ThemeResource AUDIO_COVERFLOW}" Width="{ThemeResource AUDIO_COVERFLOW}" >
      <Image Stretch="Fill" FallbackSource="Audio_square.png" VerticalAlignment="Center" HorizontalAlignment="Center">
-       <Image.Source>
-         <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
-       </Image.Source>
-       <Image.Opacity>
-         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-           <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-           <Binding Source="1.0"/>
-           <Binding Source="0.7"/>
-         </MultiBinding>
-       </Image.Opacity>
-     </Image>
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"/>
+        </Image.Source>
+      </Image>
      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
        <Image.Source>
          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
@@ -1445,13 +1360,6 @@
       <Border Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
       <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
              HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.7"/>
-          </MultiBinding>
-        </Image.Opacity>
       </Image>
       <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
         <Image.Source>
