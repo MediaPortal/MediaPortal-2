@@ -1204,6 +1204,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return defaultTitle;
     }
 
+    private void TransferTransientAspects(IEnumerable<MediaItemAspect> sourceMediaItemAspects, MediaItem destinationMediaItem)
+    {
+      foreach (MediaItemAspect mia in sourceMediaItemAspects)
+      {
+        if (mia.Metadata.IsTransientAspect)
+        {
+          if (!destinationMediaItem.Aspects.ContainsKey(mia.Metadata.AspectId))
+            destinationMediaItem.Aspects.Add(mia.Metadata.AspectId, new List<MediaItemAspect>());
+          destinationMediaItem.Aspects[mia.Metadata.AspectId].Add(mia);
+        }
+      }
+    }
+
     private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh, CancellationToken cancelToken)
     {
       Stopwatch swImport = new Stopwatch();
@@ -1231,6 +1244,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId.Value)), false, null, true).FirstOrDefault();
           if (item != null)
           {
+            //Transfer any transient aspects
+            TransferTransientAspects(mediaItemAspects, item);
+
             if (reconcile)
               Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
 

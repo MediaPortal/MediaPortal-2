@@ -914,6 +914,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] fkSpecifications, MediaItemAspectMetadata refMiam, MediaItemAspectMetadata.AttributeSpecification[] refSpecifications)
     {
+      if (miam.IsTransientAspect)
+        return true;
+
       lock (_syncObj)
       {
         if (_managedMIATypes.ContainsKey(miam.AspectId))
