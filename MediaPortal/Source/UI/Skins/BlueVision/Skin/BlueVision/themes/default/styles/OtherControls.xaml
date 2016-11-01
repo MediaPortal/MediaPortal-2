@@ -121,10 +121,10 @@
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Grid.OpacityMask>
               <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="Transparent" Offset="0.05"/>
+                <GradientStop Color="Transparent" Offset="0.07"/>
                 <GradientStop Color="Black" Offset="0.3"/>
                 <GradientStop Color="Black" Offset="0.7"/>
-                <GradientStop Color="Transparent" Offset="0.95"/>
+                <GradientStop Color="Transparent" Offset="0.93"/>
               </LinearGradientBrush>
             </Grid.OpacityMask>
           </Grid>
