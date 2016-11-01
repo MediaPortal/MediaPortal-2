@@ -51,7 +51,6 @@ protected AbstractProperty _seriesSeasonNameProperty;
 protected AbstractProperty _episodeProperty;
 protected AbstractProperty _dvdEpisodeProperty;
 protected AbstractProperty _episodeNameProperty;
-protected AbstractProperty _firstAiredProperty;
 protected AbstractProperty _totalRatingProperty;
 protected AbstractProperty _ratingCountProperty;
 protected AbstractProperty _mediaItemProperty;
@@ -126,17 +125,6 @@ public string EpisodeName
   set { _episodeNameProperty.SetValue(value); }
 }
 
-public AbstractProperty FirstAiredProperty
-{
-  get{ return _firstAiredProperty; }
-}
-
-public DateTime? FirstAired
-{
-  get { return (DateTime?) _firstAiredProperty.GetValue(); }
-  set { _firstAiredProperty.SetValue(value); }
-}
-
 public AbstractProperty TotalRatingProperty
 {
   get{ return _totalRatingProperty; }
@@ -182,7 +170,6 @@ public EpisodeAspectWrapper()
   _episodeProperty = new SProperty(typeof(IEnumerable<int>));
   _dvdEpisodeProperty = new SProperty(typeof(IEnumerable<double>));
   _episodeNameProperty = new SProperty(typeof(string));
-  _firstAiredProperty = new SProperty(typeof(DateTime?));
   _totalRatingProperty = new SProperty(typeof(double?));
   _ratingCountProperty = new SProperty(typeof(int?));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
@@ -213,7 +200,6 @@ public void Init(MediaItem mediaItem)
   Episode = (IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE];
   DvdEpisode = (IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE];
   EpisodeName = (string) aspect[EpisodeAspect.ATTR_EPISODE_NAME];
-  FirstAired = (DateTime?) aspect[EpisodeAspect.ATTR_FIRSTAIRED];
   TotalRating = (double?) aspect[EpisodeAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[EpisodeAspect.ATTR_RATING_COUNT];
 }
@@ -226,7 +212,6 @@ public void SetEmpty()
   Episode = new List<Int32>();
   DvdEpisode = new List<Double>();
   EpisodeName = null;
-  FirstAired = null;
   TotalRating = null;
   RatingCount = null;
 }

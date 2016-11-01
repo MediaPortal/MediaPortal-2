@@ -43,10 +43,10 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       SingleMediaItemAspect episodeAspectX;
       SingleMediaItemAspect episodeAspectY;
-      if (MediaItemAspect.TryGetAspect(x.Aspects, EpisodeAspect.Metadata, out episodeAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, EpisodeAspect.Metadata, out episodeAspectY))
+      if (MediaItemAspect.TryGetAspect(x.Aspects, MediaAspect.Metadata, out episodeAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, EpisodeAspect.Metadata, out episodeAspectY))
       {
-        DateTime? firstAiredX = (DateTime?) episodeAspectX.GetAttributeValue(EpisodeAspect.ATTR_FIRSTAIRED);
-        DateTime? firstAiredY = (DateTime?) episodeAspectY.GetAttributeValue(EpisodeAspect.ATTR_FIRSTAIRED);
+        DateTime? firstAiredX = (DateTime?) episodeAspectX.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
+        DateTime? firstAiredY = (DateTime?) episodeAspectY.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
         return ObjectUtils.Compare(firstAiredX, firstAiredY);
       }
       return base.Compare(x, y);
@@ -60,9 +60,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public override object GetGroupByValue(MediaItem item)
     {
       IList<MediaItemAspect> episodeAspect;
-      if (item.Aspects.TryGetValue(EpisodeAspect.ASPECT_ID, out episodeAspect))
+      if (item.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out episodeAspect))
       {
-        return episodeAspect.First().GetAttributeValue(EpisodeAspect.ATTR_FIRSTAIRED);
+        return episodeAspect.First().GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
       }
       return base.GetGroupByValue(item);
     }
