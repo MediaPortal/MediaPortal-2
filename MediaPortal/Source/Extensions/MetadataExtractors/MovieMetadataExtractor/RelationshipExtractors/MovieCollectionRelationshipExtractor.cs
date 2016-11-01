@@ -139,25 +139,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       index = -1;
 
-      MovieCollectionInfo collectionInfo = new MovieCollectionInfo();
-      if (!collectionInfo.FromMetadata(linkedAspects))
-        return false;
-
-      if (!OnlineMatcherService.Instance.UpdateCollection(collectionInfo, true, true))
-        return false;
-
       MovieInfo movieInfo = new MovieInfo();
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      foreach(MovieInfo movie in collectionInfo.Movies)
+      if (movieInfo.ReleaseDate.HasValue)
       {
-        if (movie.MovieDbId == movieInfo.MovieDbId)
-        {
-          index = movie.Order;
-          break;
-        }
+        index = movieInfo.ReleaseDate.Value.Year;
       }
+
       return index >= 0;
     }
 

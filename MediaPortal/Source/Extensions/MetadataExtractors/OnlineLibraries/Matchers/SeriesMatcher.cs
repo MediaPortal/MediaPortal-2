@@ -275,9 +275,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           // Use cached values before doing online query
           SeriesMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(m.OnlineName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
-            (episodeSeries.FirstAired.HasValue && m.Year == episodeSeries.FirstAired.Value.Year || !episodeSeries.FirstAired.HasValue || m.Year == 0));
+            (string.Equals(m.ItemName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+            ((episodeSeries.FirstAired.HasValue && m.Year == episodeSeries.FirstAired.Value.Year) || !episodeSeries.FirstAired.HasValue));
           Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
 
           episodeMatch = episodeInfo.Clone();
@@ -552,14 +551,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (updateEpisodeList) //Comparing all episodes can be quite time consuming
           {
+            //Only allow new episodes if empty. Online sources might have different names for same series so season name would look strange.
+            bool allowAdd = seriesInfo.Episodes.Count == 0;
             for (int matchIndex = 0; matchIndex < seriesMatch.Episodes.Count; matchIndex++)
             {
               int existing = seriesInfo.Episodes.IndexOf(seriesMatch.Episodes[matchIndex]);
               if (existing >= 0)
               {
-                MergeEpisodes(seriesInfo.Episodes[existing], seriesMatch.Episodes[matchIndex]);
+                //Don't merge with existing specials. They seem to be different on various online sources.
+                if ((seriesInfo.Episodes[existing].SeasonNumber.HasValue && seriesInfo.Episodes[existing].SeasonNumber.Value > 0) &&
+                  (seriesMatch.Episodes[matchIndex].SeasonNumber.HasValue && seriesMatch.Episodes[matchIndex].SeasonNumber.Value > 0))
+                {
+                  MergeEpisodes(seriesInfo.Episodes[existing], seriesMatch.Episodes[matchIndex]);
+                }
               }
-              else
+              else if(allowAdd)
               {
                 seriesInfo.Episodes.Add(seriesMatch.Episodes[matchIndex]);
               }

@@ -29,7 +29,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
@@ -86,7 +85,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.FromMetadata(aspects))
         return false;
 
-      if (!AddToCheckCache(collectionInfo))
+      if (CheckCacheContains(collectionInfo))
         return false;
 
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
@@ -103,8 +102,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!collectionInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      AddToCheckCache(collectionInfo);
 
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       for (int i = 0; i < collectionInfo.Movies.Count; i++)
       {
         MovieInfo movieInfo = collectionInfo.Movies[i];
@@ -147,14 +147,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(linkedAspects))
         return false;
 
-      MovieCollectionInfo collectionInfo = new MovieCollectionInfo();
-      if (!collectionInfo.FromMetadata(linkedAspects))
-        return false;
-
-      if (!OnlineMatcherService.Instance.UpdateCollection(collectionInfo, true, true))
-        return false;
-
-      index = collectionInfo.Movies.IndexOf(movieInfo);
+      if(movieInfo.ReleaseDate.HasValue)
+      {
+        index = movieInfo.ReleaseDate.Value.Year;
+      }
       return index >= 0;
     }
 

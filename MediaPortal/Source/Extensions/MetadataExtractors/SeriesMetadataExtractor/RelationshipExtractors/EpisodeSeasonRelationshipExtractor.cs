@@ -78,7 +78,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      if (!AddToCheckCache(episodeInfo))
+      if (CheckCacheContains(episodeInfo))
         return false;
 
       Guid seasonId;
@@ -97,8 +97,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seasonInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      AddToCheckCache(episodeInfo);
 
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       seasonInfo.SetMetadata(seasonAspects);
 

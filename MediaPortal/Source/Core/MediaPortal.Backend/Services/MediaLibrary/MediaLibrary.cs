@@ -1002,7 +1002,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         mediaItem.UserData.Clear();
 
         ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-        ITransaction transaction = database.BeginTransaction();
+        ITransaction transaction = database.CreateTransaction();
         try
         {
           int dataKeyIndex;
@@ -1033,7 +1033,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public ICollection<PlaylistInformationData> GetPlaylists()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         int playlistIdIndex;
@@ -1131,7 +1131,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public PlaylistRawData ExportPlaylist(Guid playlistId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         int nameIndex;

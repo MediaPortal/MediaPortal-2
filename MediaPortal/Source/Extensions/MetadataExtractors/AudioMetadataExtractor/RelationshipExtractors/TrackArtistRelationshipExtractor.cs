@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      if (!AddToCheckCache(trackInfo))
+      if (CheckCacheContains(trackInfo))
         return false;
 
       if (!AudioMetadataExtractor.SkipOnlineSearches)
@@ -100,8 +100,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!trackInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      AddToCheckCache(trackInfo);
 
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       foreach (PersonInfo person in trackInfo.Artists)
       {
         person.AssignNameId();

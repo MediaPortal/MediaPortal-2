@@ -114,6 +114,11 @@ namespace MediaPortal.Mock
       return new MockTransaction(this);
     }
 
+    public ITransaction CreateTransaction()
+    {
+      return new MockTransaction(this);
+    }
+
     public bool TableExists(string tableName)
     {
       throw new NotImplementedException();

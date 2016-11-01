@@ -74,7 +74,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public int Execute()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         using (IDbCommand command = transaction.CreateCommand())

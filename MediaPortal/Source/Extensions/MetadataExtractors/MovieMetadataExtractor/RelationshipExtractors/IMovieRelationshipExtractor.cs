@@ -235,6 +235,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return _checkMemoryCache.Add(mediaItemInfo.ToString(), mediaItemInfo, _cachePolicy);
     }
 
+    protected virtual bool CheckCacheContains<T>(T mediaItemInfo)
+    {
+      if (_checkMemoryCache == null)
+        _checkMemoryCache = new MemoryCache(GetType().ToString() + "CheckCache");
+
+      List<string> items = _checkMemoryCache.Where(mi => mediaItemInfo.Equals((T)mi.Value)).Select(mi => mi.Key).ToList();
+      if (items.Count > 0)
+        return _checkMemoryCache.Contains(items[0]);
+
+      return false;
+    }
+
     public static IFilter GetMovieSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> movieFilters = new List<IFilter>();

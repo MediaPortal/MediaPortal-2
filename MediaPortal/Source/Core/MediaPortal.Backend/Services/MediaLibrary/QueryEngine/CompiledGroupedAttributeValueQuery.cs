@@ -115,7 +115,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public HomogenousMap Execute()
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         using (IDbCommand command = transaction.CreateCommand())

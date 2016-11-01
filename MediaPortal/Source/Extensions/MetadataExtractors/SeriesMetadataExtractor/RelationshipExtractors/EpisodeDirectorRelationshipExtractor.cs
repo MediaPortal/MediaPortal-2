@@ -87,7 +87,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      if (!AddToCheckCache(episodeInfo))
+      if (CheckCacheContains(episodeInfo))
         return false;
 
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
@@ -102,8 +102,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!episodeInfo.HasChanged && !forceQuickMode)
         return false;
 
-      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
+      AddToCheckCache(episodeInfo);
 
+      extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       foreach (PersonInfo person in episodeInfo.Directors)
       {
         person.AssignNameId();

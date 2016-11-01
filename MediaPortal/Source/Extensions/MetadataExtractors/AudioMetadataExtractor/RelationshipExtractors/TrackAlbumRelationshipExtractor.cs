@@ -75,7 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      if (!AddToCheckCache(trackInfo))
+      if (CheckCacheContains(trackInfo))
         return false;
 
       Guid albumId;
@@ -90,6 +90,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       if (!albumInfo.HasChanged && !forceQuickMode)
         return false;
+
+      AddToCheckCache(trackInfo);
 
       extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
