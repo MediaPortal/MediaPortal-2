@@ -426,7 +426,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (episodeInfo.DvdEpisodeNumbers.Count == 0)
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers, true);
       if (episodeInfo.Genres.Count == 0)
+      {
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
+        if (episodeMatch.GenreIds.Count > 0)
+          episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.GenreIds, episodeMatch.GenreIds, true);
+      }
+      if (episodeInfo.Genres.Count > 0 && episodeInfo.GenreIds.Count == 0)
+      {
+        episodeInfo.GenreIds = new List<int>(OnlineMatcherService.Instance.GetSeriesGenreIds(episodeInfo.Genres));
+        if (episodeInfo.GenreIds.Count > 0)
+          episodeInfo.HasChanged = true;
+      }
 
       //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
       //So changes to these lists will only be stored if something else has changed.
@@ -537,7 +547,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref seriesInfo.Rating, seriesMatch.Rating);
           if(seriesInfo.Genres.Count == 0)
+          {
             seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres, true);
+            if (seriesMatch.GenreIds.Count > 0)
+              seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.GenreIds, seriesMatch.GenreIds, true);
+          }
+          if (seriesInfo.Genres.Count > 0 && seriesInfo.GenreIds.Count == 0)
+          {
+            seriesInfo.GenreIds = new List<int>(OnlineMatcherService.Instance.GetSeriesGenreIds(seriesInfo.Genres));
+            if (seriesInfo.GenreIds.Count > 0)
+              seriesInfo.HasChanged = true;
+          }
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Awards, seriesMatch.Awards, true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.

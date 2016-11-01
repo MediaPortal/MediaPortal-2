@@ -50,6 +50,7 @@ protected AbstractProperty _descriptionProperty;
 protected AbstractProperty _artistsProperty;
 protected AbstractProperty _labelsProperty;
 protected AbstractProperty _genresProperty;
+protected AbstractProperty _genreIdsProperty;
 protected AbstractProperty _awardsProperty;
 protected AbstractProperty _isCompilationProperty;
 protected AbstractProperty _numTracksProperty;
@@ -118,6 +119,17 @@ public IEnumerable<string> Genres
 {
   get { return (IEnumerable<string>) _genresProperty.GetValue(); }
   set { _genresProperty.SetValue(value); }
+}
+
+public AbstractProperty GenreIdsProperty
+{
+  get{ return _genreIdsProperty; }
+}
+
+public IEnumerable<int> GenreIds
+{
+  get { return (IEnumerable<int>) _genreIdsProperty.GetValue(); }
+  set { _genreIdsProperty.SetValue(value); }
 }
 
 public AbstractProperty AwardsProperty
@@ -241,6 +253,7 @@ public AudioAlbumAspectWrapper()
   _artistsProperty = new SProperty(typeof(IEnumerable<string>));
   _labelsProperty = new SProperty(typeof(IEnumerable<string>));
   _genresProperty = new SProperty(typeof(IEnumerable<string>));
+  _genreIdsProperty = new SProperty(typeof(IEnumerable<int>));
   _awardsProperty = new SProperty(typeof(IEnumerable<string>));
   _isCompilationProperty = new SProperty(typeof(bool?));
   _numTracksProperty = new SProperty(typeof(int?));
@@ -277,6 +290,7 @@ public void Init(MediaItem mediaItem)
   Artists = (IEnumerable<string>) aspect[AudioAlbumAspect.ATTR_ARTISTS] ?? EMPTY_STRING_COLLECTION;
   Labels = (IEnumerable<string>) aspect[AudioAlbumAspect.ATTR_LABELS] ?? EMPTY_STRING_COLLECTION;
   Genres = (IEnumerable<string>) aspect[AudioAlbumAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+  GenreIds = (IEnumerable<int>) aspect[AudioAlbumAspect.ATTR_GENRE_IDS];
   Awards = (IEnumerable<string>) aspect[AudioAlbumAspect.ATTR_AWARDS] ?? EMPTY_STRING_COLLECTION;
   IsCompilation = (bool?) aspect[AudioAlbumAspect.ATTR_COMPILATION];
   NumTracks = (int?) aspect[AudioAlbumAspect.ATTR_NUMTRACKS];
@@ -295,6 +309,7 @@ public void SetEmpty()
   Artists = EMPTY_STRING_COLLECTION;
   Labels = EMPTY_STRING_COLLECTION;
   Genres = EMPTY_STRING_COLLECTION;
+  GenreIds = new List<Int32>();
   Awards = EMPTY_STRING_COLLECTION;
   IsCompilation = null;
   NumTracks = null;

@@ -61,6 +61,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
+    /// Genre ID's.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRE_IDS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("GenreIds", typeof(int), Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Enumeration of actor name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ACTORS =
@@ -180,6 +186,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ORIG_SERIES_NAME,
             ATTR_DESCRIPTION,
             ATTR_GENRES,
+            ATTR_GENRE_IDS,
             ATTR_AWARDS,
             ATTR_ACTORS,
             ATTR_CHARACTERS,

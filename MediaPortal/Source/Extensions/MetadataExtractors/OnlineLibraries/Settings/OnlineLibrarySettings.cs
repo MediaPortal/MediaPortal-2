@@ -33,6 +33,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected MatcherSetting[] _musicMatchers = new MatcherSetting[0];
     protected MatcherSetting[] _seriesMatchers = new MatcherSetting[0];
     protected MatcherSetting[] _movieMatchers = new MatcherSetting[0];
+    protected GenreMapping[] _musicGenreMap = new GenreMapping[0];
+    protected GenreMapping[] _seriesGenreMap = new GenreMapping[0];
+    protected GenreMapping[] _movieGenreMap = new GenreMapping[0];
 
     //Only download basic FanArt like backdrops, banners, posters and thumbnails
     //Not DiscArt,  ClearArt, Logos etc. 
@@ -59,6 +62,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       set { _musicMatchers = value; }
     }
 
+    [Setting(SettingScope.Global)]
+    public GenreMapping[] MusicGenreMappings
+    {
+      get { return _musicGenreMap; }
+      set { _musicGenreMap = value; }
+    }
+
     //Series matcher settings
     [Setting(SettingScope.Global)]
     public MatcherSetting[] SeriesMatchers
@@ -67,12 +77,26 @@ namespace MediaPortal.Extensions.OnlineLibraries
       set { _seriesMatchers = value; }
     }
 
+    [Setting(SettingScope.Global)]
+    public GenreMapping[] SeriesGenreMappings
+    {
+      get { return _seriesGenreMap; }
+      set { _seriesGenreMap = value; }
+    }
+
     //Movie matcher settings
     [Setting(SettingScope.Global)]
     public MatcherSetting[] MovieMatchers
     {
       get { return _movieMatchers; }
       set { _movieMatchers = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public GenreMapping[] MovieGenreMappings
+    {
+      get { return _movieGenreMap; }
+      set { _movieGenreMap = value; }
     }
   }
 }

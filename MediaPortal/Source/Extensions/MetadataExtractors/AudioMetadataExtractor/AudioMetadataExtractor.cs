@@ -543,6 +543,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             if ((tag.TagTypes & TagTypes.Id3v2) != 0)
               genres = PatchID3v23Enumeration(genres);
             trackInfo.Genres = new List<string>(ApplyAdditionalSeparator(genres));
+            trackInfo.GenreIds = new List<int>(OnlineMatcherService.Instance.GetMusicGenreIds(trackInfo.Genres));
           }
 
           int year = (int)tag.Tag.Year;

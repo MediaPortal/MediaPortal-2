@@ -102,6 +102,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<PersonInfo> Composers = new List<PersonInfo>();
     public List<CompanyInfo> MusicLabels = new List<CompanyInfo>();
     public List<string> Genres = new List<string>();
+    public List<int> GenreIds = new List<int>();
     public List<string> Languages = new List<string>();
 
     public override bool IsBaseInfoPresent
@@ -244,6 +245,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Composers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
       if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
+      if (GenreIds.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_GENRE_IDS, GenreIds);
 
       SetThumbnailMetadata(aspectData);
 
@@ -320,6 +322,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       Genres.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_GENRES, out collection))
         Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
+
+      GenreIds.Clear();
+      if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_GENRE_IDS, out collection))
+        GenreIds.AddRange(collection.Cast<object>().Select(s => Convert.ToInt32(s)));
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))

@@ -209,6 +209,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
         MP4Matcher.ExtractFromTags(lfsra, movieInfo);
+        if (movieInfo.Genres.Count > 0)
+          movieInfo.GenreIds = new List<int>(OnlineMatcherService.Instance.GetMovieGenreIds(movieInfo.Genres));
       }
 
       if (SkipOnlineSearches && !SkipFanArtDownload)

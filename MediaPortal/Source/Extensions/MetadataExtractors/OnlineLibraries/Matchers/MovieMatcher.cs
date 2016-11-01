@@ -317,7 +317,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref movieInfo.Rating, movieMatch.Rating);
           if (movieInfo.Genres.Count == 0)
+          {
             movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres, true);
+            if (movieMatch.GenreIds.Count > 0)
+              movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.GenreIds, movieMatch.GenreIds, true);
+          }
+          if (movieInfo.Genres.Count > 0 && movieInfo.GenreIds.Count == 0)
+          {
+            movieInfo.GenreIds = new List<int>(OnlineMatcherService.Instance.GetMovieGenreIds(movieInfo.Genres));
+            if (movieInfo.GenreIds.Count > 0)
+              movieInfo.HasChanged = true;
+          }
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards, true);
 
           //Limit the number of persons

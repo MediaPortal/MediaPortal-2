@@ -104,6 +104,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<CompanyInfo> Networks = new List<CompanyInfo>();
     public List<CompanyInfo> ProductionCompanies = new List<CompanyInfo>();
     public List<string> Genres = new List<string>();
+    public List<int> GenreIds = new List<int>();
     public List<string> Awards = new List<string>();
     public List<EpisodeInfo> Episodes = new List<EpisodeInfo>();
     public List<SeasonInfo> Seasons = new List<SeasonInfo>();
@@ -210,11 +211,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
       if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
       if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList<object>());
 
       if (Networks.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
       if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
+
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
+      if (GenreIds.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_GENRE_IDS, GenreIds);
 
       SetThumbnailMetadata(aspectData);
 
@@ -282,6 +285,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         Genres.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_GENRES, out collection))
           Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
+
+        GenreIds.Clear();
+        if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_GENRE_IDS, out collection))
+          GenreIds.AddRange(collection.Cast<object>().Select(s => Convert.ToInt32(s)));
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_AWARDS, out collection))

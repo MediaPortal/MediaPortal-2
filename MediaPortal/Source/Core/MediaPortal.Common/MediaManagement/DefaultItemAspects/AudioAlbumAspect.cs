@@ -67,6 +67,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
+    /// Genre ID's.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRE_IDS =
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("GenreIds", typeof(int), Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Contains list of awards.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
@@ -128,6 +134,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ARTISTS,
             ATTR_LABELS,
             ATTR_GENRES,
+            ATTR_GENRE_IDS,
             ATTR_AWARDS,
             ATTR_COMPILATION,
             ATTR_NUMTRACKS,

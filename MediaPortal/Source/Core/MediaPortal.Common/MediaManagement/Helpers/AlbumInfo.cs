@@ -82,6 +82,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<PersonInfo> Artists = new List<PersonInfo>();
     public List<CompanyInfo> MusicLabels = new List<CompanyInfo>();
     public List<string> Genres = new List<string>();
+    public List<int> GenreIds = new List<int>();
     public List<string> Awards = new List<string>();
     public List<string> Languages = new List<string>();
     public List<TrackInfo> Tracks = new List<TrackInfo>();
@@ -178,10 +179,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (Artists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_ARTISTS, Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
       if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList<object>());
 
       if (MusicLabels.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, MusicLabels.Where(l => !string.IsNullOrEmpty(l.Name)).Select(l => l.Name).ToList<object>());
+
+      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
+      if (GenreIds.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_GENRE_IDS, GenreIds);
 
       SetThumbnailMetadata(aspectData);
 
@@ -234,6 +237,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         Genres.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_GENRES, out collection))
           Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
+
+        GenreIds.Clear();
+        if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_GENRE_IDS, out collection))
+          GenreIds.AddRange(collection.Cast<object>().Select(s => Convert.ToInt32(s)));
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_AWARDS, out collection))

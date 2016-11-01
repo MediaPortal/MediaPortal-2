@@ -297,7 +297,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref trackInfo.ReleaseDate, trackMatch.ReleaseDate);
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref trackInfo.Rating, trackMatch.Rating);
           if (trackInfo.Genres.Count == 0)
+          {
             trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
+            if (trackMatch.GenreIds.Count > 0)
+              trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.GenreIds, trackMatch.GenreIds, true);
+          }
+          if (trackInfo.Genres.Count > 0 && trackInfo.GenreIds.Count == 0)
+          {
+            trackInfo.GenreIds = new List<int>(OnlineMatcherService.Instance.GetMusicGenreIds(trackInfo.Genres));
+            if (trackInfo.GenreIds.Count > 0)
+              trackInfo.HasChanged = true;
+          }
 
           if (albumMatch)
           {
