@@ -693,7 +693,7 @@ namespace MediaPortal.Common.MediaManagement
     public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
         IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
         IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications)
-      : this(aspectId, aspectName, attributeSpecifications, null, false)
+      : this(aspectId, aspectName, attributeSpecifications, uniqueAttributeSpecifications, false)
     {
     }
 
