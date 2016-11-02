@@ -42,7 +42,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the localized name of the movie.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MOVIE_NAME =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MovieName", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MovieName", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the original name of the movie.
@@ -54,7 +54,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the name of the movie collection.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COLLECTION_NAME =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CollectionName", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("CollectionName", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the official runtime in minutes. This value must not necessary match the exact video runtime (i.e. tv recordings will be longer because
@@ -67,7 +67,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the certification.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CERTIFICATION =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains list of awards.

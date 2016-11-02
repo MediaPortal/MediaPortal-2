@@ -124,7 +124,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the number of tracks available for listening.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_TRACKS =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailTracks", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailTracks", typeof(int), Cardinality.Inline, false);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name

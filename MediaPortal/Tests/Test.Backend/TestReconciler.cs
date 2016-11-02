@@ -146,7 +146,6 @@ namespace Test.Backend
       IDictionary<Guid, IList<MediaItemAspect>> seasonAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SERIES_NAME, seriesName);
       MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SEASON, season);
-      MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_SERIES_SEASON, seriesSeasonName);
       MediaItemAspect.SetAttribute(seasonAspects, SeasonAspect.ATTR_DESCRIPTION, seasonDescription);
       MediaItemAspect.AddOrUpdateExternalIdentifier(seasonAspects, externalSource, ExternalIdentifierAspect.TYPE_SERIES, externalSeriesId);
       ServiceRegistration.Get<ILogger>().Debug("Season:");

@@ -127,19 +127,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the city.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CITY =
-      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("City", 100, Cardinality.Inline, false);
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("City", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the state.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_STATE =
-      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("State", 100, Cardinality.Inline, false);
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("State", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the country.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COUNTRY =
-      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Country", 100, Cardinality.Inline, false);
+      MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Country", 100, Cardinality.Inline, true);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
       // TODO: Localize name

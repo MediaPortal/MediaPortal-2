@@ -40,7 +40,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Series name.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIES_NAME =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the original name of the series.
@@ -100,25 +100,25 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the certification.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CERTIFICATION =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Certification", 20, Cardinality.Inline, true);
 
     /// <summary>
     /// If set to <c>true</c>, the series is cancelled/ended.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ENDED =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsEnded", typeof(bool), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsEnded", typeof(bool), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the number of the season for the next episode.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NEXT_SEASON =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextSeason", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextSeason", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the number(s) for the next episode(s). The numbers start at 1.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NEXT_EPISODE =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextEpisode", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextEpisode", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Name of the next episode. We only store the first episode name.
@@ -130,7 +130,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the air date for the upcoming episode.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NEXT_AIR_DATE =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextAirDate", typeof(DateTime), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NextAirDate", typeof(DateTime), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains a popularity of series, based on user votings.
@@ -160,25 +160,25 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the number of episodes available for watching.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_EPISODES =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailEpisodes", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailEpisodes", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the number of seasons available for watching.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_SEASONS =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailSeasons", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailSeasons", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the total number of episodes currently available for the series.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUM_EPISODES =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumEpisodes", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumEpisodes", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the total number of seasons currently available for the series.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUM_SEASONS =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumSeasons", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumSeasons", typeof(int), Cardinality.Inline, false);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "SeriesItem", new[] {

@@ -47,13 +47,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the number of movies available for watching.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_MOVIES =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailMovies", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailMovies", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the total number of movies currently available for the collection.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUM_MOVIES =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumMovies", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumMovies", typeof(int), Cardinality.Inline, false);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "MovieCollectionItem", new[] {

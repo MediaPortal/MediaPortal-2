@@ -2927,7 +2927,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public IDictionary<Guid, Share> GetShares(string systemId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         int shareIdIndex;
@@ -2976,7 +2976,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public Share GetShare(Guid shareId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         return GetShare(transaction, shareId);

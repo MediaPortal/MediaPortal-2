@@ -53,7 +53,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// (e.g. for images) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RECORDINGTIME =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the user's rating of the media item. Value ranges from 0 (very bad) to 10 (very good).
@@ -72,7 +72,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Number of times played.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_PLAYCOUNT =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the date when the media item was last played.
