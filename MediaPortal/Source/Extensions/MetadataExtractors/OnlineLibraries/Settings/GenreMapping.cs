@@ -29,6 +29,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public int GenreId { get; set; }
     public SerializableRegex GenrePattern { get; set; }
 
+    public GenreMapping()
+    {
+      GenreId = 0;
+      GenrePattern = null;
+    }
+
     public GenreMapping(int genreId, SerializableRegex genrePattern)
     {
       GenreId = genreId;
