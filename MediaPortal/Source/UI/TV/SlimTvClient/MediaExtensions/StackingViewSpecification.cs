@@ -66,14 +66,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       try
       {
         var mediaItemsResults = mediaItems;
-        var lookup = mediaItemsResults.ToLookup(GetBestTitle, r => r).ToLookup(r => r.Count() == 1);
+        var lookup = mediaItemsResults.ToLookup(SortByRecordingDateDesc.GetBestTitle, r => r).ToLookup(r => r.Count() == 1);
         // [true] --> Single media items
         // [false]--> Multi media items
         subViewSpecifications = new List<ViewSpecification>(0);
-        var groupedItems = lookup[false].OrderByDescending(g => g.Max(r => GetBestDate(r)));
+        var groupedItems = lookup[false].OrderByDescending(g => g.Max(r => SortByRecordingDateDesc.GetBestDate(r)));
         foreach (IGrouping<string, MediaItem> group in groupedItems)
         {
-          StackingSubViewSpecification subViewSpecification = new StackingSubViewSpecification(group.Key, NecessaryMIATypeIds, OptionalMIATypeIds, group.ToList());
+          StackingSubViewSpecification subViewSpecification = new StackingSubViewSpecification(group.Key, NecessaryMIATypeIds, OptionalMIATypeIds, group.OrderByDescending(SortByRecordingDateDesc.GetBestDate).ToList());
           subViewSpecifications.Add(subViewSpecification);
         }
         // Only one item per group, so first takes the only one
@@ -85,18 +85,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         mediaItems = null;
         subViewSpecifications = null;
       }
-    }
-
-    private string GetBestTitle(MediaItem mediaItem)
-    {
-      string name;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MovieAspect.ATTR_MOVIE_NAME, out name))
-        return name;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SERIES_NAME, out name))
-        return name;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_TITLE, out name))
-        return name;
-      return string.Empty;
     }
 
     public void SortByRecordingDate(ItemsList items, Sorting sorting)
@@ -115,16 +103,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       });
       items.Clear();
       CollectionUtils.AddAll(items, sorted);
-    }
-
-    private DateTime GetBestDate(MediaItem mediaItem)
-    {
-      DateTime recordingDate;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, RecordingAspect.ATTR_ENDTIME, out recordingDate))
-        return recordingDate;
-      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-        return recordingDate;
-      return DateTime.MinValue;
     }
   }
 }
