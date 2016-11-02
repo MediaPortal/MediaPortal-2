@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.UI.Presentation.DataObjects;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -51,6 +53,14 @@ namespace MediaPortal.UiComponents.Media.Views
     protected string _viewDisplayName;
     protected ICollection<Guid> _necessaryMIATypeIds;
     protected ICollection<Guid> _optionalMIATypeIds;
+
+    public delegate void ItemsListSortingDelegate(ItemsList itemsList, Sorting sorting);
+
+    /// <summary>
+    /// Provides a way for sorting the final result list, which can consist of both MediaItems and SubViews.
+    /// This delegate needs to be set by a ViewSpecification, if a custom logic is required.
+    /// </summary>
+    public ItemsListSortingDelegate CustomItemsListSorting { get; protected set; }
 
     protected ViewSpecification(string viewDisplayName,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
