@@ -629,7 +629,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         if (refresh)
         {
-          if (!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Artists.Count > 0)
+          if ((IncludeArtistDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Artists.Count > 0) ||
+            (IncludeComposerDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Composers.Count > 0))
           {
             trackInfo.HasChanged = true;
           }
