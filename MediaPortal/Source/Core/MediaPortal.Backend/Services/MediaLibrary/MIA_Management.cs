@@ -635,9 +635,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public void CleanupAllOrphanedAttributeValues(ITransaction transaction, ICollection<MediaItemAspectMetadata> miaTypes)
+    public void CleanupAllOrphanedAttributeValues(ITransaction transaction)
     {
-      foreach (MediaItemAspectMetadata miaType in miaTypes)
+      foreach (MediaItemAspectMetadata miaType in ManagedMediaItemAspectTypes.Values)
         foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
           switch (spec.Cardinality)
           {

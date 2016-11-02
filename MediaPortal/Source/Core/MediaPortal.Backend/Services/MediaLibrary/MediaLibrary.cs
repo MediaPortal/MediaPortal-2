@@ -1810,7 +1810,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           foreach (Guid relationId in relations)
             DeleteOrphan(database, transaction, relationId);
 
-          _miaManagement.CleanupAllOrphanedAttributeValues(transaction, GetManagedMediaItemAspectMetadata().Values);
+          _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
           DeleteFanArt(mediaItemId);
         }
       }
