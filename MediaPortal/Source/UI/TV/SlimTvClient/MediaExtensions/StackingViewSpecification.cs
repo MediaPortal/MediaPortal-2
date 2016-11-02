@@ -31,7 +31,11 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.UiComponents.Media.Views;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 {
@@ -47,6 +51,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       base(viewDisplayName, filter, necessaryMIATypeIDs, optionalMIATypeIDs, onlyOnline, null)
     {
       SortedSubViews = true; // Stacking view has special sorting included.
+      CustomItemsListSorting = SortByRecordingDate;
     }
 
     #endregion
@@ -92,6 +97,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_TITLE, out name))
         return name;
       return string.Empty;
+    }
+
+    public void SortByRecordingDate(ItemsList items, Sorting sorting)
+    {
+      var sorted = items.ToList();
+      sorted.Sort((item1, item2) =>
+      {
+        PlayableMediaItem pmi1 = item1 as PlayableMediaItem;
+        ViewItem vi1 = item1 as ViewItem;
+        PlayableMediaItem pmi2 = item2 as PlayableMediaItem;
+        ViewItem vi2 = item2 as ViewItem;
+
+        MediaItem mi1 = pmi1 != null ? pmi1.MediaItem : (vi1 != null ? vi1.FirstMediaItem : null);
+        MediaItem mi2 = pmi2 != null ? pmi2.MediaItem : (vi2 != null ? vi2.FirstMediaItem : null);
+        return sorting.Compare(mi1, mi2);
+      });
+      items.Clear();
+      CollectionUtils.AddAll(items, sorted);
     }
 
     private DateTime GetBestDate(MediaItem mediaItem)

@@ -323,6 +323,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                   itemsList.Sort((i1, i2) => string.Compare(i1.SortString, i2.SortString));
                 CollectionUtils.AddAll(items, itemsList);
 
+                // Support custom sorting logic by view specification. At this time it can work on both MediaItems and SubViews.
+                if (view.Specification.CustomItemsListSorting != null)
+                  view.Specification.CustomItemsListSorting(items, sorting);
+
                 _currentTotalNumItems = totalNumItems == 0 ? new int?() : totalNumItems;
                 Display_Normal(items.Count, _currentTotalNumItems);
               }
