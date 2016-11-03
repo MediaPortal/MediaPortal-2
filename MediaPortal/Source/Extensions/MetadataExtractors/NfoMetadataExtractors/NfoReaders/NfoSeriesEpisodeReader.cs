@@ -1006,7 +1006,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_useSeriesStubs && _seriesStubs[0].Genres != null && _seriesStubs[0].Genres.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, _seriesStubs[0].Genres.ToList());
+        List<GenreInfo> genres = _seriesStubs[0].Genres.Select(s => new GenreInfo { Name = s }).ToList();
+        OnlineMatcherService.Instance.AssignMissingMusicGenreIds(genres);
+        foreach(GenreInfo genre in genres)
+        {
+          MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+          genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
+          genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre.Name);
+        }
+
         return true;
       }
       return false;

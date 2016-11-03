@@ -245,26 +245,45 @@ namespace MediaPortal.Extensions.OnlineLibraries
       LoadSettings();
     }
 
-    #region Audio
-
-    public IEnumerable<int> GetMusicGenreIds(IEnumerable<string> genres)
+    private bool AssignMissingGenreIds(List<GenreInfo> genres, List<GenreMapping> genreMap)
     {
-      List<int> ids = new List<int>();
-      foreach (string genre in genres)
+      bool retVal = false;
+      List<GenreInfo> checkGenres = new List<GenreInfo>(genres);
+      genres.Clear();
+      foreach (GenreInfo genre in checkGenres)
       {
-        foreach (GenreMapping map in MUSIC_GENRE_MAP)
+        if (genre.Id > 0)
         {
-          if (map.GenrePattern.Regex.IsMatch(genre))
+          if (!genres.Contains(genre))
+            genres.Add(genre);
+          continue;
+        }
+
+        GenreInfo testGenre = genre;
+        foreach (GenreMapping map in genreMap)
+        {
+          if (map.GenrePattern.Regex.IsMatch(genre.Name))
           {
-            if (!ids.Contains(map.GenreId))
+            testGenre = new GenreInfo
             {
-              ids.Add(map.GenreId);
-              break;
-            }
+              Id = map.GenreId,
+              Name = genre.Name
+            };
+            retVal = true;
+            break;
           }
         }
+        if (!genres.Contains(testGenre))
+          genres.Add(testGenre);
       }
-      return ids;
+      return retVal;
+    }
+
+    #region Audio
+
+    public bool AssignMissingMusicGenreIds(List<GenreInfo> genres)
+    {
+      return AssignMissingGenreIds(genres, MUSIC_GENRE_MAP);
     }
 
     public bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode)
@@ -385,24 +404,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Movie
 
-    public IEnumerable<int> GetMovieGenreIds(IEnumerable<string> genres)
+    public bool AssignMissingMovieGenreIds(List<GenreInfo> genres)
     {
-      List<int> ids = new List<int>();
-      foreach (string genre in genres)
-      {
-        foreach (GenreMapping map in MOVIE_GENRE_MAP)
-        {
-          if (map.GenrePattern.Regex.IsMatch(genre))
-          {
-            if (!ids.Contains(map.GenreId))
-            {
-              ids.Add(map.GenreId);
-              break;
-            }
-          }
-        }
-      }
-      return ids;
+      return AssignMissingGenreIds(genres, MOVIE_GENRE_MAP);
     }
 
     public bool FindAndUpdateMovie(MovieInfo movieInfo, bool forceQuickMode)
@@ -525,24 +529,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Series
 
-    public IEnumerable<int> GetSeriesGenreIds(IEnumerable<string> genres)
+    public bool AssignMissingSeriesGenreIds(List<GenreInfo> genres)
     {
-      List<int> ids = new List<int>();
-      foreach (string genre in genres)
-      {
-        foreach (GenreMapping map in SERIES_GENRE_MAP)
-        {
-          if (map.GenrePattern.Regex.IsMatch(genre))
-          {
-            if (!ids.Contains(map.GenreId))
-            {
-              ids.Add(map.GenreId);
-              break;
-            }
-          }
-        }
-      }
-      return ids;
+      return AssignMissingGenreIds(genres, SERIES_GENRE_MAP);
     }
 
     public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode)

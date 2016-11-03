@@ -54,6 +54,14 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       InitSettingWatcher();
     }
 
+    public FilterItem(string id, string name, int? numItems)
+      : base(numItems)
+    {
+      Id = id;
+      SimpleTitle = name;
+      InitSettingWatcher();
+    }
+
     private void SettingsChanged(object sender, EventArgs e)
     {
       _showVirtual = _settingsWatcher.Settings.ShowVirtual;

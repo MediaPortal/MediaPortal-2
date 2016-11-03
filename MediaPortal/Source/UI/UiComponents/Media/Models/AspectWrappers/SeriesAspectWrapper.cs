@@ -48,8 +48,6 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 protected AbstractProperty _seriesNameProperty;
 protected AbstractProperty _origNameProperty;
 protected AbstractProperty _descriptionProperty;
-protected AbstractProperty _genresProperty;
-protected AbstractProperty _genreIdsProperty;
 protected AbstractProperty _awardsProperty;
 protected AbstractProperty _actorsProperty;
 protected AbstractProperty _charactersProperty;
@@ -106,28 +104,6 @@ public string Description
 {
   get { return (string) _descriptionProperty.GetValue(); }
   set { _descriptionProperty.SetValue(value); }
-}
-
-public AbstractProperty GenresProperty
-{
-  get{ return _genresProperty; }
-}
-
-public IEnumerable<string> Genres
-{
-  get { return (IEnumerable<string>) _genresProperty.GetValue(); }
-  set { _genresProperty.SetValue(value); }
-}
-
-public AbstractProperty GenreIdsProperty
-{
-  get{ return _genreIdsProperty; }
-}
-
-public IEnumerable<int> GenreIds
-{
-  get { return (IEnumerable<int>) _genreIdsProperty.GetValue(); }
-  set { _genreIdsProperty.SetValue(value); }
 }
 
 public AbstractProperty AwardsProperty
@@ -359,8 +335,6 @@ public SeriesAspectWrapper()
   _seriesNameProperty = new SProperty(typeof(string));
   _origNameProperty = new SProperty(typeof(string));
   _descriptionProperty = new SProperty(typeof(string));
-  _genresProperty = new SProperty(typeof(IEnumerable<string>));
-  _genreIdsProperty = new SProperty(typeof(IEnumerable<int>));
   _awardsProperty = new SProperty(typeof(IEnumerable<string>));
   _actorsProperty = new SProperty(typeof(IEnumerable<string>));
   _charactersProperty = new SProperty(typeof(IEnumerable<string>));
@@ -405,8 +379,6 @@ public void Init(MediaItem mediaItem)
   SeriesName = (string) aspect[SeriesAspect.ATTR_SERIES_NAME];
   OrigName = (string) aspect[SeriesAspect.ATTR_ORIG_SERIES_NAME];
   Description = (string) aspect[SeriesAspect.ATTR_DESCRIPTION];
-  Genres = (IEnumerable<string>) aspect[SeriesAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-  GenreIds = (IEnumerable<int>) aspect[SeriesAspect.ATTR_GENRE_IDS];
   Actors = (IEnumerable<string>) aspect[SeriesAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
   Characters = (IEnumerable<string>) aspect[SeriesAspect.ATTR_CHARACTERS] ?? EMPTY_STRING_COLLECTION;
   Awards = (IEnumerable<string>) aspect[SeriesAspect.ATTR_AWARDS] ?? EMPTY_STRING_COLLECTION;
@@ -433,8 +405,6 @@ public void SetEmpty()
   SeriesName = null;
   OrigName = null;
   Description = null;
-  Genres = EMPTY_STRING_COLLECTION;
-  GenreIds = new List<Int32>();
   Actors = EMPTY_STRING_COLLECTION;
   Characters = EMPTY_STRING_COLLECTION;
   Awards = EMPTY_STRING_COLLECTION;

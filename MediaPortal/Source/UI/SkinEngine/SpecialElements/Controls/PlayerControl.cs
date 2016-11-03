@@ -726,7 +726,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         
         if (movie != null)
         {
-          VideoGenres = movie.Genres;
+          VideoGenres = movie.Genres.Select(g => g.Name);
           VideoActors = movie.Actors.Select(a => a.Name);
           VideoDirectors = movie.Directors.Select(a => a.Name);
           VideoWriters = movie.Writers.Select(a => a.Name);
@@ -734,7 +734,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         else if (episode != null)
         {
-          VideoGenres = episode.Genres;
+          VideoGenres = episode.Genres.Select(g => g.Name);
           VideoActors = episode.Actors.Select(p => p.Name);
           VideoDirectors = episode.Directors.Select(p => p.Name);
           VideoWriters = episode.Writers.Select(p => p.Name);

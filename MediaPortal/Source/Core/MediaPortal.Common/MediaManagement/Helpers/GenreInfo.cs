@@ -22,41 +22,46 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.UiComponents.Media.General;
+using System;
 
-namespace MediaPortal.UiComponents.Media.Models.Navigation
+namespace MediaPortal.Common.MediaManagement.Helpers
 {
   /// <summary>
-  /// Holds a GUI item which represents a director filter choice.
+  /// <see cref="BaseInfo"/> contains metadata information about a thumbnail item.
   /// </summary>
-  public class DirectorFilterItem : FilterItem
+  public class GenreInfo : IComparable<GenreInfo>
   {
-    public override void Update(MediaItem mediaItem)
+    public int? Id;
+    public string Name;
+
+    public override string ToString()
     {
-      base.Update(mediaItem);
-
-      PersonInfo person = new PersonInfo();
-      if (!person.FromMetadata(mediaItem.Aspects))
-        return;
-
-      Name = person.Name ?? "";
-      Description = person.Biography.Text ?? "";
-
-      FireChange();
+      return Name;
     }
 
-    public string Name
+    public override int GetHashCode()
     {
-      get { return this[Consts.KEY_NAME]; }
-      set { SetLabel(Consts.KEY_NAME, value); }
+      //TODO: Check if this is functional
+      return (Name ?? "?").GetHashCode();
     }
 
-    public string Description
+    public override bool Equals(object obj)
     {
-      get { return this[Consts.KEY_DESCRIPTION]; }
-      set { SetLabel(Consts.KEY_DESCRIPTION, value); }
+      GenreInfo other = obj as GenreInfo;
+      if (other == null) return false;
+
+      if(!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name))
+        return string.Compare(Name, other.Name, true) == 0;
+
+      return false;
+    }
+
+    public int CompareTo(GenreInfo other)
+    {
+      if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(other.Name))
+        return string.Compare(Name, other.Name, true);
+
+      return -1;
     }
   }
 }

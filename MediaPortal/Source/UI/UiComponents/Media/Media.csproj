@@ -144,6 +144,7 @@
     <Compile Include="Models\AspectWrappers\CharacterAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\CompanyAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\EpisodeAspectWrapper.cs" />
+    <Compile Include="Models\AspectWrappers\GenreAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImageAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\ImporterAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\MediaAspectWrapper.cs" />
@@ -180,6 +181,7 @@
     <Compile Include="Models\Navigation\AlbumFilterItem.cs" />
     <Compile Include="Models\Navigation\ArtistFilterItem.cs" />
     <Compile Include="Models\Navigation\ComposerFilterItem.cs" />
+    <Compile Include="Models\Navigation\GenreFilterItem.cs" />
     <Compile Include="Models\Navigation\VideoStreamItem.cs" />
     <Compile Include="Models\Navigation\VideoAudioStreamItem.cs" />
     <Compile Include="Models\Navigation\SubtitleItem.cs" />
@@ -213,6 +215,7 @@
     <Compile Include="Models\ScreenData\MovieFilterByActorScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesEpisodeFilterByCharacterScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByCharacterScreenData.cs" />
+    <Compile Include="Models\ScreenData\MovieFilterByGenreScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByTvNetworkScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByCompanyScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByActorScreenData.cs" />

@@ -170,6 +170,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 MediaItem = filterValue.Item,
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
+                Id = filterValue.Id,
                 Command = grouping ? 
                   new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
                   new MethodDelegateCommand(() => NavigateToSubView(subVS))

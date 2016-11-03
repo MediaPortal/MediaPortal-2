@@ -49,8 +49,6 @@ protected AbstractProperty _trackNameProperty;
 protected AbstractProperty _artistsProperty;
 protected AbstractProperty _albumProperty;
 protected AbstractProperty _isCompilationProperty;
-protected AbstractProperty _genresProperty;
-protected AbstractProperty _genreIdsProperty;
 protected AbstractProperty _durationProperty;
 protected AbstractProperty _lyricsProperty;
 protected AbstractProperty _isCDProperty;
@@ -114,28 +112,6 @@ public bool? IsCompilation
 {
   get { return (bool?) _isCompilationProperty.GetValue(); }
   set { _isCompilationProperty.SetValue(value); }
-}
-
-public AbstractProperty GenresProperty
-{
-  get{ return _genresProperty; }
-}
-
-public IEnumerable<string> Genres
-{
-  get { return (IEnumerable<string>) _genresProperty.GetValue(); }
-  set { _genresProperty.SetValue(value); }
-}
-
-public AbstractProperty GenreIdsProperty
-{
-  get{ return _genreIdsProperty; }
-}
-
-public IEnumerable<int> GenreIds
-{
-  get { return (IEnumerable<int>) _genreIdsProperty.GetValue(); }
-  set { _genreIdsProperty.SetValue(value); }
 }
 
 public AbstractProperty DurationProperty
@@ -324,8 +300,6 @@ public AudioAspectWrapper()
   _artistsProperty = new SProperty(typeof(IEnumerable<string>));
   _albumProperty = new SProperty(typeof(string));
   _isCompilationProperty = new SProperty(typeof(bool?));
-  _genresProperty = new SProperty(typeof(IEnumerable<string>));
-  _genreIdsProperty = new SProperty(typeof(IEnumerable<int>));
   _durationProperty = new SProperty(typeof(long?));
   _lyricsProperty = new SProperty(typeof(string));
   _isCDProperty = new SProperty(typeof(bool?));
@@ -367,8 +341,6 @@ public void Init(MediaItem mediaItem)
   Artists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ARTISTS] ?? EMPTY_STRING_COLLECTION;
   Album = (string) aspect[AudioAspect.ATTR_ALBUM];
   IsCompilation = (bool?) aspect[AudioAspect.ATTR_COMPILATION];
-  Genres = (IEnumerable<string>) aspect[AudioAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-  GenreIds = (IEnumerable<int>) aspect[AudioAspect.ATTR_GENRE_IDS];
   Duration = (long?) aspect[AudioAspect.ATTR_DURATION];
   Lyrics = (string) aspect[AudioAspect.ATTR_LYRICS];
   IsCD = (bool?) aspect[AudioAspect.ATTR_ISCD];
@@ -392,8 +364,6 @@ public void SetEmpty()
   Artists = EMPTY_STRING_COLLECTION;
   Album = null;
   IsCompilation = null;
-  Genres = EMPTY_STRING_COLLECTION;
-  GenreIds = new List<Int32>();
   Duration = null;
   Lyrics = null;
   IsCD = null;

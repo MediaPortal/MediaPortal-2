@@ -70,6 +70,7 @@
     <Compile Include="Genres\SeriesGenre.cs" />
     <Compile Include="Genres\MovieGenre.cs" />
     <Compile Include="Genres\MusicGenre.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieCollectionAspect.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
+    <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleRating.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleTitle.cs" />

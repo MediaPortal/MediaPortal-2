@@ -236,7 +236,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (SetTrackId(trackMatch, match.Id))
             {
-              if (trackInfo.LastChanged > _lastCacheRefresh)
+              if (trackInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && trackInfo.LastChanged > _lastCacheRefresh)
                 return true;
 
               //If Id was found in cache the online track info is probably also in the cache
@@ -299,14 +299,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (trackInfo.Genres.Count == 0)
           {
             trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
-            if (trackMatch.GenreIds.Count > 0)
-              trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.GenreIds, trackMatch.GenreIds, true);
           }
-          if (trackInfo.Genres.Count > 0 && trackInfo.GenreIds.Count == 0)
+          if (trackInfo.Genres.Count > 0)
           {
-            trackInfo.GenreIds = new List<int>(OnlineMatcherService.Instance.GetMusicGenreIds(trackInfo.Genres));
-            if (trackInfo.GenreIds.Count > 0)
-              trackInfo.HasChanged = true;
+            trackInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMusicGenreIds(trackInfo.Genres);
           }
 
           if (albumMatch)
@@ -771,7 +767,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //Searching for this album by name only failed so stop trying.
               return false;
             }
-            else if (albumInfo.LastChanged > _lastCacheRefresh)
+            else if (albumInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && albumInfo.LastChanged > _lastCacheRefresh)
             {
               return true;
             }
@@ -838,8 +834,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref albumInfo.Rating, albumMatch.Rating);
 
-          if(albumInfo.Genres.Count == 0)
+          if (albumInfo.Genres.Count == 0)
+          {
             albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
+          }
+          if (albumInfo.Genres.Count > 0)
+          {
+            albumInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMusicGenreIds(albumInfo.Genres);
+          }
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.

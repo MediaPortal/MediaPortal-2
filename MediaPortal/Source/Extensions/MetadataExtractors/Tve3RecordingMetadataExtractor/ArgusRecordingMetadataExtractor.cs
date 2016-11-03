@@ -36,7 +36,6 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -208,6 +207,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
           }
         }
       }
+
+      episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = recording.Category } });
+      OnlineMatcherService.Instance.AssignMissingMovieGenreIds(episodeInfo.Genres);
+
       episodeInfo.HasChanged = true;
       return episodeInfo;
     }
@@ -250,7 +253,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, recording.Title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(recording.Title));
 
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new[] { recording.Category });
+        List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = recording.Category } });
+        OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+        MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+        genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
+        genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
 
         MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, recording.Description);
 

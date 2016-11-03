@@ -943,6 +943,45 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) : necessaryMIATypeIDs, 
           attributeType, saf, selectProjectionFunctionImpl, projectionValueType, 
           filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+      return cdavq.Execute().Item1;
+    }
+
+    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
+    {
+      SelectProjectionFunction selectProjectionFunctionImpl;
+      Type projectionValueType;
+      switch (projectionFunction)
+      {
+        case ProjectionFunction.DateToYear:
+          selectProjectionFunctionImpl = (string expr) =>
+          {
+            ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+            return database.CreateDateToYearProjectionExpression(expr);
+          };
+          projectionValueType = typeof(int);
+          break;
+        default:
+          selectProjectionFunctionImpl = null;
+          projectionValueType = null;
+          break;
+      }
+      IAttributeFilter saf = selectAttributeFilter as IAttributeFilter;
+      if (saf == null && selectAttributeFilter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, selectAttributeFilter });
+
+      if (includeVirtual == false)
+      {
+        if (filter == null)
+          filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
+        else
+          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
+      }
+
+      CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
+          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] { ProviderResourceAspect.ASPECT_ID }) : necessaryMIATypeIDs,
+          keyAttributeType, valueAttributeType, saf, selectProjectionFunctionImpl, projectionValueType,
+          filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cdavq.Execute();
     }
 

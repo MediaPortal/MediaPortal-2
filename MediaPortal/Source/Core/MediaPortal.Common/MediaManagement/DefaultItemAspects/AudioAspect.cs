@@ -61,18 +61,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsCompilation", typeof(bool), Cardinality.Inline, true);
 
     /// <summary>
-    /// Enumeration of genre names.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
-
-    /// <summary>
-    /// Genre ID's.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRE_IDS =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("GenreIds", typeof(int), Cardinality.ManyToMany, true);
-
-    /// <summary>
     /// Duration in seconds.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_DURATION =
@@ -169,8 +157,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ARTISTS,
             ATTR_ALBUM,
             ATTR_COMPILATION,
-            ATTR_GENRES,
-            ATTR_GENRE_IDS,
             ATTR_DURATION,
             ATTR_LYRICS,
             ATTR_ISCD,

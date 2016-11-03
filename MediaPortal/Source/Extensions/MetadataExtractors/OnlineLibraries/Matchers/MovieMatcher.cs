@@ -251,7 +251,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (SetMovieId(movieMatch, match.Id))
             {
-              if (movieInfo.LastChanged > _lastCacheRefresh)
+              if (movieInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && movieInfo.LastChanged > _lastCacheRefresh)
                 return true;
 
               //If Id was found in cache the online movie info is probably also in the cache
@@ -319,14 +319,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (movieInfo.Genres.Count == 0)
           {
             movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres, true);
-            if (movieMatch.GenreIds.Count > 0)
-              movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.GenreIds, movieMatch.GenreIds, true);
           }
-          if (movieInfo.Genres.Count > 0 && movieInfo.GenreIds.Count == 0)
+          if (movieInfo.Genres.Count > 0)
           {
-            movieInfo.GenreIds = new List<int>(OnlineMatcherService.Instance.GetMovieGenreIds(movieInfo.Genres));
-            if (movieInfo.GenreIds.Count > 0)
-              movieInfo.HasChanged = true;
+            movieInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movieInfo.Genres);
           }
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards, true);
 

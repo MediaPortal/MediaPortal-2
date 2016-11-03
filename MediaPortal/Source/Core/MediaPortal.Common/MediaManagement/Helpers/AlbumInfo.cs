@@ -81,8 +81,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public List<PersonInfo> Artists = new List<PersonInfo>();
     public List<CompanyInfo> MusicLabels = new List<CompanyInfo>();
-    public List<string> Genres = new List<string>();
-    public List<int> GenreIds = new List<int>();
+    public List<GenreInfo> Genres = new List<GenreInfo>();
     public List<string> Awards = new List<string>();
     public List<string> Languages = new List<string>();
     public List<TrackInfo> Tracks = new List<TrackInfo>();
@@ -183,8 +182,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (MusicLabels.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, MusicLabels.Where(l => !string.IsNullOrEmpty(l.Name)).Select(l => l.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
-      if (GenreIds.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_GENRE_IDS, GenreIds);
+      foreach(GenreInfo genre in Genres)
+      {
+        MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);
+        genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
+        genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre.Name);
+      }
 
       SetThumbnailMetadata(aspectData);
 
@@ -234,14 +237,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_ARTISTS, out collection))
           Artists.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_ARTIST }));
 
-        Genres.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_GENRES, out collection))
-          Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
-
-        GenreIds.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_GENRE_IDS, out collection))
-          GenreIds.AddRange(collection.Cast<object>().Select(s => Convert.ToInt32(s)));
-
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_AWARDS, out collection))
           Awards.AddRange(collection.Cast<object>().Select(s => s.ToString()));
@@ -249,6 +244,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MusicLabels.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, out collection))
           MusicLabels.AddRange(collection.Cast<object>().Select(s => new CompanyInfo() { Name = s.ToString(), Type = CompanyAspect.COMPANY_MUSIC_LABEL }));
+
+        Genres.Clear();
+        IList<MultipleMediaItemAspect> genreAspects;
+        if(MediaItemAspect.TryGetAspects(aspectData, GenreAspect.Metadata, out genreAspects))
+        {
+          foreach (MultipleMediaItemAspect genre in genreAspects)
+          {
+            Genres.Add(new GenreInfo
+            {
+              Id = genre.GetAttributeValue<int?>(GenreAspect.ATTR_ID),
+              Name = genre.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)
+            });
+          }
+        }
 
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))

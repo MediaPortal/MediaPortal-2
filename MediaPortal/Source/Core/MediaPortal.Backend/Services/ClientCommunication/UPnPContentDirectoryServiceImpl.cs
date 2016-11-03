@@ -931,6 +931,25 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp11GetValueGroupsAction);
 
+      DvAction mpnp11GetKeyValueGroupsAction = new DvAction("X_MediaPortal_GetKeyValueGroups", OnMPnP11GetKeyValueGroups,
+          new DvArgument[] {
+            new DvArgument("KeyMIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("KeyAttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("ValueMIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("ValueAttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("SelectAttributeFilter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
+            new DvArgument("ProjectionFunction", A_ARG_TYPE_ProjectionFunction, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+            new DvArgument("IncludeVirtual", A_ARG_TYPE_Bool, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("ValueGroups", A_ARG_TYPE_MediaItemAttributeValues, ArgumentDirection.Out, true),
+            new DvArgument("ValueKeys", A_ARG_TYPE_MediaItemAttributeValues, ArgumentDirection.Out, true),
+          });
+      AddAction(mpnp11GetKeyValueGroupsAction);
+
       DvAction mpnp11GroupValueGroupsAction = new DvAction("X_MediaPortal_GroupValueGroups", OnMPnP11GroupValueGroups,
           new DvArgument[] {
             new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
@@ -1819,6 +1838,48 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       HomogenousMap values = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(attributeType, selectAttributeFilter,
           projectionFunction, necessaryMIATypes, filter, !all, includeVirtual);
       outParams = new List<object> { values };
+      return null;
+    }
+
+    static UPnPError OnMPnP11GetKeyValueGroups(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid keyAspectId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string keyAttributeName = (string)inParams[1];
+      Guid valueAspectId = MarshallingHelper.DeserializeGuid((string)inParams[2]);
+      string valueAttributeName = (string)inParams[3];
+      IFilter selectAttributeFilter = (IFilter)inParams[4];
+      string projectionFunctionStr = (string)inParams[5];
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[6]);
+      IFilter filter = (IFilter)inParams[7];
+      string onlineStateStr = (string)inParams[8];
+      bool includeVirtual = (bool)inParams[9];
+      
+      outParams = null;
+      ProjectionFunction projectionFunction;
+      bool all = true;
+      UPnPError error = ParseProjectionFunction("ProjectionFunction", projectionFunctionStr, out projectionFunction) ??
+          ParseOnlineState("OnlineState", onlineStateStr, out all);
+      if (error != null)
+        return error;
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      MediaItemAspectMetadata keyMiam;
+      if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(keyAspectId, out keyMiam))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' is unknown", keyAspectId));
+      MediaItemAspectMetadata.AttributeSpecification keyAttributeType;
+      if (!keyMiam.AttributeSpecifications.TryGetValue(keyAttributeName, out keyAttributeType))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
+            keyAspectId, keyAttributeName));
+      MediaItemAspectMetadata valueMiam;
+      if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(valueAspectId, out valueMiam))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' is unknown", valueAspectId));
+      MediaItemAspectMetadata.AttributeSpecification valueAttributeType;
+      if (!valueMiam.AttributeSpecifications.TryGetValue(valueAttributeName, out valueAttributeType))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
+            valueAspectId, valueAttributeName));
+      Tuple<HomogenousMap, HomogenousMap> values = ServiceRegistration.Get<IMediaLibrary>().GetKeyValueGroups(keyAttributeType, valueAttributeType, selectAttributeFilter,
+          projectionFunction, necessaryMIATypes, filter, !all, includeVirtual);
+      outParams = new List<object> { values.Item1, values.Item2 };
       return null;
     }
 

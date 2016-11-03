@@ -234,6 +234,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (int.TryParse(tmpString, out episodeNum))
           episodeInfo.EpisodeNumbers.Add(episodeNum);
       }
+
+      if (TryGet(extractedTags, TAG_GENRE, out tmpString))
+      {
+        episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = tmpString } });
+        OnlineMatcherService.Instance.AssignMissingMovieGenreIds(episodeInfo.Genres);
+      }
+
       episodeInfo.HasChanged = true;
       return episodeInfo;
     }
@@ -284,7 +291,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         if (TryGet(tags, TAG_GENRE, out value))
-          MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_GENRES, new List<String> { value });
+        {
+          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value } });
+          OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+          MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+          genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
+          genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
+        }
 
         if (TryGet(tags, TAG_PLOT, out value))
         {

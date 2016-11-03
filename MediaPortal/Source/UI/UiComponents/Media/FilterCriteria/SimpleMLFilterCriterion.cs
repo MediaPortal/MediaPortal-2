@@ -41,18 +41,25 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   /// </summary>
   public class SimpleMLFilterCriterion : MLFilterCriterion
   {
-    protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
-    protected IEnumerable<Guid> _necessaryMIATypeIds;
+    protected MediaItemAspectMetadata.AttributeSpecification _keyAttributeType = null;
+    protected MediaItemAspectMetadata.AttributeSpecification _valueAttributeType = null;
+    protected IEnumerable<Guid> _necessaryMIATypeIds = null;
 
     public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType)
     {
-      _attributeType = attributeType;
-      _necessaryMIATypeIds = null;
+      _valueAttributeType = attributeType;
     }
 
     public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType, IEnumerable<Guid> necessaryMIATypeIds)
     {
-      _attributeType = attributeType;
+      _valueAttributeType = attributeType;
+      _necessaryMIATypeIds = necessaryMIATypeIds;
+    }
+
+    public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, IEnumerable<Guid> necessaryMIATypeIds)
+    {
+      _keyAttributeType = keyAttributeType;
+      _valueAttributeType = valueAttributeType;
       _necessaryMIATypeIds = necessaryMIATypeIds;
     }
 
@@ -66,25 +73,52 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds;
-      HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtual);
+      HomogenousMap valueGroups = null;
+      HomogenousMap valueKeys = null;
+      if (_keyAttributeType != null)
+      {
+        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtual);
+        valueGroups = values.Item1;
+        valueKeys = values.Item2;
+      }
+      else
+      {
+        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtual);
+      }
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)
       {
-        string name = GetDisplayName(group.Key);
-        if (name == string.Empty)
-          numEmptyEntries += (int)group.Value;
+        if (_keyAttributeType != null)
+        {
+          string name = GetDisplayName(group.Key);
+          if (name == string.Empty)
+            numEmptyEntries += (int)group.Value;
+          else
+          {
+            IFilter queryFilter = new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key);
+            if (filter != null)
+              queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
+            result.Add(new FilterValue(valueKeys[group.Key], name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
+          }
+        }
         else
         {
-          IFilter queryFilter = new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key);
-          if (filter != null)
-            queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
-          result.Add(new FilterValue(name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
+          string name = GetDisplayName(group.Key);
+          if (name == string.Empty)
+            numEmptyEntries += (int)group.Value;
+          else
+          {
+            IFilter queryFilter = new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key);
+            if (filter != null)
+              queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
+            result.Add(new FilterValue(name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
+          }
         }
       }
       if (numEmptyEntries > 0)
       {
-        IFilter queryFilter = new EmptyFilter(_attributeType);
+        IFilter queryFilter = new EmptyFilter(_valueAttributeType);
         if (filter != null)
           queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
         result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, numEmptyEntries, this));
@@ -105,7 +139,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds.ToList();
-      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_attributeType, selectAttributeFilter, ProjectionFunction.None,
+      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None,
           necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, ShowVirtual);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -119,7 +153,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           result.Add(new FilterValue(name, null, group.AdditionalFilter, group.NumItemsInGroup, this));
       }
       if (numEmptyEntries > 0)
-        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), null, numEmptyEntries, this));
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_valueAttributeType), null, numEmptyEntries, this));
       return result;
     }
 

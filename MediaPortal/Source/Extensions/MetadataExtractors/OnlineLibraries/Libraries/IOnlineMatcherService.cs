@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
   {
     #region Audio
 
-    IEnumerable<int> GetMusicGenreIds(IEnumerable<string> genres);
+    bool AssignMissingMusicGenreIds(List<GenreInfo> genres);
     bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode);
     bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode);
     bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool forceQuickMode);
@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 
     #region Movie
 
-    IEnumerable<int> GetMovieGenreIds(IEnumerable<string> genres);
+    bool AssignMissingMovieGenreIds(List<GenreInfo> genres);
     bool FindAndUpdateMovie(MovieInfo movieInfo, bool forceQuickMode);
     bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode);
     bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode);
@@ -66,7 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 
     #region Series
 
-    IEnumerable<int> GetSeriesGenreIds(IEnumerable<string> genres);
+    bool AssignMissingSeriesGenreIds(List<GenreInfo> genres);
     bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode);
     bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode);
     bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode);

@@ -45,8 +45,6 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 
 #region Fields
 
-protected AbstractProperty _genresProperty;
-protected AbstractProperty _genreIdsProperty;
 protected AbstractProperty _actorsProperty;
 protected AbstractProperty _directorsProperty;
 protected AbstractProperty _writersProperty;
@@ -58,28 +56,6 @@ protected AbstractProperty _mediaItemProperty;
 #endregion
 
 #region Properties
-
-public AbstractProperty GenresProperty
-{
-  get{ return _genresProperty; }
-}
-
-public IEnumerable<string> Genres
-{
-  get { return (IEnumerable<string>) _genresProperty.GetValue(); }
-  set { _genresProperty.SetValue(value); }
-}
-
-public AbstractProperty GenreIdsProperty
-{
-  get{ return _genreIdsProperty; }
-}
-
-public IEnumerable<int> GenreIds
-{
-  get { return (IEnumerable<int>) _genreIdsProperty.GetValue(); }
-  set { _genreIdsProperty.SetValue(value); }
-}
 
 public AbstractProperty ActorsProperty
 {
@@ -164,8 +140,6 @@ public MediaItem MediaItem
 
 public VideoAspectWrapper()
 {
-  _genresProperty = new SProperty(typeof(IEnumerable<string>));
-  _genreIdsProperty = new SProperty(typeof(IEnumerable<int>));
   _actorsProperty = new SProperty(typeof(IEnumerable<string>));
   _directorsProperty = new SProperty(typeof(IEnumerable<string>));
   _writersProperty = new SProperty(typeof(IEnumerable<string>));
@@ -194,8 +168,6 @@ public void Init(MediaItem mediaItem)
      return;
   }
 
-  Genres = (IEnumerable<string>) aspect[VideoAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
-  GenreIds = (IEnumerable<int>) aspect[VideoAspect.ATTR_GENRE_IDS];
   Actors = (IEnumerable<string>) aspect[VideoAspect.ATTR_ACTORS] ?? EMPTY_STRING_COLLECTION;
   Directors = (IEnumerable<string>) aspect[VideoAspect.ATTR_DIRECTORS] ?? EMPTY_STRING_COLLECTION;
   Writers = (IEnumerable<string>) aspect[VideoAspect.ATTR_WRITERS] ?? EMPTY_STRING_COLLECTION;
@@ -206,8 +178,6 @@ public void Init(MediaItem mediaItem)
 
 public void SetEmpty()
 {
-  Genres = EMPTY_STRING_COLLECTION;
-  GenreIds = new List<Int32>();
   Actors = EMPTY_STRING_COLLECTION;
   Directors = EMPTY_STRING_COLLECTION;
   Writers = EMPTY_STRING_COLLECTION;

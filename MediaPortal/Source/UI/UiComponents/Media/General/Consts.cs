@@ -416,6 +416,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_MOVIES_FILTER_BY_DIRECTOR = "MovieFilterByDirector";
     public const string SCREEN_MOVIES_FILTER_BY_WRITER = "MovieFilterByWriter";
     public const string SCREEN_MOVIES_FILTER_BY_COMPANY = "MovieFilterByCompany";
+    public const string SCREEN_MOVIES_FILTER_BY_GENRE = "MovieFilterByGenre";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";
     public const string SCREEN_SERIES_FILTER_BY_NAME = "SeriesFilterByName";
     public const string SCREEN_SERIES_FILTER_BY_SEASON = "SeriesFilterBySeason";
@@ -508,6 +509,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_FPS = "FPS";
     public const string KEY_CHANNELS = "Channels";
     public const string KEY_SAMPLERATE = "SampleRate";
+    public const string KEY_ID = "Id";
 
     public const string KEY_MEDIA_ITEM = "MediaItem";
     public const string KEY_MEDIA_ITEM_ACTION = "MediaItemAction";
@@ -598,7 +600,8 @@ namespace MediaPortal.UiComponents.Media.General
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
-          ImporterAspect.ASPECT_ID
+          ImporterAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] OPTIONAL_MEDIA_LIBRARY_BROWSING_MIAS = new Guid[]
@@ -610,7 +613,40 @@ namespace MediaPortal.UiComponents.Media.General
           ImageAspect.ASPECT_ID,
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
-          SubtitleAspect.ASPECT_ID
+          SubtitleAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] NECESSARY_MOVIE_GENRE_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+          MovieAspect.ASPECT_ID
+      };
+
+    public static readonly Guid[] NECESSARY_SERIES_GENRE_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+          SeriesAspect.ASPECT_ID
+      };
+
+    public static readonly Guid[] NECESSARY_AUDIO_GENRE_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+          AudioAspect.ASPECT_ID
+      };
+
+    public static readonly Guid[] NECESSARY_VIDEO_GENRE_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[]
@@ -625,7 +661,8 @@ namespace MediaPortal.UiComponents.Media.General
       {
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
-          SubtitleAspect.ASPECT_ID
+          SubtitleAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_SERIES_MIAS = new Guid[]
@@ -635,7 +672,10 @@ namespace MediaPortal.UiComponents.Media.General
           SeriesAspect.ASPECT_ID,
       };
 
-    public static readonly Guid[] OPTIONAL_SERIES_MIAS = null;
+    public static readonly Guid[] OPTIONAL_SERIES_MIAS = new Guid[]
+      {
+          GenreAspect.ASPECT_ID,
+      };
 
     public static readonly Guid[] NECESSARY_SEASON_MIAS = new Guid[]
       {
@@ -659,7 +699,8 @@ namespace MediaPortal.UiComponents.Media.General
       {
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
-          SubtitleAspect.ASPECT_ID
+          SubtitleAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_MOVIE_COLLECTION_MIAS = new Guid[]
@@ -684,7 +725,8 @@ namespace MediaPortal.UiComponents.Media.General
       {
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
-          SubtitleAspect.ASPECT_ID
+          SubtitleAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
       };
 
     public static readonly Guid[] NECESSARY_ALBUM_MIAS = new Guid[]
@@ -694,7 +736,10 @@ namespace MediaPortal.UiComponents.Media.General
           AudioAlbumAspect.ASPECT_ID
       };
 
-    public static readonly Guid[] OPTIONAL_ALBUM_MIAS = null;
+    public static readonly Guid[] OPTIONAL_ALBUM_MIAS = new Guid[]
+      {
+          GenreAspect.ASPECT_ID,
+      };
 
     public static readonly Guid[] NECESSARY_AUDIO_MIAS = new Guid[]
       {
@@ -704,7 +749,10 @@ namespace MediaPortal.UiComponents.Media.General
           ImporterAspect.ASPECT_ID,
       };
 
-    public static readonly Guid[] OPTIONAL_AUDIO_MIAS = null;
+    public static readonly Guid[] OPTIONAL_AUDIO_MIAS = new Guid[]
+      {
+          GenreAspect.ASPECT_ID,
+      };
 
     public static readonly Guid[] NECESSARY_IMAGE_MIAS = new Guid[]
       {

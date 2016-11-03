@@ -37,18 +37,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly Guid ASPECT_ID = new Guid("5FEE4A7C-4123-4156-AC5C-682F2D401BF7");
 
     /// <summary>
-    /// Genre string.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
-
-    /// <summary>
-    /// Genre ID's.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRE_IDS =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("GenreIds", typeof(int), Cardinality.ManyToMany, true);
-
-    /// <summary>
     /// Enumeration of actor name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ACTORS =
@@ -87,8 +75,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "VideoItem", new[] {
-            ATTR_GENRES,
-            ATTR_GENRE_IDS,
             ATTR_ACTORS,
             ATTR_DIRECTORS,
             ATTR_WRITERS,

@@ -159,6 +159,28 @@ namespace MediaPortal.Backend.MediaLibrary
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual);
 
     /// <summary>
+    /// Returns a map of existing attribute values mapped to their occurence count for the given <paramref name="keyAttributeType"/> and
+    /// <paramref name="valueAttributeType"/> for the media items specified by the <paramref name="filter"/>.
+    /// </summary>
+    /// <param name="keyAttributeType">Key attribute type, whose values will be returned as the key.</param>
+    /// <param name="valueAttributeType">Value attribute type, whose values will be returned as the value.</param>
+    /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="valueAttributeType"/> to restrict the
+    /// result values.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    /// <paramref name="valueAttributeType"/>.</param>
+    /// <param name="necessaryMIATypeIDs">IDs of media item aspect types, which need to be present in each media item
+    /// whose attribute values are part of the result collection.</param>
+    /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
+    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    /// systems which are currently online.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <returns>Mapping set of existing attribute values to their occurence count for the given
+    /// <paramref name="valueAttributeType"/> (long) in Item1 and values to their keys
+    /// for the given <paramref name="valueAttributeType"/> in Item2.</returns>
+    Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual);
+
+    /// <summary>
     /// Executes <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
     /// </summary>
     /// <param name="attributeType">Attribute type, whose values will be returned. See method <see cref="GetValueGroups"/>.</param>
