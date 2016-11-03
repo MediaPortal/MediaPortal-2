@@ -55,8 +55,6 @@ namespace MediaPortal.UiComponents.Media.Views
     protected string _viewDisplayName;
     protected ICollection<Guid> _necessaryMIATypeIds;
     protected ICollection<Guid> _optionalMIATypeIds;
-    protected SettingsChangeWatcher<ViewSettings> _settingsWatcher;
-    protected bool _showVirtual = false;
 
     protected ViewSpecification(string viewDisplayName,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
@@ -66,14 +64,6 @@ namespace MediaPortal.UiComponents.Media.Views
       _optionalMIATypeIds = optionalMIATypeIds == null ? new HashSet<Guid>() : new HashSet<Guid>(optionalMIATypeIds);
       if (!_necessaryMIATypeIds.Contains(ProviderResourceAspect.ASPECT_ID))
         _necessaryMIATypeIds.Add(ProviderResourceAspect.ASPECT_ID);
-      _settingsWatcher = new SettingsChangeWatcher<ViewSettings>();
-      _settingsWatcher.SettingsChanged += SettingsChanged;
-      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
-    }
-
-    private void SettingsChanged(object sender, EventArgs e)
-    {
-      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
     }
 
     /// <summary>
@@ -123,11 +113,11 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return null; }
     }
 
-    public bool ShowVirtual
+    public bool ShowVirtualMedia
     {
       get
       {
-        return _showVirtual;
+        return ShowVirtualSetting.ShowVirtualMedia;
       }
     }
 

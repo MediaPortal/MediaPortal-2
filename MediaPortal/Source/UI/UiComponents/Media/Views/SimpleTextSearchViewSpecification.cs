@@ -105,7 +105,7 @@ namespace MediaPortal.UiComponents.Media.Views
         {
           Limit = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-        mediaItems = cd.Search(query, true, userProfile, ShowVirtual);
+        mediaItems = cd.Search(query, true, userProfile, ShowVirtualMedia);
       }
       catch (UPnPRemoteException e)
       {

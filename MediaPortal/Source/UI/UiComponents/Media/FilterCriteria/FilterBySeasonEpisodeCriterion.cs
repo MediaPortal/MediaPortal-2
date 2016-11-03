@@ -59,7 +59,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       {
         SortInformation = new List<SortInformation> { new SortInformation(EpisodeAspect.ATTR_EPISODE, SortDirection.Ascending) }
       };
-      var items = cd.Search(query, true, userProfile, ShowVirtual);
+      var items = cd.Search(query, true, userProfile, ShowVirtualMedia);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (var item in items)
       {

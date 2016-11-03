@@ -137,7 +137,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      return cd.Search(query, false, userProfile, ShowVirtual);
+      return cd.Search(query, false, userProfile, ShowVirtualMedia);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -155,8 +155,8 @@ namespace MediaPortal.UiComponents.Media.Views
 
       try
       {
-        mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, ShowVirtual));
-        ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, ShowVirtual);
+        mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, ShowVirtualMedia));
+        ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, ShowVirtualMedia);
         subViewSpecifications = new List<ViewSpecification>(childDirectories.Count);
         foreach (MediaItem childDirectory in childDirectories)
         {

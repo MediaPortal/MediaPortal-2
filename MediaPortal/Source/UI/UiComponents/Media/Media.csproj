@@ -329,6 +329,7 @@
     <Compile Include="Settings\ViewSettings.cs" />
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
+    <Compile Include="Settings\ShowVirtualSetting.cs" />
     <Compile Include="Views\BrowseMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\AbstractMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\LocalMediaRootProxyViewSpecification.cs" />

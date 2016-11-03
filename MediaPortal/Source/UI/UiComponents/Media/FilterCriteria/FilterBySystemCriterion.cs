@@ -55,7 +55,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         return new List<FilterValue>();
 
-      HomogenousMap valueGroups = cd.GetValueGroups(ProviderResourceAspect.ATTR_SYSTEM_ID, null, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtual);
+      HomogenousMap valueGroups = cd.GetValueGroups(ProviderResourceAspect.ATTR_SYSTEM_ID, null, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtualMedia);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (KeyValuePair<object, object> group in valueGroups)

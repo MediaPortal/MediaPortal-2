@@ -59,7 +59,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_NUM_SEASONS, out count))
           TotalSeasons = count.Value.ToString();
 
-        if (ShowVirtual)
+        if (ShowVirtualMedia)
           Seasons = TotalSeasons;
         else
           Seasons = AvailableSeasons;
@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, SeriesAspect.ATTR_NUM_EPISODES, out count))
           TotalEpisodes = count.Value.ToString();
 
-        if (ShowVirtual)
+        if (ShowVirtualMedia)
           Episodes = TotalEpisodes;
         else
           Episodes = AvailableEpisodes;

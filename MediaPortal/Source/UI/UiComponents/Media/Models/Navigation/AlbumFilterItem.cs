@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalTracks = "";
 
-        if (ShowVirtual)
+        if (ShowVirtualMedia)
           Tracks = TotalTracks;
         else
           Tracks = AvailableTracks;

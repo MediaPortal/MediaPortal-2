@@ -57,7 +57,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalMovies = "";
 
-        if (ShowVirtual)
+        if (ShowVirtualMedia)
           Movies = TotalMovies;
         else
           Movies = AvailableMovies;

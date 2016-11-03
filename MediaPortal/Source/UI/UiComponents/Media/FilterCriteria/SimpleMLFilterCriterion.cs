@@ -77,13 +77,13 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       HomogenousMap valueKeys = null;
       if (_keyAttributeType != null)
       {
-        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtual);
+        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtualMedia);
         valueGroups = values.Item1;
         valueKeys = values.Item2;
       }
       else
       {
-        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtual);
+        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, ShowVirtualMedia);
       }
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -140,7 +140,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds.ToList();
       IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None,
-          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, ShowVirtual);
+          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, ShowVirtualMedia);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (MLQueryResultGroup group in valueGroups)

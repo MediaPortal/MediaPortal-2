@@ -24,10 +24,8 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Settings;
-using System;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -36,14 +34,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class FilterItem : ContainerItem
   {
-    protected SettingsChangeWatcher<ViewSettings> _settingsWatcher;
-    protected bool _showVirtual = false; 
-
-    public bool ShowVirtual
+    public bool ShowVirtualMedia
     {
       get
       {
-        return _showVirtual;
+        return ShowVirtualSetting.ShowVirtualMedia;
       }
     }
 
@@ -51,7 +46,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       : base(numItems)
     {
       SimpleTitle = name;
-      InitSettingWatcher();
     }
 
     public FilterItem(string id, string name, int? numItems)
@@ -59,24 +53,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       Id = id;
       SimpleTitle = name;
-      InitSettingWatcher();
-    }
-
-    private void SettingsChanged(object sender, EventArgs e)
-    {
-      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
     }
 
     public FilterItem()
     {
-      InitSettingWatcher();
-    }
-
-    private void InitSettingWatcher()
-    {
-      _settingsWatcher = new SettingsChangeWatcher<ViewSettings>();
-      _settingsWatcher.SettingsChanged += SettingsChanged;
-      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
     }
 
     public MediaItem MediaItem
