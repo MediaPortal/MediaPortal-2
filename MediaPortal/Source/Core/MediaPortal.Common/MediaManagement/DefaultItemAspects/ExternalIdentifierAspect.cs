@@ -101,7 +101,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         new[] {
           ATTR_SOURCE,
           ATTR_TYPE,
-          ATTR_ID,
         }
       );
   }
