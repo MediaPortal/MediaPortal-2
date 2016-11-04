@@ -111,13 +111,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-600"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="-600"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
               <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-600"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="0"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
             </Grid.Resources>
@@ -176,7 +176,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </ListView.Resources>
             </ListView>
             <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
-                    Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="180" Margin="-45,0,0,320"
+                    Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="180" Margin="-45,0,0,250"
                     IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                     Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
               <Image Source="hiddenmenu_tab.png" Stretch="Uniform" Margin="0,0,0,0"/>
@@ -184,7 +184,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid>
 
           <Grid x:Name="TopPanel" Margin="0,-45,-130,-1285" VerticalAlignment="Bottom"
-              Width="550" Height="1150" HorizontalAlignment="Right">
+              Width="600" Height="1150" HorizontalAlignment="Right">
             <Grid.IsVisible>
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
@@ -193,13 +193,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Storyboard x:Key="SlideDownStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="TopPanel" Storyboard.TargetProperty="RenderTransform.Y">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-936"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="-996"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
               <Storyboard x:Key="SlideUpStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="TopPanel" Storyboard.TargetProperty="RenderTransform.Y">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-936"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-996"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="0"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
             </Grid.Resources>
@@ -235,11 +235,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Grid.Triggers>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="550"/>
+              <ColumnDefinition Width="50"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="100"/>
+              <RowDefinition Height="250"/>
               <RowDefinition Height="*"/>
-              <RowDefinition Height="0"/>
+              <RowDefinition Height="300"/>
             </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TranslateTransform Y="0"/>
@@ -248,9 +249,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Image-->
 
             <Border Grid.Row="1" CornerRadius="{ThemeResource DialogBorderCornerRadius}" Background="Black"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,65,140">
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,20,40,20">
             </Border>
-            <ListView x:Name="TopMenu" Grid.Row="1" Style="{ThemeResource PopupMenuListViewStyle}" Margin="10,20,14,80"
+            <ListView x:Name="TopMenu" Grid.Row="1" Style="{ThemeResource PopupMenuListViewStyle}" Margin="20,40,60,40"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
               IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
@@ -259,7 +260,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </ListView.Resources>
             </ListView>
             <Button x:Name="MenuShowTopButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
-                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Width="180" Margin="0,-40,0,0"
+                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Top" Width="180" Margin="0,-165,0,0"
                   IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                   IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">

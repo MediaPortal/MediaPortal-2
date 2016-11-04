@@ -1634,7 +1634,7 @@
                   <ControlTemplate TargetType="{x:Type ListView}">
                     <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource GradientCoverScrollViewerStyle}"
                         HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                      <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                      <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                     </ScrollViewer>
                   </ControlTemplate>
                 </Binding.Source>
