@@ -22,10 +22,11 @@
               <ColumnDefinition Width="80"/>
               <ColumnDefinition Width="1670"/>
               <ColumnDefinition Width="200"/>
-            </Grid.ColumnDefinitions> 
-            <Label Grid.Row="0" Grid.Column="1" x:Name="EpisodeName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                  Content="{Binding EpisodeName}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
-                  HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+            </Grid.ColumnDefinitions>
+
+              <Label x:Name="SeriesName" Grid.Row="0" Grid.Column="1" Margin="-20,0,20,0"
+                    Content="{Binding SeriesName}" Color="Black" FontSize="{ThemeResource NormalFontSize}"
+                    HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
               <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"

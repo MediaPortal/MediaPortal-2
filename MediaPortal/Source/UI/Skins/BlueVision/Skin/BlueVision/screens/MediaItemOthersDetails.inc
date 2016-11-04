@@ -23,5 +23,5 @@
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1"
          TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-         Margin="-10,0,5,25" Color="{ThemeResource TextColor}"/>
+         Margin="-10,0,35,25" Color="{ThemeResource TextColor}"/>
 </Grid>

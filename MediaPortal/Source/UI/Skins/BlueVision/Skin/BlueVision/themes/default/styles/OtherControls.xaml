@@ -121,10 +121,40 @@
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Grid.OpacityMask>
               <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="Transparent" Offset="0.05"/>
+                <GradientStop Color="Transparent" Offset="0.07"/>
                 <GradientStop Color="Black" Offset="0.3"/>
                 <GradientStop Color="Black" Offset="0.7"/>
-                <GradientStop Color="Transparent" Offset="0.95"/>
+                <GradientStop Color="Transparent" Offset="0.93"/>
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="GradientGridScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid" Margin="0,-50,0,-50">
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="50" Margin="0,50,0,50"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="Transparent" Offset="0.08"/>
+                <GradientStop Color="Black" Offset="0.3"/>
+                <GradientStop Color="Black" Offset="0.7"/>
+                <GradientStop Color="Transparent" Offset="0.9"/>
               </LinearGradientBrush>
             </Grid.OpacityMask>
           </Grid>
@@ -761,7 +791,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,16,16" 
+          <Button Style="{ThemeResource GroupTabHeaderButtonStyle}" Margin="0,0,10,10" 
               Command="{DynamicResource ResourceKey=Menu_Command}"
               IsEnabled="{Binding Enabled}">
           </Button>
@@ -772,7 +802,7 @@
 
   <!-- Displayed texts in main menu -->
   <DataTemplate x:Key="HomeGroupDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="63" Height="63" Stretch="Fill" Margin="7,0,7,0">
+    <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Width="67" Height="67" Stretch="Fill" Margin="5,0,5,0">
       <Image.Source>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1}">
           <Binding Path="AdditionalProperties[Id]"/>

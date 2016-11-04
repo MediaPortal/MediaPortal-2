@@ -22,13 +22,12 @@
               <ColumnDefinition Width="80"/>
               <ColumnDefinition Width="1670"/>
               <ColumnDefinition Width="200"/>
-            </Grid.ColumnDefinitions>
-
-            <Label Grid.Row="0" Grid.Column="1" x:Name="SeriesName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                  Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
+            </Grid.ColumnDefinitions> 
+            <Label Grid.Row="0" Grid.Column="1" x:Name="EpisodeName" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                  Content="{Binding EpisodeName}" Color="Black" FontSize="{ThemeResource NormalFontSize}" Margin="-20,0,20,0"
                   HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
 
-            <!--StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
               <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyBlackTemplate}"
                                            Maximum="10" Value="{Binding TotalRating}" Margin="0,2,0,-2">
                 <StarRatingPanel.LayoutTransform>
@@ -37,18 +36,15 @@
                   </TransformGroup>
                 </StarRatingPanel.LayoutTransform>
               </StarRatingPanel>
-
               <Label x:Name="RatingCountLabel" Color="Black"  Margin="8,0,0,0">
                 <Label.Content>
                   <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
                 </Label.Content>
               </Label>
-            </StackPanel-->
-           
+            </StackPanel>
           </Grid>  
         </ControlTemplate>
       </media:SeriesAspectWrapper.Template>
     </media:SeriesAspectWrapper>
 
 </Grid>
-

@@ -111,30 +111,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="150"/>
       </Grid.ColumnDefinitions>
 
-      <Control x:Name="MenuButtonDummy" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
-      <Control x:Name="MenuButtonDummyConfig" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
-      <Control x:Name="MenuButtonPlaceholder" HorizontalAlignment="Stretch" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
+      <!-- Power button -->
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="75,0,0,0"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+          Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+        <Button.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Trigger.Setters>
+              <Setter Property="Opacity" Value="2"/>
+            </Trigger.Setters>
+          </Trigger>
+        </Button.Triggers>
+      </Button>
 
-
-      <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Center" Orientation="Vertical">
+      <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Top" Orientation="Vertical">
         <Label x:Name="SelectedItem"
                 Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
                 VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
                 Color="{ThemeResource TextColor}">
         </Label>
-        <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-8,0,0">
-          <Control.TemplateControl>
-            <Include Source="screens\MediaItemsListHeader.inc"/>
-          </Control.TemplateControl>
-        </Control>
       </StackPanel>
 
       <!-- Main Menu Group tabs -->
-      <!-- use custom ListView to modify focus behavior -->
-
-      <!--Image Source="Menu_Background.png" Grid.Row="0" Grid.Column="1" Opacity="0.25" Stretch="Fill" Height="90" Margin="15,-5,15,-5"
-               VerticalAlignment="Center" HorizontalAlignment="Center"/-->
-
       <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="1"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
                                HomeMenuModel="{StaticResource MenuModel}" Margin="-5,8,-5,-8"
@@ -155,22 +154,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
       </StackPanel>
 
-      <!-- Power button -->
-      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Grid.Row="0" Grid.Column="3" Margin="10,-20,50,-20"
-          HorizontalAlignment="Center" VerticalAlignment="Center"
-          IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-          Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Trigger.Setters>
-              <Setter Property="Opacity" Value="2"/>
-            </Trigger.Setters>
-          </Trigger>
-        </Button.Triggers>
-      </Button>
-
-
-      <!--/StackPanel-->
+      <!-- Menu button -->
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+               x:Name="MenuButtonDummy" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+               x:Name="MenuButtonDummyConfig" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+               x:Name="MenuButtonPlaceholder" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
       <Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" />
     </Grid>

@@ -9,7 +9,7 @@
   <ResourceWrapper x:Key="MEDIA_AUDIO_HEIGHT" Resource="132"/>
 
   <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="169"/>
-  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="133"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="115"/>
 
   <ResourceWrapper x:Key="VIDEO_COVER_HEIGHT" Resource="280"/>
 
@@ -18,8 +18,8 @@
   
   <ResourceWrapper x:Key="AUDIO_COVERFLOW" Resource="353"/>
 
-  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="428"/>
-  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="85.7"/>
+  <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="530"/>
+  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="93"/>
 
   <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="124"/>
   <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="180"/>
@@ -33,5 +33,12 @@
   <ResourceWrapper x:Key="SmallRadius" Resource="0"/>
   <ResourceWrapper x:Key="MediumRadius" Resource="0"/>
   <ResourceWrapper x:Key="LargeRadius" Resource="0"/>
+
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_S" Resource="0"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_M" Resource="100"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH_L" Resource="150"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_S" Resource="0"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_M" Resource="53"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT_L" Resource="83"/>
 
 </ResourceDictionary>

@@ -915,8 +915,36 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" 
-             VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
+      <media:SeasonAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="5,0,10,0">
+        <media:SeasonAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <StackPanel Orientation="Horizontal">
+                <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,7,0" Color="{ThemeResource TextColor}"
+                       Content="[Media.SeasonRootViewName]">
+                  <Label.Color>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+                      <Binding Path="PlayCount"/>
+                      <Binding Source="{ThemeResource TextColor}"/>
+                      <Binding Source="{ThemeResource WatchedTextColor}"/>
+                    </MultiBinding>
+                  </Label.Color>
+                </Label>
+                <Label x:Name="NumberLabel" Content="{Binding Season}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+                  <Label.Color>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+                      <Binding Path="PlayCount"/>
+                      <Binding Source="{ThemeResource TextColor}"/>
+                      <Binding Source="{ThemeResource WatchedTextColor}"/>
+                    </MultiBinding>
+                  </Label.Color>
+                </Label>
+              </StackPanel>
+            </Grid>
+          </ControlTemplate>
+        </media:SeasonAspectWrapper.Template>
+      </media:SeasonAspectWrapper>
+      
       <Image x:Name="ItemTypeSmall" Stretch="Uniform"
              FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
@@ -1069,7 +1097,16 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}">
+
+      <Label x:Name="ItemLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" 
+             Grid.Row="0" Grid.Column="1" Margin="8,0,4,0">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+            <Binding Path="EpisodeNumber"/>
+            <Binding Source=" - "/>
+            <Binding Path="EpisodeName"/>
+          </MultiBinding>
+        </Label.Content>
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
             <Binding Path="PlayCount"/>
@@ -1309,17 +1346,28 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-            <Binding Source="{ThemeResource WatchedTextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
+      <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0"
+                                VerticalAlignment="Center">
+        <media:MovieAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                     Content="{Binding MovieName}">
+                <Label.Color>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+                    <Binding Path="PlayCount"/>
+                    <Binding Source="{ThemeResource TextColor}"/>
+                    <Binding Source="{ThemeResource WatchedTextColor}"/>
+                  </MultiBinding>
+                </Label.Color>
+              </Label>
+            </Grid>
+          </ControlTemplate>
+        </media:MovieAspectWrapper.Template>
+      </media:MovieAspectWrapper>
+      
       <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-             FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+             FallbackSource="defaultVideo.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -1329,7 +1377,7 @@
         </Image.IsVisible>
       </Image>
       <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-             FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+             FallbackSource="defaultVideo.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -1339,7 +1387,7 @@
         </Image.IsVisible>
       </Image>
       <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-             FallbackSource="VideoLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+             FallbackSource="defaultVideo.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -1581,8 +1629,10 @@
       </Image>
     </Grid>
   </ControlTemplate>
-  
-  <!-- Audio -->
+
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--+++++++++++++++++++++++++ Audio +++++++++++++++++++++++++++-->
+
   <ControlTemplate x:Key="ListViewAudioItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -1623,15 +1673,33 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="8,0,4,0">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-            <Binding Source="{ThemeResource WatchedTextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
+
+      <media:AudioAspectWrapper MediaItem="{Binding MediaItem}"
+                                Grid.Row="0" Grid.Column="1">
+        <media:AudioAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
+              <Label x:Name="ItemLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="8,0,4,0">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+                    <Binding Path="Track"/>
+                    <Binding Source=" - "/>
+                    <Binding Path="TrackName"/>
+                  </MultiBinding>
+                </Label.Content>
+                <Label.Color>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+                    <Binding Path="PlayCount"/>
+                    <Binding Source="{ThemeResource TextColor}"/>
+                    <Binding Source="{ThemeResource WatchedTextColor}"/>
+                  </MultiBinding>
+                </Label.Color>
+              </Label>
+            </Grid>
+          </ControlTemplate>
+        </media:AudioAspectWrapper.Template>
+      </media:AudioAspectWrapper>
+
       <Label x:Name="Duration" Grid.Column="2" Content="{Binding Duration}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="4,0,4,0"/>
     </Grid>
   </ControlTemplate>
@@ -1732,8 +1800,10 @@
       </Image>
     </Grid>
   </ControlTemplate>
-  
-  <!-- Audio Album -->
+
+  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++++++++++++++++++++ Audio Album ++++++++++++++++++++++++-->
+
   <ControlTemplate x:Key="ListViewAlbumItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
@@ -1748,8 +1818,7 @@
         <Image x:Name="ItemTypeSmall" Stretch="Uniform" Width="{StaticResource MEDIA_THUMB_HEIGHT_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}"
                FallbackSource="defaultAudio.png">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
-                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
           <Image.OpacityMask >
             <ImageBrush ImageSource="music_filmstrip_mask.png"/>
@@ -1762,8 +1831,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform"  Width="{StaticResource MEDIA_THUMB_HEIGHT_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}"
                FallbackSource="defaultAudio.png">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
-                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
           <Image.OpacityMask >
             <ImageBrush ImageSource="music_filmstrip_mask.png"/>
@@ -1775,8 +1843,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform"  Width="{StaticResource MEDIA_THUMB_HEIGHT_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}"
                FallbackSource="defaultAudio.png">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
-                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
           <Image.OpacityMask >
             <ImageBrush ImageSource="music_filmstrip_mask.png"/>
@@ -1804,7 +1871,7 @@
       <Image x:Name="thumb" Stretch="Fill" Margin="1"
              Width="{StaticResource MEDIA_AUDIO_WIDTH}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}"/>
         </Image.Source>
         <Image.Opacity>
@@ -1855,8 +1922,8 @@
       <Image x:Name="thumb" Width="{StaticResource COVERVIEW_WIDTH}" Height="{StaticResource COVERVIEW_WIDTH}" Stretch="Fill"
              VerticalAlignment="Bottom">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding SimpleTitle}"
-              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                    fanart:MaxWidth="{StaticResource COVERVIEW_WIDTH}" fanart:MaxHeight="{StaticResource COVERVIEW_WIDTH}"/>
         </Image.Source>
         <Image.OpacityMask >
           <ImageBrush ImageSource="music_filmstrip_mask.png"/>
