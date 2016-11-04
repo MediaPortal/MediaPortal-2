@@ -73,11 +73,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       if (CheckCacheContains(seasonInfo))
         return false;
-
+      
+      SeriesInfo cachedSeries;
       Guid seriesId;
       SeriesInfo seriesInfo = seasonInfo.CloneBasicInstance<SeriesInfo>();
-      if (TryGetIdFromSeriesCache(seriesInfo, out seriesId))
-        seriesInfo = GetFromSeriesCache(seriesId);
+      if (TryGetInfoFromCache(seriesInfo, out cachedSeries, out seriesId))
+        seriesInfo = cachedSeries;
       else if (!SeriesMetadataExtractor.SkipOnlineSearches)
         OnlineMatcherService.Instance.UpdateSeries(seriesInfo, false, forceQuickMode);
 
@@ -126,7 +127,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       SeriesInfo series = new SeriesInfo();
       series.FromMetadata(extractedAspects);
-      AddToSeriesCache(extractedItemId, series);
+      AddToCache(extractedItemId, series, false);
     }
   }
 }

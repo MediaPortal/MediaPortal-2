@@ -540,6 +540,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override T CloneBasicInstance<T>()
+    {
+      if (typeof(T) == typeof(SeriesInfo))
+      {
+        SeriesInfo info = new SeriesInfo();
+        info.CopyIdsFrom(this);
+        info.SeriesName = SeriesName;
+        info.FirstAired = FirstAired;
+        return (T)(object)info;
+      }
+      return default(T);
+    }
+
     public override int GetHashCode()
     {
       //TODO: Check if this is functional

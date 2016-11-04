@@ -218,6 +218,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override T CloneBasicInstance<T>()
+    {
+      if (typeof(T) == typeof(PersonInfo))
+      {
+        PersonInfo info = new PersonInfo();
+        info.CopyIdsFrom(this);
+        info.Name = Name;
+        info.Occupation = Occupation;
+        return (T)(object)info;
+      }
+      return default(T);
+    }
+
     #endregion
 
     #region Overrides

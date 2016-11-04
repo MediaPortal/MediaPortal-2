@@ -35,162 +35,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
   public abstract class IAudioRelationshipExtractor
   {
-    protected static MemoryCache _artistMemoryCache = null;
-    protected static MemoryCache _composerMemoryCache = null;
-    protected static MemoryCache _albumMemoryCache = null;
-    protected static MemoryCache _labelMemoryCache = null;
-    protected static CacheItemPolicy _cachePolicy = null;
-
-    protected MemoryCache _checkMemoryCache = null;
+    protected static RelationshipCache _relationshipCache = null;
+    protected HashSet<BaseInfo> _checkCache = new HashSet<BaseInfo>();
 
     static IAudioRelationshipExtractor()
     {
-      _artistMemoryCache = new MemoryCache("AudioArtistItemCache");
-      _composerMemoryCache = new MemoryCache("AudioComposerItemCache");
-      _albumMemoryCache = new MemoryCache("AudioAlbumItemCache");
-      _labelMemoryCache = new MemoryCache("AudioLabelItemCache");
-
-      _cachePolicy = new CacheItemPolicy();
-      _cachePolicy.SlidingExpiration = TimeSpan.FromHours(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE);
+      _relationshipCache = new RelationshipCache("AudioRelationshipCache", TimeSpan.FromHours(AudioMetadataExtractor.MINIMUM_HOUR_AGE_BEFORE_UPDATE));
     }
 
     public virtual void ClearCache()
     {
-      if (_artistMemoryCache != null)
-        _artistMemoryCache.Trim(100);
-      if (_composerMemoryCache != null)
-        _composerMemoryCache.Trim(100);
-      if (_albumMemoryCache != null)
-        _albumMemoryCache.Trim(100);
-      if (_labelMemoryCache != null)
-        _labelMemoryCache.Trim(100);
-
-      if (_checkMemoryCache != null)
-        _checkMemoryCache.Trim(100);
+      _relationshipCache.Clear();
+      _checkCache.Clear();
     }
 
-    protected virtual bool AddToArtistCache(Guid mediaItemId, PersonInfo mediaItemInfo)
+    protected virtual bool AddToCache<T>(Guid mediaItemId, T mediaItemInfo, bool createCopy = true) where T : BaseInfo
     {
-      if (_artistMemoryCache == null)
-        return false;
-
-      return _artistMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+      return _relationshipCache.AddToCache(mediaItemId, mediaItemInfo, createCopy);
     }
 
-    protected virtual bool TryGetIdFromArtistCache(PersonInfo mediaItemInfo, out Guid mediaItemId)
+    protected virtual bool TryGetIdFromCache(BaseInfo mediaItemInfo, out Guid mediaItemId)
     {
-      mediaItemId = Guid.Empty;
-      if (_artistMemoryCache == null)
-        return false;
-
-      List<string> items = _artistMemoryCache.Where(mi => mediaItemInfo.Equals((PersonInfo)mi.Value)).Select(mi => mi.Key).ToList();
-      if (items.Count > 0)
-      {
-        mediaItemId = Guid.Parse(items[0]);
-        return _artistMemoryCache.Contains(items[0]);
-      }
-      return false;
+      return _relationshipCache.TryGetIdFromCache(mediaItemInfo, out mediaItemId);
     }
 
-    protected virtual bool AddToComposerCache(Guid mediaItemId, PersonInfo mediaItemInfo)
+    protected virtual bool TryGetInfoFromCache<T>(T mediaItemInfo, out T cachedInfo, out Guid mediaItemId) where T : BaseInfo
     {
-      if (_composerMemoryCache == null)
-        return false;
-
-      return _composerMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
+      return _relationshipCache.TryGetInfoFromCache(mediaItemInfo, out cachedInfo, out mediaItemId);
     }
 
-    protected virtual bool TryGetIdFromComposerCache(PersonInfo mediaItemInfo, out Guid mediaItemId)
+    protected virtual bool AddToCheckCache<T>(T mediaItemInfo) where T : BaseInfo
     {
-      mediaItemId = Guid.Empty;
-      if (_composerMemoryCache == null)
-        return false;
-
-      List<string> items = _composerMemoryCache.Where(mi => mediaItemInfo.Equals((PersonInfo)mi.Value)).Select(mi => mi.Key).ToList();
-      if (items.Count > 0)
-      {
-        mediaItemId = Guid.Parse(items[0]);
-        return _composerMemoryCache.Contains(items[0]);
-      }
-      return false;
+      T cacheItem = mediaItemInfo.CloneBasicInstance<T>();
+      return cacheItem != null && _checkCache.Add(cacheItem);
     }
 
-    protected virtual bool AddToAlbumCache(Guid mediaItemId, AlbumInfo mediaItemInfo)
+    protected virtual bool CheckCacheContains(BaseInfo mediaItemInfo)
     {
-      if (_albumMemoryCache == null)
-        return false;
-
-      return _albumMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
-    }
-
-    protected virtual bool TryGetIdFromAlbumCache(AlbumInfo mediaItemInfo, out Guid mediaItemId)
-    {
-      mediaItemId = Guid.Empty;
-      if (_albumMemoryCache == null)
-        return false;
-
-      List<string> items = _albumMemoryCache.Where(mi => mediaItemInfo.Equals((AlbumInfo)mi.Value)).Select(mi => mi.Key).ToList();
-      if (items.Count > 0)
-      {
-        mediaItemId = Guid.Parse(items[0]);
-        return _albumMemoryCache.Contains(items[0]);
-      }
-      return false;
-    }
-
-    protected virtual AlbumInfo GetFromAlbumCache(Guid mediaItemId)
-    {
-      if (_albumMemoryCache == null)
-        return null;
-
-      return (AlbumInfo)_albumMemoryCache[mediaItemId.ToString()];
-    }
-
-    protected virtual bool AddToLabelCache(Guid mediaItemId, CompanyInfo mediaItemInfo)
-    {
-      if (_labelMemoryCache == null)
-        return false;
-
-      return _labelMemoryCache.Add(mediaItemId.ToString(), mediaItemInfo, _cachePolicy);
-    }
-
-    protected virtual bool TryGetIdFromLabelCache(CompanyInfo mediaItemInfo, out Guid mediaItemId)
-    {
-      mediaItemId = Guid.Empty;
-      if (_labelMemoryCache == null)
-        return false;
-
-      List<string> items = _labelMemoryCache.Where(mi => mediaItemInfo.Equals((CompanyInfo)mi.Value)).Select(mi => mi.Key).ToList();
-      if (items.Count > 0)
-      {
-        mediaItemId = Guid.Parse(items[0]);
-        return _labelMemoryCache.Contains(items[0]);
-      }
-      return false;
-    }
-
-    protected virtual bool AddToCheckCache<T>(T mediaItemInfo)
-    {
-      if (_checkMemoryCache == null)
-        _checkMemoryCache = new MemoryCache(GetType().ToString() + "CheckCache");
-
-      List<string> items = _checkMemoryCache.Where(mi => mediaItemInfo.Equals((T)mi.Value)).Select(mi => mi.Key).ToList();
-      if (items.Count > 0)
-        return _checkMemoryCache.Add(items[0], mediaItemInfo, _cachePolicy);
-
-      return _checkMemoryCache.Add(mediaItemInfo.ToString(), mediaItemInfo, _cachePolicy);
-    }
-
-    protected virtual bool CheckCacheContains<T>(T mediaItemInfo)
-    {
-      if (_checkMemoryCache == null)
-        _checkMemoryCache = new MemoryCache(GetType().ToString() + "CheckCache");
-
-      List<string> items = _checkMemoryCache.Where(mi => mediaItemInfo.Equals((T)mi.Value)).Select(mi => mi.Key).ToList();
-      if (items.Count > 0)
-        return _checkMemoryCache.Contains(items[0]);
-
-      return false;
+      return _checkCache.Contains(mediaItemInfo);
     }
 
     public static IFilter GetTrackSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
