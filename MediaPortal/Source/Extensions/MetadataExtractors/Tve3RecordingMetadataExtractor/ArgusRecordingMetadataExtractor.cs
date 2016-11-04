@@ -209,7 +209,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       }
 
       episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = recording.Category } });
-      OnlineMatcherService.Instance.AssignMissingMovieGenreIds(episodeInfo.Genres);
+      OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episodeInfo.Genres);
 
       episodeInfo.HasChanged = true;
       return episodeInfo;

@@ -215,6 +215,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Networks.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_NETWORKS, Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
       if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, SeriesAspect.ATTR_COMPANIES, ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
 
+      aspectData.Remove(GenreAspect.ASPECT_ID);
       foreach (GenreInfo genre in Genres)
       {
         MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);

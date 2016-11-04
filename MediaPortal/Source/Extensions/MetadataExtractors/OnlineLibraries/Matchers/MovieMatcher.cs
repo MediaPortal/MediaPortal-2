@@ -330,11 +330,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if(movieMatch.Actors.Count > MAX_PERSONS)
             movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Actors.Count - MAX_PERSONS);
           if (movieMatch.Characters.Count > MAX_PERSONS)
-            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Characters.Count - MAX_PERSONS);
+            movieMatch.Characters.RemoveRange(MAX_PERSONS, movieMatch.Characters.Count - MAX_PERSONS);
           if (movieMatch.Directors.Count > MAX_PERSONS)
-            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Directors.Count - MAX_PERSONS);
+            movieMatch.Directors.RemoveRange(MAX_PERSONS, movieMatch.Directors.Count - MAX_PERSONS);
           if (movieMatch.Writers.Count > MAX_PERSONS)
-            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Writers.Count - MAX_PERSONS);
+            movieMatch.Writers.RemoveRange(MAX_PERSONS, movieMatch.Writers.Count - MAX_PERSONS);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.

@@ -238,7 +238,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (TryGet(extractedTags, TAG_GENRE, out tmpString))
       {
         episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = tmpString } });
-        OnlineMatcherService.Instance.AssignMissingMovieGenreIds(episodeInfo.Genres);
+        OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episodeInfo.Genres);
       }
 
       episodeInfo.HasChanged = true;

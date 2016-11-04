@@ -1368,7 +1368,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_stubs[0].Genres != null && _stubs[0].Genres.Any())
       {
         List<GenreInfo> genres = _stubs[0].Genres.Select(s => new GenreInfo { Name = s }).ToList();
-        OnlineMatcherService.Instance.AssignMissingMusicGenreIds(genres);
+        OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genres);
         foreach (GenreInfo genre in genres)
         {
           MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);

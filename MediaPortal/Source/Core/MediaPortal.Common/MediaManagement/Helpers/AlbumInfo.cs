@@ -182,7 +182,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (MusicLabels.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, MusicLabels.Where(l => !string.IsNullOrEmpty(l.Name)).Select(l => l.Name).ToList<object>());
 
-      foreach(GenreInfo genre in Genres)
+      aspectData.Remove(GenreAspect.ASPECT_ID);
+      foreach (GenreInfo genre in Genres)
       {
         MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);
         genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);

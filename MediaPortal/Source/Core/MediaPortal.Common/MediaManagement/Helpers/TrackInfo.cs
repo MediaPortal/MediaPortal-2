@@ -243,6 +243,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (AlbumArtists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
       if (Composers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
+      aspectData.Remove(GenreAspect.ASPECT_ID);
       foreach (GenreInfo genre in Genres)
       {
         MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);
