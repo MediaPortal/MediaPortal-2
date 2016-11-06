@@ -27,7 +27,6 @@ using System.IO;
 using System.Linq;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -56,11 +55,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         TagLib.Tag tag = mp4File.Tag;
 
         if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, new List<string>(tag.Genres), false);
+        {
+          List<GenreInfo> genreList = tag.Genres.Select(s => new GenreInfo { Name = s }).ToList();
+          OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
+        }
 
         if (!ReferenceEquals(tag.Performers, null) && tag.Performers.Length > 0)
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
             tag.Performers.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
+
+        //Clean up memory
+        foreach (TagLib.IPicture pic in mp4File.Tag.Pictures)
+          pic.Data.Clear();
+        mp4File.Tag.Clear();
+        mp4File.Dispose();
 
         return true;
       }

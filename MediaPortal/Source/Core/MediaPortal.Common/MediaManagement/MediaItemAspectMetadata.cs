@@ -348,6 +348,7 @@ namespace MediaPortal.Common.MediaManagement
     protected string _aspectName;
     protected Guid _aspectId;
     protected bool _isSystemAspect;
+    protected bool _isTransientAspect;
     protected IDictionary<string, AttributeSpecification> _attributeSpecifications =
         new Dictionary<string, AttributeSpecification>();
 
@@ -368,10 +369,11 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="attributeSpecifications">Enumeration of specifications for the attribute of the new
     /// aspect type</param>
     protected MediaItemAspectMetadata(Guid aspectId, string aspectName,
-        IEnumerable<AttributeSpecification> attributeSpecifications)
+        IEnumerable<AttributeSpecification> attributeSpecifications, bool isTransient)
     {
       _aspectId = aspectId;
       _aspectName = aspectName;
+      _isTransientAspect = isTransient;
       foreach (AttributeSpecification spec in attributeSpecifications)
         _attributeSpecifications[spec.AttributeName] = spec;
       CorrectParentsInAttributeTypes();
@@ -411,6 +413,16 @@ namespace MediaPortal.Common.MediaManagement
     {
       get { return _isSystemAspect; }
       internal set { _isSystemAspect = value; }
+    }
+
+    /// <summary>
+    /// Gets the information if this aspect is a transient aspect. Transient aspects are not persisted to 
+    /// the database and are only used for passing data in a consistent manner.
+    /// </summary>
+    [XmlIgnore]
+    public bool IsTransientAspect
+    {
+      get { return _isTransientAspect; }
     }
 
     /// <summary>
@@ -596,6 +608,16 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
+    [XmlAttribute("IsTransientAspect")]
+    public bool XML_IsTransientAspect
+    {
+      get { return _isTransientAspect; }
+      set { _isTransientAspect = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
     [XmlElement("Name")]
     public string XML_Name
     {
@@ -633,7 +655,12 @@ namespace MediaPortal.Common.MediaManagement
   public class SingleMediaItemAspectMetadata : MediaItemAspectMetadata
   {
     public SingleMediaItemAspectMetadata(Guid aspectId, string aspectName,
-        IEnumerable<SingleAttributeSpecification> attributeSpecifications) : base(aspectId, aspectName, attributeSpecifications)
+        IEnumerable<SingleAttributeSpecification> attributeSpecifications) : this(aspectId, aspectName, attributeSpecifications, false)
+    {
+    }
+
+    public SingleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<SingleAttributeSpecification> attributeSpecifications, bool isTransient) : base(aspectId, aspectName, attributeSpecifications, isTransient)
     {
     }
 
@@ -653,14 +680,27 @@ namespace MediaPortal.Common.MediaManagement
 
     public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
       IEnumerable<MultipleAttributeSpecification> attributeSpecifications)
-      : this(aspectId, aspectName, attributeSpecifications, null)
+      : this(aspectId, aspectName, attributeSpecifications, null, false)
+    {
+    }
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+      IEnumerable<MultipleAttributeSpecification> attributeSpecifications, bool isTransient)
+      : this(aspectId, aspectName, attributeSpecifications, null, isTransient)
     {
     }
 
     public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
         IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
         IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications)
-      : base(aspectId, aspectName, attributeSpecifications)
+      : this(aspectId, aspectName, attributeSpecifications, uniqueAttributeSpecifications, false)
+    {
+    }
+
+    public MultipleMediaItemAspectMetadata(Guid aspectId, string aspectName,
+        IEnumerable<MultipleAttributeSpecification> attributeSpecifications,
+        IEnumerable<MultipleAttributeSpecification> uniqueAttributeSpecifications, bool isTransient)
+      : base(aspectId, aspectName, attributeSpecifications, isTransient)
     {
       if (uniqueAttributeSpecifications != null)
       {

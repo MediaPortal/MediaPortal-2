@@ -61,12 +61,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Labels", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
-    /// Enumeration of genre names.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GENRES =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
-
-    /// <summary>
     /// Contains list of awards.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
@@ -118,7 +112,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the number of tracks available for listening.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_TRACKS =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailTracks", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailTracks", typeof(int), Cardinality.Inline, false);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         // TODO: Localize name
@@ -127,7 +121,6 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_DESCRIPTION,
             ATTR_ARTISTS,
             ATTR_LABELS,
-            ATTR_GENRES,
             ATTR_AWARDS,
             ATTR_COMPILATION,
             ATTR_NUMTRACKS,

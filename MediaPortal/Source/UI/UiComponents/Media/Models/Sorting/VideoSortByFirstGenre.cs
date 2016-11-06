@@ -29,7 +29,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortByFirstGenre : AbstractSortByFirstComparableAttribute<string>
   {
-    public VideoSortByFirstGenre() : base(VideoAspect.ATTR_GENRES) {}
+    public VideoSortByFirstGenre() : base(GenreAspect.ATTR_GENRE) {}
 
     public override string DisplayName
     {

@@ -47,7 +47,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Resource index for this resource.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_INDEX =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// If set to <c>true</c>, the resource is a primary one. A media item with only secondary resources should be deleted.

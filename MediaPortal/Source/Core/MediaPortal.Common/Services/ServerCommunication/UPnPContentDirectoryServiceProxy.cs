@@ -363,6 +363,29 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (HomogenousMap) outParameters[0];
     }
 
+    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
+    {
+      CpAction action = GetAction("X_MediaPortal_GetKeyValueGroups");
+      string projectionFunctionStr = SerializeProjectionFunction(projectionFunction);
+      string onlineStateStr = SerializeOnlineState(onlyOnline);
+      IList<object> inParameters = new List<object>
+      {
+        MarshallingHelper.SerializeGuid(keyAttributeType.ParentMIAM.AspectId),
+        keyAttributeType.AttributeName,
+        MarshallingHelper.SerializeGuid(valueAttributeType.ParentMIAM.AspectId),
+        valueAttributeType.AttributeName,
+        selectAttributeFilter,
+        projectionFunctionStr,
+        MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+        filter,
+        onlineStateStr,
+        includeVirtual
+      };
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return new Tuple<HomogenousMap, HomogenousMap>((HomogenousMap)outParameters[0], (HomogenousMap)outParameters[1]);
+    }
+
     public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
         IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual)

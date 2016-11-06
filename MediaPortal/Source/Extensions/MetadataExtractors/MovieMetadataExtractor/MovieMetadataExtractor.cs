@@ -247,9 +247,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       if (refresh)
       {
-        if ((!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && movieInfo.Characters.Count > 0) ||
-          (!BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ASPECT_ID) && movieInfo.Actors.Count > 0) ||
-          (!BaseInfo.HasRelationship(extractedAspectData, CompanyAspect.ASPECT_ID) && movieInfo.ProductionCompanies.Count > 0))
+        if ((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && movieInfo.Actors.Count > 0) ||
+          (IncludeCharacterDetails && !BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ASPECT_ID) && movieInfo.Characters.Count > 0) ||
+          (IncludeDirectorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && movieInfo.Directors.Count > 0) ||
+          (IncludeWriterDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && movieInfo.Writers.Count > 0) ||
+          (IncludeProductionCompanyDetails && !BaseInfo.HasRelationship(extractedAspectData, CompanyAspect.ASPECT_ID) && movieInfo.ProductionCompanies.Count > 0))
         {
           movieInfo.HasChanged = true;
         }

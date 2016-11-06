@@ -197,6 +197,7 @@ namespace MediaPortal.Common
       miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(GenreAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(VideoStreamAspect.Metadata, 
         new MediaItemAspectMetadata.AttributeSpecification[] { VideoStreamAspect.Metadata.AttributeSpecifications[VideoStreamAspect.ATTR_RESOURCE_INDEX.AttributeName] },
         ProviderResourceAspect.Metadata,

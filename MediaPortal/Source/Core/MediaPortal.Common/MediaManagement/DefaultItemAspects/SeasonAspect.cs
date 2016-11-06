@@ -40,20 +40,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Series name.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIES_NAME =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesName", 200, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the number of the season, usually starting at 1. A value of 0 is also valid for specials.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SEASON =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Season", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains a combination of <see cref="ATTR_SERIES_NAME"/> and the <see cref="ATTR_SEASON"/> to allow filtering and retrieval of season banners.
-    /// This name must be built in form "{0} S{1}", using SeriesName and Season.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SERIES_SEASON =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesSeasonName", 200, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("Season", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Album description
@@ -65,19 +58,18 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains the number of episodes available for watching.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AVAILABLE_EPISODES =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailEpisodes", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("AvailEpisodes", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the total number of episodes currently available for the season.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NUM_EPISODES =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumEpisodes", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("NumEpisodes", typeof(int), Cardinality.Inline, false);
 
     public static readonly SingleMediaItemAspectMetadata Metadata = new SingleMediaItemAspectMetadata(
         ASPECT_ID, "SeasonItem", new[] {
             ATTR_SERIES_NAME,
             ATTR_SEASON,
-            ATTR_SERIES_SEASON,
             ATTR_DESCRIPTION,
             ATTR_AVAILABLE_EPISODES,
             ATTR_NUM_EPISODES

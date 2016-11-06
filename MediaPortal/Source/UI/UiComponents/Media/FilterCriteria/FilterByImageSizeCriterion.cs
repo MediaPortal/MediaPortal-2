@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -63,10 +64,10 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IFilter mediumFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new NotFilter(simpleSmallFilter),
           new NotFilter(bigFilter));
-      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, ShowVirtual);
-      int numSmallItems = cd.CountMediaItems(necessaryMIATypeIds, smallFilter, true, ShowVirtual);
-      int numMediumItems = cd.CountMediaItems(necessaryMIATypeIds, mediumFilter, true, ShowVirtual);
-      int numBigItems = cd.CountMediaItems(necessaryMIATypeIds, bigFilter, true, ShowVirtual);
+      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, ShowVirtualSetting.ShowVirtualMedia);
+      int numSmallItems = cd.CountMediaItems(necessaryMIATypeIds, smallFilter, true, ShowVirtualSetting.ShowVirtualMedia);
+      int numMediumItems = cd.CountMediaItems(necessaryMIATypeIds, mediumFilter, true, ShowVirtualSetting.ShowVirtualMedia);
+      int numBigItems = cd.CountMediaItems(necessaryMIATypeIds, bigFilter, true, ShowVirtualSetting.ShowVirtualMedia);
       return new List<FilterValue>(new FilterValue[]
         {
             new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),

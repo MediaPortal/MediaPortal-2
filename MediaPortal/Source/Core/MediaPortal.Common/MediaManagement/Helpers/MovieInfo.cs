@@ -91,7 +91,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<PersonInfo> Writers = new List<PersonInfo>();
     public List<CharacterInfo> Characters = new List<CharacterInfo>();
     public List<CompanyInfo> ProductionCompanies = new List<CompanyInfo>();
-    public List<string> Genres = new List<string>();
+    public List<GenreInfo> Genres = new List<GenreInfo>();
     public List<string> Awards = new List<string>();
 
     public override bool IsBaseInfoPresent
@@ -198,10 +198,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
       if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
       if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList<object>());
 
       if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_COMPANIES, ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList<object>());
+
+      aspectData.Remove(GenreAspect.ASPECT_ID);
+      foreach (GenreInfo genre in Genres)
+      {
+        MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);
+        genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
+        genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre.Name);
+      }
 
       SetThumbnailMetadata(aspectData);
 
@@ -278,8 +285,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           Characters.AddRange(collection.Cast<object>().Select(s => new CharacterInfo() { Name = s.ToString() }));
 
         Genres.Clear();
-        if (MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_GENRES, out collection))
-          Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
+        IList<MultipleMediaItemAspect> genreAspects;
+        if (MediaItemAspect.TryGetAspects(aspectData, GenreAspect.Metadata, out genreAspects))
+        {
+          foreach (MultipleMediaItemAspect genre in genreAspects)
+          {
+            Genres.Add(new GenreInfo
+            {
+              Id = genre.GetAttributeValue<int?>(GenreAspect.ATTR_ID),
+              Name = genre.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)
+            });
+          }
+        }
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_AWARDS, out collection))

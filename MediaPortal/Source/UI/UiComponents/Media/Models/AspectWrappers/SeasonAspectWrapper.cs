@@ -47,7 +47,6 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 
 protected AbstractProperty _seriesNameProperty;
 protected AbstractProperty _seasonProperty;
-protected AbstractProperty _seriesSeasonNameProperty;
 protected AbstractProperty _descriptionProperty;
 protected AbstractProperty _availEpisodesProperty;
 protected AbstractProperty _numEpisodesProperty;
@@ -77,17 +76,6 @@ public int? Season
 {
   get { return (int?) _seasonProperty.GetValue(); }
   set { _seasonProperty.SetValue(value); }
-}
-
-public AbstractProperty SeriesSeasonNameProperty
-{
-  get{ return _seriesSeasonNameProperty; }
-}
-
-public string SeriesSeasonName
-{
-  get { return (string) _seriesSeasonNameProperty.GetValue(); }
-  set { _seriesSeasonNameProperty.SetValue(value); }
 }
 
 public AbstractProperty DescriptionProperty
@@ -142,7 +130,6 @@ public SeasonAspectWrapper()
 {
   _seriesNameProperty = new SProperty(typeof(string));
   _seasonProperty = new SProperty(typeof(int?));
-  _seriesSeasonNameProperty = new SProperty(typeof(string));
   _descriptionProperty = new SProperty(typeof(string));
   _availEpisodesProperty = new SProperty(typeof(int?));
   _numEpisodesProperty = new SProperty(typeof(int?));
@@ -170,7 +157,6 @@ public void Init(MediaItem mediaItem)
 
   SeriesName = (string) aspect[SeasonAspect.ATTR_SERIES_NAME];
   Season = (int?) aspect[SeasonAspect.ATTR_SEASON];
-  SeriesSeasonName = (string) aspect[SeasonAspect.ATTR_SERIES_SEASON];
   Description = (string) aspect[SeasonAspect.ATTR_DESCRIPTION];
   AvailEpisodes = (int?) aspect[SeasonAspect.ATTR_AVAILABLE_EPISODES];
   NumEpisodes = (int?) aspect[SeasonAspect.ATTR_NUM_EPISODES];
@@ -180,7 +166,6 @@ public void SetEmpty()
 {
   SeriesName = null;
   Season = null;
-  SeriesSeasonName = null;
   Description = null;
   AvailEpisodes = null;
   NumEpisodes = null;

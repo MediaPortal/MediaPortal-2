@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
 

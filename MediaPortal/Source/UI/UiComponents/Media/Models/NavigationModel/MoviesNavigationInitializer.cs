@@ -47,7 +47,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       base.Prepare();
 
-      _defaultScreen = new VideosFilterByGenreScreenData();
+      _defaultScreen = new MovieFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new MoviesShowItemsScreenData(_genericPlayableItemCreatorDelegate),

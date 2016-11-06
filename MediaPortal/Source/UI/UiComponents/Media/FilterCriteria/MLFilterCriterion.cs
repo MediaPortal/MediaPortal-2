@@ -24,12 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.Settings;
-using MediaPortal.Common;
-using MediaPortal.Common.Settings;
-using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -38,21 +34,6 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   /// </summary>
   public abstract class MLFilterCriterion
   {
-    protected SettingsChangeWatcher<ViewSettings> _settingsWatcher;
-    protected bool _showVirtual = false;
-
-    public MLFilterCriterion()
-    {
-      _settingsWatcher = new SettingsChangeWatcher<ViewSettings>();
-      _settingsWatcher.SettingsChanged += SettingsChanged;
-      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
-    }
-
-    private void SettingsChanged(object sender, EventArgs e)
-    {
-      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
-    }
-
     /// <summary>
     /// Gets the values which are available in the media library which can be used as a filter for this filter criterion.
     /// </summary>
@@ -83,11 +64,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter,
         IFilter filter);
 
-    public bool ShowVirtual
+    public bool ShowVirtualMedia
     {
       get
       {
-        return _showVirtual;
+        return ShowVirtualSetting.ShowVirtualMedia;
       }
     }
   }

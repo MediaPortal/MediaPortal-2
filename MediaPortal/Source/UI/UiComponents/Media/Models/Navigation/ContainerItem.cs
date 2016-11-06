@@ -40,6 +40,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       NumItems = absNumItems;
     }
 
+    public string Id
+    {
+      get { return (string)AdditionalProperties[Consts.KEY_ID]; }
+      set { AdditionalProperties[Consts.KEY_ID] = value; }
+    }
+
     public int? NumItems
     {
       get { return (int?) AdditionalProperties[Consts.KEY_NUM_ITEMS]; }

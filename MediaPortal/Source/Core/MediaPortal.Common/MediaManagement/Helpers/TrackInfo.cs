@@ -101,7 +101,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<PersonInfo> AlbumArtists = new List<PersonInfo>();
     public List<PersonInfo> Composers = new List<PersonInfo>();
     public List<CompanyInfo> MusicLabels = new List<CompanyInfo>();
-    public List<string> Genres = new List<string>();
+    public List<GenreInfo> Genres = new List<GenreInfo>();
     public List<string> Languages = new List<string>();
 
     public override bool IsBaseInfoPresent
@@ -243,7 +243,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (AlbumArtists.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_ALBUMARTISTS, AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
       if (Composers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_COMPOSERS, Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
-      if (Genres.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAspect.ATTR_GENRES, Genres.Where(g => !string.IsNullOrEmpty(g)).ToList<object>());
+      aspectData.Remove(GenreAspect.ASPECT_ID);
+      foreach (GenreInfo genre in Genres)
+      {
+        MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);
+        genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
+        genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre.Name);
+      }
 
       SetThumbnailMetadata(aspectData);
 
@@ -318,8 +324,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         Composers.AddRange(collection.Cast<object>().Select(s => new PersonInfo() { Name = s.ToString(), Occupation = PersonAspect.OCCUPATION_COMPOSER }));
 
       Genres.Clear();
-      if (MediaItemAspect.TryGetAttribute(aspectData, AudioAspect.ATTR_GENRES, out collection))
-        Genres.AddRange(collection.Cast<object>().Select(s => s.ToString()));
+      IList<MultipleMediaItemAspect> genreAspects;
+      if (MediaItemAspect.TryGetAspects(aspectData, GenreAspect.Metadata, out genreAspects))
+      {
+        foreach (MultipleMediaItemAspect genre in genreAspects)
+        {
+          Genres.Add(new GenreInfo
+          {
+            Id = genre.GetAttributeValue<int?>(GenreAspect.ATTR_ID),
+            Name = genre.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)
+          });
+        }
+      }
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))

@@ -38,7 +38,6 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -72,8 +71,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public const int QUERY_LIMIT = 5;
 
-    private static bool _showVirtual = false;
-
     public delegate PlayableMediaItem MediaItemToListItemAction(MediaItem mediaItem);
 
     public ItemsList AllItems { get; private set; }
@@ -97,9 +94,6 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         return;
       }
-
-      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
-      _showVirtual = settings.ShowVirtual;
 
       ItemsList list = new ItemsList();
       FillList(contentDirectory, Consts.NECESSARY_MOVIES_MIAS, list, item => new MovieItem(item));
@@ -132,7 +126,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      var items = contentDirectory.Search(query, false, userProfile, _showVirtual);
+      var items = contentDirectory.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

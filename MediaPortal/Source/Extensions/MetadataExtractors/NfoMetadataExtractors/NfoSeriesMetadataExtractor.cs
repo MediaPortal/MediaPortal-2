@@ -41,6 +41,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
+using System.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {

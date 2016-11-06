@@ -134,7 +134,7 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      return cd.Search(_query, _onlyOnline, userProfile, ShowVirtual);
+      return cd.Search(_query, _onlyOnline, userProfile, ShowVirtualMedia);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -159,7 +159,7 @@ namespace MediaPortal.UiComponents.Media.Views
           // We request the groups first to make it faster for the many items case. In the case of few items, both groups and items
           // are requested which doesn't take so long because there are only few items.
           IList<MLQueryResultGroup> groups = cd.GroupValueGroups(MediaAspect.ATTR_TITLE, null, ProjectionFunction.None,
-              _query.NecessaryRequestedMIATypeIDs, _query.Filter, _onlyOnline, GroupingFunction.FirstCharacter, ShowVirtual);
+              _query.NecessaryRequestedMIATypeIDs, _query.Filter, _onlyOnline, GroupingFunction.FirstCharacter, ShowVirtualMedia);
           long numItems = groups.Aggregate<MLQueryResultGroup, long>(0, (current, group) => current + group.NumItemsInGroup);
           if (numItems > MaxNumItems.Value)
           { // Group items
@@ -177,7 +177,7 @@ namespace MediaPortal.UiComponents.Media.Views
           // Else: No grouping
         }
         // Else: No grouping
-        mediaItems = cd.Search(_query, _onlyOnline, userProfile, ShowVirtual);
+        mediaItems = cd.Search(_query, _onlyOnline, userProfile, ShowVirtualMedia);
         subViewSpecifications = new List<ViewSpecification>(0);
       }
       catch (UPnPRemoteException e)

@@ -90,7 +90,11 @@ namespace MediaPortal.UPnPRenderer.MediaItems
       MediaItemAspect.SetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, metaData.Title);
       MediaItemAspect.SetAttribute(item.Aspects, AudioAspect.ATTR_ALBUM, metaData.Album);
       MediaItemAspect.SetCollectionAttribute(item.Aspects, AudioAspect.ATTR_ARTISTS, metaData.Artists);
-      MediaItemAspect.SetCollectionAttribute(item.Aspects, AudioAspect.ATTR_GENRES, metaData.Genres);
+      foreach (string genre in metaData.Genres)
+      {
+        MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(item.Aspects, GenreAspect.Metadata);
+        genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre);
+      }
       MediaItemAspect.SetAttribute(item.Aspects, AudioAspect.ATTR_TRACK, metaData.OriginalTrackNumber);
       MediaItemAspect.SetAttribute(item.Aspects, AudioAspect.ATTR_NUMDISCS, metaData.OriginalDiscCount);
     }
@@ -98,10 +102,13 @@ namespace MediaPortal.UPnPRenderer.MediaItems
     public static void SetVideoMetaData(this MediaItem item, DmapData metaData)
     {
       MediaItemAspect.SetAttribute(item.Aspects, MediaAspect.ATTR_TITLE, metaData.Title);
-      // FIXME: Morpheus_xx, 2016-06-15: attributes are now moved, which ones to use? series, movie, recording?
-      //MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_ACTORS, metaData.Actors);
-      //MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_GENRES, metaData.Genres);
-      //MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_DIRECTORS, metaData.Directors);
+      MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_ACTORS, metaData.Actors);
+      foreach (string genre in metaData.Genres)
+      {
+        MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(item.Aspects, GenreAspect.Metadata);
+        genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre);
+      }
+      MediaItemAspect.SetCollectionAttribute(item.Aspects, VideoAspect.ATTR_DIRECTORS, metaData.Directors);
     }
 
     public static void SetImageMetaData(this MediaItem item, DmapData metaData)

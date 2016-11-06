@@ -943,6 +943,45 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] {ProviderResourceAspect.ASPECT_ID}) : necessaryMIATypeIDs, 
           attributeType, saf, selectProjectionFunctionImpl, projectionValueType, 
           filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
+      return cdavq.Execute().Item1;
+    }
+
+    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
+    {
+      SelectProjectionFunction selectProjectionFunctionImpl;
+      Type projectionValueType;
+      switch (projectionFunction)
+      {
+        case ProjectionFunction.DateToYear:
+          selectProjectionFunctionImpl = (string expr) =>
+          {
+            ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+            return database.CreateDateToYearProjectionExpression(expr);
+          };
+          projectionValueType = typeof(int);
+          break;
+        default:
+          selectProjectionFunctionImpl = null;
+          projectionValueType = null;
+          break;
+      }
+      IAttributeFilter saf = selectAttributeFilter as IAttributeFilter;
+      if (saf == null && selectAttributeFilter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, new IFilter[] { filter, selectAttributeFilter });
+
+      if (includeVirtual == false)
+      {
+        if (filter == null)
+          filter = new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual);
+        else
+          filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationalFilter(MediaAspect.ATTR_ISVIRTUAL, RelationalOperator.EQ, includeVirtual));
+      }
+
+      CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(_miaManagement,
+          filterOnlyOnline ? necessaryMIATypeIDs.Union(new Guid[] { ProviderResourceAspect.ASPECT_ID }) : necessaryMIATypeIDs,
+          keyAttributeType, valueAttributeType, saf, selectProjectionFunctionImpl, projectionValueType,
+          filterOnlyOnline ? AddOnlyOnlineFilter(filter) : filter);
       return cdavq.Execute();
     }
 
@@ -1204,6 +1243,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return defaultTitle;
     }
 
+    private void TransferTransientAspects(IEnumerable<MediaItemAspect> sourceMediaItemAspects, MediaItem destinationMediaItem)
+    {
+      foreach (MediaItemAspect mia in sourceMediaItemAspects)
+      {
+        if (mia.Metadata.IsTransientAspect)
+        {
+          if (!destinationMediaItem.Aspects.ContainsKey(mia.Metadata.AspectId))
+            destinationMediaItem.Aspects.Add(mia.Metadata.AspectId, new List<MediaItemAspect>());
+          destinationMediaItem.Aspects[mia.Metadata.AspectId].Add(mia);
+        }
+      }
+    }
+
     private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh, CancellationToken cancelToken)
     {
       Stopwatch swImport = new Stopwatch();
@@ -1231,6 +1283,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           MediaItem item = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(mediaItemId.Value)), false, null, true).FirstOrDefault();
           if (item != null)
           {
+            //Transfer any transient aspects
+            TransferTransientAspects(mediaItemAspects, item);
+
             if (reconcile)
               Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
 
@@ -1794,7 +1849,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           foreach (Guid relationId in relations)
             DeleteOrphan(database, transaction, relationId);
 
-          _miaManagement.CleanupAllOrphanedAttributeValues(transaction, GetManagedMediaItemAspectMetadata().Values);
+          _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
           DeleteFanArt(mediaItemId);
         }
       }
@@ -2911,7 +2966,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public IDictionary<Guid, Share> GetShares(string systemId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         int shareIdIndex;
@@ -2960,7 +3015,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public Share GetShare(Guid shareId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.CreateTransaction();
       try
       {
         return GetShare(transaction, shareId);

@@ -121,7 +121,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       // Read genre
       tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
       if (tags != null)
-        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, new List<string>(tags), false);
+      {
+        List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
+        OnlineMatcherService.Instance.AssignMissingMovieGenreIds(genreList);
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
+      }
 
       // Read actors
       tags = tagsToExtract[MatroskaConsts.TAG_ACTORS];

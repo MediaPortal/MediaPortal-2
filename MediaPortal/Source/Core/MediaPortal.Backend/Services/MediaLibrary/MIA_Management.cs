@@ -635,9 +635,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public void CleanupAllOrphanedAttributeValues(ITransaction transaction, ICollection<MediaItemAspectMetadata> miaTypes)
+    public void CleanupAllOrphanedAttributeValues(ITransaction transaction)
     {
-      foreach (MediaItemAspectMetadata miaType in miaTypes)
+      foreach (MediaItemAspectMetadata miaType in ManagedMediaItemAspectTypes.Values)
         foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
           switch (spec.Cardinality)
           {
@@ -914,6 +914,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] fkSpecifications, MediaItemAspectMetadata refMiam, MediaItemAspectMetadata.AttributeSpecification[] refSpecifications)
     {
+      if (miam.IsTransientAspect)
+        return true;
+
       lock (_syncObj)
       {
         if (_managedMIATypes.ContainsKey(miam.AspectId))
@@ -995,23 +998,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
 
         //Add dependency if any
+        bool foreignKeyAdded = false;
         if (fkSpecifications != null && refMiam != null && refSpecifications != null)
         {
           string refMiaTableName = GetMIATableName(refMiam);
           string fkDependencyMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_" + refMiaTableName + "_FK", "FK");
-          List<string> fkColumns = new List<string>(new string[]
-            { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME }
-          );
+          List<string> fkColumns = new List<string>(new string[] { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME });
           fkColumns.AddRange(fkSpecifications.Select(s => GetMIAAttributeColumnName(s)));
 
-          List<string> refColumns = new List<string>(new string[]
-            { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME }
-          );
+          List<string> refColumns = new List<string>(new string[] { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME });
           refColumns.AddRange(refSpecifications.Select(s => GetMIAAttributeColumnName(s)));
 
           additionalAttributesConstraints.Add("CONSTRAINT " + fkDependencyMediaItemConstraintName +
                   " FOREIGN KEY (" + string.Join(", ", fkColumns) + ")" +
                   " REFERENCES " + refMiaTableName + " (" + string.Join(", ", refColumns) + ") ON DELETE CASCADE");
+          foreignKeyAdded = true;
         }
 
         // Main table
@@ -1023,10 +1024,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         string pkConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_PK", "PK");
         string fkMediaItemConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_MEDIA_ITEMS_FK", "FK");
         mainStatementBuilder.Append(
-            "CONSTRAINT " + pkConstraintName1 + " PRIMARY KEY (" + string.Join(",", keyColumns) + "), " +
-            "CONSTRAINT " + fkMediaItemConstraintName1 +
-            " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ") REFERENCES " +
-                MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE");
+            "CONSTRAINT " + pkConstraintName1 + " PRIMARY KEY (" + string.Join(",", keyColumns) + ")");
+        if(!foreignKeyAdded)
+        {
+          //Avoid circular foreign keys
+          additionalAttributesConstraints.Add("CONSTRAINT " + fkMediaItemConstraintName1 +
+                  " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
+                  " REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE");
+        }
         if (additionalAttributesConstraints.Count > 0)
         {
           mainStatementBuilder.Append(", ");

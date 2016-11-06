@@ -284,7 +284,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (SetSeriesId(episodeMatch, match.Id))
             {
-              if (episodeInfo.LastChanged > _lastCacheRefresh)
+              if (episodeInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && episodeInfo.LastChanged > _lastCacheRefresh)
                 return true;
 
               seriesMatchFound = true;
@@ -426,7 +426,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (episodeInfo.DvdEpisodeNumbers.Count == 0)
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers, true);
       if (episodeInfo.Genres.Count == 0)
+      {
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
+      }
+      if (episodeInfo.Genres.Count > 0)
+      {
+        episodeInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episodeInfo.Genres);
+      }
 
       //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
       //So changes to these lists will only be stored if something else has changed.
@@ -455,7 +461,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //Searching for this series by name only failed so stop trying.
               return false;
             }
-            else if (seriesInfo.LastChanged > _lastCacheRefresh)
+            else if (seriesInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && seriesInfo.LastChanged > _lastCacheRefresh)
               return true;
           }
         }
@@ -536,8 +542,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Score, seriesMatch.Score);
 
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref seriesInfo.Rating, seriesMatch.Rating);
-          if(seriesInfo.Genres.Count == 0)
+          if (seriesInfo.Genres.Count == 0)
+          {
             seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres, true);
+          }
+          if (seriesInfo.Genres.Count > 0)
+          {
+            seriesInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(seriesInfo.Genres);
+          }
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Awards, seriesMatch.Awards, true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.

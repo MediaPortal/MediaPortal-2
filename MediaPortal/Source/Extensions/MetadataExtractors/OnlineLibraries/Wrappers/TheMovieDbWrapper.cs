@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -222,7 +223,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       movie.Budget = movieDetail.Budget ?? 0;
       movie.CollectionMovieDbId = movieDetail.Collection != null ? movieDetail.Collection.Id : 0;
       movie.CollectionName = movieDetail.Collection != null ? movieDetail.Collection.Name : null;
-      movie.Genres = movieDetail.Genres.Select(g => g.Name).ToList();
+      movie.Genres = ConvertToMovieGenreIds(movieDetail.Genres);
       movie.MovieName = new SimpleTitle(movieDetail.Title, false);
       movie.OriginalName = movieDetail.OriginalTitle;
       movie.Summary = movieDetail.Overview;
@@ -380,7 +381,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       series.Description = new SimpleTitle(seriesDetail.Overview, false);
       series.Popularity = seriesDetail.Popularity ?? 0;
       series.Rating = new SimpleRating(seriesDetail.Rating, seriesDetail.RatingCount);
-      series.Genres = seriesDetail.Genres.Select(g => g.Name).ToList();
+      series.Genres = ConvertToSeriesGenreIds(seriesDetail.Genres);
       series.Networks = ConvertToCompanies(seriesDetail.Networks, CompanyAspect.COMPANY_TV_NETWORK);
       series.ProductionCompanies = ConvertToCompanies(seriesDetail.ProductionCompanies, CompanyAspect.COMPANY_PRODUCTION);
       if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
@@ -448,7 +449,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
               EpisodeName = new SimpleTitle(episodeDetail.Name, false),
               Summary = new SimpleTitle(episodeDetail.Overview, false),
-              Genres = seriesDetail.Genres.Select(g => g.Name).ToList(),
+              Genres = ConvertToSeriesGenreIds(seriesDetail.Genres)
             };
 
             episodeInfo.Actors = new List<PersonInfo>();
@@ -558,7 +559,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
             EpisodeName = new SimpleTitle(episodeDetail.Name, false),
             Summary = new SimpleTitle(episodeDetail.Overview, false),
-            Genres = seriesDetail.Genres.Select(g => g.Name).ToList(),
+            Genres = ConvertToSeriesGenreIds(seriesDetail.Genres)
           };
 
           info.Actors = new List<PersonInfo>();
@@ -753,6 +754,105 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         });
       }
       return retValue;
+    }
+
+    private List<GenreInfo> ConvertToMovieGenreIds(List<Genre> genres)
+    {
+      List<GenreInfo> movieGenres = new List<GenreInfo>();
+      foreach (Genre genre in genres)
+      {
+        if (genre.Id == 28)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.ACTION, Name = genre.Name });
+        else if (genre.Id == 12)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.ADVENTURE, Name = genre.Name });
+        else if (genre.Id == 16)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.ANIMATION, Name = genre.Name });
+        else if (genre.Id == 35)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.COMEDY, Name = genre.Name });
+        else if (genre.Id == 80)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.CRIME, Name = genre.Name });
+        else if (genre.Id == 99)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.DOCUMENTARY, Name = genre.Name });
+        else if (genre.Id == 18)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.DRAMA, Name = genre.Name });
+        else if (genre.Id == 10751)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.FAMILY, Name = genre.Name });
+        else if (genre.Id == 14)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.FANTASY, Name = genre.Name });
+        else if (genre.Id == 36)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.HISTORY, Name = genre.Name });
+        else if (genre.Id == 27)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.HORROR, Name = genre.Name });
+        else if (genre.Id == 10402)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.MUSIC, Name = genre.Name });
+        else if (genre.Id == 9648)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.MYSTERY, Name = genre.Name });
+        else if (genre.Id == 10749)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.ROMANCE, Name = genre.Name });
+        else if (genre.Id == 878)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.SCIENCE_FICTION, Name = genre.Name });
+        else if (genre.Id == 10770)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.TV_MOVIE, Name = genre.Name });
+        else if (genre.Id == 53)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.THRILLER, Name = genre.Name });
+        else if (genre.Id == 10752)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.WAR, Name = genre.Name });
+        else if (genre.Id == 37)
+          movieGenres.Add(new GenreInfo { Id = MovieGenre.WESTERN, Name = genre.Name });
+      }
+      return movieGenres;
+    }
+
+    private List<GenreInfo> ConvertToSeriesGenreIds(List<Genre> genres)
+    {
+      List<GenreInfo> seriesGenres = new List<GenreInfo>();
+      foreach (Genre genre in genres)
+      {
+        if (genre.Id == 10759)
+        {
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.ACTION, Name = genre.Name });
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.ADVENTURE, Name = genre.Name });
+        }
+        else if (genre.Id == 16)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.ANIMATION, Name = genre.Name });
+        else if (genre.Id == 35)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.COMEDY, Name = genre.Name });
+        else if (genre.Id == 80)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.CRIME, Name = genre.Name });
+        else if (genre.Id == 99)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.DOCUMENTARY, Name = genre.Name });
+        else if (genre.Id == 18)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.DRAMA, Name = genre.Name });
+        else if (genre.Id == 10751)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.FAMILY, Name = genre.Name });
+        else if (genre.Id == 10762)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.KIDS, Name = genre.Name });
+        else if (genre.Id == 14)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.FANTASY, Name = genre.Name });
+        else if (genre.Id == 10763)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.NEWS, Name = genre.Name });
+        else if (genre.Id == 10764)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.REALITY, Name = genre.Name });
+        else if (genre.Id == 10765)
+        {
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.SCIENCE_FICTION, Name = genre.Name });
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.FANTASY, Name = genre.Name });
+        }
+        else if (genre.Id == 9648)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.MYSTERY, Name = genre.Name });
+        else if (genre.Id == 10766)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.SOAP, Name = genre.Name });
+        else if (genre.Id == 10767)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.TALK, Name = genre.Name });
+        else if (genre.Id == 10768)
+        {
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.WAR, Name = genre.Name });
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.POLITICS, Name = genre.Name });
+        }
+        else if (genre.Id == 37)
+          seriesGenres.Add(new GenreInfo { Id = SeriesGenre.WESTERN, Name = genre.Name });
+      }
+      return seriesGenres;
     }
 
     #endregion

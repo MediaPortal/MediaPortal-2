@@ -29,15 +29,15 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesFilterByGenreScreenData : AbstractSeriesFilterScreenData<FilterItem>
+  public class SeriesFilterByGenreScreenData : AbstractSeriesFilterScreenData<GenreFilterItem>
   {
     public SeriesFilterByGenreScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_GENRE, Consts.RES_FILTER_BY_VIDEO_GENRE_MENU_ITEM,
-        Consts.RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(SeriesAspect.ATTR_GENRES, Consts.NECESSARY_SERIES_MIAS))
+        Consts.RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(GenreAspect.ATTR_ID, GenreAspect.ATTR_GENRE, Consts.NECESSARY_SERIES_GENRE_MIAS))
     {
     }
 
-    public override AbstractFiltersScreenData<FilterItem> Derive()
+    public override AbstractFiltersScreenData<GenreFilterItem> Derive()
     {
       return new SeriesFilterByGenreScreenData();
     }

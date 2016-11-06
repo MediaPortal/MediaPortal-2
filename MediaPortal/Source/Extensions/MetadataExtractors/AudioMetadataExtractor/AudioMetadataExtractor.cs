@@ -542,7 +542,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             IEnumerable<string> genres = tag.Tag.Genres;
             if ((tag.TagTypes & TagTypes.Id3v2) != 0)
               genres = PatchID3v23Enumeration(genres);
-            trackInfo.Genres = new List<string>(ApplyAdditionalSeparator(genres));
+            trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s }).ToList();
+            OnlineMatcherService.Instance.AssignMissingMusicGenreIds(trackInfo.Genres);
           }
 
           int year = (int)tag.Tag.Year;
@@ -628,7 +629,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         if (refresh)
         {
-          if (!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Artists.Count > 0)
+          if ((IncludeArtistDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Artists.Count > 0) ||
+            (IncludeComposerDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Composers.Count > 0))
           {
             trackInfo.HasChanged = true;
           }

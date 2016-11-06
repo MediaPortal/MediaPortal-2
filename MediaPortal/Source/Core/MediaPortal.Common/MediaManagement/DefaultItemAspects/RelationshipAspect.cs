@@ -41,19 +41,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// The role played by this media item
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ROLE =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Role", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Role", typeof(Guid), Cardinality.Inline, false);
 
     /// <summary>
     /// The role played by the media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_LINKED_ROLE =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedRole", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedRole", typeof(Guid), Cardinality.Inline, false);
 
     /// <summary>
     /// The media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_LINKED_ID =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedID", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedID", typeof(Guid), Cardinality.Inline, false);
 
     /// <summary>
     /// The index of the media item being linked to

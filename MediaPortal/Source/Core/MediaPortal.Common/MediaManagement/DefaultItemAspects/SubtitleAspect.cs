@@ -55,7 +55,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Resource index for this subtitle.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_INDEX =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Video resource index the subtitle belongs to.
@@ -67,7 +67,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// The index the stream inside the container. Use -1 for external subtitles.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_STREAM_INDEX =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("StreamIndex", typeof(int), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("StreamIndex", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
     /// Encoding. TODO: Describe format.
@@ -91,13 +91,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Set to <c>true</c> if this subtitle item is the default.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_DEFAULT =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsDefault", typeof(bool), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsDefault", typeof(bool), Cardinality.Inline, true);
 
     /// <summary>
     /// Set to <c>true</c> if this subtitle item is forced.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_FORCED =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsForced", typeof(bool), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsForced", typeof(bool), Cardinality.Inline, true);
 
     /// <summary>
     /// Subtitle language stored as <see cref="CultureInfo.TwoLetterISOLanguageName"/>.

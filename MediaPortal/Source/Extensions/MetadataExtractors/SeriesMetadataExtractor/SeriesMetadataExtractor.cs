@@ -228,8 +228,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       if(refresh)
       {
-        if((!BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Characters.Count > 0) ||
-          (!BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ASPECT_ID) && episodeInfo.Actors.Count > 0))
+        if((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Actors.Count > 0) ||
+          (IncludeCharacterDetails && !BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ASPECT_ID) && episodeInfo.Characters.Count > 0) ||
+          (IncludeDirectorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Directors.Count > 0) ||
+          (IncludeWriterDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Writers.Count > 0) ||
+          (!BaseInfo.HasRelationship(extractedAspectData, SeriesAspect.ASPECT_ID) && !episodeInfo.SeriesName.IsEmpty) ||
+          (!BaseInfo.HasRelationship(extractedAspectData, SeasonAspect.ASPECT_ID) && episodeInfo.SeasonNumber.HasValue))
         {
           episodeInfo.HasChanged = true;
         }

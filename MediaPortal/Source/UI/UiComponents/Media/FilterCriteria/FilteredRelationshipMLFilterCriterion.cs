@@ -100,7 +100,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
       if (_sortInformation != null)
         query.SortInformation = new List<SortInformation> { _sortInformation };
-      IList<MediaItem> items = cd.Search(query, true, userProfile, ShowVirtual);
+      IList<MediaItem> items = cd.Search(query, true, userProfile, ShowVirtualMedia);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)
       {

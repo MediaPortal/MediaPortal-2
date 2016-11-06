@@ -41,7 +41,7 @@ namespace MediaItemAspectModelBuilder
       List<Type> typeList = new List<Type> {
         typeof(MediaAspect),
         typeof(ImporterAspect),
-        typeof(VideoAspect),
+        typeof(VideoAspect), typeof(GenreAspect),
         typeof(VideoStreamAspect), typeof(VideoAudioStreamAspect),
         typeof(AudioAspect), typeof(AudioAlbumAspect),
         typeof(ImageAspect),
