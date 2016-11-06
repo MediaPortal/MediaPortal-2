@@ -15,11 +15,12 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="620"/>
+    <ColumnDefinition Width="590"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Image Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill" Margin="0,10,10,0" Height="280" Width="190">
+  <Image Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill"
+         Margin="0,10,10,0" Width="270" Height="385">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                           Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}">
@@ -33,22 +34,6 @@
       </VisualBrush>
     </Image.OpacityMask>
   </Image>
-
-  <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                       Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-    <media:UserDataWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,0,-10,0" >
-            <Image.Source>
-              <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
-            </Image.Source>
-          </Image>
-        </Grid>
-      </ControlTemplate>
-    </media:UserDataWrapper.Template>
-  </media:UserDataWrapper>
 
   <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
                               Grid.Column="0" Grid.Row="0" Margin="0,0,10,0">
@@ -73,24 +58,24 @@
                    IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
                    Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
           </StackPanel>
+          <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+            <media:UserDataWrapper.Template>
+              <ControlTemplate>
+                <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,10,10" >
+                    <Image.Source>
+                      <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+                    </Image.Source>
+                  </Image>
+                </Grid>
+              </ControlTemplate>
+            </media:UserDataWrapper.Template>
+          </media:UserDataWrapper>
         </StackPanel>
       </ControlTemplate>
     </media:SeasonAspectWrapper.Template>
-</media:SeasonAspectWrapper>
-
-  <StackPanel Orientation="Vertical" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="0,0,0,5">
-    <!--media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:VideoAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre" Opacity="0.5" FontSize="{ThemeResource SmallFontSize}"
-                   Content="{Binding Genres}" Color="{ThemeResource TextColor}" />
-          </Grid>
-        </ControlTemplate>
-      </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper-->
-    
-  </StackPanel>
+  </media:SeasonAspectWrapper>
 
   <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
                              Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="0,30,0,10" Height="440">

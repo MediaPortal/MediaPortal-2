@@ -71,7 +71,7 @@
               <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}" 
                      IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
-            </StackPanel> 
+            </StackPanel>
           </StackPanel>
 
           <Label x:Name="Description" Grid.Row="0" Grid.Column="1" Margin="0,45,0,20" TextTrimming="WordEllipsis" 
@@ -81,26 +81,5 @@
       </ControlTemplate>
     </media:AudioAlbumAspectWrapper.Template>
   </media:AudioAlbumAspectWrapper>
-  
-  <!--media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:MediaAspectWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="0" Grid.Column="1">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="32" Margin="0,8,0,0" Grid.Row="0" Grid.Column="0"  >
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding Path="PlayCount"/>
-                <Binding Source=""/>
-                <Binding Source="unheard_icon.png"/>
-              </MultiBinding>
-            </Image.Source>
-          </Image>
-         </Grid>
-      </ControlTemplate>
-    </media:MediaAspectWrapper.Template>
-  </media:MediaAspectWrapper-->
 
 </Grid>

@@ -66,19 +66,28 @@
     <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MovieAspectWrapper.Template>
         <ControlTemplate>
-          <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Duration" Color="{ThemeResource TextColor}"
-                    Content="{Binding Path=Runtime, Converter={StaticResource DurationConverter}, ConverterParameter=hh\:mm}" />
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,6,0,5">
-              <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                               Maximum="10" Value="{Binding TotalRating}">
-                <StarRatingPanel.LayoutTransform>
-                  <TransformGroup>
-                    <ScaleTransform ScaleX="1.7" ScaleY="1.5"/>
-                  </TransformGroup>
-                </StarRatingPanel.LayoutTransform>
-              </StarRatingPanel>
-            </StackPanel>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6,0,5"
+                      DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
+                             Maximum="5" VerticalAlignment="Center"
+                             IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+              <StarRatingPanel.Value>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
+                  <Binding Path="TotalRating"/>
+                </MultiBinding>
+              </StarRatingPanel.Value>
+              <StarRatingPanel.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1.7" ScaleY="1.5"/>
+                </TransformGroup>
+              </StarRatingPanel.LayoutTransform>
+            </StarRatingPanel>
+            <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" Opacity="0.4" VerticalAlignment="Center"
+                   FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0">
+              <Label.Content>
+                <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
+              </Label.Content>
+            </Label>
           </StackPanel>
         </ControlTemplate>
       </media:MovieAspectWrapper.Template>
