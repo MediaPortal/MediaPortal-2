@@ -4,11 +4,13 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,30,20,-230"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="Auto"/>
@@ -105,35 +107,15 @@
         </media:MediaAspectWrapper.Template>
       </media:MediaAspectWrapper>
 
-    <StackPanel Orientation="Horizontal" MaxWidth="580">  
-      <StackPanel.Resources>
-        <ControlTemplate x:Key="Genre_Template">
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; {1}">
-                <Binding Path="AspectIndex"/>
-                <Binding Path="AspectCount"/>
-              </MultiBinding>
-            </Grid.IsVisible>
-            <Label x:Name="Genre" Opacity="1.3" TextTrimming="WordEllipsis"
-                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}">
-              <Label.Content>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} &lt; ({1}-1)) &amp;&amp; ({0} &lt; 3) ? {2}+{3} : {2}">
-                  <Binding Path="AspectIndex"/>
-                  <Binding Path="AspectCount"/>
-                  <Binding Path="Genre"/>
-                  <Binding Source=", "/>
-                </MultiBinding>
-              </Label.Content>
-            </Label>
-          </Grid>
-        </ControlTemplate>
-      </StackPanel.Resources>
-      <media:GenreAspectWrapper AspectIndex="0" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Template="{StaticResource Genre_Template}"/>
-      <media:GenreAspectWrapper AspectIndex="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Template="{StaticResource Genre_Template}"/>
-      <media:GenreAspectWrapper AspectIndex="2" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Template="{StaticResource Genre_Template}"/>
-      <media:GenreAspectWrapper AspectIndex="3" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Template="{StaticResource Genre_Template}"/>
-    </StackPanel>
+    <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+           Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
+           <Label.Content>
+             <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+               <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+               <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+             </MultiBinding>
+           </Label.Content>
+    </Label>
     
     <StackPanel Orientation="Horizontal">
       <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
