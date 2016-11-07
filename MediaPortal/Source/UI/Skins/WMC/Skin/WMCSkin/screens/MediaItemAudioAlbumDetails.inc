@@ -29,7 +29,7 @@
                 <media:MediaAspectWrapper.Template>
                   <ControlTemplate>
                     <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-                      <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+                      <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Opacity="1.2"
                           Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
                     </Grid>
                   </ControlTemplate>
@@ -52,7 +52,7 @@
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
                 <Label x:Name="RatingCountLabel" Color="{ThemeResource MenuTextBackground}" VerticalAlignment="Center"
-                       FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0">
+                       FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0" Opacity="1.2">
                   <Label.Content>
                     <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
                   </Label.Content>
@@ -64,7 +64,7 @@
               <media:GenreAspectWrapper.Template>
                 <ControlTemplate>
                   <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                    <Label x:Name="Genre" Content="{Binding Genre}" Opacity="1.3"
+                    <Label x:Name="Genre" Content="{Binding Genre}" Opacity="1.2"
                            IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"
                            Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
                   </Grid>
@@ -74,11 +74,11 @@
             
             <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
-              <Label x:Name="NumTracks" Content="{Binding Tracks}" 
+              <Label x:Name="NumTracks" Content="{Binding Tracks}" Opacity="1.2"
                      Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
               <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}" 
-                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="1.2"/>
             </StackPanel>
           </StackPanel>
 

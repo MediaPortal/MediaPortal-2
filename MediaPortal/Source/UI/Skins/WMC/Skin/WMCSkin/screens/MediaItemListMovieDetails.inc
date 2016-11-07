@@ -20,7 +20,7 @@
   </Grid.ColumnDefinitions>
 
   <Image Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill"
-         Margin="0,10,10,0" Width="270" Height="385">
+         Margin="0,10,10,0" Width="270" Height="390">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                      Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}"/>
