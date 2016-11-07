@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: This screen should be adapted to match its special function, i.e. add images etc. -->
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\SimpleShowItems.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Appearance of the background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="UniformToFill" Grid.Row="0" Grid.Column="0"
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                                Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+          </Image.Source>
+        </Image>
+      </Grid>
+    </ControlTemplate>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ImageItemsHeader]"/>
+
+  </Include.Resources>
+</Include>
