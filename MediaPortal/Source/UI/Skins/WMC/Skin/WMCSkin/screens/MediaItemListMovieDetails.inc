@@ -105,17 +105,36 @@
         </media:MediaAspectWrapper.Template>
       </media:MediaAspectWrapper>
 
-    <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:VideoAspectWrapper.Template>
-        <ControlTemplate>
+    <StackPanel Orientation="Horizontal" MaxWidth="580">  
+      <StackPanel.Resources>
+        <ControlTemplate x:Key="Genre_Template">
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
-                Content="{Binding Genres}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; {1}">
+                <Binding Path="AspectIndex"/>
+                <Binding Path="AspectCount"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+            <Label x:Name="Genre" Opacity="1.3" TextTrimming="WordEllipsis"
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} &lt; ({1}-1)) &amp;&amp; ({0} &lt; 3) ? {2}+{3} : {2}">
+                  <Binding Path="AspectIndex"/>
+                  <Binding Path="AspectCount"/>
+                  <Binding Path="Genre"/>
+                  <Binding Source=", "/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
           </Grid>
         </ControlTemplate>
-      </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
-
+      </StackPanel.Resources>
+      <media:GenreAspectWrapper AspectIndex="0" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Template="{StaticResource Genre_Template}"/>
+      <media:GenreAspectWrapper AspectIndex="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Template="{StaticResource Genre_Template}"/>
+      <media:GenreAspectWrapper AspectIndex="2" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Template="{StaticResource Genre_Template}"/>
+      <media:GenreAspectWrapper AspectIndex="3" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Template="{StaticResource Genre_Template}"/>
+    </StackPanel>
+    
     <StackPanel Orientation="Horizontal">
       <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
         <media:MovieAspectWrapper.Template>

@@ -105,7 +105,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="470"/>
+        <ColumnDefinition Width="500"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="360"/>
         <ColumnDefinition Width="150"/>
@@ -125,13 +125,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Button.Triggers>
       </Button>
 
-      <StackPanel Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Top" Orientation="Vertical">
-        <Label x:Name="SelectedItem"
-                Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName, Converter={StaticResource StringCaseConverter}, ConverterParameter={x:Static bvc:StringConversion.LowerCase}}"
-                VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
-                Color="{ThemeResource TextColor}">
-        </Label>
-      </StackPanel>
+      <Control x:Name="HeaderControl" Grid.Row="0" Grid.Column="0" Margin="145,-5,0,0" VerticalAlignment="Top"
+               Template="{DynamicResource ResourceKey=Header_Text_Template}">
+      </Control>
 
       <!-- Main Menu Group tabs -->
       <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="1"

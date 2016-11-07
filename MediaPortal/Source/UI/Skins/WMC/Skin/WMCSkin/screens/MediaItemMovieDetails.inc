@@ -90,17 +90,18 @@
         </media:MovieAspectWrapper.Template>
       </media:MovieAspectWrapper>
     </StackPanel>
-    
-    <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:VideoAspectWrapper.Template>
+
+    <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:GenreAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" TextTrimming="WordEllipsis"
-                   Content="{Binding Genres}" Color="{ThemeResource MenuTextBackground}" Margin="0,0,10,0"/>
+            <Label x:Name="Genre" Content="{Binding Genre}" Opacity="1.3" Margin="0,0,10,0"
+                   IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
-      </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
+      </media:GenreAspectWrapper.Template>
+    </media:GenreAspectWrapper>
 
       <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
         <media:MovieAspectWrapper.Template>

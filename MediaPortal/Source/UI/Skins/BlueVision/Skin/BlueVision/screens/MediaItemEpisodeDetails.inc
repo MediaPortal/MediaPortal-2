@@ -85,19 +85,17 @@
             </media:EpisodeAspectWrapper.Template>
           </media:EpisodeAspectWrapper>
         </StackPanel>
-      
-      <Grid VerticalAlignment="Center">
-        <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-          <media:VideoAspectWrapper.Template>
-            <ControlTemplate>
-              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Label x:Name="Genre"  Margin="0,0,-10,0"
-                       Content="{Binding Genres}" Color="{ThemeResource TextColor}" />
-              </Grid>
-            </ControlTemplate>
-          </media:VideoAspectWrapper.Template>
-        </media:VideoAspectWrapper>
-      </Grid>
+
+    <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:GenreAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label x:Name="Genre" Content="{Binding Genre}" Color="{ThemeResource TextColor}" Margin="-10,0,0,0"
+                   IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          </Grid>
+        </ControlTemplate>
+      </media:GenreAspectWrapper.Template>
+    </media:GenreAspectWrapper>
 
     <DockPanel LastChildFill="False">
       <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"

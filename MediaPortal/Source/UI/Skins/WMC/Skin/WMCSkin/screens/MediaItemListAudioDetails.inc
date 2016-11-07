@@ -137,10 +137,10 @@
           </Grid>
         </ControlTemplate>
       </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>   
-    
-    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
+
+    <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:GenreAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
@@ -149,12 +149,12 @@
             </Grid.ColumnDefinitions>            
             <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioGenresLabel]" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
-            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Genre" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+                Content="{Binding Genre}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
-      </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>
+      </media:GenreAspectWrapper.Template>
+    </media:GenreAspectWrapper>
 
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>

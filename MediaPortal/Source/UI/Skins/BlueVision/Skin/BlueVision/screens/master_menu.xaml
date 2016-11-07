@@ -51,6 +51,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Include.Resources>
     <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="HeaderLabel" FontFamily="DefaultBold" FontSize="{ThemeResource BiggerFontSize}"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}"
+               Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
+      </Label>
+    </ControlTemplate>
+
     <ControlTemplate x:Key="Menu_Button_Placeholder">
       <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}"
               HorizontalAlignment="Right" VerticalAlignment="Center"

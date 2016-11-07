@@ -68,10 +68,18 @@
               </StackPanel>
             </StackPanel>
 
-            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1" Content="{Binding Genres}"
-                   IsVisible="{Binding Path=Genres,Converter={StaticResource ReferenceToBoolConverter}}"
-                   Color="{ThemeResource TextColor}" Opacity="0.4"/>
-
+            <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                          Grid.Row="0" Grid.Column="1">
+              <media:GenreAspectWrapper.Template>
+                <ControlTemplate>
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                    <Label x:Name="Genre" Content="{Binding Genre}" Color="{ThemeResource TextColor}" Opacity="0.4"
+                           IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                  </Grid>
+                </ControlTemplate>
+              </media:GenreAspectWrapper.Template>
+            </media:GenreAspectWrapper>
+            
             <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
               <Label x:Name="NumTracks" Content="{Binding Tracks}"

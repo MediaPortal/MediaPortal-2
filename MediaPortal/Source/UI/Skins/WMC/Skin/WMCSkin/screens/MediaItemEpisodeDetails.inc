@@ -99,8 +99,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label x:Name="FirstAired" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                   IsVisible="{Binding Path=FirstAired,Converter={StaticResource ReferenceToBoolConverter}}"
-                   Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" />
+                   IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" />
           </Grid>
         </ControlTemplate>
       </media:EpisodeAspectWrapper.Template>
@@ -145,16 +145,17 @@
       </media:EpisodeAspectWrapper.Template>
     </media:EpisodeAspectWrapper>
 
-    <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:VideoAspectWrapper.Template>
+    <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:GenreAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre" Opacity="1.3" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
-                   Content="{Binding Genres}" Color="{ThemeResource MenuTextBackground}" Margin="0,0,100,0"/>
+            <Label x:Name="Genre" Content="{Binding Genre}" Opacity="1.3"
+                   IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
-      </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
+      </media:GenreAspectWrapper.Template>
+    </media:GenreAspectWrapper>
 
     <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoStreamAspectWrapper.Template>

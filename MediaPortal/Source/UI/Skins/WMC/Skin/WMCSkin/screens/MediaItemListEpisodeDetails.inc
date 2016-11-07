@@ -117,17 +117,18 @@
         </ControlTemplate>
       </media:MediaAspectWrapper.Template>
     </media:MediaAspectWrapper>
-    
-    <media:VideoAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:VideoAspectWrapper.Template>
+
+    <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:GenreAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre"  FontSize="{ThemeResource SmallFontSize}"
-                   Content="{Binding Genres}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" />
+            <Label x:Name="Genre" Content="{Binding Genre}" Opacity="1.3"
+                   IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
-      </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
+      </media:GenreAspectWrapper.Template>
+    </media:GenreAspectWrapper>
 
     <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoStreamAspectWrapper.Template>
