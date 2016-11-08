@@ -48,6 +48,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     #endregion
 
+    #region Classes
+
+    protected class FanartDownload<T>
+    {
+      public T Id { get; set; }
+      public string DownloadId { get; set; }
+    }
+
+    #endregion
+
     #region Fields
 
     protected abstract string MatchesSettingsFile { get; }
@@ -60,7 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// <summary>
     /// Contains the Series ID for Downloading FanArt asynchronously.
     /// </summary>
-    protected UniqueEventedQueue<string> _downloadQueue = new UniqueEventedQueue<string>();
+    protected UniqueEventedQueue<FanartDownload<TId>> _downloadQueue = new UniqueEventedQueue<FanartDownload<TId>>();
     protected List<Thread> _downloadThreads = new List<Thread>(MAX_FANART_DOWNLOADERS);
     protected bool _downloadFanart = true;
     protected volatile bool _downloadAllowed = true;
@@ -141,13 +151,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     {
       if (!_downloadFanart)
         return true;
-      bool fanArtDownloaded = !force && CheckBeginDownloadFanArt(id, downloadId);
+
+      FanartDownload<TId> fanartDownload = new FanartDownload<TId> { Id = id, DownloadId = downloadId };
+      bool fanArtDownloaded = !force && CheckBeginDownloadFanArt(fanartDownload);
       if (fanArtDownloaded)
         return true;
 
       lock (_downloadQueue.SyncObj)
       {
-        bool newEnqueued = _downloadQueue.TryEnqueue(downloadId);
+        bool newEnqueued = _downloadQueue.TryEnqueue(fanartDownload);
         if (newEnqueued && _downloadThreads.Count < _downloadThreads.Capacity)
         {
           Thread downloader = new Thread(DownloadFanArtQueue) { Name = "FanArt Downloader " + _downloadThreads.Count, Priority = ThreadPriority.Lowest };
@@ -172,17 +184,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       _downloadThreads.Clear();
     }
 
-    protected bool CheckBeginDownloadFanArt(TId id, string downloadId)
+    protected bool CheckBeginDownloadFanArt(FanartDownload<TId> fanartDownload)
     {
       bool fanArtDownloaded = false;
       lock (_syncObj)
       {
         // Load cache or create new list
         List<TMatch> matches = _storage.GetMatches();
-        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(id)))
+        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(fanartDownload.Id)))
         {
           if (string.IsNullOrEmpty(match.FanArtDownloadId))
-            match.FanArtDownloadId = downloadId;
+            match.FanArtDownloadId = fanartDownload.DownloadId;
 
           // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
           if (match.FanArtDownloadFinished.HasValue)
@@ -196,13 +208,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       return fanArtDownloaded;
     }
 
-    protected void FinishDownloadFanArt(TId itemId)
+    protected void FinishDownloadFanArt(FanartDownload<TId> fanartDownload)
     {
       lock (_syncObj)
       {
         // Load cache or create new list
         List<TMatch> matches = _storage.GetMatches();
-        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(itemId)))
+        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(fanartDownload.Id)))
           if (!match.FanArtDownloadFinished.HasValue)
             match.FanArtDownloadFinished = DateTime.Now;
 
@@ -239,18 +251,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       while (_downloadAllowed)
       {
         _downloadQueue.OnEnqueued.WaitOne(1000);
-        string downloadId;
+        FanartDownload<TId> fanartDownload;
         lock (_downloadQueue.SyncObj)
         {
           if (_downloadQueue.Count == 0)
             continue;
-          downloadId = _downloadQueue.Dequeue();
+          fanartDownload = _downloadQueue.Dequeue();
         }
-        DownloadFanArt(downloadId);
+        DownloadFanArt(fanartDownload);
       }
     }
 
-    protected abstract void DownloadFanArt(string downloadId);
+    protected abstract void DownloadFanArt(FanartDownload<TId> fanartDownload);
 
     #region IDisposable members
 
