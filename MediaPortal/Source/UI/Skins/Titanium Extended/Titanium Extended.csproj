@@ -284,7 +284,11 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\theme.xml" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\workflow\BlueVision-actions.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
     <None Include="packages.config" />
@@ -504,6 +508,16 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\superlayers\Volume.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesFilterByName.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SeriesFilterBySeason.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

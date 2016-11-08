@@ -20,7 +20,7 @@
   </Grid.ColumnDefinitions>
 
   <Image Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" 
-         Stretch="Fill" Margin="0,10,10,0" Width="210" Height="210">
+         Stretch="Fill" Margin="0,10,10,0" Width="300" Height="300">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                           Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
@@ -137,10 +137,10 @@
           </Grid>
         </ControlTemplate>
       </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>   
-    
-    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
+
+    <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:GenreAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
@@ -149,12 +149,12 @@
             </Grid.ColumnDefinitions>            
             <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
                 Content="[Media.AudioGenresLabel]" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
-            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Genre" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+                Content="{Binding Genre}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
-      </media:AudioAspectWrapper.Template>
-    </media:AudioAspectWrapper>
+      </media:GenreAspectWrapper.Template>
+    </media:GenreAspectWrapper>
 
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>

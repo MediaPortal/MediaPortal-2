@@ -4,8 +4,13 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails"
-  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+  x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+  <Grid.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
+  </Grid.Resources>
 
   <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:AudioAlbumAspectWrapper.Template>
@@ -29,7 +34,7 @@
                 <media:MediaAspectWrapper.Template>
                   <ControlTemplate>
                     <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-                      <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+                      <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Opacity="1.2"
                           Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
                     </Grid>
                   </ControlTemplate>
@@ -52,26 +57,32 @@
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
                 <Label x:Name="RatingCountLabel" Color="{ThemeResource MenuTextBackground}" VerticalAlignment="Center"
-                       FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0">
+                       FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0" Opacity="1.2">
                   <Label.Content>
                     <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
                   </Label.Content>
                 </Label>
               </StackPanel>
             </StackPanel>
-            
-            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1" Content="{Binding Genres}" 
-                   IsVisible="{Binding Path=Genres,Converter={StaticResource ReferenceToBoolConverter}}"
-                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>   
+
+              <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Grid.Row="0" Grid.Column="1"
+                     Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                    <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+                    <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
             
             <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
-              <Label x:Name="NumTracks" Content="{Binding Tracks}" 
+              <Label x:Name="NumTracks" Content="{Binding Tracks}" Opacity="1.2"
                      Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
               <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}" 
-                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
-            </StackPanel> 
+                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="1.2"/>
+            </StackPanel>
           </StackPanel>
 
           <Label x:Name="Description" Grid.Row="0" Grid.Column="1" Margin="0,45,0,20" TextTrimming="WordEllipsis" 
@@ -81,26 +92,5 @@
       </ControlTemplate>
     </media:AudioAlbumAspectWrapper.Template>
   </media:AudioAlbumAspectWrapper>
-  
-  <!--media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:MediaAspectWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="0" Grid.Column="1">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="32" Margin="0,8,0,0" Grid.Row="0" Grid.Column="0"  >
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding Path="PlayCount"/>
-                <Binding Source=""/>
-                <Binding Source="unheard_icon.png"/>
-              </MultiBinding>
-            </Image.Source>
-          </Image>
-         </Grid>
-      </ControlTemplate>
-    </media:MediaAspectWrapper.Template>
-  </media:MediaAspectWrapper-->
 
 </Grid>

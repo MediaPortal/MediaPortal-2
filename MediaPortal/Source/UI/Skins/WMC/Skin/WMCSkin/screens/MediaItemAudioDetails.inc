@@ -4,8 +4,8 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails"
-  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+  x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
   <Grid.RowDefinitions>
     <RowDefinition Height="190"/>
   </Grid.RowDefinitions>
@@ -14,9 +14,12 @@
     <ColumnDefinition Width="100"/>
   </Grid.ColumnDefinitions>
 
+  <Grid.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
+  </Grid.Resources>
   
   <WrapPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0">
-
     <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:AudioAspectWrapper.Template>
         <ControlTemplate>
@@ -129,9 +132,16 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>            
             <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.AudioGenresLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
+                   Content="[Media.AudioGenresLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
             <Label x:Name="Genres" Grid.Row="0" Grid.Column="1"
-                Content="{Binding Genres}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                   Content="{Binding Genres}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                  <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+                  <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+                </MultiBinding>
+              </Label.Content>
+            </Label>
           </Grid>
         </ControlTemplate>
       </media:AudioAspectWrapper.Template>

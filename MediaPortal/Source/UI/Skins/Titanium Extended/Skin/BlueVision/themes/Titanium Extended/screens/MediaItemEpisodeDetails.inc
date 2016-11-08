@@ -71,7 +71,7 @@
             <Label x:Name="FirstAiredLabel" Grid.Row="1" Grid.Column="0"
                    Content="[Media.FirstAiredLabel]" Color="{ThemeResource EmphasisTextColor}"/>           
             <Label x:Name="FirstAired" Grid.Row="1" Grid.Column="1" 
-                   Content="{Binding Path=FirstAired, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>       
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Color="{ThemeResource TextColor}"/>       
             
             <Label x:Name="SeasonLabel" Grid.Row="2" Grid.Column="0"
                 Content="[Media.SeriesSeasonLabel]" Color="{ThemeResource EmphasisTextColor}"/>         

@@ -7,6 +7,16 @@
     xmlns:bv="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
     >
   <Include.Resources>
+    
+    <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+    
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="SelectedItem"
+                Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
+                VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
+                Color="{ThemeResource TextColor}">
+      </Label>
+    </ControlTemplate>
 
     <ControlTemplate x:Key="Menu_Button_Dummy">
       <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}"

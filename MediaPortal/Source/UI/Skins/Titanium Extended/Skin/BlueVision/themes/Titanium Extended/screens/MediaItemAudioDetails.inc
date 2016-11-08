@@ -70,8 +70,18 @@
 
             <Label x:Name="GenresLabel" Grid.Row="2" Grid.Column="0"
                 Content="[Media.AudioGenresLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-            <Label x:Name="Genres" Grid.Row="2" Grid.Column="1"
-                Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
+            
+            <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                                      Grid.Row="2" Grid.Column="1">
+              <media:GenreAspectWrapper.Template>
+                <ControlTemplate>
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                    <Label x:Name="Genre" Content="{Binding Genre}" Color="{ThemeResource TextColor}"
+                           IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                  </Grid>
+                </ControlTemplate>
+              </media:GenreAspectWrapper.Template>
+            </media:GenreAspectWrapper>
 
             <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0"
                 Content="[Media.AudioDurationLabel]" Color="{ThemeResource EmphasisTextColor}"/>

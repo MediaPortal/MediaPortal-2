@@ -686,6 +686,7 @@
     <None Include="Skin\BlueVision\fonts\FiraSansOT-Light.ttf" />
     <None Include="Skin\BlueVision\fonts\FiraSansOT-Regular.ttf" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemsListHeader.inc" />
+    <None Include="Skin\BlueVision\screens\MediaItemAudioAlbumDetails.inc" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\default\styles\Graphics.xaml">

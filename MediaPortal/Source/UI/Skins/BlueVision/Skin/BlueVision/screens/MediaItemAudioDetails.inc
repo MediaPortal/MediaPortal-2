@@ -130,8 +130,17 @@
             </Grid.ColumnDefinitions>            
             <Label x:Name="GenresLabel" Grid.Row="0" Grid.Column="0"
                 Content="[Media.AudioGenresLabel]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-            <Label x:Name="Genres" Grid.Row="0" Grid.Column="1"
-                Content="{Binding Genres}" Color="{ThemeResource TextColor}"/>
+            <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                          Grid.Row="0" Grid.Column="1">
+              <media:GenreAspectWrapper.Template>
+                <ControlTemplate>
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                    <Label x:Name="Genre" Content="{Binding Genre}" Color="{ThemeResource TextColor}"
+                           IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                  </Grid>
+                </ControlTemplate>
+              </media:GenreAspectWrapper.Template>
+            </media:GenreAspectWrapper>
           </Grid>
         </ControlTemplate>
       </media:AudioAspectWrapper.Template>
