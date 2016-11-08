@@ -19,13 +19,13 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 
       MediaItem mi = values[0].Value as MediaItem;
       if (mi == null)
-        return false;
+        return true;
       MediaItemAspectMetadata.MultipleAttributeSpecification mas = values[1].Value as MediaItemAspectMetadata.MultipleAttributeSpecification;
       if (mas == null)
-        return false;
+        return true;
       List<object> results;
       if (!MediaItemAspect.TryGetAttribute(mi.Aspects, mas, out results) || results.Count == 0)
-        return false;
+        return true;
 
       string separator = parameter as string;
       if (string.IsNullOrEmpty(separator))
