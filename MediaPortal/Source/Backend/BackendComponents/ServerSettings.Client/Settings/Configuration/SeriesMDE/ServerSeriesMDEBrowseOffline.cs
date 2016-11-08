@@ -26,6 +26,7 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor;
+using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {

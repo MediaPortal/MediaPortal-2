@@ -34,6 +34,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {

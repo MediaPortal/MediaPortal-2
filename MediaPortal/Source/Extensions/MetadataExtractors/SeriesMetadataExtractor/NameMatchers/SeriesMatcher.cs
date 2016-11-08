@@ -32,6 +32,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 using System.Collections.Generic;
 using System.Globalization;
+using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {

@@ -28,6 +28,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor;
+using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
