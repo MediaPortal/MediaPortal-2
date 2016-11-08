@@ -30,7 +30,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
@@ -44,6 +43,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public bool BuildRelationship
     {
       get { return true; }
+    }
+
+    public bool IsHierarchyRelationship
+    {
+      get { return false; }
     }
 
     public Guid Role
@@ -64,6 +68,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public Guid[] LinkedRoleAspects
     {
       get { return LINKED_ROLE_ASPECTS; }
+    }
+
+    public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute
+    {
+      get { return null; }
+    }
+
+    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute
+    {
+      get { return null; }
     }
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)

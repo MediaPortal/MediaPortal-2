@@ -276,14 +276,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    protected class ChildCountDefinition
-    {
-      public Guid ParentRole { get; set; }
-      public MediaItemAspectMetadata ParentMiaType { get; set; }
-      public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute { get; set; }
-      public bool IncludeVirtual { get; set; }
-    }
-
     #endregion
 
     #region Consts
@@ -304,9 +296,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IImportResultHandler _importResultHandler;
     protected AsynchronousMessageQueue _messageQueue;
     protected bool _shutdown = false;
-
-    protected Dictionary<Guid, List<Guid>> _virtualRoleHierarchy = new Dictionary<Guid, List<Guid>>();
-    protected Dictionary<Guid, List<ChildCountDefinition>> _virtualRoleHierarchyChildCount = new Dictionary<Guid, List<ChildCountDefinition>>();
     protected Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
     protected Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
 
@@ -1928,6 +1917,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       try
       {
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         using (IDbCommand command = transaction.CreateCommand())
         {
           //Find parent if possible
@@ -1940,24 +1930,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           bool allParentsDeleted = true;
           List<Guid> parentsToDelete = new List<Guid>();
           List<Guid> childsToDelete = new List<Guid>();
-          foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+          foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
           {
-            foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+            foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
             {
+              if (!roleExtractor.IsHierarchyRelationship)
+                continue;
+
               parentId = null;
               parentIdColumn = null;
               parentRoleColumn = null;
               childIdColumn = null;
               childRoleColumn = null;
 
-              if (TryFindParent(database, transaction, mediaItemId, childRole, parentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+              if (TryFindParent(database, transaction, mediaItemId, roleExtractor.Role, roleExtractor.LinkedRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
               {
                 hasParent = true;
 
                 command.Parameters.Clear();
                 database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
-                database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
+                database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
 
                 //Find all childs
                 List<Guid> childs = new List<Guid>();
@@ -2122,6 +2115,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       try
       {
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         using (IDbCommand command = transaction.CreateCommand())
         {
           //Find parent if possible
@@ -2132,10 +2126,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string childRoleColumn = null;
           List<Guid> parentsToDelete = new List<Guid>();
           List<Guid> childsToDelete = new List<Guid>();
-          foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+          foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
           {
-            foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+            foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
             {
+              if (!roleExtractor.IsHierarchyRelationship)
+                continue;
+
               parentId = null;
               parentId = null;
               parentIdColumn = null;
@@ -2143,15 +2140,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               childIdColumn = null;
               childRoleColumn = null;
 
-              if (TryFindParent(database, transaction, mediaItemId, childRole, parentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+              if (TryFindParent(database, transaction, mediaItemId, roleExtractor.Role, roleExtractor.LinkedRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
               {
                 int totalCount = 0;
                 int availableCount = 0;
 
                 command.Parameters.Clear();
                 database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
-                database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
+                database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
+
+                string collectionJoin = "";
+                if(roleExtractor.ChildCountAttribute != null && roleExtractor.ChildCountAttribute.IsCollectionAttribute && roleExtractor.ChildCountAttribute.Cardinality == Cardinality.ManyToMany)
+                {
+                  collectionJoin = " LEFT OUTER JOIN " + _miaManagement.GetMIACollectionAttributeNMTableName(roleExtractor.ChildCountAttribute) + " NM ON NM." +
+                    MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn;
+                }
 
                 //Find all childs
                 List<Guid> childs = new List<Guid>();
@@ -2161,6 +2165,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
                     " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
                     " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                    collectionJoin +
                     " WHERE R." + childRoleColumn + " = @ROLE_ID" +
                     " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
                     " AND R." + parentIdColumn + " = @ITEM_ID";
@@ -2185,12 +2190,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 int isVirtual = 0;
                 if (allChildsAreVirtual == true)
                 {
-                  Logger.Debug("MediaLibrary: All children with role {0} of parent media item {1} with role {2} are virtual", childRole, parentId.Value, parentRole);
+                  Logger.Debug("MediaLibrary: All children with role {0} of parent media item {1} with role {2} are virtual", roleExtractor.Role, parentId.Value, roleExtractor.LinkedRole);
                   isVirtual = 1;
                 }
                 else
                 {
-                  Logger.Debug("MediaLibrary: Not all children with role {0} of parent media item {1} with role {2} are virtual", childRole, parentId.Value, parentRole);
+                  Logger.Debug("MediaLibrary: Not all children with role {0} of parent media item {1} with role {2} are virtual", roleExtractor.Role, parentId.Value, roleExtractor.LinkedRole);
                 }
 
                 command.Parameters.Clear();
@@ -2202,23 +2207,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
                 command.ExecuteNonQuery();
 
-                if(_virtualRoleHierarchyChildCount.ContainsKey(childRole))
+                if(roleExtractor.ParentCountAttribute != null)
                 {
-                  foreach (ChildCountDefinition def in _virtualRoleHierarchyChildCount[childRole])
-                  {
-                    if(def.ParentRole == parentRole)
-                    {
-                      //Set parent child count
-                      command.CommandText = "UPDATE " + _miaManagement.GetMIATableName(def.ParentMiaType) +
-                      " SET " + _miaManagement.GetMIAAttributeColumnName(def.ChildCountAttribute) + " = " + 
-                      (def.IncludeVirtual ? totalCount : availableCount) +
-                      " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
-                      command.ExecuteNonQuery();
-                    }
-                  }
+                  //Set parent child count
+                  command.CommandText = "UPDATE " + _miaManagement.GetMIATableName(roleExtractor.ParentCountAttribute.ParentMIAM) +
+                  " SET " + _miaManagement.GetMIAAttributeColumnName(roleExtractor.ParentCountAttribute) + " = " + availableCount +
+                  " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
+                  command.ExecuteNonQuery();
                 }
 
-                Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} to virtual = {2}", parentId.Value, parentRole, isVirtual);
+                Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} to virtual = {2}", parentId.Value, roleExtractor.LinkedRole, isVirtual);
               }
             }
           }
@@ -2235,16 +2233,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       try
       {
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         using (IDbCommand command = transaction.CreateCommand())
         {
-          foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+          foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
           {
-            foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+            foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
             {
+              if (!roleExtractor.IsHierarchyRelationship)
+                continue;
+
               command.Parameters.Clear();
               database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
-              database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
-              database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
+              database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
+              database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
 
               //Find parents
               Dictionary<Guid, Guid> userDataParent = new Dictionary<Guid, Guid>();
@@ -2279,8 +2281,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 //Find children
                 command.Parameters.Clear();
                 database.AddParameter(command, "ITEM_ID", key.Key, typeof(Guid));
-                database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
+                database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
                 database.AddParameter(command, "USER_PROFILE_ID", key.Value, typeof(Guid));
                 database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
 
@@ -2347,7 +2349,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
                 if (command.ExecuteNonQuery() > 0)
                 {
-                  Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", key.Key, parentRole, watchPercentage);
+                  Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", key.Key, roleExtractor.LinkedRole, watchPercentage);
                 }
               }
             }
@@ -2363,10 +2365,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void UpdateParentPlayUserData(Guid userProfileId, Guid mediaItemId)
     {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
-      
       try
       {
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         Dictionary<Guid, int> parentPercentages = new Dictionary<Guid, int>();
         using (ITransaction transaction = database.BeginTransaction())
         {
@@ -2378,10 +2380,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             string parentRoleColumn = null;
             string childIdColumn = null;
             string childRoleColumn = null;
-            foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+            foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
             {
-              foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+              foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
               {
+                if (!roleExtractor.IsHierarchyRelationship)
+                  continue;
+
                 parentId = null;
                 parentId = null;
                 parentIdColumn = null;
@@ -2389,12 +2394,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 childIdColumn = null;
                 childRoleColumn = null;
 
-                if (TryFindParent(database, transaction, mediaItemId, childRole, parentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+                if (TryFindParent(database, transaction, mediaItemId, roleExtractor.Role, roleExtractor.LinkedRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
                 {
                   command.Parameters.Clear();
                   database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
-                  database.AddParameter(command, "ROLE_ID", childRole, typeof(Guid));
-                  database.AddParameter(command, "PARENT_ROLE_ID", parentRole, typeof(Guid));
+                  database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
+                  database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
                   database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
                   database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
 
@@ -2434,7 +2439,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   if (watchPercentage >= 100)
                     watchPercentage = 100;
                   parentPercentages.Add(parentId.Value, watchPercentage);
-                  Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", parentId.Value, parentRole, watchPercentage);
+                  Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", parentId.Value, roleExtractor.LinkedRole, watchPercentage);
                 }
               }
             }
@@ -2457,23 +2462,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private void UpdateChildPlayUserData(Guid userProfileId, Guid mediaItemId, bool watched)
     {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
-
       try
       {
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         Dictionary<Guid, int> childPlayCounts = new Dictionary<Guid, int>();
         using (ITransaction transaction = database.BeginTransaction())
         {
           using (IDbCommand command = transaction.CreateCommand())
           {
-            foreach (Guid childRole in _virtualRoleHierarchy.Keys)
+            foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
             {
-              foreach (Guid parentRole in _virtualRoleHierarchy[childRole])
+              foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
               {
+                if (!roleExtractor.IsHierarchyRelationship)
+                  continue;
+
                 command.Parameters.Clear();
                 database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", parentRole, typeof(Guid));
-                database.AddParameter(command, "CHILD_ROLE_ID", childRole, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
+                database.AddParameter(command, "CHILD_ROLE_ID", roleExtractor.Role, typeof(Guid));
                 database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
                 database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
 
@@ -2677,15 +2685,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refMiam, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
-    {
-      if (_miaManagement.AddMediaItemAspectStorage(miam, fkSpecs, refMiam, refSpecs))
-      {
-        Logger.Info("MediaLibrary: Media item aspect storage for MIA type '{0}' (name '{1}') with dependency on MIA type '{2}' (name '{3}') was added", miam.AspectId, miam.Name, refMiam.AspectId, refMiam.Name);
-        ContentDirectoryMessaging.SendMIATypesChangedMessage();
-      }
-    }
-
     public void RemoveMediaItemAspectStorage(Guid aspectId)
     {
       if (_miaManagement.RemoveMediaItemAspectStorage(aspectId))
@@ -2708,28 +2707,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public MediaItemAspectMetadata GetManagedMediaItemAspectMetadata(Guid aspectId)
     {
       return _miaManagement.GetMediaItemAspectMetadata(aspectId);
-    }
-
-    public void RegisterMediaItemAspectRoleHierarchy(Guid childRole, Guid parentRole)
-    {
-      if(!_virtualRoleHierarchy.ContainsKey(childRole))
-        _virtualRoleHierarchy.Add(childRole, new List<Guid>());
-      _virtualRoleHierarchy[childRole].Add(parentRole);
-    }
-
-    public void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType,
-      MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual)
-    {
-      if (!_virtualRoleHierarchyChildCount.ContainsKey(childRole))
-        _virtualRoleHierarchyChildCount.Add(childRole, new List<ChildCountDefinition>());
-      ChildCountDefinition def = new ChildCountDefinition()
-      {
-        ParentRole = parentRole,
-        ParentMiaType = parentMiaType,
-        ChildCountAttribute = childCountAttribute,
-        IncludeVirtual = includeVirtual
-      };
-      _virtualRoleHierarchyChildCount[childRole].Add(def);
     }
 
     #endregion

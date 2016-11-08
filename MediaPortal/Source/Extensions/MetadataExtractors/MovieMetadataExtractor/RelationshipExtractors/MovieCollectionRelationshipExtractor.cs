@@ -44,6 +44,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return true; }
     }
 
+    public bool IsHierarchyRelationship
+    {
+      get { return true; }
+    }
+
     public Guid Role
     {
       get { return MovieAspect.ROLE_MOVIE; }
@@ -62,6 +67,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public Guid[] LinkedRoleAspects
     {
       get { return LINKED_ROLE_ASPECTS; }
+    }
+
+    public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute
+    {
+      get { return MovieAspect.ATTR_MOVIE_NAME; }
+    }
+
+    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute
+    {
+      get { return MovieCollectionAspect.ATTR_AVAILABLE_MOVIES; }
     }
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)

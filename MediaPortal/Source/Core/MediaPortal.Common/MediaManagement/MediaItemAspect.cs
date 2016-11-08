@@ -497,7 +497,7 @@ namespace MediaPortal.Common.MediaManagement
       for(int index = 0; index < aspects.Count; index++)
       {
         MediaItemAspect aspect = aspects[index];
-        if (value.Metadata.UniqueAttributeSpecifications.All(spec => aspect[spec].Equals(value[spec])))
+        if (value.Metadata.UniqueAttributeSpecifications.Values.All(spec => aspect[spec].Equals(value[spec])))
           return index;
       }
 

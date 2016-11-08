@@ -909,11 +909,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
-      return AddMediaItemAspectStorage(miam, null, null, null);
-    }
-
-    public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] fkSpecifications, MediaItemAspectMetadata refMiam, MediaItemAspectMetadata.AttributeSpecification[] refSpecifications)
-    {
       if (miam.IsTransientAspect)
         return true;
 
@@ -955,7 +950,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             case Cardinality.Inline:
               terms.Add(attributeColumnName + " " + sqlType);
-              if (miam is MultipleMediaItemAspectMetadata && ((MultipleMediaItemAspectMetadata)miam).UniqueAttributeSpecifications.Contains(spec))
+              if (miam is MultipleMediaItemAspectMetadata && ((MultipleMediaItemAspectMetadata)miam).UniqueAttributeSpecifications.Values.Contains(spec))
                 keyColumns.Add(attributeColumnName);
               break;
             case Cardinality.OneToMany:
@@ -999,22 +994,45 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         //Add dependency if any
         bool foreignKeyAdded = false;
-        if (fkSpecifications != null && refMiam != null && refSpecifications != null)
+        SingleMediaItemAspectMetadata smiam = miam as SingleMediaItemAspectMetadata;
+        MultipleMediaItemAspectMetadata mmiam = miam as MultipleMediaItemAspectMetadata;
+        if ((smiam != null && smiam.ReferencingAspectId.HasValue) || (mmiam != null && mmiam.ReferencingAspectId.HasValue))
         {
-          string refMiaTableName = GetMIATableName(refMiam);
-          string fkDependencyMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_" + refMiaTableName + "_FK", "FK");
-          List<string> fkColumns = new List<string>(new string[] { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME });
-          fkColumns.AddRange(fkSpecifications.Select(s => GetMIAAttributeColumnName(s)));
+          MediaItemAspectMetadata.AttributeSpecification[] fkSpecifications = null;
+          MediaItemAspectMetadata refMiam = null;
+          MediaItemAspectMetadata.AttributeSpecification[] refSpecifications = null;
+          if (smiam != null && smiam.ReferencingAspectId.HasValue && _managedMIATypes.ContainsKey(smiam.ReferencingAspectId.Value))
+          {
+            fkSpecifications = smiam.ReferencedAttributeSpecifications.Values.Count > 0 ? smiam.ReferencedAttributeSpecifications.Values.ToArray() : null;
+            refMiam = _managedMIATypes[smiam.ReferencingAspectId.Value];
+            if (refMiam is MultipleMediaItemAspectMetadata && ((MultipleMediaItemAspectMetadata)refMiam).UniqueAttributeSpecifications.Values.Count > 0)
+              refSpecifications = ((MultipleMediaItemAspectMetadata)refMiam).UniqueAttributeSpecifications.Values.ToArray();
+          }
+          else if (mmiam != null && mmiam.ReferencingAspectId.HasValue && _managedMIATypes.ContainsKey(mmiam.ReferencingAspectId.Value))
+          {
+            fkSpecifications = mmiam.ReferencedAttributeSpecifications.Values.Count > 0 ? mmiam.ReferencedAttributeSpecifications.Values.ToArray() : null;
+            refMiam = _managedMIATypes[mmiam.ReferencingAspectId.Value];
+            if (refMiam is MultipleMediaItemAspectMetadata && ((MultipleMediaItemAspectMetadata)refMiam).UniqueAttributeSpecifications.Values.Count > 0)
+              refSpecifications = ((MultipleMediaItemAspectMetadata)refMiam).UniqueAttributeSpecifications.Values.ToArray();
+          }
+          if (refMiam != null)
+          {
+            string refMiaTableName = GetMIATableName(refMiam);
+            string fkDependencyMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_" + refMiaTableName + "_FK", "FK");
+            List<string> fkColumns = new List<string>(new string[] { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME });
+            if(fkSpecifications != null)
+              fkColumns.AddRange(fkSpecifications.Select(s => GetMIAAttributeColumnName(s)));
+            List<string> refColumns = new List<string>(new string[] { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME });
+            if (refSpecifications != null)
+              refColumns.AddRange(refSpecifications.Select(s => GetMIAAttributeColumnName(s)));
 
-          List<string> refColumns = new List<string>(new string[] { MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME });
-          refColumns.AddRange(refSpecifications.Select(s => GetMIAAttributeColumnName(s)));
-
-          additionalAttributesConstraints.Add("CONSTRAINT " + fkDependencyMediaItemConstraintName +
-                  " FOREIGN KEY (" + string.Join(", ", fkColumns) + ")" +
-                  " REFERENCES " + refMiaTableName + " (" + string.Join(", ", refColumns) + ") ON DELETE CASCADE");
-          foreignKeyAdded = true;
+            additionalAttributesConstraints.Add("CONSTRAINT " + fkDependencyMediaItemConstraintName +
+                    " FOREIGN KEY (" + string.Join(", ", fkColumns) + ")" +
+                    " REFERENCES " + refMiaTableName + " (" + string.Join(", ", refColumns) + ") ON DELETE CASCADE");
+            foreignKeyAdded = true;
+          }
         }
-
+        
         // Main table
         foreach (string term in terms)
         {
@@ -1415,7 +1433,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         MultipleMediaItemAspectMetadata mmiam = miam as MultipleMediaItemAspectMetadata;
         if (mmiam != null)
         {
-          foreach (MediaItemAspectMetadata.AttributeSpecification spec in mmiam.UniqueAttributeSpecifications.Where(x => !x.IsCollectionAttribute))
+          foreach (MediaItemAspectMetadata.AttributeSpecification spec in mmiam.UniqueAttributeSpecifications.Values.Where(x => !x.IsCollectionAttribute))
           {
             string name = GetMIAAttributeColumnName(spec);
             command.CommandText += " AND " + name + " = @" + name;
@@ -1540,7 +1558,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             else
             {
               // Unique attributes cannot be set in an update (they are part of the where clause)
-              if (mmiam != null && mmiam.UniqueAttributeSpecifications.Contains(spec))
+              if (mmiam != null && mmiam.UniqueAttributeSpecifications.Values.Contains(spec))
                 terms3.Add("AND " + attrColName + " = @" + bindVarName);
               else
                 terms1.Add(attrColName + " = @" + bindVarName);

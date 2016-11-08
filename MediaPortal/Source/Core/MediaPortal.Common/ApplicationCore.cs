@@ -198,41 +198,21 @@ namespace MediaPortal.Common
 
       miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(GenreAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoStreamAspect.Metadata, 
-        new MediaItemAspectMetadata.AttributeSpecification[] { VideoStreamAspect.Metadata.AttributeSpecifications[VideoStreamAspect.ATTR_RESOURCE_INDEX.AttributeName] },
-        ProviderResourceAspect.Metadata,
-        new MediaItemAspectMetadata.AttributeSpecification[] { ProviderResourceAspect.Metadata.AttributeSpecifications[ProviderResourceAspect.ATTR_RESOURCE_INDEX.AttributeName] });
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioStreamAspect.Metadata,
-        new MediaItemAspectMetadata.AttributeSpecification[] { VideoAudioStreamAspect.Metadata.AttributeSpecifications[VideoAudioStreamAspect.ATTR_RESOURCE_INDEX.AttributeName] },
-        ProviderResourceAspect.Metadata,
-        new MediaItemAspectMetadata.AttributeSpecification[] { ProviderResourceAspect.Metadata.AttributeSpecifications[ProviderResourceAspect.ATTR_RESOURCE_INDEX.AttributeName] });
-      miatr.RegisterLocallyKnownMediaItemAspectType(SubtitleAspect.Metadata,
-        new MediaItemAspectMetadata.AttributeSpecification[] { SubtitleAspect.Metadata.AttributeSpecifications[SubtitleAspect.ATTR_RESOURCE_INDEX.AttributeName] },
-        ProviderResourceAspect.Metadata,
-        new MediaItemAspectMetadata.AttributeSpecification[] { ProviderResourceAspect.Metadata.AttributeSpecifications[ProviderResourceAspect.ATTR_RESOURCE_INDEX.AttributeName] });
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoStreamAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioStreamAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(SubtitleAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);
-      miatr.RegisterMediaItemAspectRoleHierarchy(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAlbumAspect.Metadata, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS, false);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
-      miatr.RegisterMediaItemAspectRoleHierarchy(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.Metadata, SeriesAspect.ATTR_AVAILABLE_EPISODES, false);
-      miatr.RegisterMediaItemAspectRoleHierarchy(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.Metadata, SeasonAspect.ATTR_AVAILABLE_EPISODES, false);
-      miatr.RegisterMediaItemAspectRoleHierarchy(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.Metadata, SeriesAspect.ATTR_AVAILABLE_SEASONS, false);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MovieCollectionAspect.Metadata);
-      miatr.RegisterMediaItemAspectRoleHierarchy(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION);
-      miatr.RegisterMediaItemAspectRoleHierarchyChildCountAttribute(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieCollectionAspect.Metadata, 
-        MovieCollectionAspect.ATTR_AVAILABLE_MOVIES, false);
 
       miatr.RegisterLocallyKnownMediaItemAspectType(CompanyAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(PersonAspect.Metadata);

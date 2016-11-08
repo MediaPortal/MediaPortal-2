@@ -92,6 +92,30 @@ namespace MediaPortal.Mock
       }
     }
 
+    public bool IsHierarchyRelationship
+    {
+      get
+      {
+        return false;
+      }
+    }
+
+    public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute
+    {
+      get
+      {
+        return null;
+      }
+    }
+
+    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute
+    {
+      get
+      {
+        return null;
+      }
+    }
+
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       List<IFilter> searchFilters = new List<IFilter>();

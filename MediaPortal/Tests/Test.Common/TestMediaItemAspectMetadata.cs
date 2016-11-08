@@ -118,7 +118,7 @@ namespace Test.Common
 
       Assert.AreEqual(src.Metadata.UniqueAttributeSpecifications.Count, dest.UniqueAttributeSpecifications.Count, "Attribute unique spec count");
 
-      AssertMultipleMIAMSpec(src.Metadata.UniqueAttributeSpecifications, dest.UniqueAttributeSpecifications, src.ATTR_ID);
+      AssertMultipleMIAMSpec(src.Metadata.UniqueAttributeSpecifications.Values, dest.UniqueAttributeSpecifications.Values, src.ATTR_ID);
     }
   }
 }
