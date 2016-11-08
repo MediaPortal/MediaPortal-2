@@ -28,6 +28,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using MediaPortal.Extensions.OnlineLibraries.Matches;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -127,10 +128,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override void DownloadFanArt(string downloadId)
+    protected override void DownloadFanArt(FanartDownload<string> fanartDownload)
     {
       // No fanart to download
-      FinishDownloadFanArt(downloadId);
+      FinishDownloadFanArt(fanartDownload);
     }
 
     #endregion
