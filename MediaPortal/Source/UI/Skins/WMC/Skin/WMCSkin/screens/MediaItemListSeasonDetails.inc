@@ -4,11 +4,13 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,30,20,-200"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="Auto"/>
@@ -46,6 +48,7 @@
               <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
             </Label.Content>
           </Label>
+
           <StackPanel Orientation="Horizontal">
             <Label Content="[Media.SeasonRootViewName]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
             <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"
@@ -58,6 +61,17 @@
                    IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
                    Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
           </StackPanel>
+
+          <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+                 Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+
           <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
             <media:UserDataWrapper.Template>
               <ControlTemplate>

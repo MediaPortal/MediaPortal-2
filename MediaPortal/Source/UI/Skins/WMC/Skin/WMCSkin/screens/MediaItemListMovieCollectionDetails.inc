@@ -4,11 +4,13 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,30,20,-230"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="Auto"/>
@@ -46,7 +48,7 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-                   Content="{Binding CollectionName}" Color="{ThemeResource TextColor}"/>
+                   Content="{Binding CollectionName}" Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis"/>
           </Grid>
         </ControlTemplate>
       </media:MovieCollectionAspectWrapper.Template>
@@ -55,10 +57,10 @@
     <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Movies}"
-               Margin="0,0,8,0" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
+               Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.MoviesItemsHeader]"
                IsVisible="{Binding Path=Movies,Converter={StaticResource ReferenceToBoolConverter}}"
-               Margin="0,0,8,0" Opacity="1.1" Color="{ThemeResource MenuTextBackground}"/>
+               Margin="0,0,8,0" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
       </StackPanel>
     </StackPanel>
 

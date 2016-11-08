@@ -4,11 +4,13 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,30,20,-230"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="Auto"/>
@@ -118,17 +120,15 @@
       </media:MediaAspectWrapper.Template>
     </media:MediaAspectWrapper>
 
-    <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:GenreAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="Genre" Content="{Binding Genre}" Opacity="1.3"
-                   IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"
-                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:GenreAspectWrapper.Template>
-    </media:GenreAspectWrapper>
+    <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+       Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
+      <Label.Content>
+        <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+          <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+          <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+        </MultiBinding>
+      </Label.Content>
+    </Label>
 
     <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoStreamAspectWrapper.Template>
