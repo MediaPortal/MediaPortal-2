@@ -58,31 +58,31 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Enumeration of actor name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ACTORS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Actors", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesActors", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Enumeration of fictional character name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CHARACTERS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Characters", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesCharacters", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Contains list of awards.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Awards", 20, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesAwards", 20, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// List of TV networks involved in making the series.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_NETWORKS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Networks", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesNetworks", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// List of production company's involved in making the series.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPANIES =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Companies", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("SeriesCompanies", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Contains the certification.

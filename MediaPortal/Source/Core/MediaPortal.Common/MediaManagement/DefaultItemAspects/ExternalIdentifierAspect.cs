@@ -76,13 +76,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Source of the identifier
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_SOURCE =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Source", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Source", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// The type of identifier
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_TYPE =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Type", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Type", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Source type's unique id

@@ -52,19 +52,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Enumeration of artist names.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ARTISTS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// List of music labels involved in making the album.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_LABELS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Labels", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AlbumLabels", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Contains list of awards.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Awards", 20, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AlbumAwards", 20, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// If set to <c>true</c>, the album is a compilation of music from various artists.

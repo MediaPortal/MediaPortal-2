@@ -46,7 +46,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Enumeration of artist names.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ARTISTS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AudioArtists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Album name.
@@ -94,13 +94,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Enumeration of album artist name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ALBUMARTISTS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AudioAlbumArtists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Enumeration of composer name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPOSERS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AudioComposers", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Encoding as string. TODO: Describe format.
