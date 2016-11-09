@@ -45,6 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     private const string GROUP_SERIES = "series";
     private const string GROUP_SEASONNUM = "seasonnum";
     private const string GROUP_EPISODENUM = "episodenum";
+    private const string GROUP_ENDEPISODENUM = "endepisodenum";
     private const string GROUP_EPISODE = "episode";
     private const string GROUP_YEAR = "year";
 
@@ -157,11 +158,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       if (group.Length > 0)
       {
         List<int> episodeNums = new List<int>();
-        foreach (Capture capture in group.Captures)
+        if (group.Captures.Count > 1)
         {
-          int episodeNum;
-          if (int.TryParse(capture.Value, out episodeNum))
-            episodeNums.Add(episodeNum);
+          foreach (Capture capture in group.Captures)
+          {
+            int episodeNum;
+            if (int.TryParse(capture.Value, out episodeNum))
+              episodeNums.Add(episodeNum);
+          }
+        }
+        else if(ma.Groups[GROUP_ENDEPISODENUM].Length > 0)
+        {
+          int start;
+          if (int.TryParse(group.Value, out start))
+          {
+            int end;
+            group = ma.Groups[GROUP_ENDEPISODENUM];
+            if (group.Length > 0 && int.TryParse(group.Value, out end))
+            {
+              for(int episode = start; episode <= end; episode++)
+              {
+                episodeNums.Add(episode);
+              }
+            }
+          }
         }
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeNums, true);
       }
