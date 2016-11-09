@@ -73,7 +73,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains list of awards.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_AWARDS =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MovieAwards", 20, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Awards", 20, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Contains a short comment for the movie.
@@ -85,7 +85,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// List of production company's involved in making the movie.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPANIES =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("MovieCompanies", 100, Cardinality.ManyToMany, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Companies", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
     /// Contains a popularity of movies, based on user votings.

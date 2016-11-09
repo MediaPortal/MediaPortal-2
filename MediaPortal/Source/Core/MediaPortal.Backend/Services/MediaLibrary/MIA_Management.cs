@@ -324,8 +324,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <param name="objectIdentifier">Technical indentifier to be mapped to a table name for our DB.</param>
     /// <param name="desiredName">Root name to start the name generation. Will be converted to a valid SQL identifier
     /// and clipped, if necessary.</param>
+    /// <param name="allowExisting">Allow same name to exist in cache. This usually only true for having the same column
+    /// name in multiple tables.
     /// <returns>Table name corresponding to the specified table identifier.</returns>
-    private string GenerateDBObjectName(ITransaction transaction, Guid aspectId, string objectIdentifier, string desiredName)
+    private string GenerateDBObjectName(ITransaction transaction, Guid aspectId, string objectIdentifier, string desiredName, bool allowExisting = false)
     {
       lock (_syncObj)
       {
@@ -336,7 +338,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         uint ct = 0;
         string result;
         desiredName = SqlUtils.ToSQLIdentifier(desiredName);
-        if (!NamePresent(desiredName))
+        if (!NamePresent(desiredName) || allowExisting)
           result = desiredName;
         else
           while (NamePresent(result = ConcatNameParts(desiredName, ct, maxLen)))
@@ -368,19 +370,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     internal string GenerateMIAAttributeColumnName(ITransaction transaction, MediaItemAspectMetadata.AttributeSpecification spec)
     {
       string identifier = GetMIAAttributeColumnIdentifier(spec);
-      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, spec.AttributeName);
+      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, spec.AttributeName, true);
     }
 
     internal string GenerateMIACollectionAttributeTableName(ITransaction transaction, MediaItemAspectMetadata.AttributeSpecification spec)
     {
       string identifier = GetMIACollectionAttributeTableIdentifier(spec);
-      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, "V_" + spec.AttributeName);
+      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, "V_" + spec.ParentMIAM.Name + "_" + spec.AttributeName);
     }
 
     internal string GenerateMIACollectionAttributeNMTableName(ITransaction transaction, MediaItemAspectMetadata.AttributeSpecification spec)
     {
       string identifier = GetMIACollectionAttributeNMTableIdentifier(spec);
-      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, "NM_" + spec.AttributeName);
+      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, "NM_" + spec.ParentMIAM.Name + "_" + spec.AttributeName);
     }
 
     #endregion
@@ -946,6 +948,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string sqlType = spec.AttributeType == typeof(string) ? database.GetSQLVarLengthStringType(spec.MaxNumChars) :
               database.GetSQLType(spec.AttributeType);
           string attributeColumnName = GenerateMIAAttributeColumnName(transaction, spec);
+          string attributeColumnIdentifier = GetMIAAttributeColumnIdentifier(spec);
           switch (spec.Cardinality)
           {
             case Cardinality.Inline:
@@ -960,7 +963,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               // Create foreign table - the join attribute will be located in the main MIA table
               // We need to create the "One" table first because the main table references on it
               collectionAttributeTableName = GenerateMIACollectionAttributeTableName(transaction, spec);
-              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_PK", "PK");
+              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_PK", "PK");
 
               using (IDbCommand command = transaction.CreateCommand())
               {
@@ -976,7 +979,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
 
               // Create foreign table - the join attribute will be located in the main MIA table
-              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, "MIA_" + collectionAttributeTableName + "_FK", "FK");
+              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_FK", "FK");
 
               terms.Add(attributeColumnName + " " + database.GetSQLType(typeof(Guid)));
               additionalAttributesConstraints.Add("CONSTRAINT " + fkMediaItemConstraintName +
@@ -1039,7 +1042,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           mainStatementBuilder.Append(term);
           mainStatementBuilder.Append(", ");
         }
-        string pkConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_PK", "PK");
+        string pkConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_PK", miaTableName + "_PK");
         string fkMediaItemConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_MEDIA_ITEMS_FK", "FK");
         mainStatementBuilder.Append(
             "CONSTRAINT " + pkConstraintName1 + " PRIMARY KEY (" + string.Join(",", keyColumns) + ")");
@@ -1079,13 +1082,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string sqlType = spec.AttributeType == typeof(string) ? database.GetSQLVarLengthStringType(spec.MaxNumChars) :
               database.GetSQLType(spec.AttributeType);
           string attributeColumnName = GetMIAAttributeColumnName(spec); // Name was already generated in previous loop
+          string attributeColumnIdentifier = GetMIAAttributeColumnIdentifier(spec);
           switch (spec.Cardinality)
           {
             case Cardinality.Inline:
               if (spec.IsIndexed)
               {
                 // Value index
-                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnName + "_IDX", "IDX");
+                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
                   command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + attributeColumnName + ")";
@@ -1099,8 +1103,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             case Cardinality.OneToMany:
               // Create foreign table with the join attribute inside
               collectionAttributeTableName = GetMIACollectionAttributeTableName(spec); // Name was already generated in previous loop
-              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_PK", "PK");
-              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_MEDIA_ITEM_FK", "FK");
+              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_PK", "PK");
+              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_MEDIA_ITEM_FK", "FK");
 
               using (IDbCommand command = transaction.CreateCommand())
               {
@@ -1120,7 +1124,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
 
               // Foreign key index
-              indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_FK_IDX", "IDX");
+              indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_FK_IDX", "IDX");
               using (IDbCommand command = transaction.CreateCommand())
               {
                 command.CommandText = "CREATE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
@@ -1133,7 +1137,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               if (spec.IsIndexed)
               {
                 // Value index
-                indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_VAL_IDX", "IDX");
+                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_VAL_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
                   command.CommandText = "CREATE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
@@ -1151,7 +1155,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               if (spec.IsIndexed)
               {
                 // Foreign key index
-                indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_FK_IDX", "IDX");
+                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_FK_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
                   command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" +
@@ -1164,7 +1168,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
 
               // Value index
-              indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_VAL_IDX", "IDX");
+              indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_VAL_IDX", "IDX");
               using (IDbCommand command = transaction.CreateCommand())
               {
                 command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
@@ -1178,7 +1182,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             case Cardinality.ManyToMany:
               // Create foreign table and additional table for the N:M join attributes
               collectionAttributeTableName = GetMIACollectionAttributeTableName(spec); // Name was already generated in previous loop
-              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_PK", "PK");
+              pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_PK", "PK");
               string nmTableName = GenerateMIACollectionAttributeNMTableName(transaction, spec);
               string pkNMConstraintName = GenerateDBObjectName(transaction, miam.AspectId, nmTableName + "_PK", "PK");
               string fkMainTableConstraintName = GenerateDBObjectName(transaction, miam.AspectId, nmTableName + "_MAIN_FK", "FK");
@@ -1241,7 +1245,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               if (spec.IsIndexed)
               {
                 // Value index
-                indexName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_VAL_IDX", "IDX");
+                indexName = GenerateDBObjectName(transaction, miam.AspectId, attributeColumnIdentifier + "_VAL_IDX", "IDX");
                 using (IDbCommand command = transaction.CreateCommand())
                 {
                   command.CommandText = "CREATE UNIQUE INDEX " + indexName + " ON " + collectionAttributeTableName + "(" +
