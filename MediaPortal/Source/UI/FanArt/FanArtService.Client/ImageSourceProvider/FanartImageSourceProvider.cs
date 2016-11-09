@@ -204,6 +204,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         };
         return true;
       }
+      ImageItem imgItem = listItem as ImageItem;
+      if (imgItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Image,
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          FanArtName = imgItem.MediaItem.MediaItemId.ToString()
+        };
+        return true;
+      }
       fanartImageSource = null;
       return false;
     }
