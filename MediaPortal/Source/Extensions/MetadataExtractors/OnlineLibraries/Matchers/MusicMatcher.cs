@@ -1221,16 +1221,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return false;
     }
 
-    protected override void DownloadFanArt(string downloadId)
+    protected override void DownloadFanArt(FanartDownload<string> fanartDownload)
     {
-      string name = downloadId;
+      string name = fanartDownload.DownloadId;
       try
       {
-        if (string.IsNullOrEmpty(downloadId))
+        if (string.IsNullOrEmpty(fanartDownload.DownloadId))
           return;
 
         DownloadData data = new DownloadData();
-        if (!data.Deserialize(downloadId))
+        if (!data.Deserialize(fanartDownload.DownloadId))
           return;
 
         name = string.Format("{0} ({1})", data.MediaItemId, data.Name);
@@ -1340,7 +1340,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         finally
         {
           // Remember we are finished
-          FinishDownloadFanArt(downloadId);
+          FinishDownloadFanArt(fanartDownload);
         }
       }
       catch (Exception ex)
