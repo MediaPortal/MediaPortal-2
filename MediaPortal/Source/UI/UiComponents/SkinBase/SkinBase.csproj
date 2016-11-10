@@ -102,7 +102,6 @@
     <Compile Include="Settings\Configuration\Appearance\Skin\TimeFormat.cs" />
     <Compile Include="Settings\Configuration\General\HomeServerSetting.cs" />
     <Compile Include="Settings\Configuration\General\ClientName.cs" />
-    <Compile Include="Settings\Configuration\General\ClientDOKANDrive.cs" />
     <Compile Include="Settings\Configuration\General\HttpServerPortSetting.cs" />
     <Compile Include="Settings\Configuration\General\IPAddressBindingsSetting.cs" />
     <Compile Include="Settings\Configuration\General\ServerListener.cs" />

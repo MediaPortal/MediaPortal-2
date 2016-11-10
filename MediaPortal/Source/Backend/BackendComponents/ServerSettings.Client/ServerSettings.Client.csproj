@@ -63,7 +63,6 @@
     <Compile Include="Models\ServerNetworkCredentialSetupModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\ServerImporterWorker.cs" />
-    <Compile Include="Settings\Configuration\ServerDOKANDrive.cs" />
     <Compile Include="Settings\Configuration\ServerNetworkCredentials.cs" />
     <Compile Include="Settings\ConnectionMonitor.cs" />
     <Compile Include="ServerSettingsPlugin.cs" />
