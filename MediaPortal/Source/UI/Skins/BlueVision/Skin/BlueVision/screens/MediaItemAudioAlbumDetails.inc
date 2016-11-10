@@ -4,8 +4,14 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="-10,-10,-20,0"
+  x:Name="MediaItemDetails" Margin="-10,-10,-20,0"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+  <Grid.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
+  </Grid.Resources>
 
   <media:AudioAlbumAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
     MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
@@ -68,17 +74,14 @@
               </StackPanel>
             </StackPanel>
 
-            <media:GenreAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                          Grid.Row="0" Grid.Column="1">
-              <media:GenreAspectWrapper.Template>
-                <ControlTemplate>
-                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                    <Label x:Name="Genre" Content="{Binding Genre}" Color="{ThemeResource TextColor}" Opacity="0.4"
-                           IsVisible="{Binding Path=Genre,Converter={StaticResource ReferenceToBoolConverter}}"/>
-                  </Grid>
-                </ControlTemplate>
-              </media:GenreAspectWrapper.Template>
-            </media:GenreAspectWrapper>
+            <Label x:Name="Genre" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                  <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+                  <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+                </MultiBinding>
+              </Label.Content>
+            </Label>
             
             <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
