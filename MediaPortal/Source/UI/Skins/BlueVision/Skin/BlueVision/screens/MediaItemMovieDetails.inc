@@ -94,6 +94,28 @@
       </media:MovieAspectWrapper.Template>
     </media:MovieAspectWrapper>
 
+    <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:VideoStreamAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StackPanel Orientation="Horizontal">
+              <Label x:Name="Duration" Color="{ThemeResource TextColor}"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                    <Binding Path="Duration"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+              <Label Content="[Media.Minutes]" Color="{ThemeResource TextColor}"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </media:VideoStreamAspectWrapper.Template>
+    </media:VideoStreamAspectWrapper>
+
   </StackPanel>
 
 </Grid>

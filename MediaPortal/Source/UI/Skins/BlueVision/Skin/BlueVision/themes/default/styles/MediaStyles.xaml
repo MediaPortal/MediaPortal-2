@@ -709,7 +709,43 @@
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="CoverViewMovieCollectionItemTemplate">
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" >
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource MEDIA_COVER_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource MEDIA_COVER_HEIGHT}"/>
+      </Grid.RowDefinitions>
 
+      <Grid Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid>
+          <Grid.OpacityMask>
+            <VisualBrush>
+              <VisualBrush.Visual>
+                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+              </VisualBrush.Visual>
+            </VisualBrush>
+          </Grid.OpacityMask>
+          <Image Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+            </Image.Source>
+          </Image>
+          <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+                <Binding Path="PlayCount"/>
+                <Binding Source="UnwatchedTab_small.png"/>
+                <Binding Source=""/>
+              </MultiBinding>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
 
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
   <!-- MOVIE -->
