@@ -267,7 +267,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           continue;
         }
 
-        if (genre.Name == null)
+        if (string.IsNullOrEmpty(genre.Name))
           continue;
 
         GenreInfo testGenre = genre;

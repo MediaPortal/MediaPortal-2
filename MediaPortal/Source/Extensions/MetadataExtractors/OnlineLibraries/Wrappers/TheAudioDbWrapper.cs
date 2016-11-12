@@ -309,7 +309,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
       }
 
-      if (trackDetail.Genre != null)
+      if (!string.IsNullOrEmpty(trackDetail.Genre))
         track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
 
       if (trackDetail.AlbumID.HasValue)
@@ -353,7 +353,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       album.Album = albumDetail.Album;
       album.Description = new SimpleTitle(albumDetail.Description, !languageSet);
 
-      if (albumDetail.Genre != null)
+      if (!string.IsNullOrEmpty(albumDetail.Genre))
         album.Genres.Add(new GenreInfo { Name = albumDetail.Genre });
 
       album.Sales = albumDetail.Sales ?? 0;
@@ -398,7 +398,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (trackDetail.ArtistID.HasValue)
             track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST);
 
-          if (trackDetail.Genre != null)
+          if (!string.IsNullOrEmpty(trackDetail.Genre))
             track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
 
           track.AlbumArtists = album.Artists;
