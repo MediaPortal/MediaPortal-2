@@ -86,7 +86,6 @@
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEBrowseOffline.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEFilter.cs" />
     <Compile Include="Settings\Configuration\ServerImporterWorker.cs" />
-    <Compile Include="Settings\Configuration\ServerDOKANDrive.cs" />
     <Compile Include="Settings\Configuration\ServerNetworkCredentials.cs" />
     <Compile Include="Settings\ConnectionMonitor.cs" />
     <Compile Include="ServerSettingsPlugin.cs" />

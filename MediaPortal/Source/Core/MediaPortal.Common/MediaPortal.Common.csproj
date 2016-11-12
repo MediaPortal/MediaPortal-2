@@ -158,7 +158,6 @@
     <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
-    <Compile Include="Services\ResourceAccess\Settings\AvailableDriveLettersSettings.cs" />
     <Compile Include="Services\Runtime\PowerEventHandler.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
@@ -352,7 +351,6 @@
     <Compile Include="Services\Logging\CrashLoggerBase.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />
     <Compile Include="Services\Logging\FileLogger.cs" />
-    <Compile Include="Services\ResourceAccess\Settings\ResourceMountingSettings.cs" />
     <Compile Include="Services\ResourceAccess\ResourceMountingService.cs" />
     <Compile Include="Services\ResourceAccess\ResourceServer.cs" />
     <Compile Include="Services\ResourceAccess\Settings\ServerSettings.cs" />
