@@ -604,11 +604,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           //Check artists
           trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
           trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
-
-          foreach (PersonInfo person in trackInfo.Artists)
-            OnlineMatcherService.Instance.StoreAudioPersonMatch(person);
-          foreach (PersonInfo person in trackInfo.AlbumArtists)
-            OnlineMatcherService.Instance.StoreAudioPersonMatch(person);
         }
 
         trackInfo.AssignNameId();
@@ -640,6 +635,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           return false;
 
         trackInfo.SetMetadata(extractedAspectData);
+
+        if (!refresh)
+        {
+          //Store metadata for the Relationship Extractors
+          if (IncludeArtistDetails)
+          {
+            foreach (PersonInfo person in trackInfo.Artists)
+            {
+              MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(extractedAspectData, TempPersonAspect.Metadata);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_MBID, person.MusicBrainzId);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_NAME, person.Name);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_OCCUPATION, person.Occupation);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, false);
+            }
+            foreach (PersonInfo person in trackInfo.AlbumArtists)
+            {
+              MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(extractedAspectData, TempPersonAspect.Metadata);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_MBID, person.MusicBrainzId);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_NAME, person.Name);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_OCCUPATION, person.Occupation);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, true);
+            }
+          }
+          if (IncludeComposerDetails)
+          {
+            foreach (PersonInfo person in trackInfo.Composers)
+            {
+              MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(extractedAspectData, TempPersonAspect.Metadata);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_MBID, person.MusicBrainzId);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_NAME, person.Name);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_OCCUPATION, person.Occupation);
+              personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, false);
+            }
+          }
+        }
 
         return trackInfo.IsBaseInfoPresent;
       }

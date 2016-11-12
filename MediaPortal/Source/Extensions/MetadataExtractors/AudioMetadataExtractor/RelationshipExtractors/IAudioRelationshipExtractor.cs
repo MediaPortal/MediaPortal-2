@@ -404,5 +404,38 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
       return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, companyFilters.ToArray());
     }
+
+    public static void UpdatePersons(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<PersonInfo> infoPersons, bool forAlbum)
+    {
+      if (aspects.ContainsKey(TempPersonAspect.ASPECT_ID))
+      {
+        IList<MultipleMediaItemAspect> persons;
+        if (MediaItemAspect.TryGetAspects(aspects, TempPersonAspect.Metadata, out persons))
+        {
+          foreach (MultipleMediaItemAspect person in persons)
+          {
+            if (person.GetAttributeValue<bool>(TempPersonAspect.ATTR_FROMALBUM) == forAlbum)
+            {
+              PersonInfo info = infoPersons.Find(p => p.Name.Equals(person.GetAttributeValue<string>(TempPersonAspect.ATTR_NAME), StringComparison.InvariantCultureIgnoreCase) &&
+                  p.Occupation == person.GetAttributeValue<string>(TempPersonAspect.ATTR_OCCUPATION));
+              if (info != null && string.IsNullOrEmpty(info.MusicBrainzId))
+                info.MusicBrainzId = person.GetAttributeValue<string>(TempPersonAspect.ATTR_MBID);
+            }
+          }
+        }
+      }
+    }
+
+    public static void StorePersons(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<PersonInfo> infoPersons, bool forAlbum)
+    {
+      foreach (PersonInfo person in infoPersons)
+      {
+        MultipleMediaItemAspect personAspect = MediaItemAspect.CreateAspect(aspects, TempPersonAspect.Metadata);
+        personAspect.SetAttribute(TempPersonAspect.ATTR_MBID, person.MusicBrainzId);
+        personAspect.SetAttribute(TempPersonAspect.ATTR_NAME, person.Name);
+        personAspect.SetAttribute(TempPersonAspect.ATTR_OCCUPATION, person.Occupation);
+        personAspect.SetAttribute(TempPersonAspect.ATTR_FROMALBUM, forAlbum);
+      }
+    }
   }
 }
