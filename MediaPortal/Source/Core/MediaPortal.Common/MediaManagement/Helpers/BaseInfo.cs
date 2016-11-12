@@ -250,7 +250,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return default(T);
     }
 
-    protected string GetNameId(string name)
+    public static string GetNameId(string name)
     {
       if (!string.IsNullOrEmpty(name))
       {

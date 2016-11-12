@@ -290,8 +290,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         foreach (int episodeNumber in episode.EpisodeNumbers)
         {
           episodeDetail = _tvMazeHandler.GetSeriesEpisode(episode.SeriesTvMazeId, episode.SeasonNumber.Value, episodeNumber, cacheOnly);
-          if (episodeDetail == null) return false;
-          if (episodeDetail.EpisodeNumber <= 0) return false;
+          if (episodeDetail == null) continue;
+          if (episodeDetail.EpisodeNumber <= 0) continue;
 
           EpisodeInfo info = new EpisodeInfo()
           {

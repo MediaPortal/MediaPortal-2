@@ -376,7 +376,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           episodeDetail = seriesDetail.Episodes.Where(e => e.EpisodeNumber == episodeNumber &&
           e.SeasonNumber == episode.SeasonNumber.Value).OrderByDescending(e => e.Id).FirstOrDefault();
-          if (episodeDetail == null) return false;
+          if (episodeDetail == null) continue;
 
           EpisodeInfo info = new EpisodeInfo()
           {

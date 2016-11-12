@@ -183,6 +183,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
             }
           }
         }
+        else
+        {
+          foreach (Capture capture in group.Captures)
+          {
+            int episodeNum;
+            if (int.TryParse(capture.Value, out episodeNum))
+              episodeNums.Add(episodeNum);
+          }
+        }
         episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeNums, true);
       }
       return true;

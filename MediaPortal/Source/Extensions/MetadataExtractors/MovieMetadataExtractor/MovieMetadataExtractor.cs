@@ -135,7 +135,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
-      string title;
+      string title = null;
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
@@ -149,49 +149,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         movieInfo.FromMetadata(extractedAspectData);
       }
-      if(!movieInfo.IsBaseInfoPresent)
+      if (movieInfo.MovieName.IsEmpty)
       {
         //Try to get title
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) && 
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
           !string.IsNullOrEmpty(title) && !lfsra.ResourceName.StartsWith(title, StringComparison.InvariantCultureIgnoreCase))
           movieInfo.MovieName = title;
 
-        // Try to use an existing TMDB id for exact mapping
-        string tmdbId;
-        if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out tmdbId) ||
-            MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
-          movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+        /* Clear the names from unwanted strings */
+        MovieNameMatcher.CleanupTitle(movieInfo);
+      }
 
-        // Try to use an existing IMDB id for exact mapping
-        string imdbId;
-        if (MediaItemAspect.TryGetExternalAttribute(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out imdbId) ||
-            pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)) ||
-            MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId))
-          movieInfo.ImdbId = imdbId;
-
-        if (!movieInfo.IsBaseInfoPresent)
+      if (!movieInfo.IsBaseInfoPresent)
+      {
+        // Also test the full path year. This is useful if the path contains the real name and year.
+        foreach (string path in pathsToTest)
         {
-          // Also test the full path year. This is useful if the path contains the real name and year.
-          foreach (string path in pathsToTest)
-          {
-            if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
-              break;
-          }
-          //Fall back to MediaAspect.ATTR_TITLE
-          if (movieInfo.MovieName.IsEmpty && !string.IsNullOrEmpty(title))
-            movieInfo.MovieName = title;
+          if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
+            break;
         }
-
-        if (!movieInfo.ReleaseDate.HasValue)
-        {
-          // When searching movie title, the year can be relevant for multiple titles with same name but different years
-          DateTime recordingDate;
-          if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-            movieInfo.ReleaseDate = recordingDate;
-        }
+        //Fall back to MediaAspect.ATTR_TITLE
+        if (movieInfo.MovieName.IsEmpty && !string.IsNullOrEmpty(title))
+          movieInfo.MovieName = title;
 
         /* Clear the names from unwanted strings */
         MovieNameMatcher.CleanupTitle(movieInfo);
+      }
+
+      if (!movieInfo.ReleaseDate.HasValue)
+      {
+        // When searching movie title, the year can be relevant for multiple titles with same name but different years
+        DateTime recordingDate;
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+          movieInfo.ReleaseDate = recordingDate;
       }
 
       // Allow the online lookup to choose best matching language for metadata
@@ -206,7 +196,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      if (!refresh)
+      if (forceQuickMode)
       {
         MatroskaMatcher.ExtractFromTags(lfsra, movieInfo);
         MP4Matcher.ExtractFromTags(lfsra, movieInfo);
@@ -227,7 +217,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!SkipOnlineSearches && !movieInfo.HasExternalId)
         return false;
 
-      if (!refresh)
+      if (forceQuickMode)
       {
         //Create custom collection (overrides online collection)
         MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
@@ -289,19 +279,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
           if ((from potentialFanArtFile in potentialFanArtFiles
                let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder"
+               where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "movieset-poster"
                select potentialFanArtFile).Count() > 0)
             return true;
 
           if ((from potentialFanArtFile in potentialFanArtFiles
                let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "banner"
+               where potentialFanArtFileNameWithoutExtension == "banner" || potentialFanArtFileNameWithoutExtension == "movieset-banner"
                select potentialFanArtFile).Count() > 0)
             return true;
 
           if ((from potentialFanArtFile in potentialFanArtFiles
                let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart"
+               where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart" || potentialFanArtFileNameWithoutExtension == "movieset-fanart"
                select potentialFanArtFile).Count() > 0)
             return true;
 
