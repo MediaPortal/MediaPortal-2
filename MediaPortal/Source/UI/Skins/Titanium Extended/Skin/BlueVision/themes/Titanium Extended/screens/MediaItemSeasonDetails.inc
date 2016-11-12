@@ -4,12 +4,15 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" MinHeight="630"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
+  
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
@@ -23,7 +26,6 @@
       <ControlTemplate>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -50,28 +52,9 @@
             </media:UserDataWrapper.Template>
           </media:UserDataWrapper>
 
-          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
-                      DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                             Maximum="10" Value="{Binding TotalRating}">
-              <StarRatingPanel.LayoutTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1.65" ScaleY="1.5"/>
-                </TransformGroup>
-              </StarRatingPanel.LayoutTransform>
-            </StarRatingPanel>
-
-            <Label x:Name="RatingCountLabel" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource NormalFontSize}" Margin="8,0,0,0"
-                   IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
-              <Label.Content>
-                <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
-              </Label.Content>
-            </Label>
-          </StackPanel>
-
-          <Label x:Name="YearLabel" Grid.Row="1" Grid.Column="0"
+          <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
                  Content="[Media.VideoYearLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-          <media:MediaAspectWrapper Grid.Row="1" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+          <media:MediaAspectWrapper Grid.Row="0" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
             <media:MediaAspectWrapper.Template>
               <ControlTemplate>
                 <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -88,20 +71,20 @@
             </media:MediaAspectWrapper.Template>
           </media:MediaAspectWrapper>
 
-          <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0">
+          <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
             <Label x:Name="SeasonLabel" Content="[Media.SeasonRootViewName]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label Content=":" Color="{ThemeResource EmphasisTextColor}"/>
           </StackPanel>
-          <Label x:Name="Season" Grid.Row="2" Grid.Column="1" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+          <Label x:Name="Season" Grid.Row="1" Grid.Column="1" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                  Content="{Binding Season}" Color="{ThemeResource TextColor}"/>
 
-          <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="0">
+          <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0">
             <Label x:Name="EpisodeLabel" Content="[Media.EpisodeItemsHeader]" Color="{ThemeResource EmphasisTextColor}"/>
             <Label Content=":" Color="{ThemeResource EmphasisTextColor}"/>
           </StackPanel>
-          <Label x:Name="Episode" Grid.Row="3" Grid.Column="1" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
+          <Label x:Name="Episode" Grid.Row="2" Grid.Column="1" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
               Content="{Binding Episodes}" Color="{ThemeResource TextColor}"/>
-          
+         
           <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="4" Grid.ColumnSpan="2"
                    Wrap="True" TextTrimming="WordEllipsis" Margin="0,30,0,0" Color="{ThemeResource TextColor}"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{Binding Description}"/>

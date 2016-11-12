@@ -171,8 +171,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       object obj = null;
       try
       {
-        if (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
-            Equals(triggerValue, obj))
+        if ((triggerValue == null && checkValue == null) || (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
+            Equals(triggerValue, obj)))
           ExecuteTriggerStartActions();
         else
           ExecuteTriggerEndActions();

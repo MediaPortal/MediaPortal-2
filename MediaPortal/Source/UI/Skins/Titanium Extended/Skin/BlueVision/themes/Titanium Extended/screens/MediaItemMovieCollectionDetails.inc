@@ -10,6 +10,7 @@
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
   </Grid.Resources>
+  
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
