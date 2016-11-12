@@ -290,6 +290,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected const string KEY_CURRENTLY_IMPORTING_SHARE_IDS = "CurrentlyImportingShareIds";
     protected const char ESCAPE_CHAR = '\\';
+
+    /// <summary>
+    /// SQLite has a default variable limit of 100, this value is deliberately set a bit lower to allow a bit of headroom.
+    /// Currently only used when requesting multiple MediaItems by id as the variable count can be easily determined for those queries.
+    /// ToDo check the limits of other SQL providers.
+    /// </summary>
     protected const int MAX_VARIABLES_LIMIT = 80;
 
     #endregion
@@ -1425,12 +1431,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return mediaItemId.Value;
     }
 
-    private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, ICollection<Guid> mediaItemIds, IEnumerable<Guid> necessaryRequestedMIATypeIds, IEnumerable<Guid> optionalRequestedMIATypeIds, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
+    private ICollection<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, ICollection<Guid> mediaItemIds, IEnumerable<Guid> necessaryRequestedMIATypeIds, IEnumerable<Guid> optionalRequestedMIATypeIds, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
     {
       if (mediaItemIds.Count < MAX_VARIABLES_LIMIT)
         return Search(database, transaction, new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds, new MediaItemIdFilter(mediaItemIds)), filterOnlyOnline, userProfileId, includeVirtual);
 
-      List<MediaItem> results = new List<MediaItem>();
+      //If mediaItemIds count is greater than MAX_VARIABLES_LIMIT 'page' the requests to avoid exceeding sqlite's max variable limit when creating the IN(id,id,...) statement
+      IDictionary<Guid, MediaItem> results = new Dictionary<Guid, MediaItem>();
       int currentItem = 0;
       while (currentItem < mediaItemIds.Count)
       {
@@ -1438,10 +1445,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
         var query = new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds,
           new MediaItemIdFilter(mediaItemIds.Where((id, index) => index >= currentItem && index < endItem)));
-        results.AddRange(Search(database, transaction, query, filterOnlyOnline, userProfileId, includeVirtual));
+        foreach (var mediaItem in Search(database, transaction, query, filterOnlyOnline, userProfileId, includeVirtual))
+          results[mediaItem.MediaItemId] = mediaItem;
         currentItem = endItem;
       }
-      return results;
+      return results.Values;
     }
 
     protected virtual void Reconcile(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> mediaItemAspects, bool isRefresh, CancellationToken cancelToken)
@@ -1751,7 +1759,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Commit();
       }
       
-      IList<MediaItem> items = GetMediaItems(null, null, updatedItems, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true);
+      ICollection<MediaItem> items = GetMediaItems(null, null, updatedItems, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true);
       foreach (MediaItem item in items)
       {
         Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);

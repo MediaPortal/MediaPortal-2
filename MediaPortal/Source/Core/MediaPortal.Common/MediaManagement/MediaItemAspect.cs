@@ -494,14 +494,21 @@ namespace MediaPortal.Common.MediaManagement
 
     private static int GetMatchingAspect(IList<MediaItemAspect> aspects, MultipleMediaItemAspect value)
     {
-      for(int index = 0; index < aspects.Count; index++)
+      for (int index = 0; index < aspects.Count; index++)
       {
         MediaItemAspect aspect = aspects[index];
-        if (value.Metadata.UniqueAttributeSpecifications.All(spec => aspect[spec].Equals(value[spec])))
+        if (value.Metadata.UniqueAttributeSpecifications.All(spec => SpecificationsAreEqual(aspect, value, spec)))
           return index;
       }
 
       return -1;
+    }
+
+    private static bool SpecificationsAreEqual(MediaItemAspect aspect, MultipleMediaItemAspect value, MediaItemAspectMetadata.AttributeSpecification spec)
+    {
+      if (aspect[spec] == null)
+        return value[spec] == null;
+      return aspect[spec].Equals(value[spec]);
     }
 
     /// <summary>
