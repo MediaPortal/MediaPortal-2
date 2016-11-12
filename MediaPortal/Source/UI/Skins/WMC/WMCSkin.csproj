@@ -723,6 +723,10 @@
     <None Include="Skin\WMCSkin\fonts\seguisb.ttf" />
     <Content Include="Skin\WMCSkin\fonts\seguisb.desc" />
     <Content Include="Skin\WMCSkin\screens\InfoMovieGeneral.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemPersonDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemListPersonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\home.xaml" />
