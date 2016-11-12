@@ -1774,11 +1774,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             if (roleExtractor.TryMatch(extractedItem, externalItem.Aspects))
             {
               AddRelationship(roleExtractor, externalItem.MediaItemId, aspects, extractedItem);
-              matchedMediaItemId = externalItem.MediaItemId; //Reconcile because it might have changed
 
-              bool? isVirtual = externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue<bool?>(MediaAspect.ATTR_ISVIRTUAL);
-              if (isVirtual.HasValue && !isVirtual.Value)
-                extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, isVirtual.Value); //Update virtual flag so it's not reset by the update
+              bool? isExtractedVirtual = extractedItem[MediaAspect.ASPECT_ID][0].GetAttributeValue<bool?>(MediaAspect.ATTR_ISVIRTUAL);
+              bool? isExsistingVirtual = externalItem.Aspects[MediaAspect.ASPECT_ID][0].GetAttributeValue<bool?>(MediaAspect.ATTR_ISVIRTUAL);
+              if (isExsistingVirtual.HasValue && !isExsistingVirtual.Value && isExtractedVirtual.HasValue && isExtractedVirtual.Value)
+              {
+                roleExtractor.CacheExtractedItem(externalItem.MediaItemId, extractedItem);
+                return true; //Do not overwrite the existing real media item with a virtual one
+              }
+
+              matchedMediaItemId = externalItem.MediaItemId; //Reconcile because it might have changed
+              if (isExsistingVirtual.HasValue && !isExsistingVirtual.Value)
+                extractedItem[MediaAspect.ASPECT_ID][0].SetAttribute(MediaAspect.ATTR_ISVIRTUAL, isExsistingVirtual.Value); //Update virtual flag so it's not reset by the update
               
               UpdateMediaItem(database, transaction, externalItem.MediaItemId, extractedItem.Values.SelectMany(x => x));
               roleExtractor.CacheExtractedItem(externalItem.MediaItemId, extractedItem);
