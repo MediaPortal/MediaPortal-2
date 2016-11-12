@@ -27,18 +27,8 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public class AudioSortByFirstGenre : AbstractSortByFirstComparableAttribute<string>
+  public class AudioSortByFirstGenre : AbstractSortByComparableObjectAttribute<string>
   {
-    public AudioSortByFirstGenre() : base(GenreAspect.ATTR_GENRE) {}
-
-    public override string DisplayName
-    {
-      get { return Consts.RES_SORT_BY_GENRE; }
-    }
-
-    public override string GroupByDisplayName
-    {
-      get { return Consts.RES_GROUP_BY_GENRE; }
-    }
+    public AudioSortByFirstGenre() : base(Consts.RES_SORT_BY_GENRE, Consts.RES_GROUP_BY_GENRE, GenreAspect.ATTR_GENRE) { }
   }
 }
