@@ -71,6 +71,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       {
         if (string.IsNullOrEmpty(path))
           return false;
+        if (!string.IsNullOrEmpty(movieInfo.ImdbId))
+        {
+          //Remove IMDB id from file name because it can lead to wrong detection of year
+          if (path.Contains("[" + movieInfo.ImdbId + "]"))
+            path = path.Replace("[" + movieInfo.ImdbId + "]", "");
+          else
+            path = path.Replace(movieInfo.ImdbId, "");
+        }
 
         var settings = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>();
 

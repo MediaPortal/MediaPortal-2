@@ -149,15 +149,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         movieInfo.FromMetadata(extractedAspectData);
       }
+
       if (movieInfo.MovieName.IsEmpty)
       {
         //Try to get title
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
           !string.IsNullOrEmpty(title) && !lfsra.ResourceName.StartsWith(title, StringComparison.InvariantCultureIgnoreCase))
+        {
           movieInfo.MovieName = title;
+          /* Clear the names from unwanted strings */
+          MovieNameMatcher.CleanupTitle(movieInfo);
+        }
+      }
 
-        /* Clear the names from unwanted strings */
-        MovieNameMatcher.CleanupTitle(movieInfo);
+      if (movieInfo.MovieDbId == 0)
+      {
+        // Try to use an existing TMDB id for exact mapping
+        string tmdbId;
+        if (MatroskaMatcher.TryMatchTmdbId(lfsra, out tmdbId))
+          movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+      }
+
+      if (string.IsNullOrEmpty(movieInfo.ImdbId))
+      {
+        // Try to use an existing IMDB id for exact mapping
+        string imdbId = null;
+        if (pathsToTest.Any(path => MatroskaMatcher.TryMatchImdbId(lfsra, out imdbId)))
+          movieInfo.ImdbId = imdbId;
+        else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
+          movieInfo.ImdbId = imdbId;
       }
 
       if (!movieInfo.IsBaseInfoPresent)
@@ -176,7 +196,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         MovieNameMatcher.CleanupTitle(movieInfo);
       }
 
-      if (!movieInfo.ReleaseDate.HasValue)
+      if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
       {
         // When searching movie title, the year can be relevant for multiple titles with same name but different years
         DateTime recordingDate;
