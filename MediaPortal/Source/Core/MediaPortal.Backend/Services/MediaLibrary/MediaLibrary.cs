@@ -282,6 +282,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected const string KEY_CURRENTLY_IMPORTING_SHARE_IDS = "CurrentlyImportingShareIds";
     protected const char ESCAPE_CHAR = '\\';
+    protected const int MAX_VARIABLES_LIMIT = 80;
 
     #endregion
 
@@ -1430,6 +1431,25 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return mediaItemId.Value;
     }
 
+    private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, ICollection<Guid> mediaItemIds, IEnumerable<Guid> necessaryRequestedMIATypeIds, IEnumerable<Guid> optionalRequestedMIATypeIds, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
+    {
+      if (mediaItemIds.Count < MAX_VARIABLES_LIMIT)
+        return Search(database, transaction, new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds, new MediaItemIdFilter(mediaItemIds)), filterOnlyOnline, userProfileId, includeVirtual);
+
+      List<MediaItem> results = new List<MediaItem>();
+      int currentItem = 0;
+      while (currentItem < mediaItemIds.Count)
+      {
+        int remaining = mediaItemIds.Count - currentItem;
+        int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
+        var query = new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds,
+          new MediaItemIdFilter(mediaItemIds.Where((id, index) => index >= currentItem && index < endItem)));
+        results.AddRange(Search(database, transaction, query, filterOnlyOnline, userProfileId, includeVirtual));
+        currentItem = endItem;
+      }
+      return results;
+    }
+
     protected virtual void Reconcile(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> mediaItemAspects, bool isRefresh, CancellationToken cancelToken)
     {
       UpdateRelationships(mediaItemId, mediaItemAspects, isRefresh, cancelToken);
@@ -1736,8 +1756,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         transaction.Commit();
       }
-
-      IList<MediaItem> items = Search(new MediaItemQuery(null, GetManagedMediaItemAspectMetadata().Keys, new MediaItemIdFilter(updatedItems)), false, null, true);
+      
+      IList<MediaItem> items = GetMediaItems(null, null, updatedItems, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true);
       foreach (MediaItem item in items)
       {
         Reconcile(item.MediaItemId, item.Aspects, isRefresh, cancelToken);
