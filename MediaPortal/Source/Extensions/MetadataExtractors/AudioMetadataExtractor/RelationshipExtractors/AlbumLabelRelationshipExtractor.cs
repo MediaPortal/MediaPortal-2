@@ -45,11 +45,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return true; }
     }
 
-    public bool IsHierarchyRelationship
-    {
-      get { return false; }
-    }
-
     public Guid Role
     {
       get { return AudioAlbumAspect.ROLE_ALBUM; }
@@ -68,16 +63,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public Guid[] LinkedRoleAspects
     {
       get { return LINKED_ROLE_ASPECTS; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute
-    {
-      get { return null; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute
-    {
-      get { return null; }
     }
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)

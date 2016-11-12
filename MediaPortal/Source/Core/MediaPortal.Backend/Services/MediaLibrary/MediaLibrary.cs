@@ -298,6 +298,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected bool _shutdown = false;
     protected Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
     protected Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
+    protected List<RelationshipHierarchy> _hierarchies = new List<RelationshipHierarchy>();
 
     #endregion
 
@@ -725,7 +726,23 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         throw new IllegalCallException(string.Format(
             "Unable to update the MediaLibrary's subschema version to expected version {0}.{1}",
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
+
       _miaManagement = new MIA_Management();
+
+      _hierarchies.Clear();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+      {
+        if (extractor.Hierarchies != null)
+        {
+          foreach (RelationshipHierarchy hierarchy in extractor.Hierarchies)
+          {
+            if (!_hierarchies.Exists(h => h.ChildRole == hierarchy.ChildRole && h.ParentRole == hierarchy.ParentRole))
+              _hierarchies.Add(hierarchy);
+          }
+        }
+      }
+
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
 
@@ -1930,74 +1947,68 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           bool allParentsDeleted = true;
           List<Guid> parentsToDelete = new List<Guid>();
           List<Guid> childsToDelete = new List<Guid>();
-          foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+          foreach (RelationshipHierarchy hierarchy in _hierarchies)
           {
-            foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
+            parentId = null;
+            parentIdColumn = null;
+            parentRoleColumn = null;
+            childIdColumn = null;
+            childRoleColumn = null;
+
+            if (TryFindParent(database, transaction, mediaItemId, hierarchy.ChildRole, hierarchy.ParentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
             {
-              if (!roleExtractor.IsHierarchyRelationship)
-                continue;
+              hasParent = true;
 
-              parentId = null;
-              parentIdColumn = null;
-              parentRoleColumn = null;
-              childIdColumn = null;
-              childRoleColumn = null;
+              command.Parameters.Clear();
+              database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
+              database.AddParameter(command, "ROLE_ID", hierarchy.ChildRole, typeof(Guid));
+              database.AddParameter(command, "PARENT_ROLE_ID", hierarchy.ParentRole, typeof(Guid));
 
-              if (TryFindParent(database, transaction, mediaItemId, roleExtractor.Role, roleExtractor.LinkedRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+              //Find all childs
+              List<Guid> childs = new List<Guid>();
+              bool? allChildsAreVirtual = null;
+              command.CommandText = "SELECT R." + childIdColumn +
+                  ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
+                  " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                  " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                  " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                  " WHERE R." + childRoleColumn + " = @ROLE_ID" +
+                  " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
+                  " AND R." + parentIdColumn + " = @ITEM_ID";
+              using (IDataReader reader = command.ExecuteReader())
               {
-                hasParent = true;
-
-                command.Parameters.Clear();
-                database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
-                database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
-
-                //Find all childs
-                List<Guid> childs = new List<Guid>();
-                bool? allChildsAreVirtual = null;
-                command.CommandText = "SELECT R." + childIdColumn +
-                    ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
-                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
-                    " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-                    " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
-                    " WHERE R." + childRoleColumn + " = @ROLE_ID" +
-                    " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
-                    " AND R." + parentIdColumn + " = @ITEM_ID";
-                using (IDataReader reader = command.ExecuteReader())
+                while (reader.Read())
                 {
-                  while (reader.Read())
-                  {
-                    if (allChildsAreVirtual == null)
-                      allChildsAreVirtual = true;
+                  if (allChildsAreVirtual == null)
+                    allChildsAreVirtual = true;
 
-                    Guid childId = database.ReadDBValue<Guid>(reader, 0);
-                    bool? childVirtual = database.ReadDBValue<bool?>(reader, 1);
-                    childs.Add(childId);
-                    if (childVirtual == false)
-                    {
-                      allChildsAreVirtual = false;
-                      break;
-                    }
+                  Guid childId = database.ReadDBValue<Guid>(reader, 0);
+                  bool? childVirtual = database.ReadDBValue<bool?>(reader, 1);
+                  childs.Add(childId);
+                  if (childVirtual == false)
+                  {
+                    allChildsAreVirtual = false;
+                    break;
                   }
                 }
+              }
 
-                if (allChildsAreVirtual == true)
+              if (allChildsAreVirtual == true)
+              {
+                //Logger.Debug("MediaLibrary: All {0} children with role {1} of parent media item {2} with role {3} are virtual", childs.Count, childRole, parentId.Value, parentRole);
+
+                foreach (Guid childId in childs)
                 {
-                  //Logger.Debug("MediaLibrary: All {0} children with role {1} of parent media item {2} with role {3} are virtual", childs.Count, childRole, parentId.Value, parentRole);
-
-                  foreach (Guid childId in childs)
-                  {
-                    if (!childsToDelete.Contains(childId))
-                      childsToDelete.Add(childId);
-                  }
-
-                  if (!parentsToDelete.Contains(parentId.Value))
-                    parentsToDelete.Add(parentId.Value);
+                  if (!childsToDelete.Contains(childId))
+                    childsToDelete.Add(childId);
                 }
-                else
-                {
-                  allParentsDeleted = false;
-                }
+
+                if (!parentsToDelete.Contains(parentId.Value))
+                  parentsToDelete.Add(parentId.Value);
+              }
+              else
+              {
+                allParentsDeleted = false;
               }
             }
           }
@@ -2126,98 +2137,92 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string childRoleColumn = null;
           List<Guid> parentsToDelete = new List<Guid>();
           List<Guid> childsToDelete = new List<Guid>();
-          foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+          foreach (RelationshipHierarchy hierarchy in _hierarchies)
           {
-            foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
+            parentId = null;
+            parentId = null;
+            parentIdColumn = null;
+            parentRoleColumn = null;
+            childIdColumn = null;
+            childRoleColumn = null;
+
+            if (TryFindParent(database, transaction, mediaItemId, hierarchy.ChildRole, hierarchy.ParentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
             {
-              if (!roleExtractor.IsHierarchyRelationship)
-                continue;
+              int totalCount = 0;
+              int availableCount = 0;
 
-              parentId = null;
-              parentId = null;
-              parentIdColumn = null;
-              parentRoleColumn = null;
-              childIdColumn = null;
-              childRoleColumn = null;
+              command.Parameters.Clear();
+              database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
+              database.AddParameter(command, "ROLE_ID", hierarchy.ChildRole, typeof(Guid));
+              database.AddParameter(command, "PARENT_ROLE_ID", hierarchy.ParentRole, typeof(Guid));
 
-              if (TryFindParent(database, transaction, mediaItemId, roleExtractor.Role, roleExtractor.LinkedRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+              string collectionJoin = "";
+              if (hierarchy.ChildCountAttribute != null && hierarchy.ChildCountAttribute.IsCollectionAttribute && hierarchy.ChildCountAttribute.Cardinality == Cardinality.ManyToMany)
               {
-                int totalCount = 0;
-                int availableCount = 0;
+                collectionJoin = " LEFT OUTER JOIN " + _miaManagement.GetMIACollectionAttributeNMTableName(hierarchy.ChildCountAttribute) + " NM ON NM." +
+                  MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn;
+              }
 
-                command.Parameters.Clear();
-                database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
-                database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
-
-                string collectionJoin = "";
-                if(roleExtractor.ChildCountAttribute != null && roleExtractor.ChildCountAttribute.IsCollectionAttribute && roleExtractor.ChildCountAttribute.Cardinality == Cardinality.ManyToMany)
+              //Find all childs
+              List<Guid> childs = new List<Guid>();
+              bool? allChildsAreVirtual = null;
+              command.CommandText = "SELECT R." + childIdColumn +
+                  ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
+                  " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                  " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                  " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                  collectionJoin +
+                  " WHERE R." + childRoleColumn + " = @ROLE_ID" +
+                  " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
+                  " AND R." + parentIdColumn + " = @ITEM_ID";
+              using (IDataReader reader = command.ExecuteReader())
+              {
+                while (reader.Read())
                 {
-                  collectionJoin = " LEFT OUTER JOIN " + _miaManagement.GetMIACollectionAttributeNMTableName(roleExtractor.ChildCountAttribute) + " NM ON NM." +
-                    MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn;
-                }
-
-                //Find all childs
-                List<Guid> childs = new List<Guid>();
-                bool? allChildsAreVirtual = null;
-                command.CommandText = "SELECT R." + childIdColumn +
-                    ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
-                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
-                    " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-                    " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
-                    collectionJoin +
-                    " WHERE R." + childRoleColumn + " = @ROLE_ID" +
-                    " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
-                    " AND R." + parentIdColumn + " = @ITEM_ID";
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                  while (reader.Read())
+                  if (allChildsAreVirtual == null)
+                    allChildsAreVirtual = true;
+                  Guid childId = database.ReadDBValue<Guid>(reader, 0);
+                  bool? childVirtual = database.ReadDBValue<bool?>(reader, 1);
+                  childs.Add(childId);
+                  if (childVirtual == false)
                   {
-                    if (allChildsAreVirtual == null)
-                      allChildsAreVirtual = true;
-                    Guid childId = database.ReadDBValue<Guid>(reader, 0);
-                    bool? childVirtual = database.ReadDBValue<bool?>(reader, 1);
-                    childs.Add(childId);
-                    if (childVirtual == false)
-                    {
-                      availableCount++;
-                      allChildsAreVirtual = false;
-                    }
-                    totalCount++;
+                    availableCount++;
+                    allChildsAreVirtual = false;
                   }
+                  totalCount++;
                 }
+              }
 
-                int isVirtual = 0;
-                if (allChildsAreVirtual == true)
-                {
-                  Logger.Debug("MediaLibrary: All children with role {0} of parent media item {1} with role {2} are virtual", roleExtractor.Role, parentId.Value, roleExtractor.LinkedRole);
-                  isVirtual = 1;
-                }
-                else
-                {
-                  Logger.Debug("MediaLibrary: Not all children with role {0} of parent media item {1} with role {2} are virtual", roleExtractor.Role, parentId.Value, roleExtractor.LinkedRole);
-                }
+              int isVirtual = 0;
+              if (allChildsAreVirtual == true)
+              {
+                Logger.Debug("MediaLibrary: All children with role {0} of parent media item {1} with role {2} are virtual", hierarchy.ChildRole, parentId.Value, hierarchy.ParentRole);
+                isVirtual = 1;
+              }
+              else
+              {
+                Logger.Debug("MediaLibrary: Not all children with role {0} of parent media item {1} with role {2} are virtual", hierarchy.ChildRole, parentId.Value, hierarchy.ParentRole);
+              }
 
-                command.Parameters.Clear();
-                database.AddParameter(command, "PARENT_ITEM", parentId.Value, typeof(Guid));
+              command.Parameters.Clear();
+              database.AddParameter(command, "PARENT_ITEM", parentId.Value, typeof(Guid));
 
-                //Set parent virtual flag
-                command.CommandText = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
-                " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = " + isVirtual +
+              //Set parent virtual flag
+              command.CommandText = "UPDATE " + _miaManagement.GetMIATableName(MediaAspect.Metadata) +
+              " SET " + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = " + isVirtual +
+              " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
+              command.ExecuteNonQuery();
+
+              if (hierarchy.ParentCountAttribute != null)
+              {
+                //Set parent child count
+                command.CommandText = "UPDATE " + _miaManagement.GetMIATableName(hierarchy.ParentCountAttribute.ParentMIAM) +
+                " SET " + _miaManagement.GetMIAAttributeColumnName(hierarchy.ParentCountAttribute) + " = " + availableCount +
                 " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
                 command.ExecuteNonQuery();
-
-                if(roleExtractor.ParentCountAttribute != null)
-                {
-                  //Set parent child count
-                  command.CommandText = "UPDATE " + _miaManagement.GetMIATableName(roleExtractor.ParentCountAttribute.ParentMIAM) +
-                  " SET " + _miaManagement.GetMIAAttributeColumnName(roleExtractor.ParentCountAttribute) + " = " + availableCount +
-                  " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @PARENT_ITEM";
-                  command.ExecuteNonQuery();
-                }
-
-                Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} to virtual = {2}", parentId.Value, roleExtractor.LinkedRole, isVirtual);
               }
+
+              Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} to virtual = {2}", parentId.Value, hierarchy.ParentRole, isVirtual);
             }
           }
         }
@@ -2236,121 +2241,115 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         using (IDbCommand command = transaction.CreateCommand())
         {
-          foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+          foreach (RelationshipHierarchy hierarchy in _hierarchies)
           {
-            foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
+            command.Parameters.Clear();
+            database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+            database.AddParameter(command, "PARENT_ROLE_ID", hierarchy.ParentRole, typeof(Guid));
+            database.AddParameter(command, "ROLE_ID", hierarchy.ChildRole, typeof(Guid));
+
+            //Find parents
+            Dictionary<Guid, Guid> userDataParent = new Dictionary<Guid, Guid>();
+            command.CommandText = "SELECT DISTINCT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+              ", " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME +
+              " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
+              " WHERE " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = '" + UserDataKeysKnown.KEY_PLAY_PERCENTAGE + "'" +
+              " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+              " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+              " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+              " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @PARENT_ROLE_ID" +
+              " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
+              " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
+              " UNION " +
+              " SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+              " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+              " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE_ID" +
+              " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
+              " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+              ")";
+            using (IDataReader reader = command.ExecuteReader())
             {
-              if (!roleExtractor.IsHierarchyRelationship)
-                continue;
+              while (reader.Read())
+              {
+                userDataParent.Add(database.ReadDBValue<Guid>(reader, 0), database.ReadDBValue<Guid>(reader, 1));
+              }
+            }
 
+            //Update parents
+            foreach (var key in userDataParent)
+            {
+              //Find children
               command.Parameters.Clear();
-              database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
-              database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
-              database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
+              database.AddParameter(command, "ITEM_ID", key.Key, typeof(Guid));
+              database.AddParameter(command, "PARENT_ROLE_ID", hierarchy.ParentRole, typeof(Guid));
+              database.AddParameter(command, "ROLE_ID", hierarchy.ChildRole, typeof(Guid));
+              database.AddParameter(command, "USER_PROFILE_ID", key.Value, typeof(Guid));
+              database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
 
-              //Find parents
-              Dictionary<Guid, Guid> userDataParent = new Dictionary<Guid, Guid>();
-              command.CommandText = "SELECT DISTINCT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-                ", " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME +
-                " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-                " WHERE " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = '" + UserDataKeysKnown.KEY_PLAY_PERCENTAGE + "'" +
-                " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
-                " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-                " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-                " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @PARENT_ROLE_ID" +
-                " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
-                " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
-                " UNION " +
-                " SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
-                " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-                " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE_ID" +
-                " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
-                " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
-                ")";
+              float nonVirtualChildCount = 0;
+              float watchedCount = 0;
+              command.CommandText = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
+                  ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                  ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_PLAYCOUNT) +
+                  " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                  " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                  " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                  " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                  " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
+                  " WHERE M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+                  " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                  " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+                  " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
+                  " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE_ID" +
+                  " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
+                  " UNION " +
+                  " SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                  " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
+                  " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
+                  " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @PARENT_ROLE_ID" +
+                  " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                  ")";
               using (IDataReader reader = command.ExecuteReader())
               {
                 while (reader.Read())
                 {
-                  userDataParent.Add(database.ReadDBValue<Guid>(reader, 0), database.ReadDBValue<Guid>(reader, 1));
+                  bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
+                  if (childVirtual == false)
+                  {
+                    nonVirtualChildCount++;
+                  }
+                  int playCount = 0;
+                  if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount))
+                  {
+                    if (playCount > 0)
+                      watchedCount++;
+                  }
+                  else //Prefer user play count but use overall play count if not available
+                  {
+                    int? totalPlayCount = database.ReadDBValue<int?>(reader, 2);
+                    if (totalPlayCount.HasValue && totalPlayCount.Value > 0)
+                      watchedCount++;
+                  }
                 }
               }
 
-              //Update parents
-              foreach (var key in userDataParent)
+              //Update parent
+              command.Parameters.Clear();
+              database.AddParameter(command, "ITEM_ID", key.Key, typeof(Guid));
+              database.AddParameter(command, "USER_PROFILE_ID", key.Value, typeof(Guid));
+              database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_PERCENTAGE, typeof(string));
+
+              int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
+              if (watchPercentage >= 100)
+                watchPercentage = 100;
+              command.CommandText = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
+                " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = " + watchPercentage +
+                " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                " AND " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
+              if (command.ExecuteNonQuery() > 0)
               {
-                //Find children
-                command.Parameters.Clear();
-                database.AddParameter(command, "ITEM_ID", key.Key, typeof(Guid));
-                database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
-                database.AddParameter(command, "USER_PROFILE_ID", key.Value, typeof(Guid));
-                database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
-
-                float nonVirtualChildCount = 0;
-                float watchedCount = 0;
-                command.CommandText = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
-                    ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-                    ", M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_PLAYCOUNT) +
-                    " FROM " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-                    " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
-                    " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-                    " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-                    " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
-                    " WHERE M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
-                    " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-                    " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
-                    " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @PARENT_ROLE_ID" +
-                    " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
-                    " UNION " +
-                    " SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
-                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-                    " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
-                    " AND " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @PARENT_ROLE_ID" +
-                    " AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
-                    ")";
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                  while (reader.Read())
-                  {
-                    bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
-                    if (childVirtual == false)
-                    {
-                      nonVirtualChildCount++;
-                    }
-                    int playCount = 0;
-                    if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount))
-                    {
-                      if(playCount > 0)
-                        watchedCount++;
-                    }
-                    else //Prefer user play count but use overall play count if not available
-                    {
-                      int? totalPlayCount = database.ReadDBValue<int?>(reader, 2);
-                      if (totalPlayCount.HasValue && totalPlayCount.Value > 0)
-                        watchedCount++;
-                    }
-                  }
-                }
-
-                //Update parent
-                command.Parameters.Clear();
-                database.AddParameter(command, "ITEM_ID", key.Key, typeof(Guid));
-                database.AddParameter(command, "USER_PROFILE_ID", key.Value, typeof(Guid));
-                database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_PERCENTAGE, typeof(string));
-
-                int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
-                if (watchPercentage >= 100)
-                  watchPercentage = 100;
-                command.CommandText = "UPDATE " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-                  " SET " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + " = " + watchPercentage +
-                  " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
-                  " AND " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-                  " AND " + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY";
-                if (command.ExecuteNonQuery() > 0)
-                {
-                  Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", key.Key, roleExtractor.LinkedRole, watchPercentage);
-                }
+                Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", key.Key, hierarchy.ParentRole, watchPercentage);
               }
             }
           }
@@ -2380,67 +2379,61 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             string parentRoleColumn = null;
             string childIdColumn = null;
             string childRoleColumn = null;
-            foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+            foreach (RelationshipHierarchy hierarchy in _hierarchies)
             {
-              foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
+              parentId = null;
+              parentId = null;
+              parentIdColumn = null;
+              parentRoleColumn = null;
+              childIdColumn = null;
+              childRoleColumn = null;
+
+              if (TryFindParent(database, transaction, mediaItemId, hierarchy.ChildRole, hierarchy.ParentRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
               {
-                if (!roleExtractor.IsHierarchyRelationship)
-                  continue;
+                command.Parameters.Clear();
+                database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
+                database.AddParameter(command, "ROLE_ID", hierarchy.ChildRole, typeof(Guid));
+                database.AddParameter(command, "PARENT_ROLE_ID", hierarchy.ParentRole, typeof(Guid));
+                database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
+                database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
 
-                parentId = null;
-                parentId = null;
-                parentIdColumn = null;
-                parentRoleColumn = null;
-                childIdColumn = null;
-                childRoleColumn = null;
-
-                if (TryFindParent(database, transaction, mediaItemId, roleExtractor.Role, roleExtractor.LinkedRole, out parentId, out childIdColumn, out childRoleColumn, out parentIdColumn, out parentRoleColumn))
+                //Find all childs
+                float nonVirtualChildCount = 0;
+                float watchedCount = 0;
+                command.CommandText = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
+                    ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                    " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                    " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                    " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                    " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                    " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
+                    " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                    " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
+                    " WHERE R." + childRoleColumn + " = @ROLE_ID" +
+                    " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
+                    " AND R." + parentIdColumn + " = @ITEM_ID";
+                using (IDataReader reader = command.ExecuteReader())
                 {
-                  command.Parameters.Clear();
-                  database.AddParameter(command, "ITEM_ID", parentId.Value, typeof(Guid));
-                  database.AddParameter(command, "ROLE_ID", roleExtractor.Role, typeof(Guid));
-                  database.AddParameter(command, "PARENT_ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
-                  database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
-                  database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
-
-                  //Find all childs
-                  float nonVirtualChildCount = 0;
-                  float watchedCount = 0;
-                  command.CommandText = "SELECT M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) +
-                      ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-                      " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
-                      " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-                      " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
-                      " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
-                      " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + childIdColumn +
-                      " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-                      " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
-                      " WHERE R." + childRoleColumn + " = @ROLE_ID" +
-                      " AND R." + parentRoleColumn + " = @PARENT_ROLE_ID" +
-                      " AND R." + parentIdColumn + " = @ITEM_ID";
-                  using (IDataReader reader = command.ExecuteReader())
+                  while (reader.Read())
                   {
-                    while (reader.Read())
+                    bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
+                    if (childVirtual == false)
                     {
-                      bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
-                      if (childVirtual == false)
-                      {
-                        nonVirtualChildCount++;
-                      }
-                      int playCount = 0;
-                      if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount) && playCount > 0)
-                      {
-                        watchedCount++;
-                      }
+                      nonVirtualChildCount++;
+                    }
+                    int playCount = 0;
+                    if (int.TryParse(database.ReadDBValue<string>(reader, 1), out playCount) && playCount > 0)
+                    {
+                      watchedCount++;
                     }
                   }
-
-                  int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
-                  if (watchPercentage >= 100)
-                    watchPercentage = 100;
-                  parentPercentages.Add(parentId.Value, watchPercentage);
-                  Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", parentId.Value, roleExtractor.LinkedRole, watchPercentage);
                 }
+
+                int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
+                if (watchPercentage >= 100)
+                  watchPercentage = 100;
+                parentPercentages.Add(parentId.Value, watchPercentage);
+                Logger.Debug("MediaLibrary: Set parent media item {0} with role {1} watch percentage = {2}", parentId.Value, hierarchy.ParentRole, watchPercentage);
               }
             }
           }
@@ -2471,62 +2464,56 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           using (IDbCommand command = transaction.CreateCommand())
           {
-            foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+            foreach (RelationshipHierarchy hierarchy in _hierarchies)
             {
-              foreach (IRelationshipRoleExtractor roleExtractor in extractor.RoleExtractors)
+              command.Parameters.Clear();
+              database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+              database.AddParameter(command, "ROLE_ID", hierarchy.ParentRole, typeof(Guid));
+              database.AddParameter(command, "CHILD_ROLE_ID", hierarchy.ChildRole, typeof(Guid));
+              database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
+              database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
+
+              command.CommandText = "SELECT R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+                " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
+                " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @CHILD_ROLE_ID" +
+                " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
+                " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
+                " AND M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 0" +
+                " UNION " +
+                "SELECT R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
+                " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
+                " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
+                " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
+                " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+                " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
+                " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
+                " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @CHILD_ROLE_ID" +
+                " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
+                " AND R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+                " AND M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 0";
+
+              using (IDataReader reader = command.ExecuteReader())
               {
-                if (!roleExtractor.IsHierarchyRelationship)
-                  continue;
-
-                command.Parameters.Clear();
-                database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
-                database.AddParameter(command, "ROLE_ID", roleExtractor.LinkedRole, typeof(Guid));
-                database.AddParameter(command, "CHILD_ROLE_ID", roleExtractor.Role, typeof(Guid));
-                database.AddParameter(command, "USER_PROFILE_ID", userProfileId, typeof(Guid));
-                database.AddParameter(command, "USER_DATA_KEY", UserDataKeysKnown.KEY_PLAY_COUNT, typeof(string));
-
-                command.CommandText = "SELECT R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-                  ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-                  " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
-                  " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-                  " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-                  " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
-                  " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
-                  " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-                  " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
-                  " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @CHILD_ROLE_ID" +
-                  " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @ROLE_ID" +
-                  " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
-                  " AND M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 0" +
-                  " UNION " +
-                  "SELECT R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
-                  ", U." + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-                  " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) + " R" +
-                  " JOIN " + _miaManagement.GetMIATableName(MediaAspect.Metadata) + " M" +
-                  " ON M." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
-                  " LEFT OUTER JOIN " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME + " U" +
-                  " ON U." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
-                  " AND U." + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID" +
-                  " AND U." + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + " = @USER_DATA_KEY" +
-                  " WHERE R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE) + " = @CHILD_ROLE_ID" +
-                  " AND R." + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE) + " = @ROLE_ID" +
-                  " AND R." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
-                  " AND M." + _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL) + " = 0";
-
-                using (IDataReader reader = command.ExecuteReader())
+                while (reader.Read())
                 {
-                  while (reader.Read())
+                  Guid? childId = database.ReadDBValue<Guid?>(reader, 0);
+                  int playCount = 0;
+                  if (watched)
                   {
-                    Guid? childId = database.ReadDBValue<Guid?>(reader, 0);
-                    int playCount = 0;
-                    if (watched)
-                    {
-                      string plays = database.ReadDBValue<string>(reader, 1);
-                      int.TryParse(plays, out playCount);
-                      playCount++;
-                    }
-                    childPlayCounts.Add(childId.Value, playCount);
+                    string plays = database.ReadDBValue<string>(reader, 1);
+                    int.TryParse(plays, out playCount);
+                    playCount++;
                   }
+                  childPlayCounts.Add(childId.Value, playCount);
                 }
               }
             }

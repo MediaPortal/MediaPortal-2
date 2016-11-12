@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -38,11 +39,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
 
     public bool BuildRelationship
-    {
-      get { return true; }
-    }
-
-    public bool IsHierarchyRelationship
     {
       get { return true; }
     }
@@ -67,16 +63,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return LINKED_ROLE_ASPECTS; }
     }
 
-    public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute
-    {
-      get { return AudioAspect.ATTR_TRACKNAME; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute
-    {
-      get { return AudioAlbumAspect.ATTR_AVAILABLE_TRACKS; }
-    }
-
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       return GetAlbumSearchFilter(extractedAspects);
@@ -95,6 +81,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       Guid albumId;
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
+      UpdatePersons(aspects, albumInfo.Artists, true);
       if (TryGetIdFromAlbumCache(albumInfo, out albumId))
         albumInfo = GetFromAlbumCache(albumId);
       else if (!AudioMetadataExtractor.SkipOnlineSearches)
@@ -125,10 +112,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         MediaItemAspect.SetAttribute(albumAspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, data);
       }
 
+      if (forceQuickMode)
+        StorePersons(albumAspects, albumInfo.Artists, true);
+
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
-      if(albumId != Guid.Empty)
+      if (albumId != Guid.Empty)
         extractedLinkedAspects.Add(albumAspects, albumId);
       else
         extractedLinkedAspects.Add(albumAspects, Guid.Empty);

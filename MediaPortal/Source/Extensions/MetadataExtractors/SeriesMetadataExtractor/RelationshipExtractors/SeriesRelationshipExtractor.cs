@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using System.Threading;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -50,6 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     protected AsynchronousMessageQueue _messageQueue;
     protected int _importerCount;
     private IList<IRelationshipRoleExtractor> _extractors;
+    private IList<RelationshipHierarchy> _hierarchies;
 
     public SeriesRelationshipExtractor()
     {
@@ -72,6 +74,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new SeriesProductionRelationshipExtractor());
 
       _extractors.Add(new SeriesEpisodeRelationshipExtractor());
+
+      _hierarchies = new List<RelationshipHierarchy>();
+      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_EPISODES));
+      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_AVAILABLE_EPISODES));
+      _hierarchies.Add(new RelationshipHierarchy(SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_SEASONS));
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
@@ -115,6 +122,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
+    }
+
+    public IList<RelationshipHierarchy> Hierarchies
+    {
+      get { return _hierarchies; }
     }
   }
 }

@@ -61,24 +61,6 @@ namespace MediaPortal.Common.MediaManagement
     bool BuildRelationship { get; }
 
     /// <summary>
-    /// Specifies that the linked role is considered to be above the role in a hierarchy. 
-    /// This will be used to update parent attributes based on child attributes.
-    /// </summary>
-    bool IsHierarchyRelationship { get; }
-
-    /// <summary>
-    /// Specifies the child attribute to use to count the number of available children.
-    /// It must from one of the role aspects and is only used for hierarchy relationships.
-    /// </summary>
-    MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute { get; }
-
-    /// <summary>
-    /// Specifies the parent attribute to update with the number of available children.
-    /// It must from one of the linked role aspects and is only used for hierarchy relationships.
-    /// </summary>
-    MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute { get; }
-
-    /// <summary>
     /// Get optimized filter that can be used to find a direct match to any existing media item.
     /// </summary>
     /// <param name="extractedAspects"></param>
@@ -142,5 +124,7 @@ namespace MediaPortal.Common.MediaManagement
     RelationshipExtractorMetadata Metadata { get; }
 
     IList<IRelationshipRoleExtractor> RoleExtractors { get; }
+
+    IList<RelationshipHierarchy> Hierarchies { get; }
   }
 }

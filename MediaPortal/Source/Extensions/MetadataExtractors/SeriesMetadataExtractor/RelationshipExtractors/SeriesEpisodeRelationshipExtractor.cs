@@ -46,11 +46,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return false; }
     }
 
-    public bool IsHierarchyRelationship
-    {
-      get { return false; }
-    }
-
     public Guid Role
     {
       get { return SeriesAspect.ROLE_SERIES; }
@@ -69,16 +64,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public Guid[] LinkedRoleAspects
     {
       get { return LINKED_ROLE_ASPECTS; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute
-    {
-      get { return null; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute
-    {
-      get { return null; }
     }
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)

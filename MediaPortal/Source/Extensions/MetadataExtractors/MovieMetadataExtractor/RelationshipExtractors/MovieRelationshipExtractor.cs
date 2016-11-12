@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using System.Threading;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -50,6 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     protected AsynchronousMessageQueue _messageQueue;
     protected int _importerCount;
     private IList<IRelationshipRoleExtractor> _extractors;
+    private IList<RelationshipHierarchy> _hierarchies;
 
     public MovieRelationshipExtractor()
     {
@@ -64,6 +66,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       _extractors.Add(new MovieCharacterRelationshipExtractor());
       _extractors.Add(new MovieProductionRelationshipExtractor());
       _extractors.Add(new MovieCollectionMovieRelationshipExtractor());
+
+      _hierarchies = new List<RelationshipHierarchy>();
+      _hierarchies.Add(new RelationshipHierarchy(MovieAspect.ROLE_MOVIE, MovieAspect.ATTR_MOVIE_NAME, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieCollectionAspect.ATTR_AVAILABLE_MOVIES));
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
@@ -107,6 +112,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
+    }
+
+    public IList<RelationshipHierarchy> Hierarchies
+    {
+      get { return _hierarchies; }
     }
   }
 }

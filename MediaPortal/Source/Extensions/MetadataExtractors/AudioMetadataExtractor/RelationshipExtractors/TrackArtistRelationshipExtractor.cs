@@ -45,11 +45,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return true; }
     }
 
-    public bool IsHierarchyRelationship
-    {
-      get { return false; }
-    }
-
     public Guid Role
     {
       get { return AudioAspect.ROLE_TRACK; }
@@ -68,16 +63,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public Guid[] LinkedRoleAspects
     {
       get { return LINKED_ROLE_ASPECTS; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute
-    {
-      get { return null; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute
-    {
-      get { return null; }
     }
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
@@ -101,6 +86,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       if (CheckCacheContains(trackInfo))
         return false;
+
+      UpdatePersons(aspects, trackInfo.Artists, false);
 
       if (!AudioMetadataExtractor.SkipOnlineSearches)
         OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);

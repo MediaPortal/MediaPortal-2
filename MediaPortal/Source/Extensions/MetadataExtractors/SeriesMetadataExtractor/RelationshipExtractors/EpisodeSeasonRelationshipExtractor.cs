@@ -45,11 +45,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return true; }
     }
 
-    public bool IsHierarchyRelationship
-    {
-      get { return true; }
-    }
-
     public Guid Role
     {
       get { return EpisodeAspect.ROLE_EPISODE; }
@@ -68,16 +63,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public Guid[] LinkedRoleAspects
     {
       get { return LINKED_ROLE_ASPECTS; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ChildCountAttribute
-    {
-      get { return EpisodeAspect.ATTR_EPISODE; }
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification ParentCountAttribute
-    {
-      get { return SeasonAspect.ATTR_AVAILABLE_EPISODES; }
     }
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
