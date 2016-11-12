@@ -290,6 +290,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected const string KEY_CURRENTLY_IMPORTING_SHARE_IDS = "CurrentlyImportingShareIds";
     protected const char ESCAPE_CHAR = '\\';
+
+    /// <summary>
+    /// SQLite has a defult variable limit of 100, this value is deliberately set a bit lower to allow a bit of headroom.
+    /// Currently only used when requesting multiple MediaItems by id as the variable count can be easily determined for those queries.
+    /// ToDo check the limits of other SQL providers.
+    /// </summary>
     protected const int MAX_VARIABLES_LIMIT = 80;
 
     #endregion
@@ -1430,6 +1436,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (mediaItemIds.Count < MAX_VARIABLES_LIMIT)
         return Search(database, transaction, new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds, new MediaItemIdFilter(mediaItemIds)), filterOnlyOnline, userProfileId, includeVirtual);
 
+      //If mediaItemIds count is greater than MAX_VARIABLES_LIMIT 'page' the requests to avoid exceeding sqlite's max variable limit when creating the IN(id,id,...) statement
       List<MediaItem> results = new List<MediaItem>();
       int currentItem = 0;
       while (currentItem < mediaItemIds.Count)
