@@ -267,6 +267,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
           continue;
         }
 
+        if (genre.Name == null)
+          continue;
+
         GenreInfo testGenre = genre;
         foreach (GenreMapping map in genreMap)
         {
