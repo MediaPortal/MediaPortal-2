@@ -44,5 +44,7 @@ namespace MediaPortal.Common.Genres
     public const int EASY_LISTENING = 16;
     public const int HOLIDAY = 17;
     public const int WORLD = 18;
+    public const int ALTERNATIVE = 19;
+    public const int COMPILATION = 20;
   }
 }

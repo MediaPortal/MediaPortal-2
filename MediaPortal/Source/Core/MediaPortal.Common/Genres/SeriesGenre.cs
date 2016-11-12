@@ -34,16 +34,21 @@ namespace MediaPortal.Common.Genres
     public const int DOCUMENTARY = 6;
     public const int DRAMA = 7;
     public const int FAMILY = 8;
-    public const int KIDS = 9;
-    public const int MYSTERY = 0;
-    public const int NEWS = 11;
-    public const int REALITY = 12;
-    public const int SCIENCE_FICTION = 13;
-    public const int FANTASY = 14;
-    public const int SOAP = 15;
-    public const int TALK = 16;
-    public const int WAR = 17;
-    public const int POLITICS = 18;
+    public const int FANTASY = 9;
+    public const int HISTORY = 10;
+    public const int HORROR = 11;
+    public const int MUSIC = 12;
+    public const int ROMANCE = 14;
+    public const int SCIENCE_FICTION = 15;
+    public const int MYSTERY = 16;
+    public const int THRILLER = 17;
+    public const int WAR = 18;
     public const int WESTERN = 19;
+    public const int KIDS = 20;
+    public const int NEWS = 21;
+    public const int REALITY = 22;
+    public const int SOAP = 23;
+    public const int TALK = 24;
+    public const int POLITICS = 25;
   }
 }
