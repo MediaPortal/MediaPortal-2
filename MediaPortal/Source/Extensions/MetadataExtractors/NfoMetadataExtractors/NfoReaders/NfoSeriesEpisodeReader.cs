@@ -1033,21 +1033,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       {
         foreach (PersonStub person in _stubs[0].Actors)
         {
-          if (!string.IsNullOrEmpty(person.ImdbId) && !string.IsNullOrEmpty(person.Name))
+          if (!string.IsNullOrEmpty(person.Name))
           {
-            PersonInfo info = new PersonInfo()
-            {
-              ImdbId = person.ImdbId,
-              Name = person.Name,
-              Biography = person.Biography,
-              DateOfBirth = person.Birthdate,
-              DateOfDeath = person.Deathdate,
-              Orign = person.Birthplace,
-              Occupation = PersonAspect.OCCUPATION_ACTOR,
-              Thumbnail = person.Thumb,
-              Order = person.Order
-            };
-            OnlineMatcherService.Instance.StoreSeriesPersonMatch(info);
+            INfoRelationshipExtractor.StorePersonAndCharacter(extractedAspectData, person, PersonAspect.OCCUPATION_ACTOR, false);
           }
         }
 
@@ -1060,21 +1048,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       {
         foreach (PersonStub person in _seriesStubs[0].Actors)
         {
-          if (!string.IsNullOrEmpty(person.ImdbId) && !string.IsNullOrEmpty(person.Name))
+          if (!string.IsNullOrEmpty(person.Name))
           {
-            PersonInfo info = new PersonInfo()
-            {
-              ImdbId = person.ImdbId,
-              Name = person.Name,
-              Biography = person.Biography,
-              DateOfBirth = person.Birthdate,
-              DateOfDeath = person.Deathdate,
-              Orign = person.Birthplace,
-              Occupation = PersonAspect.OCCUPATION_ACTOR,
-              Thumbnail = person.Thumb,
-              Order = person.Order
-            };
-            OnlineMatcherService.Instance.StoreSeriesPersonMatch(info);
+            INfoRelationshipExtractor.StorePersonAndCharacter(extractedAspectData, person, PersonAspect.OCCUPATION_ACTOR, false);
           }
         }
 

@@ -27,8 +27,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -75,15 +75,22 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      SeriesMetadataExtractorSettings settings = serverSettings.Load<SeriesMetadataExtractorSettings>();
-      settings.IncludeActorDetails = _selected.Contains(0);
-      settings.IncludeCharacterDetails = _selected.Contains(1);
-      settings.IncludeDirectorDetails = _selected.Contains(2);
-      settings.IncludeWriterDetails = _selected.Contains(3);
-      settings.IncludeProductionCompanyDetails = _selected.Contains(4);
-      settings.IncludeTVNetworkDetails = _selected.Contains(5);
-      serverSettings.Save(settings);
-      localSettings.Save(settings);
+
+      SeriesMetadataExtractorSettings mainSettings = serverSettings.Load<SeriesMetadataExtractorSettings>();
+      mainSettings.IncludeActorDetails = _selected.Contains(0);
+      mainSettings.IncludeCharacterDetails = _selected.Contains(1);
+      mainSettings.IncludeDirectorDetails = _selected.Contains(2);
+      mainSettings.IncludeWriterDetails = _selected.Contains(3);
+      mainSettings.IncludeProductionCompanyDetails = _selected.Contains(4);
+      mainSettings.IncludeTVNetworkDetails = _selected.Contains(5);
+      serverSettings.Save(mainSettings);
+      localSettings.Save(mainSettings);
+
+      NfoSeriesMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoSeriesMetadataExtractorSettings>();
+      nfoSettings.IncludeActorDetails = mainSettings.IncludeActorDetails;
+      nfoSettings.IncludeCharacterDetails = mainSettings.IncludeCharacterDetails;
+      serverSettings.Save(nfoSettings);
+      localSettings.Save(nfoSettings);
     }
 
     public void Dispose()

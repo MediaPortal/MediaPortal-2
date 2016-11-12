@@ -42,6 +42,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
 using System.Collections;
+using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -103,6 +104,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     private HttpClient _httpClient;
 
+    private SettingsChangeWatcher<NfoSeriesMetadataExtractorSettings> _settingWatcher;
+
     #endregion
 
     #region Ctor
@@ -144,6 +147,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           ThumbnailLargeAspect.Metadata
         });
 
+      _settingWatcher = new SettingsChangeWatcher<NfoSeriesMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
+
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoSeriesMetadataExtractorSettings>();
 
       if (_settings.EnableDebugLogging)
@@ -170,18 +178,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
+    #region Settings
+
+    public static bool IncludeActorDetails { get; private set; }
+    public static bool IncludeCharacterDetails { get; private set; }
+
+    private void LoadSettings()
+    {
+      IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
+      IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
+    }
+
+    #endregion
+
     #region Private methods
 
     #region Metadata extraction
 
     /// <summary>
-    /// Asynchronously tries to extract metadata for the given <param name="mediaItemAccessor"></param>
+    /// Asynchronously tries to extract episode metadata for the given <param name="mediaItemAccessor"></param>
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
     /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
     /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    private async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    private async Task<bool> TryExtractEpsiodeMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -193,7 +219,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
         // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
         // has identified this MediaItem as a video and therefore added a VideoAspect.
-        if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
+        if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
         {
           _debugLogger.Info("[#{0}]: Cannot extract metadata; this resource is not a video", miNumber);
           return false;
@@ -235,7 +261,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           using (seriesNfoFsra)
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
+            {
               episodeNfoReader.SetSeriesStubs(seriesNfoReader.GetSeriesStubs());
+              INfoRelationshipExtractor.StoreSeries(extractedAspectData, seriesNfoReader.GetSeriesStubs().First());
+            }
             else
               _debugLogger.Warn("[#{0}]: No valid metadata found in series nfo-file", miNumber);
           }
@@ -255,6 +284,68 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("NfoSeriesMetadataExtractor: Exception while extracting metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
+        _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously tries to extract series metadata for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
+    /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
+    /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
+    private async Task<bool> TryExtractSeriesMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    {
+      // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
+      // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
+      // for one call are not contained one after another in debug log. We therefore prepend this number before every log entry.
+      var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
+      try
+      {
+        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (forceQuickMode: {2})", miNumber, mediaItemAccessor, forceQuickMode);
+
+        // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
+        // Otherwise it is not possible to find a nfo-file in the MediaItem's directory or parent directory.
+        if (!(mediaItemAccessor is IFileSystemResourceAccessor))
+        {
+          _debugLogger.Info("[#{0}]: Cannot extract metadata; mediaItemAccessor is not an IFileSystemResourceAccessor", miNumber);
+          return false;
+        }
+
+        // Then we try to find an IFileSystemResourceAccessor pointing to the series nfo-file.
+        IFileSystemResourceAccessor seriesNfoFsra;
+        if (TryGetSeriesNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out seriesNfoFsra))
+        {
+          // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
+          // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, forceQuickMode, _httpClient, _settings);
+          using (seriesNfoFsra)
+          {
+            if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
+            {
+              // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
+              // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
+              if (!seriesNfoReader.TryWriteMetadata(extractedAspectData))
+              {
+                _debugLogger.Warn("[#{0}]: No metadata was written into series MediaItemsAspects", miNumber);
+                return false;
+              }
+              else
+              {
+                _debugLogger.Warn("[#{0}]: No valid metadata found in series nfo-file", miNumber);
+              }
+            }
+          }
+        }
+
+        _debugLogger.Info("[#{0}]: Successfully finished extracting series metadata", miNumber);
+        return true;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("NfoSeriesMetadataExtractor: Exception while extracting series metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
         _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
         return false;
       }
@@ -513,7 +604,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
       // The following is bad practice as it wastes one ThreadPool thread.
       // ToDo: Once the IMetadataExtractor interface is updated to support async operations, call TryExtractMetadataAsync directly
-      return TryExtractMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode).Result;
+      return TryExtractEpsiodeMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode).Result;
     }
 
     #endregion

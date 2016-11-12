@@ -27,8 +27,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -72,14 +72,22 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
-      settings.IncludeActorDetails = _selected.Contains(0);
-      settings.IncludeCharacterDetails = _selected.Contains(1);
-      settings.IncludeDirectorDetails = _selected.Contains(2);
-      settings.IncludeWriterDetails = _selected.Contains(3);
-      settings.IncludeProductionCompanyDetails = _selected.Contains(4);
-      serverSettings.Save(settings);
-      localSettings.Save(settings);
+
+      MovieMetadataExtractorSettings mainSettings = serverSettings.Load<MovieMetadataExtractorSettings>();
+      mainSettings.IncludeActorDetails = _selected.Contains(0);
+      mainSettings.IncludeCharacterDetails = _selected.Contains(1);
+      mainSettings.IncludeDirectorDetails = _selected.Contains(2);
+      mainSettings.IncludeWriterDetails = _selected.Contains(3);
+      mainSettings.IncludeProductionCompanyDetails = _selected.Contains(4);
+      serverSettings.Save(mainSettings);
+      localSettings.Save(mainSettings);
+
+      NfoMovieMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoMovieMetadataExtractorSettings>();
+      nfoSettings.IncludeActorDetails = mainSettings.IncludeActorDetails;
+      nfoSettings.IncludeCharacterDetails = mainSettings.IncludeCharacterDetails;
+      nfoSettings.IncludeDirectorDetails = mainSettings.IncludeDirectorDetails;
+      serverSettings.Save(nfoSettings);
+      localSettings.Save(nfoSettings);
     }
 
     public void Dispose()

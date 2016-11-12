@@ -32,4 +32,13 @@
         Id="NfoSeriesMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoSeriesMetadataExtractor"/>
   </Register>
+
+  <Register Location="/Media/RelationshipExtractors">
+    <Instance
+        Id="NfoMovieRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.MovieRelationshipExtractor"/>
+    <Instance
+        Id="NfoSeriesRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.SeriesRelationshipExtractor"/>
+  </Register>
 </Plugin>
