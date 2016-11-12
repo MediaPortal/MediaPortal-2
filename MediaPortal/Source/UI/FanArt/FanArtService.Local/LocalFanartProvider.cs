@@ -98,7 +98,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           {
             var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
 
-            if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
+            if (fanArtType == FanArtTypes.Thumbnail)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                where /* Allow same file name only for non-images, otherwise each image would be its own thumbnail */
+                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) ||
+                      potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "-thumb"
+                select potentialFanArtFile);
+
+            if (fanArtType == FanArtTypes.Poster || (fanArtPaths.Count == 0 && fanArtType == FanArtTypes.Thumbnail))
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
@@ -121,6 +130,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
                 where potentialFanArtFileNameWithoutExtension == "clearart"
+                select potentialFanArtFile);
+
+            if (fanArtType == FanArtTypes.Banner)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                where potentialFanArtFileNameWithoutExtension == "banner"
                 select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.FanArt)
