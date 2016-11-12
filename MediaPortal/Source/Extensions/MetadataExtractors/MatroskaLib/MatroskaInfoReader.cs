@@ -62,6 +62,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       FieldSequentialModeRightEyeFirst,
     }
 
+    /// <summary>
+    /// Maximum duration for creating a tag extraction.
+    /// </summary>
+    protected const int PROCESS_TIMEOUT_MS = 15000;
+
     #region Fields
 
     private readonly ILocalFsResourceAccessor _lfsra;
@@ -70,7 +75,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     private static readonly object MKVINFO_THROTTLE_LOCK = new object();
     private readonly string _mkvExtractPath;
     private static readonly object MKVEXTRACT_THROTTLE_LOCK = new object();
-    private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.Idle;
+    private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.BelowNormal;
 
     #endregion
 
@@ -133,7 +138,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       try
       {
         lock (MKVEXTRACT_THROTTLE_LOCK)
-          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass).Result;
+          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
       catch (AggregateException ae)
       {
@@ -202,7 +207,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       try
       {
         lock (MKVINFO_THROTTLE_LOCK)
-          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass).Result;
+          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
       catch (AggregateException ae)
       {
@@ -256,7 +261,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       try
       {
         lock (MKVINFO_THROTTLE_LOCK)
-          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass).Result;
+          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
       catch (AggregateException ae)
       {
@@ -354,7 +359,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       try
       {
         lock (MKVEXTRACT_THROTTLE_LOCK)
-          success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass).Result.Success;
+          success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result.Success;
       }
       catch (AggregateException ae)
       {
