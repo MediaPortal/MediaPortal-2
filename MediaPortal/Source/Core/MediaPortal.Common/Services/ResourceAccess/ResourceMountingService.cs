@@ -120,8 +120,10 @@ namespace MediaPortal.Common.Services.ResourceAccess
       String pathRoot = Path.GetPathRoot(LocalFsResourceProviderBase.ToDosPath(firstRPSegment));
       if (string.IsNullOrEmpty(pathRoot) || pathRoot.Length < 2)
         return false;
-      // The provider may also point to an UNC path.
-      return pathRoot[1] == ':';
+      string fullPath = LocalFsResourceProviderBase.ToDosPath(rp);
+      if (!string.IsNullOrEmpty(fullPath) && fullPath.Equals(_dokanExecutor.MountPoint, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+      return false;
     }
 
     public string CreateRootDirectory(string rootDirectoryName)
