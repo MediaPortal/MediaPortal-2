@@ -61,7 +61,7 @@ namespace MediaPortal.Common.MediaManagement
     bool BuildRelationship { get; }
 
     /// <summary>
-    /// Get optimized filter that can be used to find a direct match to any existing media item
+    /// Get optimized filter that can be used to find a direct match to any existing media item.
     /// </summary>
     /// <param name="extractedAspects"></param>
     /// <returns></returns>
@@ -124,5 +124,7 @@ namespace MediaPortal.Common.MediaManagement
     RelationshipExtractorMetadata Metadata { get; }
 
     IList<IRelationshipRoleExtractor> RoleExtractors { get; }
+
+    IList<RelationshipHierarchy> Hierarchies { get; }
   }
 }

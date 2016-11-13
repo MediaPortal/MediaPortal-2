@@ -24,10 +24,9 @@
 
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
+namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings
 {
   /// <summary>
   /// Settings class for the MovieMetadataExtractor

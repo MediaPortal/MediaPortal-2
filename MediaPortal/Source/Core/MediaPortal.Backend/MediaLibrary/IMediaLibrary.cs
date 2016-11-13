@@ -334,9 +334,6 @@ namespace MediaPortal.Backend.MediaLibrary
 
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
 
-    void AddMediaItemAspectStorage(MediaItemAspectMetadata miam, MediaItemAspectMetadata.AttributeSpecification[] specs, 
-      MediaItemAspectMetadata dependMiam, MediaItemAspectMetadata.AttributeSpecification[] dependSpecs);
-
     void RemoveMediaItemAspectStorage(Guid aspectId);
 
     IDictionary<Guid, MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata();
@@ -344,11 +341,6 @@ namespace MediaPortal.Backend.MediaLibrary
     IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates();
 
     MediaItemAspectMetadata GetManagedMediaItemAspectMetadata(Guid aspectId);
-
-    void RegisterMediaItemAspectRoleHierarchy(Guid childRole, Guid parentRole);
-
-    void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType,
-      MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual);
 
     #endregion
 

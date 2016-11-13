@@ -1391,21 +1391,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       {
         foreach(PersonStub person in _stubs[0].Actors)
         {
-          if (!string.IsNullOrEmpty(person.ImdbId) && !string.IsNullOrEmpty(person.Name))
+          if (!string.IsNullOrEmpty(person.Name))
           {
-            PersonInfo info = new PersonInfo()
-            {
-              ImdbId = person.ImdbId,
-              Name = person.Name,
-              Biography = person.Biography,
-              DateOfBirth = person.Birthdate,
-              DateOfDeath = person.Deathdate,
-              Orign = person.Birthplace,
-              Occupation = PersonAspect.OCCUPATION_ACTOR,
-              Thumbnail = person.Thumb,
-              Order = person.Order
-            };
-            OnlineMatcherService.Instance.StoreMoviePersonMatch(info);
+            INfoRelationshipExtractor.StorePersonAndCharacter(extractedAspectData, person, PersonAspect.OCCUPATION_ACTOR, false);
           }
         }
 
@@ -1427,16 +1415,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Director != null)
       {
-        if (!string.IsNullOrEmpty(_stubs[0].DirectorImdb))
+        if (!string.IsNullOrEmpty(_stubs[0].Director))
         {
-          PersonInfo info = new PersonInfo()
-          {
-            ImdbId = _stubs[0].DirectorImdb,
-            Name = _stubs[0].Director,
-            Occupation = PersonAspect.OCCUPATION_DIRECTOR,
-          };
-          OnlineMatcherService.Instance.StoreMoviePersonMatch(info);
-        }
+          PersonStub ps = new PersonStub();
+          ps.ImdbId = _stubs[0].DirectorImdb;
+          ps.Name = _stubs[0].Director;
+          INfoRelationshipExtractor.StorePersonAndCharacter(extractedAspectData, ps, PersonAspect.OCCUPATION_DIRECTOR, false);
+         }
 
         MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, new List<string> { _stubs[0].Director });
         return true;
@@ -1633,7 +1618,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Sets != null && _stubs[0].Sets.Any())
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_NAME, _stubs[0].Sets.OrderBy(set => set.Order).First().Name);
+        string setName = _stubs[0].Sets.OrderBy(set => set.Order).First().Name;
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_COLLECTION_NAME, setName);
         return true;
       }
       return false;

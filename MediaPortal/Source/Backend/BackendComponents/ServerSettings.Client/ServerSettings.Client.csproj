@@ -86,7 +86,6 @@
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEBrowseOffline.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEFilter.cs" />
     <Compile Include="Settings\Configuration\ServerImporterWorker.cs" />
-    <Compile Include="Settings\Configuration\ServerDOKANDrive.cs" />
     <Compile Include="Settings\Configuration\ServerNetworkCredentials.cs" />
     <Compile Include="Settings\ConnectionMonitor.cs" />
     <Compile Include="ServerSettingsPlugin.cs" />
@@ -129,6 +128,10 @@
     <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj">
       <Project>{E73C038E-FD47-40AD-9256-4457316F8A97}</Project>
       <Name>MovieMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\NfoMetadataExtractors\NfoMetadataExtractors.csproj">
+      <Project>{e34b06d1-8dcd-4027-9c2f-26fb29eb58a7}</Project>
+      <Name>NfoMetadataExtractors</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
       <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>

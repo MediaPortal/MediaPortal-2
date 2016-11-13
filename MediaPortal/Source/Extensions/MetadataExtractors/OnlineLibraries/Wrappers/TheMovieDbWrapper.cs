@@ -537,7 +537,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         foreach (int episodeNumber in episode.EpisodeNumbers)
         {
           episodeDetail = _movieDbHandler.GetSeriesEpisode(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episodeNumber, language, cacheOnly);
-          if (episodeDetail == null) return false;
+          if (episodeDetail == null) continue;
 
           EpisodeInfo info = new EpisodeInfo()
           {

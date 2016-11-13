@@ -112,6 +112,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
         IDictionary<Guid, IList<MediaItemAspect>> movieAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         movieInfo.SetMetadata(movieAspects);
+        MediaItemAspect.SetAttribute(movieAspects, MediaAspect.ATTR_ISVIRTUAL, true);
 
         if (movieAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(movieAspects, Guid.Empty);

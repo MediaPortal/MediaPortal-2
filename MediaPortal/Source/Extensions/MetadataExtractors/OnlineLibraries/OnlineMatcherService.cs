@@ -113,14 +113,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
           new GenreMapping(MusicGenre.RB_SOUL, new SerializableRegex(@"R&B|Soul|Disco|Funk|Swing|Blues", RegexOptions.IgnoreCase)),
           new GenreMapping(MusicGenre.HIP_HOP_RAP, new SerializableRegex(@"Hop|Rap|Bounce|Turntablism", RegexOptions.IgnoreCase)),
           new GenreMapping(MusicGenre.RAGGAE, new SerializableRegex(@"Reggae|Dancehall", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.POP, new SerializableRegex(@"Pop", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.DANCE, new SerializableRegex(@"Dance|Club|House|Step|Garage|Trance|NRG|Core", RegexOptions.IgnoreCase)),
+          new GenreMapping(MusicGenre.POP, new SerializableRegex(@"Pop|Beat", RegexOptions.IgnoreCase)),
+          new GenreMapping(MusicGenre.DANCE, new SerializableRegex(@"Dance|Club|House|Step|Garage|Trance|NRG|Core|Techno", RegexOptions.IgnoreCase)),
           new GenreMapping(MusicGenre.ELECTRONIC, new SerializableRegex(@"Electronic|Electro|Experimental|8bit|Chiptune|Downtempo|Industrial", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.COMEDY, new SerializableRegex(@"Novelty|Comedy|Parody", RegexOptions.IgnoreCase)),
+          new GenreMapping(MusicGenre.COMEDY, new SerializableRegex(@"Comedy|Novelty|Parody", RegexOptions.IgnoreCase)),
           new GenreMapping(MusicGenre.FOLK, new SerializableRegex(@"Folk", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.EASY_LISTENING, new SerializableRegex(@"Lounge|Background|Swing|Bop", RegexOptions.IgnoreCase)),
+          new GenreMapping(MusicGenre.EASY_LISTENING, new SerializableRegex(@"Easy|Lounge|Background|Swing|Bop|Ambient", RegexOptions.IgnoreCase)),
           new GenreMapping(MusicGenre.HOLIDAY, new SerializableRegex(@"Holiday|Chanukah|Christmas|Easter|Halloween|Thanksgiving", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.WORLD, new SerializableRegex(@"Africa|Afro|Asia|Australia|Cajun|Latin|Calypso|Caribbean|Celtic|Europe|France|America|Polka|Japanese|Indian|Korean|German", RegexOptions.IgnoreCase)),
+          new GenreMapping(MusicGenre.WORLD, new SerializableRegex(@"World|Africa|Afro|Asia|Australia|Cajun|Latin|Calypso|Caribbean|Celtic|Europe|France|America|Polka|Japanese|Indian|Korean|German|Danish|Ballad|Ethnic|Indie", RegexOptions.IgnoreCase)),
+          new GenreMapping(MusicGenre.ALTERNATIVE, new SerializableRegex(@"Alternative|New Wave|Progressive", RegexOptions.IgnoreCase)),
+          new GenreMapping(MusicGenre.COMPILATION, new SerializableRegex(@"Compilation|Top", RegexOptions.IgnoreCase)),
         };
       }
       MUSIC_GENRE_MAP = new List<GenreMapping>(settings.MusicGenreMappings);
@@ -143,7 +145,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           new GenreMapping(MovieGenre.ANIMATION, new SerializableRegex(@"Animation|Cartoon|Anime", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.COMEDY, new SerializableRegex(@"Comedy", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.CRIME, new SerializableRegex(@"Crime", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.DOCUMENTARY, new SerializableRegex(@"Documentary", RegexOptions.IgnoreCase)),
+          new GenreMapping(MovieGenre.DOCUMENTARY, new SerializableRegex(@"Documentary|Biography", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.DRAMA, new SerializableRegex(@"Drama", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.FAMILY, new SerializableRegex(@"Family", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.FANTASY, new SerializableRegex(@"Fantasy", RegexOptions.IgnoreCase)),
@@ -154,7 +156,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           new GenreMapping(MovieGenre.ROMANCE, new SerializableRegex(@"Romance", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.SCIENCE_FICTION, new SerializableRegex(@"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.TV_MOVIE, new SerializableRegex(@"TV", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.THRILLER, new SerializableRegex(@"Thriller", RegexOptions.IgnoreCase)),
+          new GenreMapping(MovieGenre.THRILLER, new SerializableRegex(@"Thriller|Disaster|Suspense", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.WAR, new SerializableRegex(@"War", RegexOptions.IgnoreCase)),
           new GenreMapping(MovieGenre.WESTERN, new SerializableRegex(@"Western", RegexOptions.IgnoreCase)),
         };
@@ -179,20 +181,26 @@ namespace MediaPortal.Extensions.OnlineLibraries
           new GenreMapping(SeriesGenre.ANIMATION, new SerializableRegex(@"Animation|Cartoon|Anime", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.COMEDY, new SerializableRegex(@"Comedy", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.CRIME, new SerializableRegex(@"Crime", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.DOCUMENTARY, new SerializableRegex(@"Documentary", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.DOCUMENTARY, new SerializableRegex(@"Documentary|Biography", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.DRAMA, new SerializableRegex(@"Drama", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.FAMILY, new SerializableRegex(@"Family", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.KIDS, new SerializableRegex(@"Kids|Children|Teen", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.FANTASY, new SerializableRegex(@"Fantasy", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.HISTORY, new SerializableRegex(@"History", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.HORROR, new SerializableRegex(@"Horror", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.MUSIC, new SerializableRegex(@"Music", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.MYSTERY, new SerializableRegex(@"Mystery", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.ROMANCE, new SerializableRegex(@"Romance", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.SCIENCE_FICTION, new SerializableRegex(@"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.MYSTERY, new SerializableRegex(@"Mystery", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.THRILLER, new SerializableRegex(@"Thriller|Disaster|Suspense", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.WAR, new SerializableRegex(@"War", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.WESTERN, new SerializableRegex(@"Western", RegexOptions.IgnoreCase)),
+          new GenreMapping(SeriesGenre.KIDS, new SerializableRegex(@"Kids|Children|Teen", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.NEWS, new SerializableRegex(@"News", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.REALITY, new SerializableRegex(@"Reality", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.SCIENCE_FICTION, new SerializableRegex(@"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.FANTASY, new SerializableRegex(@"Fantasy", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.SOAP, new SerializableRegex(@"Soap", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.TALK, new SerializableRegex(@"Talk", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.WAR, new SerializableRegex(@"War", RegexOptions.IgnoreCase)),
           new GenreMapping(SeriesGenre.POLITICS, new SerializableRegex(@"Politic", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.WESTERN, new SerializableRegex(@"Western", RegexOptions.IgnoreCase)),
         };
       }
       SERIES_GENRE_MAP = new List<GenreMapping>(settings.SeriesGenreMappings);
@@ -259,7 +267,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           continue;
         }
 
-        if (genre.Name == null)
+        if (string.IsNullOrEmpty(genre.Name))
           continue;
 
         GenreInfo testGenre = genre;

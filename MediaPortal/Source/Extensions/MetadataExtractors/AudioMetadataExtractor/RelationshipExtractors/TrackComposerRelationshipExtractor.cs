@@ -90,6 +90,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (CheckCacheContains(trackInfo))
         return false;
 
+      UpdatePersons(aspects, trackInfo.Composers, false);
+
       if (!AudioMetadataExtractor.SkipOnlineSearches)
         OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_COMPOSER, forceQuickMode);
 

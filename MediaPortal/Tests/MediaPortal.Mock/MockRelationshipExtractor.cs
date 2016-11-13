@@ -148,6 +148,14 @@ namespace MediaPortal.Mock
       get { return _lookups.Cast<IRelationshipRoleExtractor>().ToList(); }
     }
 
+    public IList<RelationshipHierarchy> Hierarchies
+    {
+      get
+      {
+        return null;
+      }
+    }
+
     public void AddRelationship(
       Guid role, Guid[] roleAspectIds, Guid linkedRole, Guid[] linkedRoleAspectIds, 
       string source, string type, string id, 

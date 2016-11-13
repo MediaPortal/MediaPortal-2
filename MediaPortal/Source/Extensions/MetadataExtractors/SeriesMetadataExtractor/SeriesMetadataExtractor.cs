@@ -34,6 +34,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -146,7 +147,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         episodeInfo.FromMetadata(extractedAspectData);
       }
-      if(!episodeInfo.IsBaseInfoPresent)
+      if (!episodeInfo.IsBaseInfoPresent)
       {
         string title = null;
         int seasonNumber;
@@ -162,42 +163,42 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           episodeInfo.EpisodeNumbers.Clear();
           episodeNumbers.ToList().ForEach(n => episodeInfo.EpisodeNumbers.Add(n));
         }
+      }
 
-        // If there was no complete match, yet, try to get extended information out of matroska files)
-        if (!episodeInfo.IsBaseInfoPresent)
+      // If there was no complete match, yet, try to get extended information out of matroska files)
+      if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
+      {
+        MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
+        if (matroskaMatcher.MatchSeries(lfsra, episodeInfo))
         {
-          MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-          if (matroskaMatcher.MatchSeries(lfsra, episodeInfo))
-          {
-            ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
-              episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.IsBaseInfoPresent);
-          }
-        }
-
-        // If no information was found before, try name matching
-        if (!episodeInfo.IsBaseInfoPresent)
-        {
-          // Try to match series from folder and file naming
-          SeriesMatcher seriesMatcher = new SeriesMatcher();
-          seriesMatcher.MatchSeries(lfsra, episodeInfo);
-        }
-        else if (episodeInfo.SeriesFirstAired == null)
-        {
-          EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
-          SeriesMatcher seriesMatcher = new SeriesMatcher();
-          seriesMatcher.MatchSeries(lfsra, tempEpisodeInfo);
-          if (tempEpisodeInfo.SeriesFirstAired.HasValue)
-            episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
+          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
+            episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.IsBaseInfoPresent);
         }
       }
 
+      // If no information was found before, try name matching
+      if (!episodeInfo.IsBaseInfoPresent)
+      {
+        // Try to match series from folder and file naming
+        SeriesMatcher seriesMatcher = new SeriesMatcher();
+        seriesMatcher.MatchSeries(lfsra, episodeInfo);
+      }
+      else if (episodeInfo.SeriesFirstAired == null)
+      {
+        EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
+        SeriesMatcher seriesMatcher = new SeriesMatcher();
+        seriesMatcher.MatchSeries(lfsra, tempEpisodeInfo);
+        if (tempEpisodeInfo.SeriesFirstAired.HasValue)
+          episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
+      }
+
+      //Prepare online search improvements
       if(string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
       {
         var mediaItemPath = lfsra.CanonicalLocalResourcePath;
         var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
         episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
       }
-
       IList<MultipleMediaItemAspect> audioAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
       {

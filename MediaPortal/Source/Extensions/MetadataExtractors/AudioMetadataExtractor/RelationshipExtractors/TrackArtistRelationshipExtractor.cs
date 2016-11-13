@@ -30,7 +30,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
-using MediaPortal.Common.General;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
@@ -87,6 +86,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       if (CheckCacheContains(trackInfo))
         return false;
+
+      UpdatePersons(aspects, trackInfo.Artists, false);
 
       if (!AudioMetadataExtractor.SkipOnlineSearches)
         OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST, forceQuickMode);

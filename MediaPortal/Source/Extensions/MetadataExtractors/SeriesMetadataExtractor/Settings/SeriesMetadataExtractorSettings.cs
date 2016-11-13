@@ -22,12 +22,11 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 
-namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
+namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings
 {
   #region Replacement class
 
@@ -162,7 +161,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       // Init default patterns.
       SeriesPatterns = new MatchPattern[]
       {
-        // Filename only pattern
+        // Multi-episodes pattern
+        // "Series S1E01-E02 - Episodes"
+        new MatchPattern { Enabled = true, Pattern = @"(?<series>[^\\]+)\WS(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)[\-_]?)+E(?<endepisodenum>\d+)+ - (?<episode>.*)\.", RegexOptions = RegexOptions.IgnoreCase },
+        // "Series.Name.S01E01-E02.Episode.Or.Release.Info"
+        new MatchPattern { Enabled = true, Pattern = @"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)[\-|_]?)+E(?<endepisodenum>\d+)+(?<episode>.*)\.", RegexOptions = RegexOptions.IgnoreCase },
+        // Series\Season...\S01E01-E02* or Series\Season...\1x01-02*
+        new MatchPattern { Enabled = true, Pattern = @"(?<series>[^\\]*)\\[^\\]*(?<seasonnum>\d+)[^\\]*\\S*(?<seasonnum>\d+)[EX]((?<episodenum>\d+)[\-|_]?)+[EX](?<endepisodenum>\d+)*(?<episode>.*)\.", RegexOptions = RegexOptions.IgnoreCase },
+
         // Series\Season...\S01E01* or Series\Season...\1x01*
         new MatchPattern { Enabled = true, Pattern = @"(?<series>[^\\]*)\\[^\\]*(?<seasonnum>\d+)[^\\]*\\S*(?<seasonnum>\d+)[EX](?<episodenum>\d+)*(?<episode>.*)\.", RegexOptions = RegexOptions.IgnoreCase },
         // MP1 EpisodeScanner recommendations for recordings: Series - (Episode) S1E1, also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
@@ -175,6 +181,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         new MatchPattern { Enabled = true, Pattern = @"(?<series>[^\\]+).(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions = RegexOptions.IgnoreCase },
         // "Series.Name.S01E01.Episode.Or.Release.Info", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
         new MatchPattern { Enabled = true, Pattern = @"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions = RegexOptions.IgnoreCase },
+
         // Folder + filename pattern
         // "Series\1\11 - Episode" "Series\Staffel 2\11 - Episode" "Series\Season 3\12 Episode" "Series\3. Season\13-Episode"
         new MatchPattern { Enabled = true, Pattern = @"(?<series>[^\\]*)\\[^\\|\d]*(?<seasonnum>\d+)\D*\\(?<episodenum>\d+)\s*-\s*(?<episode>[^\\]+)\.", RegexOptions = RegexOptions.IgnoreCase },

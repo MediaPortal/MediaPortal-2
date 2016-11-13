@@ -42,6 +42,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
 using System.Collections;
+using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -103,6 +104,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     private HttpClient _httpClient;
 
+    private SettingsChangeWatcher<NfoMovieMetadataExtractorSettings> _settingWatcher;
+
     #endregion
 
     #region Ctor
@@ -144,6 +147,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           ThumbnailLargeAspect.Metadata
         });
 
+      _settingWatcher = new SettingsChangeWatcher<NfoMovieMetadataExtractorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+
+      LoadSettings();
+
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoMovieMetadataExtractorSettings>();
 
       if (_settings.EnableDebugLogging)
@@ -166,6 +174,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _httpClient = new HttpClient(handler);
       _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
       _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
+    }
+
+    #endregion
+
+    #region Settings
+
+    public static bool IncludeActorDetails { get; private set; }
+    public static bool IncludeCharacterDetails { get; private set; }
+    public static bool IncludeDirectorDetails { get; private set; }
+
+    private void LoadSettings()
+    {
+      IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
+      IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
+      IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
     }
 
     #endregion

@@ -273,8 +273,8 @@ namespace Test.Backend
       Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new Dictionary<QueryAttribute, string>(), attributeAliases, "Attribute aliases");
-      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_SINGLE1 T0 INNER JOIN M_MULTI1 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID "+
-        "FROM M_MULTI1 WHERE ATTR_STRING_0 LIKE @V0) AND T0.ATTR_STRING LIKE @V1", statementStr, "Statement");
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_SINGLE1 T0 INNER JOIN M_MULTI1 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  " +
+        "WHERE T0.MEDIA_ITEM_ID IN(SELECT MEDIA_ITEM_ID FROM M_MULTI1 WHERE ATTR_STRING LIKE @V0) AND T0.ATTR_STRING LIKE @V1", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar>
             {
                 new BindVar("V0", "%", typeof(string)),
@@ -362,8 +362,8 @@ namespace Test.Backend
       Assert.AreEqual("A0", mediaItemIdAlias, "Media item ID alias");
       Assert.AreEqual(CreateMIAMAliases(mia1.Metadata, "A1", mia2.Metadata, "A2"), miamAliases, "MIAM aliases");
       Assert.AreEqual(new string[] { }, attributeAliases, "Attribute aliases");
-      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID "+
-        " WHERE (T0.ATTR_STRING LIKE @V0 AND T1.ATTR_STRING_0 LIKE @V1)", statementStr, "Statement");
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T0.MEDIA_ITEM_ID A1, T1.MEDIA_ITEM_ID A2 FROM M_META1 T0 INNER JOIN M_META2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID  " +
+        "WHERE (T0.ATTR_STRING LIKE @V0 AND T1.ATTR_STRING LIKE @V1)", statementStr, "Statement");
       Assert.AreEqual(new List<BindVar>
       {
           new BindVar("V0", "%", typeof(string)),

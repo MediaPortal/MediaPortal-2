@@ -56,21 +56,5 @@ namespace MediaPortal.UI.Services.MediaManagement
       if (cd != null)
         cd.AddMediaItemAspectStorage(miaType);
     }
-
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
-    {
-      //TODO: Implement with remaining parameters
-      RegisterLocallyKnownMediaItemAspectType(miaType);
-    }
-
-    public void RegisterMediaItemAspectRoleHierarchy(Guid role, Guid parentRole)
-    {
-      //TODO: Is this necessary on client?
-    }
-
-    public void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType, MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual)
-    {
-      //TODO: Is this necessary on client?
-    }
   }
 }

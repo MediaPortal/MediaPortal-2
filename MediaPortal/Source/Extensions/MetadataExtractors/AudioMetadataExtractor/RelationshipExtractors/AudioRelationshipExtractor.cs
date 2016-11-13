@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using System.Threading;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -50,6 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     protected AsynchronousMessageQueue _messageQueue;
     protected int _importerCount;
     private IList<IRelationshipRoleExtractor> _extractors;
+    private IList<RelationshipHierarchy> _hierarchies;
 
     public AudioRelationshipExtractor()
     {
@@ -63,6 +65,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       _extractors.Add(new AlbumArtistRelationshipExtractor());
       _extractors.Add(new AlbumLabelRelationshipExtractor());
       _extractors.Add(new AlbumTrackRelationshipExtractor());
+
+      _hierarchies = new List<RelationshipHierarchy>();
+      _hierarchies.Add(new RelationshipHierarchy(AudioAspect.ROLE_TRACK, AudioAspect.ATTR_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS));
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
@@ -106,6 +111,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
+    }
+
+    public IList<RelationshipHierarchy> Hierarchies
+    {
+      get { return _hierarchies; }
     }
   }
 }

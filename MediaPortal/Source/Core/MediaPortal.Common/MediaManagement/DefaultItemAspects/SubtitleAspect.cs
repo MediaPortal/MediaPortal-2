@@ -121,6 +121,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         new[] {
             ATTR_RESOURCE_INDEX,
             ATTR_STREAM_INDEX
+        },
+        ProviderResourceAspect.ASPECT_ID,
+        new[] {
+            ATTR_RESOURCE_INDEX
         }
         );
   }

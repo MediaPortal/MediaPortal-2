@@ -111,6 +111,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         IDictionary<Guid, IList<MediaItemAspect>> trackAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         trackInfo.SetMetadata(trackAspects);
+        MediaItemAspect.SetAttribute(trackAspects, MediaAspect.ATTR_ISVIRTUAL, true);
 
         if (trackAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(trackAspects, Guid.Empty);

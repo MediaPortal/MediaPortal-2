@@ -70,6 +70,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     [Setting(SettingScope.Global)]
     public SerializableRegex ImdbIdRegex { get; set; }
 
+    /// <summary>
+    /// If <c>true</c>, Actor details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeActorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Character details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeCharacterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Director details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeDirectorDetails { get; set; }
+
     #endregion
   }
 }

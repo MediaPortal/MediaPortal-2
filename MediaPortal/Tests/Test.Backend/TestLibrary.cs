@@ -66,20 +66,20 @@ namespace Test.Backend
       MockCommand singleCommand = MockDBUtils.FindCommand("CREATE TABLE M_SINGLE");
       Assert.IsNotNull(singleCommand, "Single create table command");
       // Columns and objects will be what we asked for
-      Assert.AreEqual("CREATE TABLE M_SINGLE (MEDIA_ITEM_ID Guid, ATTR_STRING TEXT, ATTR_INTEGER Int32, CONSTRAINT PK PRIMARY KEY (MEDIA_ITEM_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", singleCommand.CommandText, "Single1 create table command");
+      Assert.AreEqual("CREATE TABLE M_SINGLE (MEDIA_ITEM_ID Guid, ATTR_STRING TEXT, ATTR_INTEGER Int32, CONSTRAINT M_SINGLE_PK PRIMARY KEY (MEDIA_ITEM_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", singleCommand.CommandText, "Single1 create table command");
 
       MockDBUtils.Reset();
       TestBackendUtils.CreateMultipleMIA("MULTIPLE", Cardinality.Inline, true, false);
       MockCommand multipleCommand = MockDBUtils.FindCommand("CREATE TABLE M_MULTIPLE");
       Assert.IsNotNull(multipleCommand, "Multiple create table command");
       // Columns and objects will be suffixed with _0 because the alises we asked for have already been given to Multiple1
-      Assert.AreEqual("CREATE TABLE M_MULTIPLE (MEDIA_ITEM_ID Guid, ATTR_ID TEXT, ATTR_STRING TEXT, CONSTRAINT PK PRIMARY KEY (MEDIA_ITEM_ID,ATTR_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", multipleCommand.CommandText, "Multiple1 create table command");
+      Assert.AreEqual("CREATE TABLE M_MULTIPLE (MEDIA_ITEM_ID Guid, ATTR_ID TEXT, ATTR_STRING TEXT, CONSTRAINT M_MULTIPLE_PK PRIMARY KEY (MEDIA_ITEM_ID,ATTR_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", multipleCommand.CommandText, "Multiple1 create table command");
 
       MockDBUtils.Reset();
       TestBackendUtils.CreateMultipleMIA("META3", Cardinality.OneToMany, true, true);
       MockCommand meta3Command = MockDBUtils.FindCommand("CREATE TABLE M_META3");
       Assert.IsNotNull(meta3Command, "Meta3 create table command");
-      Assert.AreEqual("CREATE TABLE M_META3 (MEDIA_ITEM_ID Guid, ATTR_ID TEXT, CONSTRAINT PK PRIMARY KEY (MEDIA_ITEM_ID,ATTR_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", meta3Command.CommandText, "Meta3 create table command");
+      Assert.AreEqual("CREATE TABLE M_META3 (MEDIA_ITEM_ID Guid, ATTR_ID TEXT, CONSTRAINT M_META3_PK PRIMARY KEY (MEDIA_ITEM_ID,ATTR_ID), CONSTRAINT FK FOREIGN KEY (MEDIA_ITEM_ID) REFERENCES MEDIA_ITEMS (MEDIA_ITEM_ID) ON DELETE CASCADE)", meta3Command.CommandText, "Meta3 create table command");
     }
 
     [Test]
