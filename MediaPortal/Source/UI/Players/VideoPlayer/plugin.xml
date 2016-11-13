@@ -156,12 +156,4 @@
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Subtitles"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/VideoPlayer">
-    <ConfigSetting
-        Id="EnableMpcHcSubtitleEngine"
-        Text="[Settings.Players.VideoPlayer.EnableMpcHcSubtitleEngine]"
-        HelpText="[Settings.Players.VideoPlayer.EnableMpcHcSubtitleEngine.Help]"
-        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.MpcHcSubtitleEngine"/>
-  </Register>
-
 </Plugin>

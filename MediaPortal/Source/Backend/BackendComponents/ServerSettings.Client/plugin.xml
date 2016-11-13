@@ -70,12 +70,6 @@
   </Register>
   
   <Register Location="/Configuration/Settings/ServerSettings">
-    <ConfigSetting
-        Id="ServerDOKANDrive"
-        Text="[Settings.ServerSettings.ServerDOKANDrive]"
-        HelpText="[Settings.ServerSettings.ServerDOKANDrive.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerDOKANDrive"/>
-
     <CustomConfigSetting
         Id="NetworkCredentials"
         Text="[Settings.ServerSettings.NetworkCredentials]"
