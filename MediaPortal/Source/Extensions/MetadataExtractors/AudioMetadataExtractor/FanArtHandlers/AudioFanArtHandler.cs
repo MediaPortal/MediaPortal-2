@@ -229,43 +229,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return;
       }
 
-      IPicture[] pics = tag.Tag.Pictures;
-      if (pics.Length > 0)
+      using (tag)
       {
-        try
+        IPicture[] pics = tag.Tag.Pictures;
+        if (pics.Length > 0)
         {
-          string fanArtType = FanArtTypes.Cover;
-          FanArtCache.InitFanArtCount(mediaItemId, fanArtType);
-          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanArtType))
+          try
           {
-            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
-              return;
-
-            FanArtCache.InitFanArtCache(mediaItemId, albumTitle);
-            string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
-              "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
-            if (!System.IO.File.Exists(cacheFile))
+            string fanArtType = FanArtTypes.Cover;
+            FanArtCache.InitFanArtCount(mediaItemId, fanArtType);
+            using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanArtType))
             {
-              using (MemoryStream ms = new MemoryStream(pics[0].Data.Data))
+              if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
+                return;
+
+              FanArtCache.InitFanArtCache(mediaItemId, albumTitle);
+              string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
+                "File." + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
+              if (!System.IO.File.Exists(cacheFile))
               {
-                using (Image img = Image.FromStream(ms, true, true))
+                using (MemoryStream ms = new MemoryStream(pics[0].Data.Data))
                 {
-                  img.Save(cacheFile, System.Drawing.Imaging.ImageFormat.Jpeg);
-                  countLock.Count++;
+                  using (Image img = Image.FromStream(ms, true, true))
+                  {
+                    img.Save(cacheFile, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    countLock.Count++;
+                  }
                 }
               }
             }
           }
+          // Decoding of invalid image data can fail, but main MediaItem is correct.
+          catch { }
         }
-        // Decoding of invalid image data can fail, but main MediaItem is correct.
-        catch { }
       }
-
-      //Clean up memory
-      foreach (IPicture pic in tag.Tag.Pictures)
-        pic.Data.Clear();
-      tag.Tag.Clear();
-      tag.Dispose();
     }
 
     private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? albumMediaItemId, IList<Guid> artistMediaItemIds, string albumTitle, IList<string> artistTitles)
