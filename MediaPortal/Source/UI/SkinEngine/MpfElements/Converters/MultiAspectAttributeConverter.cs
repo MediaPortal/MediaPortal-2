@@ -10,7 +10,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
   public class MultiAspectAttributeConverter : IMultiValueConverter
   {
     protected const string DEFAULT_SEPARATOR = ", ";
-     
+
     public bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
     {
       result = null;
@@ -23,19 +23,29 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
       MediaItemAspectMetadata.MultipleAttributeSpecification mas = values[1].Value as MediaItemAspectMetadata.MultipleAttributeSpecification;
       if (mas == null)
         return true;
-      List<object> results;
-      if (!MediaItemAspect.TryGetAttribute(mi.Aspects, mas, out results) || results.Count == 0)
+      List<object> attributes;
+      if (!MediaItemAspect.TryGetAttribute(mi.Aspects, mas, out attributes) || attributes.Count == 0)
         return true;
 
       string separator = parameter as string;
       if (string.IsNullOrEmpty(separator))
         separator = DEFAULT_SEPARATOR;
 
-      StringBuilder sb = new StringBuilder(results[0].ToString());
-      for (int i = 1; i < results.Count; i++)
+      bool first = true;
+      StringBuilder sb = new StringBuilder();
+      foreach (object attribute in attributes)
       {
-        sb.Append(separator);
-        sb.Append(results[i]);
+        if (attribute == null)
+          continue;
+        string attributeString = attribute.ToString();
+        if (!string.IsNullOrEmpty(attributeString))
+        {
+          if (first)
+            first = false;
+          else
+            sb.Append(separator);
+          sb.Append(attributeString);
+        }
       }
       result = sb.ToString();
       return true;
