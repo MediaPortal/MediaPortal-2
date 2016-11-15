@@ -10,7 +10,7 @@
     >
   <Include.Resources>
 
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/>
+    <!--ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/-->
 
     <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
 
