@@ -53,7 +53,24 @@
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                      Content="{Binding Path=DeathDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
             </StackPanel>
-            <Label Content="{Binding Occupation}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                              ConverterParameter="{}{0} == {1} ? {6} : ({0} == {2} ? {7} : ({0} == {3} ? {8} : ({0} == {4} ? {9} : ({0} == {5} ? {10}))))">
+                  <Binding Path="Occupation"/>
+                  <Binding Source="ARTIST"/>
+                  <Binding Source="ACTOR"/>
+                  <Binding Source="WRITER"/>
+                  <Binding Source="DIRECTOR"/>
+                  <Binding Source="COMPOSER"/>
+                  <Binding Source="[Media.ArtistOccupationName]"/>
+                  <Binding Source="[Media.ActorOccupationName]"/>
+                  <Binding Source="[Media.WriterOccupationName]"/>
+                  <Binding Source="[Media.DirectorOccupationName]"/>
+                  <Binding Source="[Media.ComposerOccupationName]"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
             <Label Content="{Binding Origin}" FontSize="{ThemeResource SmallFontSize}"
                    Color="{ThemeResource MenuTextBackground}" Opacity="1.3" TextTrimming="WordEllipsis"/>
           </StackPanel>

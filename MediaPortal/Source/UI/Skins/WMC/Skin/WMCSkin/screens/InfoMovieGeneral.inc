@@ -5,10 +5,12 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
@@ -83,16 +85,15 @@
         </media:MediaAspectWrapper.Template>
       </media:MediaAspectWrapper>
 
-      <media:VideoAspectWrapper MediaItem="{Binding MediaItem}">
-        <media:VideoAspectWrapper.Template>
-          <ControlTemplate>
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}"
-                  Content="{Binding Genres}" Color="{ThemeResource TextColor}" Opacity="0.5"/>
-            </Grid>
-          </ControlTemplate>
-        </media:VideoAspectWrapper.Template>
-      </media:VideoAspectWrapper>
+      <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+             Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+            <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+            <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+          </MultiBinding>
+        </Label.Content>
+      </Label>
 
       <StackPanel Orientation="Horizontal">
         <media:MovieAspectWrapper MediaItem="{Binding MediaItem}">

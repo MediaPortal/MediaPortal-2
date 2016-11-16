@@ -173,6 +173,13 @@
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Error loading playlist</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">A playlist can only be saved if all media items were queried from the home server (i.e. not by disconnected local media navigation).</string>
 
+  <!-- View occupation names -->
+  <string name="Media.ArtistOccupationName">Artist</string>
+  <string name="Media.ActorOccupationName">Actor</string>
+  <string name="Media.WriterOccupationName">Writer</string>
+  <string name="Media.DirectorOccupationName">Director</string>
+  <string name="Media.ComposerOccupationName">Composer</string>
+  
   <!-- View names (names for the view instances) -->
   <string name="Media.BrowseMediaRootViewName">Browse media</string>
   <string name="Media.LocalMediaRootViewName">Local media</string>
