@@ -539,6 +539,63 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Cache
 
+    public override bool IsCacheChangedForOnlineSeries(SeriesInfo seriesInfo, string language)
+    {
+      if (seriesInfo.TvMazeId > 0 && IsCacheChanged(seriesInfo, _tvMazeHandler.GetSeriesCacheFile(seriesInfo.TvMazeId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesSeason(SeasonInfo seasonInfo, string language)
+    {
+      if (seasonInfo.TvMazeId > 0 && IsCacheChanged(seasonInfo, _tvMazeHandler.GetSeriesSeasonsCacheFile(seasonInfo.TvMazeId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisode(EpisodeInfo episodeInfo, string language)
+    {
+      if (episodeInfo.TvMazeId > 0 && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0 &&
+        IsCacheChanged(episodeInfo, _tvMazeHandler.GetSeriesEpisodeCacheFile(episodeInfo.TvMazeId, episodeInfo.SeasonNumber.Value, episodeInfo.EpisodeNumbers[0])))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, string language)
+    {
+      if (person.TvMazeId > 0 && IsCacheChanged(seriesInfo, _tvMazeHandler.GetPersonCacheFile(person.TvMazeId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language)
+    {
+      if (person.TvMazeId > 0 && IsCacheChanged(episodeInfo, _tvMazeHandler.GetPersonCacheFile(person.TvMazeId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, string language)
+    {
+      if (character.TvMazeId > 0 && IsCacheChanged(seriesInfo, _tvMazeHandler.GetCharacterCacheFile(character.TvMazeId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language)
+    {
+      if (character.TvMazeId > 0 && IsCacheChanged(episodeInfo, _tvMazeHandler.GetCharacterCacheFile(character.TvMazeId)))
+        return true;
+
+      return false;
+    }
+
     /// <summary>
     /// Updates the local available information with updated ones from online source.
     /// </summary>

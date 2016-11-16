@@ -104,6 +104,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         // ToDo: Clarify if this is a bug
         var files = FileSystemResourceNavigator.GetFiles(importResource.ResourceAccessor, false) ?? new HashSet<IFileSystemResourceAccessor>();
         IDictionary<ResourcePath, DateTime> path2LastImportDate = null;
+        IDictionary<ResourcePath, Guid> path2MediaItem = null;
 
         SingleMediaItemAspect directoryAspect;
         // ReSharper disable once PossibleInvalidOperationException
@@ -113,6 +114,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         if (mediaItems != null)
         {
           path2LastImportDate = new Dictionary<ResourcePath, DateTime>();
+          path2MediaItem = new Dictionary<ResourcePath, Guid>();
           foreach (MediaItem mi in mediaItems)
           {
             IList<MultipleMediaItemAspect> providerAspects = null;
@@ -121,12 +123,17 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
               foreach (var pra in providerAspects)
               {
                 ResourcePath path = ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
-                if(!path2LastImportDate.ContainsKey(path))
-                  path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+                if (ImportJobInformation.JobType == ImportJobType.Refresh)
+                {
+                  if (!path2LastImportDate.ContainsKey(path))
+                    path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+                }
+                if (path2MediaItem.ContainsKey(path) && !mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY))
+                  path2MediaItem.Add(path, mi.MediaItemId);
               }
             }
           }
-          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
+          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2MediaItem.Keys);
         }
 
         if (ImportJobInformation.JobType == ImportJobType.Import)
@@ -137,16 +144,17 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         else
         {
-          result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId)));
-        }
+          result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId,
+            path2MediaItem.ContainsKey(f.CanonicalLocalResourcePath) ? path2MediaItem[f.CanonicalLocalResourcePath] : (Guid?)null)));
 
-        // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,
-        // store the DateOfLastImport in the PendingImportResource
-        DateTime dateTime;
-        if (path2LastImportDate != null)
-          foreach (var pir in result)
-            if(path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
-              pir.DateOfLastImport = dateTime;
+          // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,
+          // store the DateOfLastImport in the PendingImportResource
+          DateTime dateTime;
+          if (path2LastImportDate != null)
+            foreach (var pir in result)
+              if (path2LastImportDate.TryGetValue(pir.PendingResourcePath, out dateTime))
+                pir.DateOfLastImport = dateTime;
+        }
 
         return result;
       }

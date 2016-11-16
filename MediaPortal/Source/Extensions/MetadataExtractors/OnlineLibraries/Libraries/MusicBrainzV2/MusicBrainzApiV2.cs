@@ -225,6 +225,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     }
 
     /// <summary>
+    /// Returns cache file for a single <see cref="Track"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of track</param>
+    /// <returns>Cache file name</returns>
+    public string GetTrackCacheFile(string id)
+    {
+      return CreateAndGetCacheName(id, "Track");
+    }
+
+    /// <summary>
     /// Returns detailed information for an album <see cref="TrackRelease"/> with given <paramref name="id"/>. This method caches request
     /// to same albums using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
     /// </summary>
@@ -240,6 +250,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETRELEASE, id);
       return Download<TrackRelease>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns cache file for an album <see cref="TrackRelease"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of album</param>
+    /// <returns>Cache file name</returns>
+    public string GetAlbumCacheFile(string id)
+    {
+      return CreateAndGetCacheName(id, "Album");
     }
 
     /// <summary>
@@ -261,6 +281,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     }
 
     /// <summary>
+    /// Returns cache file for a release group <see cref="TrackReleaseGroup"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of release group</param>
+    /// <returns>Cache file name</returns>
+    public string GetReleaseGroupCacheFile(string id)
+    {
+      return CreateAndGetCacheName(id, "ReleaseGroup");
+    }
+
+    /// <summary>
     /// Returns detailed information for an artist <see cref="TrackArtist"/> with given <paramref name="id"/>. This method caches request
     /// to same artist using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
     /// </summary>
@@ -279,6 +309,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     }
 
     /// <summary>
+    /// Returns cache file for an artist <see cref="TrackArtist"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of artists</param>
+    /// <returns>Cache file name</returns>
+    public string GetArtistCacheFile(string id)
+    {
+      return CreateAndGetCacheName(id, "Artist");
+    }
+
+    /// <summary>
     /// Returns detailed information for a music label <see cref="TrackLabel"/> with given <paramref name="id"/>. This method caches request
     /// to same label using the cache path given in <see cref="MusicBrainzApiV2"/> constructor.
     /// </summary>
@@ -294,6 +334,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       if (cahceOnly) return null;
       string url = GetUrl(URL_GETLABEL, id);
       return Download<TrackLabel>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns cache file for a music label <see cref="TrackLabel"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">MusicBrainz id of nusic label</param>
+    /// <returns>Cache file name</returns>
+    public string GetLabelCacheFile(string id)
+    {
+      return CreateAndGetCacheName(id, "Label");
     }
 
     /// <summary>

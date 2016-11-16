@@ -79,11 +79,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
-    /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
+    /// <param name="importOnly">If true, no long lasting operations such as parsing images are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoMovieReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
-      : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
+    public NfoMovieReader(ILogger debugLogger, long miNumber, bool importOnly, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
+      : base(debugLogger, miNumber, importOnly, httpClient, settings)
     {
       InitializeSupportedElements();
       InitializeSupportedAttributes();

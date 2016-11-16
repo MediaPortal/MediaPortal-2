@@ -87,22 +87,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode)
+    public override bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly)
     {
       return false;
     }
 
-    public override bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
+    public override bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
     {
       return false;
     }
 
-    public override bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode)
+    public override bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
     {
       return false;
     }
 
-    public override bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool forceQuickMode)
+    public override bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly)
     {
       return false;
     }

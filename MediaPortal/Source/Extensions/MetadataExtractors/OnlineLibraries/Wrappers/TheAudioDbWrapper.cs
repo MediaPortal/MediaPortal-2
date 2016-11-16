@@ -225,7 +225,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         List<AudioDbArtist> foundArtists = _audioDbHandler.GetArtistByMbid(person.MusicBrainzId, cacheOnly);
         if (foundArtists != null && foundArtists.Count == 1)
         {
-          //Get the artist into the cache
           artistDetail = _audioDbHandler.GetArtist(foundArtists[0].ArtistId, cacheOnly);
         }
       }
@@ -267,25 +266,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (track.AudioDbId > 0)
         trackDetail = _audioDbHandler.GetTrack(track.AudioDbId, cacheOnly);
+
       if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
-      {
-        AudioDbTrack foundTrack = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, cacheOnly);
-        if (foundTrack != null)
-        {
-          //Get the track into the cache
-          trackDetail = _audioDbHandler.GetTrack(foundTrack.TrackID, cacheOnly);
-        }
-      }
+        trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, cacheOnly);
+
       if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
       {
         List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, cacheOnly);
         if (foundTracks != null && foundTracks.Count > 0)
-        {
           trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
-        }
       }
       if (trackDetail == null) return false;
 
+      //Get the track into the cache
+      trackDetail = _audioDbHandler.GetTrack(trackDetail.TrackID, cacheOnly);
       trackDetail.SetLanguage(language);
 
       track.AudioDbId = trackDetail.TrackID;
@@ -337,7 +331,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, cacheOnly);
         if (foundAlbums != null && foundAlbums.Count == 1)
         {
-          //Get the album into the cache
           albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, cacheOnly);
         }
       }
@@ -436,6 +429,60 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         company.Type = CompanyAspect.COMPANY_MUSIC_LABEL;
         return true;
       }
+
+      return false;
+    }
+
+    #endregion
+
+    #region Cache
+
+    public override bool IsCacheChangedForOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, string language)
+    {
+      if (person.AudioDbId > 0 && IsCacheChanged(albumInfo, _audioDbHandler.GetArtistCacheFile(albumInfo.AudioDbId)))
+        return true;
+      if (!string.IsNullOrEmpty(person.MusicBrainzId) && IsCacheChanged(albumInfo, _audioDbHandler.GetArtistMbCacheFile(person.MusicBrainzId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language)
+    {
+      if (person.AudioDbId > 0 && IsCacheChanged(trackInfo, _audioDbHandler.GetArtistCacheFile(person.AudioDbId)))
+        return true;
+      if (!string.IsNullOrEmpty(person.MusicBrainzId) && IsCacheChanged(trackInfo, _audioDbHandler.GetArtistMbCacheFile(person.MusicBrainzId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMusicTrack(TrackInfo trackInfo, string language)
+    {
+      if (trackInfo.AudioDbId > 0 && IsCacheChanged(trackInfo, _audioDbHandler.GetTrackCacheFile(trackInfo.AudioDbId)))
+        return true;
+      if (!string.IsNullOrEmpty(trackInfo.MusicBrainzId) && IsCacheChanged(trackInfo, _audioDbHandler.GetTrackMbCacheFile(trackInfo.MusicBrainzId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMusicTrackAlbum(AlbumInfo albumInfo, string language)
+    {
+      if (albumInfo.AudioDbId > 0 && IsCacheChanged(albumInfo, _audioDbHandler.GetAlbumCacheFile(albumInfo.AudioDbId)))
+        return true;
+      if (!string.IsNullOrEmpty(albumInfo.MusicBrainzId) && IsCacheChanged(albumInfo, _audioDbHandler.GetAlbumMbCacheFile(albumInfo.MusicBrainzId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, string language)
+    {
+      if (albumInfo.AudioDbId > 0 && IsCacheChanged(albumInfo, _audioDbHandler.GetAlbumCacheFile(albumInfo.AudioDbId)))
+        return true;
+      if (!string.IsNullOrEmpty(albumInfo.MusicBrainzId) && IsCacheChanged(albumInfo, _audioDbHandler.GetAlbumMbCacheFile(albumInfo.MusicBrainzId)))
+        return true;
 
       return false;
     }

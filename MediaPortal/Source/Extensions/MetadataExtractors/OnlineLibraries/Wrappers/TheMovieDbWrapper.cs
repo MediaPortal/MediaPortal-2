@@ -967,6 +967,120 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Cache
 
+    public override bool IsCacheChangedForOnlineMovie(MovieInfo movie, string language)
+    {
+      if (movie.MovieDbId > 0 && IsCacheChanged(movie, _movieDbHandler.GetMovieCacheFile(movie.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMovieCollection(MovieCollectionInfo collection, string language)
+    {
+      if (collection.MovieDbId > 0 && IsCacheChanged(collection, _movieDbHandler.GetCollectionCacheFile(collection.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, string language)
+    {
+      if (person.MovieDbId > 0 && IsCacheChanged(movieInfo, _movieDbHandler.GetPersonCacheFile(person.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, string language)
+    {
+      if (movieInfo.MovieDbId > 0 && IsCacheChanged(movieInfo, _movieDbHandler.GetMovieCastCrewCacheFile(movieInfo.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, string language)
+    {
+      if (company.MovieDbId > 0 && IsCacheChanged(movieInfo, _movieDbHandler.GetCompanyCacheFile(company.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeries(SeriesInfo series, string language)
+    {
+      if (series.MovieDbId > 0 && IsCacheChanged(series, _movieDbHandler.GetSeriesCacheFile(series.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesSeason(SeasonInfo season, string language)
+    {
+      if (season.MovieDbId > 0 && season.SeasonNumber.HasValue && IsCacheChanged(season, _movieDbHandler.GetSeriesSeasonCacheFile(season.MovieDbId, season.SeasonNumber.Value, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisode(EpisodeInfo episode, string language)
+    {
+      if (episode.MovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0 &&
+        IsCacheChanged(episode, _movieDbHandler.GetSeriesEpisodeCacheFile(episode.MovieDbId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0], language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, string language)
+    {
+      if (person.MovieDbId > 0 && IsCacheChanged(seriesInfo, _movieDbHandler.GetPersonCacheFile(person.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language)
+    {
+      if (person.MovieDbId > 0 && IsCacheChanged(episodeInfo, _movieDbHandler.GetPersonCacheFile(person.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, string language)
+    {
+      if (company.Type == CompanyAspect.COMPANY_PRODUCTION)
+      {
+        if (company.MovieDbId > 0 && IsCacheChanged(seriesInfo, _movieDbHandler.GetCompanyCacheFile(company.MovieDbId, language)))
+          return true;
+      }
+      else if (company.Type == CompanyAspect.COMPANY_TV_NETWORK)
+      {
+        if (company.MovieDbId > 0 && IsCacheChanged(seriesInfo, _movieDbHandler.GetNetworkCacheFile(company.MovieDbId, language)))
+          return true;
+      }
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, string language)
+    {
+      if (seriesInfo.MovieDbId > 0 && IsCacheChanged(seriesInfo, _movieDbHandler.GetSeriesCastCrewCacheFile(seriesInfo.MovieDbId, language)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language)
+    {
+      if (episodeInfo.MovieDbId > 0 && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0 &&
+        IsCacheChanged(episodeInfo, _movieDbHandler.GetSeriesEpisodeCastCrewCacheFile(episodeInfo.MovieDbId, episodeInfo.SeasonNumber.Value, episodeInfo.EpisodeNumbers[0], language)))
+        return true;
+
+      return false;
+    }
+
     /// <summary>
     /// Updates the local available information with updated ones from online source.
     /// </summary>

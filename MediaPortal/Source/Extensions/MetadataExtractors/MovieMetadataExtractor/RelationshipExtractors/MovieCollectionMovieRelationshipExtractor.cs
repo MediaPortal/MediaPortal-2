@@ -71,11 +71,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return GetMovieSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
-      if (forceQuickMode)
+      if (importOnly)
         return false;
 
       if (MovieMetadataExtractor.OnlyLocalMedia)
@@ -89,7 +89,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
-        OnlineMatcherService.Instance.UpdateCollection(collectionInfo, true, forceQuickMode);
+        OnlineMatcherService.Instance.UpdateCollection(collectionInfo, true, importOnly);
 
       if (collectionInfo.Movies.Count == 0)
         return false;
@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       else
         return false;
 
-      if (!collectionInfo.HasChanged && !forceQuickMode)
+      if (!collectionInfo.HasChanged && !importOnly)
         return false;
 
       AddToCheckCache(collectionInfo);

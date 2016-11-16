@@ -32,11 +32,11 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
 {
-	/// <summary>
-	/// This Class Establishes a connection to a FreeDB Site and retrieves the information for the Audio CD inserted
-	/// </summary>
-	public class FreeDBQuery 
-	{
+  /// <summary>
+  /// This Class Establishes a connection to a FreeDB Site and retrieves the information for the Audio CD inserted
+  /// </summary>
+  public class FreeDBQuery 
+  {
     const string APPNAME="MediaPortalII";
     const string APPVERSION="1.0";
     private FreeDBSite m_server = null;
@@ -45,8 +45,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
     private string m_message = null;
     private int m_code = 0;
 
-		public FreeDBQuery()
-		{
+    public FreeDBQuery()
+    {
       StringBuilder buff = new StringBuilder(512);
       buff.Append("&hello=");
       buff.Append(Environment.UserName.Replace(" ", "_"));
@@ -58,7 +58,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       buff.Append(APPVERSION);
       buff.Append("&proto=6");
       m_idStr =  buff.ToString();
-		}
+    }
 
     public bool Connect()
     {

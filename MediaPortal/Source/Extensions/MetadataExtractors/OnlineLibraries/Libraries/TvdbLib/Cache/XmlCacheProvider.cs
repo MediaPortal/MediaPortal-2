@@ -509,6 +509,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
 
     }
 
+    public string[] GetSeriesCacheFiles(int seriesId)
+    {
+      String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      return Directory.GetFiles(seriesRoot, "*.xml");
+    }
+
     /// <summary>
     /// Load user info from cache
     /// </summary>

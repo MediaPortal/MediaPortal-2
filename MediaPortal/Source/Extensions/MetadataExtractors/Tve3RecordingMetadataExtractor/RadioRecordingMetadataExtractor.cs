@@ -74,11 +74,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public MetadataExtractorMetadata Metadata { get { return _metadata; } }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null || !fsra.IsFile)
         return false;
+      if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+        return false;
+
       try
       {
         var extension = DosPathHelper.GetExtension(fsra.ResourceName).ToLowerInvariant();

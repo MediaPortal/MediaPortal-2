@@ -70,14 +70,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return GetCharacterSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
       if (!MovieMetadataExtractor.IncludeCharacterDetails)
         return false;
 
-      if (forceQuickMode)
+      if (importOnly)
         return false;
 
       if (BaseInfo.IsVirtualResource(aspects))
@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       if (!MovieMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateCharacters(movieInfo, forceQuickMode);
+        OnlineMatcherService.Instance.UpdateCharacters(movieInfo, importOnly);
 
       if (movieInfo.Characters.Count == 0)
         return false;
@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < movieInfo.Characters.Count)
         movieInfo.HasChanged = true; //Force save if no relationship exists
 
-      if (!movieInfo.HasChanged && !forceQuickMode)
+      if (!movieInfo.HasChanged && !importOnly)
         return false;
 
       AddToCheckCache(movieInfo);

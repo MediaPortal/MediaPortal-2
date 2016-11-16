@@ -94,7 +94,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           // Load Aspects if MI was changed or is more than a day old
           if (importResource.DateOfLastImport < importResource.ResourceAccessor.LastChanged ||
-                (DateTime.Now - importResource.DateOfLastImport).TotalHours > MINIMUM_IMPORT_AGE)
+                (DateTime.Now - importResource.DateOfLastImport).TotalHours > MINIMUM_IMPORT_AGE_IN_HOURS)
           {
             ICollection<Guid> aspects = await GetAllManagedMediaItemAspectTypes();
 

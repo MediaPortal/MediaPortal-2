@@ -71,11 +71,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return GetEpisodeSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
-      if (forceQuickMode)
+      if (importOnly)
         return false;
 
       if (SeriesMetadataExtractor.OnlyLocalMedia)
@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       else
         return false;
 
-      if (!seriesInfo.HasChanged && !forceQuickMode)
+      if (!seriesInfo.HasChanged && !importOnly)
         return false;
 
       AddToCheckCache(seriesInfo);

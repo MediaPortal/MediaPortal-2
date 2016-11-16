@@ -422,6 +422,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Compilation = Compilation;
         info.Languages.AddRange(Languages);
         info.Artists.AddRange(AlbumArtists);
+        info.LastChanged = LastChanged;
+        info.DateAdded = DateAdded;
         return (T)(object)info;
       }
       return default(T);

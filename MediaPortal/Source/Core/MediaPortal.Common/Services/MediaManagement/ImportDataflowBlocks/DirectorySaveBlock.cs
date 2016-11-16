@@ -223,7 +223,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             mediaAspect,
             directoryAspect
         });
-        return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects, ImportJobInformation, _ct);
+        return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects, ImportJobInformation, false, _ct);
       }
       return directoryMediaItem.MediaItemId;
     }

@@ -98,11 +98,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 			get { return _metadata; }
 		}
 
-		public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+		public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
 		{
 			try
 			{
-				if (forceQuickMode)
+				if (importOnly)
 					return false;
 
 				if (!(mediaItemAccessor is IFileSystemResourceAccessor))

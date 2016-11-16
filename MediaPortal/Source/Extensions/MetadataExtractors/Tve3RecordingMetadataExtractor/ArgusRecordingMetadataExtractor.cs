@@ -76,38 +76,32 @@ namespace MediaPortal.Extensions.MetadataExtractors
         });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
           return false;
+        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+          return false;
 
         // Handle series information
-        EpisodeInfo episodeInfo = new EpisodeInfo();
-        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        Argus.Recording recording;
+        using (metaFileAccessor)
         {
-          episodeInfo.FromMetadata(extractedAspectData);
-        }
-        else
-        {
-          Argus.Recording recording;
-          using (metaFileAccessor)
-          {
-            using (Stream metaStream = ((IFileSystemResourceAccessor)metaFileAccessor).OpenRead())
-              recording = (Argus.Recording)GetTagsXmlSerializer().Deserialize(metaStream);
-          }
-          episodeInfo = GetSeriesFromTags(recording);
+          using (Stream metaStream = ((IFileSystemResourceAccessor)metaFileAccessor).OpenRead())
+            recording = (Argus.Recording)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
+        EpisodeInfo episodeInfo = GetSeriesFromTags(recording);
         if (episodeInfo.IsBaseInfoPresent)
         {
-          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
-        return episodeInfo.IsBaseInfoPresent && episodeInfo.HasChanged;
+        return episodeInfo.IsBaseInfoPresent;
       }
       catch (Exception e)
       {
@@ -225,7 +219,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {

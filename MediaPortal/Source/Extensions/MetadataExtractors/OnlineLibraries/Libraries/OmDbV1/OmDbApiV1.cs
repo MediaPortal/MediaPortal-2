@@ -110,7 +110,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     }
 
     /// <summary>
-    /// Returns detailed information for a single <see cref="OmDbMovie"/> with given <paramref name="imdbId"/>. This method caches request
+    /// Returns detailed information for a single <see cref="OmDbMovie"/> with given <paramref name="id"/>. This method caches request
     /// to same movies using the cache path given in <see cref="OmDbApiV1"/> constructor.
     /// </summary>
     /// <param name="id">IMDB id of movie</param>
@@ -139,10 +139,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     }
 
     /// <summary>
+    /// Returns cache file for a single <see cref="OmDbMovie"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">IMDB id of movie</param>
+    /// <returns>Cache file name</returns>
+    public string GetMovieCacheFile(string id)
+    {
+      return CreateAndGetCacheName(id, "Movie");
+    }
+
+    /// <summary>
     /// Returns detailed information for a single <see cref="OmDbSeries"/> with given <paramref name="id"/>. This method caches request
     /// to same series using the cache path given in <see cref="OmDbApiV1"/> constructor.
     /// </summary>
-    /// <param name="id">IMDB id of Series</param>
+    /// <param name="id">IMDB id of series</param>
     /// <returns>Series information</returns>
     public OmDbSeries GetSeries(string id, bool cacheOnly)
     {
@@ -165,6 +175,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
         if (returnValue != null) returnValue.AssignProperties();
         return returnValue;
       }
+    }
+
+    /// <summary>
+    /// Returns cache file for a single <see cref="OmDbSeries"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">IMDB id of series</param>
+    /// <returns>Cache file name</returns>
+    public string GetSeriesCacheFile(string id)
+    {
+      return CreateAndGetCacheName(id, "Series");
     }
 
     /// <summary>
@@ -198,6 +218,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     }
 
     /// <summary>
+    /// Returns cache file for a single <see cref="OmDbSeason"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">IMDB id of season</param>
+    /// <returns>Cache file name</returns>
+    public string GetSeriesSeasonCacheFile(string id, int season)
+    {
+      return CreateAndGetCacheName(id, string.Format("Season{0}", season));
+    }
+
+    /// <summary>
     /// Returns detailed information for a single <see cref="OmDbEpisode"/> with given <paramref name="id"/>. This method caches request
     /// to same episodes using the cache path given in <see cref="OmDbApiV1"/> constructor.
     /// </summary>
@@ -226,6 +256,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
         if (returnValue != null) returnValue.AssignProperties();
         return returnValue;
       }
+    }
+
+    /// <summary>
+    /// Returns cache file for a single <see cref="OmDbEpisode"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">IMDB id of episode</param>
+    /// <returns>Cache file name</returns>
+    public string GetSeriesEpisodeCacheFile(string id, int season, int episode)
+    {
+      return CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
     }
 
     #endregion

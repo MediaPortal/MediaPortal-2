@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return GetSeasonSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
@@ -86,7 +86,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (TryGetIdFromSeasonCache(seasonInfo, out seasonId))
         seasonInfo = GetFromSeasonCache(seasonId);
       else if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateSeason(seasonInfo, forceQuickMode);
+        OnlineMatcherService.Instance.UpdateSeason(seasonInfo, importOnly);
 
       if (seasonInfo.SeriesName.IsEmpty)
         return false;
@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         seasonInfo.HasChanged = true; //Force save if no relationship exists
 
-      if (!seasonInfo.HasChanged && !forceQuickMode)
+      if (!seasonInfo.HasChanged && !importOnly)
         return false;
 
       AddToCheckCache(episodeInfo);

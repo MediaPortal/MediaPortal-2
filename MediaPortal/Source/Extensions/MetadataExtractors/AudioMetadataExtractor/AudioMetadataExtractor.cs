@@ -357,7 +357,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)
@@ -574,7 +574,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               else
               {
                 // In quick mode only allow thumbs taken from cache.
-                bool cachedOnly = forceQuickMode;
+                bool cachedOnly = importOnly;
 
                 // Thumbnail extraction
                 fileName = mediaItemAccessor.ResourcePathName;
@@ -610,25 +610,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (SkipOnlineSearches && !SkipFanArtDownload)
         {
           TrackInfo tempInfo = trackInfo.Clone();
-          OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, forceQuickMode);
+          OnlineMatcherService.Instance.FindAndUpdateTrack(tempInfo, importOnly);
           trackInfo.CopyIdsFrom(tempInfo);
           trackInfo.HasChanged = tempInfo.HasChanged;
         }
         else if (!SkipOnlineSearches)
         {
-          OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, forceQuickMode);
+          OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, importOnly);
         }
 
         if (refresh)
         {
-          if ((IncludeArtistDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Artists.Count > 0) ||
-            (IncludeComposerDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && trackInfo.Composers.Count > 0))
+          if ((IncludeArtistDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_ARTIST) && trackInfo.Artists.Count > 0) ||
+            (IncludeComposerDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_COMPOSER) && trackInfo.Composers.Count > 0))
           {
             trackInfo.HasChanged = true;
           }
         }
 
-        if (!trackInfo.HasChanged && !forceQuickMode)
+        if (!trackInfo.HasChanged && !importOnly)
           return false;
 
         trackInfo.SetMetadata(extractedAspectData);

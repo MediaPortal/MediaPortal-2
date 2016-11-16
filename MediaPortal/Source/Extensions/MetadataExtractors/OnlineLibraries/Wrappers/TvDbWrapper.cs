@@ -736,6 +736,94 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Cache
 
+    public override bool IsCacheChangedForOnlineSeries(SeriesInfo seriesInfo, TvdbLanguage language)
+    {
+      foreach (string filename in _tvdbHandler.GetSeriesCacheFiles(seriesInfo.TvdbId))
+      {
+        if (seriesInfo.TvdbId > 0 && IsCacheChanged(seriesInfo, filename))
+          return true;
+      }
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesSeason(SeasonInfo seasonInfo, TvdbLanguage language)
+    {
+      foreach (string filename in _tvdbHandler.GetSeriesCacheFiles(seasonInfo.SeriesTvdbId))
+      {
+        if (seasonInfo.SeriesTvdbId > 0 && IsCacheChanged(seasonInfo, filename))
+          return true;
+      }
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisode(EpisodeInfo episodeInfo, TvdbLanguage language)
+    {
+      foreach (string filename in _tvdbHandler.GetSeriesCacheFiles(episodeInfo.SeriesTvdbId))
+      {
+        if (episodeInfo.SeriesTvdbId > 0 && IsCacheChanged(episodeInfo, filename))
+          return true;
+      }
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, TvdbLanguage language)
+    {
+      foreach (string filename in _tvdbHandler.GetSeriesCacheFiles(seriesInfo.TvdbId))
+      {
+        if (seriesInfo.TvdbId > 0 && IsCacheChanged(seriesInfo, filename))
+          return true;
+      }
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, TvdbLanguage language)
+    {
+      foreach (string filename in _tvdbHandler.GetSeriesCacheFiles(episodeInfo.SeriesTvdbId))
+      {
+        if (episodeInfo.SeriesTvdbId > 0 && IsCacheChanged(episodeInfo, filename))
+          return true;
+      }
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, TvdbLanguage language)
+    {
+      foreach (string filename in _tvdbHandler.GetSeriesCacheFiles(seriesInfo.TvdbId))
+      {
+        if (seriesInfo.TvdbId > 0 && IsCacheChanged(seriesInfo, filename))
+          return true;
+      }
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, TvdbLanguage language)
+    {
+      foreach (string filename in _tvdbHandler.GetSeriesCacheFiles(episodeInfo.SeriesTvdbId))
+      {
+        if (episodeInfo.SeriesTvdbId > 0 && IsCacheChanged(episodeInfo, filename))
+          return true;
+      }
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, TvdbLanguage language)
+    {
+      foreach (string filename in _tvdbHandler.GetSeriesCacheFiles(seriesInfo.TvdbId))
+      {
+        if (seriesInfo.TvdbId > 0 && IsCacheChanged(seriesInfo, filename))
+          return true;
+      }
+
+      return false;
+    }
+
     /// <summary>
     /// Updates the local available information with updated ones from online source.
     /// </summary>

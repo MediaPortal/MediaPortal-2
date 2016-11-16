@@ -70,11 +70,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return GetTrackSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
-      if (forceQuickMode)
+      if (importOnly)
         return false;
 
       if (AudioMetadataExtractor.OnlyLocalMedia)
@@ -88,7 +88,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       if (!AudioMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateAlbum(albumInfo, true, forceQuickMode);
+        OnlineMatcherService.Instance.UpdateAlbum(albumInfo, true, importOnly);
 
       if (albumInfo.Tracks.Count == 0)
         return false;
@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       else
         return false;
 
-      if (!albumInfo.HasChanged && !forceQuickMode)
+      if (!albumInfo.HasChanged && !importOnly)
         return false;
 
       AddToCheckCache(albumInfo);

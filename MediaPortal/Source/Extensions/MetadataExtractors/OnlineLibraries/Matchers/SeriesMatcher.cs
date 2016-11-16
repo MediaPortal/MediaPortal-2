@@ -87,19 +87,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       return InitWrapper(UseSecureWebCommunication);
     }
 
-    public abstract bool InitWrapper(bool useHttps);
-
     private void LoadConfig()
     {
       _config = Settings.Load<SeriresMatcherSettings>(_configFile);
       if (_config == null)
         _config = new SeriresMatcherSettings();
+      if(_config.LastRefresh != null)
+        _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
     }
 
     private void SaveConfig()
     {
       Settings.Save(_configFile, _config);
     }
+
+    public abstract bool InitWrapper(bool useHttps);
 
     #endregion
 
@@ -223,7 +225,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     /// </summary>
     /// <param name="episodeInfo">Episode to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public virtual bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode)
+    public virtual bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
     {
       try
       {
@@ -240,6 +242,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool matchFound = false;
         bool seriesMatchFound = false;
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
+        if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisode(episodeInfo, language))
+          return true;
 
         if (GetSeriesId(episodeSeries, out seriesId))
         {
@@ -284,9 +288,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (SetSeriesId(episodeMatch, match.Id))
             {
-              if (episodeInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && episodeInfo.LastChanged > _lastCacheRefresh)
-                return true;
-
               seriesMatchFound = true;
             }
             else if (string.IsNullOrEmpty(seriesId))
@@ -307,7 +308,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound && !forceQuickMode)
+          if (!matchFound && !importOnly)
           {
             Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
 
@@ -331,7 +332,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         //Always save match even if none to avoid retries
         SeriesInfo cloneBasicSeries = episodeMatch != null ? episodeMatch.CloneBasicInstance<SeriesInfo>() : null;
-        if (!forceQuickMode)
+        if (!importOnly)
           StoreSeriesMatch(episodeSeries, cloneBasicSeries);
 
         if (matchFound && episodeMatch != null)
@@ -442,7 +443,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers, episodeInfo.Writers.Count == 0);
     }
 
-    public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode)
+    public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
     {
       try
       {
@@ -461,8 +462,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //Searching for this series by name only failed so stop trying.
               return false;
             }
-            else if (seriesInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && seriesInfo.LastChanged > _lastCacheRefresh)
-              return true;
           }
         }
 
@@ -474,7 +473,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineSeries(seriesMatch, language, true))
         {
-          if (!forceQuickMode)
+          if (!importOnly)
           {
             Logger.Debug(_id + ": Search for series {0} online", seriesInfo.ToString());
 
@@ -498,7 +497,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         else
         {
           Logger.Debug(_id + ": Found series {0} in cache", seriesInfo.ToString());
-          updated = true;
+
+          if (seriesMatch.NextEpisodeAirDate.HasValue && seriesInfo.LastChanged.HasValue &&
+            seriesMatch.NextEpisodeAirDate.Value < DateTime.Now && seriesInfo.LastChanged < seriesMatch.NextEpisodeAirDate.Value)
+          {
+            //Clearing of next episode needed
+            updated = true;
+          }
+          else if (seriesMatch.NextEpisodeAirDate.HasValue && seriesInfo.LastChanged.HasValue &&
+            seriesInfo.LastChanged < seriesMatch.NextEpisodeAirDate.Value)
+          {
+            //Setting of next episode needed
+            updated = true;
+          }
+          if (!importOnly && _wrapper.IsCacheChangedForOnlineSeries(seriesInfo, language))
+          {
+            //Cache changed
+            updated = true;
+          }
+          else if (importOnly)
+          {
+            //Always update for imports
+            updated = true;
+          }
+          else if (!seriesInfo.IsRefreshed)
+          {
+            //Update if never refreshed
+            updated = true;
+          }
+          else
+            return true;
         }
 
         if (updated)
@@ -618,7 +646,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!GetSeriesId(seriesInfo, out Id))
         {
           //Store empty match so it is not retried
-          if (!forceQuickMode)
+          if (!importOnly)
             _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
         }
 
@@ -631,7 +659,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode)
+    public virtual bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
     {
       try
       {
@@ -640,12 +668,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(seasonInfo.Languages);
+        if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesSeason(seasonInfo, language))
+          return true;
+
         bool updated = false;
         SeasonInfo seasonMatch = seasonInfo.Clone();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineSeriesSeason(seasonMatch, language, true))
         {
-          if (!forceQuickMode)
+          if (!importOnly)
           {
             Logger.Debug(_id + ": Search for season {0} online", seasonInfo.ToString());
 
@@ -693,7 +724,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)
+    public virtual bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
     {
       try
       {
@@ -709,6 +740,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in seriesMatch.Actors)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesPerson(seriesInfo, person, language))
+              continue;
+
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -727,12 +761,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
         }
 
+        if (persons.Count == 0)
+          return true;
+
         foreach (PersonInfo person in persons)
         {
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesPerson(seriesMatch, person, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
@@ -785,7 +822,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -800,7 +837,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode)
+    public virtual bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
     {
       try
       {
@@ -809,7 +846,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
-        bool updated = false;
+        bool canBeUpdated = false;
+        foreach (CharacterInfo character in seriesInfo.Characters)
+        {
+          if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesCharacter(seriesInfo, character, language))
+            continue;
+          canBeUpdated = true;
+        }
+
+        if (!canBeUpdated)
+          return true;
+
+          bool updated = false;
         SeriesInfo seriesMatch = seriesInfo.Clone();
         foreach (CharacterInfo character in seriesMatch.Characters)
         {
@@ -825,7 +873,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesCharacter(seriesMatch, character, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
@@ -875,7 +923,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            if (!forceQuickMode)
+            if (!importOnly)
               _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
@@ -889,7 +937,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
+    public virtual bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
     {
       try
       {
@@ -905,6 +953,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in seriesMatch.ProductionCompanies)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesCompany(seriesInfo, company, language))
+              continue;
+
             string id;
             if (_companyMatcher.GetNameMatch(company.Name, out id))
             {
@@ -926,6 +977,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in seriesMatch.Networks)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesCompany(seriesInfo, company, language))
+              continue;
+
             string id;
             if (_networkMatcher.GetNameMatch(company.Name, out id))
             {
@@ -943,12 +997,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
+
+        if (companies.Count == 0)
+          return true;
+
         foreach (CompanyInfo company in companies)
         {
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesCompany(seriesMatch, company, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for company {0} online", company.ToString());
 
@@ -1003,7 +1061,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _companyMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
@@ -1020,7 +1078,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _networkMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
@@ -1035,7 +1093,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode)
+    public virtual bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
     {
       try
       {
@@ -1051,6 +1109,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in episodeMatch.Actors)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisodePerson(episodeInfo, person, language))
+              continue;
+
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -1072,6 +1133,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in episodeMatch.Directors)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisodePerson(episodeInfo, person, language))
+              continue;
+
             string id;
             if (_directorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -1093,6 +1157,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in episodeMatch.Writers)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisodePerson(episodeInfo, person, language))
+              continue;
+
             string id;
             if (_writerMatcher.GetNameMatch(person.Name, out id))
             {
@@ -1110,12 +1177,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
+
+        if (persons.Count == 0)
+          return true;
+
         foreach (PersonInfo person in persons)
         {
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesEpisodePerson(episodeMatch, person, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
@@ -1152,7 +1223,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try to update person based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
           series.Actors = episodeMatch.Actors;
-          if (UpdateSeriesPersons(series, occupation, forceQuickMode))
+          if (UpdateSeriesPersons(series, occupation, importOnly))
             updated = true;
         }
 
@@ -1181,7 +1252,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -1198,7 +1269,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _directorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -1215,7 +1286,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _writerMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -1230,7 +1301,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode)
+    public virtual bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
     {
       try
       {
@@ -1239,6 +1310,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
+        bool canBeUpdated = false;
+        foreach (CharacterInfo character in episodeInfo.Characters)
+        {
+          if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisodeCharacter(episodeInfo, character, language))
+            continue;
+          canBeUpdated = true;
+        }
+
+        if (!canBeUpdated)
+          return true;
+
         bool updated = false;
         EpisodeInfo episodeMatch = episodeInfo.Clone();
         foreach (CharacterInfo character in episodeMatch.Characters)
@@ -1255,7 +1337,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineSeriesEpisodeCharacter(episodeMatch, character, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
@@ -1292,7 +1374,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try to update character based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
           series.Characters = episodeMatch.Characters;
-          if (UpdateSeriesCharacters(series, forceQuickMode))
+          if (UpdateSeriesCharacters(series, importOnly))
             updated = true;
         }
 
@@ -1314,7 +1396,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            if (!forceQuickMode)
+            if (!importOnly)
               _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }

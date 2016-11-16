@@ -37,12 +37,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     #region Audio
 
     bool AssignMissingMusicGenreIds(List<GenreInfo> genres);
-    bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode);
-    bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode);
-    bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool forceQuickMode);
-    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forceQuickMode);
-    bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool forceQuickMode);
-    bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode);
+    bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
+    bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly);
+    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly);
+    bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly);
+    bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
     bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreAudioPersonMatch(PersonInfo person);
     void StoreAudioCompanyMatch(CompanyInfo company);
@@ -52,11 +51,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     #region Movie
 
     bool AssignMissingMovieGenreIds(List<GenreInfo> genres);
-    bool FindAndUpdateMovie(MovieInfo movieInfo, bool forceQuickMode);
-    bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode);
-    bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode);
-    bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool forceQuickMode);
-    bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode);
+    bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly);
+    bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly);
+    bool UpdateCharacters(MovieInfo movieInfo, bool importOnly);
+    bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly);
+    bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly);
     bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreMoviePersonMatch(PersonInfo person);
     void StoreMovieCharacterMatch(CharacterInfo character);
@@ -67,14 +66,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     #region Series
 
     bool AssignMissingSeriesGenreIds(List<GenreInfo> genres);
-    bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode);
-    bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode);
-    bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode);
-    bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode);
-    bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode);
-    bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode);
-    bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode);
-    bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode);
+    bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly);
+    bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly);
+    bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly);
+    bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly);
+    bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly);
+    bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly);
+    bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly);
+    bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly);
     bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreSeriesPersonMatch(PersonInfo person);
     void StoreSeriesCharacterMatch(CharacterInfo character);

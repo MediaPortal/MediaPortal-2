@@ -96,12 +96,12 @@ namespace Test.OnlineLibraries
       throw new NotImplementedException();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode)
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, bool importOnly)
     {
       throw new NotImplementedException();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode)
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, bool importOnly)
     {
       throw new NotImplementedException();
     }
@@ -111,12 +111,12 @@ namespace Test.OnlineLibraries
       throw new NotImplementedException();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
     {
       throw new NotImplementedException();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
+    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor, IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool importOnly)
     {
       throw new NotImplementedException();
     }

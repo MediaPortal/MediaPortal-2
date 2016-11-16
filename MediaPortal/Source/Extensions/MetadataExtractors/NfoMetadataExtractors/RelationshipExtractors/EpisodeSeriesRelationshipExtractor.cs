@@ -66,12 +66,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return GetSeriesSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
       //Only run during import
-      if (!forceQuickMode)
+      if (!importOnly)
         return false;
 
       EpisodeInfo episodeInfo = new EpisodeInfo();

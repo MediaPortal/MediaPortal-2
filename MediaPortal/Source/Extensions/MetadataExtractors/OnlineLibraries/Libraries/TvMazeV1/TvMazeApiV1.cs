@@ -168,6 +168,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     }
 
     /// <summary>
+    /// Returns cache file for <see cref="TvMazeSeries"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">Id of series</param>
+    /// <returns>Cache file name</returns>
+    public string GetSeriesCacheFile(int id)
+    {
+      return CreateAndGetCacheName(id, "Series");
+    }
+
+    /// <summary>
     /// Returns detailed information for a single <see cref="TvMazeSeries"/> with given <paramref name="id"/>. This method caches request
     /// to same series using the cache path given in <see cref="TvMazeApiV1"/> constructor.
     /// </summary>
@@ -186,6 +196,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     }
 
     /// <summary>
+    /// Returns cache file for <see cref="TvMazeSeries"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">Id of series</param>
+    /// <returns>Cache file name</returns>
+    public string GetSeriesImdbCacheFile(string ImdbId)
+    {
+      return CreateAndGetCacheName(ImdbId, "Series");
+    }
+
+    /// <summary>
     /// Returns detailed information for a single <see cref="TvMazeSeries"/> with given <paramref name="id"/>. This method caches request
     /// to same series using the cache path given in <see cref="TvMazeApiV1"/> constructor.
     /// </summary>
@@ -201,6 +221,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETTVDBSERIES, id);
       return _downloader.Download<TvMazeSeries>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns cache file for <see cref="TvMazeSeries"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">Id of series</param>
+    /// <returns>Cache file name</returns>
+    public string GetSeriesTvdbCacheFile(int id)
+    {
+      return CreateAndGetCacheName(id, "Series");
     }
 
     /// <summary>
@@ -225,6 +255,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       }
       if (returnValue.Results == null) return null;
       return returnValue.Results;
+    }
+
+    /// <summary>
+    /// Returns season cache file for <see cref="TvMazeSeries"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">Id of series</param>
+    /// <returns>Cache file name</returns>
+    public string GetSeriesSeasonsCacheFile(int id)
+    {
+      return CreateAndGetCacheName(id, "Seasons");
     }
 
     /// <summary>
@@ -256,6 +296,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     }
 
     /// <summary>
+    /// Returns season cache file for <see cref="TvMazeEpisode"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">Id of series</param>
+    /// <returns>Cache file name</returns>
+    public string GetSeriesEpisodeCacheFile(int id, int season, int episode)
+    {
+      return CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
+    }
+
+    /// <summary>
     /// Returns detailed information for a single <see cref="TvMazePerson"/> with given <paramref name="id"/>. This method caches request
     /// to same person using the cache path given in <see cref="TvMazeApiV1"/> constructor.
     /// </summary>
@@ -274,6 +324,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     }
 
     /// <summary>
+    /// Returns season cache file for <see cref="TvMazePerson"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">Id of person</param>
+    /// <returns>Cache file name</returns>
+    public string GetPersonCacheFile(int id)
+    {
+      return CreateAndGetCacheName(id, "Person");
+    }
+
+    /// <summary>
     /// Returns detailed information for a single <see cref="TvMazePerson"/> with given <paramref name="id"/>. This method caches request
     /// to same character using the cache path given in <see cref="TvMazeApiV1"/> constructor.
     /// </summary>
@@ -289,6 +349,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETCHARACTER, id);
       return _downloader.Download<TvMazePerson>(url, cache);
+    }
+
+    /// <summary>
+    /// Returns season cache file for <see cref="TvMazePerson"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">Id of person</param>
+    /// <returns>Cache file name</returns>
+    public string GetCharacterCacheFile(int id)
+    {
+      return CreateAndGetCacheName(id, "Character");
     }
 
     /// <summary>

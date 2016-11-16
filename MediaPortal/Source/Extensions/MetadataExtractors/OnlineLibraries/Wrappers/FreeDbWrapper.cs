@@ -274,6 +274,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Cache
 
+    public override bool IsCacheChangedForOnlineMusicTrack(TrackInfo track, string language)
+    {
+      foreach(string filename in GetMatchingCacheFiles(track.AlbumCdDdId))
+      {
+        if (IsCacheChanged(track, filename))
+          return true;
+      }
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineMusicTrackAlbum(AlbumInfo album, string language)
+    {
+      foreach (string filename in GetMatchingCacheFiles(album.CdDdId))
+      {
+        if (IsCacheChanged(album, filename))
+          return true;
+      }
+      return false;
+    }
+
     /// <summary>
     /// Return a cache file name for a CDDB ID
     /// </summary>

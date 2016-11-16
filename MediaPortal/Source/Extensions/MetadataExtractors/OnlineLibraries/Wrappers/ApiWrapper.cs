@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Utilities;
 using MediaPortal.Common.MediaManagement.Helpers;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -133,6 +134,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual bool RefreshCache(DateTime lastRefresh)
     {
       return false;
+    }
+
+    protected virtual bool IsCacheChanged(BaseInfo info, string filename)
+    {
+      try
+      {
+        if (!info.IsRefreshed)
+          return true;
+
+        FileInfo file = new FileInfo(filename);
+        if (!file.Exists)
+          return false;
+        if (file.CreationTime > info.LastChanged)
+          return true;
+        return false;
+      }
+      catch
+      {
+        return false;
+      }
     }
 
     #region Movies
@@ -284,7 +305,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineMovie(MovieInfo movie, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineMovieCollection(MovieCollectionInfo collection, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool IsCacheChangedForOnlineMovieCollection(MovieCollectionInfo collection, TLang language)
     {
       return false;
     }
@@ -574,12 +605,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineSeries(SeriesInfo series, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineSeriesSeason(SeasonInfo season, TLang language, bool cacheOnly)
     {
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineSeriesSeason(SeasonInfo season, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool IsCacheChangedForOnlineSeriesEpisode(EpisodeInfo episode, TLang language)
     {
       return false;
     }
@@ -773,7 +819,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool IsCacheChangedForOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, TLang language)
     {
       return false;
     }
@@ -783,12 +839,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool IsCacheChangedForOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, TLang language)
     {
       return false;
     }
@@ -904,12 +975,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, TLang language, bool cacheOnly)
     {
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool IsCacheChangedForOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, TLang language)
     {
       return false;
     }
@@ -1026,12 +1112,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool IsCacheChangedForOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, TLang language)
     {
       return false;
     }
@@ -1383,7 +1484,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
+    public virtual bool IsCacheChangedForOnlineMusicTrack(TrackInfo track, TLang language)
+    {
+      return false;
+    }
+
     public virtual bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, TLang language, bool cacheOnly)
+    {
+      return false;
+    }
+
+    public virtual bool IsCacheChangedForOnlineMusicTrackAlbum(AlbumInfo album, TLang language)
     {
       return false;
     }

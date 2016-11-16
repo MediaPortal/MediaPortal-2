@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return GetAlbumSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
@@ -85,12 +85,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (TryGetIdFromAlbumCache(albumInfo, out albumId))
         albumInfo = GetFromAlbumCache(albumId);
       else if (!AudioMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
+        OnlineMatcherService.Instance.UpdateAlbum(albumInfo, false, importOnly);
 
       if (!BaseInfo.HasRelationship(aspects, LinkedRole))
         albumInfo.HasChanged = true; //Force save if no relationship exists
 
-      if (!albumInfo.HasChanged && !forceQuickMode)
+      if (!albumInfo.HasChanged && !importOnly)
         return false;
 
       AddToCheckCache(trackInfo);
@@ -112,7 +112,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         MediaItemAspect.SetAttribute(albumAspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, data);
       }
 
-      if (forceQuickMode)
+      if (importOnly)
         StorePersons(albumAspects, albumInfo.Artists, true);
 
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))

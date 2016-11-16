@@ -92,6 +92,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     TvdbSeries LoadSeriesFromCache(int seriesId);
 
     /// <summary>
+    /// Return path to series cache file
+    /// </summary>
+    /// <param name="seriesId">Id of the series to load</param>
+    /// <returns>The TvdbSeries cache file</returns>
+    string[] GetSeriesCacheFiles(int seriesId);
+
+    /// <summary>
     /// Load user info from cache
     /// </summary>
     /// <param name="userId">Id of the user</param>

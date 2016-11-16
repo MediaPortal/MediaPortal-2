@@ -114,6 +114,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
+    public string GetArtistMbCacheFile(string mbid)
+    {
+      return CreateAndGetCacheName(mbid, "Artist_mbId");
+    }
+
     public AudioDbArtist GetArtist(long tadbArtistID, bool cacheOnly)
     {
       AudioDbArtists audioDbArtists = null;
@@ -131,6 +136,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
         return audioDbArtists.Artists.Where(a => a.ArtistId > 0).FirstOrDefault();
       return null;
+    }
+
+    public string GetArtistCacheFile(long tadbArtistID)
+    {
+      return CreateAndGetCacheName(tadbArtistID, "Artist");
     }
 
     public List<AudioDbAlbum> SearchAlbum(string artistName, string albumName)
@@ -174,6 +184,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
+    public string GetAlbumMbCacheFile(string mbid)
+    {
+      return CreateAndGetCacheName(mbid, "Album_mbId");
+    }
+
     public List<AudioDbAlbum> GetAlbumsByArtistId(long tadbArtistId, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
@@ -197,6 +212,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
+    public string GetArtistAlbumCacheFile(long tadbArtistId)
+    {
+      return CreateAndGetCacheName(tadbArtistId, "ArtistAlbums");
+    }
+
     public AudioDbAlbum GetAlbum(long tadbAlbumId, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
@@ -214,6 +234,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
         return audioDbAlbums.Albums.Where(a => a.AlbumId > 0).FirstOrDefault();
       return null;
+    }
+
+    public string GetAlbumCacheFile(long tadbAlbumId)
+    {
+      return CreateAndGetCacheName(tadbAlbumId, "Album");
     }
 
     public List<AudioDbTrack> GetTracksByAlbumId(long tadbAlbumId, bool cacheOnly)
@@ -237,6 +262,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
           return list;
       }
       return null;
+    }
+
+    public string GetAlbumTracksCacheFile(long tadbAlbumId)
+    {
+      return CreateAndGetCacheName(tadbAlbumId, "AlbumTracks");
     }
 
     public List<AudioDbTrack> SearchTrack(string artistName, string trackName)
@@ -272,6 +302,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
+    public string GetTrackCacheFile(long tadbTrackId)
+    {
+      return CreateAndGetCacheName(tadbTrackId, "Track");
+    }
+
     public AudioDbTrack GetTrackByMbid(string mbid, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
@@ -289,6 +324,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
         return audioDbTracks.Tracks.Where(t => t.TrackID > 0).FirstOrDefault();
       return null;
+    }
+
+    public string GetTrackMbCacheFile(string mbid)
+    {
+      return CreateAndGetCacheName(mbid, "Track_mbId");
     }
 
     public List<AudioDbMvid> GetMusicVideosByArtistId(string tadbArtistId, bool cacheOnly)
@@ -314,6 +354,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
+    public string GetArtistMusicVideoCacheFile(string tadbArtistId)
+    {
+      return CreateAndGetCacheName(tadbArtistId, "ArtistVideos");
+    }
+
     public List<AudioDbMvid> GetMusicVideosByArtistMbid(string mbid, bool cacheOnly)
     {
       AudioDbMvids audioDbMvids = null;
@@ -335,6 +380,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
           return list;
       }
       return null;
+    }
+
+    public string GetArtistMusicVideoMbCacheFile(string mbid)
+    {
+      return CreateAndGetCacheName(mbid, "ArtistVideos_mbId");
     }
 
     /// <summary>

@@ -232,6 +232,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         info.Name = ActorName;
         info.Occupation = PersonAspect.OCCUPATION_ACTOR;
+        info.LastChanged = LastChanged;
+        info.DateAdded = DateAdded;
         return (T)(object)info;
       }
       return default(T);

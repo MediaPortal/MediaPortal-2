@@ -115,27 +115,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode)
+    public override bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
     {
       return false;
     }
 
-    public override bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode)
+    public override bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
     {
       return false;
     }
 
-    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
+    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
     {
       return false;
     }
 
-    public override bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode)
+    public override bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
     {
       return false;
     }
 
-    public override bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode)
+    public override bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
     {
       return false;
     }

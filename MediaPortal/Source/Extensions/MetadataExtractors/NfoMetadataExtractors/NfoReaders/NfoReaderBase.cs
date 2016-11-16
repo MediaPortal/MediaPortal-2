@@ -115,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <summary>
     /// If true, no long lasting operations such as parsing pictures are performed
     /// </summary>
-    protected bool _forceQuickMode;
+    protected bool _importOnly;
 
     /// <summary>
     /// Dictionary used to find the appropriate <see cref="TryReadElementDelegate"/> or <see cref="TryReadElementAsyncDelegate"/> by element name
@@ -151,14 +151,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
-    /// <param name="forceQuickMode">If <c>true</c>, no long lasting operations such as parsing pictures are performed</param>
+    /// <param name="importOnly">If <c>true</c>, no long lasting operations such as parsing pictures are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the NfoMetadataExtractor</param>
-    protected NfoReaderBase(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
+    protected NfoReaderBase(ILogger debugLogger, long miNumber, bool importOnly, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
     {
       _debugLogger = debugLogger;
       _miNumber = miNumber;
-      _forceQuickMode = forceQuickMode;
+      _importOnly = importOnly;
       _httpDownloadClient = httpClient;
       _settings = settings;
     }
@@ -553,7 +553,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the parent directory of the nfo-file</param>
     /// <returns>
     /// <c>null</c> if
-    ///   - <see cref="_forceQuickMode"/> is <c>true</c>; or
+    ///   - <see cref="_importOnly"/> is <c>true</c>; or
     ///   - a call to <see cref="ParseSimpleString"/> for <paramref name="element"/> returns <c>null</c>
     ///   - <paramref name="element"/>.Value does not contain a valid and existing (absolute) http URL to an image; or
     ///   - <paramref name="element"/>.Value does contain a valid and existing (relative) file path or <paramref name="nfoDirectoryFsra"/> is <c>null</c>;
@@ -573,7 +573,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </remarks>
     protected async Task<byte[]> ParseSimpleImageAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
-      if (_forceQuickMode)
+      if (_importOnly)
         return null;
 
       var imageFileString = ParseSimpleString(element);

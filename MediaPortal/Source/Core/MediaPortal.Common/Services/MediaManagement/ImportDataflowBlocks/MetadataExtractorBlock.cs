@@ -110,14 +110,16 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // ToDo: We should only omit MDEs that get their data from the file or directory itself. All others should be called anyway.
           if (importResource.DateOfLastImport > importResource.ResourceAccessor.LastChanged &&
               importResource.DateOfLastImport > await _mostRecentMiaCreationDate.Value &&
-              ((DateTime.Now - importResource.DateOfLastImport).TotalHours <= MINIMUM_IMPORT_AGE || importResource.ExistingAspects == null))
+              ((DateTime.Now - importResource.DateOfLastImport).TotalHours <= MINIMUM_IMPORT_AGE_IN_HOURS || importResource.ExistingAspects == null))
           {
             importResource.IsValid = false;
             return importResource;
           }
         }
 
-        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, ImportJobInformation.JobType == ImportJobType.Import);
+        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, !importResource.MediaItemId.HasValue);
+        if (importResource.Aspects == null)
+          importResource.Aspects = importResource.ExistingAspects;
         if (importResource.Aspects == null)
           importResource.IsValid = false;
 

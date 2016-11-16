@@ -68,11 +68,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return GetMovieCollectionSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
-      if (!forceQuickMode) //Only during import
+      if (!importOnly) //Only during import
         return false;
 
       MovieInfo movieInfo = new MovieInfo();

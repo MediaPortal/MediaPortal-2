@@ -33,12 +33,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool Enabled { get; set; }
     string Id { get; }
 
-    bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode);
-    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forceQuickMode);
-    bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool forceQuickMode);
-    bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool forceQuickMode);
-    bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode);
-    bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode);
+    bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
+    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly);
+    bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly);
+    bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly);
+    bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
 
     void StoreArtistMatch(PersonInfo person);
     void StoreComposerMatch(PersonInfo person);

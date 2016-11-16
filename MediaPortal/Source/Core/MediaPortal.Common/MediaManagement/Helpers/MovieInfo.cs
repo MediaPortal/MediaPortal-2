@@ -439,6 +439,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.NameId = CollectionNameId;
         info.CollectionName = new SimpleTitle(CollectionName.Text, CollectionName.DefaultLanguage);
         info.Languages.AddRange(Languages);
+        info.LastChanged = LastChanged;
+        info.DateAdded = DateAdded;
         return (T)(object)info;
       }
       return default(T);

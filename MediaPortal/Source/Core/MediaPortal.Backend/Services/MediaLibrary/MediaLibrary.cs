@@ -1269,6 +1269,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    private IDictionary<Guid, IList<MediaItemAspect>> ConvertAspects(IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      foreach (MediaItemAspect aspect in mediaItemAspects)
+      {
+        if (!extractedAspects.ContainsKey(aspect.Metadata.AspectId))
+          extractedAspects.Add(aspect.Metadata.AspectId, new List<MediaItemAspect>());
+
+        extractedAspects[aspect.Metadata.AspectId].Add(aspect);
+      }
+      return extractedAspects;
+    }
+
     private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool reconcile, bool isRefresh, CancellationToken cancelToken)
     {
       Stopwatch swImport = new Stopwatch();
@@ -1281,6 +1294,39 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
+        if(isRefresh)
+        {
+          Guid? existingMediaItemId = GetMediaItemId(transaction, systemId, path);
+          IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = ConvertAspects(mediaItemAspects);
+          bool dirty = false;
+          if (extractedAspects.ContainsKey(ImporterAspect.ASPECT_ID))
+            dirty = extractedAspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
+          if (!dirty && existingMediaItemId.HasValue)
+          {
+            transaction.Commit();
+
+            if(extractedAspects.ContainsKey(DirectoryAspect.ASPECT_ID))
+              return existingMediaItemId.Value;
+
+            if (reconcile)
+              Reconcile(existingMediaItemId.Value, extractedAspects, isRefresh, cancelToken);
+            CollectFanArt(existingMediaItemId.Value, extractedAspects);
+
+            //Set media item as refreshed
+            using (transaction = database.BeginTransaction())
+            {
+              MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, existingMediaItemId.Value, ImporterAspect.ASPECT_ID);
+              importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
+              importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, DateTime.Now);
+              _miaManagement.AddOrUpdateMIA(transaction, existingMediaItemId.Value, importerAspect, false);
+              transaction.Commit();
+            }
+
+            Logger.Info("Refreshed media item {0} ({1}) ({2} ms)", existingMediaItemId.Value, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+            return existingMediaItemId.Value;
+          }
+        }
+
         bool merged;
         string name = GetMediaItemTitle(mediaItemAspects, path.FileName);
         Guid? mediaItemId = AddOrUpdateMediaItem(database, transaction, parentDirectoryId, systemId, path, newMediaItemId, mediaItemAspects, out merged);
@@ -1385,7 +1431,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, pra, true);
       }
       importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
-      importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
+
+      if (!wasCreated || path.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
+      else //Set last import date so it will be included in a refresh
+        importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now.AddDays(-1));
 
       _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, wasCreated);
 
@@ -1514,15 +1564,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected virtual Guid? MergeWithExisting(ISQLDatabase database, ITransaction transaction, Guid? extractedMediaItemId, IEnumerable<MediaItemAspect> extractedAspectList, MediaItemAspect extractedProviderResourceAspects)
     {
-      IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      foreach(MediaItemAspect aspect in extractedAspectList)
-      {
-        if (!extractedAspects.ContainsKey(aspect.Metadata.AspectId))
-          extractedAspects.Add(aspect.Metadata.AspectId, new List<MediaItemAspect>());
-
-        extractedAspects[aspect.Metadata.AspectId].Add(aspect);
-      }
-
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = ConvertAspects(extractedAspectList);
       IList<MultipleMediaItemAspect> providerResourceAspects = null;
       if (MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
       {
@@ -1565,10 +1607,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
             if (mergeHandler.TryMerge(extractedAspects, existingAspects))
             {
-              SingleMediaItemAspect importerAspect = MediaItemAspect.GetAspect(existingAspects, ImporterAspect.Metadata);
-              importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
-              importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, DateTime.Now);
-
               //Logger.Debug("Merging extracted item with [{2}] into existing item {0} with [{1}]", existingMediaItemId, 
               //  string.Join(",", existingAspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)),
               //  string.Join(",", extractedAspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));
@@ -1600,7 +1638,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IFilter filter = mergeHandler.GetSearchFilter(extractedAspects);
       if (filter != null)
       {
-        IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
+        IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, false);
         foreach (MediaItem existingItem in existingItems)
         {
           //Logger.Debug("Checking existing item {0} with [{1}]", existingItem.MediaItemId, string.Join(",", existingItem.Aspects.Keys.Select(x => GetManagedMediaItemAspectMetadata()[x].Name)));

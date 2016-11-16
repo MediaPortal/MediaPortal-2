@@ -99,7 +99,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         // ReSharper disable once PossibleInvalidOperationException
-        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, _ct);
+        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, importResource.MediaItemId.HasValue, _ct);
 
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
         {

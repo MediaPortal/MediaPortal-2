@@ -69,14 +69,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return GetPersonSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode)
+    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly)
     {
       extractedLinkedAspects = null;
 
       if (!NfoSeriesMetadataExtractor.IncludeActorDetails)
         return false;
 
-      if (!forceQuickMode) //Only during import
+      if (!importOnly) //Only during import
         return false;
 
       SeriesInfo seriesInfo = new SeriesInfo();

@@ -98,15 +98,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #endregion
 
-    #region Metadata updaters
-
-    public override bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo personInfo, bool forceQuickMode)
-    {
-      return false;
-    }
-
-    #endregion
-
     #region Translators
 
     protected override bool GetTrackAlbumId(AlbumInfo album, out string id)

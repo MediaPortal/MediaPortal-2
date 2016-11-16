@@ -91,12 +91,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode)
+    public override bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
     {
       return false;
     }
 
-    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode)
+    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
     {
       return false;
     }

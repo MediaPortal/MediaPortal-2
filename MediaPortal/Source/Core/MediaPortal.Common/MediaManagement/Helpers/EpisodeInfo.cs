@@ -496,6 +496,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           FirstAired = SeriesFirstAired,
           SearchSeason = SeasonNumber,
           SearchEpisode = EpisodeNumbers.Count > 0 ? (int?)EpisodeNumbers[0] : null,
+          LastChanged = LastChanged,
+          DateAdded = DateAdded
         };
         info.Languages.AddRange(Languages);
         return (T)(object)info;
@@ -511,7 +513,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesTvMazeId = SeriesTvMazeId,
           SeriesTvRageId = SeriesTvRageId,
           SeriesNameId = SeriesNameId,
-          SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage)
+          SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage),
+          LastChanged = LastChanged,
+          DateAdded = DateAdded
         };
         info.Languages.AddRange(Languages);
         return (T)(object)info;

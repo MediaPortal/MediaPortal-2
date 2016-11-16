@@ -33,14 +33,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool Enabled { get; set; }
     string Id { get; }
 
-    bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool forceQuickMode);
-    bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool forceQuickMode);
-    bool UpdateSeason(SeasonInfo seasonInfo, bool forceQuickMode);
-    bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool forceQuickMode);
-    bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool forceQuickMode);
-    bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool forceQuickMode);
-    bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool forceQuickMode);
-    bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool forceQuickMode);
+    bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly);
+    bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly);
+    bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly);
+    bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly);
+    bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly);
+    bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly);
+    bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly);
+    bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly);
 
     void StoreActorMatch(PersonInfo person);
     void StoreDirectorMatch(PersonInfo person);

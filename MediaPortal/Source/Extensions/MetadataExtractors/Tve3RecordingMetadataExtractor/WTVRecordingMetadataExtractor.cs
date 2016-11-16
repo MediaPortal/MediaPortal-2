@@ -98,33 +98,28 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return episodeInfo;
     }
 
-    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected override bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       if (!CanExtract(lfsra, extractedAspectData))
+        return false;
+      if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         return false;
 
       // Handle series information
       EpisodeInfo episodeInfo = new EpisodeInfo();
-      if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+      using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
       {
-        episodeInfo.FromMetadata(extractedAspectData);
-      }
-      else
-      {
-        using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))
-        {
-          IDictionary tags = rec.GetAttributes();
-          episodeInfo = GetSeriesFromTags(tags);
-        }
+        IDictionary tags = rec.GetAttributes();
+        episodeInfo = GetSeriesFromTags(tags);
       }
 
       if (episodeInfo.IsBaseInfoPresent)
       {
-        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
         if (episodeInfo.IsBaseInfoPresent)
           episodeInfo.SetMetadata(extractedAspectData);
       }
-      return episodeInfo.IsBaseInfoPresent && episodeInfo.HasChanged;
+      return episodeInfo.IsBaseInfoPresent;
     }
   }
 
@@ -219,7 +214,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
@@ -229,7 +224,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
           return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractMetadata(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode);
+          return ExtractMetadata(rah.LocalFsResourceAccessor, extractedAspectData, importOnly);
 
       }
       catch (Exception e)
@@ -241,9 +236,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected virtual bool ExtractMetadata(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       if (!CanExtract(lfsra, extractedAspectData))
+        return false;
+      if (extractedAspectData.ContainsKey(RecordingAspect.ASPECT_ID))
         return false;
 
       using (var rec = new MCRecMetadataEditor(lfsra.LocalFileSystemPath))

@@ -60,6 +60,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     private bool _hasThumbnail = false;
     private bool _hasChanged = false;
     private DateTime? _lastChange = null;
+    private DateTime? _dateAdded = null;
 
     public bool HasThumbnail
     {
@@ -77,6 +78,22 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       get { return _lastChange; }
       set { _lastChange = value; }
+    }
+
+    public DateTime? DateAdded
+    {
+      get { return _dateAdded; }
+      set { _dateAdded = value; }
+    }
+
+    public bool IsRefreshed
+    {
+      get
+      {
+        if (LastChanged.HasValue && DateAdded.HasValue)
+          return LastChanged.Value > DateAdded.Value;
+        return false;
+      }
     }
 
     public abstract bool IsBaseInfoPresent { get; }
@@ -211,6 +228,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         _hasChanged = importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
         _lastChange = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_LAST_IMPORT_DATE);
+        _dateAdded = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_DATEADDED);
       }
     }
 
@@ -223,8 +241,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         {
           //Set to dirty to mark it as changed
           importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, _hasChanged);
-          //_lastChange = DateTime.Now;
-          //importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, _lastChange);
         }
       }
     }

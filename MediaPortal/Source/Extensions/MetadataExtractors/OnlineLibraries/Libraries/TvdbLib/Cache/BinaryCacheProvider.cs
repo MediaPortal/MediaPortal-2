@@ -287,6 +287,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
       return null;
     }
 
+    public string[] GetSeriesCacheFiles(int seriesId)
+    {
+      return new[] { _rootFolder + Path.DirectorySeparatorChar + seriesId +
+                          Path.DirectorySeparatorChar + "series_" + seriesId + ".ser" };
+    }
+
     /// <summary>
     /// Saves the series to cache
     /// </summary>

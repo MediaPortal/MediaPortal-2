@@ -88,6 +88,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _config = Settings.Load<MovieMatcherSettings>(_configFile);
       if (_config == null)
         _config = new MovieMatcherSettings();
+      if (_config.LastRefresh != null)
+        _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
     }
 
     private void SaveConfig()
@@ -213,7 +215,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     /// </summary>
     /// <param name="movieInfo">Movie to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public virtual bool FindAndUpdateMovie(MovieInfo movieInfo, bool forceQuickMode)
+    public virtual bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
     {
       try
       {
@@ -225,6 +227,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         string movieId = null;
         bool matchFound = false;
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
+        if (!importOnly && !_wrapper.IsCacheChangedForOnlineMovie(movieInfo, language))
+          return true;
+
         if (GetMovieId(movieInfo, out movieId))
         {
           // Prefer memory cache
@@ -251,9 +256,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (SetMovieId(movieMatch, match.Id))
             {
-              if (movieInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && movieInfo.LastChanged > _lastCacheRefresh)
-                return true;
-
               //If Id was found in cache the online movie info is probably also in the cache
               if (_wrapper.UpdateFromOnlineMovie(movieMatch, language, true))
               {
@@ -269,7 +271,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound && !forceQuickMode)
+          if (!matchFound && !importOnly)
           {
             Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
 
@@ -292,7 +294,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         //Always save match even if none to avoid retries
-        if (!forceQuickMode)
+        if (!importOnly)
           StoreMovieMatch(movieInfo, movieMatch);
 
         if (matchFound)
@@ -397,7 +399,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdatePersons(MovieInfo movieInfo, string occupation, bool forceQuickMode)
+    public virtual bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly)
     {
       try
       {
@@ -413,6 +415,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieMatch.Actors)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMoviePerson(movieInfo, person, language))
+              continue;
+
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -434,6 +439,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieMatch.Directors)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMoviePerson(movieInfo, person, language))
+              continue;
+
             string id;
             if (_directorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -455,6 +463,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieMatch.Writers)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMoviePerson(movieInfo, person, language))
+              continue;
+
             string id;
             if (_writerMatcher.GetNameMatch(person.Name, out id))
             {
@@ -472,12 +483,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
+
+        if (persons.Count == 0)
+          return true;
+
         foreach (PersonInfo person in persons)
         {
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineMoviePerson(movieMatch, person, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
@@ -534,7 +549,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -551,7 +566,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _directorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -568,7 +583,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _writerMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -583,7 +598,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateCharacters(MovieInfo movieInfo, bool forceQuickMode)
+    public virtual bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
     {
       try
       {
@@ -592,6 +607,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
+        bool canBeUpdated = false;
+        foreach (CharacterInfo character in movieInfo.Characters)
+        {
+          if (!importOnly && !_wrapper.IsCacheChangedForOnlineMovieCharacter(movieInfo, character, language))
+            continue;
+          canBeUpdated = true;
+        }
+
+        if (!canBeUpdated)
+          return true;
+
         bool updated = false;
         MovieInfo movieMatch = movieInfo.Clone();
         foreach (CharacterInfo character in movieMatch.Characters)
@@ -608,7 +634,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineMovieCharacter(movieMatch, character, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
@@ -658,7 +684,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            if (!forceQuickMode)
+            if (!importOnly)
               _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
@@ -672,7 +698,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool forceQuickMode)
+    public virtual bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
     {
       try
       {
@@ -688,6 +714,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in movieMatch.ProductionCompanies)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMovieCompany(movieInfo, company, language))
+              continue;
+
             string id;
             if (_companyMatcher.GetNameMatch(company.Name, out id))
             {
@@ -705,12 +734,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
+
+        if (companies.Count == 0)
+          return true;
+
         foreach (CompanyInfo company in companies)
         {
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineMovieCompany(movieMatch, company, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for company {0} online", company.ToString());
 
@@ -763,7 +796,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _companyMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
@@ -778,7 +811,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool forceQuickMode)
+    public virtual bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly)
     {
       try
       {
@@ -787,13 +820,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(movieCollectionInfo.Languages);
+        if (!importOnly && !_wrapper.IsCacheChangedForOnlineMovieCollection(movieCollectionInfo, language))
+          return true;
+
         bool updated = false;
         MovieCollectionInfo movieCollectionMatch = movieCollectionInfo.Clone();
         movieCollectionMatch.Movies.Clear();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineMovieCollection(movieCollectionMatch, language, true))
         {
-          if (!forceQuickMode)
+          if (!importOnly)
           {
             Logger.Debug(_id + ": Search for collection {0} online", movieCollectionInfo.ToString());
 
@@ -961,13 +997,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (CacheRefreshable)
       {
-        string dateFormat = "MMddyyyyHHmm";
         if (!_lastCacheRefresh.HasValue)
         {
           if (string.IsNullOrEmpty(_config.LastRefresh))
-            _config.LastRefresh = DateTime.Now.ToString(dateFormat);
+            _config.LastRefresh = DateTime.Now.ToString(CONFIG_DATE_FORMAT);
 
-          _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, dateFormat, CultureInfo.InvariantCulture);
+          _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
         }
 
         if (DateTime.Now - _lastCacheCheck <= CACHE_CHECK_INTERVAL)
@@ -986,7 +1021,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
               {
                 _lastCacheRefresh = DateTime.Now;
-                _config.LastRefresh = _lastCacheRefresh.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+                _config.LastRefresh = _lastCacheRefresh.Value.ToString(CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
               }
             }
           });

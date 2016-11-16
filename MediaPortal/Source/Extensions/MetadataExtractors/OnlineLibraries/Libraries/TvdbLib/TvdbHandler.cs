@@ -194,8 +194,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     public event UpdateFinishedDelegate UpdateFinished;
     #endregion
 
-
-
     /// <summary>
     /// UserInfo for this tvdb handler
     /// </summary>
@@ -531,6 +529,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
       }
       return series;
+    }
+
+    /// <summary>
+    /// Gets the series cache files. These should not be manipulated or changed in any manner 
+    /// because they are managed by the cache provider.
+    /// </summary>
+    /// <param name="seriesId">id of series</param>
+    public string[] GetSeriesCacheFiles(int seriesId)
+    {
+      return _cacheProvider.GetSeriesCacheFiles(seriesId);
     }
 
     /// <summary>

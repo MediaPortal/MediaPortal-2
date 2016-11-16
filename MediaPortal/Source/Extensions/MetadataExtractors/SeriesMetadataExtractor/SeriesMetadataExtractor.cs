@@ -132,11 +132,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     #region Protected methods
 
-    protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected bool ExtractSeriesData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
+
+      if (extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
+        return false; //Subtitles can only be imported not refreshed
 
       bool refresh = false;
       if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
@@ -183,30 +186,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         SeriesMatcher seriesMatcher = new SeriesMatcher();
         seriesMatcher.MatchSeries(lfsra, episodeInfo);
       }
-      else if (episodeInfo.SeriesFirstAired == null)
-      {
-        EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
-        SeriesMatcher seriesMatcher = new SeriesMatcher();
-        seriesMatcher.MatchSeries(lfsra, tempEpisodeInfo);
-        if (tempEpisodeInfo.SeriesFirstAired.HasValue)
-          episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
-      }
 
-      //Prepare online search improvements
-      if(string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
+      if (!refresh)
       {
-        var mediaItemPath = lfsra.CanonicalLocalResourcePath;
-        var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
-        episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
-      }
-      IList<MultipleMediaItemAspect> audioAspects;
-      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
-      {
-        foreach (MultipleMediaItemAspect aspect in audioAspects)
+        //Prepare online search improvements
+        if (episodeInfo.SeriesFirstAired == null)
         {
-          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-          if (!string.IsNullOrEmpty(language))
-            episodeInfo.Languages.Add(language);
+          EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
+          SeriesMatcher seriesMatcher = new SeriesMatcher();
+          seriesMatcher.MatchSeries(lfsra, tempEpisodeInfo);
+          if (tempEpisodeInfo.SeriesFirstAired.HasValue)
+            episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
+        }
+        if (string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
+        {
+          var mediaItemPath = lfsra.CanonicalLocalResourcePath;
+          var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+          episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
+        }
+        IList<MultipleMediaItemAspect> audioAspects;
+        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+        {
+          foreach (MultipleMediaItemAspect aspect in audioAspects)
+          {
+            string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+            if (!string.IsNullOrEmpty(language))
+              episodeInfo.Languages.Add(language);
+          }
         }
       }
 
@@ -215,32 +221,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         EpisodeInfo tempInfo = episodeInfo.Clone();
-        OnlineMatcherService.Instance.FindAndUpdateEpisode(tempInfo, forceQuickMode);
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(tempInfo, importOnly);
         episodeInfo.CopyIdsFrom(tempInfo);
         episodeInfo.HasChanged = tempInfo.HasChanged;
       }
       else if (!SkipOnlineSearches)
       {
-        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+        OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
       }
 
+      //Send it to the videos section
       if (!SkipOnlineSearches && !episodeInfo.HasExternalId)
         return false;
 
       if(refresh)
       {
-        if((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Actors.Count > 0) ||
-          (IncludeCharacterDetails && !BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ASPECT_ID) && episodeInfo.Characters.Count > 0) ||
-          (IncludeDirectorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Directors.Count > 0) ||
-          (IncludeWriterDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ASPECT_ID) && episodeInfo.Writers.Count > 0) ||
-          (!BaseInfo.HasRelationship(extractedAspectData, SeriesAspect.ASPECT_ID) && !episodeInfo.SeriesName.IsEmpty) ||
-          (!BaseInfo.HasRelationship(extractedAspectData, SeasonAspect.ASPECT_ID) && episodeInfo.SeasonNumber.HasValue))
+        if((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_ACTOR) && episodeInfo.Actors.Count > 0) ||
+          (IncludeCharacterDetails && !BaseInfo.HasRelationship(extractedAspectData, CharacterAspect.ROLE_CHARACTER) && episodeInfo.Characters.Count > 0) ||
+          (IncludeDirectorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_DIRECTOR) && episodeInfo.Directors.Count > 0) ||
+          (IncludeWriterDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_WRITER) && episodeInfo.Writers.Count > 0) ||
+          (!BaseInfo.HasRelationship(extractedAspectData, SeriesAspect.ROLE_SERIES) && !episodeInfo.SeriesName.IsEmpty) ||
+          (!BaseInfo.HasRelationship(extractedAspectData, SeasonAspect.ROLE_SEASON) && episodeInfo.SeasonNumber.HasValue))
         {
           episodeInfo.HasChanged = true;
         }
       }
 
-      if (!episodeInfo.HasChanged && !forceQuickMode)
+      if (!episodeInfo.HasChanged && !importOnly)
         return false;
 
       episodeInfo.SetMetadata(extractedAspectData);
@@ -257,7 +264,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
@@ -265,7 +272,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           return false;
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData, forceQuickMode);
+          return ExtractSeriesData(rah.LocalFsResourceAccessor, extractedAspectData, importOnly);
       }
       catch (Exception e)
       {

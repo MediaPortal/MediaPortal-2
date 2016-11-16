@@ -45,6 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     #region Constants
 
     public const int MAX_FANART_DOWNLOADERS = 3;
+    public const string CONFIG_DATE_FORMAT = "MMddyyyyHHmm";
 
     #endregion
 

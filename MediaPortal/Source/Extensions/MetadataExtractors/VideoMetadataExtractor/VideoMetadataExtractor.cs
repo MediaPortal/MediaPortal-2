@@ -570,7 +570,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
@@ -654,7 +654,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
@@ -690,12 +690,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
         // In quick mode only allow thumbs taken from cache.
-        bool cachedOnly = forceQuickMode;
+        bool cachedOnly = importOnly;
 
         // Thumbnail extraction
         IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
@@ -1176,7 +1176,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
@@ -1227,9 +1227,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               {
                 result.UpdateMetadata(extractedAspectData, lfsra, -1, 0);
 
-                ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
-                ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
-                ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
+                ExtractMatroskaTags(lfsra, extractedAspectData, importOnly);
+                ExtractMp4Tags(lfsra, extractedAspectData, importOnly);
+                ExtractThumbnailData(lfsra, extractedAspectData, importOnly);
 
                 UpdateSetName(lfsra, extractedAspectData, -1);
               }
@@ -1284,9 +1284,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                   {
                     result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet);
 
-                    ExtractMatroskaTags(lfsra, extractedAspectData, forceQuickMode);
-                    ExtractMp4Tags(lfsra, extractedAspectData, forceQuickMode);
-                    ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
+                    ExtractMatroskaTags(lfsra, extractedAspectData, importOnly);
+                    ExtractMp4Tags(lfsra, extractedAspectData, importOnly);
+                    ExtractThumbnailData(lfsra, extractedAspectData, importOnly);
 
                     UpdateSetName(lfsra, extractedAspectData, multipart);
 

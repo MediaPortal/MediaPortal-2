@@ -87,6 +87,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _config = Settings.Load<MusicMatcherSettings>(_configFile);
       if (_config == null)
         _config = new MusicMatcherSettings();
+      if (_config.LastRefresh != null)
+        _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
     }
 
     private void SaveConfig()
@@ -196,7 +198,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     /// </summary>
     /// <param name="trackInfo">Track to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public virtual bool FindAndUpdateTrack(TrackInfo trackInfo, bool forceQuickMode)
+    public virtual bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
     {
       try
       {
@@ -208,6 +210,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         string trackId = null;
         bool matchFound = false;
         TLang language = FindBestMatchingLanguage(trackInfo.Languages);
+        if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrack(trackInfo, language))
+          return true;
+
         if (GetTrackId(trackInfo, out trackId))
         {
           // Prefer memory cache
@@ -236,9 +241,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (SetTrackId(trackMatch, match.Id))
             {
-              if (trackInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && trackInfo.LastChanged > _lastCacheRefresh)
-                return true;
-
               //If Id was found in cache the online track info is probably also in the cache
               if (_wrapper.UpdateFromOnlineMusicTrack(trackMatch, language, true))
               {
@@ -254,7 +256,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound && !forceQuickMode)
+          if (!matchFound && !importOnly)
           {
             Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
 
@@ -277,7 +279,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
 
         //Always save match even if none to avoid retries
-        if (!forceQuickMode)
+        if (!importOnly)
           StoreTrackMatch(trackInfo, trackMatch);
 
         if (matchFound)
@@ -379,7 +381,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forceQuickMode)
+    public virtual bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly)
     {
       try
       {
@@ -395,6 +397,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in trackMatch.Artists)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackPerson(trackInfo, person, language))
+              continue;
+
             string id;
             if (_artistMatcher.GetNameMatch(person.Name, out id))
             {
@@ -416,6 +421,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in trackMatch.Composers)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackPerson(trackInfo, person, language))
+              continue;
+
             string id;
             if (_composerMatcher.GetNameMatch(person.Name, out id))
             {
@@ -433,12 +441,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
+
+        if (persons.Count == 0)
+          return true;
+
         foreach (PersonInfo person in persons)
         {
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineMusicTrackPerson(trackMatch, person, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
@@ -475,7 +487,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try to update artist based on album information
           AlbumInfo album = trackMatch.CloneBasicInstance<AlbumInfo>();
           album.Artists = trackMatch.Artists;
-          if (UpdateAlbumPersons(album, occupation, forceQuickMode))
+          if (UpdateAlbumPersons(album, occupation, importOnly))
             updated = true;
         }
 
@@ -502,7 +514,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _artistMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -533,7 +545,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool forceQuickMode)
+    public virtual bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly)
     {
       try
       {
@@ -549,6 +561,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in albumMatch.Artists)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackAlbumPerson(albumInfo, person, language))
+              continue;
+
             string id;
             if (_artistMatcher.GetNameMatch(person.Name, out id))
             {
@@ -566,12 +581,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
+
+        if (persons.Count == 0)
+          return true;
+
         foreach (PersonInfo person in persons)
         {
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineMusicTrackAlbumPerson(albumMatch, person, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
@@ -624,7 +643,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _artistMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
@@ -639,7 +658,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool forceQuickMode)
+    public virtual bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly)
     {
       try
       {
@@ -655,6 +674,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in albumMatch.MusicLabels)
           {
+            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackAlbumCompany(albumInfo, company, language))
+              continue;
+
             string id;
             if (_labelMatcher.GetNameMatch(company.Name, out id))
             {
@@ -672,12 +694,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
         }
+
+        if (companies.Count == 0)
+          return true;
+
         foreach (CompanyInfo company in companies)
         {
           //Try updating from cache
           if (!_wrapper.UpdateFromOnlineMusicTrackAlbumCompany(albumMatch, company, language, true))
           {
-            if (!forceQuickMode)
+            if (!importOnly)
             {
               Logger.Debug(_id + ": Search for company {0} online", company.ToString());
 
@@ -730,7 +756,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!forceQuickMode)
+              if (!importOnly)
                 _labelMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
@@ -745,7 +771,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool forceQuickMode)
+    public virtual bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly)
     {
       try
       {
@@ -755,6 +781,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         // Try online lookup
         if (!Init())
           return false;
+
+        TLang language = FindBestMatchingLanguage(albumInfo.Languages);
+        if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackAlbum(albumInfo, language))
+          return true;
 
         string id;
         if (!GetTrackAlbumId(albumInfo, out id))
@@ -767,21 +797,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               //Searching for this album by name only failed so stop trying.
               return false;
             }
-            else if (albumInfo.LastChanged.HasValue && _lastCacheRefresh.HasValue && albumInfo.LastChanged > _lastCacheRefresh)
-            {
-              return true;
-            }
           }
         }
-
-        TLang language = FindBestMatchingLanguage(albumInfo.Languages);
+        
         bool updated = false;
         AlbumInfo albumMatch = albumInfo.Clone();
         albumMatch.Tracks.Clear();
         //Try updating from cache
         if (!_wrapper.UpdateFromOnlineMusicTrackAlbum(albumMatch, language, true))
         {
-          if (!forceQuickMode)
+          if (!importOnly)
           {
             Logger.Debug(_id + ": Search for album {0} online", albumInfo.ToString());
 
@@ -892,7 +917,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!GetTrackAlbumId(albumInfo, out Id))
         {
           //Store empty match so it is not retried
-          if (!forceQuickMode)
+          if (!importOnly)
             _albumMatcher.StoreNameMatch("", albumInfo.Album, albumInfo.Album);
         }
 
@@ -901,72 +926,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       catch (Exception ex)
       {
         Logger.Debug(_id + ": Exception while processing collection {0}", ex, albumInfo.ToString());
-        return false;
-      }
-    }
-
-    public virtual bool FindAndUpdateTrackPerson(TrackInfo trackInfo, PersonInfo person, bool forceQuickMode)
-    {
-      try
-      {
-        // Try online lookup
-        if (!Init())
-          return false;
-
-        TLang language = FindBestMatchingLanguage(trackInfo.Languages);
-        string id;
-        bool updated = false;
-        if (_artistMatcher.GetNameMatch(person.Name, out id))
-        {
-          if (SetPersonId(person, id))
-            updated = true;
-          else
-            return false;
-        }
-
-        //Try updating from cache
-        if (!_wrapper.UpdateFromOnlineMusicTrackPerson(trackInfo, person, language, true))
-        {
-          if (!forceQuickMode)
-          {
-            //Try to update person information from online source if online Ids are present
-            if (!_wrapper.UpdateFromOnlineMusicTrackPerson(trackInfo, person, language, false))
-            {
-              //Search for the person online and update the Ids if a match is found
-              if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
-              {
-                //Ids were updated now try to fetch the online person info
-                if (_wrapper.UpdateFromOnlineMusicTrackPerson(trackInfo, person, language, false))
-                  updated = true;
-              }
-            }
-            else
-            {
-              updated = true;
-            }
-          }
-        }
-        else
-        {
-          updated = true;
-        }
-
-        if (GetPersonId(person, out id))
-        {
-          _artistMatcher.StoreNameMatch(id, person.Name, person.Name);
-        }
-        else
-        {
-          //Store empty match so he/she is not retried
-          if (!forceQuickMode)
-            _artistMatcher.StoreNameMatch("", person.Name, person.Name);
-        }
-
-        return updated;
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(_id + ": Exception while processing person {0}", ex, person.ToString());
         return false;
       }
     }

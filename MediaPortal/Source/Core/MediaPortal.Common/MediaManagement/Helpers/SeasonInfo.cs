@@ -361,6 +361,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         info.SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
         info.SearchSeason = SeasonNumber;
+        info.LastChanged = LastChanged;
+        info.DateAdded = DateAdded;
         return (T)(object)info;
       }
       return default(T);

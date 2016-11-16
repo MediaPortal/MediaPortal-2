@@ -408,6 +408,44 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #endregion
 
+    #region Cache
+
+    public override bool IsCacheChangedForOnlineMovie(MovieInfo movie, string language)
+    {
+      if (!string.IsNullOrEmpty(movie.ImdbId) && IsCacheChanged(movie, _omDbHandler.GetMovieCacheFile(movie.ImdbId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeries(SeriesInfo series, string language)
+    {
+      if (!string.IsNullOrEmpty(series.ImdbId) && IsCacheChanged(series, _omDbHandler.GetSeriesCacheFile(series.ImdbId)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesSeason(SeasonInfo season, string language)
+    {
+      if (!string.IsNullOrEmpty(season.SeriesImdbId) && season.SeasonNumber.HasValue && 
+        IsCacheChanged(season, _omDbHandler.GetSeriesSeasonCacheFile(season.SeriesImdbId, season.SeasonNumber.Value)))
+        return true;
+
+      return false;
+    }
+
+    public override bool IsCacheChangedForOnlineSeriesEpisode(EpisodeInfo episode, string language)
+    {
+      if (!string.IsNullOrEmpty(episode.SeriesImdbId) && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0 &&
+        IsCacheChanged(episode, _omDbHandler.GetSeriesEpisodeCacheFile(episode.SeriesImdbId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0])))
+        return true;
+
+      return false;
+    }
+
+    #endregion
+
     #region Convert
 
     private List<PersonInfo> ConvertToPersons(List<string> names, string occupation)

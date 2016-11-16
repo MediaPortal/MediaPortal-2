@@ -112,12 +112,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
               if (yearMa.Success)
               {
                 //episodeInfo.SeriesName = new SimpleTitle(EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value), episodeInfo.SeriesName.DefaultLanguage);
-                episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
+                MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
               }
               yearMa = settings.SeriesYearPattern.Regex.Match(folderOrFileName);
               if (yearMa.Success)
               {
-                episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
+                MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
               }
             }
             if (!episodeInfo.SeriesName.IsEmpty)

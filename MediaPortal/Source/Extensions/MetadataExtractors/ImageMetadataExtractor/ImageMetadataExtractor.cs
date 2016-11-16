@@ -149,7 +149,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       string fileName = mediaItemAccessor.ResourceName;
       if (!HasImageExtension(fileName))
@@ -237,9 +237,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           bool updated = false;
           double? latitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LATITUDE);
           double? longitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LONGITUDE);
-          if (IncludeGeoLocationDetails && !forceQuickMode &&
-            string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)) &&
-            latitude.HasValue && longitude.HasValue)
+          if (IncludeGeoLocationDetails && !importOnly && latitude.HasValue && longitude.HasValue &&
+            string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)))
           {
             CivicAddress locationInfo;
             if (GeoLocationService.Instance.TryLookup(new GeoCoordinate(latitude.Value, longitude.Value), out locationInfo))

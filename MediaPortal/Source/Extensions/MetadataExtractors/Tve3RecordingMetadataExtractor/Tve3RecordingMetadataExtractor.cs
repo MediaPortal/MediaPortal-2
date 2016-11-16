@@ -76,12 +76,15 @@ namespace MediaPortal.Extensions.MetadataExtractors
         });
     }
 
-    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public override bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {
         IResourceAccessor metaFileAccessor;
-        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor)) return false;
+        if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
+          return false;
+        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+          return false;
 
         Tags tags;
         using (metaFileAccessor)
@@ -91,22 +94,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         // Handle series information
-        EpisodeInfo episodeInfo = new EpisodeInfo();
-        if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-        {
-          episodeInfo.FromMetadata(extractedAspectData);
-        }
-        else
-        {
-          episodeInfo = GetSeriesFromTags(tags);
-        }
+        EpisodeInfo episodeInfo = GetSeriesFromTags(tags);
         if (episodeInfo.IsBaseInfoPresent)
         {
-          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, forceQuickMode);
+          OnlineMatcherService.Instance.FindAndUpdateEpisode(episodeInfo, importOnly);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
-        return episodeInfo.IsBaseInfoPresent && episodeInfo.HasChanged;
+        return episodeInfo.IsBaseInfoPresent;
       }
       catch (Exception e)
       {
@@ -263,7 +258,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       get { return _metadata; }
     }
 
-    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
     {
       try
       {

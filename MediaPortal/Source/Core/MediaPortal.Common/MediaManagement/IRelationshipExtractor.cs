@@ -81,9 +81,9 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     /// <param name="aspects"></param>
     /// <param name="extractedLinkedAspects"></param>
-    /// <param name="forceQuickMode"></param>
+    /// <param name="importOnly"></param>
     /// <returns></returns>
-    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool forceQuickMode);
+    bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, out IDictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid> extractedLinkedAspects, bool importOnly);
 
     /// <summary>
     /// Part 2 of the relationship building - if the extract was successful
