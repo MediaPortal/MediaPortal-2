@@ -54,10 +54,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       _cachePolicy = new CacheItemPolicy
       {
         SlidingExpiration = slidingExpiration,
-        RemovedCallback = (e) =>
-        {
-          ServiceRegistration.Get<ILogger>().Debug("{0}: Removed '{1}' from cache, reason: {2}", _cache.Name, e.CacheItem.Key, e.RemovedReason);
-        }
+        //RemovedCallback = (e) =>
+        //{
+        //  ServiceRegistration.Get<ILogger>().Debug("{0}: Removed '{1}' from cache, reason: {2}", _cache.Name, e.CacheItem.Key, e.RemovedReason);
+        //}
       };
     }
 
@@ -90,8 +90,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       var entries = _cache.AddOrGetExisting(key, newEntries, _cachePolicy) as Lazy<ConcurrentDictionary<BaseInfo, CachedRelationship>> ?? newEntries;
       if (entries.Value.TryAdd(entry.MediaItemInfo, entry))
       {
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Added {1} {2} to cache with Id {3} and Key {4}", _cache.Name, entry.MediaItemInfo.GetType().Name, entry.MediaItemInfo, entry.MediaItemId, key);
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Current entries for external aspect: {1}", _cache.Name, entries.Value.Count);
+        //ServiceRegistration.Get<ILogger>().Debug("{0}: Added {1} {2} to cache with Id {3} and Key {4}", _cache.Name, entry.MediaItemInfo.GetType().Name, entry.MediaItemInfo, entry.MediaItemId, key);
+        //ServiceRegistration.Get<ILogger>().Debug("{0}: Current entries for external aspect: {1}", _cache.Name, entries.Value.Count);
         return true;
       }
       return false;
@@ -143,7 +143,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (TryGetFromCache(externalAspect, mediaItemInfo, out cachedEntry))
           return true;
 
-      ServiceRegistration.Get<ILogger>().Debug("{0}: Cache miss {1} {2}", _cache.Name, mediaItemInfo.GetType().Name, mediaItemInfo);
+      //ServiceRegistration.Get<ILogger>().Debug("{0}: Cache miss {1} {2}", _cache.Name, mediaItemInfo.GetType().Name, mediaItemInfo);
       return false;
     }
 
@@ -153,7 +153,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       var entries = _cache.Get(key) as Lazy<ConcurrentDictionary<BaseInfo, CachedRelationship>>;
       if (entries != null && entries.Value.TryGetValue(mediaItemInfo, out cachedEntry))
       {
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Got {1} {2} from cache with Id {3} and Key {4}", _cache.Name, cachedEntry.MediaItemInfo.GetType().Name, cachedEntry.MediaItemInfo, cachedEntry.MediaItemId, key);
+        //ServiceRegistration.Get<ILogger>().Debug("{0}: Got {1} {2} from cache with Id {3} and Key {4}", _cache.Name, cachedEntry.MediaItemInfo.GetType().Name, cachedEntry.MediaItemInfo, cachedEntry.MediaItemId, key);
         return true;
       }
       cachedEntry = null;
