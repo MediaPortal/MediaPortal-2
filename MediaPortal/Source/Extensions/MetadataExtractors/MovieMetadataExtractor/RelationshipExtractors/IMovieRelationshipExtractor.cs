@@ -29,7 +29,6 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Caching;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
