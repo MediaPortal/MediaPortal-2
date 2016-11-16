@@ -112,7 +112,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
           Guid existingId;
-          if (TryGetIdFromCharacterCache(character, out existingId))
+          if (TryGetIdFromCache(character, out existingId))
             extractedLinkedAspects.Add(characterAspects, existingId);
           else
             extractedLinkedAspects.Add(characterAspects, Guid.Empty);
@@ -162,7 +162,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       CharacterInfo character = new CharacterInfo();
       character.FromMetadata(extractedAspects);
-      AddToCharacterCache(extractedItemId, character);
+      AddToCache(extractedItemId, character);
     }
 
     internal static ILogger Logger

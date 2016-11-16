@@ -427,6 +427,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override T CloneBasicInstance<T>()
+    {
+      if (typeof(T) == typeof(AlbumInfo))
+      {
+        AlbumInfo info = new AlbumInfo();
+        info.CopyIdsFrom(this);
+        info.Album = Album;
+        info.ReleaseDate = ReleaseDate;
+        return (T)(object)info;
+      }
+      return default(T);
+    }
+
     public override int GetHashCode()
     {
       //TODO: Check if this is functional

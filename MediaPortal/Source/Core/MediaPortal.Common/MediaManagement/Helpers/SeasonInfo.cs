@@ -365,6 +365,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.DateAdded = DateAdded;
         return (T)(object)info;
       }
+      else if (typeof(T) == typeof(SeasonInfo))
+      {
+        SeasonInfo info = new SeasonInfo();
+        info.CopyIdsFrom(this);
+        info.SeriesName = SeriesName;
+        info.SeasonNumber = SeasonNumber;
+        return (T)(object)info;
+      }
       return default(T);
     }
 

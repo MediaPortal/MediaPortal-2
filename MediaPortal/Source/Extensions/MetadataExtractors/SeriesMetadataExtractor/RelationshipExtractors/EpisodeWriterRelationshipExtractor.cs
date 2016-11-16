@@ -115,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
           Guid existingId;
-          if (TryGetIdFromWriterCache(person, out existingId))
+          if (TryGetIdFromCache(person, out existingId))
             extractedLinkedAspects.Add(personAspects, existingId);
           else
             extractedLinkedAspects.Add(personAspects, Guid.Empty);
@@ -165,7 +165,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       PersonInfo person = new PersonInfo();
       person.FromMetadata(extractedAspects);
-      AddToWriterCache(extractedItemId, person);
+      AddToCache(extractedItemId, person);
     }
 
     internal static ILogger Logger

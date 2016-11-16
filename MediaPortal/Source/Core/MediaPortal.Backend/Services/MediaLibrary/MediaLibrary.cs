@@ -2208,8 +2208,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           string parentRoleColumn = null;
           string childIdColumn = null;
           string childRoleColumn = null;
-          List<Guid> parentsToDelete = new List<Guid>();
-          List<Guid> childsToDelete = new List<Guid>();
           foreach (RelationshipHierarchy hierarchy in _hierarchies)
           {
             parentId = null;

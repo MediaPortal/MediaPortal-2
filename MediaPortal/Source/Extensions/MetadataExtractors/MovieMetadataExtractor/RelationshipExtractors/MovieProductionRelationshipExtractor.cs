@@ -115,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
           Guid existingId;
-          if (TryGetIdFromStudioCache(company, out existingId))
+          if (TryGetIdFromCache(company, out existingId))
             extractedLinkedAspects.Add(companyAspects, existingId);
           else
             extractedLinkedAspects.Add(companyAspects, Guid.Empty);
@@ -165,7 +165,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       CompanyInfo company = new CompanyInfo();
       company.FromMetadata(extractedAspects);
-      AddToStudioCache(extractedItemId, company);
+      AddToCache(extractedItemId, company);
     }
 
     internal static ILogger Logger

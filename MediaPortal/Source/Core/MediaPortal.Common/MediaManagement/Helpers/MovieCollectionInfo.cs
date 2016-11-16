@@ -215,6 +215,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override T CloneBasicInstance<T>()
+    {
+      if (typeof(T) == typeof(MovieCollectionInfo))
+      {
+        MovieCollectionInfo info = new MovieCollectionInfo();
+        info.MovieDbId = MovieDbId;
+        info.NameId = NameId;
+        info.CollectionName = CollectionName;
+        return (T)(object)info;
+      }
+      return default(T);
+    }
+
     public override int GetHashCode()
     {
       //TODO: Check if this is functional

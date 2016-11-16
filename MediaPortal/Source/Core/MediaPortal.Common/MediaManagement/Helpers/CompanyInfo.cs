@@ -255,6 +255,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return false;
     }
 
+    public override T CloneBasicInstance<T>()
+    {
+      if (typeof(T) == typeof(CompanyInfo))
+      {
+        CompanyInfo info = new CompanyInfo();
+        info.CopyIdsFrom(this);
+        info.Name = Name;
+        info.Type = Type;
+        return (T)(object)info;
+      }
+      return default(T);
+    }
+
     public override int GetHashCode()
     {
       //TODO: Check if this is functional

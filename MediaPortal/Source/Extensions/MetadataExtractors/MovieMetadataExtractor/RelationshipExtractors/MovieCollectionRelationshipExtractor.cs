@@ -77,10 +77,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
+      MovieCollectionInfo cachedCollection;
       Guid collectionId;
       MovieCollectionInfo collectionInfo = movieInfo.CloneBasicInstance<MovieCollectionInfo>();
-      if (TryGetIdFromCollectionCache(collectionInfo, out collectionId))
-        collectionInfo = GetFromCollectionCache(collectionId);
+      if (TryGetInfoFromCache(collectionInfo, out cachedCollection, out collectionId))
+        collectionInfo = cachedCollection;
       else if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
         OnlineMatcherService.Instance.UpdateCollection(collectionInfo, false, false);
 
@@ -155,7 +156,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       MovieCollectionInfo collection = new MovieCollectionInfo();
       collection.FromMetadata(extractedAspects);
-      AddToCollectionCache(extractedItemId, collection);
+      AddToCache(extractedItemId, collection, false);
     }
 
     internal static ILogger Logger
