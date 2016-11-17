@@ -12,43 +12,50 @@
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
     <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
+  
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
 
   <media:AudioAlbumAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
     MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:AudioAlbumAspectWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Width="1900"
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="420"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <Label Content="{Binding Path=Album}" Color="{ThemeResource TextColor}"
-                 FontFamily="DefaultBold" TextTrimming="WordEllipsis"/>
+          <Label Content="{Binding Path=Album}" Color="{ThemeResource TextColor}" Grid.ColumnSpan="2"
+                 FontFamily="DefaultBold" TextTrimming="WordEllipsis" Margin="-10,0,0,0"/>
           
-          <Label x:Name="Description" Grid.Row="1" Grid.Column="0" Margin="0,45,0,20" TextTrimming="WordEllipsis"
+          <Label x:Name="Description" Grid.Row="1" Grid.Column="1" Margin="30,0,35,25" TextTrimming="WordEllipsis"
                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Wrap="True"
-                 Content="{Binding Path=Description}" Color="{ThemeResource TextColor}" Opacity="0.4"/>
+                 Content="{Binding Path=Description}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
           
-          <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
-            <Label Content="{Binding Path=Artists}" Color="{ThemeResource TextColor}"/>
+          <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Margin="-10,0,0,0">
+
             <StackPanel Orientation="Horizontal">
               <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
                                         IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}">
                 <media:MediaAspectWrapper.Template>
                   <ControlTemplate>
                     <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-                      <Label x:Name="Year" Grid.Row="0" Grid.Column="1"
+                      <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontFamily="DefaultBold"
                           Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
                     </Grid>
                   </ControlTemplate>
                 </media:MediaAspectWrapper.Template>
-              </media:MediaAspectWrapper>
+              </media:MediaAspectWrapper>    
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,0"
                           IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                 <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
@@ -65,7 +72,7 @@
                     </TransformGroup>
                   </StarRatingPanel.LayoutTransform>
                 </StarRatingPanel>
-                <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" Opacity="0.4" VerticalAlignment="Center"
+                <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"
                        FontSize="{ThemeResource SmallerFontSize}" Margin="15,0,5,0">
                   <Label.Content>
                     <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
@@ -74,7 +81,9 @@
               </StackPanel>
             </StackPanel>
 
-            <Label x:Name="Genre" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}">
+            <Label Content="{Binding Path=Artists}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+
+            <Label x:Name="Genre" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Opacity="0.6">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
                   <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
@@ -86,9 +95,9 @@
             <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
               <Label x:Name="NumTracks" Content="{Binding Tracks}"
-                     Color="{ThemeResource TextColor}" Opacity="0.4"/>
+                     Color="{ThemeResource TextColor}" Opacity="0.6"/>
               <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
-              <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource TextColor}" Opacity="0.4"
+              <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource TextColor}" Opacity="0.6"
                      IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
             </StackPanel>
           </StackPanel>
