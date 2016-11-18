@@ -140,6 +140,7 @@
   <string name="Media.ChooseWriterHeader">Choose a writer</string>
   <string name="Media.ChooseVideoGenreHeader">Choose a genre</string>
   <string name="Media.ChooseVideoYearHeader">Choose a year</string>
+  <string name="Media.ChooseImageHeader">Choose an image</string>
   <string name="Media.ChooseSeriesHeader">Choose a series</string>
   <string name="Media.ChooseSeasonHeader">Choose a season</string>
   <string name="Media.ChooseEpisodeHeader">Choose an episode</string>
@@ -148,6 +149,7 @@
   <string name="Media.ChooseTvNetworkHeader">Choose a tv network</string>
   <string name="Media.ChooseAudioDecadeHeader">Choose a decade</string>
   <string name="Media.ChooseAlbumHeader">Choose an album</string>
+  <string name="Media.ChooseAudioHeader">Choose an audio item</string>
   <string name="Media.ChooseArtistHeader">Choose an artist</string>
   <string name="Media.ChooseComposerHeader">Choose a composer</string>
   <string name="Media.ChooseAlbumArtistHeader">Choose an album artist</string>
@@ -159,6 +161,7 @@
   <string name="Media.ChooseImageStateHeader">Choose a state</string>
   <string name="Media.ChooseImageCityHeader">Choose a city</string>
   <string name="Media.ChooseSystemHeader">Choose a system</string>
+  <string name="Media.ChooseVideoHeader">Choose a video</string>
   <string name="Media.ChooseVideoLanguageHeader">Choose a language</string>
   <string name="Media.ChoosePlayCountHeader">Choose a watch state</string>
 
