@@ -1032,8 +1032,8 @@
   <DataTemplate x:Key="ExtScheduleItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="630"/>
-        <ColumnDefinition Width="630"/>
+        <ColumnDefinition Width="600"/>
+        <ColumnDefinition Width="660"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
