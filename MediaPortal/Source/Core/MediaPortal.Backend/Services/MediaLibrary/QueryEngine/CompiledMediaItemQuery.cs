@@ -299,7 +299,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       foreach (MultipleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is MultipleMediaItemAspectMetadata))
       {
-        logger.Debug("Getting {0} rows for {1}", ids.Count, miam.Name);
+        //logger.Debug("Getting {0} rows for {1}", ids.Count, miam.Name);
         AddMultipleMIAResults(database, transaction, miam, new MultipleMIAQueryBuilder(_miaManagement, _mainSelectAttributes.Values, miam, ids.ToArray()), multipleMiaValues);
         if (miam.AspectId == RelationshipAspect.ASPECT_ID)
         {
