@@ -516,6 +516,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Languages.AddRange(Languages);
         return (T)(object)info;
       }
+      else if (typeof(T) == typeof(EpisodeInfo))
+      {
+        EpisodeInfo info = new EpisodeInfo();
+        info.CopyIdsFrom(this);
+        info.SeriesName = SeriesName;
+        info.SeasonNumber = SeasonNumber;
+        info.EpisodeNumbers = EpisodeNumbers;
+        info.EpisodeName = EpisodeName;
+        return (T)(object)info;
+      }
       return default(T);
     }
 

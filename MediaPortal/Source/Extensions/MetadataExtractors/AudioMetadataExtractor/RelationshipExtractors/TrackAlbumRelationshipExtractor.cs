@@ -79,11 +79,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (CheckCacheContains(trackInfo))
         return false;
 
+      AlbumInfo cachedAlbum;
       Guid albumId;
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
       UpdatePersons(aspects, albumInfo.Artists, true);
-      if (TryGetIdFromAlbumCache(albumInfo, out albumId))
-        albumInfo = GetFromAlbumCache(albumId);
+      if (TryGetInfoFromCache(albumInfo, out cachedAlbum, out albumId))
+        albumInfo = cachedAlbum;
       else if (!AudioMetadataExtractor.SkipOnlineSearches)
         OnlineMatcherService.Instance.UpdateAlbum(albumInfo, false, forceQuickMode);
 
@@ -151,7 +152,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       AlbumInfo album = new AlbumInfo();
       album.FromMetadata(extractedAspects);
-      AddToAlbumCache(extractedItemId, album);
+      AddToCache(extractedItemId, album, false);
     }
   }
 }

@@ -234,6 +234,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Occupation = PersonAspect.OCCUPATION_ACTOR;
         return (T)(object)info;
       }
+      else if (typeof(T) == typeof(CharacterInfo))
+      {
+        CharacterInfo info = new CharacterInfo();
+        info.CopyIdsFrom(this);
+        info.Name = Name;
+        info.ActorName = ActorName;
+        return (T)(object)info;
+      }
       return default(T);
     }
 

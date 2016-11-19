@@ -81,10 +81,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (CheckCacheContains(episodeInfo))
         return false;
 
+      SeasonInfo cachedSeason;
       Guid seasonId;
       SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
-      if (TryGetIdFromSeasonCache(seasonInfo, out seasonId))
-        seasonInfo = GetFromSeasonCache(seasonId);
+      if (TryGetInfoFromCache(seasonInfo, out cachedSeason, out seasonId))
+        seasonInfo = cachedSeason;
       else if (!SeriesMetadataExtractor.SkipOnlineSearches)
         OnlineMatcherService.Instance.UpdateSeason(seasonInfo, forceQuickMode);
 
@@ -159,7 +160,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       SeasonInfo season = new SeasonInfo();
       season.FromMetadata(extractedAspects);
-      AddToSeasonCache(extractedItemId, season);
+      AddToCache(extractedItemId, season, false);
     }
 
     internal static ILogger Logger
