@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    >
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
   <ResourceWrapper x:Key="MEDIA_THUMB_Audio" Resource="175"/>
   
@@ -10,9 +9,9 @@
   <ResourceWrapper x:Key="MEDIA_AUDIO_HEIGHT" Resource="175"/>
   <ResourceWrapper x:Key="MEDIA_AUDIO_COVER" Resource="363"/>
 
-  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="180"/>
-  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="118"/>  
-  
+  <ResourceWrapper x:Key="MEDIA_THUMB_WIDTH" Resource="246"/>
+  <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="175"/>
+
   <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="380"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="82.5"/>  
   
