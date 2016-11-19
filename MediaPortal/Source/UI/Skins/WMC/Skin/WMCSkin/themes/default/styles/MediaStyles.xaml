@@ -2229,8 +2229,7 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <media:AudioAspectWrapper MediaItem="{Binding MediaItem}"
-                                Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
+      <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" Margin="0,0,10,0">
         <media:AudioAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">

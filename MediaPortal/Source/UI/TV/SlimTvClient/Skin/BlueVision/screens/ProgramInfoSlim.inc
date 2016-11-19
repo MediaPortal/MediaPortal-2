@@ -8,44 +8,52 @@
         DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="1400"/>
       <ColumnDefinition Width="420"/>
+      <ColumnDefinition Width="1400"/> 
     </Grid.ColumnDefinitions>
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="-100,0,0,0" >
-      <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
-             Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-      <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="ProgramEnd" Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-          Color="{ThemeResource TextColor}"/>
+    <StackPanel Orientation="Vertical" Grid.RowSpan="2">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+        <!--Label Color="{ThemeResource TextColor}" Scroll="Auto">
+          <Label.Content>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}{1}{2}">
+              <Binding Path="CurrentProgram.StartTime" Converter="{StaticResource SlimTvDateFormatConverter}"/>
+              <Binding Source=" — "/>
+              <Binding Path="CurrentProgram.EndTime" Converter="{StaticResource SlimTvDateFormatConverter}"/>
+            </MultiBinding>
+          </Label.Content>
+        </Label-->
+        <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}"
+               Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+        <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
+        <Label x:Name="ProgramEnd" Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}" Scroll="Auto"
+            Color="{ThemeResource TextColor}"/>
+      </StackPanel>
+      <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
+             HorizontalAlignment="Left" Grid.Row="1" Grid.Column="0" />
+      <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="2" Grid.Column="0" Margin="0,10,0,0"
+           Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                                    fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+        </Image.Source>
+      </Image>
     </StackPanel>
 
-    <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
-           HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" />
-
-    <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="2" Grid.Column="1" Margin="0,10,0,0"
-           Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" >
-      <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
-                                  fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-      </Image.Source>
-    </Image>
-
-    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" >
-      <Label x:Name="Program" Grid.Row="0" Grid.Column="0" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+    <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
+      <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              Content="{Binding CurrentProgram.Title}" Margin="0,0,0,0"
              Color="{ThemeResource TextColor}"/>
-      <Label x:Name="SeriesLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Series]}"
+      <Label x:Name="SeriesLabel" Content="{Binding [Series]}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
     </StackPanel>
 
-    <Label Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Top"
-           Wrap="True" Scroll="Auto" Height="150"
+    <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+           Wrap="True" TextTrimming="WordEllipsis" Opacity="0.6"
            Content="{Binding Path=CurrentProgram.Description}"
-           Color="{ThemeResource TextColor}" Margin="0,0,10,5" />
+           Color="{ThemeResource TextColor}" Margin="0,0,10,5"/>
   </Grid>
 </DockPanel>
