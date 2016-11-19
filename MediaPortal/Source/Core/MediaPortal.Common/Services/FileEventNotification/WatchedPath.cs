@@ -164,6 +164,16 @@ namespace MediaPortal.Common.Services.FileEventNotification
     }
 
     /// <summary>
+    /// Returns whether the given path is equivalent to <see cref="Path"/>.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public bool IsEquivalentPath(string path)
+    {
+      return new DirectoryInfo(path).FullName == _path.FullName;
+    }
+
+    /// <summary>
     /// Retursn a <see cref="string"/> representation of the current <see cref="WatchedPath"/>.
     /// </summary>
     /// <returns></returns>
