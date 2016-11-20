@@ -73,7 +73,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       IFilter filter = new RelationshipFilter(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
+      MediaItemQuery movieQuery = new MediaItemQuery(NECESSARY_MIAS, filter);
+      movieQuery.Limit = 1;
+      IList<MediaItem> items = mediaLibrary.Search(movieQuery, false, null, false);
       if (items == null || items.Count == 0)
         return false;
 

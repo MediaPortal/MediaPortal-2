@@ -74,13 +74,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
       IFilter filter = null;
       IList<MediaItem> items = null;
-
+      List<Guid> necessaryMias = new List<Guid>(NECESSARY_MIAS);
       if (mediaType == FanArtMediaTypes.Artist)
       {
         filter = new RelationshipFilter(AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ARTIST, mediaItemId);
-        items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
-        if (items == null || items.Count == 0)
-          return false;
       }
       else if (fanArtType == FanArtTypes.FanArt)
       {
@@ -88,25 +85,24 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         {
           //Might be a request for album FanArt which doesn't exist. Artist FanArt is used instead.
           filter = new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, mediaItemId);
-          items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
-          if (items == null || items.Count == 0)
-            return false;
         }
         else if (mediaType == FanArtMediaTypes.Audio)
         {
           //Might be a request for track FanArt which doesn't exist. Artist FanArt is used instead.
-          List<Guid> necessaryMias = new List<Guid>(NECESSARY_MIAS);
           necessaryMias.Add(AudioAspect.ASPECT_ID);
           filter = new MediaItemIdFilter(mediaItemId);
-          items = mediaLibrary.Search(new MediaItemQuery(necessaryMias, filter), false, null, false);
-          if (items == null || items.Count == 0)
-            return false;
         }
       }
       else
       {
         return false;
       }
+
+      MediaItemQuery mediaQuery = new MediaItemQuery(necessaryMias, filter);
+      mediaQuery.Limit = 1;
+      items = mediaLibrary.Search(mediaQuery, false, null, false);
+      if (items == null || items.Count == 0)
+        return false;
 
       MediaItem mediaItem = items.First();
       var mediaIteamLocator = mediaItem.GetResourceLocator();

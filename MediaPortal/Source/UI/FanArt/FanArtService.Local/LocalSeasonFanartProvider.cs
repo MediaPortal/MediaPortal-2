@@ -61,7 +61,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       result = null;
       Guid mediaItemId;
 
-      if (mediaType != FanArtMediaTypes.SeriesSeason)
+      if (mediaType != FanArtMediaTypes.SeriesSeason && mediaType != FanArtMediaTypes.Episode)
         return false;
 
       // Don't try to load "fanart" for images
@@ -72,8 +72,18 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaLibrary == null)
         return false;
 
-      IFilter filter = new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
+      IFilter filter = null;
+      if (mediaType == FanArtMediaTypes.SeriesSeason)
+      {
+        filter = new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, mediaItemId);
+      }
+      else if (mediaType == FanArtMediaTypes.Episode)
+      {
+        filter = new MediaItemIdFilter(mediaItemId);
+      }
+      MediaItemQuery episodeQuery = new MediaItemQuery(NECESSARY_MIAS, filter);
+      episodeQuery.Limit = 1;
+      IList <MediaItem> items = mediaLibrary.Search(episodeQuery, false, null, false);
       if (items == null || items.Count == 0)
         return false;
 
@@ -158,6 +168,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             if (season.HasValue)
             {
               List<string> prefixes = new List<string>();
+              prefixes.Add("");
               prefixes.Add(string.Format("season{0:00}-", season.Value));
               if (season.Value == 0)
               {
