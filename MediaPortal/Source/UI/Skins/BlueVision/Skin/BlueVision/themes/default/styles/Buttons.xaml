@@ -613,6 +613,21 @@
     </Setter>
   </Style>
 
+  <Style x:Key="MediaItemButtonCoverFlowControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <!--Border x:Name="ButtonControlRectangle"
+              IsVisible ="False"
+              CornerRadius="{ThemeResource MediumRadiusFocus}"
+              BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" Margin="0">
+          </-->
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="MediaItemButtonWideStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -775,7 +790,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="3,6,3.5,6.5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonCoverControlStyle}" 
+            <Control x:Name="ButtonControlBackground" Style="{ThemeResource MediaItemButtonCoverFlowControlStyle}" 
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
