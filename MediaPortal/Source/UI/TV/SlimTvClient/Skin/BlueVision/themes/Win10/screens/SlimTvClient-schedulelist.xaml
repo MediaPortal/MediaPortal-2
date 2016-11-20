@@ -44,8 +44,8 @@
             <ZoomBlurEffect BlurAmount="0.01" CenterX="0.5" CenterY="1" />
           </Rectangle.Effect>
         </Rectangle>
-        
-        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Background="#F2666666"> </Border>
+
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Background="#F2666666"></Border>
 
 
         <StackPanel Orientation="Horizontal" Grid.Row="0">
@@ -54,7 +54,7 @@
               Content="{Binding}" />
           <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Margin="5"/>
         </StackPanel>
-        
+
         <ListView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
               Margin="0,10,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource ScheduleListViewStyle}"
@@ -83,9 +83,9 @@
             <StackPanel Orientation="Horizontal">
               <Label x:Name="ProgramStart" Color="{ThemeResource TextColor}"
                      Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-              <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
+              <!--Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
               <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                  Color="{ThemeResource TextColor}"/>
+                  Color="{ThemeResource TextColor}"/-->
             </StackPanel>
 
             <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
@@ -106,8 +106,12 @@
             <Label x:Name="Program" Grid.Column="0" FontFamily="DefaultBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                    Content="{Binding Path=CurrentProgram.Title}"
                    Color="{ThemeResource TextColor}"/>
-            <Label Grid.Column="1" Content="{Binding [Series]}" Margin="5,0,0,0" HorizontalAlignment="Stretch"
-                   Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"
+                   IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label.Content>
+                <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+              </Label.Content>
+            </Label>
           </Grid>
 
           <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

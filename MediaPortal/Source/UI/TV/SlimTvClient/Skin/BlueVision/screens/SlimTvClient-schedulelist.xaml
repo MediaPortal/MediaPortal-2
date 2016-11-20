@@ -60,9 +60,9 @@
             <StackPanel Orientation="Horizontal">
               <Label x:Name="ProgramStart" Color="{ThemeResource TextColor}"
                      Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-              <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
+              <!--Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}"/>
               <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                  Color="{ThemeResource TextColor}"/>
+                  Color="{ThemeResource TextColor}"/-->
             </StackPanel>
             
             <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
@@ -83,8 +83,13 @@
             <Label x:Name="Program" Grid.Column="0" FontFamily="DefaultBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                    Content="{Binding Path=CurrentProgram.Title}"
                    Color="{ThemeResource TextColor}"/>
-            <Label Grid.Column="1" Content="{Binding [Series]}" Margin="5,0,0,0" HorizontalAlignment="Stretch"
-                   Color="{ThemeResource TextColor}"/>
+            <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"
+                   IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label.Content>
+                <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+              </Label.Content>
+            </Label>
+            </Label>
           </Grid>
 
           <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
