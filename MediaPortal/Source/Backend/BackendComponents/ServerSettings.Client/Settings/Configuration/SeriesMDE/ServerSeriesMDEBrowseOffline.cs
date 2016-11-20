@@ -25,17 +25,19 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
-using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
-  public class ServerSeriesMDEBrowseOffline : YesNo, IDisposable
+  public class ServerSeriesMDEBrowseOffline : MultipleSelectionList, IDisposable
   {
     public ServerSeriesMDEBrowseOffline()
     {
       Enabled = false;
       ConnectionMonitor.Instance.RegisterConfiguration(this);
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOfflineNetwork]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOfflineLocal]"));
     }
 
     public override void Load()
@@ -43,7 +45,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      _yes = serverSettings.Load<SeriesMetadataExtractorSettings>().CacheOfflineFanArt;
+      SeriesMetadataExtractorSettings settings = serverSettings.Load<SeriesMetadataExtractorSettings>();
+      if (settings.CacheOfflineFanArt)
+        _selected.Add(0);
+      if (settings.CacheLocalFanArt)
+        _selected.Add(1);
     }
 
     public override void Save()
@@ -54,7 +60,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       base.Save();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       SeriesMetadataExtractorSettings settings = serverSettings.Load<SeriesMetadataExtractorSettings>();
-      settings.CacheOfflineFanArt = _yes;
+      settings.CacheOfflineFanArt = _selected.Contains(0);
+      settings.CacheLocalFanArt = _selected.Contains(1);
       serverSettings.Save(settings);
     }
 

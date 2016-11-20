@@ -413,7 +413,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
           return;
 
-        if (MovieMetadataExtractor.CacheOfflineFanArt && mediaItemLocater.NativeResourcePath.IsNetworkResource) //No need to add it to cache if already locally available
+        if ((MovieMetadataExtractor.CacheOfflineFanArt && mediaItemLocater.NativeResourcePath.IsNetworkResource) ||
+          (MovieMetadataExtractor.CacheLocalFanArt && !mediaItemLocater.NativeResourcePath.IsNetworkResource && mediaItemLocater.NativeResourcePath.IsValidLocalPath))
         {
           FanArtCache.InitFanArtCache(mediaItemId, title);
           string cacheFile = GetCacheFileName(mediaItemId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));

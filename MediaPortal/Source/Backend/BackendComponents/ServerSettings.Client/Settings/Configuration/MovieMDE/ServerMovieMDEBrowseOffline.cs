@@ -25,17 +25,19 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
-using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
-  public class ServerMovieMDEBrowseOffline : YesNo, IDisposable
+  public class ServerMovieMDEBrowseOffline : MultipleSelectionList, IDisposable
   {
     public ServerMovieMDEBrowseOffline()
     {
       Enabled = true;
       ConnectionMonitor.Instance.RegisterConfiguration(this);
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOfflineNetwork]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOfflineLocal]"));
     }
 
     public override void Load()
@@ -43,7 +45,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      _yes = serverSettings.Load<MovieMetadataExtractorSettings>().CacheOfflineFanArt;
+      MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
+      if (settings.CacheOfflineFanArt)
+        _selected.Add(0);
+      if (settings.CacheLocalFanArt)
+        _selected.Add(1);
     }
 
     public override void Save()
@@ -54,7 +60,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       base.Save();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
-      settings.CacheOfflineFanArt = _yes;
+      settings.CacheOfflineFanArt = _selected.Contains(0);
+      settings.CacheLocalFanArt = _selected.Contains(1);
       serverSettings.Save(settings);
     }
 

@@ -27,23 +27,32 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
-  public class ServerAudioMDEBrowseOffline : YesNo, IDisposable
+  public class ServerAudioMDEBrowseOffline : MultipleSelectionList, IDisposable
   {
     public ServerAudioMDEBrowseOffline()
     {
       Enabled = false;
       ConnectionMonitor.Instance.RegisterConfiguration(this);
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOfflineNetwork]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOfflineLocal]"));
     }
 
     public override void Load()
     {
       if (!Enabled)
         return;
+
+      _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      _yes = serverSettings.Load<AudioMetadataExtractorSettings>().CacheOfflineFanArt;
+      AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
+      if (settings.CacheOfflineFanArt)
+        _selected.Add(0);
+      if (settings.CacheLocalFanArt)
+        _selected.Add(1);
     }
 
     public override void Save()
@@ -56,7 +65,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
-      settings.CacheOfflineFanArt = _yes;
+      settings.CacheOfflineFanArt = _selected.Contains(0);
+      settings.CacheLocalFanArt = _selected.Contains(1);
       serverSettings.Save(settings);
       localSettings.Save(settings);      
     }

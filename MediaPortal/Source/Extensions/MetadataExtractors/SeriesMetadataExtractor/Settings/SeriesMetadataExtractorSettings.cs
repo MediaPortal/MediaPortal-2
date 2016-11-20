@@ -237,6 +237,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
     public bool CacheOfflineFanArt { get; set; }
 
     /// <summary>
+    /// If <c>true</c>, a copy will be made of FanArt placed on local drives to allow browsing when they are asleep.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool CacheLocalFanArt { get; set; }
+
+    /// <summary>
     /// If <c>true</c>, Actor details will be fetched from online sources.
     /// </summary>
     [Setting(SettingScope.Global, true)]

@@ -183,6 +183,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public static bool SkipOnlineSearches { get; private set; }
     public static bool SkipFanArtDownload { get; private set; }
     public static bool CacheOfflineFanArt { get; private set; }
+    public static bool CacheLocalFanArt { get; private set; }
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeComposerDetails { get; private set; }
     public static bool IncludeMusicLabelDetails { get; private set; }
@@ -193,6 +194,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       SkipOnlineSearches = _settingWatcher.Settings.SkipOnlineSearches;
       SkipFanArtDownload = _settingWatcher.Settings.SkipFanArtDownload;
       CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
+      CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeComposerDetails = _settingWatcher.Settings.IncludeComposerDetails;
       IncludeMusicLabelDetails = _settingWatcher.Settings.IncludeMusicLabelDetails;

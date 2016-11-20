@@ -102,6 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static bool SkipOnlineSearches { get; private set; }
     public static bool SkipFanArtDownload { get; private set; }
     public static bool CacheOfflineFanArt { get; private set; }
+    public static bool CacheLocalFanArt { get; private set; }
     public static bool IncludeActorDetails { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
     public static bool IncludeDirectorDetails { get; private set; }
@@ -114,6 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       SkipOnlineSearches = _settingWatcher.Settings.SkipOnlineSearches;
       SkipFanArtDownload = _settingWatcher.Settings.SkipFanArtDownload;
       CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
+      CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
       IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
       IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
       IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
