@@ -31,9 +31,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_bare.xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    >
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
+  
   <Include.Resources>
+
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="HeaderLabel" FontFamily="DefaultBold" FontSize="32" Content="[Configuration.Name]"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}">
+      </Label>
+    </ControlTemplate>
 
     <ControlTemplate x:Key="Menu_Button_DummyConfig">
       <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="0"
@@ -44,8 +50,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Defines the default margins for the content area -->
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0" />
-
-    <!-- Header has to be defined by the includer: "Header_Text" -->
 
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
