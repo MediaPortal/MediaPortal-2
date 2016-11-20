@@ -435,60 +435,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #endregion
 
-    #region Cache
-
-    public override bool IsCacheChangedForOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, string language)
-    {
-      if (person.AudioDbId > 0 && IsCacheChanged(albumInfo, _audioDbHandler.GetArtistCacheFile(albumInfo.AudioDbId)))
-        return true;
-      if (!string.IsNullOrEmpty(person.MusicBrainzId) && IsCacheChanged(albumInfo, _audioDbHandler.GetArtistMbCacheFile(person.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language)
-    {
-      if (person.AudioDbId > 0 && IsCacheChanged(trackInfo, _audioDbHandler.GetArtistCacheFile(person.AudioDbId)))
-        return true;
-      if (!string.IsNullOrEmpty(person.MusicBrainzId) && IsCacheChanged(trackInfo, _audioDbHandler.GetArtistMbCacheFile(person.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMusicTrack(TrackInfo trackInfo, string language)
-    {
-      if (trackInfo.AudioDbId > 0 && IsCacheChanged(trackInfo, _audioDbHandler.GetTrackCacheFile(trackInfo.AudioDbId)))
-        return true;
-      if (!string.IsNullOrEmpty(trackInfo.MusicBrainzId) && IsCacheChanged(trackInfo, _audioDbHandler.GetTrackMbCacheFile(trackInfo.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMusicTrackAlbum(AlbumInfo albumInfo, string language)
-    {
-      if (albumInfo.AudioDbId > 0 && IsCacheChanged(albumInfo, _audioDbHandler.GetAlbumCacheFile(albumInfo.AudioDbId)))
-        return true;
-      if (!string.IsNullOrEmpty(albumInfo.MusicBrainzId) && IsCacheChanged(albumInfo, _audioDbHandler.GetAlbumMbCacheFile(albumInfo.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, string language)
-    {
-      if (albumInfo.AudioDbId > 0 && IsCacheChanged(albumInfo, _audioDbHandler.GetAlbumCacheFile(albumInfo.AudioDbId)))
-        return true;
-      if (!string.IsNullOrEmpty(albumInfo.MusicBrainzId) && IsCacheChanged(albumInfo, _audioDbHandler.GetAlbumMbCacheFile(albumInfo.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    #endregion
-
     #region FanArt
 
     public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<string> images)

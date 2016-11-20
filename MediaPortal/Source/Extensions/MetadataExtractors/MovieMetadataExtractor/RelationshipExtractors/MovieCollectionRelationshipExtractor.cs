@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       else if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
         OnlineMatcherService.Instance.UpdateCollection(collectionInfo, false, false);
 
-      if (!BaseInfo.HasRelationship(aspects, LinkedRole))
+      if (!BaseInfo.HasRelationship(aspects, LinkedRole) && collectionInfo.HasExternalId)
         collectionInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!collectionInfo.HasChanged && !importOnly)

@@ -125,6 +125,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns></returns>
     public ChangeCollection GetMovieChanges(int page, DateTime startTime)
     {
+      //Returns changes for the last 24 hours
       string url = GetUrl(URL_GETMOVIECHANGES, null);
       url += "&page=" + page;
       url += "&start_date=" + startTime.ToString(@"yyyy\-MM\-dd");
@@ -137,6 +138,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns></returns>
     public ChangeCollection GetPersonChanges(int page, DateTime startTime)
     {
+      //Returns changes for the last 24 hours
       string url = GetUrl(URL_GETPERSONCHANGES, null);
       url += "&page=" + page;
       url += "&start_date=" + startTime.ToString(@"yyyy\-MM\-dd");
@@ -149,6 +151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns></returns>
     public ChangeCollection GetSeriesChanges(int page, DateTime startTime)
     {
+      //Returns changes for the last 24 hours
       string url = GetUrl(URL_GETSERIESCHANGES, null);
       url += "&page=" + page;
       url += "&start_date=" + startTime.ToString(@"yyyy\-MM\-dd");

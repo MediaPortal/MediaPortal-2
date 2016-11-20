@@ -84,12 +84,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       public IList<MediaItem> Browse(Guid parentDirectoryId,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId, 
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId,
           bool includeVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
           return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      {
+        try
+        {
+          return _parent.GetUpdatableMediaItems(necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
         }
         catch (Exception)
         {
@@ -432,7 +444,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Guid AddMediaItem(ISQLDatabase database, ITransaction transaction, Guid? newMediaItemId)
     {
       Guid mediaItemId = newMediaItemId.HasValue ? newMediaItemId.Value : NewMediaItemId();
-      Logger.Debug("Creating media item {0}", mediaItemId);
+      //Logger.Debug("Creating media item {0}", mediaItemId);
       using (IDbCommand command = MediaLibrary_SubSchema.InsertMediaItemCommand(transaction, mediaItemId))
         command.ExecuteNonQuery();
 
@@ -870,6 +882,46 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    public IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+    {
+      lock (_syncObj)
+      {
+        Stopwatch swImport = new Stopwatch();
+        swImport.Start();
+        List<MediaItem> result = new List<MediaItem>();
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+        foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
+        {
+          var changeFilters = extractor.GetLastChangedItemsFilters();
+          int itemCount = 0;
+          if (changeFilters != null)
+          {
+            foreach (var changeFilter in changeFilters)
+            {
+              MediaItemQuery changeQuery = new MediaItemQuery(necessaryRequestedMIATypeIDs, changeFilter.Key);
+              if (optionalRequestedMIATypeIDs != null)
+                changeQuery.SetOptionalRequestedMIATypeIDs(optionalRequestedMIATypeIDs);
+              if(changeFilter.Value > 0)
+                changeQuery.Limit = changeFilter.Value;
+              IList<MediaItem> foundItems = Search(changeQuery, false, null, false);
+              if(foundItems != null)
+              {
+                itemCount += foundItems.Count;
+                foreach (MediaItem item in foundItems)
+                  if (!result.Contains(item))
+                    result.Add(item);
+              }
+            }
+          }
+          extractor.ResetLastChangedItems(); //Reset changes so they are not found again in next request
+
+          if (itemCount > 0)
+            Logger.Info("{0} found {1} updatable media items ({1} ms)", extractor.GetType().Name, itemCount, swImport.ElapsedMilliseconds);
+        }
+        return result;
+      }
+    }
+
     public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
     {
       return Search(null, null , query, filterOnlyOnline, userProfileId, includeVirtual);
@@ -900,7 +952,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         items = cmiq.QueryList();
       else
         items = cmiq.QueryList(database, transaction);
-      Logger.Debug("Found media items [{0}]", string.Join(",", items.Select(x => x.MediaItemId)));
+      //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
       IList<MediaItem> result = new List<MediaItem>(items.Count);
       foreach (MediaItem item in items)
       {
@@ -1305,7 +1357,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             transaction.Commit();
 
-            if(extractedAspects.ContainsKey(DirectoryAspect.ASPECT_ID))
+            if (extractedAspects.ContainsKey(DirectoryAspect.ASPECT_ID))
               return existingMediaItemId.Value;
 
             if (reconcile)
@@ -1421,7 +1473,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           DeleteMediaItemAndReleationships(transaction, mediaItemId.Value);
         }
 
-        Logger.Info("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name ?? "[null]", Path.GetFileName(path.FileName), mergedMediaItem.Value, swImport.ElapsedMilliseconds);
+        Logger.Info("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)", mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), mergedMediaItem.Value, swImport.ElapsedMilliseconds);
         return mergedMediaItem.Value;
       }
 
@@ -1484,6 +1536,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
       }
 
+      Logger.Info("Media item {0} with name {1} ({2}) added/updated ({3} ms)", mediaItemId.Value, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
       return mediaItemId.Value;
     }
 
@@ -1720,7 +1773,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         return;
 
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      Logger.Debug("Updating relationships for {0}", mediaItemId);
+      //Logger.Debug("Updating relationships for {0}", mediaItemId);
 
       // TODO: What happens to MIAs that the reconciler automatically adds which have been removed manually by the user?
       foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
@@ -1790,6 +1843,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             if (newMediaItemId != Guid.Empty)
             {
               AddRelationship(roleExtractor, newMediaItemId, aspects, extractedItem.Key);
+              UpdateMediaItem(database, transaction, mediaItemId, aspects.Values.SelectMany(x => x));
               roleExtractor.CacheExtractedItem(newMediaItemId, extractedItem.Key);
               if (!merged)
                 updatedItems.Add(newMediaItemId);
@@ -2155,10 +2209,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       try
       {
-        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-
         Logger.Debug("Scheduling FanArt deletion for {0}", mediaItemId);
-
+        IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         foreach (IMediaFanArtHandler handler in mediaAccessor.LocalFanArtHandlers.Values)
         {
           handler.DeleteFanArt(mediaItemId);
@@ -2267,12 +2319,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               int isVirtual = 0;
               if (allChildsAreVirtual == true)
               {
-                Logger.Debug("MediaLibrary: All children with role {0} of parent media item {1} with role {2} are virtual", hierarchy.ChildRole, parentId.Value, hierarchy.ParentRole);
+                //Logger.Debug("MediaLibrary: All children with role {0} of parent media item {1} with role {2} are virtual", hierarchy.ChildRole, parentId.Value, hierarchy.ParentRole);
                 isVirtual = 1;
               }
               else
               {
-                Logger.Debug("MediaLibrary: Not all children with role {0} of parent media item {1} with role {2} are virtual", hierarchy.ChildRole, parentId.Value, hierarchy.ParentRole);
+                //Logger.Debug("MediaLibrary: Not all children with role {0} of parent media item {1} with role {2} are virtual", hierarchy.ChildRole, parentId.Value, hierarchy.ParentRole);
               }
 
               command.Parameters.Clear();

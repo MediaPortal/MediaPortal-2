@@ -123,8 +123,27 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     RelationshipExtractorMetadata Metadata { get; }
 
+    /// <summary>
+    /// Returns a list of relationship role extractors.
+    /// </summary>
     IList<IRelationshipRoleExtractor> RoleExtractors { get; }
 
+    /// <summary>
+    /// Returns a list of relationship role hierarchies.
+    /// </summary>
     IList<RelationshipHierarchy> Hierarchies { get; }
+
+    /// <summary>
+    /// Returns a list filters to use to find media items which can be updated 
+    /// because new metadata is available. Each filter also has a limit to the 
+    /// number of items to find.
+    /// </summary>
+    IDictionary<IFilter, uint> GetLastChangedItemsFilters();
+
+    /// <summary>
+    /// Resets the current list of changed items so they are not included in 
+    /// the nest query for changed items.
+    /// </summary>
+    void ResetLastChangedItems();
   }
 }

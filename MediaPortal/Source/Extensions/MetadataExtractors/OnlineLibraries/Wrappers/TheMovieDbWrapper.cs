@@ -39,18 +39,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
   class TheMovieDbWrapper : ApiWrapper<ImageItem, string>
   {
     protected MovieDbApiV3 _movieDbHandler;
-    protected DateTime _lastRefresh;
-    protected TimeSpan _cacheTimeout = TimeSpan.FromHours(12);
+    protected TimeSpan _cacheTimeout = TimeSpan.FromHours(24);
+    private bool _movieMode = true;
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
     /// </summary>
     /// <returns></returns>
-    public bool Init(string cachePath, bool useHttps)
+    public bool Init(string cachePath, bool useHttps, bool movieMode)
     {
       _movieDbHandler = new MovieDbApiV3("1e3f311b50e6ca53bbc3fcade2214b5e", cachePath, useHttps);
       SetDefaultLanguage(MovieDbApiV3.DefaultLanguage);
       SetCachePath(cachePath);
+      _movieMode = movieMode;
       return true;
     }
 
@@ -967,182 +968,79 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Cache
 
-    public override bool IsCacheChangedForOnlineMovie(MovieInfo movie, string language)
-    {
-      if (movie.MovieDbId > 0 && IsCacheChanged(movie, _movieDbHandler.GetMovieCacheFile(movie.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMovieCollection(MovieCollectionInfo collection, string language)
-    {
-      if (collection.MovieDbId > 0 && IsCacheChanged(collection, _movieDbHandler.GetCollectionCacheFile(collection.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, string language)
-    {
-      if (person.MovieDbId > 0 && IsCacheChanged(movieInfo, _movieDbHandler.GetPersonCacheFile(person.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, string language)
-    {
-      if (movieInfo.MovieDbId > 0 && IsCacheChanged(movieInfo, _movieDbHandler.GetMovieCastCrewCacheFile(movieInfo.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, string language)
-    {
-      if (company.MovieDbId > 0 && IsCacheChanged(movieInfo, _movieDbHandler.GetCompanyCacheFile(company.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineSeries(SeriesInfo series, string language)
-    {
-      if (series.MovieDbId > 0 && IsCacheChanged(series, _movieDbHandler.GetSeriesCacheFile(series.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineSeriesSeason(SeasonInfo season, string language)
-    {
-      if (season.MovieDbId > 0 && season.SeasonNumber.HasValue && IsCacheChanged(season, _movieDbHandler.GetSeriesSeasonCacheFile(season.MovieDbId, season.SeasonNumber.Value, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineSeriesEpisode(EpisodeInfo episode, string language)
-    {
-      if (episode.MovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0 &&
-        IsCacheChanged(episode, _movieDbHandler.GetSeriesEpisodeCacheFile(episode.MovieDbId, episode.SeasonNumber.Value, episode.EpisodeNumbers[0], language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, string language)
-    {
-      if (person.MovieDbId > 0 && IsCacheChanged(seriesInfo, _movieDbHandler.GetPersonCacheFile(person.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, string language)
-    {
-      if (person.MovieDbId > 0 && IsCacheChanged(episodeInfo, _movieDbHandler.GetPersonCacheFile(person.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, string language)
-    {
-      if (company.Type == CompanyAspect.COMPANY_PRODUCTION)
-      {
-        if (company.MovieDbId > 0 && IsCacheChanged(seriesInfo, _movieDbHandler.GetCompanyCacheFile(company.MovieDbId, language)))
-          return true;
-      }
-      else if (company.Type == CompanyAspect.COMPANY_TV_NETWORK)
-      {
-        if (company.MovieDbId > 0 && IsCacheChanged(seriesInfo, _movieDbHandler.GetNetworkCacheFile(company.MovieDbId, language)))
-          return true;
-      }
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, string language)
-    {
-      if (seriesInfo.MovieDbId > 0 && IsCacheChanged(seriesInfo, _movieDbHandler.GetSeriesCastCrewCacheFile(seriesInfo.MovieDbId, language)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, string language)
-    {
-      if (episodeInfo.MovieDbId > 0 && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Count > 0 &&
-        IsCacheChanged(episodeInfo, _movieDbHandler.GetSeriesEpisodeCastCrewCacheFile(episodeInfo.MovieDbId, episodeInfo.SeasonNumber.Value, episodeInfo.EpisodeNumbers[0], language)))
-        return true;
-
-      return false;
-    }
-
     /// <summary>
     /// Updates the local available information with updated ones from online source.
     /// </summary>
     /// <returns></returns>
     public override bool RefreshCache(DateTime lastRefresh)
     {
-      //Avoid having both TV and Movie matcher updating the cache
-      if (DateTime.Now - _lastRefresh <= _cacheTimeout)
+      if (DateTime.Now - lastRefresh <= _cacheTimeout)
         return false;
-
-      _lastRefresh = DateTime.Now;
 
       try
       {
-        //Refresh movies
+        DateTime startTime = DateTime.Now;
         int page = 1;
         List<int> changedItems = new List<int>();
-        ChangeCollection changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
-        foreach (Change change in changes.Changes)
-          changedItems.Add(change.Id);
-        while (page < changes.TotalPages)
+        ChangeCollection changes;
+        if (_movieMode)
         {
-          page++;
+          //Refresh movies
+          startTime = DateTime.Now;
+          page = 1;
+          changedItems.Clear();
           changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
             changedItems.Add(change.Id);
-        }
-        foreach (int movieId in changedItems)
-          _movieDbHandler.DeleteMovieCache(movieId);
+          while (page < changes.TotalPages)
+          {
+            page++;
+            changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
+            foreach (Change change in changes.Changes)
+              changedItems.Add(change.Id);
+          }
+          foreach (int movieId in changedItems)
+            _movieDbHandler.DeleteMovieCache(movieId);
+          FireCacheUpdateFinished(startTime, DateTime.Now, UpdateType.Movie, changedItems.Select(i => i.ToString()).ToList());
 
-        //Refresh persons
-        page = 1;
-        changedItems.Clear();
-        changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
-        foreach (Change change in changes.Changes)
-          changedItems.Add(change.Id);
-        while (page < changes.TotalPages)
-        {
-          page++;
+          //Refresh persons
+          startTime = DateTime.Now;
+          page = 1;
+          changedItems.Clear();
           changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
             changedItems.Add(change.Id);
+          while (page < changes.TotalPages)
+          {
+            page++;
+            changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
+            foreach (Change change in changes.Changes)
+              changedItems.Add(change.Id);
+          }
+          foreach (int movieId in changedItems)
+            _movieDbHandler.DeletePersonCache(movieId);
+          FireCacheUpdateFinished(startTime, DateTime.Now, UpdateType.Person, changedItems.Select(i => i.ToString()).ToList());
         }
-        foreach (int movieId in changedItems)
-          _movieDbHandler.DeletePersonCache(movieId);
-
-        //Refresh series
-        page = 1;
-        changedItems.Clear();
-        changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
-        foreach (Change change in changes.Changes)
-          changedItems.Add(change.Id);
-        while (page < changes.TotalPages)
+        else
         {
-          page++;
+          //Refresh series
+          startTime = DateTime.Now;
+          page = 1;
+          changedItems.Clear();
           changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
             changedItems.Add(change.Id);
+          while (page < changes.TotalPages)
+          {
+            page++;
+            changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
+            foreach (Change change in changes.Changes)
+              changedItems.Add(change.Id);
+          }
+          foreach (int movieId in changedItems)
+            _movieDbHandler.DeleteSeriesCache(movieId);
+          FireCacheUpdateFinished(startTime, DateTime.Now, UpdateType.Series, changedItems.Select(i => i.ToString()).ToList());
         }
-        foreach (int movieId in changedItems)
-          _movieDbHandler.DeleteSeriesCache(movieId);
-
         return true;
       }
       catch (Exception ex)

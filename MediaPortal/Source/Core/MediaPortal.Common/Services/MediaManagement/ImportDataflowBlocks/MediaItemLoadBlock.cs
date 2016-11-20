@@ -31,6 +31,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
@@ -50,6 +51,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #endregion
 
+    #region Variables
+
+    private readonly Lazy<Task<DateTime>> _mostRecentMiaCreationDate;
+
+    #endregion
+
     #region Constructor
 
     /// <summary>
@@ -58,7 +65,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <remarks>
     /// The preceding FileUnfoldBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
     /// because all the items are immediately passed to an unbounded InputBlock of this MetadataExtractorBlock, we
-    /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 100,
+    /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 500,
     /// which is a good trade-off between speed and memory usage. For the reason mentioned before, we also have to
     /// set the BoundedCapacity of the OutputBlock to 1.
     /// </remarks>
@@ -67,11 +74,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
     public MediaItemLoadBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
       : base(importJobInformation,
-      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 100 },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 500 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       BLOCK_NAME, false, parentImportJobController)
     {
+      _mostRecentMiaCreationDate = new Lazy<Task<DateTime>>(GetMostRecentMiaCreationDate);
     }
 
     #endregion
@@ -92,26 +100,48 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
         {
-          // Load Aspects if MI was changed or is more than a day old
-          if (importResource.DateOfLastImport < importResource.ResourceAccessor.LastChanged ||
-                (DateTime.Now - importResource.DateOfLastImport).TotalHours > MINIMUM_IMPORT_AGE_IN_HOURS)
+          // Do not import again, if the file or directory wasn't changed since the last import
+          // and there were no new relevant MIAs added since then.
+          // ToDo: We should only omit MDEs that get their data from the file or directory itself. All others should be called anyway.
+          if (importResource.DateOfLastImport > importResource.ResourceAccessor.LastChanged &&
+              importResource.DateOfLastImport > await _mostRecentMiaCreationDate.Value  &&
+              importResource.MediaItemId.HasValue)
           {
-            ICollection<Guid> aspects = await GetAllManagedMediaItemAspectTypes();
+            importResource.IsValid = false;
+            return importResource;
+          }
 
-            List<Guid> optionalAspects = new List<Guid>(aspects);
-            if (optionalAspects.Contains(ProviderResourceAspect.ASPECT_ID))
-              optionalAspects.Remove(ProviderResourceAspect.ASPECT_ID);
+          //if (importResource.DateOfLastImport == DateTime.MinValue)
+          //  ServiceRegistration.Get<ILogger>().Info("File {0} force import", importResource.PendingResourcePath);
+          //else if (importResource.DateOfLastImport < importResource.ResourceAccessor.LastChanged)
+          //  ServiceRegistration.Get<ILogger>().Info("File {0} changed after import {1} < {2}", importResource.PendingResourcePath, importResource.DateOfLastImport, importResource.ResourceAccessor.LastChanged);
+          //else if (importResource.DateOfLastImport < await _mostRecentMiaCreationDate.Value)
+          //  ServiceRegistration.Get<ILogger>().Info("File {0} changed before aspect change", importResource.PendingResourcePath);
+          //else if (!importResource.MediaItemId.HasValue)
+          //  ServiceRegistration.Get<ILogger>().Info("File {0} needs import", importResource.PendingResourcePath);
 
-            List<Guid> requiredAspects = new List<Guid>();
-            requiredAspects.Add(ProviderResourceAspect.ASPECT_ID);
+          ICollection<Guid> aspects = await GetAllManagedMediaItemAspectTypes();
 
-            // ReSharper disable once PossibleInvalidOperationException
-            MediaItem mediaItem = await LoadLocalItem(importResource.PendingResourcePath, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable());
-            if(mediaItem != null)
+          List<Guid> optionalAspects = new List<Guid>(aspects);
+          if (optionalAspects.Contains(ProviderResourceAspect.ASPECT_ID))
+            optionalAspects.Remove(ProviderResourceAspect.ASPECT_ID);
+
+          List<Guid> requiredAspects = new List<Guid>();
+          requiredAspects.Add(ProviderResourceAspect.ASPECT_ID);
+
+          // ReSharper disable once PossibleInvalidOperationException
+          MediaItem mediaItem = await LoadLocalItem(importResource.PendingResourcePath, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable());
+          if(mediaItem != null)
+          {
+            SingleMediaItemAspect directoryAspect;
+            if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, DirectoryAspect.Metadata, out directoryAspect))
             {
-              importResource.ExistingAspects = mediaItem.Aspects;
-              importResource.MediaItemId = mediaItem.MediaItemId;
+              importResource.IsValid = false;
+              return importResource;
             }
+
+            importResource.ExistingAspects = mediaItem.Aspects;
+            importResource.MediaItemId = mediaItem.MediaItemId;
           }
         }
         return importResource;
@@ -126,6 +156,30 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         importResource.IsValid = false;
         return importResource;
       }
+    }
+
+    /// <summary>
+    /// Returns the most recent creation date of the MIAs relevant to this ImportJob
+    /// </summary>
+    /// <returns>Most recent creation date</returns>
+    /// <remarks>
+    /// We first get all MDEs to be applied in this ImportJob. Then we determine which MIAs are imported by these relevant
+    /// MDEs. Then we fetch from the MediaLibrary the dates on which these MIAs have ben created and take the most
+    /// recent one of these dates.
+    /// </remarks>
+    private async Task<DateTime> GetMostRecentMiaCreationDate()
+    {
+      if (ImportJobInformation.MetadataExtractorIds.Count == 0)
+        return DateTime.MinValue;
+      var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      var relevantMdes = mediaAccessor.LocalMetadataExtractors.Where(kvp => ImportJobInformation.MetadataExtractorIds.Contains(kvp.Key)).Select(kvp => kvp.Value).ToList();
+      var relevantMiaIds = relevantMdes.SelectMany(mde => mde.Metadata.ExtractedAspectTypes.Keys).Distinct();
+
+      var creationDates = await GetManagedMediaItemAspectCreationDates();
+
+      var mostRecentRelevantDate = creationDates.Where(kvp => relevantMiaIds.Contains(kvp.Key)).Select(kvp => kvp.Value).Max();
+      ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: Most recent creation date of the MIAs relevant to this ImportJob: {2}", ParentImportJobController, ToString(), mostRecentRelevantDate);
+      return mostRecentRelevantDate;
     }
 
     #endregion

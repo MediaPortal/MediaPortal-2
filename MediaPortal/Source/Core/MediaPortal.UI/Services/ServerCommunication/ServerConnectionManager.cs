@@ -155,6 +155,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
+      public IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      {
+        return null;
+      }
+
       #endregion
     }
 

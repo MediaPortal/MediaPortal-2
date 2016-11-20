@@ -66,9 +66,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
             tag.Performers.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR }).ToList(), false);
 
         //Clean up memory
-        foreach (TagLib.IPicture pic in mp4File.Tag.Pictures)
-          pic.Data.Clear();
-        mp4File.Tag.Clear();
         mp4File.Dispose();
 
         return true;

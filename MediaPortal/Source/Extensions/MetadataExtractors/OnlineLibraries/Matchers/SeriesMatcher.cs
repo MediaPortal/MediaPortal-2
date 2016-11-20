@@ -39,6 +39,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -47,6 +48,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public class SeriresMatcherSettings
     {
       public string LastRefresh { get; set; }
+
+      public List<string> LastUpdatedSeries { get; set; }
+
+      public List<string> LastUpdatedEpisodes { get; set; }
     }
 
     #region Init
@@ -84,7 +89,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       LoadConfig();
 
-      return InitWrapper(UseSecureWebCommunication);
+      if (InitWrapper(UseSecureWebCommunication))
+      {
+        if (_wrapper != null)
+          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+        return true;
+      }
+      return false;
     }
 
     private void LoadConfig()
@@ -94,6 +105,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         _config = new SeriresMatcherSettings();
       if(_config.LastRefresh != null)
         _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
+      if (_config.LastUpdatedSeries == null)
+        _config.LastUpdatedSeries = new List<string>();
+      if (_config.LastUpdatedEpisodes == null)
+        _config.LastUpdatedEpisodes = new List<string>();
     }
 
     private void SaveConfig()
@@ -242,8 +257,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool matchFound = false;
         bool seriesMatchFound = false;
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
-        if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisode(episodeInfo, language))
-          return true;
 
         if (GetSeriesId(episodeSeries, out seriesId))
         {
@@ -423,12 +436,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref episodeInfo.Rating, episodeMatch.Rating);
 
       if (episodeInfo.EpisodeNumbers.Count == 0)
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers, true);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.EpisodeNumbers, episodeMatch.EpisodeNumbers.Distinct().ToList(), true);
       if (episodeInfo.DvdEpisodeNumbers.Count == 0)
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers, true);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.DvdEpisodeNumbers, episodeMatch.DvdEpisodeNumbers.Distinct().ToList(), true);
       if (episodeInfo.Genres.Count == 0)
       {
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres, true);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(episodeInfo.Genres, episodeMatch.Genres.Distinct().ToList(), true);
       }
       if (episodeInfo.Genres.Count > 0)
       {
@@ -437,10 +450,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
       //So changes to these lists will only be stored if something else has changed.
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors, episodeInfo.Actors.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters, episodeInfo.Characters.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors, episodeInfo.Directors.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers, episodeInfo.Writers.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors.Distinct().ToList(), episodeInfo.Actors.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters.Distinct().ToList(), episodeInfo.Characters.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors.Distinct().ToList(), episodeInfo.Directors.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers.Distinct().ToList(), episodeInfo.Writers.Count == 0);
     }
 
     public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
@@ -497,36 +510,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         else
         {
           Logger.Debug(_id + ": Found series {0} in cache", seriesInfo.ToString());
-
-          if (seriesMatch.NextEpisodeAirDate.HasValue && seriesInfo.LastChanged.HasValue &&
-            seriesMatch.NextEpisodeAirDate.Value < DateTime.Now && seriesInfo.LastChanged < seriesMatch.NextEpisodeAirDate.Value)
-          {
-            //Clearing of next episode needed
-            updated = true;
-          }
-          else if (seriesMatch.NextEpisodeAirDate.HasValue && seriesInfo.LastChanged.HasValue &&
-            seriesInfo.LastChanged < seriesMatch.NextEpisodeAirDate.Value)
-          {
-            //Setting of next episode needed
-            updated = true;
-          }
-          if (!importOnly && _wrapper.IsCacheChangedForOnlineSeries(seriesInfo, language))
-          {
-            //Cache changed
-            updated = true;
-          }
-          else if (importOnly)
-          {
-            //Always update for imports
-            updated = true;
-          }
-          else if (!seriesInfo.IsRefreshed)
-          {
-            //Update if never refreshed
-            updated = true;
-          }
-          else
-            return true;
+          updated = true;
         }
 
         if (updated)
@@ -572,20 +556,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref seriesInfo.Rating, seriesMatch.Rating);
           if (seriesInfo.Genres.Count == 0)
           {
-            seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres, true);
+            seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Genres, seriesMatch.Genres.Distinct().ToList(), true);
           }
           if (seriesInfo.Genres.Count > 0)
           {
             seriesInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(seriesInfo.Genres);
           }
-          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Awards, seriesMatch.Awards, true);
+          seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(seriesInfo.Awards, seriesMatch.Awards.Distinct().ToList(), true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks, seriesInfo.Networks.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies, seriesInfo.ProductionCompanies.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors, seriesInfo.Actors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters, seriesInfo.Characters.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks.Distinct().ToList(), seriesInfo.Networks.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies.Distinct().ToList(), seriesInfo.ProductionCompanies.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors.Distinct().ToList(), seriesInfo.Actors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters.Distinct().ToList(), seriesInfo.Characters.Count == 0);
 
           MetadataUpdater.SetOrUpdateList(seriesInfo.Seasons, seriesMatch.Seasons, true);
 
@@ -668,9 +652,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(seasonInfo.Languages);
-        if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesSeason(seasonInfo, language))
-          return true;
-
         bool updated = false;
         SeasonInfo seasonMatch = seasonInfo.Clone();
         //Try updating from cache
@@ -740,9 +721,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in seriesMatch.Actors)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesPerson(seriesInfo, person, language))
-              continue;
-
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -806,7 +784,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
-            MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors, false);
+            MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -846,18 +824,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
-        bool canBeUpdated = false;
-        foreach (CharacterInfo character in seriesInfo.Characters)
-        {
-          if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesCharacter(seriesInfo, character, language))
-            continue;
-          canBeUpdated = true;
-        }
-
-        if (!canBeUpdated)
-          return true;
-
-          bool updated = false;
+        bool updated = false;
         SeriesInfo seriesMatch = seriesInfo.Clone();
         foreach (CharacterInfo character in seriesMatch.Characters)
         {
@@ -909,7 +876,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters, false);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -953,9 +920,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in seriesMatch.ProductionCompanies)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesCompany(seriesInfo, company, language))
-              continue;
-
             string id;
             if (_companyMatcher.GetNameMatch(company.Name, out id))
             {
@@ -977,9 +941,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in seriesMatch.Networks)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesCompany(seriesInfo, company, language))
-              continue;
-
             string id;
             if (_networkMatcher.GetNameMatch(company.Name, out id))
             {
@@ -1043,9 +1004,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (companyType == CompanyAspect.COMPANY_PRODUCTION)
-            MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies, false);
+            MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies.Distinct().ToList(), false);
           else if (companyType == CompanyAspect.COMPANY_TV_NETWORK)
-            MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks, false);
+            MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -1109,9 +1070,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in episodeMatch.Actors)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisodePerson(episodeInfo, person, language))
-              continue;
-
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -1133,9 +1091,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in episodeMatch.Directors)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisodePerson(episodeInfo, person, language))
-              continue;
-
             string id;
             if (_directorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -1157,9 +1112,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in episodeMatch.Writers)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisodePerson(episodeInfo, person, language))
-              continue;
-
             string id;
             if (_writerMatcher.GetNameMatch(person.Name, out id))
             {
@@ -1232,11 +1184,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
-            MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors, false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors.Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
-            MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors, false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors.Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_WRITER)
-            MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers, false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -1310,17 +1262,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
-        bool canBeUpdated = false;
-        foreach (CharacterInfo character in episodeInfo.Characters)
-        {
-          if (!importOnly && !_wrapper.IsCacheChangedForOnlineSeriesEpisodeCharacter(episodeInfo, character, language))
-            continue;
-          canBeUpdated = true;
-        }
-
-        if (!canBeUpdated)
-          return true;
-
         bool updated = false;
         EpisodeInfo episodeMatch = episodeInfo.Clone();
         foreach (CharacterInfo character in episodeMatch.Characters)
@@ -1382,7 +1323,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters, false);
+          MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -1551,7 +1492,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual void RefreshCache()
     {
-      if (CacheRefreshable)
+      if (CacheRefreshable && Enabled)
       {
         string dateFormat = "MMddyyyyHHmm";
         if (!_lastCacheRefresh.HasValue)
@@ -1584,6 +1525,63 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           });
         }
         SaveConfig();
+      }
+    }
+
+    public List<SeriesInfo> GetLastChangedSeries()
+    {
+      List<SeriesInfo> series = new List<SeriesInfo>();
+      foreach(string id in _config.LastUpdatedSeries)
+      {
+        SeriesInfo s = new SeriesInfo();
+        if (SetSeriesId(s, id) && !series.Contains(s))
+          series.Add(s);
+      }
+      return series;
+    }
+
+    public void ResetLastChangedSeries()
+    {
+      _config.LastUpdatedSeries.Clear();
+      SaveConfig();
+    }
+
+    public List<EpisodeInfo> GetLastChangedEpisodes()
+    {
+      List<EpisodeInfo> episodes = new List<EpisodeInfo>();
+      foreach (string id in _config.LastUpdatedEpisodes)
+      {
+        EpisodeInfo e = new EpisodeInfo();
+        if (SetSeriesEpisodeId(e, id) && !episodes.Contains(e))
+          episodes.Add(e);
+      }
+      return episodes;
+    }
+
+    public void ResetLastChangedEpisodes()
+    {
+      _config.LastUpdatedEpisodes.Clear();
+      SaveConfig();
+    }
+
+    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    {
+      try
+      {
+        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Series)
+        {
+          _config.LastUpdatedSeries.AddRange(_event.UpdatedItems);
+          SaveConfig();
+        }
+        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Season)
+        {
+          _config.LastUpdatedEpisodes.AddRange(_event.UpdatedItems);
+          SaveConfig();
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex);
       }
     }
 

@@ -176,5 +176,14 @@ namespace MediaPortal.Mock
         Index = index,
       });
     }
+
+    public IDictionary<IFilter, uint> GetLastChangedItemsFilters()
+    {
+      return null;
+    }
+
+    public void ResetLastChangedItems()
+    {
+    }
   }
 }

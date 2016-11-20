@@ -34,6 +34,7 @@ using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.ResourceAccess;
 using System.Reflection;
 using System.Text;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -153,7 +154,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public static bool MatchNames(string name1, string name2, double threshold = 0.62)
     {
-      double dice = name1.ToLowerInvariant().DiceCoefficient(name2.ToLowerInvariant());
+      double dice = StringUtils.RemoveDiacritics(name1).ToLowerInvariant().DiceCoefficient(StringUtils.RemoveDiacritics(name2).ToLowerInvariant());
       return dice > threshold;
 
       //return name1.FuzzyEquals(name2);
@@ -273,8 +274,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         string nameId = name.Trim();
         nameId = CleanString(nameId);
         nameId = CleanupWhiteSpaces(nameId);
-        byte[] tempBytes = Encoding.GetEncoding("ISO-8859-8").GetBytes(nameId);
-        nameId = Encoding.UTF8.GetString(tempBytes);
+        nameId = StringUtils.RemoveDiacritics(nameId);
         nameId = nameId.Replace("'", "");
         nameId = nameId.Replace(" ", "").ToLowerInvariant();
         return nameId;

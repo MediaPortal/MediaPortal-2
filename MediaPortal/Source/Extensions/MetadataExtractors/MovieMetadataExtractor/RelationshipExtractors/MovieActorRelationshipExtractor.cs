@@ -96,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (movieInfo.Actors.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < movieInfo.Actors.Count)
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < movieInfo.Actors.Where(p => p.HasExternalId).Count())
         movieInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!movieInfo.HasChanged && !importOnly)

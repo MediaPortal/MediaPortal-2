@@ -123,17 +123,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
               foreach (var pra in providerAspects)
               {
                 ResourcePath path = ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
-                if (ImportJobInformation.JobType == ImportJobType.Refresh)
-                {
-                  if (!path2LastImportDate.ContainsKey(path))
-                    path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
-                }
-                if (path2MediaItem.ContainsKey(path) && !mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY))
+                if (!path2LastImportDate.ContainsKey(path))
+                  path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+                if (!path2MediaItem.ContainsKey(path) && !mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY))
                   path2MediaItem.Add(path, mi.MediaItemId);
               }
             }
           }
-          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2MediaItem.Keys);
+          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
         }
 
         if (ImportJobInformation.JobType == ImportJobType.Import)

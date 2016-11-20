@@ -60,6 +60,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       Language,
     }
 
+    #region Language
+
     /// <summary>
     /// Sets the preferred language.
     /// </summary>
@@ -111,6 +113,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       get { return _regionLanguages; }
     }
 
+    #endregion
+
+    #region Cache
+
     /// <summary>
     /// Sets path to use for caching downloads.
     /// </summary>
@@ -136,17 +142,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    protected virtual bool IsCacheChanged(BaseInfo info, string filename)
+    protected virtual bool IsCacheChanged(DateTime itemLastChanged, string filename)
     {
       try
       {
-        if (!info.IsRefreshed)
-          return true;
-
         FileInfo file = new FileInfo(filename);
         if (!file.Exists)
           return false;
-        if (file.CreationTime > info.LastChanged)
+        if (file.CreationTime > itemLastChanged)
           return true;
         return false;
       }
@@ -155,6 +158,108 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
       }
     }
+
+    public virtual bool IsCacheChangedForItem(BaseInfo info, TLang language)
+    {
+      foreach (string filename in GetCacheFiles(info, language))
+      {
+        if (info.LastChanged.HasValue && IsCacheChanged(info.LastChanged.Value, filename))
+          return true;
+      }
+      return false;
+    }
+
+    public virtual string[] GetCacheFiles(BaseInfo info, TLang language)
+    {
+      return new string[0];
+    }
+
+    #endregion
+
+    #region Events
+
+    public enum UpdateType
+    {
+      Series,
+      Season,
+      Epsiode,
+      Movie,
+      MovieCollection,
+      Audio,
+      AudioAlbum,
+      Person,
+      Actor,
+      Director,
+      Writer,
+      Artist,
+      Composer,
+      Company,
+      TVNetwork,
+      MusicLabel
+    };
+
+    /// <summary>
+    /// EventArgs used when an update has finished, contains start date, end date and 
+    /// an overview of all updated content
+    /// </summary>
+    public class UpdateFinishedEventArgs : EventArgs
+    {
+      /// <summary>
+      /// Constructor for UpdateFinishedEventArgs
+      /// </summary>
+      /// <param name="started">When did the update start</param>
+      /// <param name="ended">When did the update finish</param>
+      /// <param name="updateType">The type items that were updated</param>
+      /// <param name="updatedItems">List of all items (ids) that were updated</param>
+      public UpdateFinishedEventArgs(DateTime started, DateTime ended, UpdateType updateType, List<string> updatedItems)
+      {
+        UpdateStarted = started;
+        UpdateFinished = ended;
+        UpdatedItemType = updateType;
+        UpdatedItems = updatedItems;
+      }
+      /// <summary>
+      /// When did the update start
+      /// </summary>
+      public DateTime UpdateStarted { get; set; }
+
+      /// <summary>
+      /// When did the update finish
+      /// </summary>
+      public DateTime UpdateFinished { get; set; }
+
+      /// <summary>
+      /// The type of items updated
+      /// </summary>
+      public UpdateType UpdatedItemType { get; set; }
+
+      /// <summary>
+      /// List of all items (ids) that were updated
+      /// </summary>
+      public List<string> UpdatedItems { get; set; }
+    }
+
+    /// <summary>
+    /// Delegate for UpdateFinished event
+    /// </summary>
+    /// <param name="_event">EventArgs</param>
+    public delegate void UpdateFinishedDelegate(UpdateFinishedEventArgs _event);
+
+    /// <summary>
+    /// Called when a running update finishes, UpdateFinishedEventArgs gives an overview
+    /// of the update
+    /// </summary>
+    public event UpdateFinishedDelegate CacheUpdateFinished;
+
+    protected void FireCacheUpdateFinished(DateTime started, DateTime ended, UpdateType updateType, List<string> updatedItems)
+    {
+      if(CacheUpdateFinished != null)
+      {
+        CacheUpdateFinished(new UpdateFinishedEventArgs(started, ended, updateType, updatedItems));
+      }
+    }
+
+    #endregion
 
     #region Movies
 

@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.MediaManagement.Helpers;
+using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
@@ -32,6 +33,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool Primary { get; set; }
     bool Enabled { get; set; }
     string Id { get; }
+
+    List<SeriesInfo> GetLastChangedSeries();
+    void ResetLastChangedSeries();
+    List<EpisodeInfo> GetLastChangedEpisodes();
+    void ResetLastChangedEpisodes();
 
     bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly);
     bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly);

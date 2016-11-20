@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -75,6 +76,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
+    }
+
+    public IDictionary<IFilter, uint> GetLastChangedItemsFilters()
+    {
+      return null;
+    }
+
+    public void ResetLastChangedItems()
+    {
     }
   }
 }

@@ -67,7 +67,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
         wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
-        if (wrapper.Init(CACHE_PATH, useHttps))
+        if (wrapper.Init(CACHE_PATH, useHttps, false))
         {
           _wrapper = wrapper;
           return true;

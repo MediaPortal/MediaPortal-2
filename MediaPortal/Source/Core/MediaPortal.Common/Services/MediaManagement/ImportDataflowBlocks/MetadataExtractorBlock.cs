@@ -23,13 +23,11 @@
 #endregion
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
@@ -41,12 +39,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Consts
 
     public const String BLOCK_NAME = "MetadataExtractorBlock";
-
-    #endregion
-
-    #region Variables
-
-    private readonly Lazy<Task<DateTime>> _mostRecentMiaCreationDate;
 
     #endregion
 
@@ -72,7 +64,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       BLOCK_NAME, true, parentImportJobController)
     {
-      _mostRecentMiaCreationDate = new Lazy<Task<DateTime>>(GetMostRecentMiaCreationDate);
     }
 
     #endregion
@@ -103,20 +94,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        if (ImportJobInformation.JobType == ImportJobType.Refresh)
-        {
-          // Do not import again, if the file or directory wasn't changed since the last import
-          // and there were no new relevant MIAs added since then.
-          // ToDo: We should only omit MDEs that get their data from the file or directory itself. All others should be called anyway.
-          if (importResource.DateOfLastImport > importResource.ResourceAccessor.LastChanged &&
-              importResource.DateOfLastImport > await _mostRecentMiaCreationDate.Value &&
-              ((DateTime.Now - importResource.DateOfLastImport).TotalHours <= MINIMUM_IMPORT_AGE_IN_HOURS || importResource.ExistingAspects == null))
-          {
-            importResource.IsValid = false;
-            return importResource;
-          }
-        }
-
         importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, !importResource.MediaItemId.HasValue);
         if (importResource.Aspects == null)
           importResource.Aspects = importResource.ExistingAspects;
@@ -135,30 +112,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         importResource.IsValid = false;
         return importResource;
       }
-    }
-
-    /// <summary>
-    /// Returns the most recent creation date of the MIAs relevant to this ImportJob
-    /// </summary>
-    /// <returns>Most recent creation date</returns>
-    /// <remarks>
-    /// We first get all MDEs to be applied in this ImportJob. Then we determine which MIAs are imported by these relevant
-    /// MDEs. Then we fetch from the MediaLibrary the dates on which these MIAs have ben created and take the most
-    /// recent one of these dates.
-    /// </remarks>
-    private async Task<DateTime> GetMostRecentMiaCreationDate()
-    {
-      if (ImportJobInformation.MetadataExtractorIds.Count == 0)
-        return DateTime.MinValue;
-      var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-      var relevantMdes = mediaAccessor.LocalMetadataExtractors.Where(kvp => ImportJobInformation.MetadataExtractorIds.Contains(kvp.Key)).Select(kvp => kvp.Value).ToList();
-      var relevantMiaIds = relevantMdes.SelectMany(mde => mde.Metadata.ExtractedAspectTypes.Keys).Distinct();
-
-      var creationDates = await GetManagedMediaItemAspectCreationDates();
-
-      var mostRecentRelevantDate = creationDates.Where(kvp => relevantMiaIds.Contains(kvp.Key)).Select(kvp => kvp.Value).Max();
-      ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: Most recent creation date of the MIAs relevant to this ImportJob: {2}", ParentImportJobController, ToString(), mostRecentRelevantDate);
-      return mostRecentRelevantDate;
     }
 
     #endregion

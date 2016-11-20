@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.MediaManagement.Helpers;
+using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
@@ -32,6 +33,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool Primary { get; set; }
     bool Enabled { get; set; }
     string Id { get; }
+
+    List<AlbumInfo> GetLastChangedAudioAlbums();
+    void ResetLastChangedAudioAlbums();
+    List<TrackInfo> GetLastChangedAudio();
+    void ResetLastChangedAudio();
 
     bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
     bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly);

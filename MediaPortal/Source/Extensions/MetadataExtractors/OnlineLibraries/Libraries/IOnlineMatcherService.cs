@@ -37,6 +37,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     #region Audio
 
     bool AssignMissingMusicGenreIds(List<GenreInfo> genres);
+    List<AlbumInfo> GetLastChangedAudioAlbums();
+    void ResetLastChangedAudioAlbums();
+    List<TrackInfo> GetLastChangedAudio();
+    void ResetLastChangedAudio();
     bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
     bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly);
     bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly);
@@ -51,6 +55,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     #region Movie
 
     bool AssignMissingMovieGenreIds(List<GenreInfo> genres);
+    List<MovieInfo> GetLastChangedMovies();
+    void ResetLastChangedMovies();
+    List<MovieCollectionInfo> GetLastChangedMovieCollections();
+    void ResetLastChangedMovieCollections();
     bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly);
     bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly);
     bool UpdateCharacters(MovieInfo movieInfo, bool importOnly);
@@ -66,6 +74,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     #region Series
 
     bool AssignMissingSeriesGenreIds(List<GenreInfo> genres);
+    List<SeriesInfo> GetLastChangedSeries();
+    void ResetLastChangedSeries();
+    List<EpisodeInfo> GetLastChangedEpisodes();
+    void ResetLastChangedEpisodes();
     bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly);
     bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly);
     bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly);

@@ -435,52 +435,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #endregion
 
-    #region Cache
-
-    public override bool IsCacheChangedForOnlineMusicTrackAlbumCompany(AlbumInfo album, CompanyInfo company, string language)
-    {
-      if (!string.IsNullOrEmpty(company.MusicBrainzId) && IsCacheChanged(album, _musicBrainzHandler.GetLabelCacheFile(company.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMusicTrackAlbumPerson(AlbumInfo album, PersonInfo person, string language)
-    {
-      if (!string.IsNullOrEmpty(person.MusicBrainzId) && IsCacheChanged(album, _musicBrainzHandler.GetArtistCacheFile(person.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMusicTrackPerson(TrackInfo track, PersonInfo person, string language)
-    {
-      if (!string.IsNullOrEmpty(person.MusicBrainzId) && IsCacheChanged(track, _musicBrainzHandler.GetArtistCacheFile(person.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMusicTrack(TrackInfo track, string language)
-    {
-      if (!string.IsNullOrEmpty(track.MusicBrainzId) && IsCacheChanged(track, _musicBrainzHandler.GetTrackCacheFile(track.MusicBrainzId)))
-        return true;
-
-      return false;
-    }
-
-    public override bool IsCacheChangedForOnlineMusicTrackAlbum(AlbumInfo album, string language)
-    {
-      if (!string.IsNullOrEmpty(album.MusicBrainzId) && IsCacheChanged(album, _musicBrainzHandler.GetAlbumCacheFile(album.MusicBrainzId)))
-        return true;
-      if (!string.IsNullOrEmpty(album.MusicBrainzGroupId) && IsCacheChanged(album, _musicBrainzHandler.GetReleaseGroupCacheFile(album.MusicBrainzGroupId)))
-        return true;
-
-      return false;
-    }
-
-    #endregion
-
     #region FanArt
 
     public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<TrackImage> images)

@@ -39,6 +39,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -47,6 +48,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public class MusicMatcherSettings
     {
       public string LastRefresh { get; set; }
+
+      public List<string> LastUpdatedAlbums { get; set; }
+
+      public List<string> LastUpdatedTracks { get; set; }
     }
 
     #region Init
@@ -79,7 +84,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!base.Init())
         return false;
 
-      return InitWrapper(UseSecureWebCommunication);
+      LoadConfig();
+
+      if (InitWrapper(UseSecureWebCommunication))
+      {
+        if (_wrapper != null)
+          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+        return true;
+      }
+      return false;
     }
 
     private void LoadConfig()
@@ -89,6 +102,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         _config = new MusicMatcherSettings();
       if (_config.LastRefresh != null)
         _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
+      if (_config.LastUpdatedAlbums == null)
+        _config.LastUpdatedAlbums = new List<string>();
+      if (_config.LastUpdatedTracks == null)
+        _config.LastUpdatedTracks = new List<string>();
     }
 
     private void SaveConfig()
@@ -210,8 +227,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         string trackId = null;
         bool matchFound = false;
         TLang language = FindBestMatchingLanguage(trackInfo.Languages);
-        if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrack(trackInfo, language))
-          return true;
 
         if (GetTrackId(trackInfo, out trackId))
         {
@@ -300,7 +315,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref trackInfo.Rating, trackMatch.Rating);
           if (trackInfo.Genres.Count == 0)
           {
-            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres, true);
+            trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(trackInfo.Genres, trackMatch.Genres.Distinct().ToList(), true);
           }
           if (trackInfo.Genres.Count > 0)
           {
@@ -327,13 +342,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists, trackInfo.Artists.Count == 0);
-          MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers, trackInfo.Composers.Count == 0);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Distinct().ToList(), trackInfo.Artists.Count == 0);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Distinct().ToList(), trackInfo.Composers.Count == 0);
           if (albumMatch)
           {
-            MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels, trackInfo.MusicLabels.Count == 0);
+            MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels.Distinct().ToList(), trackInfo.MusicLabels.Count == 0);
             //In some cases the album artists can be "Various Artist" and/or "Multiple Artists" or other variations
-            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists, trackInfo.AlbumArtists.Count == 0);
+            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists.Distinct().ToList(), trackInfo.AlbumArtists.Count == 0);
           }
 
           //Store person matches
@@ -397,9 +412,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in trackMatch.Artists)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackPerson(trackInfo, person, language))
-              continue;
-
             string id;
             if (_artistMatcher.GetNameMatch(person.Name, out id))
             {
@@ -421,9 +433,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in trackMatch.Composers)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackPerson(trackInfo, person, language))
-              continue;
-
             string id;
             if (_composerMatcher.GetNameMatch(person.Name, out id))
             {
@@ -496,9 +505,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ARTIST)
-            MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists, false);
+            MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
-            MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers, false);
+            MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -561,9 +570,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in albumMatch.Artists)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackAlbumPerson(albumInfo, person, language))
-              continue;
-
             string id;
             if (_artistMatcher.GetNameMatch(person.Name, out id))
             {
@@ -627,7 +633,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ARTIST)
-            MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists, false);
+            MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -674,9 +680,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in albumMatch.MusicLabels)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackAlbumCompany(albumInfo, company, language))
-              continue;
-
             string id;
             if (_labelMatcher.GetNameMatch(company.Name, out id))
             {
@@ -740,7 +743,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (companyType == CompanyAspect.COMPANY_MUSIC_LABEL)
-            MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, false);
+            MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -783,9 +786,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(albumInfo.Languages);
-        if (!importOnly && !_wrapper.IsCacheChangedForOnlineMusicTrackAlbum(albumInfo, language))
-          return true;
-
         string id;
         if (!GetTrackAlbumId(albumInfo, out id))
         {
@@ -861,22 +861,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (albumInfo.Genres.Count == 0)
           {
-            albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres, true);
+            albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Genres, albumMatch.Genres.Distinct().ToList(), true);
           }
           if (albumInfo.Genres.Count > 0)
           {
             albumInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMusicGenreIds(albumInfo.Genres);
           }
-          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards, true);
+          albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(albumInfo.Awards, albumMatch.Awards.Distinct().ToList(), true);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists, albumInfo.Artists.Count == 0);
-          MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels, albumInfo.MusicLabels.Count == 0);
+          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Distinct().ToList(), albumInfo.Artists.Count == 0);
+          MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels.Distinct().ToList(), albumInfo.MusicLabels.Count == 0);
 
           if (updateTrackList) //Comparing all tracks can be quite time consuming
           {
-            MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks, true);
+            MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks.Distinct().ToList(), true);
             List<string> artists = new List<string>();
             foreach (TrackInfo track in albumMatch.Tracks)
             {
@@ -1055,7 +1055,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual void RefreshCache()
     {
-      if (CacheRefreshable)
+      if (CacheRefreshable && Enabled)
       {
         string dateFormat = "MMddyyyyHHmm";
         if (!_lastCacheRefresh.HasValue)
@@ -1089,6 +1089,63 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
         SaveConfig();
       }
+    }
+
+    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    {
+      try
+      {
+        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.AudioAlbum)
+        {
+          _config.LastUpdatedAlbums.AddRange(_event.UpdatedItems);
+          SaveConfig();
+        }
+        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Audio)
+        {
+          _config.LastUpdatedTracks.AddRange(_event.UpdatedItems);
+          SaveConfig();
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex);
+      }
+    }
+
+    public List<AlbumInfo> GetLastChangedAudioAlbums()
+    {
+      List<AlbumInfo> albums = new List<AlbumInfo>();
+      foreach (string id in _config.LastUpdatedAlbums)
+      {
+        AlbumInfo a = new AlbumInfo();
+        if (SetTrackAlbumId(a, id) && !albums.Contains(a))
+          albums.Add(a);
+      }
+      return albums;
+    }
+
+    public void ResetLastChangedAudioAlbums()
+    {
+      _config.LastUpdatedAlbums.Clear();
+      SaveConfig();
+    }
+
+    public List<TrackInfo> GetLastChangedAudio()
+    {
+      List<TrackInfo> tracks = new List<TrackInfo>();
+      foreach (string id in _config.LastUpdatedTracks)
+      {
+        TrackInfo t = new TrackInfo();
+        if (SetTrackId(t, id) && !tracks.Contains(t))
+          tracks.Add(t);
+      }
+      return tracks;
+    }
+
+    public void ResetLastChangedAudio()
+    {
+      _config.LastUpdatedTracks.Clear();
+      SaveConfig();
     }
 
     #endregion

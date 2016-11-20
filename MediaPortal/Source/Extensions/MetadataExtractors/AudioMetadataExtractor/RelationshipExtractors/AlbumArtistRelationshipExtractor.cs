@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (albumInfo.Artists.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < albumInfo.Artists.Count)
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < albumInfo.Artists.Where(p => p.HasExternalId).Count())
         albumInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!albumInfo.HasChanged && !importOnly)

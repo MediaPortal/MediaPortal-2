@@ -25,10 +25,8 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
@@ -299,6 +297,46 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return AssignMissingGenreIds(genres, MUSIC_GENRE_MAP);
     }
 
+    public List<AlbumInfo> GetLastChangedAudioAlbums()
+    {
+      List<AlbumInfo> albums = new List<AlbumInfo>();
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        foreach (AlbumInfo album in matcher.GetLastChangedAudioAlbums())
+          if (!albums.Contains(album))
+            albums.Add(album);
+      }
+      return albums;
+    }
+
+    public void ResetLastChangedAudioAlbums()
+    {
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        matcher.ResetLastChangedAudioAlbums();
+      }
+    }
+
+    public List<TrackInfo> GetLastChangedAudio()
+    {
+      List<TrackInfo> tracks = new List<TrackInfo>();
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        foreach (TrackInfo track in matcher.GetLastChangedAudio())
+          if (!tracks.Contains(track))
+            tracks.Add(track);
+      }
+      return tracks;
+    }
+
+    public void ResetLastChangedAudio()
+    {
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        matcher.ResetLastChangedAudio();
+      }
+    }
+
     public bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
     {
       bool success = false;
@@ -410,6 +448,46 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool AssignMissingMovieGenreIds(List<GenreInfo> genres)
     {
       return AssignMissingGenreIds(genres, MOVIE_GENRE_MAP);
+    }
+
+    public List<MovieInfo> GetLastChangedMovies()
+    {
+      List<MovieInfo> movies = new List<MovieInfo>();
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        foreach (MovieInfo movie in matcher.GetLastChangedMovies())
+          if (!movies.Contains(movie))
+            movies.Add(movie);
+      }
+      return movies;
+    }
+
+    public void ResetLastChangedMovies()
+    {
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        matcher.ResetLastChangedMovies();
+      }
+    }
+
+    public List<MovieCollectionInfo> GetLastChangedMovieCollections()
+    {
+      List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        foreach (MovieCollectionInfo collection in matcher.GetLastChangedMovieCollections())
+          if (!collections.Contains(collection))
+            collections.Add(collection);
+      }
+      return collections;
+    }
+
+    public void ResetLastChangedMovieCollections()
+    {
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        matcher.ResetLastChangedMovieCollections();
+      }
     }
 
     public bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
@@ -535,6 +613,46 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public bool AssignMissingSeriesGenreIds(List<GenreInfo> genres)
     {
       return AssignMissingGenreIds(genres, SERIES_GENRE_MAP);
+    }
+
+    public List<SeriesInfo> GetLastChangedSeries()
+    {
+      List<SeriesInfo> series = new List<SeriesInfo>();
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        foreach (SeriesInfo ser in matcher.GetLastChangedSeries())
+          if (!series.Contains(ser))
+            series.Add(ser);
+      }
+      return series;
+    }
+
+    public void ResetLastChangedSeries()
+    {
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        matcher.ResetLastChangedSeries();
+      }
+    }
+
+    public List<EpisodeInfo> GetLastChangedEpisodes()
+    {
+      List<EpisodeInfo> episodes = new List<EpisodeInfo>();
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        foreach (EpisodeInfo episode in matcher.GetLastChangedEpisodes())
+          if (!episodes.Contains(episode))
+            episodes.Add(episode);
+      }
+      return episodes;
+    }
+
+    public void ResetLastChangedEpisodes()
+    {
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      {
+        matcher.ResetLastChangedEpisodes();
+      }
     }
 
     public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)

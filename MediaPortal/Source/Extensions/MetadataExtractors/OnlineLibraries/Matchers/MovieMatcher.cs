@@ -39,6 +39,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
+using System.Linq;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -47,6 +48,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public class MovieMatcherSettings
     {
       public string LastRefresh { get; set; }
+
+      public List<string> LastUpdatedMovies { get; set; }
+
+      public List<string> LastUpdatedMovieCollections { get; set; }
     }
 
     #region Init
@@ -80,7 +85,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!base.Init())
         return false;
 
-      return InitWrapper(UseSecureWebCommunication);
+      LoadConfig();
+
+      if (InitWrapper(UseSecureWebCommunication))
+      {
+        if(_wrapper != null)
+          _wrapper.CacheUpdateFinished += CacheUpdateFinished;
+        return true;
+      }
+      return false;
     }
 
     private void LoadConfig()
@@ -90,6 +103,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         _config = new MovieMatcherSettings();
       if (_config.LastRefresh != null)
         _lastCacheRefresh = DateTime.ParseExact(_config.LastRefresh, CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
+      if (_config.LastUpdatedMovies == null)
+        _config.LastUpdatedMovies = new List<string>();
+      if (_config.LastUpdatedMovieCollections == null)
+        _config.LastUpdatedMovieCollections = new List<string>();
     }
 
     private void SaveConfig()
@@ -227,8 +244,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         string movieId = null;
         bool matchFound = false;
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
-        if (!importOnly && !_wrapper.IsCacheChangedForOnlineMovie(movieInfo, language))
-          return true;
 
         if (GetMovieId(movieInfo, out movieId))
         {
@@ -320,13 +335,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref movieInfo.Rating, movieMatch.Rating);
           if (movieInfo.Genres.Count == 0)
           {
-            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres, true);
+            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres.Distinct().ToList(), true);
           }
           if (movieInfo.Genres.Count > 0)
           {
             movieInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movieInfo.Genres);
           }
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards, true);
+          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards.Distinct().ToList(), true);
 
           //Limit the number of persons
           if(movieMatch.Actors.Count > MAX_PERSONS)
@@ -340,11 +355,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors, movieInfo.Actors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters, movieInfo.Characters.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors, movieInfo.Directors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies, movieInfo.ProductionCompanies.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers, movieInfo.Writers.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors.Distinct().ToList(), movieInfo.Actors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Distinct().ToList(), movieInfo.Characters.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors.Distinct().ToList(), movieInfo.Directors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies.Distinct().ToList(), movieInfo.ProductionCompanies.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers.Distinct().ToList(), movieInfo.Writers.Count == 0);
 
           //Store person matches
           foreach (PersonInfo person in movieInfo.Actors)
@@ -415,9 +430,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieMatch.Actors)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMoviePerson(movieInfo, person, language))
-              continue;
-
             string id;
             if (_actorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -439,9 +451,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieMatch.Directors)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMoviePerson(movieInfo, person, language))
-              continue;
-
             string id;
             if (_directorMatcher.GetNameMatch(person.Name, out id))
             {
@@ -463,9 +472,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (PersonInfo person in movieMatch.Writers)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMoviePerson(movieInfo, person, language))
-              continue;
-
             string id;
             if (_writerMatcher.GetNameMatch(person.Name, out id))
             {
@@ -526,14 +532,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //Limit the number of persons
+          if (movieMatch.Actors.Count > MAX_PERSONS)
+            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Actors.Count - MAX_PERSONS);
+          if (movieMatch.Directors.Count > MAX_PERSONS)
+            movieMatch.Directors.RemoveRange(MAX_PERSONS, movieMatch.Directors.Count - MAX_PERSONS);
+          if (movieMatch.Writers.Count > MAX_PERSONS)
+            movieMatch.Writers.RemoveRange(MAX_PERSONS, movieMatch.Writers.Count - MAX_PERSONS);
+
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors, false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors.Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors, false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors.Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_WRITER)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers, false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -607,17 +621,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
-        bool canBeUpdated = false;
-        foreach (CharacterInfo character in movieInfo.Characters)
-        {
-          if (!importOnly && !_wrapper.IsCacheChangedForOnlineMovieCharacter(movieInfo, character, language))
-            continue;
-          canBeUpdated = true;
-        }
-
-        if (!canBeUpdated)
-          return true;
-
         bool updated = false;
         MovieInfo movieMatch = movieInfo.Clone();
         foreach (CharacterInfo character in movieMatch.Characters)
@@ -668,9 +671,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
+          //Limit the number of characters
+          if (movieMatch.Characters.Count > MAX_PERSONS)
+            movieMatch.Characters.RemoveRange(MAX_PERSONS, movieMatch.Characters.Count - MAX_PERSONS);
+
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
-          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters, false);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -714,9 +721,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           foreach (CompanyInfo company in movieMatch.ProductionCompanies)
           {
-            if (!importOnly && !_wrapper.IsCacheChangedForOnlineMovieCompany(movieInfo, company, language))
-              continue;
-
             string id;
             if (_companyMatcher.GetNameMatch(company.Name, out id))
             {
@@ -780,7 +784,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (companyType == CompanyAspect.COMPANY_PRODUCTION)
-            MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies, false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies.Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -820,9 +824,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return false;
 
         TLang language = FindBestMatchingLanguage(movieCollectionInfo.Languages);
-        if (!importOnly && !_wrapper.IsCacheChangedForOnlineMovieCollection(movieCollectionInfo, language))
-          return true;
-
         bool updated = false;
         MovieCollectionInfo movieCollectionMatch = movieCollectionInfo.Clone();
         movieCollectionMatch.Movies.Clear();
@@ -855,7 +856,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.TotalMovies, movieCollectionMatch.TotalMovies);
 
           if (updateMovieList) //Comparing all movies can be quite time consuming
-            MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies, true);
+            MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies.Distinct().ToList(), true);
         }
 
         return updated;
@@ -995,7 +996,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual void RefreshCache()
     {
-      if (CacheRefreshable)
+      if (CacheRefreshable && Enabled)
       {
         if (!_lastCacheRefresh.HasValue)
         {
@@ -1028,6 +1029,63 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         }
         SaveConfig();
       }
+    }
+
+    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    {
+      try
+      {
+        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Movie)
+        {
+          _config.LastUpdatedMovies.AddRange(_event.UpdatedItems);
+          SaveConfig();
+        }
+        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.MovieCollection)
+        {
+          _config.LastUpdatedMovieCollections.AddRange(_event.UpdatedItems);
+          SaveConfig();
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex);
+      }
+    }
+
+    public List<MovieInfo> GetLastChangedMovies()
+    {
+      List<MovieInfo> movies = new List<MovieInfo>();
+      foreach (string id in _config.LastUpdatedMovies)
+      {
+        MovieInfo m = new MovieInfo();
+        if (SetMovieId(m, id) && !movies.Contains(m))
+          movies.Add(m);
+      }
+      return movies;
+    }
+
+    public void ResetLastChangedMovies()
+    {
+      _config.LastUpdatedMovies.Clear();
+      SaveConfig();
+    }
+
+    public List<MovieCollectionInfo> GetLastChangedMovieCollections()
+    {
+      List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
+      foreach (string id in _config.LastUpdatedMovieCollections)
+      {
+        MovieCollectionInfo c = new MovieCollectionInfo();
+        if (SetMovieCollectionId(c, id) && !collections.Contains(c))
+          collections.Add(c);
+      }
+      return collections;
+    }
+
+    public void ResetLastChangedMovieCollections()
+    {
+      _config.LastUpdatedMovieCollections.Clear();
+      SaveConfig();
     }
 
     #endregion
