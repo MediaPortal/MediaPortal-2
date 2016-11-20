@@ -497,40 +497,53 @@
   </ControlTemplate>
 
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-  <!-- VIDEO -->
+  <!-- Episode -->
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="CoverViewEpisodeItemTemplate" >
-    <Grid x:Name="ItemControl" Margin="3,0,3,0" >
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource MEDIA_COVER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" Height="{StaticResource MEDIA_COVER_HEIGHT}" Width="{StaticResource MEDIA_COVER_WIDTH}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource MEDIA_COVER_HEIGHT}"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Grid Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid>
-          <Grid.OpacityMask>
-            <VisualBrush>
-              <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
-              </VisualBrush.Visual>
-            </VisualBrush>
-          </Grid.OpacityMask>
-          <Image Stretch="Fill" Source="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.5"/>
-          <Image Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}">
-          </Image>
-          <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-                <Binding Path="PlayCount"/>
-                <Binding Source="UnwatchedTab_small.png"/>
-                <Binding Source=""/>
-              </MultiBinding>
-            </Image.Source>
-          </Image>
-        </Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      
+      <Grid Grid.Row="1" Background="#BF666666" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image Stretch="Uniform">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
+                                Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
+          </Image.Source>
+        </Image>
+        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+              <Binding Path="PlayCount"/>
+              <Binding Source="UnwatchedTab_small.png"/>
+              <Binding Source=""/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
       </Grid>
+
+      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -736,15 +749,22 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewMovieCollectionItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3,0,3,0" >
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource MEDIA_COVER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" Height="{StaticResource MEDIA_COVER_HEIGHT}" Width="{StaticResource MEDIA_COVER_WIDTH}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource MEDIA_COVER_HEIGHT}"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
 
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid Grid.Row="1" Background="#BF666666" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <Grid.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
@@ -758,7 +778,7 @@
                fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
               <Binding Path="PlayCount"/>
@@ -768,6 +788,10 @@
           </Image.Source>
         </Image>
       </Grid>
+
+      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -805,40 +829,49 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3,0,3,0" >
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource MEDIA_COVER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" Height="{StaticResource MEDIA_COVER_HEIGHT}" Width="{StaticResource MEDIA_COVER_WIDTH}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource MEDIA_COVER_HEIGHT}"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-       
-      <Grid Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid>
-          <Grid.OpacityMask>
-            <VisualBrush>
-              <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
-              </VisualBrush.Visual>
-            </VisualBrush>
-          </Grid.OpacityMask>
-          <Image Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid Grid.Row="1" Background="#BF666666" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-            </Image.Source>
-          </Image>
-          <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-                <Binding Path="PlayCount"/>
-                <Binding Source="UnwatchedTab_small.png"/>
-                <Binding Source=""/>
-              </MultiBinding>
-            </Image.Source>
-          </Image>
-        </Grid>
+          </Image.Source>
+        </Image>
+        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+              <Binding Path="PlayCount"/>
+              <Binding Source="UnwatchedTab_small.png"/>
+              <Binding Source=""/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
       </Grid>
+
+      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -916,36 +949,49 @@
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="CoverViewVideoItemTemplate" >
-    <Grid x:Name="ItemControl" Margin="3,0,3,0" >
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource MEDIA_COVER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" Height="{StaticResource MEDIA_COVER_HEIGHT}" Width="{StaticResource MEDIA_COVER_WIDTH}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource MEDIA_COVER_HEIGHT}"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Grid Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid>
-          <Grid.OpacityMask>
-            <VisualBrush>
-              <VisualBrush.Visual>
-                <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
-              </VisualBrush.Visual>
-            </VisualBrush>
-          </Grid.OpacityMask>
-          <Image Stretch="Fill" Source="VideoLarge.png" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.5"/>
-          <Image Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}">
-          </Image>
-          <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-                <Binding Path="PlayCount"/>
-                <Binding Source="UnwatchedTab_small.png"/>
-                <Binding Source=""/>
-              </MultiBinding>
-            </Image.Source>
-          </Image>
-        </Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid Grid.Row="1" Background="#BF666666" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image Stretch="Uniform">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
+                                Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" />
+          </Image.Source>
+        </Image>
+        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
+          <Image.Source>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+              <Binding Path="PlayCount"/>
+              <Binding Source="UnwatchedTab_small.png"/>
+              <Binding Source=""/>
+            </MultiBinding>
+          </Image.Source>
+        </Image>
       </Grid>
+
+      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1181,6 +1227,9 @@
           </Image.Source>
         </Image>
       </Grid>
+      <Border Grid.Row="0" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1315,6 +1364,9 @@
           </Image.Source>
         </Image>
       </Grid>
+      <Border Grid.Row="0" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1334,19 +1386,19 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2" Source="{Binding MediaItem}"
+      <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="0,2,0,2" Source="{Binding MediaItem}"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-25,2,-20,2" Source="{Binding MediaItem}"
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="0,2,5,2" Source="{Binding MediaItem}"
              Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-45,2,-40,2" Source="{Binding MediaItem}"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="0,2,5,2" Source="{Binding MediaItem}"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
@@ -1415,14 +1467,22 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewImageItemTemplate">
-    <Grid x:Name="ItemControl" Margin="3,0,3,0">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource MEDIA_AUDIO_COVER}"/>
-      </Grid.ColumnDefinitions>
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" Height="{StaticResource MEDIA_COVER_HEIGHT}" Width="{StaticResource MEDIA_COVER_WIDTH}">
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource MEDIA_AUDIO_COVER}"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Grid Background="#FF50575c" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid Grid.Row="1" Background="#BF666666" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <Grid.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
@@ -1430,8 +1490,13 @@
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.OpacityMask>
-        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png"/>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Image Stretch="Uniform">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0"
+                                Source="{Binding MediaItem}" FallbackSource="Image.png" />
+          </Image.Source>
+        </Image>
+        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
               <Binding Path="PlayCount"/>
@@ -1441,6 +1506,10 @@
           </Image.Source>
         </Image>
       </Grid>
+
+      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+              BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
+              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1722,16 +1791,6 @@
         </BindingWrapper>
       </BindingSetter.BindingWrapper>
     </BindingSetter>
-    <!--Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="5" Style="{ThemeResource LeftSideScrollViewerStyle}"
-              HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </-->
     <BindingSetter Property="Template">
       <BindingSetter.BindingWrapper>
         <BindingWrapper>
@@ -1881,7 +1940,6 @@
         <Label x:Name="VideoDurationLabel" Grid.Column="2" Content="{Binding Duration}"
                         Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
                         FontSize="{ThemeResource SmallFontSize}"/>
-
       </Grid>
     </DockPanel>
   </ControlTemplate>
@@ -1964,7 +2022,6 @@
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_InfoArea_Template">
-
                 <Grid x:Name="InfoGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -1974,7 +2031,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="150"/>
                   </Grid.RowDefinitions>
-
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
                         FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="DefaultBold"
@@ -2189,10 +2245,10 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <!-- SHADOW -->
+      <!-- SHADOW >
       <Control Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" Width="{Binding ElementName=PosterGrid,Path=ActualWidth}" 
                Style="{ThemeResource Shadow_3_20}" IsVisible="{Binding ElementName=thumb, Path=HasImage}"/>
-      <!-- SHADOW -->
+      < SHADOW -->
 
       <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" 
             MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}" MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}">
