@@ -36,13 +36,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return Name;
+      return string.IsNullOrEmpty(Name) ? "[Unnamed Genre]" : Name;
     }
 
     public override int GetHashCode()
     {
       //TODO: Check if this is functional
-      return (Name ?? "?").GetHashCode();
+      return ToString().GetHashCode();
     }
 
     public override bool Equals(object obj)

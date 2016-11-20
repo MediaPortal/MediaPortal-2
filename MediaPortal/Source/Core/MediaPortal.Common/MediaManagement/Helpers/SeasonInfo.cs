@@ -83,6 +83,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Gets or sets the series title.
     /// </summary>
     public SimpleTitle SeriesName = null;
+    public DateTime? SeriesFirstAired = null;
     /// <summary>
     /// Gets or sets the season number. A "0" value will be treated as valid season number.
     /// </summary>
@@ -390,9 +391,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return string.Format(SEASON_FORMAT_STR,
-        SeriesName, 
-        SeasonNumber ?? 0);
+       return string.Format(SEASON_FORMAT_STR, SeriesName.IsEmpty ? "[Unnamed Series]" : SeriesName +
+         (SeriesFirstAired.HasValue ? string.Format(" ({0})", SeriesFirstAired.Value) : ""), 
+          SeasonNumber ?? 0);
+    }
+
+    public override int GetHashCode()
+    {
+      //TODO: Check if this is functional
+      return ToString().GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -431,12 +438,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return true;
 
       return false;
-    }
-
-    public override int GetHashCode()
-    {
-      //TODO: Check if this is functional
-      return (SeriesName.IsEmpty ? "Unnamed Season" : ToString()).GetHashCode();
     }
 
     public int CompareTo(SeasonInfo other)

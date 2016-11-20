@@ -187,9 +187,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         seriesMatcher.MatchSeries(lfsra, episodeInfo);
       }
 
-      if (!refresh)
+      //Prepare online search improvements
+      if (importOnly)
       {
-        //Prepare online search improvements
         if (episodeInfo.SeriesFirstAired == null)
         {
           EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
@@ -204,15 +204,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
           episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
         }
-        IList<MultipleMediaItemAspect> audioAspects;
-        if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+      }
+      IList<MultipleMediaItemAspect> audioAspects;
+      if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+      {
+        foreach (MultipleMediaItemAspect aspect in audioAspects)
         {
-          foreach (MultipleMediaItemAspect aspect in audioAspects)
-          {
-            string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-            if (!string.IsNullOrEmpty(language))
-              episodeInfo.Languages.Add(language);
-          }
+          string language = (string)aspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+          if (!string.IsNullOrEmpty(language))
+            episodeInfo.Languages.Add(language);
         }
       }
 

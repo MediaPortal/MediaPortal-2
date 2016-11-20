@@ -196,7 +196,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return CollectionName.IsEmpty ? "?" : CollectionName.Text;
+      return CollectionName.IsEmpty ? "[Unnamed Movie Collection]" : CollectionName.Text;
+    }
+
+    public override int GetHashCode()
+    {
+      //TODO: Check if this is functional
+      return ToString().GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -226,12 +232,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return (T)(object)info;
       }
       return default(T);
-    }
-
-    public override int GetHashCode()
-    {
-      //TODO: Check if this is functional
-      return (CollectionName.IsEmpty ? "Unnamed Movie Collection" : CollectionName.Text).GetHashCode();
     }
 
     #endregion

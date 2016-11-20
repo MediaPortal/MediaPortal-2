@@ -261,7 +261,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return Name ?? "?";
+      return string.IsNullOrEmpty(Name) ? "[Unnamed Character]" : Name;
+    }
+
+    public override int GetHashCode()
+    {
+      //TODO: Check if this is functional
+      return ToString().GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -301,12 +307,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return true; //More lax comparison if actor is the same
 
       return false;
-    }
-
-    public override int GetHashCode()
-    {
-      //TODO: Check if this is functional
-      return (string.IsNullOrEmpty(Name) ? "Unnamed Character" : Name).GetHashCode();
     }
 
     public int CompareTo(CharacterInfo other)

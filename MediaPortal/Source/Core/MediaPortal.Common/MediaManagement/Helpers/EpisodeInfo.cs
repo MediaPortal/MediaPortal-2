@@ -514,6 +514,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesTvRageId = SeriesTvRageId,
           SeriesNameId = SeriesNameId,
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage),
+          SeriesFirstAired = SeriesFirstAired,
           LastChanged = LastChanged,
           DateAdded = DateAdded
         };
@@ -540,6 +541,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override string ToString()
     {
       return FormatString(EPISODE_FORMAT_STR);
+    }
+
+    public override int GetHashCode()
+    {
+      //TODO: Check if this is functional
+      return ToString().GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -586,12 +593,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return true;
 
       return false;
-    }
-
-    public override int GetHashCode()
-    {
-      //TODO: Check if this is functional
-      return (EpisodeName.IsEmpty ? "Unnamed Episode" : EpisodeName.Text).GetHashCode();
     }
 
     public int CompareTo(EpisodeInfo other)

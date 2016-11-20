@@ -506,9 +506,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      //if(FirstAired.HasValue)
-      //  return string.Format(SERIES_FORMAT_STR, Series, FirstAired.Value.Year);
-      return SeriesName.IsEmpty ? "?" : SeriesName.Text;
+      if(FirstAired.HasValue)
+        return string.Format(SERIES_FORMAT_STR, SeriesName.IsEmpty ? "[Unnamed Series]" : SeriesName.Text, FirstAired.Value.Year);
+      return SeriesName.IsEmpty ? "[Unnamed Series]" : SeriesName.Text;
+    }
+
+    public override int GetHashCode()
+    {
+      //TODO: Check if this is functional
+      return ToString().GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -551,12 +557,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return (T)(object)info;
       }
       return default(T);
-    }
-
-    public override int GetHashCode()
-    {
-      //TODO: Check if this is functional
-      return (SeriesName.IsEmpty ? "Unnamed Series" : SeriesName.Text).GetHashCode();
     }
 
     #endregion

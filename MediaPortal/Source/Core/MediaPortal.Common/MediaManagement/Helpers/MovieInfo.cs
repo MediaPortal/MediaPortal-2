@@ -453,8 +453,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override string ToString()
     {
       if (ReleaseDate.HasValue)
-        return string.Format(MOVIE_FORMAT_STR, MovieName, ReleaseDate.Value.Year);
-      return MovieName.Text;
+        return string.Format(MOVIE_FORMAT_STR, MovieName.IsEmpty ? "[Unnamed Movie]" : MovieName.Text, ReleaseDate.Value.Year);
+      return MovieName.IsEmpty ? "[Unnamed Movie]" : MovieName.Text;
+    }
+
+    public override int GetHashCode()
+    {
+      //TODO: Check if this is functional
+      return ToString().GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -477,12 +483,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return true;
 
       return false;
-    }
-
-    public override int GetHashCode()
-    {
-      //TODO: Check if this is functional
-      return (MovieName.IsEmpty ? "Unnamed Movie" : MovieName.Text).GetHashCode();
     }
 
     public int CompareTo(MovieInfo other)

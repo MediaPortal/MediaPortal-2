@@ -231,7 +231,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override string ToString()
     {
-      return Name ?? "?";
+      return string.IsNullOrEmpty(Name) ? "[Unnamed Company]" : Name;
+    }
+
+    public override int GetHashCode()
+    {
+      //TODO: Check if this is functional
+      return ToString().GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -266,12 +272,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return (T)(object)info;
       }
       return default(T);
-    }
-
-    public override int GetHashCode()
-    {
-      //TODO: Check if this is functional
-      return (string.IsNullOrEmpty(Name) ? "Unnamed Company" : Name).GetHashCode();
     }
 
     public int CompareTo(CompanyInfo other)
