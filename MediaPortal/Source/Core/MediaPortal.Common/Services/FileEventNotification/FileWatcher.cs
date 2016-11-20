@@ -194,7 +194,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <param name="fileWatcherInfo">The <see cref="fileWatcherInfo"/> to add.</param>
     public void AddSubscription(FileWatcherInfo fileWatcherInfo)
     {
-      if (fileWatcherInfo.Path != _watchedPath.Path.FullName)
+      if (!_watchedPath.IsEquivalentPath(fileWatcherInfo.Path))
         throw new InvalidFileWatchInfoException("The specified path does not equal the watched path.");
       lock (_subscriptions)
       {
