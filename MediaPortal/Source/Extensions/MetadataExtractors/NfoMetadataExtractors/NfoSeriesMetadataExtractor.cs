@@ -41,8 +41,8 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
-using System.Collections;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -236,18 +236,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         // Here we try to find an IFileSystemResourceAccessor pointing to the episode nfo-file.
         // If we don't find one, we cannot extract any metadata.
         IFileSystemResourceAccessor episodeNfoFsra;
-        if (!TryGetEpisodeNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out episodeNfoFsra))
-          return false;
-
-        // Now we (asynchronously) extract the metadata into a stub object.
-        // If no metadata was found, nothing can be stored in the MediaItemAspects.
-        var episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, _httpClient, _settings);
-        using (episodeNfoFsra)
+        NfoSeriesEpisodeReader episodeNfoReader = null;
+        if (TryGetEpisodeNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out episodeNfoFsra))
         {
-          if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra).ConfigureAwait(false))
+          // Now we (asynchronously) extract the metadata into a stub object.
+          // If no metadata was found, nothing can be stored in the MediaItemAspects.
+          episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, _httpClient, _settings);
+          using (episodeNfoFsra)
           {
-            _debugLogger.Warn("[#{0}]: No valid metadata found in episode nfo-file", miNumber);
-            return false;
+            if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra).ConfigureAwait(false))
+            {
+              _debugLogger.Warn("[#{0}]: No valid metadata found in episode nfo-file", miNumber);
+              return false;
+            }
           }
         }
 
@@ -262,20 +263,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
             {
-              episodeNfoReader.SetSeriesStubs(seriesNfoReader.GetSeriesStubs());
-              INfoRelationshipExtractor.StoreSeries(extractedAspectData, seriesNfoReader.GetSeriesStubs().First());
+              Stubs.SeriesStub series = seriesNfoReader.GetSeriesStubs().First();
+              if (episodeNfoReader != null)
+              {
+                episodeNfoReader.SetSeriesStubs(new List<Stubs.SeriesStub> { series });
+
+                // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
+                // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
+                if (!episodeNfoReader.TryWriteMetadata(extractedAspectData))
+                {
+                  _debugLogger.Warn("[#{0}]: No metadata was written into MediaItemsAspects", miNumber);
+                  return false;
+                }
+              }
+              else
+              {
+                EpisodeInfo episode = new EpisodeInfo();
+                if (series.Id.HasValue)
+                  episode.SeriesTvdbId = series.Id.Value;
+                if (series.Premiered.HasValue)
+                  episode.SeriesFirstAired = series.Premiered.Value;
+                episode.SeriesName = series.ShowTitle;
+                episode.SetMetadata(extractedAspectData);
+              }
+              INfoRelationshipExtractor.StoreSeries(extractedAspectData, series);
             }
             else
               _debugLogger.Warn("[#{0}]: No valid metadata found in series nfo-file", miNumber);
           }
-        }
-
-        // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
-        // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
-        if (!episodeNfoReader.TryWriteMetadata(extractedAspectData))
-        {
-          _debugLogger.Warn("[#{0}]: No metadata was written into MediaItemsAspects", miNumber);
-          return false;
         }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);

@@ -64,6 +64,7 @@
     </Compile>
     <Compile Include="FanArtHandlers\SeriesFanArtHandler.cs" />
     <Compile Include="MergeHandlers\EpisodeMergeHandler.cs" />
+    <Compile Include="Metadata\TempSeriesAspect.cs" />
     <Compile Include="RelationshipExtractors\ISeriesRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\SeasonSeriesRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\SeriesCharacterRelationshipExtractor.cs" />

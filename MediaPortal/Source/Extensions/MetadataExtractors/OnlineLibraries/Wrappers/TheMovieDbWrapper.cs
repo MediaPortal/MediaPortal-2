@@ -39,7 +39,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
   class TheMovieDbWrapper : ApiWrapper<ImageItem, string>
   {
     protected MovieDbApiV3 _movieDbHandler;
-    protected TimeSpan _cacheTimeout = TimeSpan.FromHours(24);
+    protected TimeSpan _cacheTimeout = TimeSpan.FromHours(23.5);
     private bool _movieMode = true;
 
     /// <summary>

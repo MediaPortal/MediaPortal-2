@@ -504,5 +504,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
       return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, tvNetworkFilters.ToArray());
     }
+
+    public static void UpdateEpisodeSeries(IDictionary<Guid, IList<MediaItemAspect>> aspects, EpisodeInfo info)
+    {
+      if (aspects.ContainsKey(TempSeriesAspect.ASPECT_ID))
+      {
+        if (info.TvdbId <= 0)
+          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_TVDBID, out info.SeriesTvdbId);
+        if (info.SeriesName.IsEmpty)
+          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_NAME, out info.SeriesName.Text);
+        if (!info.FirstAired.HasValue)
+          MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_PREMIERED, out info.SeriesFirstAired);
+      }
+    }
   }
 }

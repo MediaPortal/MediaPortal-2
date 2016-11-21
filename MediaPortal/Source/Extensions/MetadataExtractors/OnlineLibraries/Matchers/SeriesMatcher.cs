@@ -1573,7 +1573,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           _config.LastUpdatedSeries.AddRange(_event.UpdatedItems);
           SaveConfig();
         }
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Season)
+        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Epsiode)
         {
           _config.LastUpdatedEpisodes.AddRange(_event.UpdatedItems);
           SaveConfig();

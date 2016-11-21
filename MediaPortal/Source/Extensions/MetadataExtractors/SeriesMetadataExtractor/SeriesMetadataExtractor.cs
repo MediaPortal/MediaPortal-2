@@ -152,6 +152,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         episodeInfo.FromMetadata(extractedAspectData);
       }
+      ISeriesRelationshipExtractor.UpdateEpisodeSeries(extractedAspectData, episodeInfo);
       if (!episodeInfo.IsBaseInfoPresent)
       {
         string title = null;
