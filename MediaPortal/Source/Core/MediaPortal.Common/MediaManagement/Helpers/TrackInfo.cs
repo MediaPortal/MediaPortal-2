@@ -56,7 +56,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Short format string that holds track number and name.
     /// </summary>
-    public static string SHORT_FORMAT_STR = "{1} - {2}";
+    public static string SHORT_FORMAT_STR = "{0} - {1}";
 
     protected static Regex _fromName = new Regex(@"(?<album>.*): (?<trackNum>\d+) - (?<track>.*)", RegexOptions.IgnoreCase);
     protected static Regex _fromAlbumName = new Regex(@"(?<album>.*) \((?<year>\d+)\)", RegexOptions.IgnoreCase);
