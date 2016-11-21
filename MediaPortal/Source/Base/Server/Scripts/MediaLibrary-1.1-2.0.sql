@@ -1,4 +1,4 @@
--- This script updates the MediaLibrary schema from version 1.1 to version 1.2. DO NOT MODIFY!
+-- This script updates the MediaLibrary schema from version 1.1 to version 2.0. DO NOT MODIFY!
 
 DROP TABLE IF EXISTS M_AUDIOITEM;
 DROP TABLE IF EXISTS M_DIRECTORY;
