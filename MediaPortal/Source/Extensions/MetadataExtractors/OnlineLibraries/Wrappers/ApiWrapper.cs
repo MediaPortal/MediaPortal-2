@@ -182,7 +182,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       Series,
       Season,
-      Epsiode,
+      Episode,
       Movie,
       MovieCollection,
       Audio,

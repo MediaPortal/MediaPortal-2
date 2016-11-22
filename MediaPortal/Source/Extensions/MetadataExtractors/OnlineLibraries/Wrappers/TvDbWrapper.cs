@@ -79,7 +79,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     private void TvdbHandlerOnUpdateFinished(TvdbHandler.UpdateFinishedEventArgs args)
     {
       FireCacheUpdateFinished(args.UpdateStarted, args.UpdateFinished, UpdateType.Series, args.UpdatedSeries.Select(i => i.ToString()).ToList());
-      FireCacheUpdateFinished(args.UpdateStarted, args.UpdateFinished, UpdateType.Epsiode, args.UpdatedEpisodes.Select(i => i.ToString()).ToList());
+      FireCacheUpdateFinished(args.UpdateStarted, args.UpdateFinished, UpdateType.Episode, args.UpdatedEpisodes.Select(i => i.ToString()).ToList());
 
       ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Finished updating cache from {0} to {1}", args.UpdateStarted, args.UpdateFinished);
       ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Updated {0} Series, {1} Episodes, {2} Banners.", args.UpdatedSeries.Count, args.UpdatedEpisodes.Count, args.UpdatedBanners.Count);
