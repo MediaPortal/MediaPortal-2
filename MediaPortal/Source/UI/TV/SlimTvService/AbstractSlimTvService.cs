@@ -28,7 +28,6 @@ using System.Data.Common;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Timers;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
@@ -44,7 +43,9 @@ using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
-using Timer = System.Timers.Timer;
+using MediaPortal.Common.Runtime;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -56,7 +57,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected const int MAX_WAIT_MS = 10000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE";
-    protected Timer _timer;
     protected DbProviderFactory _dbProviderFactory;
     protected string _cloneConnection;
     protected string _providerName;
@@ -69,45 +69,69 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool Init()
     {
-      _timer = new Timer(500) { AutoReset = true };
-      _timer.Elapsed += InitAsync;
-      _timer.Start();
+      ThreadPool.QueueUserWorkItem(InitAsync);
       return true;
     }
 
     #region Database and program data initialization
 
-    private void InitAsync(object sender, ElapsedEventArgs args)
+    private async Task<bool> WaitForRunningState(ISystemStateService systemState)
     {
-      ISQLDatabase database;
-      lock (_timer)
+      while (systemState.CurrentState != SystemState.Running)
       {
-        database = ServiceRegistration.Get<ISQLDatabase>(false);
-        if (database == null)
-          return;
-        _timer.Close();
-        _timer.Dispose();
+        if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+          return false;
+        await Task.Delay(100);
       }
+      return true;
+    }
+
+    private async void InitAsync(object sender)
+    {
+      ISystemStateService systemState = ServiceRegistration.Get<ISystemStateService>();
+      var task = WaitForRunningState(systemState);
+      if (await Task.WhenAny(task, Task.Delay(10000)) != task || task.Result == false)
+      {
+        // Timeout
+        ServiceRegistration.Get<ILogger>().Info("SlimTvService: Timeout waiting for running system state.");
+        return;
+      }
+
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+      if (database == null)
+        return;
 
       using (var transaction = database.BeginTransaction())
       {
         // Prepare TV database if required.
         PrepareTvDatabase(transaction);
+        if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+          return;
 
         PrepareConnection(transaction);
+        if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+          return;
       }
 
       // Initialize integration into host system (MP2-Server)
       PrepareIntegrationProvider();
+      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+        return;
 
       // Needs to be done after the IntegrationProvider is registered, so the TVCORE folder is defined.
       PrepareProgramData();
+      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+        return;
 
       // Register required filters
       PrepareFilterRegistrations();
+      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+        return;
 
       // Run the actual TV core thread(s)
       InitTvCore();
+      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+        return;
 
       // Prepare the MP2 integration
       PrepareMediaSources();
