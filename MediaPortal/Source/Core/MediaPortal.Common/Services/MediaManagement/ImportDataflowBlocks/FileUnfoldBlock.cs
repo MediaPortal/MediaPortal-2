@@ -117,6 +117,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           path2MediaItem = new Dictionary<ResourcePath, Guid>();
           foreach (MediaItem mi in mediaItems)
           {
+            //Check metadata and files:
+            // 1. Last import date is lower than file change date => Refresh needed
+            // 2. Media item ID is empty => Reimport/import needed
+            // 3. Media item is dirty => Reimport/import needed
             IList<MultipleMediaItemAspect> providerAspects = null;
             if (MediaItemAspect.TryGetAspects(mi.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
             {
@@ -124,9 +128,23 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
               {
                 ResourcePath path = ResourcePath.Deserialize(pra.GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
                 if (!path2LastImportDate.ContainsKey(path))
-                  path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
-                if (!path2MediaItem.ContainsKey(path) && !mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY))
+                {
+                  //If last refresh is equal to added date, it has never been through the refresh cycle, so set low last change date
+                  //All media items must be added because the paths are later used to delete no longer existing media items
+                  if ((mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) -
+                    mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED)).TotalSeconds <= 5)
+                    path2LastImportDate.Add(path, DateTime.MinValue);
+                  else
+                    path2LastImportDate.Add(path, mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE));
+                }
+                if (!path2MediaItem.ContainsKey(path))
+                {
+                  //If it is dirty, leave media item ID empty
+                  if (mi.Aspects[ImporterAspect.ASPECT_ID][0].GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY))
+                    continue;
+
                   path2MediaItem.Add(path, mi.MediaItemId);
+                }
               }
             }
           }
