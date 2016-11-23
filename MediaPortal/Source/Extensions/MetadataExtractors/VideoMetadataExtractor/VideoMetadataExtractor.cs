@@ -85,6 +85,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     protected static string GROUP_STEREO = "stereo";
     protected static string GROUP_STEREO_MODE = "mode";
     protected static long MAX_SAMPLE_VIDEO_SIZE = 0;
+    protected static readonly IList<Regex> REGEXP_CLEANUPS = new List<Regex>
+      {
+        // Removing "disc n" from name, this can be used in future to detect multipart titles!
+        new Regex(@"(\s|-|_)*(Disc|CD|DVD)\s*\d{1,2}", RegexOptions.IgnoreCase),
+        new Regex(@"\s*(Blu-ray|BD|3D|®|™)", RegexOptions.IgnoreCase), 
+        // If source is an ISO or ZIP medium, remove the extensions for lookup
+        new Regex(@".(iso|zip)$", RegexOptions.IgnoreCase),
+        new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase),
+        // Common tags regex from MovingPictures
+        new Regex(@"(([\(\{\[]|\b)((576|720|1080)[pi]|dvd([r59]|rip|scr)|(avc)?hd|wmv|ntsc|pal|mpeg|dsr|r[1-5]|bd[59]|dts|ac3|blu(-)?ray|[hp]dtv|stv|hddvd|xvid|divx|x264|dxva)([\]\)\}]|\b)(-[^\s]+$)?)", RegexOptions.IgnoreCase),
+        // Can be extended
+      };
 
     protected MetadataExtractorMetadata _metadata;
 
@@ -1139,7 +1151,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         string title = null;
         if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
-          title = BaseInfo.CleanupWhiteSpaces(ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName));
+          title = ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
+
+        foreach (Regex regex in REGEXP_CLEANUPS)
+          title = regex.Replace(title, "");
+        title = BaseInfo.CleanupWhiteSpaces(title);
 
         string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
         int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
