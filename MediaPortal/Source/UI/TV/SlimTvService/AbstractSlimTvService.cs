@@ -131,10 +131,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       // Run the actual TV core thread(s)
       InitTvCore();
       if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+      {
+        DeInit();
         return;
+      }
 
       // Prepare the MP2 integration
       PrepareMediaSources();
+      if (systemState.CurrentState == SystemState.ShuttingDown || systemState.CurrentState == SystemState.Ending)
+      {
+        DeInit();
+        return;
+      }
     }
 
     /// <summary>

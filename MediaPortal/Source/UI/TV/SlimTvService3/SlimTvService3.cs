@@ -280,6 +280,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     private IUser GetUserByUserName(string userName)
     {
+      if (_tvControl == null)
+        return null;
       return Card.ListAll()
         .Where(c => c != null && c.Enabled)
         .SelectMany(c => { var users = _tvControl.GetUsersForCard(c.IdCard); return users ?? new IUser[] { }; })
