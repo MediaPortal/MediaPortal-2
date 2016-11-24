@@ -40,11 +40,13 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
     void Attach()
     {
       _itemsSourceProperty.Attach(OnItemsSourceChanged);
+      AttachToItemsSource(ItemsSource);
     }
 
     void Detach()
     {
       _itemsSourceProperty.Detach(OnItemsSourceChanged);
+      DetachFromItemsSource(ItemsSource);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -57,6 +59,12 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
       copyManager.CopyCompleted += manager => OnItemsSourceChanged();
     }
 
+    public override void Dispose()
+    {
+      Detach();
+      base.Dispose();
+    }
+
     #endregion
 
     #region Abstract Methods
@@ -67,23 +75,21 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
 
     #region Event Handlers
 
-    protected void DetachFromItemsSource(IEnumerable itemsSource)
+    protected void DetachFromItemsSource(IObservable itemsSource)
     {
-      IObservable coll = itemsSource as IObservable;
-      if (coll != null)
-        coll.ObjectChanged -= OnItemsSourceCollectionChanged;
+      if (itemsSource != null)
+        itemsSource.ObjectChanged -= OnItemsSourceCollectionChanged;
     }
 
-    protected void AttachToItemsSource(IEnumerable itemsSource)
+    protected void AttachToItemsSource(IObservable itemsSource)
     {
-      IObservable coll = itemsSource as IObservable;
-      if (coll != null)
-        coll.ObjectChanged += OnItemsSourceCollectionChanged;
+      if (itemsSource != null)
+        itemsSource.ObjectChanged += OnItemsSourceCollectionChanged;
     }
 
     private void OnItemsSourceChanged(AbstractProperty property, object oldValue)
     {
-      DetachFromItemsSource(oldValue as IEnumerable);
+      DetachFromItemsSource(oldValue as IObservable);
       AttachToItemsSource(ItemsSource);
       OnItemsSourceChanged();
     }
