@@ -61,7 +61,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       List<AudioDbTrack> foundTracks = null;
       foreach(PersonInfo person in trackSearch.Artists)
       {
-        foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName);
+        foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName, language);
         if (foundTracks != null)
           break;
       }
@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         foreach (PersonInfo person in trackSearch.AlbumArtists)
         {
-          foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName);
+          foundTracks = _audioDbHandler.SearchTrack(person.Name, trackSearch.TrackName, language);
           if (foundTracks != null)
             break;
         }
@@ -80,8 +80,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         if (tracks == null)
           tracks = new List<TrackInfo>();
-
-        track.SetLanguage(language);
 
         TrackInfo info = new TrackInfo()
         {
@@ -106,15 +104,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       albums = null;
       language = language ?? PreferredLanguage;
 
-      List<AudioDbAlbum> foundAlbums = _audioDbHandler.SearchAlbum(albumSearch.Artists.Count > 0 ? albumSearch.Artists[0].Name : "", albumSearch.Album);
+      List<AudioDbAlbum> foundAlbums = _audioDbHandler.SearchAlbum(albumSearch.Artists.Count > 0 ? albumSearch.Artists[0].Name : "", albumSearch.Album, language);
       if (foundAlbums == null) return false;
 
       foreach (AudioDbAlbum album in foundAlbums)
       {
         if (albums == null)
           albums = new List<AlbumInfo>();
-
-        album.SetLanguage(language);
 
         AlbumInfo info = new AlbumInfo()
         {
@@ -140,15 +136,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (personSearch.Occupation != PersonAspect.OCCUPATION_ARTIST)
         return false;
 
-      List<AudioDbArtist> foundArtists = _audioDbHandler.SearchArtist(personSearch.Name);
+      List<AudioDbArtist> foundArtists = _audioDbHandler.SearchArtist(personSearch.Name, language);
       if (foundArtists == null) return false;
 
       foreach (AudioDbArtist artist in foundArtists)
       {
         if (persons == null)
           persons = new List<PersonInfo>();
-
-        artist.SetLanguage(language);
 
         PersonInfo info = new PersonInfo()
         {
@@ -219,18 +213,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       if (person.AudioDbId > 0)
-        artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, cacheOnly);
+        artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, language, cacheOnly);
       if (artistDetail == null && !string.IsNullOrEmpty(person.MusicBrainzId))
       {
-        List<AudioDbArtist> foundArtists = _audioDbHandler.GetArtistByMbid(person.MusicBrainzId, cacheOnly);
+        List<AudioDbArtist> foundArtists = _audioDbHandler.GetArtistByMbid(person.MusicBrainzId, language, cacheOnly);
         if (foundArtists != null && foundArtists.Count == 1)
         {
-          artistDetail = _audioDbHandler.GetArtist(foundArtists[0].ArtistId, cacheOnly);
+          artistDetail = _audioDbHandler.GetArtist(foundArtists[0].ArtistId, language, cacheOnly);
         }
       }
       if (artistDetail == null) return false;
 
-      artistDetail.SetLanguage(language);
+      bool languageSet = artistDetail.SetLanguage(language);
 
       int? year = artistDetail.BornYear == null ? artistDetail.FormedYear : artistDetail.BornYear;
       DateTime? born = null;
@@ -243,7 +237,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       person.MusicBrainzId = artistDetail.MusicBrainzID;
       person.Name = artistDetail.Artist;
       person.AlternateName = artistDetail.ArtistAlternate;
-      person.Biography = artistDetail.Biography;
+      person.Biography = new SimpleTitle(artistDetail.Biography, !languageSet);
       person.DateOfBirth = born;
       person.DateOfDeath = died;
       person.Orign = artistDetail.Country;
@@ -265,22 +259,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       if (track.AudioDbId > 0)
-        trackDetail = _audioDbHandler.GetTrack(track.AudioDbId, cacheOnly);
+        trackDetail = _audioDbHandler.GetTrack(track.AudioDbId, language, cacheOnly);
 
       if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
-        trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, cacheOnly);
+        trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, language, cacheOnly);
 
       if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
       {
-        List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, cacheOnly);
+        List<AudioDbTrack> foundTracks = _audioDbHandler.GetTracksByAlbumId(track.AlbumAudioDbId, language, cacheOnly);
         if (foundTracks != null && foundTracks.Count > 0)
           trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
       }
       if (trackDetail == null) return false;
 
       //Get the track into the cache
-      trackDetail = _audioDbHandler.GetTrack(trackDetail.TrackID, cacheOnly);
-      trackDetail.SetLanguage(language);
+      AudioDbTrack trackTempDetail = _audioDbHandler.GetTrack(trackDetail.TrackID, language, cacheOnly);
+      if (trackTempDetail != null)
+        trackDetail = trackTempDetail;
 
       track.AudioDbId = trackDetail.TrackID;
       track.LyricId = trackDetail.LyricID.HasValue ? trackDetail.LyricID.Value : 0;
@@ -308,7 +303,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (trackDetail.AlbumID.HasValue)
       {
-        AudioDbAlbum album = _audioDbHandler.GetAlbum(trackDetail.AlbumID.Value, cacheOnly);
+        AudioDbAlbum album = _audioDbHandler.GetAlbum(trackDetail.AlbumID.Value, language, cacheOnly);
         if (cacheOnly && album == null)
           cacheIncomplete = true;
         if (album != null && album.LabelId.HasValue)
@@ -325,13 +320,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       if (album.AudioDbId > 0)
-        albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, cacheOnly);
+        albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
       if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzId))
       {
-        List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, cacheOnly);
+        List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, language, cacheOnly);
         if (foundAlbums != null && foundAlbums.Count == 1)
         {
-          albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, cacheOnly);
+          albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);
         }
       }
       if (albumDetail == null) return false;
@@ -359,7 +354,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (albumDetail.LabelId.HasValue)
         album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
 
-      List<AudioDbTrack> albumTracks = _audioDbHandler.GetTracksByAlbumId(albumDetail.AlbumId, cacheOnly);
+      List<AudioDbTrack> albumTracks = _audioDbHandler.GetTracksByAlbumId(albumDetail.AlbumId, language, cacheOnly);
       if (cacheOnly && albumTracks == null)
         cacheIncomplete = true;
       if (albumTracks != null && albumTracks.Count > 0)
@@ -368,8 +363,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         foreach (AudioDbTrack trackDetail in albumTracks)
         {
-          trackDetail.SetLanguage(language);
-
           TrackInfo track = new TrackInfo();
           track.AudioDbId = trackDetail.TrackID;
           track.LyricId = trackDetail.LyricID.HasValue ? trackDetail.LyricID.Value : 0;
@@ -410,14 +403,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       if (album.AudioDbId > 0)
-        albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, cacheOnly);
+        albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, cacheOnly);
       if (albumDetail == null && !string.IsNullOrEmpty(album.MusicBrainzId))
       {
-        List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, cacheOnly);
+        List<AudioDbAlbum> foundAlbums = _audioDbHandler.GetAlbumByMbid(album.MusicBrainzId, language, cacheOnly);
         if (foundAlbums != null && foundAlbums.Count == 1)
         {
           //Get the album into the cache
-          albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, cacheOnly);
+          albumDetail = _audioDbHandler.GetAlbum(foundAlbums[0].AlbumId, language, cacheOnly);
         }
       }
       if (albumDetail == null) return false;
@@ -453,7 +446,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
           if (album != null && album.AudioDbId > 0)
           {
-            AudioDbAlbum albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, false);
+            AudioDbAlbum albumDetail = _audioDbHandler.GetAlbum(album.AudioDbId, language, false);
             if (albumDetail != null)
             {
               images.Id = album.AudioDbId.ToString();
@@ -468,7 +461,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           PersonInfo person = infoObject as PersonInfo;
           if (person != null && person.AudioDbId > 0)
           {
-            AudioDbArtist artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, false);
+            AudioDbArtist artistDetail = _audioDbHandler.GetArtist(person.AudioDbId, language, false);
             if (artistDetail != null)
             {
               images.Id = person.AudioDbId.ToString();
