@@ -257,7 +257,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     public event RequestNextItemDlgt NextItemRequest;
 
-    public bool NextItem(MediaItem mediaItem, StartTime startTime)
+    public override bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
       string mimeType;
       string title;
