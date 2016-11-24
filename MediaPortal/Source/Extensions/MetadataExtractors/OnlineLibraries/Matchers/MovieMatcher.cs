@@ -858,7 +858,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
 
           if (updateMovieList) //Comparing all movies can be quite time consuming
+          {
+            foreach (MovieInfo movie in movieCollectionMatch.Movies)
+              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(movie.Genres);
+
             MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies.Distinct().ToList(), true);
+          }
         }
 
         return updated;

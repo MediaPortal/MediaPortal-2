@@ -579,6 +579,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (updateEpisodeList) //Comparing all episodes can be quite time consuming
           {
+            foreach (EpisodeInfo episode in seriesMatch.Episodes)
+              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(episode.Genres);
+
             //Only allow new episodes if empty. Online sources might have different names for same series so season name would look strange.
             bool allowAdd = seriesInfo.Episodes.Count == 0;
             for (int matchIndex = 0; matchIndex < seriesMatch.Episodes.Count; matchIndex++)

@@ -878,6 +878,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (updateTrackList) //Comparing all tracks can be quite time consuming
           {
+            foreach (TrackInfo track in albumMatch.Tracks)
+              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(track.Genres);
+
             MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks.Distinct().ToList(), true);
             List<string> artists = new List<string>();
             foreach (TrackInfo track in albumMatch.Tracks)

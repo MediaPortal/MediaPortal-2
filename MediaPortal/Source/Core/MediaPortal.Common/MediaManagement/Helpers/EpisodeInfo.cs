@@ -267,7 +267,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
-      foreach (GenreInfo genre in Genres)
+      foreach (GenreInfo genre in Genres.Distinct())
       {
         MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);
         genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);

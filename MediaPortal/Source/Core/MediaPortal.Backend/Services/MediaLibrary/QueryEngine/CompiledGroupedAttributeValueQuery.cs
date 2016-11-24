@@ -227,8 +227,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               int groupSizeCol = reader.GetOrdinal(groupSizeAlias);
               while (reader.Read())
               {
-                keyMap.Add(database.ReadDBValue(valueType, reader, valueCol), database.ReadDBValue(keyType, reader, keyCol));
-                valueMap.Add(database.ReadDBValue(valueType, reader, valueCol), database.ReadDBValue<int>(reader, groupSizeCol));
+                if (!keyMap.ContainsKey(database.ReadDBValue(valueType, reader, valueCol)))
+                {
+                  keyMap.Add(database.ReadDBValue(valueType, reader, valueCol), database.ReadDBValue(keyType, reader, keyCol));
+                  valueMap.Add(database.ReadDBValue(valueType, reader, valueCol), database.ReadDBValue<int>(reader, groupSizeCol));
+                }
               }
             }
             result = new Tuple<HomogenousMap, HomogenousMap>(valueMap, keyMap);
