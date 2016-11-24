@@ -159,13 +159,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data
 
     public bool SetLanguage(string language)
     {
+      if (!string.IsNullOrEmpty(language) && AudioDbApiV1.AvailableLanguageMap.ContainsKey(language.ToLowerInvariant()))
+        language = AudioDbApiV1.AvailableLanguageMap[language.ToLowerInvariant()];
+      else
+        language = AudioDbApiV1.DefaultLanguage; 
+
       PropertyInfo description = GetType().GetProperty("Description" + language.ToUpperInvariant());
       if (description != null)
       {
         Description = (string)description.GetValue(this);
         return true;
       }
-      if (description == null || string.IsNullOrEmpty(Description))
+      else
       {
         Description = DescriptionEN;
       }
