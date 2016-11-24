@@ -975,8 +975,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual TLang FindBestMatchingLanguage(List<string> mediaLanguages)
     {
-      return (TLang)Convert.ChangeType("de", typeof(TLang));
-
       if (typeof(TLang) == typeof(string))
       {
         CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
