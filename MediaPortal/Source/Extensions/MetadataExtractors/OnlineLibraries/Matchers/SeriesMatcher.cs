@@ -538,12 +538,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, seriesMatch.NextEpisodeName);
 
           if (seriesInfo.TotalSeasons < seriesMatch.TotalSeasons)
+          {
             seriesInfo.HasChanged = true;
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalSeasons, seriesMatch.TotalSeasons);
+            seriesInfo.TotalSeasons = seriesMatch.TotalSeasons;
+          }
 
           if (seriesInfo.TotalEpisodes < seriesMatch.TotalEpisodes)
+          {
             seriesInfo.HasChanged = true;
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalEpisodes, seriesMatch.TotalEpisodes);
+            seriesInfo.TotalEpisodes = seriesMatch.TotalEpisodes;
+          }
 
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesMatch.FirstAired);
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Popularity, seriesMatch.Popularity);

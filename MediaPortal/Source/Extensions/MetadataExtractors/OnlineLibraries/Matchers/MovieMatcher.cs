@@ -852,8 +852,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           movieCollectionInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieCollectionInfo.CollectionName, movieCollectionMatch.CollectionName);
 
           if (movieCollectionInfo.TotalMovies < movieCollectionMatch.TotalMovies)
+          {
             movieCollectionInfo.HasChanged = true;
-          MetadataUpdater.SetOrUpdateValue(ref movieCollectionInfo.TotalMovies, movieCollectionMatch.TotalMovies);
+            movieCollectionInfo.TotalMovies = movieCollectionMatch.TotalMovies;
+          }
 
           if (updateMovieList) //Comparing all movies can be quite time consuming
             MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies.Distinct().ToList(), true);

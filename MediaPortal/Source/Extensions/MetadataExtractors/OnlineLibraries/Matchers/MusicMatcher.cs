@@ -848,8 +848,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref albumInfo.Description, albumMatch.Description);
 
           if (albumInfo.TotalTracks < albumMatch.TotalTracks)
+          {
             albumInfo.HasChanged = true;
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalTracks, albumMatch.TotalTracks);
+            albumInfo.TotalTracks = albumMatch.TotalTracks;
+          }
 
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.Compilation, albumMatch.Compilation);
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.DiscNum, albumMatch.DiscNum);
@@ -970,6 +972,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected virtual TLang FindBestMatchingLanguage(List<string> mediaLanguages)
     {
+      return (TLang)Convert.ChangeType("de", typeof(TLang));
+
       if (typeof(TLang) == typeof(string))
       {
         CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
