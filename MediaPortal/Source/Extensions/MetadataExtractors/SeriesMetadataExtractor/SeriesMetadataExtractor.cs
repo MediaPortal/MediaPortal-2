@@ -191,22 +191,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       }
 
       //Prepare online search improvements
-      if (importOnly)
+      if (episodeInfo.SeriesFirstAired == null)
       {
-        if (episodeInfo.SeriesFirstAired == null)
-        {
-          EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
-          SeriesMatcher seriesMatcher = new SeriesMatcher();
-          seriesMatcher.MatchSeries(lfsra, tempEpisodeInfo);
-          if (tempEpisodeInfo.SeriesFirstAired.HasValue)
-            episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
-        }
-        if (string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
-        {
-          var mediaItemPath = lfsra.CanonicalLocalResourcePath;
-          var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
-          episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
-        }
+        EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
+        SeriesMatcher seriesMatcher = new SeriesMatcher();
+        seriesMatcher.MatchSeries(lfsra, tempEpisodeInfo);
+        if (tempEpisodeInfo.SeriesFirstAired.HasValue)
+          episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
+      }
+      if (string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
+      {
+        var mediaItemPath = lfsra.CanonicalLocalResourcePath;
+        var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+        episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
       }
       IList<MultipleMediaItemAspect> audioAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoAudioStreamAspect.Metadata, out audioAspects))

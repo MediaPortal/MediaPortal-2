@@ -697,7 +697,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seasonInfo.Description, seasonMatch.Description);
 
           if (seasonInfo.TotalEpisodes < seasonMatch.TotalEpisodes)
-            seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.TotalEpisodes, seasonMatch.TotalEpisodes);
+          {
+            seasonInfo.HasChanged = true;
+            seasonInfo.TotalEpisodes = seasonMatch.TotalEpisodes;
+          }
 
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, seasonMatch.FirstAired);
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.SeasonNumber, seasonMatch.SeasonNumber);
