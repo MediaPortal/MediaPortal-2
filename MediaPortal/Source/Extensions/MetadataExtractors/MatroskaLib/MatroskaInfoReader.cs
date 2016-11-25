@@ -35,6 +35,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.Process;
+using System.Threading;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 {
@@ -66,15 +67,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// Maximum duration for creating a tag extraction.
     /// </summary>
     protected const int PROCESS_TIMEOUT_MS = 15000;
+    protected const int MAX_CONCURRENT_MKVINFO = 5;
+    protected const int MAX_CONCURRENT_MKVEXTRACT = 5;
 
     #region Fields
 
     private readonly ILocalFsResourceAccessor _lfsra;
     private List<MatroskaAttachment> _attachments;
     private readonly string _mkvInfoPath;
-    private static readonly object MKVINFO_THROTTLE_LOCK = new object();
+    private static readonly SemaphoreSlim MKVINFO_THROTTLE_LOCK = new SemaphoreSlim(0, MAX_CONCURRENT_MKVINFO);
     private readonly string _mkvExtractPath;
-    private static readonly object MKVEXTRACT_THROTTLE_LOCK = new object();
+    private static readonly SemaphoreSlim MKVEXTRACT_THROTTLE_LOCK = new SemaphoreSlim(0, MAX_CONCURRENT_MKVEXTRACT);
     private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.BelowNormal;
 
     #endregion
@@ -137,8 +140,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       var arguments = string.Format("tags \"{0}\"", _lfsra.LocalFileSystemPath);
       try
       {
-        lock (MKVEXTRACT_THROTTLE_LOCK)
-          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
+        MKVEXTRACT_THROTTLE_LOCK.WaitAsync();
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
       catch (AggregateException ae)
       {
@@ -151,6 +154,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           }
           return false;
         });
+      }
+      finally
+      {
+        MKVEXTRACT_THROTTLE_LOCK.Release(1);
       }
       if (executionResult != null && executionResult.Success && !string.IsNullOrEmpty(executionResult.StandardOutput))
       {
@@ -206,8 +213,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       var arguments = string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath);
       try
       {
-        lock (MKVINFO_THROTTLE_LOCK)
-          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
+        MKVINFO_THROTTLE_LOCK.WaitAsync();
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
       catch (AggregateException ae)
       {
@@ -220,6 +227,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           }
           return false;
         });
+      }
+      finally
+      {
+        MKVINFO_THROTTLE_LOCK.Release(1);
       }
       if (executionResult != null && executionResult.Success)
       {
@@ -260,8 +271,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       var arguments = string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath);
       try
       {
-        lock (MKVINFO_THROTTLE_LOCK)
-          executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
+        MKVINFO_THROTTLE_LOCK.WaitAsync();
+        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
       }
       catch (AggregateException ae)
       {
@@ -274,6 +285,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           }
           return false;
         });
+      }
+      finally
+      {
+        MKVINFO_THROTTLE_LOCK.Release(1);
       }
       if (executionResult != null && executionResult.Success)
       {
@@ -358,8 +373,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       var arguments = string.Format("attachments \"{0}\" {1}:\"{2}\"", _lfsra.LocalFileSystemPath, attachmentIndex + 1, tempFileName);
       try
       {
-        lock (MKVEXTRACT_THROTTLE_LOCK)
-          success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result.Success;
+        MKVEXTRACT_THROTTLE_LOCK.WaitAsync();
+        success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result.Success;
       }
       catch (AggregateException ae)
       {
@@ -372,6 +387,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           }
           return false;
         });
+      }
+      finally
+      {
+        MKVEXTRACT_THROTTLE_LOCK.Release(1);
       }
 
       if (!success)
