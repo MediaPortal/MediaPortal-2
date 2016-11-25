@@ -196,21 +196,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             mediaItemIds = new List<Guid>();
             complexMediaItems = new Dictionary<Guid, IList<Guid>>();
 
-          //TODO: The enumeration used below seems to cause AV exception in Sqlite?
-          //var records = fullReader.AsEnumerable();
-          //if (_offset.HasValue)
-          //  records = records.Skip((int)_offset.Value);
-          //if (_limit.HasValue)
-          //  records = records.Take((int)_limit.Value);
-          //foreach (var reader in records)
-          uint readCount = 0;
-          while (fullReader.Read())
+            var records = fullReader.AsEnumerable();
+            if (_offset.HasValue)
+              records = records.Skip((int)_offset.Value);
+            if (_limit.HasValue)
+              records = records.Take((int)_limit.Value);
+            foreach (var reader in records)
             {
-            readCount++;
-            if (_offset.HasValue && _offset.Value <= readCount)
-              continue;
-
-            var reader = fullReader;
               Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));
               if (mediaItemIds.Contains(mediaItemId))
                 // Media item was already added to result - query results are not always unique because of JOINs used for filtering
@@ -240,8 +232,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               result.Add(mediaItem);
               if (singleMode)
                   break;
-            if (_limit.HasValue && _limit.Value <= result.Count)
-              break;
             }
 
             return result;

@@ -109,8 +109,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
         importResource.Aspects.Clear();
         importResource.IsValid = false;
-        //Force more memory cleanup to avoid OOM exceptions
-        GC.Collect(2, GCCollectionMode.Optimized, false);
         return importResource;
       }
       catch (TaskCanceledException)
