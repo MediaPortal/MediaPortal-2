@@ -101,12 +101,15 @@ namespace MediaPortal.UiComponents.WMCSkin.Controls
 
     protected void OnItemsSourceChanged()
     {
+      var itemsSource = ItemsSource;
       var filteredItems = FilteredItems;
       var additionalItems = AdditionalItems;
+      //Nothing will change
+      if ((itemsSource == null || itemsSource.Count == 0) && filteredItems.Count == 0 && additionalItems.Count == 0)
+        return;
 
       filteredItems.Clear();
       additionalItems.Clear();
-      ItemsList itemsSource = ItemsSource;
       if (itemsSource != null)
       {
         foreach (var item in itemsSource)
