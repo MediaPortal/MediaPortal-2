@@ -65,6 +65,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int MovieDbId = 0;
     public int TvMazeId = 0;
     public int TvRageId = 0;
+    public string NameId = null; //Is not saved and only used for comparing/hashing
 
     /// <summary>
     /// Gets or sets the series IMDB id.
@@ -149,6 +150,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override void AssignNameId()
     {
+      if (string.IsNullOrEmpty(SeriesNameId) && !SeriesName.IsEmpty)
+      {
+        if (SeriesFirstAired.HasValue)
+          SeriesNameId = SeriesName.Text + "(" + SeriesFirstAired.Value.Year + ")";
+        else
+          SeriesNameId = SeriesName.Text;
+        SeriesNameId = GetNameId(SeriesNameId);
+      }
+      NameId = SeriesNameId + string.Format("S{0}", SeasonNumber.HasValue ? SeasonNumber.Value : 0);
     }
 
     public SeasonInfo Clone()
@@ -399,7 +409,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override int GetHashCode()
     {
       //TODO: Check if this is functional
-      return ToString().GetHashCode();
+      if (string.IsNullOrEmpty(NameId))
+        AssignNameId();
+      return NameId.GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -431,6 +443,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
       if (!string.IsNullOrEmpty(SeriesNameId) && !string.IsNullOrEmpty(other.SeriesNameId) &&
         !string.Equals(SeriesNameId, other.SeriesNameId, StringComparison.InvariantCultureIgnoreCase))
+        return false;
+
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+        !string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
         return false;
 
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
