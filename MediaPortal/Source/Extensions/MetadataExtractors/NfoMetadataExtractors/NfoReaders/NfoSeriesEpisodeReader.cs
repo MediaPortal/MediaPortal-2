@@ -120,6 +120,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("showtitle", new TryReadElementDelegate(TryReadShowTitle));
       _supportedElements.Add("season", new TryReadElementDelegate(TryReadSeason));
       _supportedElements.Add("episode", new TryReadElementDelegate(TryReadEpisode));
+      _supportedElements.Add("dvd_episode", new TryReadElementDelegate(TryReadDvdEpisode));
       _supportedElements.Add("displayseason", new TryReadElementDelegate(TryReadDisplaySeason));
       _supportedElements.Add("displayepisode", new TryReadElementDelegate(TryReadDisplayEpisode));
       _supportedElements.Add("set", new TryReadElementAsyncDelegate(TryReadSetAsync));
@@ -299,6 +300,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (value < 0)
         value = null;
       return ((_currentStub.Episode = value) != null);
+    }
+
+    /// <summary>
+    /// Tries to read the dvd episode value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private bool TryReadDvdEpisode(XElement element)
+    {
+      // Examples of valid elements:
+      // <episode>3.0</episode>
+      // <episode>4.0</episode>
+      // A value of 0 (zero) is valid for specials within a season
+      // A value of < 0 is ignored
+      var value = ParseSimpleDecimal(element);
+      if (value < 0)
+        value = null;
+      return ((_currentStub.DvdEpisode = value) != null);
     }
 
     /// <summary>
@@ -1287,10 +1306,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteSeriesAspectDvdEpisode(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
-      var displayEpisodes = _stubs.Select(episodeStub => episodeStub.DisplayEpisode).Where(displayEpisode => displayEpisode.HasValue).ToList();
-      if (displayEpisodes.Any())
+      var episodes = _stubs.Select(episodeStub => episodeStub.DvdEpisode).Where(episode => episode.HasValue).ToList();
+      if (episodes.Any())
       {
-        MediaItemAspect.SetCollectionAttribute(extractedAspectData, EpisodeAspect.ATTR_DVDEPISODE, displayEpisodes.Select(displayEpisode => displayEpisode.Value));
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, EpisodeAspect.ATTR_DVDEPISODE, episodes.Select(episode => Convert.ToDouble(episode.Value)));
         return true;
       }
       return false;
