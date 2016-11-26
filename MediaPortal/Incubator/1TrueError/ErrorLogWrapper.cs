@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Plugins.OneTrueError.Settings;
-using OneTrueError.Reporting;
+using OneTrueError.Client;
 
 namespace MediaPortal.Plugins.OneTrueError
 {
