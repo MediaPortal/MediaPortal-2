@@ -85,6 +85,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int MovieDbId = 0;
     public int TvMazeId = 0;
     public int TvRageId = 0;
+    public string NameId = null; //Is not saved and only used for comparing/hashing
 
     /// <summary>
     /// Gets or sets the series IMDB id.
@@ -197,7 +198,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override void AssignNameId()
     {
-      if (!SeriesName.IsEmpty)
+      if (string.IsNullOrEmpty(SeriesNameId) && !SeriesName.IsEmpty)
       {
         if (SeriesFirstAired.HasValue)
           SeriesNameId = SeriesName.Text + "(" + SeriesFirstAired.Value.Year + ")";
@@ -205,6 +206,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesNameId = SeriesName.Text;
         SeriesNameId = GetNameId(SeriesNameId);
       }
+      NameId = SeriesNameId + string.Format("S{0}E{1}", SeasonNumber.HasValue ? SeasonNumber.Value : 0, 
+        EpisodeNumbers.Count > 0 ? EpisodeNumbers[0] : 0);
     }
 
     public EpisodeInfo Clone()
@@ -267,7 +270,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList<object>());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
-      foreach (GenreInfo genre in Genres)
+      foreach (GenreInfo genre in Genres.Distinct())
       {
         MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);
         genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
@@ -495,7 +498,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           AlternateName = SeriesAlternateName,
           FirstAired = SeriesFirstAired,
           SearchSeason = SeasonNumber,
-          SearchEpisode = EpisodeNumbers.Count > 0 ? (int?)EpisodeNumbers[0] : null,
+          SearchEpisode = EpisodeNumbers != null && EpisodeNumbers.Count > 0 ? (int?)EpisodeNumbers[0] : null,
           LastChanged = LastChanged,
           DateAdded = DateAdded
         };
@@ -546,7 +549,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override int GetHashCode()
     {
       //TODO: Check if this is functional
-      return ToString().GetHashCode();
+      if (string.IsNullOrEmpty(NameId))
+        AssignNameId();
+      return NameId.GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -577,6 +582,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
       if (!string.IsNullOrEmpty(SeriesNameId) && !string.IsNullOrEmpty(other.SeriesNameId) && 
         !string.Equals(SeriesNameId, other.SeriesNameId, StringComparison.InvariantCultureIgnoreCase))
+        return false;
+
+      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+        !string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
         return false;
 
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&

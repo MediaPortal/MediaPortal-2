@@ -144,6 +144,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private bool _cacheRefreshable;
     private DateTime? _lastCacheRefresh;
     private DateTime _lastCacheCheck = DateTime.MinValue;
+    private string _preferredLanguageCulture = "en-US";
 
     private SimpleNameMatcher _artistMatcher;
     private SimpleNameMatcher _composerMatcher;
@@ -179,6 +180,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public bool CacheRefreshable
     {
       get { return _cacheRefreshable; }
+    }
+
+    public string PreferredLanguageCulture
+    {
+      get { return _preferredLanguageCulture; }
+      set { _preferredLanguageCulture = value; }
     }
 
     #endregion
@@ -848,8 +855,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref albumInfo.Description, albumMatch.Description);
 
           if (albumInfo.TotalTracks < albumMatch.TotalTracks)
+          {
             albumInfo.HasChanged = true;
-          MetadataUpdater.SetOrUpdateValue(ref albumInfo.TotalTracks, albumMatch.TotalTracks);
+            albumInfo.TotalTracks = albumMatch.TotalTracks;
+          }
 
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.Compilation, albumMatch.Compilation);
           albumInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref albumInfo.DiscNum, albumMatch.DiscNum);
@@ -876,6 +885,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (updateTrackList) //Comparing all tracks can be quite time consuming
           {
+            foreach (TrackInfo track in albumMatch.Tracks)
+              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(track.Genres);
+
             MetadataUpdater.SetOrUpdateList(albumInfo.Tracks, albumMatch.Tracks.Distinct().ToList(), true);
             List<string> artists = new List<string>();
             foreach (TrackInfo track in albumMatch.Tracks)
@@ -972,7 +984,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (typeof(TLang) == typeof(string))
       {
-        CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+        CultureInfo mpLocal = new CultureInfo(_preferredLanguageCulture);
         // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
         if (mediaLanguages.Count == 0 || mediaLanguages.Contains(mpLocal.TwoLetterISOLanguageName))
           return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));

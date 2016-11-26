@@ -148,6 +148,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private bool _cacheRefreshable;
     private DateTime? _lastCacheRefresh;
     private DateTime _lastCacheCheck = DateTime.MinValue;
+    private string _preferredLanguageCulture = "en-US";
 
     private SimpleNameMatcher _companyMatcher;
     private SimpleNameMatcher _networkMatcher;
@@ -183,6 +184,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public bool CacheRefreshable
     {
       get { return _cacheRefreshable; }
+    }
+
+    public string PreferredLanguageCulture
+    {
+      get { return _preferredLanguageCulture; }
+      set { _preferredLanguageCulture = value; }
     }
 
     #endregion
@@ -538,12 +545,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seriesInfo.NextEpisodeName, seriesMatch.NextEpisodeName);
 
           if (seriesInfo.TotalSeasons < seriesMatch.TotalSeasons)
+          {
             seriesInfo.HasChanged = true;
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalSeasons, seriesMatch.TotalSeasons);
+            seriesInfo.TotalSeasons = seriesMatch.TotalSeasons;
+          }
 
           if (seriesInfo.TotalEpisodes < seriesMatch.TotalEpisodes)
+          {
             seriesInfo.HasChanged = true;
-          MetadataUpdater.SetOrUpdateValue(ref seriesInfo.TotalEpisodes, seriesMatch.TotalEpisodes);
+            seriesInfo.TotalEpisodes = seriesMatch.TotalEpisodes;
+          }
 
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.FirstAired, seriesMatch.FirstAired);
           seriesInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seriesInfo.Popularity, seriesMatch.Popularity);
@@ -575,6 +586,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (updateEpisodeList) //Comparing all episodes can be quite time consuming
           {
+            foreach (EpisodeInfo episode in seriesMatch.Episodes)
+              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(episode.Genres);
+
             //Only allow new episodes if empty. Online sources might have different names for same series so season name would look strange.
             bool allowAdd = seriesInfo.Episodes.Count == 0;
             for (int matchIndex = 0; matchIndex < seriesMatch.Episodes.Count; matchIndex++)
@@ -690,7 +704,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref seasonInfo.Description, seasonMatch.Description);
 
           if (seasonInfo.TotalEpisodes < seasonMatch.TotalEpisodes)
-            seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.TotalEpisodes, seasonMatch.TotalEpisodes);
+          {
+            seasonInfo.HasChanged = true;
+            seasonInfo.TotalEpisodes = seasonMatch.TotalEpisodes;
+          }
 
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.FirstAired, seasonMatch.FirstAired);
           seasonInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref seasonInfo.SeasonNumber, seasonMatch.SeasonNumber);
@@ -1385,7 +1402,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (typeof(TLang) == typeof(string))
       {
-        CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+        CultureInfo mpLocal = new CultureInfo(_preferredLanguageCulture);
         // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
         if (mediaLanguages.Count == 0 || mediaLanguages.Contains(mpLocal.TwoLetterISOLanguageName))
           return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));

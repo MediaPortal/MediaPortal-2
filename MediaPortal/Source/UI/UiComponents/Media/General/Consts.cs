@@ -510,6 +510,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string KEY_CHANNELS = "Channels";
     public const string KEY_SAMPLERATE = "SampleRate";
     public const string KEY_ID = "Id";
+    public const string KEY_VIRTUAL = "Virtual";
 
     public const string KEY_MEDIA_ITEM = "MediaItem";
     public const string KEY_MEDIA_ITEM_ACTION = "MediaItemAction";

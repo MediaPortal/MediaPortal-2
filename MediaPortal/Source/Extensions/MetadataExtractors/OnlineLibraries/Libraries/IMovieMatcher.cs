@@ -33,6 +33,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool Primary { get; set; }
     bool Enabled { get; set; }
     string Id { get; }
+    string PreferredLanguageCulture { get; set; }
 
     List<MovieInfo> GetLastChangedMovies();
     void ResetLastChangedMovies();

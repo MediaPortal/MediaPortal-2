@@ -100,10 +100,19 @@
         Id="FanArtSettings"
         Redundant="true"
         Text="[Settings.ServerSettings.FanArtSettings]"/>
+    <ConfigSection
+        Id="LanguageSettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.LanguageSettings]"/>
   </Register>
 
   <!-- Audio importer settings -->
   <Register Location="/Configuration/Settings/ServerSettings/AudioMDESettings">
+    <ConfigSetting
+        Id="ServerAudioMDEOnlineData"
+        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData]"
+        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEOnlineData"/>
     <ConfigSetting
         Id="ServerAudioMDESourceEnable"
         Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourceEnable]"
@@ -114,11 +123,6 @@
         Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary]"
         HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDESourcePrimary.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDESourcePrimary"/>
-    <ConfigSetting
-        Id="ServerAudioMDEOnlineData"
-        Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData]"
-        HelpText="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEOnlineData.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioMDEOnlineData"/>
     <ConfigSetting
         Id="ServerAudioMDEBrowseOffline"
         Text="[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEBrowseOffline]"
@@ -134,6 +138,11 @@
   <!-- Movie importer settings -->
   <Register Location="/Configuration/Settings/ServerSettings/MovieMDESettings">
     <ConfigSetting
+        Id="ServerMovieMDEOnlineData"
+        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData]"
+        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEOnlineData"/>
+    <ConfigSetting
         Id="ServerMovieMDESourceEnable"
         Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable]"
         HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourceEnable.Help]"
@@ -143,11 +152,6 @@
         Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary]"
         HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDESourcePrimary.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDESourcePrimary"/>
-    <ConfigSetting
-        Id="ServerMovieMDEOnlineData"
-        Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData]"
-        HelpText="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieMDEOnlineData"/>
     <ConfigSetting
         Id="ServerMovieMDEBrowseOffline"
         Text="[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEBrowseOffline]"
@@ -163,6 +167,11 @@
   <!-- Series importer settings -->
   <Register Location="/Configuration/Settings/ServerSettings/SeriesMDESettings">
     <ConfigSetting
+        Id="ServerSeriesMDEOnlineData"
+        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData]"
+        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEOnlineData"/>
+    <ConfigSetting
         Id="ServerSeriesMDESourceEnable"
         Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable]"
         HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourceEnable.Help]"
@@ -172,11 +181,6 @@
         Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary]"
         HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDESourcePrimary.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDESourcePrimary"/>
-    <ConfigSetting
-        Id="ServerSeriesMDEOnlineData"
-        Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData]"
-        HelpText="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEOnlineData.Help]"
-        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesMDEOnlineData"/>
     <ConfigSetting
         Id="ServerSeriesMDEBrowseOffline"
         Text="[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOffline]"
@@ -235,6 +239,25 @@
         Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos]"
         HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxLogos"/>
+  </Register>
+
+  <!-- Language settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/LanguageSettings">
+    <ConfigSetting
+        Id="ServerAudioLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerAudioLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerAudioLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioLanguage"/>
+    <ConfigSetting
+        Id="ServerMovieLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerMovieLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieLanguage"/>
+    <ConfigSetting
+        Id="ServerSeriesLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesLanguage"/>
   </Register>
 
   <!-- Contents of '/Shares' section -->

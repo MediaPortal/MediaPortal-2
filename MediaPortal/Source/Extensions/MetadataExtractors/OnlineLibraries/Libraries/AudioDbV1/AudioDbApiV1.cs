@@ -37,6 +37,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     #region Constants
 
     public const string DefaultLanguage = "en";
+    public static readonly Dictionary<string, string> AvailableLanguageMap = new Dictionary<string, string>()
+    {
+      {"en", "en" },
+      {"de", "de" },
+      {"fr", "fr" },
+      {"it", "it" },
+      {"zh", "cn" },
+      {"ja", "jp" },
+      {"ru", "ru" },
+      {"es", "es" },
+      {"pt", "pt" },
+      {"sv", "se" },
+      {"nl", "nl" },
+      {"hu", "hu" },
+      {"no", "no" },
+      {"he", "il" },
+      {"pl", "pl" },
+    };
 
     private const string URL_API_BASE = "http://www.theaudiodb.com/api/v1/json/{0}/";
     private const string URL_ARTIST_BY_NAME = URL_API_BASE + "search.php?s={1}";
@@ -78,20 +96,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
 
     #region Public members
 
-    public List<AudioDbArtist> SearchArtist(string artistName)
+    public List<AudioDbArtist> SearchArtist(string artistName, string language)
     {
       string url = GetUrl(URL_ARTIST_BY_NAME, Uri.EscapeDataString(artistName));
       AudioDbArtists audioDbArtists = _downloader.Download<AudioDbArtists>(url);
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
       {
         List<AudioDbArtist> list = audioDbArtists.Artists.Where(a => a.ArtistId > 0).ToList();
+        foreach (AudioDbArtist artist in list)
+          artist.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }
       return null;
     }
 
-    public List<AudioDbArtist> GetArtistByMbid(string mbid, bool cacheOnly)
+    public List<AudioDbArtist> GetArtistByMbid(string mbid, string language, bool cacheOnly)
     {
       AudioDbArtists audioDbArtists = null;
       string cache = CreateAndGetCacheName(mbid, "Artist_mbId");
@@ -108,6 +128,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
       {
         List<AudioDbArtist> list = audioDbArtists.Artists.Where(a => a.ArtistId > 0).ToList();
+        foreach (AudioDbArtist artist in list)
+          artist.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }
@@ -119,7 +141,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(mbid, "Artist_mbId");
     }
 
-    public AudioDbArtist GetArtist(long tadbArtistID, bool cacheOnly)
+    public AudioDbArtist GetArtist(long tadbArtistID, string language, bool cacheOnly)
     {
       AudioDbArtists audioDbArtists = null;
       string cache = CreateAndGetCacheName(tadbArtistID, "Artist");
@@ -134,7 +156,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbArtists = _downloader.Download<AudioDbArtists>(url, cache);
       }
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
-        return audioDbArtists.Artists.Where(a => a.ArtistId > 0).FirstOrDefault();
+      {
+        AudioDbArtist artist = audioDbArtists.Artists.Where(a => a.ArtistId > 0).FirstOrDefault();
+        if(artist != null)
+          artist.SetLanguage(language);
+        return artist;
+      }
       return null;
     }
 
@@ -143,7 +170,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbArtistID, "Artist");
     }
 
-    public List<AudioDbAlbum> SearchAlbum(string artistName, string albumName)
+    public List<AudioDbAlbum> SearchAlbum(string artistName, string albumName, string language)
     {
       string url = GetUrl(URL_ALBUM_BY_NAME_AND_ARTIST, Uri.EscapeDataString(artistName), Uri.EscapeDataString(albumName));
       AudioDbAlbums audioDbAlbums = _downloader.Download<AudioDbAlbums>(url);
@@ -155,13 +182,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbAlbums != null && audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
       {
         List<AudioDbAlbum> list = audioDbAlbums.Albums.Where(a => a.AlbumId > 0).ToList();
+        foreach (AudioDbAlbum album in list)
+          album.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }
       return null;
     }
 
-    public List<AudioDbAlbum> GetAlbumByMbid(string mbid, bool cacheOnly)
+    public List<AudioDbAlbum> GetAlbumByMbid(string mbid, string language, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(mbid, "Album_mbId");
@@ -178,6 +207,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
       {
         List<AudioDbAlbum> list = audioDbAlbums.Albums.Where(a => a.AlbumId > 0).ToList();
+        foreach (AudioDbAlbum album in list)
+          album.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }
@@ -189,7 +220,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(mbid, "Album_mbId");
     }
 
-    public List<AudioDbAlbum> GetAlbumsByArtistId(long tadbArtistId, bool cacheOnly)
+    public List<AudioDbAlbum> GetAlbumsByArtistId(long tadbArtistId, string language, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(tadbArtistId, "ArtistAlbums");
@@ -206,6 +237,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
       {
         List<AudioDbAlbum> list = audioDbAlbums.Albums.Where(a => a.AlbumId > 0).ToList();
+        foreach (AudioDbAlbum album in list)
+          album.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }
@@ -217,7 +250,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbArtistId, "ArtistAlbums");
     }
 
-    public AudioDbAlbum GetAlbum(long tadbAlbumId, bool cacheOnly)
+    public AudioDbAlbum GetAlbum(long tadbAlbumId, string language, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(tadbAlbumId, "Album");
@@ -232,7 +265,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
       }
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
-        return audioDbAlbums.Albums.Where(a => a.AlbumId > 0).FirstOrDefault();
+      {
+        AudioDbAlbum album = audioDbAlbums.Albums.Where(a => a.AlbumId > 0).FirstOrDefault();
+        if (album != null)
+          album.SetLanguage(language);
+        return album;
+      }
       return null;
     }
 
@@ -241,7 +279,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbAlbumId, "Album");
     }
 
-    public List<AudioDbTrack> GetTracksByAlbumId(long tadbAlbumId, bool cacheOnly)
+    public List<AudioDbTrack> GetTracksByAlbumId(long tadbAlbumId, string language, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
       string cache = CreateAndGetCacheName(tadbAlbumId, "AlbumTracks");
@@ -258,6 +296,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
       {
         List<AudioDbTrack> list = audioDbTracks.Tracks.Where(t => t.TrackID > 0).ToList();
+        foreach (AudioDbTrack track in list)
+          track.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }
@@ -269,7 +309,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbAlbumId, "AlbumTracks");
     }
 
-    public List<AudioDbTrack> SearchTrack(string artistName, string trackName)
+    public List<AudioDbTrack> SearchTrack(string artistName, string trackName, string language)
     {
       AudioDbTracks audioDbTracks = null;
       string url = GetUrl(URL_TRACK_BY_ARTIST_AND_NAME, Uri.EscapeDataString(artistName), Uri.EscapeDataString(trackName));
@@ -277,13 +317,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
       {
         List<AudioDbTrack> list = audioDbTracks.Tracks.Where(t => t.TrackID > 0).ToList();
+        foreach (AudioDbTrack track in list)
+          track.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }
       return null;
     }
 
-    public AudioDbTrack GetTrack(long tadbTrackId, bool cacheOnly)
+    public AudioDbTrack GetTrack(long tadbTrackId, string language, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
       string cache = CreateAndGetCacheName(tadbTrackId, "Track");
@@ -298,7 +340,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
-        return audioDbTracks.Tracks.Where(t => t.TrackID > 0).FirstOrDefault();
+      {
+        AudioDbTrack track = audioDbTracks.Tracks.Where(t => t.TrackID > 0).FirstOrDefault();
+        if (track != null)
+          track.SetLanguage(language);
+        return track;
+      }
       return null;
     }
 
@@ -307,7 +354,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbTrackId, "Track");
     }
 
-    public AudioDbTrack GetTrackByMbid(string mbid, bool cacheOnly)
+    public AudioDbTrack GetTrackByMbid(string mbid, string language, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
       string cache = CreateAndGetCacheName(mbid, "Track_mbId");
@@ -322,7 +369,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
         audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
-        return audioDbTracks.Tracks.Where(t => t.TrackID > 0).FirstOrDefault();
+      {
+        AudioDbTrack track = audioDbTracks.Tracks.Where(t => t.TrackID > 0).FirstOrDefault();
+        if (track != null)
+          track.SetLanguage(language);
+        return track;
+      }
       return null;
     }
 
@@ -331,7 +383,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(mbid, "Track_mbId");
     }
 
-    public List<AudioDbMvid> GetMusicVideosByArtistId(string tadbArtistId, bool cacheOnly)
+    public List<AudioDbMvid> GetMusicVideosByArtistId(string tadbArtistId, string language, bool cacheOnly)
     {
       AudioDbMvids audioDbMvids = null;
       string cache = CreateAndGetCacheName(tadbArtistId, "ArtistVideos");
@@ -348,6 +400,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbMvids.MVids != null && audioDbMvids.MVids.Count > 0)
       {
         List<AudioDbMvid> list = audioDbMvids.MVids.Where(v => !string.IsNullOrEmpty(v.MusicVid)).ToList();
+        foreach (AudioDbMvid vid in list)
+          vid.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }
@@ -359,7 +413,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbArtistId, "ArtistVideos");
     }
 
-    public List<AudioDbMvid> GetMusicVideosByArtistMbid(string mbid, bool cacheOnly)
+    public List<AudioDbMvid> GetMusicVideosByArtistMbid(string mbid, string language, bool cacheOnly)
     {
       AudioDbMvids audioDbMvids = null;
       string cache = CreateAndGetCacheName(mbid, "ArtistVideos_mbId");
@@ -376,6 +430,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       if (audioDbMvids.MVids != null && audioDbMvids.MVids.Count > 0)
       {
         List<AudioDbMvid> list = audioDbMvids.MVids.Where(v => !string.IsNullOrEmpty(v.MusicVid)).ToList();
+        foreach (AudioDbMvid vid in list)
+          vid.SetLanguage(language);
         if (list.Count > 0)
           return list;
       }

@@ -183,7 +183,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (MusicLabels.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, AudioAlbumAspect.ATTR_LABELS, MusicLabels.Where(l => !string.IsNullOrEmpty(l.Name)).Select(l => l.Name).ToList<object>());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
-      foreach (GenreInfo genre in Genres)
+      foreach (GenreInfo genre in Genres.Distinct())
       {
         MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(aspectData, GenreAspect.Metadata);
         genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
@@ -386,7 +386,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public override int GetHashCode()
     {
       //TODO: Check if this is functional
-      return ToString().GetHashCode();
+      if (string.IsNullOrEmpty(NameId))
+        AssignNameId();
+      return NameId.GetHashCode();
     }
 
     public override bool Equals(object obj)

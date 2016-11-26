@@ -81,7 +81,7 @@
   <string name="Settings.ServerSettings.ImageMDESettings">Image import settings</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Lookup geolocation details</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Enables whether geolocation should be found from geographic coordinates stored in image.</string>
-  <string name="Settings.ServerSettings.FanArtSettings">FanArt maximum settings</string>
+  <string name="Settings.ServerSettings.FanArtSettings">FanArt settings</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops">Maximum number of backdrops</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help">The maximum number of backdrops to have available. A higher number of backdrops will require more disk space.</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxPosters">Maximum number of posters</string>
@@ -96,4 +96,11 @@
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts.Help">The maximum number of DiscArt images to have available. A higher number of DiscArt images will require more disk space.</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos">Maximum number of logos</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help">The maximum number of logos to have available. A higher number of logos will require more disk space.</string>
+  <string name="Settings.ServerSettings.LanguageSettings">Language settings</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerAudioLanguage">Preferred online audio language</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerAudioLanguage.Help">The preferred language of online audio details.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage">Preferred online movie language</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help">The preferred language of online movie details.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage">Preferred online series language</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help">The preferred language of online series details.</string>
 </resources>

@@ -81,6 +81,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public int? Episode { get; set; }
 
     /// <summary>
+    /// Number of the DVD episode
+    /// </summary>
+    /// <example>1</example>
+    public decimal? DvdEpisode { get; set; }
+
+    /// <summary>
     /// Number of the season the episode belongs to (in DVD order)
     /// </summary>
     /// <example>1</example>

@@ -74,6 +74,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       }
     }
 
+    public bool? Virtual
+    {
+      get { return (bool?)AdditionalProperties[Consts.KEY_VIRTUAL]; }
+      set { AdditionalProperties[Consts.KEY_VIRTUAL] = value; }
+    }
+
     public virtual void Update(MediaItem mediaItem)
     {
       if (mediaItem != null)
@@ -83,6 +89,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         {
           SimpleTitle = (string)mediaAspect[MediaAspect.ATTR_TITLE];
           SortString = (string)mediaAspect[MediaAspect.ATTR_SORT_TITLE];
+          Virtual = (bool?)mediaAspect[MediaAspect.ATTR_ISVIRTUAL];
         }
       }
     }
