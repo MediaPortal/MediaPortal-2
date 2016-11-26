@@ -74,6 +74,9 @@
     <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxBanners.cs" />
     <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxBackdrops.cs" />
     <Compile Include="Settings\Configuration\ImageMDE\ServerImageMDEGeoLocation.cs" />
+    <Compile Include="Settings\Configuration\Language\ServerAudioLanguage.cs" />
+    <Compile Include="Settings\Configuration\Language\ServerMovieLanguage.cs" />
+    <Compile Include="Settings\Configuration\Language\ServerSeriesLanguage.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEFilter.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDESourceEnable.cs" />

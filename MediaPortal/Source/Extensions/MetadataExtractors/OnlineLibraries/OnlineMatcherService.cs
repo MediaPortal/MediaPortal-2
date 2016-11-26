@@ -97,6 +97,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
+          matcher.PreferredLanguageCulture = settings.MusicLanguageCulture;
         }
       }
       if (settings.MusicGenreMappings.Length == 0)
@@ -134,6 +135,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
+          matcher.PreferredLanguageCulture = settings.MovieLanguageCulture;
         }
       }
       if (settings.MovieGenreMappings.Length == 0)
@@ -170,6 +172,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
+          matcher.PreferredLanguageCulture = settings.SeriesLanguageCulture;
         }
       }
       if (settings.SeriesGenreMappings.Length == 0)

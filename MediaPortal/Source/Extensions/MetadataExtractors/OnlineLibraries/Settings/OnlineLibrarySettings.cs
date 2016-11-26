@@ -36,6 +36,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected GenreMapping[] _musicGenreMap = new GenreMapping[0];
     protected GenreMapping[] _seriesGenreMap = new GenreMapping[0];
     protected GenreMapping[] _movieGenreMap = new GenreMapping[0];
+    protected string _musicLanguageCulture = "en-US";
+    protected string _seriesLanguageCulture = "en-US";
+    protected string _movieLanguageCulture = "en-US";
 
     //Only download basic FanArt like backdrops, banners, posters and thumbnails
     //Not DiscArt,  ClearArt, Logos etc. 
@@ -69,6 +72,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       set { _musicGenreMap = value; }
     }
 
+    [Setting(SettingScope.Global)]
+    public string MusicLanguageCulture
+    {
+      get { return _musicLanguageCulture; }
+      set { _musicLanguageCulture = value; }
+    }
+
     //Series matcher settings
     [Setting(SettingScope.Global)]
     public MatcherSetting[] SeriesMatchers
@@ -84,6 +94,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
       set { _seriesGenreMap = value; }
     }
 
+    [Setting(SettingScope.Global)]
+    public string SeriesLanguageCulture
+    {
+      get { return _seriesLanguageCulture; }
+      set { _seriesLanguageCulture = value; }
+    }
+
     //Movie matcher settings
     [Setting(SettingScope.Global)]
     public MatcherSetting[] MovieMatchers
@@ -97,6 +114,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       get { return _movieGenreMap; }
       set { _movieGenreMap = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public string MovieLanguageCulture
+    {
+      get { return _movieLanguageCulture; }
+      set { _movieLanguageCulture = value; }
     }
   }
 }

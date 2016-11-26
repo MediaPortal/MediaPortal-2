@@ -100,6 +100,10 @@
         Id="FanArtSettings"
         Redundant="true"
         Text="[Settings.ServerSettings.FanArtSettings]"/>
+    <ConfigSection
+        Id="LanguageSettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.LanguageSettings]"/>
   </Register>
 
   <!-- Audio importer settings -->
@@ -235,6 +239,25 @@
         Text="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos]"
         HelpText="[Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerFanArtMaxLogos"/>
+  </Register>
+
+  <!-- Language settings -->
+  <Register Location="/Configuration/Settings/ServerSettings/LanguageSettings">
+    <ConfigSetting
+        Id="ServerAudioLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerAudioLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerAudioLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerAudioLanguage"/>
+    <ConfigSetting
+        Id="ServerMovieLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerMovieLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerMovieLanguage"/>
+    <ConfigSetting
+        Id="ServerSeriesLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesLanguage"/>
   </Register>
 
   <!-- Contents of '/Shares' section -->

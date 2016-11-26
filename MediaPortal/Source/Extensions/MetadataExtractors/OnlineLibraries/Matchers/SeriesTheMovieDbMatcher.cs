@@ -65,8 +65,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         TheMovieDbWrapper wrapper = new TheMovieDbWrapper();
         // Try to lookup online content in the configured language
-        CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-        wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
+        CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
+        wrapper.SetPreferredLanguage(mpLocal.TwoLetterISOLanguageName);
         if (wrapper.Init(CACHE_PATH, useHttps, false))
         {
           _wrapper = wrapper;

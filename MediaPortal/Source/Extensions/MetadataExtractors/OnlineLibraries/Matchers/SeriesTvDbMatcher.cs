@@ -82,11 +82,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       {
         TvDbWrapper wrapper = new TvDbWrapper();
         // Try to lookup online content in the configured language
-        CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+        CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
         if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
-          wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);
+          wrapper.SetPreferredLanguage(mpLocal.TwoLetterISOLanguageName);
           return true;
         }
       }
@@ -191,7 +191,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       TvdbLanguage returnVal;
 
-      CultureInfo mpLocal = ServiceRegistration.Get<ILocalization>().CurrentCulture;
+      CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
       // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
       if (mediaLanguages.Count == 0 || mediaLanguages.Contains(mpLocal.TwoLetterISOLanguageName))
       {
