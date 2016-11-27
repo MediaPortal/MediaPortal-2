@@ -124,39 +124,46 @@
   <!-- Screen headers -->
   <string name="Media.BrowseMediaNavigationHeader">Browse media navigation</string>
   <string name="Media.LocalMediaNavigationHeader">Local media navigation</string>
-  <string name="Media.MediaItemsHeader">Media items</string>
-  <string name="Media.VideoItemsHeader">Videos</string>
-  <string name="Media.AudioItemsHeader">Audio items</string>
-  <string name="Media.EpisodeItemsHeader">Episodes</string>
-  <string name="Media.MoviesItemsHeader">Movies</string>
-  <string name="Media.ImageItemsHeader">Images</string>
+  <string name="Media.MediaItemsHeader">Media item(s)</string>
+  <string name="Media.VideoItemsHeader">Video(s)</string>
+  <string name="Media.AudioItemsHeader">Audio item(s)</string>
+  <string name="Media.EpisodeItemsHeader">Episode(s)</string>
+  <string name="Media.SeasonItemsHeader">Season(s)</string>
+  <string name="Media.MoviesItemsHeader">Movie(s)</string>
+  <string name="Media.ImageItemsHeader">Image(s)</string>
+  <string name="Media.TrackItemsHeader">Track(s)</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
-  <string name="Media.ChooseCollectionHeader">Choose a collection</string>
-  <string name="Media.ChooseActorHeader">Choose an actor</string>
-  <string name="Media.ChooseDirectorHeader">Choose a director</string>
-  <string name="Media.ChooseWriterHeader">Choose a writer</string>
-  <string name="Media.ChooseVideoGenreHeader">Choose a genre</string>
-  <string name="Media.ChooseVideoYearHeader">Choose a year</string>
-  <string name="Media.ChooseSeriesHeader">Choose a series</string>
-  <string name="Media.ChooseSeasonHeader">Choose a season</string>
-  <string name="Media.ChooseCharacterHeader">Choose a character</string>
-  <string name="Media.ChooseCompanyHeader">Choose a production studio</string>
-  <string name="Media.ChooseTvNetworkHeader">Choose a tv network</string>
-  <string name="Media.ChooseAudioDecadeHeader">Choose a decade</string>
-  <string name="Media.ChooseAlbumHeader">Choose an album</string>
-  <string name="Media.ChooseArtistHeader">Choose an artist</string>
-  <string name="Media.ChooseComposerHeader">Choose a composer</string>
-  <string name="Media.ChooseAlbumArtistHeader">Choose an album artist</string>
-  <string name="Media.ChooseAlbumLabelHeader">Choose a music label</string>
-  <string name="Media.ChooseAudioGenreHeader">Choose a genre</string>
-  <string name="Media.ChooseImageYearHeader">Choose a year</string>
-  <string name="Media.ChooseImageSizeHeader">Choose a size</string>
-  <string name="Media.ChooseImageCountryHeader">Choose a country</string>
-  <string name="Media.ChooseImageStateHeader">Choose a state</string>
-  <string name="Media.ChooseImageCityHeader">Choose a city</string>
-  <string name="Media.ChooseSystemHeader">Choose a system</string>
-  <string name="Media.ChooseVideoLanguageHeader">Choose a language</string>
-  <string name="Media.ChoosePlayCountHeader">Choose a watch state</string>
+  <string name="Media.ChooseCollectionHeader">Collections</string>
+  <string name="Media.ChooseActorHeader">Actors</string>
+  <string name="Media.ChooseDirectorHeader">Directors</string>
+  <string name="Media.ChooseMovieHeader">Movies</string>
+  <string name="Media.ChooseWriterHeader">Writers</string>
+  <string name="Media.ChooseVideoGenreHeader">Genres</string>
+  <string name="Media.ChooseVideoYearHeader">Years</string>
+  <string name="Media.ChooseImageHeader">Images</string>
+  <string name="Media.ChooseSeriesHeader">Series</string>
+  <string name="Media.ChooseSeasonHeader">Seasons</string>
+  <string name="Media.ChooseEpisodeHeader">Episodes</string>
+  <string name="Media.ChooseCharacterHeader">Characters</string>
+  <string name="Media.ChooseCompanyHeader">Production studios</string>
+  <string name="Media.ChooseTvNetworkHeader">Tv networks</string>
+  <string name="Media.ChooseAudioDecadeHeader">Decades</string>
+  <string name="Media.ChooseAlbumHeader">Albums</string>
+  <string name="Media.ChooseAudioHeader">Audio items</string>
+  <string name="Media.ChooseArtistHeader">Artists</string>
+  <string name="Media.ChooseComposerHeader">Composers</string>
+  <string name="Media.ChooseAlbumArtistHeader">Album artists</string>
+  <string name="Media.ChooseAlbumLabelHeader">Music labels</string>
+  <string name="Media.ChooseAudioGenreHeader">Genres</string>
+  <string name="Media.ChooseImageYearHeader">Years</string>
+  <string name="Media.ChooseImageSizeHeader">Sizes</string>
+  <string name="Media.ChooseImageCountryHeader">Countries</string>
+  <string name="Media.ChooseImageStateHeader">States</string>
+  <string name="Media.ChooseImageCityHeader">Cities</string>
+  <string name="Media.ChooseSystemHeader">Systems</string>
+  <string name="Media.ChooseVideoHeader">Videos</string>
+  <string name="Media.ChooseVideoLanguageHeader">Languages</string>
+  <string name="Media.ChoosePlayCountHeader">Watch states</string>
 
   <string name="Media.PlaylistsOverviewHeader">Playlists</string>
   <string name="Media.SavePlaylistEditNameHeader">Save playlist</string>
@@ -169,6 +176,13 @@
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Error loading playlist</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">A playlist can only be saved if all media items were queried from the home server (i.e. not by disconnected local media navigation).</string>
 
+  <!-- View occupation names -->
+  <string name="Media.ArtistOccupationName">Artist</string>
+  <string name="Media.ActorOccupationName">Actor</string>
+  <string name="Media.WriterOccupationName">Writer</string>
+  <string name="Media.DirectorOccupationName">Director</string>
+  <string name="Media.ComposerOccupationName">Composer</string>
+  
   <!-- View names (names for the view instances) -->
   <string name="Media.BrowseMediaRootViewName">Browse media</string>
   <string name="Media.LocalMediaRootViewName">Local media</string>
@@ -385,7 +399,9 @@
   <string name="Media.SortByAspectRatio">Sort by aspect ratio</string>
   <string name="Media.SortByFirstAiredDate">Sort by aired date</string>
   <string name="Media.SortByDate">Sort by recording date</string>
+  <string name="Media.SortByAddedDate">Sort by added date</string>
   <string name="Media.SortByEpisode">Sort by episode</string>
+  <string name="Media.SortByDVDEpisode">Sort by dvd episode</string>
   <string name="Media.SortingBrowseDefault">Default sorting</string>
 
   <string name="Media.SwitchGroupingMenuItem">Grouping</string>
@@ -408,6 +424,7 @@
   <string name="Media.GroupByFirstAiredDate">Group by aired date</string>
   <string name="Media.GroupByDate">Group by recording date</string>
   <string name="Media.GroupByEpisode">Group by episode</string>
+  <string name="Media.GroupByDVDEpisode">Group by dvd episode</string>
 
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter</string>
@@ -429,7 +446,17 @@
   <string name="Settings.Players.OpenPlayerStrategy">Open player strategy</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategy, how newly opened players will be positioned among already open players</string>
 
+  <string name="Settings.Players.WatchedPlayPercentage">Watched play percentage</string>
+  <string name="Settings.Players.WatchedPlayPercentage.Help">Select what percentage of a media item needs to be played before it is marked as watched</string>
+
+  <string name="Settings.Media">Media</string>
+  
+  <string name="Settings.Media.ShowVirtual">Show all known media items</string>
+  <string name="Settings.Media.ShowVirtual.Help">Select whether to show all known media items even if there is not a local file reference</string>
+
   <!-- Secondary filters -->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>
