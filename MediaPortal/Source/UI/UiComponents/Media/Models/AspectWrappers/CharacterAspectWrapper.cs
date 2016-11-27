@@ -126,7 +126,6 @@ public void SetEmpty()
   ActorName = null;
 }
 
-
 #endregion
 
 }

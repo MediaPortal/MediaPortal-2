@@ -426,7 +426,6 @@ public void SetEmpty()
   NumSeasons = null;
 }
 
-
 #endregion
 
 }

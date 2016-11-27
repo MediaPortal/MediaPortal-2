@@ -201,7 +201,6 @@ public void SetEmpty()
   IsGroup = null;
 }
 
-
 #endregion
 
 }

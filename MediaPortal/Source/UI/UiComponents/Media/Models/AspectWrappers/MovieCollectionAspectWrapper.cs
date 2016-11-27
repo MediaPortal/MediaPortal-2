@@ -141,7 +141,6 @@ public void SetEmpty()
   NumMovies = null;
 }
 
-
 #endregion
 
 }
