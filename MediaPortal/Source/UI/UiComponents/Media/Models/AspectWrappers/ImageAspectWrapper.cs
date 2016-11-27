@@ -336,7 +336,6 @@ public void SetEmpty()
   Country = null;
 }
 
-
 #endregion
 
 }

@@ -381,7 +381,6 @@ public void SetEmpty()
   RatingCount = null;
 }
 
-
 #endregion
 
 }

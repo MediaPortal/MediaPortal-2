@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -40,6 +41,9 @@ public class VideoAspectWrapper: Control
 #region Constants
 
 public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();
+public static readonly ICollection<VideoStreamAspectWrapper> EMPTY_VIDEOSTREAMASPECT_COLLECTION = new List<VideoStreamAspectWrapper>().AsReadOnly();
+public static readonly ICollection<VideoAudioStreamAspectWrapper> EMPTY_VIDEOAUDIOSTREAMASPECT_COLLECTION = new List<VideoAudioStreamAspectWrapper>().AsReadOnly();
+public static readonly ICollection<SubtitleAspectWrapper> EMPTY_SUBTITLEASPECT_COLLECTION = new List<SubtitleAspectWrapper>().AsReadOnly();
 
 #endregion
 
@@ -51,6 +55,9 @@ protected AbstractProperty _writersProperty;
 protected AbstractProperty _charactersProperty;
 protected AbstractProperty _isDVDProperty;
 protected AbstractProperty _storyPlotProperty;
+protected AbstractProperty _videoStreamsProperty;
+protected AbstractProperty _videoAudioStreamsProperty;
+protected AbstractProperty _subtitlesProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -123,6 +130,39 @@ public string StoryPlot
   set { _storyPlotProperty.SetValue(value); }
 }
 
+public AbstractProperty VideoStreamsProperty
+{
+  get{ return _videoStreamsProperty; }
+}
+
+public IEnumerable<VideoStreamAspectWrapper> VideoStreams
+{
+  get { return (IEnumerable<VideoStreamAspectWrapper>) _videoStreamsProperty.GetValue(); }
+  set { _videoStreamsProperty.SetValue(value); }
+}
+
+public AbstractProperty VideoAudioStreamsProperty
+{
+  get{ return _videoAudioStreamsProperty; }
+}
+
+public IEnumerable<VideoAudioStreamAspectWrapper> VideoAudioStreams
+{
+  get { return (IEnumerable<VideoAudioStreamAspectWrapper>) _videoAudioStreamsProperty.GetValue(); }
+  set { _videoAudioStreamsProperty.SetValue(value); }
+}
+
+public AbstractProperty SubtitlesProperty
+{
+  get{ return _subtitlesProperty; }
+}
+
+public IEnumerable<SubtitleAspectWrapper> Subtitles
+{
+  get { return (IEnumerable<SubtitleAspectWrapper>) _subtitlesProperty.GetValue(); }
+  set { _subtitlesProperty.SetValue(value); }
+}
+
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -146,6 +186,9 @@ public VideoAspectWrapper()
   _charactersProperty = new SProperty(typeof(IEnumerable<string>));
   _isDVDProperty = new SProperty(typeof(bool?));
   _storyPlotProperty = new SProperty(typeof(string));
+  _videoStreamsProperty = new SProperty(typeof(IEnumerable<VideoStreamAspectWrapper>));
+  _videoAudioStreamsProperty = new SProperty(typeof(IEnumerable<VideoAudioStreamAspectWrapper>));
+  _subtitlesProperty = new SProperty(typeof(IEnumerable<SubtitleAspectWrapper>));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -174,6 +217,9 @@ public void Init(MediaItem mediaItem)
   Characters = (IEnumerable<string>) aspect[VideoAspect.ATTR_CHARACTERS] ?? EMPTY_STRING_COLLECTION;
   IsDVD = (bool?) aspect[VideoAspect.ATTR_ISDVD];
   StoryPlot = (string) aspect[VideoAspect.ATTR_STORYPLOT];
+  AddVideoStreamAspects(mediaItem);
+  AddVideoAudioStreamAspects(mediaItem);
+  AddSubtitleAspects(mediaItem);
 }
 
 public void SetEmpty()
@@ -184,8 +230,37 @@ public void SetEmpty()
   Characters = EMPTY_STRING_COLLECTION;
   IsDVD = null;
   StoryPlot = null;
+  VideoStreams = EMPTY_VIDEOSTREAMASPECT_COLLECTION;
+  VideoAudioStreams = EMPTY_VIDEOAUDIOSTREAMASPECT_COLLECTION;
+  Subtitles = EMPTY_SUBTITLEASPECT_COLLECTION;
 }
 
+protected void AddVideoStreamAspects(MediaItem mediaItem)
+{
+  IList<MultipleMediaItemAspect> multiAspect;
+  if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out multiAspect))
+    VideoStreams = multiAspect.Select((a, i) => new VideoStreamAspectWrapper() { AspectIndex = i, MediaItem = mediaItem }).ToList();
+  else
+    VideoStreams = EMPTY_VIDEOSTREAMASPECT_COLLECTION;
+}
+
+protected void AddVideoAudioStreamAspects(MediaItem mediaItem)
+{
+  IList<MultipleMediaItemAspect> multiAspect;
+  if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoAudioStreamAspect.Metadata, out multiAspect))
+    VideoAudioStreams = multiAspect.Select((a, i) => new VideoAudioStreamAspectWrapper() { AspectIndex = i, MediaItem = mediaItem }).ToList();
+  else
+    VideoAudioStreams = EMPTY_VIDEOAUDIOSTREAMASPECT_COLLECTION;
+}
+
+protected void AddSubtitleAspects(MediaItem mediaItem)
+{
+  IList<MultipleMediaItemAspect> multiAspect;
+  if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, SubtitleAspect.Metadata, out multiAspect))
+    Subtitles = multiAspect.Select((a, i) => new SubtitleAspectWrapper() { AspectIndex = i, MediaItem = mediaItem }).ToList();
+  else
+    Subtitles = EMPTY_SUBTITLEASPECT_COLLECTION;
+}
 
 #endregion
 

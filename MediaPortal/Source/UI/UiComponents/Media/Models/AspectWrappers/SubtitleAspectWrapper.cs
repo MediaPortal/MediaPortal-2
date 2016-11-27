@@ -286,7 +286,6 @@ public void SetEmpty()
   SubtitleLanguage = null;
 }
 
-
 #endregion
 
 }

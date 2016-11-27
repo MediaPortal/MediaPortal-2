@@ -141,7 +141,6 @@ public void SetEmpty()
   EndTime = null;
 }
 
-
 #endregion
 
 }

@@ -171,7 +171,6 @@ public void SetEmpty()
   NumEpisodes = null;
 }
 
-
 #endregion
 
 }
