@@ -117,6 +117,28 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// If this <see cref="MediaItem"/> represents multi-file media, this index points to the active part for 
+    /// that the <see cref="GetResourceLocator"/> will return the locator.
+    /// </summary>
+    public int ActiveResourceLocatorIndex { get; set; }
+
+    /// <summary>
+    /// Returns the maximum zero-based index of available resource locators. For single media this will be always <c>0</c>.
+    /// If no <see cref="ProviderResourceAspect"/> is available, the result is <c>-1</c>.
+    /// </summary>
+    public int MaximumResourceLocatorIndex
+    {
+      get
+      {
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return -1;
+
+        return providerAspects.Count - 1;
+      }
+    }
+
+    /// <summary>
     /// Returns a resource locator instance for this item.
     /// </summary>
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
@@ -126,8 +148,9 @@ namespace MediaPortal.Common.MediaManagement
       if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
         return null;
 
-      string systemId = (string)providerAspects[0][ProviderResourceAspect.ATTR_SYSTEM_ID];
-      string resourceAccessorPath = (string)providerAspects[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+      var aspect = providerAspects[ActiveResourceLocatorIndex];
+      string systemId = (string)aspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
+      string resourceAccessorPath = (string)aspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
       return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
@@ -160,8 +183,6 @@ namespace MediaPortal.Common.MediaManagement
 
     void IXmlSerializable.ReadXml(XmlReader reader)
     {
-      XmlSerializer stringSerializer = new XmlSerializer(typeof(string));
-
       try
       {
         // First read attributes, then check for empty start element
@@ -214,8 +235,6 @@ namespace MediaPortal.Common.MediaManagement
 
     void IXmlSerializable.WriteXml(XmlWriter writer)
     {
-      XmlSerializer stringSerializer = new XmlSerializer(typeof(string));
-
       writer.WriteAttributeString("Id", _id.ToString("D"));
       foreach (IList<MediaItemAspect> list in _aspects.Values)
         foreach(MediaItemAspect mia in list)

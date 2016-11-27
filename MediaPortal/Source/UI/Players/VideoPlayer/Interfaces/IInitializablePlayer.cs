@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.UI.Players.Video.Interfaces
@@ -32,5 +33,6 @@ namespace MediaPortal.UI.Players.Video.Interfaces
   internal interface IInitializablePlayer
   {
     void SetMediaItem(IResourceLocator locator, string mediaItemTitle);
+    void SetMediaItem(IResourceLocator locator, string mediaItemTitle, MediaItem mediaItem);
   }
 }
