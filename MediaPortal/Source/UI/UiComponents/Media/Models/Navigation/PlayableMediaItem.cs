@@ -71,6 +71,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         SortString = (string)mediaAspect[MediaAspect.ATTR_SORT_TITLE];
         Rating = (int?)mediaAspect[MediaAspect.ATTR_RATING] ?? 0;
         currentPlayCount = (int?)mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0;
+        Virtual = (bool?)mediaAspect[MediaAspect.ATTR_ISVIRTUAL];
       }
 
       TimeSpan? duration = null;
@@ -185,6 +186,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_DURATION]; }
       set { SetLabel(Consts.KEY_DURATION, value); }
+    }
+
+    public bool? Virtual
+    {
+      get { return (bool?)AdditionalProperties[Consts.KEY_VIRTUAL]; }
+      set { AdditionalProperties[Consts.KEY_VIRTUAL] = value; }
     }
   }
 }
