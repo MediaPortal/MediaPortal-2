@@ -8,6 +8,7 @@
   <ResourceWrapper x:Key="MenuTextBackground" Resource="#FF4b76a0"/>
   <ResourceWrapper x:Key="SlideMenuUnfocusedColor" Resource="#66000000"/>
 
+  <ResourceWrapper x:Key="MediaItemOfflineColor" Resource="#FF475671"/>
   <ResourceWrapper x:Key="MediaItemUnwatchedColor" Resource="#FFa4bcd2"/>
   <ResourceWrapper x:Key="MediaItemWatchedColor" Resource="#FF5383b1"/>
   <ResourceWrapper x:Key="MediaItemFocussedColor" Resource="White"/>
