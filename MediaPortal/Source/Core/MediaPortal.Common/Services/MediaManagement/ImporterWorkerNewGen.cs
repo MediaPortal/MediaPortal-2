@@ -635,6 +635,14 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
+    public IDictionary<ImportJobInformation, ImportJobController> ImportJobControllers
+    {
+      get
+      {
+        return _importJobControllers;
+      }
+    }
+
     public void Startup()
     {
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker: Startup requested...");

@@ -358,6 +358,12 @@ namespace MediaPortal.Common.SystemCommunication
     /// <returns>Collection of share ids.</returns>
     ICollection<Guid> GetCurrentlyImportingShares();
 
+    /// <summary>
+    /// Returns current progress of all shares which are marked as currently being imported.
+    /// </summary>
+    /// <returns>Collection of share progresses.</returns>
+    IDictionary<Guid, int> GetCurrentlyImportingSharesProgresses();
+
     #endregion
 
     #region Playback

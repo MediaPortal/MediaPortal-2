@@ -311,6 +311,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected MIA_Management _miaManagement = null;
     protected object _syncObj = new object();
     protected string _localSystemId;
+    protected ICollection<Share> _importingSharesCache;
     protected IMediaBrowsing _mediaBrowsingCallback;
     protected IImportResultHandler _importResultHandler;
     protected AsynchronousMessageQueue _messageQueue;
@@ -2724,9 +2725,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ICollection<Guid> result = new List<Guid>();
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       // Shares of media library
-      ICollection<Share> shares = GetShares(null).Values;
+      _importingSharesCache = GetShares(null).Values;
       CollectionUtils.AddAll(result, importerWorker.ImportJobs.Where(importJobInfo => importJobInfo.State == ImportJobState.Active).
-          Select(importJobInfo => shares.BestContainingPath(importJobInfo.BasePath)).Where(share => share != null).Select(share => share.ShareId));
+          Select(importJobInfo => _importingSharesCache.BestContainingPath(importJobInfo.BasePath)).Where(share => share != null).Select(share => share.ShareId));
       // Client shares
       IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
       lock (clientManager.SyncObj)
@@ -2735,6 +2736,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             object value;
             return client.Properties.TryGetValue(KEY_CURRENTLY_IMPORTING_SHARE_IDS, out value) ? (ICollection<Guid>) value : null;
           }).Where(clientShares => clientShares != null).SelectMany(clientShares => clientShares).ToList());
+
+      return result;
+    }
+
+    public IDictionary<Guid, int> GetCurrentlyImportingSharesProgresses()
+    {
+      IDictionary<Guid, int> result = new Dictionary<Guid, int>();
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+      // Shares of media library
+      if (_importingSharesCache == null)
+        _importingSharesCache = GetShares(null).Values;
+      foreach (ImportJobInformation importJobInfo in importerWorker.ImportJobs.Where(importJobInfo => importJobInfo.State == ImportJobState.Active))
+      {
+        Share share = _importingSharesCache.BestContainingPath(importJobInfo.BasePath);
+        if (share != null && importerWorker.ImportJobControllers.ContainsKey(importJobInfo) && importerWorker.ImportJobControllers[importJobInfo].Progress.Item1 > 0)
+          result.Add(share.ShareId, 
+            Convert.ToInt32(((double)importerWorker.ImportJobControllers[importJobInfo].Progress.Item2 / (double)importerWorker.ImportJobControllers[importJobInfo].Progress.Item1) * 100.0));
+      }
+
+      // Client shares
+      // TODO: Support client shares?
 
       return result;
     }

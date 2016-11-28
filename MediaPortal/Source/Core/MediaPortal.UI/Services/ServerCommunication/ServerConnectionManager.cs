@@ -169,6 +169,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
     protected bool _isHomeServerConnected = false;
     protected ICollection<Guid> _currentlyImportingSharesProxy = new List<Guid>();
     protected object _syncObj = new object();
+    protected object _progressSync = new object();
+    protected DateTime _lastProgress = DateTime.Now;
 
     public ServerConnectionManager()
     {
@@ -456,6 +458,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         cd.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
         cd.RegisteredSharesChangeCounterChanged += OnRegisteredSharesChangeCounterChanged;
         cd.CurrentlyImportingSharesChanged += OnCurrentlyImportingSharesChanged;
+        cd.CurrentlyImportingSharesProgressChanged += OnCurrentlyImportingSharesProgressChanged;
 
         // Activate importer worker
         ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
@@ -523,6 +526,40 @@ namespace MediaPortal.UI.Services.ServerCommunication
           }
           UpdateCurrentlyImportingShares(currentlyImportingShares);
         });
+    }
+
+    void UpdateCurrentlyImportingSharesProgresses(IDictionary<Guid, int> currentlyImportingSharesProgresses)
+    {
+      if (currentlyImportingSharesProgresses == null)
+        currentlyImportingSharesProgresses = new Dictionary<Guid, int>();
+
+      foreach(var progress in currentlyImportingSharesProgresses)
+        ContentDirectoryMessaging.SendShareImportProgressMessage(progress.Key, progress.Value);
+    }
+
+    private void OnCurrentlyImportingSharesProgressChanged()
+    {
+      ServiceRegistration.Get<IThreadPool>().Add(() =>
+      {
+        IDictionary<Guid, int> currentlyImportingSharesProgresses = null;
+        try
+        {
+          lock (_progressSync)
+          {
+            if ((DateTime.Now - _lastProgress).TotalSeconds >= 5)
+            {
+              _lastProgress = DateTime.Now;
+              IContentDirectory cd = ContentDirectory;
+              currentlyImportingSharesProgresses = cd == null ? null : cd.GetCurrentlyImportingSharesProgresses();
+              UpdateCurrentlyImportingSharesProgresses(currentlyImportingSharesProgresses);
+            }
+          }
+        }
+        catch (Exception)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager.OnCurrentlyImportingSharesProgressChanged: Failed to update currently importing shares progresses.");
+        }
+      });
     }
 
     #region IServerCommunicationManager implementation

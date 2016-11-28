@@ -47,6 +47,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
     protected const string SV_MIA_TYPE_REGISTRATIONS_CHANGE_COUNTER = "MIATypeRegistrationsChangeCounter";
     protected const string SV_REGISTERED_SHARES_CHANGE_COUNTER = "RegisteredSharesChangeCounter";
     protected const string SV_CURRENTLY_IMPORTING_SHARES_CHANGE_COUNTER = "CurrentlyImportingSharesChangeCounter";
+    protected const string SV_CURRENTLY_IMPORTING_SHARES_PROGRESS_COUNTER = "CurrentlyImportingSharesProgressChangeCounter";
 
     public UPnPContentDirectoryServiceProxy(CpService serviceStub) : base(serviceStub, "ContentDirectory")
     {
@@ -64,6 +65,8 @@ namespace MediaPortal.Common.Services.ServerCommunication
         FireRegisteredSharesChangeCounterChanged();
       else if (statevariable.Name == SV_CURRENTLY_IMPORTING_SHARES_CHANGE_COUNTER)
         FireCurrentlyImportingSharesChanged();
+      else if (statevariable.Name == SV_CURRENTLY_IMPORTING_SHARES_PROGRESS_COUNTER)
+        FireCurrentlyImportingSharesProgressChanged();
     }
 
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
@@ -124,6 +127,13 @@ namespace MediaPortal.Common.Services.ServerCommunication
         dlgt();
     }
 
+    protected void FireCurrentlyImportingSharesProgressChanged()
+    {
+      ParameterlessMethod dlgt = CurrentlyImportingSharesProgressChanged;
+      if (dlgt != null)
+        dlgt();
+    }
+
     #region State variables
 
     // We don't make those events available via the public interface because .net event registrations are not allowed between MP2 modules.
@@ -133,6 +143,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
     public event ParameterlessMethod MIATypeRegistrationsChanged;
     public event ParameterlessMethod RegisteredSharesChangeCounterChanged;
     public event ParameterlessMethod CurrentlyImportingSharesChanged;
+    public event ParameterlessMethod CurrentlyImportingSharesProgressChanged;
 
     #endregion
 
@@ -525,6 +536,13 @@ namespace MediaPortal.Common.Services.ServerCommunication
       CpAction action = GetAction("X_MediaPortal_GetCurrentlyImportingShares");
       IList<object> outParameters = action.InvokeAction(null);
       return MarshallingHelper.ParseCsvGuidCollection((string) outParameters[0]);
+    }
+
+    public IDictionary<Guid, int> GetCurrentlyImportingSharesProgresses()
+    {
+      CpAction action = GetAction("X_MediaPortal_GetCurrentlyImportingSharesProgresses");
+      IList<object> outParameters = action.InvokeAction(null);
+      return (IDictionary<Guid, int>)outParameters[0];
     }
 
     public void NotifyPlayback(Guid mediaItemId, bool watched)
