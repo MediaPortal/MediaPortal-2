@@ -177,10 +177,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       IList<MultipleMediaItemAspect> providerAspects;
       if (!MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerAspects))
         return null;
-
-      string systemId = (string)providerAspects[0][ProviderResourceAspect.ATTR_SYSTEM_ID];
-      string resourceAccessorPath = (string)providerAspects[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
-      return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
+      foreach (MultipleMediaItemAspect providerAspect in providerAspects)
+      {
+        string systemId = (string)providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
+        string resourceAccessorPath = (string)providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+        if(!string.IsNullOrEmpty(systemId) && !string.IsNullOrEmpty(resourceAccessorPath))
+          return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
+      }
+      return null;
     }
 
     private void ExtractLocalImages(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? episodeMediaItemId, Guid? seriesMediaItemId, Guid? seasonMediaItemId, EpisodeInfo episode, SeriesInfo series, SeasonInfo season)
@@ -189,6 +193,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return;
 
       IResourceLocator mediaItemLocater = GetResourceLocator(aspects);
+      if (mediaItemLocater == null)
+        return;
+
       ExtractFolderImages(mediaItemLocater, episodeMediaItemId, seriesMediaItemId, seasonMediaItemId, episode, series, season);
       using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
       {

@@ -184,10 +184,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IList<MultipleMediaItemAspect> providerAspects;
       if (!MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerAspects))
         return null;
-
-      string systemId = (string)providerAspects[0][ProviderResourceAspect.ATTR_SYSTEM_ID];
-      string resourceAccessorPath = (string)providerAspects[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
-      return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
+      foreach (MultipleMediaItemAspect providerAspect in providerAspects)
+      {
+        string systemId = (string)providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
+        string resourceAccessorPath = (string)providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+        if (!string.IsNullOrEmpty(systemId) && !string.IsNullOrEmpty(resourceAccessorPath))
+          return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
+      }
+      return null;
     }
 
     private void ExtractLocalImages(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? albumMediaItemId, IList<Guid> artistMediaItemIds, string albumTitle, IList<string> artistTitles)
@@ -196,6 +200,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return;
 
       IResourceLocator mediaItemLocater = GetResourceLocator(aspects);
+      if (mediaItemLocater == null)
+        return;
+
       ExtractFolderImages(mediaItemLocater, albumMediaItemId, artistMediaItemIds, albumTitle, artistTitles);
       using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
       {
