@@ -1885,9 +1885,17 @@
       <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid >
               <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-                       Content="{Binding MovieName}" Color="{ThemeResource MediaItemUnwatchedColor}"/>
+                     Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}">
+                <Label.Color>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding Path="!Virtual"/>
+                    <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
+                    <Binding Source="{ThemeResource MediaItemOfflineColor}"/>
+                  </MultiBinding>
+                </Label.Color>
+              </Label>
             </Grid>
           </ControlTemplate>
         </media:MovieAspectWrapper.Template>
@@ -1995,6 +2003,8 @@
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
       </Grid>
 
     </Grid>
@@ -2050,6 +2060,8 @@
       <!-- watched indicator -->
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableCoverWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
 
       <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                        RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
@@ -2345,10 +2357,8 @@
       </Border>
       <Image Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"
              Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
-
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
-      
     </Grid>
   </ControlTemplate>
 
