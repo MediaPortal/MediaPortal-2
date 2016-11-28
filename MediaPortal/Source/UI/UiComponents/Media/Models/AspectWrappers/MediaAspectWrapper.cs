@@ -216,7 +216,6 @@ public void SetEmpty()
   IsVirtual = null;
 }
 
-
 #endregion
 
 }

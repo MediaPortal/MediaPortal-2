@@ -181,7 +181,6 @@ public void SetEmpty()
   Genre = null;
 }
 
-
 #endregion
 
 }

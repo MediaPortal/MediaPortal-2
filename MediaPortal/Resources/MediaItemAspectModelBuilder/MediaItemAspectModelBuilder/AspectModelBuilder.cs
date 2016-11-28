@@ -89,10 +89,22 @@ namespace MediaItemAspectModelBuilder
     /// <param name="createAsControl">Create a control (see remarks on class).</param>
     /// <param name="exposeNullable">Internal value types are exposed as C# Nullable.</param>
     /// <returns>Source code of created class.</returns>
-    public string BuildCodeTemplate(Type aspectType, string classNamespace, string aspectNamespace, bool createAsControl, bool exposeNullable)
+    public string BuildCodeTemplate(Type aspectType, Type[] childAspectTypes, string classNamespace, string aspectNamespace, bool createAsControl, bool exposeNullable)
     {
       bool multiAspect = false;
       MediaItemAspectMetadata metadata = GetMetadata(aspectType, out multiAspect);
+      
+      Dictionary<Type, bool> childAspects = new Dictionary<Type, bool>();
+      if (childAspectTypes != null)
+      {
+        foreach (Type t in childAspectTypes)
+        {
+          bool multi;
+          MediaItemAspectMetadata childMetadata = GetMetadata(t, out multi);
+          childAspects[t] = multi;
+        }
+      }
+
       _createAsControl = createAsControl;
       _exposeNullable = exposeNullable;
       string baseClass = _createAsControl ? ": Control" : "";
@@ -107,6 +119,9 @@ namespace MediaItemAspectModelBuilder
 
         CreateProperty(attrName, attrType, _exposeNullable, spec.IsCollectionAttribute);
       }
+
+      foreach (var childAspect in childAspects)
+        CreateChildAspectProperty(childAspect.Key, childAspect.Value);
 
       #region Copyright
 
@@ -137,8 +152,11 @@ namespace MediaItemAspectModelBuilder
       // Usings
       _usings.Add("using System;");
       _usings.Add("using System.Collections.Generic;");
+      if (childAspects.Any(kvp => kvp.Value))
+        _usings.Add("using System.Linq;");
       _usings.Add("using MediaPortal.Common.General;");
       _usings.Add("using MediaPortal.Common.MediaManagement;");
+
       _usings.Add(string.Format("using {0};", aspectNamespace));
       if (_createAsControl)
       {
@@ -149,6 +167,7 @@ namespace MediaItemAspectModelBuilder
 
       // Constants
       _consts.Add("public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<string>().AsReadOnly();");
+      CreateChildAspectConsts(childAspects);
 
       // Common properties
       CreateProperty("MediaItem", typeof(MediaItem), _exposeNullable);
@@ -218,7 +237,7 @@ namespace MediaItemAspectModelBuilder
 }");
         }
       }
-      CreateMembers(aspectType, _members, multiAspect);
+      CreateMembers(aspectType, _members, childAspects, multiAspect);
       AppendRegion(result, "Members", _members);
 
       result.AppendLine("}"); // End of class
@@ -229,7 +248,7 @@ namespace MediaItemAspectModelBuilder
 
     #region Members
 
-    private void CreateMembers(Type aspectType, IList<string> members, bool multiAspect)
+    private void CreateMembers(Type aspectType, IList<string> members, Dictionary<Type, bool> childAspects, bool multiAspect)
     {
       string methodStub = null;
       string emptyStub = null;
@@ -249,8 +268,7 @@ namespace MediaItemAspectModelBuilder
         emptyStub = @"public void SetEmpty()
 {{
   {0}
-}}
-";
+}}";
       }
       else
       {
@@ -271,8 +289,7 @@ namespace MediaItemAspectModelBuilder
 {{
   AspectCount = 0;
   {0}
-}}
-";
+}}";
       }
       List<string> initCommands = new List<string>();
       List<string> emptyCommands = new List<string>();
@@ -307,8 +324,28 @@ namespace MediaItemAspectModelBuilder
         emptyCommands.Add(string.Format("{0} = {1};", attrName, GetEmptyValue(spec)));
       }
 
+      List<string> childPopulationMembers = new List<string>();
+      foreach (var childAspect in childAspects)
+      {
+        if (childAspect.Value)
+        {
+          initCommands.Add(string.Format("Add{0}s(mediaItem);", childAspect.Key.Name));
+          emptyCommands.Add(string.Format("{0} = EMPTY_{1}_COLLECTION;", CreateChildPropertyName(childAspect.Key, true), childAspect.Key.Name.ToUpperInvariant()));
+          childPopulationMembers.Add(CreateChildPopulationMethod(childAspect.Key));
+        }
+        else
+        {
+          string propertyName = CreateChildPropertyName(childAspect.Key, false);
+          initCommands.Add(string.Format("{0} = mediaItem.Aspects.ContainsKey({1}.ASPECT_ID) ? new {1}() { MediaItem = mediaItem } : null;",
+            propertyName, childAspect.Key.Name));
+          emptyCommands.Add(string.Format("{0} = null;", propertyName));
+        }
+      }
+
       members.Add(string.Format(methodStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
       members.Add(string.Format(emptyStub, string.Join("\r\n  ", emptyCommands.ToArray())));
+      foreach (string childPopulationMember in childPopulationMembers)
+        members.Add(childPopulationMember);
     }
 
     private string GetEmptyValue(MediaItemAspectMetadata.AttributeSpecification spec)
@@ -320,6 +357,12 @@ namespace MediaItemAspectModelBuilder
       if (!_exposeNullable && _valueTypes.Contains(spec.AttributeType.Name))
         return "default(" + spec.AttributeType.Name + ")";
       return "null";
+    }
+
+    private void CreateChildAspectConsts(Dictionary<Type, bool> childAspects)
+    {
+      foreach (var kvp in childAspects.Where(kvp => kvp.Value))
+        _consts.Add(string.Format("public static readonly ICollection<{0}Wrapper> EMPTY_{1}_COLLECTION = new List<{0}Wrapper>().AsReadOnly();", kvp.Key.Name, kvp.Key.Name.ToUpperInvariant()));
     }
 
     private void CreateProperty(string attrName, Type attrType, bool exposeNullable, bool isCollection = false)
@@ -338,11 +381,47 @@ namespace MediaItemAspectModelBuilder
         _propertyCreation.Add(string.Format(PROPERTY_CREATION_TEMPLATE, propertyName, typeName));
     }
 
+    private void CreateChildAspectProperty(Type childType, bool isCollection)
+    {
+      string publicValuePropertyName = CreateChildPropertyName(childType, isCollection);
+      string publicPropertyName = publicValuePropertyName + "Property";
+      string propertyName = "_" + FirstLower(publicPropertyName);
+      string typeName = isCollection ? string.Format("IEnumerable<{0}Wrapper>", childType.Name) : childType.Name + "Wrapper";
+      _fields.Add(string.Format(FIELD_TEMPLATE, propertyName));
+      _properties.Add(string.Format(BINDING_PROPERTY_TEMPLATE, publicPropertyName, propertyName));
+      _properties.Add(string.Format(VALUE_PROPERTY_TEMPLATE, publicValuePropertyName, propertyName, typeName));
+      if (_createAsControl)
+        _propertyCreation.Add(string.Format(PROPERTY_CREATION_TEMPLATE_CONTROL, propertyName, typeName));
+      else
+        _propertyCreation.Add(string.Format(PROPERTY_CREATION_TEMPLATE, propertyName, typeName));
+    }
+
     private string CreateSafePropertyName(string attrName)
     {
       if (_createAsControl && _reservedPropertyNames.Contains(attrName))
         attrName = "Aspect" + attrName;
       return attrName;
+    }
+
+    private string CreateChildPropertyName(Type childType, bool isCollection)
+    {
+      string name = CreateSafePropertyName(childType.Name.Replace("Aspect", ""));
+      if (isCollection)
+        name += "s";
+      return name;
+    }
+
+    private string CreateChildPopulationMethod(Type childType)
+    {
+      string stub = @"protected void Add{0}s(MediaItem mediaItem)
+{{
+  IList<MultipleMediaItemAspect> multiAspect;
+  if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, {0}.Metadata, out multiAspect))
+    {1} = multiAspect.Select((a, i) => new {0}Wrapper() {{ AspectIndex = i, MediaItem = mediaItem }}).ToList();
+  else
+    {1} = EMPTY_{2}_COLLECTION;
+}}";
+      return string.Format(stub, childType.Name, CreateChildPropertyName(childType, true), childType.Name.ToUpperInvariant());
     }
 
     private static string BuildTypeName(Type attrType, bool isCollection, bool exposeNullable)

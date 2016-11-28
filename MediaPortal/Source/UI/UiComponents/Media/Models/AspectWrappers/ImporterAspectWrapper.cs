@@ -141,7 +141,6 @@ public void SetEmpty()
   DateAdded = null;
 }
 
-
 #endregion
 
 }

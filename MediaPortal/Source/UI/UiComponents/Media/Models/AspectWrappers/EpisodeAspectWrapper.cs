@@ -47,7 +47,7 @@ public static readonly ICollection<string> EMPTY_STRING_COLLECTION = new List<st
 
 protected AbstractProperty _seriesNameProperty;
 protected AbstractProperty _seasonProperty;
-protected AbstractProperty _seriesSeasonNameProperty;
+protected AbstractProperty _seasonNameProperty;
 protected AbstractProperty _episodeProperty;
 protected AbstractProperty _dvdEpisodeProperty;
 protected AbstractProperty _episodeNameProperty;
@@ -81,15 +81,15 @@ public int? Season
   set { _seasonProperty.SetValue(value); }
 }
 
-public AbstractProperty SeriesSeasonNameProperty
+public AbstractProperty SeasonNameProperty
 {
-  get{ return _seriesSeasonNameProperty; }
+  get{ return _seasonNameProperty; }
 }
 
-public string SeriesSeasonName
+public string SeasonName
 {
-  get { return (string) _seriesSeasonNameProperty.GetValue(); }
-  set { _seriesSeasonNameProperty.SetValue(value); }
+  get { return (string) _seasonNameProperty.GetValue(); }
+  set { _seasonNameProperty.SetValue(value); }
 }
 
 public AbstractProperty EpisodeProperty
@@ -166,7 +166,7 @@ public EpisodeAspectWrapper()
 {
   _seriesNameProperty = new SProperty(typeof(string));
   _seasonProperty = new SProperty(typeof(int?));
-  _seriesSeasonNameProperty = new SProperty(typeof(string));
+  _seasonNameProperty = new SProperty(typeof(string));
   _episodeProperty = new SProperty(typeof(IEnumerable<int>));
   _dvdEpisodeProperty = new SProperty(typeof(IEnumerable<double>));
   _episodeNameProperty = new SProperty(typeof(string));
@@ -196,7 +196,7 @@ public void Init(MediaItem mediaItem)
 
   SeriesName = (string) aspect[EpisodeAspect.ATTR_SERIES_NAME];
   Season = (int?) aspect[EpisodeAspect.ATTR_SEASON];
-  SeriesSeasonName = (string) aspect[EpisodeAspect.ATTR_SERIES_SEASON];
+  SeasonName = (string) aspect[EpisodeAspect.ATTR_SERIES_SEASON];
   Episode = (IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE];
   DvdEpisode = (IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE];
   EpisodeName = (string) aspect[EpisodeAspect.ATTR_EPISODE_NAME];
@@ -208,14 +208,13 @@ public void SetEmpty()
 {
   SeriesName = null;
   Season = null;
-  SeriesSeasonName = null;
+  SeasonName = null;
   Episode = new List<Int32>();
   DvdEpisode = new List<Double>();
   EpisodeName = null;
   TotalRating = null;
   RatingCount = null;
 }
-
 
 #endregion
 
