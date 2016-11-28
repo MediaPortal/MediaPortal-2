@@ -92,6 +92,12 @@ namespace MediaPortal.UI.Presentation.Players
     IList<MediaItem> ItemList { get; }
 
     /// <summary>
+    /// Returns the number of playable resources. Usually this equals to <see cref="ItemList"/>'s count property.
+    /// Exceptions are multi-resource media items that consists of multiple physical sources.
+    /// </summary>
+    int PlayableItemsCount { get; }
+
+    /// <summary>
     /// Gets or sets the index of the current item in the <see cref="ItemList"/> or <c>-1</c>, if no item
     /// is currently being played.
     /// </summary>

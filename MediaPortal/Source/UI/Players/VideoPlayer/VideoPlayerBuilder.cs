@@ -136,7 +136,7 @@ namespace MediaPortal.UI.Players.Video
       IInitializablePlayer player = (IInitializablePlayer) Activator.CreateInstance(playerType);
       try
       {
-        player.SetMediaItem(locator, title);
+        player.SetMediaItem(locator, title, mediaItem);
       }
       catch (Exception e)
       { // The file might be broken, so the player wasn't able to play it

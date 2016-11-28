@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Settings;
+using System.Globalization;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -36,9 +37,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected GenreMapping[] _musicGenreMap = new GenreMapping[0];
     protected GenreMapping[] _seriesGenreMap = new GenreMapping[0];
     protected GenreMapping[] _movieGenreMap = new GenreMapping[0];
-    protected string _musicLanguageCulture = "en-US";
-    protected string _seriesLanguageCulture = "en-US";
-    protected string _movieLanguageCulture = "en-US";
+    protected string _musicLanguageCulture = CultureInfo.CurrentUICulture.Name;
+    protected string _seriesLanguageCulture = CultureInfo.CurrentUICulture.Name;
+    protected string _movieLanguageCulture = CultureInfo.CurrentUICulture.Name;
 
     //Only download basic FanArt like backdrops, banners, posters and thumbnails
     //Not DiscArt,  ClearArt, Logos etc. 

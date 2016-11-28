@@ -206,6 +206,7 @@ namespace MediaPortal.UiComponents.SkinBase.General
     public const string KEY_EXPANSION = "Expansion";
     public const string KEY_SYSTEM_SHARES = "SystemShares";
     public const string KEY_IS_IMPORTING = "IsImporting";
+    public const string KEY_IMPORTING_PROGRESS = "ImportingProgress";
     public const string KEY_IS_CONNECTED = "IsConnected";
     public const string KEY_REIMPORT_ENABLED = "ReImportEnabled";
 

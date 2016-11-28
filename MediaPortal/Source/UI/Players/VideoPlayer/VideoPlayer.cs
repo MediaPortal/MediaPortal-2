@@ -35,7 +35,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
@@ -52,7 +51,6 @@ using SharpDX;
 using SharpDX.Direct3D9;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -1209,7 +1207,7 @@ namespace MediaPortal.UI.Players.Video
       if (currentTime.TotalSeconds / duration.TotalSeconds > 0.99)
         state = null;
       else
-        state = new PositionResumeState { ResumePosition = CurrentTime };
+        state = new PositionResumeState { ResumePosition = CurrentTime, ActiveResourceLocatorIndex = _mediaItem.ActiveResourceLocatorIndex };
       return true;
     }
 
@@ -1223,6 +1221,14 @@ namespace MediaPortal.UI.Players.Video
       PositionResumeState pos = state as PositionResumeState;
       if (pos == null)
         return false;
+
+      // Check for multi-resource media items, first set the matching part, then the position
+      if (pos.ActiveResourceLocatorIndex != _mediaItem.ActiveResourceLocatorIndex && pos.ActiveResourceLocatorIndex <= _mediaItem.MaximumResourceLocatorIndex)
+      {
+        _mediaItem.ActiveResourceLocatorIndex = pos.ActiveResourceLocatorIndex;
+        if (!NextItem(_mediaItem, StartTime.AtOnce))
+          return false;
+      }
       CurrentTime = pos.ResumePosition;
       return true;
     }
