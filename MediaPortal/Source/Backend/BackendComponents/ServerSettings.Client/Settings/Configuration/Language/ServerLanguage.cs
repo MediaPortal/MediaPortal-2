@@ -28,11 +28,10 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 using System.Globalization;
 using MediaPortal.Common.Localization;
 using System.Collections.Generic;
-using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
-  public class ServerAudioLanguage : SingleSelectionList, IDisposable
+  public class ServerLanguage : SingleSelectionList, IDisposable
   {
     #region Variables
 
@@ -40,7 +39,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
     #endregion
 
-    public ServerAudioLanguage()
+    public ServerLanguage()
     {
       Enabled = false;
       ConnectionMonitor.Instance.RegisterConfiguration(this);
@@ -60,10 +59,10 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       if (!Enabled)
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
-      if (string.IsNullOrEmpty(settings.MusicLanguageCulture))
-        settings.MusicLanguageCulture = "en-US";
-      CultureInfo current = new CultureInfo(settings.MusicLanguageCulture);
+      RegionSettings settings = serverSettings.Load<RegionSettings>();
+      if (string.IsNullOrEmpty(settings.Culture))
+        settings.Culture = "en-US";
+      CultureInfo current = new CultureInfo(settings.Culture);
       _items = new List<IResourceString>(_cultures.Count);
       for (int i = 0; i < _cultures.Count; i++)
       {
@@ -82,8 +81,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       base.Save();
 
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
-      OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
-      settings.MusicLanguageCulture = _cultures[Selected].Name;
+      RegionSettings settings = serverSettings.Load<RegionSettings>();
+      settings.Culture = _cultures[Selected].Name;
       serverSettings.Save(settings);    
     }
 

@@ -61,6 +61,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
         return;
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
+      if (string.IsNullOrEmpty(settings.MovieLanguageCulture))
+        settings.MovieLanguageCulture = "en-US";
       CultureInfo current = new CultureInfo(settings.MovieLanguageCulture);
       _items = new List<IResourceString>(_cultures.Count);
       for (int i = 0; i < _cultures.Count; i++)
