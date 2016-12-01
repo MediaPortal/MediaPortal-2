@@ -244,6 +244,11 @@
   <!-- Language settings -->
   <Register Location="/Configuration/Settings/ServerSettings/LanguageSettings">
     <ConfigSetting
+        Id="ServerLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerLanguage"/>
+    <ConfigSetting
         Id="ServerAudioLanguage"
         Text="[Settings.ServerSettings.LanguageSettings.ServerAudioLanguage]"
         HelpText="[Settings.ServerSettings.LanguageSettings.ServerAudioLanguage.Help]"

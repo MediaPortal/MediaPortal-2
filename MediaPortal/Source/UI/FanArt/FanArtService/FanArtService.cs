@@ -93,7 +93,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         if (fanArtProvider.TryGetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, singleRandom, out fanArtImages))
         {
           IList<IResourceLocator> result = singleRandom ? GetSingleRandom(fanArtImages) : fanArtImages;
-          return result.Select(f => FanArtImage.FromResource(f, maxWidth, maxHeight, mediaType, fanArtType, name)).Where(fanArtImage => fanArtImage != null).ToList();
+          return result.Select(f => FanArtImage.FromResource(f, maxWidth, maxHeight)).Where(fanArtImage => fanArtImage != null).ToList();
         }
       }
       foreach (IBinaryFanArtProvider binaryProvider in _providerList.OfType<IBinaryFanArtProvider>())

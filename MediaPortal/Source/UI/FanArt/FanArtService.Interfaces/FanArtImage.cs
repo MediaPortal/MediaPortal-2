@@ -49,6 +49,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   public class FanArtImage
   {
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Thumbs\FanArt");
+    //To limit the number of size combinations in the cache, we only resize images in these size steps.
+    //The steps need to be declared in descending order for it to work correctly.
+    protected static readonly int[] IMAGE_SIZES = new int[] { 4096, 2048, 1024, 512, 256, 128 };
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer; // Lazy initialized
@@ -135,7 +138,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="fanArtType">FanArtType</param>
     /// <param name="fanArtName">Fanart name</param>
     /// <returns>FanArtImage or <c>null</c>.</returns>
-    public static FanArtImage FromResource(IResourceLocator resourceLocator, int maxWidth, int maxHeight, string mediaType, string fanArtType, string fanArtName)
+    public static FanArtImage FromResource(IResourceLocator resourceLocator, int maxWidth, int maxHeight)
     {
       try
       {
@@ -147,7 +150,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
             fsra.PrepareStreamAccess();
             using (var fileStream = fsra.OpenRead())
               // Calling EnsureLocalFileSystemAccess not necessary; only string operation
-              return FromStream(fileStream, maxWidth, maxHeight, mediaType, fanArtType, fanArtName, fsra.LocalFileSystemPath);
+              return FromStream(fileStream, maxWidth, maxHeight, fsra.LocalFileSystemPath);
           }
         }
       }
@@ -157,9 +160,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       return null;
     }
 
-    public static FanArtImage FromStream(Stream stream, int maxWidth, int maxHeight, string mediaType, string fanArtType, string fanArtName, string fileName = null)
+    public static FanArtImage FromStream(Stream stream, int maxWidth, int maxHeight, string fileName)
     {
-      using (Stream resized = ResizeImage(stream, maxWidth, maxHeight, mediaType, fanArtType, fanArtName, fileName))
+      using (Stream resized = ResizeImage(stream, maxWidth, maxHeight, fileName))
         return new FanArtImage(fileName, ReadAll(resized));
     }
 
@@ -186,7 +189,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="fanArtName">Fanart name</param>
     /// <param name="originalFile">Original Filename</param>
     /// <returns></returns>
-    protected static Stream ResizeImage(Stream originalStream, int maxWidth, int maxHeight, string mediaType, string fanArtType, string fanArtName, string originalFile)
+    protected static Stream ResizeImage(Stream originalStream, int maxWidth, int maxHeight, string originalFile)
     {
       if (maxWidth == 0 || maxHeight == 0)
         return originalStream;
@@ -196,26 +199,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
         if (!Directory.Exists(CACHE_PATH))
           Directory.CreateDirectory(CACHE_PATH);
 
-        string thumbFileName = Path.Combine(CACHE_PATH, string.Format("{0}_{1}_{2}x{3}_{4}", fanArtType, fanArtName, maxWidth, maxHeight, Path.GetFileName(originalFile)));
+        int maxSize = GetBestSupportedSize(maxWidth, maxHeight);
+        string thumbFileName = Path.Combine(CACHE_PATH, string.Format("{0}x{1}_{2}", maxSize, maxSize, Path.GetFileName(originalFile)));
         if (File.Exists(thumbFileName))
           using (originalStream)
             return new FileStream(thumbFileName, FileMode.Open, FileAccess.Read);
 
         Image fullsizeImage = Image.FromStream(originalStream);
-        if (fullsizeImage.Width <= maxWidth)
-          maxWidth = fullsizeImage.Width;
-
-        int newHeight = fullsizeImage.Height * maxWidth / fullsizeImage.Width;
-        if (newHeight > maxHeight)
+        //Image doesn't need resizing, just return the original
+        if (fullsizeImage.Width <= maxSize && fullsizeImage.Height <= maxSize)
         {
-          // Resize with height instead
-          maxWidth = fullsizeImage.Width * maxHeight / fullsizeImage.Height;
-          newHeight = maxHeight;
+          fullsizeImage.Dispose();
+          originalStream.Position = 0;
+          return originalStream;
         }
 
         MemoryStream resizedStream = new MemoryStream();
+        using (originalStream)
         using (fullsizeImage)
-        using (Image newImage = ImageUtilities.ResizeImage(fullsizeImage, maxWidth, newHeight))
+        using (Image newImage = ImageUtilities.ResizeImage(fullsizeImage, maxSize, maxSize))
         {
           ImageUtilities.SaveJpeg(thumbFileName, newImage, 95);
           ImageUtilities.SaveJpeg(resizedStream, newImage, 95);
@@ -228,6 +230,19 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       {
         return originalStream;
       }
+    }
+
+    protected static int GetBestSupportedSize(int maxWidth, int maxHeight)
+    {
+      int maxSize = maxWidth > maxHeight ? maxWidth : maxHeight;
+      int bestSize = maxSize;
+      foreach (int size in IMAGE_SIZES)
+      {
+        if (maxSize > size)
+          break;
+        bestSize = size;
+      }
+      return bestSize;
     }
   }
 }

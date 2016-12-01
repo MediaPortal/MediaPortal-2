@@ -97,6 +97,8 @@
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos">Maximum number of logos</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help">The maximum number of logos to have available. A higher number of logos will require more disk space.</string>
   <string name="Settings.ServerSettings.LanguageSettings">Language settings</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage">Preferred default language</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage.Help">The preferred language for server related strings.</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerAudioLanguage">Preferred online audio language</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerAudioLanguage.Help">The preferred language of online audio details.</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage">Preferred online movie language</string>
