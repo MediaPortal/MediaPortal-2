@@ -46,6 +46,57 @@
     </Grid>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="List_WatchedFlag_Template">
+    <Grid>
+      <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+               Source="partlywatched.png">
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
+            <Binding Path="PlayCount"/>
+            <Binding Path="WatchPercentage"/>
+          </MultiBinding>
+        </Image.IsVisible>
+      </Image>
+
+      <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+               Source="watched.png">
+        <Image.IsVisible>
+          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+        </Image.IsVisible>
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="Cover_WatchedFlag_Template">
+    <Grid>
+      <Grid>
+        <Image Source="flag.png" Height="71" Stretch="Uniform">
+          <Image.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
+              <Binding Path="WatchPercentage"/>
+            </MultiBinding>
+          </Image.IsVisible>
+        </Image>
+        <Image x:Name="PartlyWatchedLabel" Height="18" Margin="0,4,4,0" Stretch="Uniform"
+               Source="partlywatched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
+            <Binding Path="PlayCount"/>
+            <Binding Path="WatchPercentage"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+      </Grid>
+      <Grid>
+        <Grid.IsVisible>
+          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+        </Grid.IsVisible>
+        <Image Source="flag.png" Height="71" Stretch="Uniform"/>
+        <Image x:Name="WatchedLabel" Height="18" Margin="0,4,4,0" Stretch="Uniform"
+               Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
+
   <ControlTemplate x:Key="ListViewFilterItemTemplate">
     <Grid x:Name="ItemControl" Margin="0,0,43,0">
       <Grid.ColumnDefinitions>
@@ -292,7 +343,6 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
              FontFamily="DefaultBold" Margin="0,0,10,0">
         <Label.Color>
@@ -303,24 +353,7 @@
           </MultiBinding>
         </Label.Color>
       </Label>
-
-      <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Fill" Width="36" Height="23" Grid.Row="0" Grid.Column="2" Margin="5">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source=""/>
-            <Binding Source="unwatched_icon.png"/>
-          </MultiBinding>
-        </Image.Source>
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.8"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
   
@@ -334,15 +367,7 @@
             <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -356,15 +381,7 @@
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
         </Image.Source>
       </Image>
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="UnwatchedTab_small.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
         IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -413,23 +430,8 @@
         </media:SeasonAspectWrapper.Template>
       </media:SeasonAspectWrapper>
       
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" 
-             Width="36" Height="23" Grid.Row="0" Grid.Column="2" Margin="5">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source=""/>
-            <Binding Source="unwatched_icon.png"/>
-          </MultiBinding>
-        </Image.Source>
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.8"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}"/>
+      
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
@@ -470,15 +472,7 @@
             <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -492,15 +486,7 @@
           <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
         </Image.Source>
       </Image>
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="UnwatchedTab_small.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
         IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -557,24 +543,7 @@
           </MultiBinding>
         </Label.Color>
       </Label>
-      
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" 
-             Width="36" Height="23" Grid.Row="0" Grid.Column="2" Margin="5">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source=""/>
-            <Binding Source="unwatched_icon.png"/>
-          </MultiBinding>
-        </Image.Source>
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.8"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -592,16 +561,8 @@
         <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
                HorizontalAlignment="Center" VerticalAlignment="Center">
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
       </Grid>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -643,15 +604,7 @@
             <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -665,15 +618,7 @@
           <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
         </Image.Source>
       </Image>
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="UnwatchedTab_small.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
         IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -728,24 +673,7 @@
           </MultiBinding>
         </Label.Color>
       </Label>
-
-      <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Fill" Width="36" Height="23" Grid.Row="0" Grid.Column="2" Margin="5">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source=""/>
-            <Binding Source="unwatched_icon.png"/>
-          </MultiBinding>
-        </Image.Source>
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.8"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -764,15 +692,7 @@
             <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
           </Image.Source>
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -786,15 +706,7 @@
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
         </Image.Source>
       </Image>
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="UnwatchedTab_small.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
         IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -857,24 +769,7 @@
           </ControlTemplate>
         </media:MovieAspectWrapper.Template>
       </media:MovieAspectWrapper>
-
-      <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Fill" Width="36" Height="23" Grid.Row="0" Grid.Column="2" Margin="5">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source=""/>
-            <Binding Source="unwatched_icon.png"/>
-          </MultiBinding>
-        </Image.Source>
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1.0"/>
-            <Binding Source="0.8"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </Image>
-     
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -920,22 +815,13 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-
       <Border Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
                HorizontalAlignment="Center" VerticalAlignment="Center">
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnwatchedTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
       </Grid>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -970,15 +856,7 @@
         </Label.Color>
       </Label>
 
-      <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2"  >
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source=""/>
-            <Binding Source="unwatched_icon.png"/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}"/>
 
       <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
                Template="{ThemeResource VideoCoverTemplate}" RenderTransformOrigin="0.5,0.5"
@@ -1044,7 +922,7 @@
         </Label.Color>
       </Label>
 
-      <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="32" Grid.Row="0" Grid.Column="2"  >
+      <!--Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="32" Grid.Row="0" Grid.Column="2"  >
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Path="PlayCount"/>
@@ -1052,7 +930,7 @@
             <Binding Source="unheard_icon.png"/>
           </MultiBinding>
         </Image.Source>
-      </Image>
+      </-->
 
       <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
                Template="{ThemeResource AudioCoverTemplate}" RenderTransformOrigin="0.5,0.5"
@@ -1093,7 +971,7 @@
       <Grid>
         <Image x:Name="ItemTypeAudio" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="Audio_square.png">
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
+        <!--Image HorizontalAlignment="Left" VerticalAlignment="Top">
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding Path="PlayCount"/>
@@ -1101,7 +979,7 @@
               <Binding Source="UnheardTab_small.png"/>
             </MultiBinding>
           </Image.Source>
-        </Image>
+        </-->
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1159,15 +1037,7 @@
           </MultiBinding>
         </Label.Color>
       </Label>
-      <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" Grid.Row="0" Grid.Column="2"  >
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source=""/>
-            <Binding Source="unwatched_icon.png"/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
+
       <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Margin="0,0,8,0"
                 Template="{ThemeResource AudioAlbumCoverTemplate}" RenderTransformOrigin="0.5,0.5"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -1309,22 +1179,6 @@
       <Label x:Name="Size" Grid.Row="0" Grid.Column="2" Content="{Binding Size}" VerticalAlignment="Center"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,10,0"/>
-      <Image Grid.Row="0"  Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Width="37" Height="24" >
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1"/>
-            <Binding Source="0.15"/>
-          </MultiBinding>
-        </Image.Opacity>
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source=""/>
-            <Binding Source="unwatched_icon.png"/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
 
       <Grid x:Name="Details" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
         <Grid.IsVisible>
@@ -1360,15 +1214,6 @@
       <Border Grid.Row="0" CornerRadius="0" Background="Black" Opacity="0.2" Margin="0" BorderThickness="0"> </Border>
       <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="VideoNormal.png"
              HorizontalAlignment="Center" VerticalAlignment="Center">
-      </Image>
-      <Image HorizontalAlignment="Left" VerticalAlignment="Top" >
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-            <Binding Path="PlayCount"/>
-            <Binding Source="UnwatchedTab_small.png"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
       </Image>
     </Grid>
   </ControlTemplate>
