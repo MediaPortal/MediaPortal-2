@@ -91,7 +91,7 @@
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
 
-    <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+    <!--Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
            Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
       <Label.Content>
         <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
@@ -99,7 +99,7 @@
           <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
         </MultiBinding>
       </Label.Content>
-    </Label>
+    </Label-->
 
     <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
                            Margin="0,5,0,0">
