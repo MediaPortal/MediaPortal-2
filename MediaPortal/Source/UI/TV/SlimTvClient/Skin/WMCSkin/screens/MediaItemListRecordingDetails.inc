@@ -5,47 +5,40 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
-  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="90,30,40,-80"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="90,30,40,-100"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
   <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
     <RowDefinition Height="Auto"/>
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="540"/>
+    <ColumnDefinition Width="450"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-         HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
+         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-         Opacity="1.3" Color="{ThemeResource MenuTextBackground}" Margin="0,50,0,5"/>
+         Opacity="1.3" Color="{ThemeResource MenuTextBackground}" Margin="0,20,0,5"/>
 
-  <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="0" HorizontalAlignment="Left">
+  <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Stretch">
     <Label x:Name="MediaItemName" Wrap="True" Margin="0" TextTrimming="WordEllipsis"
            HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"
            Color="{ThemeResource TextColor}" VerticalAlignment="Stretch"/>
 
-    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:SeriesAspectWrapper.Template>
-        <ControlTemplate>
-          <Label x:Name="Episode" Margin="0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 FontSize="{ThemeResource SmallFontSize}"
-              Content="{Binding Series}" Color="{ThemeResource TextColor}" Wrap="True" />
-        </ControlTemplate>
-      </media:SeriesAspectWrapper.Template>
-    </media:SeriesAspectWrapper>
-
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" HorizontalAlignment="Left">
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
           <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-               Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center" Height="80" Margin="-20,0,0,0"
+               Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center" Height="80" Margin="-17,7,0,0"
                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
@@ -98,23 +91,40 @@
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
 
-    <media:VideoAspectWrapper Margin="0,0,-50,0"
-                              MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:VideoAspectWrapper.Template>
+    <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+           Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
+      <Label.Content>
+        <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+          <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+          <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+        </MultiBinding>
+      </Label.Content>
+    </Label>
+
+    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                           Margin="0,5,0,0">
+      <media:UserDataWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Genre" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" TextTrimming="WordEllipsis" Wrap="True"
-              Content="{Binding Genres}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Image Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" >
+              <Image.Source>
+                <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+              </Image.Source>
+            </Image>
+          </Grid>
         </ControlTemplate>
-      </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
+      </media:UserDataWrapper.Template>
+    </media:UserDataWrapper>
+
   </StackPanel>
 
   <tv:RecordingAspectWrapper Grid.Row="0" Grid.Column="1"
-                           MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+                             MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
     <tv:RecordingAspectWrapper.Template>
       <ControlTemplate>
         <Image DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-             Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" MaxHeight="280">
+             Stretch="UniformToFill" HorizontalAlignment="Right" VerticalAlignment="Top" Height="300">
           <Image.Source>
             <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" HorizontalTextureAlignment="Right" VerticalTextureAlignment="Top"
                       FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
@@ -131,21 +141,5 @@
       </ControlTemplate>
     </tv:RecordingAspectWrapper.Template>
   </tv:RecordingAspectWrapper>
-
-  <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                     Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
-    <media:UserDataWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-          <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,75,30,0" >
-            <Image.Source>
-              <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
-            </Image.Source>
-          </Image>
-        </Grid>
-      </ControlTemplate>
-    </media:UserDataWrapper.Template>
-  </media:UserDataWrapper>
 
 </Grid>
