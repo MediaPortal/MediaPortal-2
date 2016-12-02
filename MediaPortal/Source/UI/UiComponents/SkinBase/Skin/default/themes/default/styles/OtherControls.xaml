@@ -620,9 +620,10 @@
           </MultiBinding>
         </Label.Content>
       </-->
-      <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}">
+      <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center">
         <Label Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               IsVisible="{Binding Path=AdditionalProperties[ImportingProgress],Converter={StaticResource ReferenceToBoolConverter}}">
           <Label.Content>
             <Binding Path="AdditionalProperties[ImportingProgress]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} {0:F0}%"/>
           </Label.Content>
