@@ -9,6 +9,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:wmc_converters="clr-namespace:MediaPortal.UiComponents.WMCSkin.Converters;assembly=WMCSkin"
     DependsOnStyleResources="OSD,FullScreenContentConsts,MediaButtons,MediaColors,MediaConsts,Consts,Colors,Buttons,OtherControls,OtherControlsOverrides"
     >
 
@@ -18,6 +19,7 @@
   <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
 
   <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter" />
+  <wmc_converters:RoundingFormatConverter x:Key="RoundingFormatConverter"/>
 
   <!-- ***************************************** OSD ************************************************** -->
   <Storyboard x:Key="OSDCurrentPlayerControlStoryboard" FillBehavior="Stop">

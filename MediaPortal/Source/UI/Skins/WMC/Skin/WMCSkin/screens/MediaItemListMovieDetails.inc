@@ -151,7 +151,7 @@
           </Grid.ColumnDefinitions>
           <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Fill" Width="95" Height="95" Margin="0,10,10,10" >
             <Image.Source>
-              <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+              <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}.png"/>
             </Image.Source>
           </Image>
         </Grid>
