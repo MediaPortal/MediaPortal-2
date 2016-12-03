@@ -608,18 +608,7 @@
       <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}"
           HorizontalAlignment="Left" VerticalAlignment="Center"
           Color="{ThemeResource TextColor}"/>
-      <!--Label x:Name="OnlineState" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
-          Color="{ThemeResource TextColor}">
-        <Label.Content>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1}+{2} : {3}">
-            <Binding Path="AdditionalProperties[IsImporting]"/>
-            <Binding Source="[Shares.Importing]"/>
-            <Binding Path="AdditionalProperties[ImportingProgress]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}...{0:F0}%"/>
-            <Binding Source="{StaticResource EmptyString}"/>
-          </MultiBinding>
-        </Label.Content>
-      </-->
+
       <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center">
         <Label Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
