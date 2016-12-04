@@ -32,67 +32,90 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public abstract class AbstractSortByFirstComparableAttribute<T> : SortByTitle where T : IComparable<T>
   {
-    protected MediaItemAspectMetadata.SingleAttributeSpecification _attr;
-    protected MediaItemAspectMetadata.MultipleAttributeSpecification _multiAttr;
+    protected IEnumerable<MediaItemAspectMetadata.SingleAttributeSpecification> _attrs;
+    protected IEnumerable<MediaItemAspectMetadata.MultipleAttributeSpecification> _multiAttrs;
 
     protected AbstractSortByFirstComparableAttribute(MediaItemAspectMetadata.SingleAttributeSpecification attr)
     {
-      _attr = attr;
+      _attrs = new[] { attr };
+    }
+
+    protected AbstractSortByFirstComparableAttribute(IEnumerable<MediaItemAspectMetadata.SingleAttributeSpecification> attrs)
+    {
+      _attrs = attrs;
     }
 
     protected AbstractSortByFirstComparableAttribute(MediaItemAspectMetadata.MultipleAttributeSpecification attr)
     {
-      _multiAttr = attr;
+      _multiAttrs = new[] { attr };
+    }
+
+    protected AbstractSortByFirstComparableAttribute(IEnumerable<MediaItemAspectMetadata.MultipleAttributeSpecification> attrs)
+    {
+      _multiAttrs = attrs;
     }
 
     public override int Compare(MediaItem x, MediaItem y)
     {
-      if (_attr != null)
+      MediaItemAspect aspectX = null;
+      MediaItemAspect aspectY = null;
+      MediaItemAspectMetadata.AttributeSpecification attrX = null;
+      MediaItemAspectMetadata.AttributeSpecification attrY = null;
+      if (_attrs != null)
       {
-        SingleMediaItemAspect aspectX;
-        SingleMediaItemAspect aspectY;
-        SingleMediaItemAspectMetadata metadata = _attr.ParentMIAM;
-        if (MediaItemAspect.TryGetAspect(x.Aspects, metadata, out aspectX) && MediaItemAspect.TryGetAspect(y.Aspects, metadata, out aspectY))
-        {
-          List<string> valuesX = new List<string>(aspectX.GetCollectionAttribute<string>(_attr));
-          valuesX.Sort();
-          string firstValueX = valuesX.FirstOrDefault();
-          List<string> valuesY = new List<string>(aspectY.GetCollectionAttribute<string>(_attr));
-          valuesY.Sort();
-          string firstValueY = valuesY.FirstOrDefault();
-          return ObjectUtils.Compare(firstValueX, firstValueY);
-        }
+        attrX = GetAttributeSpecification(x, _attrs, out aspectX);
+        attrY = GetAttributeSpecification(y, _attrs, out aspectY);
       }
-      else if (_multiAttr != null)
+      else if (_multiAttrs != null)
       {
-        IList<MultipleMediaItemAspect> aspectsX;
-        IList<MultipleMediaItemAspect> aspectsY;
-        MultipleMediaItemAspectMetadata metadata = _multiAttr.ParentMIAM;
-        if (MediaItemAspect.TryGetAspects(x.Aspects, metadata, out aspectsX) && MediaItemAspect.TryGetAspects(y.Aspects, metadata, out aspectsY))
-        {
-          MultipleMediaItemAspect aspectX = aspectsX[0];
-          List<string> valuesX = new List<string>(aspectX.GetCollectionAttribute<string>(_multiAttr));
-          valuesX.Sort();
-          string firstValueX = valuesX.FirstOrDefault();
-          MultipleMediaItemAspect aspectY = aspectsY[0];
-          List<string> valuesY = new List<string>(aspectY.GetCollectionAttribute<string>(_multiAttr));
-          valuesY.Sort();
-          string firstValueY = valuesY.FirstOrDefault();
-          return ObjectUtils.Compare(firstValueX, firstValueY);
-        }
+        attrX = GetAttributeSpecification(x, _multiAttrs, out aspectX);
+        attrY = GetAttributeSpecification(y, _multiAttrs, out aspectY);
       }
+
+      if (attrX != null && attrY != null)
+        return CompareAttributes(aspectX, attrX, aspectY, attrY);
       return base.Compare(x, y);
+    }
+
+    protected int CompareAttributes(MediaItemAspect aspectX, MediaItemAspectMetadata.AttributeSpecification attrX, MediaItemAspect aspectY, MediaItemAspectMetadata.AttributeSpecification attrY)
+    {
+      string firstValueX = null;
+      IEnumerable<string> collectionX = aspectX.GetCollectionAttribute<string>(attrX);
+      if (collectionX != null)
+      {
+        List<string> valuesX = new List<string>(collectionX);
+        valuesX.Sort();
+        firstValueX = valuesX.FirstOrDefault();
+      }
+      string firstValueY = null;
+      IEnumerable<string> collectionY = aspectY.GetCollectionAttribute<string>(attrY);
+      if (collectionY != null)
+      {
+        List<string> valuesY = new List<string>(collectionY);
+        valuesY.Sort();
+        firstValueY = valuesY.FirstOrDefault();
+      }
+      return ObjectUtils.Compare(firstValueX, firstValueY);
     }
 
     public override object GetGroupByValue(MediaItem item)
     {
-      IList<MediaItemAspect> aspect;
-      Guid aspectId = _attr.ParentMIAM.AspectId;
-      if (item.Aspects.TryGetValue(aspectId, out aspect))
+      MediaItemAspect aspect = null;
+      MediaItemAspectMetadata.AttributeSpecification attr = null;
+      if (_attrs != null)
+        attr = GetAttributeSpecification(item, _attrs, out aspect);
+      else if (_multiAttrs != null)
+        attr = GetAttributeSpecification(item, _multiAttrs, out aspect);
+
+      if (attr != null)
       {
-        List<string> values = new List<string>(aspect.First().GetCollectionAttribute<string>(_attr));
-        values.Sort();
-        return values.FirstOrDefault();
+        IEnumerable<string> valueColl = aspect.GetCollectionAttribute<string>(attr);
+        if (valueColl != null)
+        {
+          List<string> values = new List<string>(valueColl);
+          values.Sort();
+          return values.FirstOrDefault();
+        }
       }
       return base.GetGroupByValue(item);
     }

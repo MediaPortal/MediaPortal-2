@@ -29,7 +29,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class AudioSortByFirstArtist : AbstractSortByFirstComparableAttribute<string>
   {
-    public AudioSortByFirstArtist() : base(AudioAspect.ATTR_ARTISTS) {}
+    public AudioSortByFirstArtist() : base(new[] { AudioAspect.ATTR_ARTISTS, AudioAlbumAspect.ATTR_ARTISTS }) {}
 
     public override string DisplayName
     {
