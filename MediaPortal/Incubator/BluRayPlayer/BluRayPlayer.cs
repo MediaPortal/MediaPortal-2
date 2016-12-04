@@ -56,7 +56,7 @@ namespace MediaPortal.UI.Players.Video
     #region Variables
 
     protected readonly string[] _emptyStringArray = new string[0];
-    protected IBaseFilter _fileSource;
+    protected FilterFileWrapper _fileSource;
     protected SubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected IBDReader _bdReader;
@@ -157,14 +157,15 @@ namespace MediaPortal.UI.Players.Video
       // Load source filter, assembly location must be determined here, otherwise LoadFilterFromDll would try to lookup the file relative to VideoPlayer!
       string filterPath = FilterLoader.BuildAssemblyRelativePath("BDReader.ax");
       _fileSource = FilterLoader.LoadFilterFromDll(filterPath, typeof(BDReader).GUID);
+      var baseFilter = _fileSource.GetFilter();
 
       // Init BD Reader
-      _bdReader = (IBDReader)_fileSource;
+      _bdReader = (IBDReader)baseFilter;
       LoadSettings();
       _bdReader.SetD3DDevice(_device.NativePointer);
       _bdReader.SetBDReaderCallback(this);
 
-      _graphBuilder.AddFilter(_fileSource, BluRayAPI.BDREADER_FILTER_NAME);
+      _graphBuilder.AddFilter(baseFilter, BluRayAPI.BDREADER_FILTER_NAME);
 
       _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
@@ -187,7 +188,7 @@ namespace MediaPortal.UI.Players.Video
         f.Load(strFile, null);
 
         // Init GraphRebuilder
-        _graphRebuilder = new GraphRebuilder(_graphBuilder, _fileSource, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
+        _graphRebuilder = new GraphRebuilder(_graphBuilder, baseFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
 
         // Get the complete BD title information (including all streams, chapters...)
         _titleInfos = GetTitleInfoCollection(_bdReader);
@@ -244,7 +245,7 @@ namespace MediaPortal.UI.Players.Video
       base.OnBeforeGraphRunning();
 
       // first all automatically rendered pins
-      FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource);
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _fileSource.GetFilter());
 
       // MSDN: "During the connection process, the Filter Graph Manager ignores pins on intermediate filters if the pin name begins with a tilde (~)."
       // then connect the skipped "~" output pins
@@ -273,7 +274,7 @@ namespace MediaPortal.UI.Players.Video
 
       // Free file source
       FilterGraphTools.TryRelease(ref _bdReader);
-      FilterGraphTools.TryRelease(ref _fileSource);
+      FilterGraphTools.TryDispose(ref _fileSource);
 
       // Free base class
       base.FreeCodecs();
