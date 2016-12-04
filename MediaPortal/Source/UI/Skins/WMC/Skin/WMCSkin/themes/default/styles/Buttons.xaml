@@ -1390,6 +1390,43 @@
     </Setter>
   </Style>
 
+  <Style x:Key="RecordingButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel>
+            <Grid DockPanel.Dock="Left" Height="56" Width="56">
+              <Image x:Name="image1" Source="CP_Background.png" Stretch="Uniform" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <!--Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="18,15,12,15" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/-->
+              <Image x:Name="image3" Source="Recording_Circle.png" Stretch="Uniform"  RenderTransformOrigin="0.5,0.5" Margin="0"
+                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Image.RenderTransform>
+                  <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
+                </Image.RenderTransform>
+                <Image.Triggers>
+                  <Trigger Property="IsEnabled" Value="True">
+                    <Trigger.EnterActions>
+                      <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                      <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                    </Trigger.ExitActions>
+                  </Trigger>
+                </Image.Triggers>
+              </Image>
+            </Grid>
+            <StackPanel Orientation="Vertical" Margin="5,0,5,0" DockPanel.Dock="Right" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+              <mp_special_controls:PlayerControl Style="{ThemeResource CPLabelControlStyle}" 
+                  AutoVisibility="True" PlayerContext="PrimaryPlayer" />
+              <mp_special_controls:PlayerControl Style="{ThemeResource CPLabelControlStyle}"
+                  AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
+            </StackPanel>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
 
   <Style x:Key="NavigationButtonStyle" TargetType="{x:Type Button}">
