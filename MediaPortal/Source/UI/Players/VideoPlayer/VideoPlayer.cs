@@ -146,6 +146,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected bool _textureInvalid = true;
     protected MpcSubsRenderer _mpcSubsRenderer;
+    private FilterFileWrapper _ccFilter;
 
     #endregion
 
@@ -220,13 +221,15 @@ namespace MediaPortal.UI.Players.Video
       if (settings.EnableClosedCaption)
       {
         // ClosedCaptions filter
-        var ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
-        if (ccFilter == null)
+        _ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+        var baseFilter = _ccFilter.GetFilter();
+        if (baseFilter == null)
         {
+          _ccFilter.Dispose();
           ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, CCFILTER_FILENAME);
           return;
         }
-        _graphBuilder.AddFilter(ccFilter, CCFILTER_FILENAME);
+        _graphBuilder.AddFilter(baseFilter, CCFILTER_FILENAME);
       }
     }
 
