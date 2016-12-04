@@ -42,7 +42,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the person aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("2AEC875B-1B64-4994-AB3F-316E3A4E08C7");
+    public static readonly Guid ASPECT_ID = new Guid("A6EEE1E3-A10A-44DB-B53C-B11FF93E9CE2");
 
     /// <summary>
     /// Person name.

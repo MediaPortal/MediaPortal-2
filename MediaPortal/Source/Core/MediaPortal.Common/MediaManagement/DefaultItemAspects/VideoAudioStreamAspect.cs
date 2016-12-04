@@ -34,7 +34,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the video aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("57C581FD-5B11-4318-B148-4E8C9DC8A3BA");
+    public static readonly Guid ASPECT_ID = new Guid("B23FB013-8A3E-464F-B490-1BF0CB5AB2DD");
 
     /// <summary>
     /// Resource index for this video.

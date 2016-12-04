@@ -34,7 +34,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the audio aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("DEC5DED7-31EA-4C2F-AE81-8185ED689A8B");
+    public static readonly Guid ASPECT_ID = new Guid("739AC022-2CF5-4921-B4EF-108BA28C62E5");
 
     /// <summary>
     /// Track name.

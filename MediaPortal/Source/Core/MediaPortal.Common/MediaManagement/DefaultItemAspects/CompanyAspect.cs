@@ -40,7 +40,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the company aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("3D572C24-285E-46A2-98D5-A1902530489A");
+    public static readonly Guid ASPECT_ID = new Guid("2203C271-759B-4F08-9B46-7E329CAD1312");
 
     /// <summary>
     /// Company name.
