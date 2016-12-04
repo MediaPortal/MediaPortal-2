@@ -721,34 +721,40 @@ namespace MediaPortal.UI.Players.Video
         {
           if (lfsra.LocalFsResourceAccessor == null)
             return false;
-          using (var stream = lfsra.LocalFsResourceAccessor.OpenRead())
-          using (var chaptersReader = new StreamReader(stream))
+
+          Stream stream;
+          using (stream = lfsra.LocalFsResourceAccessor.OpenRead())
           {
-            string line = chaptersReader.ReadLine();
-
-            int fps;
-            if (string.IsNullOrWhiteSpace(line) || !int.TryParse(line.Substring(line.LastIndexOf(' ') + 1), out fps))
-            {
-              ServiceRegistration.Get<ILogger>().Warn("VideoPlayer: EnumerateExternalChapters() - Invalid ComSkip chapter file");
+            if (stream.Length == 0)
               return false;
-            }
-
-            double framesPerSecond = fps / 100.0;
-
-            while ((line = chaptersReader.ReadLine()) != null)
+            using (var chaptersReader = new StreamReader(stream))
             {
-              if (String.IsNullOrEmpty(line))
-                continue;
+              string line = chaptersReader.ReadLine();
 
-              string[] tokens = line.Split('\t');
-              if (tokens.Length != 2)
-                continue;
-
-              foreach (var token in tokens)
+              int fps;
+              if (string.IsNullOrWhiteSpace(line) || !int.TryParse(line.Substring(line.LastIndexOf(' ') + 1), out fps))
               {
-                int time;
-                if (int.TryParse(token, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out time))
-                  positions.Add(time / framesPerSecond);
+                ServiceRegistration.Get<ILogger>().Warn("VideoPlayer: EnumerateExternalChapters() - Invalid ComSkip chapter file");
+                return false;
+              }
+
+              double framesPerSecond = fps / 100.0;
+
+              while ((line = chaptersReader.ReadLine()) != null)
+              {
+                if (String.IsNullOrEmpty(line))
+                  continue;
+
+                string[] tokens = line.Split('\t');
+                if (tokens.Length != 2)
+                  continue;
+
+                foreach (var token in tokens)
+                {
+                  int time;
+                  if (int.TryParse(token, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out time))
+                    positions.Add(time / framesPerSecond);
+                }
               }
             }
           }
