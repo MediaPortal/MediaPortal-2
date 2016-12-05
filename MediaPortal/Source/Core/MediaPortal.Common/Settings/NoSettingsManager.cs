@@ -31,7 +31,7 @@ namespace MediaPortal.Common.Settings
   /// </summary>
   /// <remarks>
   /// </remarks>
-  internal class NoSettingsManager : ISettingsManager
+  public class NoSettingsManager : ISettingsManager
   {
     #region ISettingsManager Members
 
