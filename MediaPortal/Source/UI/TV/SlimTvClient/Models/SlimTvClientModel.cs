@@ -47,6 +47,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
 
@@ -76,6 +77,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Protected fields
 
+    protected AbstractProperty _serverStateProperty = null;
     protected AbstractProperty _currentGroupNameProperty = null;
 
     // properties for channel browsing and program preview
@@ -130,6 +132,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     #region GUI properties and methods
+
+    /// <summary>
+    /// Exposes the current server state to the skin.
+    /// </summary>
+    public TvServerState ServerState
+    {
+      get { return (TvServerState)_serverStateProperty.GetValue(); }
+      set { _serverStateProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current server state to the skin.
+    /// </summary>
+    public AbstractProperty ServerStateProperty
+    {
+      get { return _serverStateProperty; }
+    }
 
     /// <summary>
     /// Exposes the current group name to the skin.
@@ -748,6 +767,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _isOSDLevel1Property = new WProperty(typeof(bool), false);
         _isOSDLevel2Property = new WProperty(typeof(bool), false);
 
+        //Get current Tv Server state
+        var ssm = ServiceRegistration.Get<IServerStateManager>();
+        TvServerState state;
+        if (!ssm.TryGetState(TvServerState.STATE_ID, out state))
+          state = null;
+        _serverStateProperty = new WProperty(typeof(TvServerState), state);
+
         _isInitialized = true;
 
         _resumeEvent.OnEventHandler = OnResume;
@@ -759,6 +785,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     void SubscribeToMessages()
     {
       _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(ServerStateMessaging.CHANNEL);
       _messageQueue.PreviewMessage += OnMessageReceived;
     }
 
@@ -791,6 +818,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               }
             }
             break;
+        }
+      }
+      else if (message.ChannelName == ServerStateMessaging.CHANNEL)
+      {
+        //Check if Tv Server state has changed and update if necessary
+        ServerStateMessaging.MessageType messageType = (ServerStateMessaging.MessageType)message.MessageType;
+        if (messageType == ServerStateMessaging.MessageType.StatesChanged)
+        {
+          var states = message.MessageData[ServerStateMessaging.STATES] as IDictionary<Guid, object>;
+          if (states != null && states.ContainsKey(TvServerState.STATE_ID))
+            ServerState = states[TvServerState.STATE_ID] as TvServerState;
         }
       }
     }

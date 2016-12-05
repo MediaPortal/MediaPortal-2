@@ -552,6 +552,7 @@
     <Content Include="Skin\BlueVision\images\PlayerControls.Small\StopButton.png" />
     <Content Include="Skin\BlueVision\images\power_blur.png" />
     <Content Include="Skin\BlueVision\images\Power_button.png" />
+    <Content Include="Skin\BlueVision\images\Recording_Active.png" />
     <Content Include="Skin\BlueVision\images\settings.png" />
     <Content Include="Skin\BlueVision\images\shadow_00.png" />
     <Content Include="Skin\BlueVision\images\shadow_01.png" />

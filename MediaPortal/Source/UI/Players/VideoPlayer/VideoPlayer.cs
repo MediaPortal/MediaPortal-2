@@ -1207,7 +1207,7 @@ namespace MediaPortal.UI.Players.Video
       if (currentTime.TotalSeconds / duration.TotalSeconds > 0.99)
         state = null;
       else
-        state = new PositionResumeState { ResumePosition = CurrentTime, ActiveResourceLocatorIndex = _mediaItem.ActiveResourceLocatorIndex };
+        state = new PositionResumeState { ResumePosition = CurrentTime, ActiveResourceLocatorIndex = _mediaItem != null ? _mediaItem.ActiveResourceLocatorIndex : 0 };
       return true;
     }
 
@@ -1222,12 +1222,15 @@ namespace MediaPortal.UI.Players.Video
       if (pos == null)
         return false;
 
-      // Check for multi-resource media items, first set the matching part, then the position
-      if (pos.ActiveResourceLocatorIndex != _mediaItem.ActiveResourceLocatorIndex && pos.ActiveResourceLocatorIndex <= _mediaItem.MaximumResourceLocatorIndex)
+      if (_mediaItem != null)
       {
-        _mediaItem.ActiveResourceLocatorIndex = pos.ActiveResourceLocatorIndex;
-        if (!NextItem(_mediaItem, StartTime.AtOnce))
-          return false;
+        // Check for multi-resource media items, first set the matching part, then the position
+        if (pos.ActiveResourceLocatorIndex != _mediaItem.ActiveResourceLocatorIndex && pos.ActiveResourceLocatorIndex <= _mediaItem.MaximumResourceLocatorIndex)
+        {
+          _mediaItem.ActiveResourceLocatorIndex = pos.ActiveResourceLocatorIndex;
+          if (!NextItem(_mediaItem, StartTime.AtOnce))
+            return false;
+        }
       }
       CurrentTime = pos.ResumePosition;
       return true;

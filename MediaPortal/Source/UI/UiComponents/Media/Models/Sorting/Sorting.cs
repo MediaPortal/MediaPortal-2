@@ -53,11 +53,28 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public abstract string GroupByDisplayName { get; }
     public abstract int Compare(MediaItem x, MediaItem y);
     public abstract object GetGroupByValue(MediaItem item);
+
     public virtual bool IsAvailable(AbstractScreenData visibleScreen)
     {
       return visibleScreen == null || visibleScreen.AvailableMias == null ||
         (_excludeMias != null && _excludeMias.Intersect(visibleScreen.AvailableMias).Count() > 0 ? false :
         (_includeMias != null && _includeMias.Intersect(visibleScreen.AvailableMias).Count() > 0));
+    }
+
+    public static MediaItemAspectMetadata.AttributeSpecification GetAttributeSpecification(MediaItem mediaItem, IEnumerable<MediaItemAspectMetadata.SingleAttributeSpecification> attributes, out MediaItemAspect aspect)
+    {
+      SingleMediaItemAspect singleAspect = null;
+      MediaItemAspectMetadata.SingleAttributeSpecification attr = attributes.FirstOrDefault(a => MediaItemAspect.TryGetAspect(mediaItem.Aspects, a.ParentMIAM, out singleAspect));
+      aspect = singleAspect;
+      return attr;
+    }
+
+    public static MediaItemAspectMetadata.AttributeSpecification GetAttributeSpecification(MediaItem mediaItem, IEnumerable<MediaItemAspectMetadata.MultipleAttributeSpecification> attributes, out MediaItemAspect aspect)
+    {
+      IList<MultipleMediaItemAspect> multipleAspects = null;
+      MediaItemAspectMetadata.MultipleAttributeSpecification attr = attributes.FirstOrDefault(a => MediaItemAspect.TryGetAspects(mediaItem.Aspects, a.ParentMIAM, out multipleAspects));
+      aspect = attr != null ? multipleAspects[0] : null;
+      return attr;
     }
   }
 }
