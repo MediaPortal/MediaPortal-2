@@ -407,6 +407,9 @@
   <string name="Media.SortByEpisode">Sort by episode</string>
   <string name="Media.SortByDVDEpisode">Sort by dvd episode</string>
   <string name="Media.SortingBrowseDefault">Default sorting</string>
+  <string name="Media.SortByTVNetwork">Sort by tv network</string>
+  <string name="Media.SortByProductionCompany">Sort by production studio</string>
+  <string name="Media.SortByMusicLabel">Sort by music label</string>
 
   <string name="Media.SwitchGroupingMenuItem">Grouping</string>
   <string name="Media.SwitchGroupingDialogTitle">Grouping</string>
@@ -434,6 +437,9 @@
   <string name="Media.GroupByAddedDate">Group by added date</string>
   <string name="Media.GroupByEpisode">Group by episode</string>
   <string name="Media.GroupByDVDEpisode">Group by dvd episode</string>
+  <string name="Media.GroupByTVNetwork">Group by tv network</string>
+  <string name="Media.GroupByProductionCompany">Group by production studio</string>
+  <string name="Media.GroupByMusicLabel">Group by music label</string>
 
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter</string>

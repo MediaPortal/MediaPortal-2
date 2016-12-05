@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
   {
     public AudioSortByFirstArtist() : base(new[] { AudioAspect.ATTR_ARTISTS, AudioAlbumAspect.ATTR_ARTISTS })
     {
-      _includeMias = new[] { AudioAspect.ASPECT_ID };
+      _includeMias = new[] { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID };
     }
 
     public override string DisplayName

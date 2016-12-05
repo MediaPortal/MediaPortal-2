@@ -31,7 +31,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
   {
     public AudioSortByAlbum() : base(Consts.RES_SORT_BY_ALBUM, Consts.RES_GROUP_BY_ALBUM, new[] { AudioAspect.ATTR_ALBUM, AudioAlbumAspect.ATTR_ALBUM })
     {
-      _includeMias = new[] { AudioAspect.ASPECT_ID };
+      _includeMias = new[] { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID };
     }
   }
 }

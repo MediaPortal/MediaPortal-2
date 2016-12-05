@@ -357,6 +357,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
     public const string RES_SORT_BY_CHARACTER = "[Media.SortByCharacter]";
     public const string RES_SORT_BY_COMPOSER = "[Media.SortByComposer]";
+    public const string RES_SORT_BY_TV_NETWORK = "[Media.SortByTVNetwork]";
+    public const string RES_SORT_BY_PRODUCTION_STUDIO = "[Media.SortByProductionCompany]";
+    public const string RES_SORT_BY_MUSIC_LABEL = "[Media.SortByMusicLabel]";
 
     public const string RES_NO_GROUPING = "[Media.NoGrouping]";
     public const string RES_GROUP_BY_TITLE = "[Media.GroupByTitle]";
@@ -383,6 +386,9 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";
     public const string RES_GROUP_BY_CHARACTER = "[Media.GroupByCharacter]";
     public const string RES_GROUP_BY_COMPOSER = "[Media.GroupByComposer]";
+    public const string RES_GROUP_BY_TV_NETWORK = "[Media.GroupByTVNetwork]";
+    public const string RES_GROUP_BY_PRODUCTION_STUDIO = "[Media.GroupByProductionCompany]";
+    public const string RES_GROUP_BY_MUSIC_LABEL = "[Media.GroupByMusicLabel]";
 
     // Image and video size thresholds
     /// <summary>
