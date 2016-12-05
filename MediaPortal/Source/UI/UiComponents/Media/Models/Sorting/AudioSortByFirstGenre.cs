@@ -29,6 +29,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class AudioSortByFirstGenre : AbstractSortByComparableObjectAttribute<string>
   {
-    public AudioSortByFirstGenre() : base(Consts.RES_SORT_BY_GENRE, Consts.RES_GROUP_BY_GENRE, GenreAspect.ATTR_GENRE) { }
+    public AudioSortByFirstGenre() : base(Consts.RES_SORT_BY_GENRE, Consts.RES_GROUP_BY_GENRE, GenreAspect.ATTR_GENRE)
+    {
+      _includeMias = new[] { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID };
+    }
   }
 }

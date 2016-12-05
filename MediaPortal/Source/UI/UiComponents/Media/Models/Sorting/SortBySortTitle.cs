@@ -23,27 +23,16 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-using System.Linq;
 
-namespace MediaPortal.UiComponents.Media.Models.ScreenData
+namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public class VideosFilterByWriterScreenData : AbstractVideosFilterScreenData<WriterFilterItem>
+  public class SortBySortTitle : AbstractSortByComparableObjectAttribute<string>
   {
-    public VideosFilterByWriterScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_WRITER, Consts.RES_FILTER_BY_WRITER_MENU_ITEM,
-        Consts.RES_FILTER_WRITER_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_WRITERS))
+    public SortBySortTitle() : base(Consts.RES_SORT_BY_SORT_TITLE, Consts.RES_GROUP_BY_SORT_TITLE, MediaAspect.ATTR_SORT_TITLE)
     {
-      _availableMias = Consts.NECESSARY_PERSON_MIAS;
-      if (Consts.OPTIONAL_PERSON_MIAS != null)
-        _availableMias = _availableMias.Union(Consts.OPTIONAL_PERSON_MIAS);
-    }
-
-    public override AbstractFiltersScreenData<WriterFilterItem> Derive()
-    {
-      return new VideosFilterByWriterScreenData();
+      _includeMias = new[] { MediaAspect.ASPECT_ID };
+      _excludeMias = new[] { PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
     }
   }
 }

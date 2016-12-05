@@ -68,6 +68,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _availableSortings = new List<Sorting.Sorting>
         {
           _defaultSorting,
+          new SortBySortTitle(),
+          new SortByName(),
           new SortByYear(),
           new VideoSortByFirstGenre(),
           new VideoSortByDuration(),
@@ -85,6 +87,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         {
           //_defaultGrouping,
           new SortByTitle(),
+          new SortBySortTitle(),
+          new SortByName(),
           new SortByYear(),
           new VideoSortByFirstGenre(),
           new VideoSortByDuration(),
@@ -94,6 +98,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           new VideoSortBySize(),
           new VideoSortByAspectRatio(),
           new SortByAddedDate(),
+          new SortBySystem(),
         };
     }
   }

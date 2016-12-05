@@ -174,7 +174,9 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get
       {
-        ICollection<Sorting.Sorting> result = _availableSortings;
+        ICollection<Sorting.Sorting> result = null;
+        if(_availableSortings != null)
+          result = _availableSortings.Where(s => s.IsAvailable(_currentScreenData)).ToList();
         if (result != null)
           return result;
         NavigationData parent = _parent;
@@ -221,7 +223,9 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get
       {
-        ICollection<Sorting.Sorting> result = _availableGroupings;
+        ICollection<Sorting.Sorting> result = null;
+        if (_availableSortings != null)
+          result = _availableGroupings.Where(s => s.IsAvailable(_currentScreenData)).ToList();
         if (result != null)
           return result;
         NavigationData parent = _parent;
@@ -378,6 +382,8 @@ namespace MediaPortal.UiComponents.Media.Models
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
           _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, nextSortingMode, nextGroupingMode, true)
       {
+        AvailableSortings = _availableSortings,
+        AvailableGroupings = _availableGroupings,
         LayoutType = nextScreenConfig.LayoutType,
         LayoutSize = nextScreenConfig.LayoutSize
       };
@@ -421,7 +427,13 @@ namespace MediaPortal.UiComponents.Media.Models
 
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
           newState.StateId, newState.StateId, subViewSpecification, nextScreen, remainingScreens,
-          nextSortingMode, nextGroupingMode) { LayoutType = nextScreenConfig.LayoutType, LayoutSize = nextScreenConfig.LayoutSize };
+          nextSortingMode, nextGroupingMode)
+      {
+        AvailableSortings = _availableSortings,
+        AvailableGroupings = _availableGroupings,
+        LayoutType = nextScreenConfig.LayoutType,
+        LayoutSize = nextScreenConfig.LayoutSize
+      };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
     }

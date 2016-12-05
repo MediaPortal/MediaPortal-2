@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -35,6 +36,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_SERIES_FILTER_BY_COMPANY, Consts.RES_FILTER_BY_COMPANY_MENU_ITEM,
         Consts.RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL, new FilterByCompanyCriterion(SeriesAspect.ROLE_SERIES))
     {
+      _availableMias = Consts.NECESSARY_COMPANY_MIAS;
+      if (Consts.OPTIONAL_COMPANY_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_COMPANY_MIAS);
     }
 
     public override AbstractFiltersScreenData<CompanyFilterItem> Derive()

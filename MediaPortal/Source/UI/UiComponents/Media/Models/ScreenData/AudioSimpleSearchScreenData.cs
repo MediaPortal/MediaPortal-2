@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.General;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -33,6 +34,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public AudioSimpleSearchScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_AUDIO_SIMPLE_SEARCH, Consts.RES_SIMPLE_SEARCH_FILTER_MENU_ITEM, playableItemCreator)
     {
+      _availableMias = Consts.NECESSARY_AUDIO_MIAS;
+      if (Consts.OPTIONAL_AUDIO_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_AUDIO_MIAS);
     }
 
     public override AbstractItemsScreenData Derive()
@@ -48,7 +52,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           new LikeFilter(AudioAspect.ATTR_ALBUMARTISTS, GetSearchTerm(), null),
           new LikeFilter(AudioAspect.ATTR_ARTISTS, GetSearchTerm(), null),
-          new LikeFilter(MediaAspect.ATTR_TITLE, GetSearchTerm(), null)
+          new LikeFilter(MediaAspect.ATTR_TITLE, GetSearchTerm(), null),
+          new LikeFilter(AudioAspect.ATTR_TRACKNAME, GetSearchTerm(), null)
         });
       return filter;
     }

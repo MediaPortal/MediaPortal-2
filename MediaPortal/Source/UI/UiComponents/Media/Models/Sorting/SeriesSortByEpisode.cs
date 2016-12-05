@@ -32,6 +32,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SeriesSortByEpisode : SortByTitle
   {
+    public SeriesSortByEpisode()
+    {
+      _includeMias = new[] { EpisodeAspect.ASPECT_ID };
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_EPISODE; }

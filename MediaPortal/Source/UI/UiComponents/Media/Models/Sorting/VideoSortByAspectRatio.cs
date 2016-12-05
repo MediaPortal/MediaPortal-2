@@ -29,6 +29,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortByAspectRatio : AbstractSortByComparableValueAttribute<float>
   {
-    public VideoSortByAspectRatio() : base(Consts.RES_SORT_BY_ASPECT_RATIO, Consts.RES_GROUP_BY_ASPECT_RATIO, VideoStreamAspect.ATTR_ASPECTRATIO) {}
+    public VideoSortByAspectRatio() : base(Consts.RES_SORT_BY_ASPECT_RATIO, Consts.RES_GROUP_BY_ASPECT_RATIO, VideoStreamAspect.ATTR_ASPECTRATIO)
+    {
+      _includeMias = new[] { VideoStreamAspect.ASPECT_ID };
+    }
   }
 }

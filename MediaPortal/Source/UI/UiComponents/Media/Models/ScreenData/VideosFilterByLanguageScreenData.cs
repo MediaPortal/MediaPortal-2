@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -34,7 +35,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public VideosFilterByLanguageScreenData() :
         base(Consts.SCREEN_VIDEOS_FILTER_BY_AUDIO_LANG, Consts.RES_FILTER_BY_AUDIO_LANG_MENU_ITEM,
         Consts.RES_FILTER_AUDIO_LANG_NAVBAR_DISPLAY_LABEL, new LanguageFilterCriterion(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE))
-    { }
+    {
+      _availableMias = Consts.NECESSARY_VIDEO_MIAS;
+      if (Consts.OPTIONAL_VIDEO_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_VIDEO_MIAS);
+    }
 
     public override AbstractFiltersScreenData<FilterItem> Derive()
     {

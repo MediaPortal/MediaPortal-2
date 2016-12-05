@@ -33,6 +33,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class AudioSortByAlbumTrack : SortByTitle
   {
+    public AudioSortByAlbumTrack()
+    {
+      _includeMias = new[] { AudioAspect.ASPECT_ID };
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_ALBUM_TRACK; }

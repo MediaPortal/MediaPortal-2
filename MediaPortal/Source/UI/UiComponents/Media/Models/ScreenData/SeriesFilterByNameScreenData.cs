@@ -37,6 +37,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, new FilterBySeriesCriterion())
     {
       _itemMias = new[] { VideoAspect.ASPECT_ID };
+      _availableMias = Consts.NECESSARY_SERIES_MIAS;
+      if (Consts.OPTIONAL_SERIES_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_SERIES_MIAS);
     }
 
     public override AbstractFiltersScreenData<SeriesFilterItem> Derive()
