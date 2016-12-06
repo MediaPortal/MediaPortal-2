@@ -43,6 +43,8 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="LocalMovieActorFanartProvider.cs" />
+    <Compile Include="LocalSeriesActorFanartProvider.cs" />
     <Compile Include="LocalMovieCollectionFanartProvider.cs" />
     <Compile Include="LocalSeriesFanartProvider.cs" />
     <Compile Include="LocalSeasonFanartProvider.cs" />
