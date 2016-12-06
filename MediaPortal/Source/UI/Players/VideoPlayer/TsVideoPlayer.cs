@@ -58,7 +58,7 @@ namespace MediaPortal.UI.Players.Video
 
     #region Variables
 
-    protected IBaseFilter _sourceFilter = null;
+    protected FilterFileWrapper _sourceFilter = null;
     protected SubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected GraphRebuilder _graphRebuilder;
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.Players.Video
       base.FreeCodecs();
 
       // Free file source
-      FilterGraphTools.TryRelease(ref _sourceFilter);
+      FilterGraphTools.TryDispose(ref _sourceFilter);
     }
 
     /// <summary>
@@ -106,14 +106,15 @@ namespace MediaPortal.UI.Players.Video
     {
       // Render the file
       _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      var baseFilter = _sourceFilter.GetFilter();
 
-      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
-      ITsReader tsReader = (ITsReader)_sourceFilter;
+      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;
+      ITsReader tsReader = (ITsReader)baseFilter;
       tsReader.SetRelaxedMode(1);
       tsReader.SetTsReaderCallback(this);
       tsReader.SetRequestAudioChangeCallback(this);
 
-      _graphBuilder.AddFilter(_sourceFilter, TSREADER_FILTER_NAME);
+      _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
       _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
@@ -162,12 +163,12 @@ namespace MediaPortal.UI.Players.Video
         }
       }
       // Init GraphRebuilder
-      _graphRebuilder = new GraphRebuilder(_graphBuilder, _sourceFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
+      _graphRebuilder = new GraphRebuilder(_graphBuilder, baseFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
     }
 
     protected override void OnBeforeGraphRunning()
     {
-      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter.GetFilter());
     }
 
     #endregion

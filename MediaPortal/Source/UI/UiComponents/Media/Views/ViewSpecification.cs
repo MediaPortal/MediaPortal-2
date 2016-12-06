@@ -28,9 +28,6 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.Settings;
-using MediaPortal.Common.Settings;
-using MediaPortal.Common;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.UI.Presentation.DataObjects;
 

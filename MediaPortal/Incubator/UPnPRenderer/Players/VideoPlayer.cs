@@ -23,21 +23,29 @@
 #endregion
 
 using MediaPortal.UI.Players.Video;
+using MediaPortal.UI.Players.Video.Tools;
 
 namespace MediaPortal.UPnPRenderer.Players
 {
   public class UPnPRendererVideoPlayer : VideoPlayer
   {
+    private FilterFileWrapper _filterWrapper;
     public const string MIMETYPE = "upnpvideo/upnprenderer";
 
     protected override void AddSourceFilter()
     {
-      PlayerHelpers.AddSourceFilterOverride(base.AddSourceFilter, _resourceAccessor, _graphBuilder);
+      PlayerHelpers.AddSourceFilterOverride(base.AddSourceFilter, _resourceAccessor, _graphBuilder, out _filterWrapper);
     }
 
     public override string Name
     {
       get { return "UPnPRenderer Video Player"; }
+    }
+
+    public override void Dispose()
+    {
+      FilterGraphTools.TryDispose(ref _filterWrapper);
+      base.Dispose();
     }
   }
 }

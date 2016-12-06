@@ -34,7 +34,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the album aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("352151B1-50AA-45D4-89E6-517ED8C8F411");
+    public static readonly Guid ASPECT_ID = new Guid("E33242E8-3AD6-487B-9BA4-EB61037CED3E");
 
     /// <summary>
     /// Album name.

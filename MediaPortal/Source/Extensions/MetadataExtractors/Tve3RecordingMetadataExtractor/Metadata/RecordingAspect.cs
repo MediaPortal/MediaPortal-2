@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.Aspects
     /// <summary>
     /// Media item aspect id of the recording aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("C389F655-ED60-4271-91EA-EC589BD815C6");
+    public static readonly Guid ASPECT_ID = new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913");
 
     /// <summary>
     /// Channel name where the program was recorded.

@@ -23,23 +23,31 @@
 #endregion
 
 using MediaPortal.UI.Players.Video;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UPnPRenderer.Players
 {
   public class UPnPRendererAudioPlayer : BaseDXPlayer, IAudioPlayer
   {
+    private FilterFileWrapper _filterWrapper;
     public const string MIMETYPE = "upnpaudio/upnprenderer";
     public const string DUMMY_FILE = "UPnPRenderer://localhost/UPnPRendererAudio.upnp";
 
     protected override void AddSourceFilter()
     {
-      PlayerHelpers.AddSourceFilterOverride(base.AddSourceFilter, _resourceAccessor, _graphBuilder);
+      PlayerHelpers.AddSourceFilterOverride(base.AddSourceFilter, _resourceAccessor, _graphBuilder, out _filterWrapper);
     }
 
     public override string Name
     {
       get { return "UPnPRenderer Audio Player"; }
+    }
+
+    public override void Dispose()
+    {
+      FilterGraphTools.TryDispose(ref _filterWrapper);
+      base.Dispose();
     }
   }
 }

@@ -428,7 +428,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ICollection<string> miamSerializations = SelectAllMediaItemAspectMetadataSerializations().Values;
       IList<MediaItemAspectMetadata> result = new List<MediaItemAspectMetadata>(miamSerializations.Count);
       foreach (string serialization in miamSerializations)
-        result.Add(MediaItemAspectMetadata.Deserialize(serialization));
+      {
+        try
+        {
+          result.Add(MediaItemAspectMetadata.Deserialize(serialization));
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("MIA Management: Skipping incompatible MediaItemAspectMetadata: {0} ({1})", ex.Message, serialization.Substring(0, 50));
+        }
+      }
       return result;
     }
 

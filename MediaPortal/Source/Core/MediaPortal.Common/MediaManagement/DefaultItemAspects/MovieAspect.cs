@@ -36,7 +36,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the series aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("4A061571-5EDA-4D57-9A07-F7533C22EB23");
+    public static readonly Guid ASPECT_ID = new Guid("C5C21762-FA8A-4C51-8C5B-6B0BF7FB162A");
 
     /// <summary>
     /// Contains the localized name of the movie.

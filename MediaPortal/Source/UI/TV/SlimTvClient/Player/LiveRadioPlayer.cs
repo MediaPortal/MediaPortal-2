@@ -53,7 +53,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #endregion
 
-    protected IBaseFilter _sourceFilter = null;
+    protected FilterFileWrapper _sourceFilter = null;
     protected bool _useTsReader;
 
     public LiveRadioPlayer(bool useTsReader)
@@ -80,14 +80,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
       // Render the file
       _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      var baseFilter = _sourceFilter.GetFilter();
 
-      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)_sourceFilter;
-      ITsReader tsReader = (ITsReader)_sourceFilter;
+      IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;
+      ITsReader tsReader = (ITsReader)baseFilter;
       tsReader.SetRelaxedMode(1);
       tsReader.SetTsReaderCallback(this);
       tsReader.SetRequestAudioChangeCallback(this);
 
-      _graphBuilder.AddFilter(_sourceFilter, TSREADER_FILTER_NAME);
+      _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
@@ -132,13 +133,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         return;
       }
 
-      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter);
+      FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter.GetFilter());
     }
 
     protected override void FreeCodecs()
     {
       // Free file source
-      FilterGraphTools.TryRelease(ref _sourceFilter);
+      FilterGraphTools.TryDispose(ref _sourceFilter);
 
       base.FreeCodecs();
 

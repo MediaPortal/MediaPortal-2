@@ -150,15 +150,15 @@
   </Register>
 
   <!-- Contents of '/Players' section -->
-  <Register Location="/Configuration/Settings/Players">
+  <Register Location="/Configuration/Settings/Players/">
     <ConfigSection
-        Id="Rendering"
+        Id="VideoPlayer"
         Redundant="true"
-        Text="[Settings.Players.Rendering]"/>
+        Text="[Settings.Players.VideoPlayer]"/>
   </Register>
 
   <!-- Contents of '/Players/Rendering' section -->
-  <Register Location="/Configuration/Settings/Players/Rendering">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer">
     <ConfigSetting
         Id="DefaultGeometry"
         Text="[Settings.Players.Rendering.DefaultGeometry]"

@@ -143,7 +143,7 @@ namespace MediaPortal.UI.Services.Players
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error getting resume state from plater '{0}'", e, resumablePlayer);
+        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error getting resume state from player '{0}'", e, resumablePlayer);
       }
     }
 
