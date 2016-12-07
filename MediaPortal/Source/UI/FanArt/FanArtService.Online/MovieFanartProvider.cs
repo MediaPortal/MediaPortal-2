@@ -65,6 +65,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       FanArtTypes.Banner,
     };
 
+    public FanArtProviderSource Source { get { return FanArtProviderSource.Cache; } }
+
     /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
     /// The name can be: Series name, Actor name, Artist name depending on the <paramref name="mediaType"/>.
