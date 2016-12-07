@@ -73,6 +73,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public AudioFanArtHandler()
     {
+      AudioMetadataExtractor.FANART_HANDLER = this;
+
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Audio FanArt handler");
 
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();
@@ -506,6 +508,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public void DeleteFanArt(Guid mediaItemId)
     {
       Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+    }
+
+    public void ClearCache()
+    {
+      _checkCache.Clear();
     }
 
     private static ILogger Logger

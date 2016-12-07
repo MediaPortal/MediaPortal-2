@@ -71,6 +71,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public SeriesFanArtHandler()
     {
+      SeriesMetadataExtractor.FANART_HANDLER = this;
+
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Series FanArt handler");
     }
 
@@ -613,6 +615,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       _checkCache.Remove(mediaItemId);
       Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+    }
+
+    public void ClearCache()
+    {
+      _checkCache.Clear();
     }
 
     private static ILogger Logger

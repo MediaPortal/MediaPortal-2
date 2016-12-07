@@ -36,13 +36,15 @@ using MediaPortal.Extensions.OnlineLibraries;
 using System.IO;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Common.Messaging;
+using System.Threading;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for Movies.
   /// </summary>
-  public class MovieMetadataExtractor : IMetadataExtractor
+  public class MovieMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -63,10 +65,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     #region Protected fields and classes
 
+    internal static MovieRelationshipExtractor RELATIONSHIP_EXTRACTOR = null;
+    internal static MovieFanArtHandler FANART_HANDLER = null;
+
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
-    protected MetadataExtractorMetadata _metadata;
-    protected SettingsChangeWatcher<MovieMetadataExtractorSettings> _settingWatcher;
     private static readonly ICollection<String> IMG_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".jpg", ".png", ".tbn" };
+
+    protected MetadataExtractorMetadata _metadata;
+    protected AsynchronousMessageQueue _messageQueue;
+    protected int _importerCount;
+    protected SettingsChangeWatcher<MovieMetadataExtractorSettings> _settingWatcher;
 
     #endregion
 
@@ -89,10 +97,49 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 MediaAspect.Metadata,
                 MovieAspect.Metadata
               });
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ImporterWorkerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+
       _settingWatcher = new SettingsChangeWatcher<MovieMetadataExtractorSettings>();
       _settingWatcher.SettingsChanged += SettingsChanged;
 
       LoadSettings();
+    }
+
+    public void Dispose()
+    {
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+            if (Interlocked.Increment(ref _importerCount) == 1)
+            {
+              if (FANART_HANDLER != null)
+                FANART_HANDLER.ClearCache();
+            }
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            if (Interlocked.Decrement(ref _importerCount) == 0)
+            {
+              if (RELATIONSHIP_EXTRACTOR != null)
+                foreach (IMovieRelationshipExtractor extractor in RELATIONSHIP_EXTRACTOR.RoleExtractors)
+                  extractor.ClearCache();
+            }
+            break;
+        }
+      }
     }
 
     #endregion
