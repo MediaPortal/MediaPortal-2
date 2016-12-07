@@ -59,7 +59,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       ProviderResourceAspect.ASPECT_ID,
       MediaAspect.ASPECT_ID,
       VideoAspect.ASPECT_ID,
-      new Guid("C389F655-ED60-4271-91EA-EC589BD815C6") /* RecordingAspect.ASPECT_ID*/
+      new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") /* RecordingAspect.ASPECT_ID*/
     };
 
     private readonly AbstractProperty _queryLimitProperty;
