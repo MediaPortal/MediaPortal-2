@@ -34,14 +34,6 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class FilterItem : ContainerItem
   {
-    public bool ShowVirtualMedia
-    {
-      get
-      {
-        return ShowVirtualSetting.ShowVirtualMedia;
-      }
-    }
-
     public FilterItem(string name, int? numItems)
       : base(numItems)
     {

@@ -126,7 +126,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      var items = contentDirectory.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia);
+      var items = contentDirectory.Search(query, false, userProfile, ShowVirtualSetting.ShowVirtualMedia(necessaryMIAs));
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

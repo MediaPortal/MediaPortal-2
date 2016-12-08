@@ -63,13 +63,5 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     /// <exception cref="NotConnectedException">If the media library is currently not connected.</exception>
     public abstract ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter,
         IFilter filter);
-
-    public bool ShowVirtualMedia
-    {
-      get
-      {
-        return ShowVirtualSetting.ShowVirtualMedia;
-      }
-    }
   }
 }

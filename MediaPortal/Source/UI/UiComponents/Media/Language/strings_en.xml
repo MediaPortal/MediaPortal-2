@@ -468,6 +468,9 @@
   
   <string name="Settings.Media.ShowVirtual">Show all known media items</string>
   <string name="Settings.Media.ShowVirtual.Help">Select whether to show all known media items even if there is not a local file reference</string>
+  <string name="Settings.Media.ShowVirtual.Audio">Show all known album tracks</string>
+  <string name="Settings.Media.ShowVirtual.Movie">Show all known collection movies</string>
+  <string name="Settings.Media.ShowVirtual.Series">Show all known seasons and episodes</string>
 
   <!-- Secondary filters -->
   <string name="Filter.RemoteNumericAlphabet0"></string>

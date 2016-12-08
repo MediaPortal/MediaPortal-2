@@ -56,7 +56,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         throw new NotConnectedException("The MediaLibrary is not connected");
 
       HomogenousMap valueGroups = cd.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, null, ProjectionFunction.DateToYear,
-          necessaryMIATypeIds, filter, true, ShowVirtualSetting.ShowVirtualMedia);
+          necessaryMIATypeIds, filter, true, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       IDictionary<int, int> decadesToNumItems = new Dictionary<int, int>();
