@@ -28,9 +28,6 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.Settings;
-using MediaPortal.Common.Settings;
-using MediaPortal.Common;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.UI.Presentation.DataObjects;
 
@@ -121,14 +118,6 @@ namespace MediaPortal.UiComponents.Media.Views
     public virtual int? AbsNumItems
     {
       get { return null; }
-    }
-
-    public bool ShowVirtualMedia
-    {
-      get
-      {
-        return ShowVirtualSetting.ShowVirtualMedia;
-      }
     }
 
     /// <summary>

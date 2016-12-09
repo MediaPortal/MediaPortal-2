@@ -32,6 +32,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortBySize : SortByTitle
   {
+    public VideoSortBySize()
+    {
+      _includeMias = new[] { VideoStreamAspect.ASPECT_ID };
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_SIZE; }
@@ -41,9 +46,10 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       IList<MultipleMediaItemAspect> videoAspectsX;
       IList<MultipleMediaItemAspect> videoAspectsY;
-      if (MediaItemAspect.TryGetAspects(item1.Aspects, VideoStreamAspect.Metadata, out videoAspectsX) && MediaItemAspect.TryGetAspects(item2.Aspects, VideoStreamAspect.Metadata, out videoAspectsY))
+      int smallestX = -1;
+      int smallestY = -1;
+      if (MediaItemAspect.TryGetAspects(item1.Aspects, VideoStreamAspect.Metadata, out videoAspectsX))
       {
-        int smallestX = -1;
         foreach (MultipleMediaItemAspect videoAspect in videoAspectsX)
         {
           int? x = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
@@ -52,7 +58,9 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
           if (smallestX == -1 || size < smallestX)
             smallestX = size;
         }
-        int smallestY = -1;
+      }
+      if (MediaItemAspect.TryGetAspects(item2.Aspects, VideoStreamAspect.Metadata, out videoAspectsY))
+      {
         foreach (MultipleMediaItemAspect videoAspect in videoAspectsY)
         {
           int? x = (int?)videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
@@ -61,9 +69,8 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
           if (smallestY == -1 || size < smallestY)
             smallestY = size;
         }
-        return smallestX - smallestY;
       }
-      return base.Compare(item1, item2);
+      return smallestX.CompareTo(smallestY);
     }
 
     public override string GroupByDisplayName
@@ -74,13 +81,13 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public override object GetGroupByValue(MediaItem item)
     {
       IList<MediaItemAspect> videoAspect;
-      if (item.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+      if (item.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out videoAspect))
       {
         int? x = (int?)videoAspect.First().GetAttributeValue(VideoStreamAspect.ATTR_WIDTH);
         int? y = (int?)videoAspect.First().GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT);
         return x.HasValue && y.HasValue ? (x.Value < y.Value ? x.Value : y.Value) : 0;
       }
-      return base.GetGroupByValue(item);
+      return null;
     }
   }
 }

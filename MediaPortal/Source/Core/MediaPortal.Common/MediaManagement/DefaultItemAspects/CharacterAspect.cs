@@ -35,7 +35,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the character aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("47FDA71B-FB4E-4538-AD73-8F45EA6405D6");
+    public static readonly Guid ASPECT_ID = new Guid("1B64DA77-B206-4867-817C-2AE7CEFD0E6F");
 
     /// <summary>
     /// Character name.

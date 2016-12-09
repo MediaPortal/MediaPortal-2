@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -58,7 +59,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalTracks = "";
 
-        if (ShowVirtualMedia)
+        if (ShowVirtualSetting.ShowVirtualAudioMedia)
           Tracks = TotalTracks;
         else
           Tracks = AvailableTracks;

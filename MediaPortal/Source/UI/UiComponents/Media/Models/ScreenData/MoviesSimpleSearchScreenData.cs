@@ -24,6 +24,8 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.General;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -32,6 +34,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public MoviesSimpleSearchScreenData(PlayableItemCreatorDelegate playableItemCreator) :
       base(playableItemCreator)
     {
+      _availableMias = Consts.NECESSARY_MOVIES_MIAS;
+      if (Consts.OPTIONAL_MOVIES_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_MOVIES_MIAS);
     }
 
     public override AbstractItemsScreenData Derive()

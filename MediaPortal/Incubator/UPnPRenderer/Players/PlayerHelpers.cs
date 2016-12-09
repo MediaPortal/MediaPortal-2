@@ -34,28 +34,31 @@ namespace MediaPortal.UPnPRenderer.Players
 {
   public static class PlayerHelpers
   {
-    public static void AddSourceFilterOverride(Action fallbackAction, IResourceAccessor resourceAccessor, IGraphBuilder graphBuilder)
+    public static void AddSourceFilterOverride(Action fallbackAction, IResourceAccessor resourceAccessor, IGraphBuilder graphBuilder, out FilterFileWrapper filterWrapper)
     {
       string sourceFilterName = GetSourceFilterName(resourceAccessor.ResourcePathName);
+      filterWrapper = null;
       if (string.IsNullOrEmpty(sourceFilterName))
       {
         fallbackAction();
       }
       else
       {
-        AddStreamSourceFilter(sourceFilterName, resourceAccessor, graphBuilder);
+        AddStreamSourceFilter(sourceFilterName, resourceAccessor, graphBuilder, out filterWrapper);
       }
     }
 
-    public static void AddStreamSourceFilter(string sourceFilterName, IResourceAccessor resourceAccessor, IGraphBuilder graphBuilder)
+    public static void AddStreamSourceFilter(string sourceFilterName, IResourceAccessor resourceAccessor, IGraphBuilder graphBuilder, out FilterFileWrapper filterWrapper)
     {
+      filterWrapper = null;
       IBaseFilter sourceFilter = null;
       try
       {
         if (sourceFilterName == Utils.FilterName)
         {
           var filterPath = FileUtils.BuildAssemblyRelativePath(@"MPUrlSourceSplitter\MPUrlSourceSplitter.ax");
-          sourceFilter = FilterLoader.LoadFilterFromDll(filterPath, new Guid(Utils.FilterCLSID));
+          filterWrapper = FilterLoader.LoadFilterFromDll(filterPath, new Guid(Utils.FilterCLSID));
+          sourceFilter = filterWrapper.GetFilter();
           if (sourceFilter != null)
           {
             graphBuilder.AddFilter(sourceFilter, Utils.FilterName);

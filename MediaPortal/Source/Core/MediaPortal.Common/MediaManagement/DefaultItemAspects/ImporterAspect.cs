@@ -35,7 +35,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Aspect id of the importer aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("CC0163FE-55A5-426c-A29C-F1D64AF7E683");
+    public static readonly Guid ASPECT_ID = new Guid("A531385E-771B-48B3-8CE0-EE0611A84A17");
 
     /// <summary>
     /// Date and time of the last import of the media item.

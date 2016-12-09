@@ -43,13 +43,15 @@ using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers;
 using System.Globalization;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Messaging;
+using System.Threading;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for audio files. Supports several formats.
   /// </summary>
-  public class AudioMetadataExtractor : IMetadataExtractor
+  public class AudioMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -69,6 +71,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     #region Fields and classes
 
+    internal static AudioRelationshipExtractor RELATIONSHIP_EXTRACTOR = null;
+    internal static AudioFanArtHandler FANART_HANDLER = null;
+
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> AUDIO_EXTENSIONS = new List<string>();
     protected static ICollection<string> UNSPLITTABLE_ID3V23_VALUES = new List<string>();
@@ -77,6 +82,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     protected static ICollection<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
 
     protected SettingsChangeWatcher<AudioMetadataExtractorSettings> _settingWatcher;
+    protected AsynchronousMessageQueue _messageQueue;
+    protected int _importerCount;
 
     /// <summary>
     /// Audio file accessor class needed for our tag library implementation. This class maps
@@ -170,10 +177,49 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 AudioAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ImporterWorkerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+
       _settingWatcher = new SettingsChangeWatcher<AudioMetadataExtractorSettings>();
       _settingWatcher.SettingsChanged += SettingsChanged;
 
       LoadSettings();
+    }
+
+    public void Dispose()
+    {
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+            if(Interlocked.Increment(ref _importerCount) == 1)
+            {
+              if (FANART_HANDLER != null)
+                FANART_HANDLER.ClearCache();
+            }
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            if (Interlocked.Decrement(ref _importerCount) == 0)
+            {
+              if(RELATIONSHIP_EXTRACTOR != null)
+                foreach (IAudioRelationshipExtractor extractor in RELATIONSHIP_EXTRACTOR.RoleExtractors)
+                  extractor.ClearCache();
+            }
+            break;
+        }
+      }
     }
 
     #endregion

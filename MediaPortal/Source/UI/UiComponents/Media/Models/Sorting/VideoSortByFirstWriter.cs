@@ -29,7 +29,10 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class VideoSortByFirstWriter : AbstractSortByFirstComparableAttribute<string>
   {
-    public VideoSortByFirstWriter() : base(VideoAspect.ATTR_WRITERS) { }
+    public VideoSortByFirstWriter() : base(VideoAspect.ATTR_WRITERS)
+    {
+      _includeMias = new[] { VideoAspect.ASPECT_ID };
+    }
 
     public override string DisplayName
     {

@@ -49,6 +49,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     #region Implementation of IFanArtProvider
 
+    public FanArtProviderSource Source { get { return FanArtProviderSource.Database; } }
+
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)
     {
       result = null;

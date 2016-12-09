@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -35,6 +36,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_SERIES_FILTER_BY_GENRE, Consts.RES_FILTER_BY_VIDEO_GENRE_MENU_ITEM,
         Consts.RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(GenreAspect.ATTR_ID, GenreAspect.ATTR_GENRE, Consts.NECESSARY_SERIES_GENRE_MIAS))
     {
+      _availableMias = Consts.NECESSARY_SERIES_MIAS;
+      if (Consts.OPTIONAL_SERIES_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_SERIES_MIAS);
     }
 
     public override AbstractFiltersScreenData<GenreFilterItem> Derive()

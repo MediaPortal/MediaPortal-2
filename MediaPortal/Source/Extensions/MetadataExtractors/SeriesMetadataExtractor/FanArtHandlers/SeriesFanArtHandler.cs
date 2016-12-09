@@ -71,6 +71,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public SeriesFanArtHandler()
     {
+      SeriesMetadataExtractor.FANART_HANDLER = this;
+
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Series FanArt handler");
     }
 
@@ -98,7 +100,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       SingleMediaItemAspect videoAspect;
       List<string> actors = new List<string>();
       if (MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out videoAspect))
-        actors.AddRange(videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS).Cast<string>());
+      {
+        IEnumerable<object> actorObjects = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
+        if (actorObjects != null)
+          actors.AddRange(actorObjects.Cast<string>());
+      }
 
       IList<MultipleMediaItemAspect> relationAspects;
       if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationAspects))
@@ -323,7 +329,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                   {
                     foreach (var actor in actorMediaItems)
                     {
-                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(actorMediaItemDirectory);
 
                       foreach (ResourcePath thumbPath in
                           from potentialFanArtFile in potentialArtistFanArtFiles
@@ -609,6 +615,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       _checkCache.Remove(mediaItemId);
       Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+    }
+
+    public void ClearCache()
+    {
+      _checkCache.Clear();
     }
 
     private static ILogger Logger

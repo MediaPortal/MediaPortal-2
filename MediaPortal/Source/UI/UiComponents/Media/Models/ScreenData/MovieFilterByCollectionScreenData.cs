@@ -22,9 +22,11 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -34,6 +36,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       base(Consts.SCREEN_MOVIES_FILTER_BY_COLLECTION, Consts.RES_FILTER_BY_MOVIES_COLLECTION_MENU_ITEM,
         Consts.RES_FILTER_MOVIES_COLLECTION_NAVBAR_DISPLAY_LABEL, new FilterByMovieCollectionCriterion())
     {
+      _availableMias = Consts.NECESSARY_MOVIE_COLLECTION_MIAS;
+      if (Consts.OPTIONAL_MOVIE_COLLECTION_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_MOVIE_COLLECTION_MIAS);
     }
 
     public override AbstractFiltersScreenData<MovieFilterItem> Derive()

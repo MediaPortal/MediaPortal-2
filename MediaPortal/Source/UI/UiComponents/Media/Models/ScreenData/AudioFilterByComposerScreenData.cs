@@ -22,9 +22,11 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -34,6 +36,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_AUDIO_FILTER_BY_COMPOSER, Consts.RES_FILTER_BY_COMPOSER_MENU_ITEM,
         Consts.RES_FILTER_COMPOSER_NAVBAR_DISPLAY_LABEL, new FilterByComposerCriterion())
     {
+      _availableMias = Consts.NECESSARY_PERSON_MIAS;
+      if (Consts.OPTIONAL_PERSON_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_PERSON_MIAS);
     }
 
     public override AbstractFiltersScreenData<ComposerFilterItem> Derive()

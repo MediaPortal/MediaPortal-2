@@ -43,8 +43,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public const string SUBSCHEMA_NAME = "MediaLibrary";
 
-    public const int EXPECTED_SCHEMA_VERSION_MAJOR = 2;
-    public const int EXPECTED_SCHEMA_VERSION_MINOR = 0;
+    public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
+    public const int EXPECTED_SCHEMA_VERSION_MINOR = 1;
 
     internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";

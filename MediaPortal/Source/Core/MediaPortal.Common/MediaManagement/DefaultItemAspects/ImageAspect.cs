@@ -42,7 +42,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the image aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("2E6C3C20-0B0B-4EE3-8A0C-550C6791EAD0");
+    public static readonly Guid ASPECT_ID = new Guid("A3A42A4C-3365-4A85-AE3E-0438D67FF52F");
 
     /// <summary>
     /// Width of the image in pixels.

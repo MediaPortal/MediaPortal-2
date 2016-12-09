@@ -35,7 +35,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the provider resource aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("714BB58A-D4D0-40C3-B394-4FA88FC38911");
+    public static readonly Guid ASPECT_ID = new Guid("B05EE7E4-087E-4958-B05B-E73D5B1DAACA");
 
     /// <summary>
     /// Contains UPnP device UUID of the system where the media item is located.

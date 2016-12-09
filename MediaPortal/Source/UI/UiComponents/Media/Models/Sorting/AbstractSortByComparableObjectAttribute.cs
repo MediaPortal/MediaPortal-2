@@ -26,7 +26,6 @@ using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Utilities;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
@@ -50,7 +49,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     }
 
     protected AbstractSortByComparableObjectAttribute(string displayName, string groupByDisplayName, MediaItemAspectMetadata.MultipleAttributeSpecification sortAttr)
-    : this(displayName, groupByDisplayName, new[] { sortAttr })
+      : this(displayName, groupByDisplayName, new[] { sortAttr })
     {
     }
 
@@ -83,18 +82,22 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         attrY = GetAttributeSpecification(y, _sortMultiAttrs, out aspectY);
       }
 
-      if (attrX != null && attrY != null)
+      T valX = null;
+      T valY = null;
+      if (attrX != null)
       {
-        T valX = (T)aspectX.GetAttributeValue(attrX);
-        T valY = (T)aspectY.GetAttributeValue(attrY);
-        return ObjectUtils.Compare(valX, valY);
+        valX = (T)aspectX.GetAttributeValue(attrX);
       }
-      return 0;
+      if (attrY != null)
+      {
+        valY = (T)aspectY.GetAttributeValue(attrY);
+      }
+      return ObjectUtils.Compare(valX, valY);
     }
 
     public override string GroupByDisplayName
     {
-      get { return _groupByDisplayName; }
+      get {  return _groupByDisplayName; }
     }
 
     public override object GetGroupByValue(MediaItem item)

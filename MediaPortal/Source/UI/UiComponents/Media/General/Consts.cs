@@ -334,6 +334,8 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SWITCH_FILTER = "[Media.SwitchFilterMenuItem]";
 
     public const string RES_SORT_BY_TITLE = "[Media.SortByTitle]";
+    public const string RES_SORT_BY_SORT_TITLE = "[Media.SortBySortTitle]";
+    public const string RES_SORT_BY_NAME = "[Media.SortByName]";
     public const string RES_SORT_BY_ALBUM_TRACK = "[Media.SortByAlbumTrack]";
     public const string RES_SORT_BY_GENRE = "[Media.SortByGenre]";
     public const string RES_SORT_BY_ALBUM = "[Media.SortByAlbum]";
@@ -353,9 +355,16 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_SORT_BY_EPISODE = "[Media.SortByEpisode]";
     public const string RES_SORT_BY_DVD_EPISODE = "[Media.SortByDVDEpisode]";
     public const string RES_SORTING_BROWSE_DEFAULT = "[Media.SortingBrowseDefault]";
+    public const string RES_SORT_BY_CHARACTER = "[Media.SortByCharacter]";
+    public const string RES_SORT_BY_COMPOSER = "[Media.SortByComposer]";
+    public const string RES_SORT_BY_TV_NETWORK = "[Media.SortByTVNetwork]";
+    public const string RES_SORT_BY_PRODUCTION_STUDIO = "[Media.SortByProductionCompany]";
+    public const string RES_SORT_BY_MUSIC_LABEL = "[Media.SortByMusicLabel]";
 
     public const string RES_NO_GROUPING = "[Media.NoGrouping]";
     public const string RES_GROUP_BY_TITLE = "[Media.GroupByTitle]";
+    public const string RES_GROUP_BY_NAME = "[Media.GroupByName]";
+    public const string RES_GROUP_BY_SORT_TITLE = "[Media.GroupBySortTitle]";
     public const string RES_GROUP_BY_ALBUM_TRACK = "[Media.GroupByAlbumTrack]";
     public const string RES_GROUP_BY_GENRE = "[Media.GroupByGenre]";
     public const string RES_GROUP_BY_ALBUM = "[Media.GroupByAlbum]";
@@ -371,9 +380,15 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_GROUP_BY_ASPECT_RATIO = "[Media.GroupByAspectRatio]";
     public const string RES_GROUP_BY_FIRST_AIRED_DATE = "[Media.GroupByFirstAiredDate]";
     public const string RES_GROUP_BY_DATE = "[Media.GroupByDate]";
+    public const string RES_GROUP_BY_ADDED_DATE = "[Media.GroupByAddedDate]";
     public const string RES_GROUP_BY_EPISODE = "[Media.GroupByEpisode]";
     public const string RES_GROUP_BY_DVD_EPISODE = "[Media.GroupByDVDEpisode]";
     public const string RES_GROUPING_BROWSE_DEFAULT = "[Media.GroupingBrowseDefault]";
+    public const string RES_GROUP_BY_CHARACTER = "[Media.GroupByCharacter]";
+    public const string RES_GROUP_BY_COMPOSER = "[Media.GroupByComposer]";
+    public const string RES_GROUP_BY_TV_NETWORK = "[Media.GroupByTVNetwork]";
+    public const string RES_GROUP_BY_PRODUCTION_STUDIO = "[Media.GroupByProductionCompany]";
+    public const string RES_GROUP_BY_MUSIC_LABEL = "[Media.GroupByMusicLabel]";
 
     // Image and video size thresholds
     /// <summary>

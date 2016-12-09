@@ -70,7 +70,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the relationship aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("4C43FFDC-8A43-42F0-A6EF-3A0ECA46F9AA");
+    public static readonly Guid ASPECT_ID = new Guid("242A6B8D-D75B-4C28-BDF8-4ED1BAD08038");
 
     /// <summary>
     /// Source of the identifier

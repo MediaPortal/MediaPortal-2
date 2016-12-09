@@ -108,10 +108,10 @@
   <!-- MediaNavigationFilter -->
   <Register Location="/Media/Filters">
     <MediaNavigationFilterBuilder Id="{DD6FC152-0A98-4E4B-B3F4-643A68364470}" ClassName="VideosNavigationInitializer"
-                                  Filter="{FilterWrapper}{Empty}{AttributeType}c389f655-ed60-4271-91ea-ec589bd815c6:Channel{/AttributeType}{/Empty}{/FilterWrapper}"
+                                  Filter="{FilterWrapper}{Empty}{AttributeType}8DB70262-0DCE-4C80-AD03-FB1CDF7E1913:Channel{/AttributeType}{/Empty}{/FilterWrapper}"
                                   />
     <MediaNavigationFilterBuilder Id="{15A34EEC-3A93-4209-A81E-095C187D5925}" ClassName="AudioNavigationInitializer"
-                                  Filter="{FilterWrapper}{Empty}{AttributeType}c389f655-ed60-4271-91ea-ec589bd815c6:Channel{/AttributeType}{/Empty}{/FilterWrapper}"
+                                  Filter="{FilterWrapper}{Empty}{AttributeType}8DB70262-0DCE-4C80-AD03-FB1CDF7E1913:Channel{/AttributeType}{/Empty}{/FilterWrapper}"
                                   />
   </Register>
 

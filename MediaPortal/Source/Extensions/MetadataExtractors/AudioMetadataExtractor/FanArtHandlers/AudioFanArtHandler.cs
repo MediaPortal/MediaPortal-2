@@ -73,6 +73,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public AudioFanArtHandler()
     {
+      AudioMetadataExtractor.FANART_HANDLER = this;
+
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Audio FanArt handler");
 
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();
@@ -99,7 +101,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       SingleMediaItemAspect audioAspect;
       List<string> artists = new List<string>();
       if (MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out audioAspect))
-        artists.AddRange(audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_ARTISTS).Cast<string>());
+      {
+        IEnumerable<object> artistObjects = audioAspect.GetCollectionAttribute<object>(AudioAspect.ATTR_ARTISTS);
+        if (artistObjects != null)
+          artists.AddRange(artistObjects.Cast<string>());
+      }
 
       IList<MultipleMediaItemAspect> relationAspects;
       if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationAspects))
@@ -316,7 +322,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                   {
                     foreach (var artist in artistMediaItems)
                     {
-                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(alternateArtistMediaItemDirectory);
 
                       foreach (ResourcePath thumbPath in
                           from potentialFanArtFile in potentialArtistFanArtFiles
@@ -502,6 +508,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public void DeleteFanArt(Guid mediaItemId)
     {
       Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+    }
+
+    public void ClearCache()
+    {
+      _checkCache.Clear();
     }
 
     private static ILogger Logger
