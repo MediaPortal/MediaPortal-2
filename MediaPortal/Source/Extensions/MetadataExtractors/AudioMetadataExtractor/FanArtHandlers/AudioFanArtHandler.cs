@@ -73,8 +73,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public AudioFanArtHandler()
     {
-      AudioMetadataExtractor.FANART_HANDLER = this;
-
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Audio FanArt handler");
 
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();

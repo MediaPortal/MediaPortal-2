@@ -54,8 +54,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public MovieRelationshipExtractor()
     {
-      MovieMetadataExtractor.RELATIONSHIP_EXTRACTOR = this;
-
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Movie relationship extractor");
 
       _extractors = new List<IRelationshipRoleExtractor>();
