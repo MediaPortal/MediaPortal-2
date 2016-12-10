@@ -39,8 +39,7 @@ namespace MediaPortal.Common.FanArt
     public static readonly string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     public const int FANART_CLEAN_DELAY = 300000;
 
-    private static Dictionary<string, Dictionary<string, int>> _fanArtCount = new Dictionary<string, Dictionary<string, int>>();
-    private static Dictionary<string, Dictionary<string, object>> _fanArtLock = new Dictionary<string, Dictionary<string, object>>();
+    private static Dictionary<string, Dictionary<string, FanArtCount>> _fanArtCounts = new Dictionary<string, Dictionary<string, FanArtCount>>();
     private static Timer _clearCountTimer = new Timer(ClearFanArtCount, null, Timeout.Infinite, Timeout.Infinite);
     private static object _fanArtCountSync = new object();
     private static object _initSync = new object();
@@ -160,24 +159,34 @@ namespace MediaPortal.Common.FanArt
 
     #region FanArt Count
 
+    public class FanArtCount
+    {
+      public object SyncObj { get; private set; }
+      public int Count { get; set; }
+
+      public FanArtCount(int count)
+      {
+        SyncObj = new object();
+        Count = count;
+      }
+    }
+
     public class FanArtCountLock : IDisposable
     {
+      protected FanArtCount _count;
       public int Count { get; set; }
-      public string Id { get; private set; }
-      public string Type { get; private set; }
 
-      public FanArtCountLock(string MediaItemId, string FanArtType)
+      public FanArtCountLock(FanArtCount count)
       {
-        Monitor.Enter(_fanArtLock[MediaItemId][FanArtType]);
-        Id = MediaItemId;
-        Type = FanArtType;
-        Count = _fanArtCount[MediaItemId][FanArtType];
+        _count = count;
+        Monitor.Enter(_count.SyncObj);
+        Count = _count.Count;
       }
 
       public void Dispose()
       {
-        _fanArtCount[Id][Type] = Count;
-        Monitor.Exit(_fanArtLock[Id][Type]);
+        _count.Count = Count;
+        Monitor.Exit(_count.SyncObj);
       }
     }
 
@@ -186,46 +195,30 @@ namespace MediaPortal.Common.FanArt
       lock (_fanArtCountSync)
       {
         _clearCountTimer.Change(Timeout.Infinite, Timeout.Infinite);
-        _fanArtCount.Clear();
-        _fanArtLock.Clear();
+        _fanArtCounts.Clear();
       }
     }
 
-    public static void InitFanArtCount(string MediaItemId, string FanArtType)
+    protected static FanArtCount InitFanArtCount(string mediaItemId, string fanArtType)
     {
       lock (_fanArtCountSync)
       {
         _clearCountTimer.Change(FANART_CLEAN_DELAY, Timeout.Infinite);
-        if (!_fanArtCount.ContainsKey(MediaItemId) || !_fanArtCount[MediaItemId].ContainsKey(FanArtType))
-        {
-          if (!_fanArtCount.ContainsKey(MediaItemId))
-            _fanArtCount.Add(MediaItemId, new Dictionary<string, int>());
-          if (!_fanArtCount[MediaItemId].ContainsKey(FanArtType))
-            _fanArtCount[MediaItemId].Add(FanArtType, GetFanArtFiles(MediaItemId, FanArtType).Count);
-
-          if (!_fanArtLock.ContainsKey(MediaItemId))
-            _fanArtLock.Add(MediaItemId, new Dictionary<string, object>());
-          if (!_fanArtLock[MediaItemId].ContainsKey(FanArtType))
-            _fanArtLock[MediaItemId].Add(FanArtType, new object());
-        }
+        Dictionary<string, FanArtCount> mediaItemCounts;
+        if (!_fanArtCounts.TryGetValue(mediaItemId, out mediaItemCounts))
+          _fanArtCounts[mediaItemId] = mediaItemCounts = new Dictionary<string, FanArtCount>();
+        FanArtCount count;
+        if (!mediaItemCounts.TryGetValue(fanArtType, out count))
+          mediaItemCounts[fanArtType] = count = new FanArtCount(GetFanArtFiles(mediaItemId, fanArtType).Count);
+        return count;
       }
     }
 
-    public static FanArtCountLock GetFanArtCountLock(string MediaItemId, string FanArtType)
+    public static FanArtCountLock GetFanArtCountLock(string mediaItemId, string fanArtType)
     {
-      if (string.IsNullOrEmpty(MediaItemId))
+      if (string.IsNullOrEmpty(mediaItemId))
         return null;
-
-      _clearCountTimer.Change(FANART_CLEAN_DELAY, Timeout.Infinite);
-      lock (_fanArtCountSync)
-      {
-        if (_fanArtCount.ContainsKey(MediaItemId) && _fanArtCount[MediaItemId].ContainsKey(FanArtType))
-        {
-          FanArtCountLock countLock = new FanArtCountLock(MediaItemId, FanArtType);
-          return countLock;
-        }
-      }
-      return null;
+      return new FanArtCountLock(InitFanArtCount(mediaItemId, fanArtType));
     }
 
     #endregion

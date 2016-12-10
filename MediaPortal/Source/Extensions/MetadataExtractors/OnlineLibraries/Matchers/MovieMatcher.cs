@@ -1232,24 +1232,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!Init())
           return;
 
-        string[] fanArtTypes = new string[]
-        {
-          FanArtTypes.FanArt,
-          FanArtTypes.Poster,
-          FanArtTypes.Banner,
-          FanArtTypes.ClearArt,
-          FanArtTypes.Cover,
-          FanArtTypes.DiscArt,
-          FanArtTypes.Logo,
-          FanArtTypes.Thumbnail
-        };
-
         try
         {
           TLang language = FindMatchingLanguage(data.ShortLanguage);
-          foreach (string fanArtType in fanArtTypes)
-            FanArtCache.InitFanArtCount(data.MediaItemId, fanArtType);
-
           Logger.Debug(_id + " Download: Started for media item {0}", name);
           ApiWrapperImageCollection<TImg> images = null;
           string Id = "";

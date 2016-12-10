@@ -731,14 +731,6 @@ namespace MediaPortal.Common.Services.MediaManagement
       }
     }
 
-    public IDictionary<ImportJobInformation, ImportJobController> ImportJobControllers
-    {
-      get
-      {
-        return new Dictionary<ImportJobInformation, ImportJobController>();
-      }
-    }
-
     public void Startup()
     {
       IsSuspended = true;

@@ -312,12 +312,6 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <returns>Collection of share ids.</returns>
     ICollection<Guid> GetCurrentlyImportingShareIds();
 
-    /// <summary>
-    /// Gets the progress of all shares which are marked as currently being imported.
-    /// </summary>
-    /// <returns>Collection of share progresses.</returns>
-    IDictionary<Guid, int> GetCurrentlyImportingSharesProgresses();
-
     #endregion
 
     #region Playback
