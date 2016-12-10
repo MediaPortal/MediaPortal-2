@@ -22,7 +22,7 @@
   </Grid.ColumnDefinitions>
 
   <media:MovieCollectionAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                                      Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="-10,-15,0,0">
+                                      Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="-10,-15,140,0">
     <media:MovieCollectionAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -46,6 +46,32 @@
              IsVisible="{Binding Path=Movies,Converter={StaticResource ReferenceToBoolConverter}}"
              Margin="0,0,8,0" Color="{ThemeResource TextColor}"/>
     </StackPanel>
+    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                   HorizontalAlignment="Left" VerticalAlignment="Center">
+      <media:UserDataWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,0,5"
+                IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <ProgressBar Height="12" Width="120" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,10,0"
+                         Value="{Binding PlayPercentage}" Style="{ThemeResource PercentageProgressBarStyle}"/>
+            <Label Grid.Column="1" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"
+                   FontSize="{ThemeResource SmallerFontSize}" Margin="0,0,0,5">
+              <Label.Content>
+                <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
+              </Label.Content>
+            </Label>
+          </Grid>
+        </ControlTemplate>
+      </media:UserDataWrapper.Template>
+    </media:UserDataWrapper>
   </StackPanel>
-
+  
 </Grid>
