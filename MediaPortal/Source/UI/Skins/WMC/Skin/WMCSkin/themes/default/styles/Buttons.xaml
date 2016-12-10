@@ -1358,10 +1358,10 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <DockPanel>
-            <Grid DockPanel.Dock="Left" Height="56" Width="56">
-              <Image x:Name="image1" Source="CP_Background.png" Stretch="Uniform" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="18,15,12,15" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <Image x:Name="image3" Source="CP_Circle.png" Stretch="Uniform"  RenderTransformOrigin="0.5,0.5" Margin="0"
+            <Grid DockPanel.Dock="Left" Height="58" Width="58">
+              <Image x:Name="image1" Source="CP_Background.png" Stretch="Uniform" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="19,16,13,16" Opacity="0.4" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <Image x:Name="image3" Source="IsPlaying.png" Stretch="Uniform"  RenderTransformOrigin="0.49,0.49" Margin="0"
                    HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Image.RenderTransform>
                   <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
@@ -1395,10 +1395,10 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <DockPanel>
-            <Grid DockPanel.Dock="Left" Height="56" Width="56">
-              <Image x:Name="image1" Source="CP_Background.png" Stretch="Uniform" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <!--Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="18,15,12,15" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Center"/-->
-              <Image x:Name="image3" Source="Recording_Circle.png" Stretch="Uniform"  RenderTransformOrigin="0.5,0.5" Margin="0"
+            <Grid DockPanel.Dock="Left" Height="58" Width="58">
+              <Image x:Name="image1" Source="CP_Background.png" Stretch="Uniform" Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <Image x:Name="image2" Source="Recording.png" Stretch="Uniform" Margin="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <Image x:Name="image3" Source="IsPlaying.png" Stretch="Uniform"  RenderTransformOrigin="0.49,0.49" Margin="0"
                    HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Image.RenderTransform>
                   <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
@@ -1415,12 +1415,6 @@
                 </Image.Triggers>
               </Image>
             </Grid>
-            <StackPanel Orientation="Vertical" Margin="5,0,5,0" DockPanel.Dock="Right" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-              <mp_special_controls:PlayerControl Style="{ThemeResource CPLabelControlStyle}" 
-                  AutoVisibility="True" PlayerContext="PrimaryPlayer" />
-              <mp_special_controls:PlayerControl Style="{ThemeResource CPLabelControlStyle}"
-                  AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
-            </StackPanel>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>

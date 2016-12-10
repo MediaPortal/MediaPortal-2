@@ -565,8 +565,8 @@
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                   <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
-                  <!--Setter TargetName="ItemGroup" Property="Margin" Value="10,0,10,0"/-->
                   <Setter Property="StackPanel.ZIndex" Value="100.0"/>
                 </Trigger>
               </Button.Triggers>
