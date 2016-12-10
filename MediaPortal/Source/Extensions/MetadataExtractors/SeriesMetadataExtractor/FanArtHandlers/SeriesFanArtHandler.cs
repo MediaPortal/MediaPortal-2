@@ -71,8 +71,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public SeriesFanArtHandler()
     {
-      SeriesMetadataExtractor.FANART_HANDLER = this;
-
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Series FanArt handler");
     }
 

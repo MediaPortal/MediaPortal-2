@@ -51,5 +51,10 @@ namespace MediaPortal.Common.MediaManagement
     /// Deletes no longer needed FanArt from the cache
     /// </summary>
     void DeleteFanArt(Guid mediaItemId);
+
+    /// <summary>
+    /// Clears the internal cache of checked items
+    /// </summary>
+    void ClearCache();
   }
 }

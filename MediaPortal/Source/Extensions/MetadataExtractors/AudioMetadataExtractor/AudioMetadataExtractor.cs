@@ -71,9 +71,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     #region Fields and classes
 
-    internal static AudioRelationshipExtractor RELATIONSHIP_EXTRACTOR = null;
-    internal static AudioFanArtHandler FANART_HANDLER = null;
-
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> AUDIO_EXTENSIONS = new List<string>();
     protected static ICollection<string> UNSPLITTABLE_ID3V23_VALUES = new List<string>();
@@ -206,15 +203,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           case ImporterWorkerMessaging.MessageType.ImportStarted:
             if(Interlocked.Increment(ref _importerCount) == 1)
             {
-              if (FANART_HANDLER != null)
-                FANART_HANDLER.ClearCache();
+              IMediaFanArtHandler fanartHandler;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalFanArtHandlers.TryGetValue(AudioFanArtHandler.FANARTHANDLER_ID, out fanartHandler))
+                fanartHandler.ClearCache();
             }
             break;
           case ImporterWorkerMessaging.MessageType.ImportCompleted:
             if (Interlocked.Decrement(ref _importerCount) == 0)
             {
-              if(RELATIONSHIP_EXTRACTOR != null)
-                foreach (IAudioRelationshipExtractor extractor in RELATIONSHIP_EXTRACTOR.RoleExtractors)
+              IRelationshipExtractor relationshipExtractor;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.TryGetValue(AudioRelationshipExtractor.METADATAEXTRACTOR_ID, out relationshipExtractor))
+                foreach (IAudioRelationshipExtractor extractor in relationshipExtractor.RoleExtractors)
                   extractor.ClearCache();
             }
             break;
