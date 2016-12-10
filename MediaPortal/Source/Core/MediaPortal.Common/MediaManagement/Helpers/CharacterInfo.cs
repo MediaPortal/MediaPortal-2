@@ -269,7 +269,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       //TODO: Check if this is functional
       if (string.IsNullOrEmpty(NameId))
         AssignNameId();
-      return NameId.GetHashCode();
+      return string.IsNullOrEmpty(NameId) ? "[Unnamed Character]".GetHashCode() : NameId.GetHashCode();
     }
 
     public override bool Equals(object obj)
