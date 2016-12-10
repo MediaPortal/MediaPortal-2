@@ -43,6 +43,7 @@ using MediaPortal.UI.Shares;
 using UPnP.Infrastructure.CP;
 using RelocationMode = MediaPortal.Common.MediaManagement.RelocationMode;
 using System.Threading;
+using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
@@ -169,8 +170,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
     protected bool _isHomeServerConnected = false;
     protected ICollection<Guid> _currentlyImportingSharesProxy = new List<Guid>();
     protected object _syncObj = new object();
-    protected object _progressSync = new object();
-    protected DateTime _lastProgress = DateTime.Now;
 
     public ServerConnectionManager()
     {
@@ -178,6 +177,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
           {
             SharesMessaging.CHANNEL,
             ImporterWorkerMessaging.CHANNEL,
+            ServerStateMessaging.CHANNEL
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -269,6 +269,25 @@ namespace MediaPortal.UI.Services.ServerCommunication
             else
               cd.ClientCompletedShareImport(share.ShareId);
             break;
+        }
+      }
+      else if (message.ChannelName == ServerStateMessaging.CHANNEL)
+      {
+        //Check if Tv Server state has changed and update if necessary
+        ServerStateMessaging.MessageType messageType = (ServerStateMessaging.MessageType)message.MessageType;
+        if (messageType == ServerStateMessaging.MessageType.StatesChanged)
+        {
+          var states = message.MessageData[ServerStateMessaging.STATES] as IDictionary<Guid, object>;
+          if (states != null && states.ContainsKey(ShareImportServerState.STATE_ID))
+          {
+            ShareImportServerState importState = states[ShareImportServerState.STATE_ID] as ShareImportServerState;
+            List<ShareImportState> shareStates = new List<ShareImportState>(importState.Shares);
+            lock (_syncObj)
+            {
+              UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
+              UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
+            }
+          }
         }
       }
     }
@@ -457,8 +476,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
         cd.PlaylistsChanged += OnContentDirectoryPlaylistsChanged;
         cd.MIATypeRegistrationsChanged += OnContentDirectoryMIATypeRegistrationsChanged;
         cd.RegisteredSharesChangeCounterChanged += OnRegisteredSharesChangeCounterChanged;
-        cd.CurrentlyImportingSharesChanged += OnCurrentlyImportingSharesChanged;
-        cd.CurrentlyImportingSharesProgressChanged += OnCurrentlyImportingSharesProgressChanged;
 
         // Activate importer worker
         ServiceRegistration.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
@@ -499,8 +516,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
     /// </summary>
     void UpdateCurrentlyImportingShares(ICollection<Guid> currentlyImportingShares)
     {
-      if (currentlyImportingShares == null)
-        currentlyImportingShares = new List<Guid>();
       ICollection<Guid> oldImportingShares = _currentlyImportingSharesProxy;
       ICollection<Guid> newImportingShares = currentlyImportingShares;
       _currentlyImportingSharesProxy = newImportingShares;
@@ -510,56 +525,10 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ContentDirectoryMessaging.SendShareImportMessage(ContentDirectoryMessaging.MessageType.ShareImportCompleted, oldShare);
     }
 
-    void OnCurrentlyImportingSharesChanged()
-    {
-      ServiceRegistration.Get<IThreadPool>().Add(() =>
-        {
-          ICollection<Guid> currentlyImportingShares = null;
-          try
-          {
-            IContentDirectory cd = ContentDirectory;
-            currentlyImportingShares = cd == null ? null : cd.GetCurrentlyImportingShares();
-          }
-          catch (Exception)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager.OnCurrentlyImportingSharesChanged: Failed to update currently importing shares.");
-          }
-          UpdateCurrentlyImportingShares(currentlyImportingShares);
-        });
-    }
-
     void UpdateCurrentlyImportingSharesProgresses(IDictionary<Guid, int> currentlyImportingSharesProgresses)
     {
-      if (currentlyImportingSharesProgresses == null)
-        currentlyImportingSharesProgresses = new Dictionary<Guid, int>();
-
-      foreach(var progress in currentlyImportingSharesProgresses)
+      foreach (var progress in currentlyImportingSharesProgresses)
         ContentDirectoryMessaging.SendShareImportProgressMessage(progress.Key, progress.Value);
-    }
-
-    private void OnCurrentlyImportingSharesProgressChanged()
-    {
-      ServiceRegistration.Get<IThreadPool>().Add(() =>
-      {
-        IDictionary<Guid, int> currentlyImportingSharesProgresses = null;
-        try
-        {
-          lock (_progressSync)
-          {
-            if ((DateTime.Now - _lastProgress).TotalSeconds >= 5)
-            {
-              _lastProgress = DateTime.Now;
-              IContentDirectory cd = ContentDirectory;
-              currentlyImportingSharesProgresses = cd == null ? null : cd.GetCurrentlyImportingSharesProgresses();
-              UpdateCurrentlyImportingSharesProgresses(currentlyImportingSharesProgresses);
-            }
-          }
-        }
-        catch (Exception)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("ServerConnectionManager.OnCurrentlyImportingSharesProgressChanged: Failed to update currently importing shares progresses.");
-        }
-      });
     }
 
     #region IServerCommunicationManager implementation
@@ -706,7 +675,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
           cd.PlaylistsChanged -= OnContentDirectoryPlaylistsChanged;
           cd.MIATypeRegistrationsChanged -= OnContentDirectoryMIATypeRegistrationsChanged;
           cd.RegisteredSharesChangeCounterChanged -= OnRegisteredSharesChangeCounterChanged;
-          cd.CurrentlyImportingSharesChanged -= OnCurrentlyImportingSharesChanged;
         }
         catch (Exception e)
         {

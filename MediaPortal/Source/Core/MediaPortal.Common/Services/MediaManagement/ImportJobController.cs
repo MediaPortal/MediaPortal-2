@@ -149,6 +149,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     /// <param name="importResultHandler"></param>
     public void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler)
     {
+      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, _importJobInformation.BasePath);
       // To avoid peaks on system startup we start one Block every 100ms.
       // Currently we also need this because the MediaAccessor is not threadsafe on startup
       // see here: http://forum.team-mediaportal.com/threads/mediaaccessor-not-thread-safe.125132/
@@ -159,7 +160,6 @@ namespace MediaPortal.Common.Services.MediaManagement
         Task.Delay(100).Wait();
       }
       ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}: Activated", this);
-      ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStarted, _importJobInformation.BasePath);
     }
 
     /// <summary>

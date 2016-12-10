@@ -23,14 +23,27 @@
 #endregion
 
 using System;
+using System.Xml.Serialization;
 
-namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
+namespace MediaPortal.Common.Services.MediaManagement
 {
-  public class TvServerState
+  public class ShareImportServerState
   {
-    public static readonly Guid STATE_ID = new Guid("2A58935C-3363-4FA1-B48D-1EF0E81F830D");
+    public static readonly Guid STATE_ID = new Guid("C37B62D0-8E87-42A4-877E-B41944DA9FC9");
 
-    public bool IsRecording { get; set; }
-    public bool IsTimeshifting { get; set; }
+    [XmlArray("Shares", IsNullable = false)]
+    [XmlArrayItem("Share")]
+    public ShareImportState[] Shares { get; set; }
+    [XmlAttribute("IsImporting")]
+    public bool IsImporting { get; set; }
+    [XmlAttribute("Progress")]
+    public int Progress { get; set; }
+  }
+
+  public class ShareImportState
+  {
+    public Guid ShareId { get; set; }
+    public bool IsImporting { get; set; }
+    public int Progress { get; set; }
   }
 }

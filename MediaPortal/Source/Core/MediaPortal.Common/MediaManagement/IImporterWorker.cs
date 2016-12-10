@@ -303,11 +303,6 @@ namespace MediaPortal.Common.MediaManagement
     ICollection<ImportJobInformation> ImportJobs { get; }
 
     /// <summary>
-    /// Returns a dictionary of objects holding information about all current import jobs and their controllers.
-    /// </summary>
-    IDictionary<ImportJobInformation, ImportJobController> ImportJobControllers { get; }
-
-    /// <summary>
     /// Starts the importer worker service.
     /// </summary>
     void Startup();

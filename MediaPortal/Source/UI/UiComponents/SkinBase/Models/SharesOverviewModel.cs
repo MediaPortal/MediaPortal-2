@@ -142,7 +142,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case ContentDirectoryMessaging.MessageType.ShareImportProgress:
             {
               Guid shareId = (Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID];
-              int progress = (int)message.MessageData[ContentDirectoryMessaging.PROGRESS];
+              int? progress = (int)message.MessageData[ContentDirectoryMessaging.PROGRESS];
+              if (progress < 0)
+                progress = null;
               IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
               IContentDirectory cd = scm.ContentDirectory;
               if (cd == null)
