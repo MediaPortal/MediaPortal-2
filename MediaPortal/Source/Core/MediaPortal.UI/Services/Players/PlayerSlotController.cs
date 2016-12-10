@@ -135,9 +135,16 @@ namespace MediaPortal.UI.Services.Players
       if (playerContext.CurrentMediaItem == null)
         return;
 
-      IResumeState resumeState;
-      if (resumablePlayer.GetResumeState(out resumeState))
-        PlayerManagerMessaging.SendPlayerResumeStateMessage(this, playerContext.CurrentMediaItem, resumeState);
+      try
+      {
+        IResumeState resumeState;
+        if (resumablePlayer.GetResumeState(out resumeState))
+          PlayerManagerMessaging.SendPlayerResumeStateMessage(this, playerContext.CurrentMediaItem, resumeState);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error getting resume state from player '{0}'", e, resumablePlayer);
+      }
     }
 
     protected void CheckActive()

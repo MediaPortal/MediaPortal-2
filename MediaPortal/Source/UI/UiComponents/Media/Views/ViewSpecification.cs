@@ -120,14 +120,6 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return null; }
     }
 
-    public bool ShowVirtualMedia
-    {
-      get
-      {
-        return ShowVirtualSetting.ShowVirtualMedia;
-      }
-    }
-
     /// <summary>
     /// Returns all media items of this view and all sub views. Can be overridden to provide a more efficient implementation.
     /// </summary>

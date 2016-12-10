@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Messaging;
-using System.Threading;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.OnlineLibraries;
@@ -34,7 +32,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
-  class MovieRelationshipExtractor : IRelationshipExtractor, IDisposable
+  class MovieRelationshipExtractor : IRelationshipExtractor
   {
     #region Constants
 
@@ -51,8 +49,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     #endregion
 
     protected RelationshipExtractorMetadata _metadata;
-    protected AsynchronousMessageQueue _messageQueue;
-    protected int _importerCount;
     private IList<IRelationshipRoleExtractor> _extractors;
     private IList<RelationshipHierarchy> _hierarchies;
 
@@ -72,39 +68,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       _hierarchies = new List<RelationshipHierarchy>();
       _hierarchies.Add(new RelationshipHierarchy(MovieAspect.ROLE_MOVIE, MovieAspect.ATTR_MOVIE_NAME, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieCollectionAspect.ATTR_AVAILABLE_MOVIES));
-
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-            ImporterWorkerMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
-      {
-        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
-        switch (messageType)
-        {
-          case ImporterWorkerMessaging.MessageType.ImportStarted:
-            Interlocked.Increment(ref _importerCount);
-            break;
-          case ImporterWorkerMessaging.MessageType.ImportCompleted:
-            if (Interlocked.Decrement(ref _importerCount) == 0)
-            {
-              foreach (IMovieRelationshipExtractor extractor in _extractors)
-                extractor.ClearCache();
-            }
-            break;
-        }
-      }
-    }
-
-    public void Dispose()
-    {
-      _messageQueue.Shutdown();
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()

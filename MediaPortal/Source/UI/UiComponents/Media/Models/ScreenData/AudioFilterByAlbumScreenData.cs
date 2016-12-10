@@ -38,6 +38,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         Consts.RES_FILTER_ALBUM_NAVBAR_DISPLAY_LABEL, new FilterByAlbumCriterion())
     {
       _itemMias = new Guid[] { AudioAspect.ASPECT_ID };
+      _availableMias = Consts.NECESSARY_ALBUM_MIAS;
+      if (Consts.OPTIONAL_ALBUM_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_ALBUM_MIAS);
     }
 
     public override AbstractFiltersScreenData<AlbumFilterItem> Derive()

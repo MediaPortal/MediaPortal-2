@@ -34,6 +34,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortByAddedDate : SortByTitle
   {
+    public SortByAddedDate()
+    {
+      _includeMias = new[] { ImporterAspect.ASPECT_ID };
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_ADDED_DATE; }
@@ -43,18 +48,22 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       SingleMediaItemAspect mediaAspectX;
       SingleMediaItemAspect mediaAspectY;
-      if (MediaItemAspect.TryGetAspect(x.Aspects, ImporterAspect.Metadata, out mediaAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, ImporterAspect.Metadata, out mediaAspectY))
+      DateTime? recordingTimeX = null;
+      DateTime? recordingTimeY = null;
+      if (MediaItemAspect.TryGetAspect(x.Aspects, ImporterAspect.Metadata, out mediaAspectX))
       {
-        DateTime? recordingTimeX = (DateTime?) mediaAspectX.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
-        DateTime? recordingTimeY = (DateTime?) mediaAspectY.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
-        return ObjectUtils.Compare(recordingTimeY, recordingTimeX);
+        recordingTimeX = (DateTime?) mediaAspectX.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);        
       }
-      return base.Compare(x, y);
+      if (MediaItemAspect.TryGetAspect(y.Aspects, ImporterAspect.Metadata, out mediaAspectY))
+      {
+        recordingTimeY = (DateTime?)mediaAspectY.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
+      }
+      return ObjectUtils.Compare(recordingTimeY, recordingTimeX);
     }
 
     public override string GroupByDisplayName
     {
-      get { return Consts.RES_SORT_BY_ADDED_DATE; }
+      get { return Consts.RES_GROUP_BY_ADDED_DATE; }
     }
 
     public override object GetGroupByValue(MediaItem item)

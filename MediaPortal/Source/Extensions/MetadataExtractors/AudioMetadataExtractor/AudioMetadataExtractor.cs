@@ -43,13 +43,15 @@ using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers;
 using System.Globalization;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Messaging;
+using System.Threading;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for audio files. Supports several formats.
   /// </summary>
-  public class AudioMetadataExtractor : IMetadataExtractor
+  public class AudioMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -77,6 +79,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     protected static ICollection<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
 
     protected SettingsChangeWatcher<AudioMetadataExtractorSettings> _settingWatcher;
+    protected AsynchronousMessageQueue _messageQueue;
+    protected int _importerCount;
 
     /// <summary>
     /// Audio file accessor class needed for our tag library implementation. This class maps
@@ -170,10 +174,51 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 AudioAspect.Metadata,
                 ThumbnailLargeAspect.Metadata
               });
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ImporterWorkerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+
       _settingWatcher = new SettingsChangeWatcher<AudioMetadataExtractorSettings>();
       _settingWatcher.SettingsChanged += SettingsChanged;
 
       LoadSettings();
+    }
+
+    public void Dispose()
+    {
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+            if(Interlocked.Increment(ref _importerCount) == 1)
+            {
+              IMediaFanArtHandler fanartHandler;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalFanArtHandlers.TryGetValue(AudioFanArtHandler.FANARTHANDLER_ID, out fanartHandler))
+                fanartHandler.ClearCache();
+            }
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            if (Interlocked.Decrement(ref _importerCount) == 0)
+            {
+              IRelationshipExtractor relationshipExtractor;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.TryGetValue(AudioRelationshipExtractor.METADATAEXTRACTOR_ID, out relationshipExtractor))
+                foreach (IAudioRelationshipExtractor extractor in relationshipExtractor.RoleExtractors)
+                  extractor.ClearCache();
+            }
+            break;
+        }
+      }
     }
 
     #endregion

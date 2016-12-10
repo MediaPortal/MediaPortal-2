@@ -33,6 +33,7 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -105,7 +106,7 @@ namespace MediaPortal.UiComponents.Media.Views
         {
           Limit = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-        mediaItems = cd.Search(query, true, userProfile, ShowVirtualMedia);
+        mediaItems = cd.Search(query, true, userProfile, ShowVirtualSetting.ShowVirtualMedia(_necessaryMIATypeIds));
       }
       catch (UPnPRemoteException e)
       {

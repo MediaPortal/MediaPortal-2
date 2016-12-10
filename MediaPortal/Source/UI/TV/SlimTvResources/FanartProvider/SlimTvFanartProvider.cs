@@ -57,6 +57,8 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
       _country = new RegionInfo(currentCulture.LCID);
     }
 
+    public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
+
     /// <summary>
     /// Gets a list of <see cref="FanArtImage"/>s for a requested <paramref name="mediaType"/>, <paramref name="fanArtType"/> and <paramref name="name"/>.
     /// The name can be: Series name, Actor name, Artist name depending on the <paramref name="mediaType"/>.

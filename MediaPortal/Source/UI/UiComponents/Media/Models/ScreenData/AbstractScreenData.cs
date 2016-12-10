@@ -59,6 +59,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected NavigationData _navigationData = null;
     protected IItemsFilter _filter;
     protected IEnumerable<Guid> _itemMias;
+    protected IEnumerable<Guid> _availableMias;
 
     protected object _syncObj = new object();
 
@@ -282,6 +283,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public IEnumerable<Guid> ItemMias
     {
       get { return _itemMias; }
+    }
+
+    /// <summary>
+    /// Returns the mias that this screen has available.
+    /// </summary>
+    public IEnumerable<Guid> AvailableMias
+    {
+      get { return _availableMias; }
     }
 
     /// <summary>

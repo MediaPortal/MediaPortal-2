@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     // Initialize with root config
     protected ZipEntry _zipEntry = null;
-    protected bool _isDirectory = true;
+    protected bool _isDirectory = false;
     protected DateTime _lastChanged = DateTime.MinValue;
     protected long _size = -1;
     protected string _tempFileName = null;
@@ -257,8 +257,12 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
     public Stream OpenRead()
     {
      PrepareStreamAccess();
-      // We need to operate on a temporary file because the underlaying ZIP library doesn't support seeking in the returned entry stream
-     return File.OpenRead(_tempFileName);
+      if (File.Exists(_tempFileName))
+      {
+        // We need to operate on a temporary file because the underlaying ZIP library doesn't support seeking in the returned entry stream
+        return File.OpenRead(_tempFileName);
+      }
+      return null;
     }
 
     public async Task<Stream> OpenReadAsync()

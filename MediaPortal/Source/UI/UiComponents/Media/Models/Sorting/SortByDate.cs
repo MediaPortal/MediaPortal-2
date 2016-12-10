@@ -34,6 +34,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortByDate : SortByTitle
   {
+    public SortByDate()
+    {
+      _includeMias = new[] { MediaAspect.ASPECT_ID };
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_DATE; }

@@ -30,7 +30,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public LocalMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_LOCAL_MEDIA_NAVIGATION, null, Consts.RES_LOCAL_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL,
-        playableItemCreator, true) { }
+        playableItemCreator, true)
+    {
+      _availableMias = Consts.NECESSARY_BROWSING_MIAS;
+    }
 
     public override AbstractItemsScreenData Derive()
     {

@@ -25,6 +25,7 @@
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -34,6 +35,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_VIDEOS_FILTER_BY_YEAR, Consts.RES_FILTER_BY_VIDEO_YEAR_MENU_ITEM,
         Consts.RES_FILTER_VIDEO_YEAR_NAVBAR_DISPLAY_LABEL, new FilterByYearCriterion())
     {
+      _availableMias = Consts.NECESSARY_VIDEO_MIAS;
+      if (Consts.OPTIONAL_VIDEO_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_VIDEO_MIAS);
     }
 
     public override AbstractFiltersScreenData<FilterItem> Derive()

@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Messaging;
-using System.Threading;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.OnlineLibraries;
@@ -34,7 +32,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesRelationshipExtractor : IRelationshipExtractor, IDisposable
+  class SeriesRelationshipExtractor : IRelationshipExtractor
   {
     #region Constants
 
@@ -51,8 +49,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     #endregion
 
     protected RelationshipExtractorMetadata _metadata;
-    protected AsynchronousMessageQueue _messageQueue;
-    protected int _importerCount;
     private IList<IRelationshipRoleExtractor> _extractors;
     private IList<RelationshipHierarchy> _hierarchies;
     private volatile bool includeFullSeriesFilter = true;
@@ -83,40 +79,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_EPISODES));
       _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_AVAILABLE_EPISODES));
       _hierarchies.Add(new RelationshipHierarchy(SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_SEASONS));
-
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-            ImporterWorkerMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
-      {
-        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
-        switch (messageType)
-        {
-          case ImporterWorkerMessaging.MessageType.ImportStarted:
-            Interlocked.Increment(ref _importerCount);
-            break;
-          case ImporterWorkerMessaging.MessageType.ImportCompleted:
-            if (Interlocked.Decrement(ref _importerCount) == 0)
-            {
-              includeFullSeriesFilter = true;
-              foreach (ISeriesRelationshipExtractor extractor in _extractors)
-                extractor.ClearCache();
-            }
-            break;
-        }
-      }
-    }
-
-    public void Dispose()
-    {
-      _messageQueue.Shutdown();
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()

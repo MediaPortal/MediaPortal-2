@@ -31,7 +31,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public BrowseMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_BROWSE_MEDIA_NAVIGATION, null, Consts.RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL,
-        playableItemCreator, true) { }
+        playableItemCreator, true)
+    {
+      _availableMias = Consts.NECESSARY_BROWSING_MIAS;
+    }
 
     public override string MoreThanMaxItemsHint
     {

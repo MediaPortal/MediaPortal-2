@@ -236,8 +236,11 @@
     <Compile Include="Models\ScreenData\SeriesFilterBySeasonScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesFilterByNameScreenData.cs" />
     <Compile Include="Models\ScreenData\SeriesSimpleSearchScreenData.cs" />
+    <Compile Include="Models\Sorting\AudioAlbumSortByFirstMusicLabel.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbumTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByAlbum.cs" />
+    <Compile Include="Models\Sorting\AudioAlbumSortByFirstArtist.cs" />
+    <Compile Include="Models\Sorting\AudioSortByFirstComposer.cs" />
     <Compile Include="Models\Sorting\AudioSortByTrack.cs" />
     <Compile Include="Models\Sorting\AudioSortByFirstArtist.cs" />
     <Compile Include="Models\Sorting\BrowseDefaultSorting.cs" />
@@ -246,7 +249,14 @@
     <Compile Include="Models\Sorting\AbstractSortByComparableObjectAttribute.cs" />
     <Compile Include="Models\Sorting\AbstractSortByComparableValueAttribute.cs" />
     <Compile Include="Models\Sorting\SeriesSortByDVDEpisode.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByFirstProductionStudio.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByFirstTVNetwork.cs" />
     <Compile Include="Models\Sorting\SortByAddedDate.cs" />
+    <Compile Include="Models\Sorting\SortBySortTitle.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByFirstActor.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByFirstCharacter.cs" />
+    <Compile Include="Models\Sorting\SortByName.cs" />
+    <Compile Include="Models\Sorting\VideoSortByFirstCharacter.cs" />
     <Compile Include="Models\Sorting\VideoSortByFirstWriter.cs" />
     <Compile Include="Models\Sorting\SortByFirstAiredDate.cs" />
     <Compile Include="Models\Sorting\SeriesSortByEpisode.cs" />

@@ -97,7 +97,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       SingleMediaItemAspect videoAspect;
       List<string> actors = new List<string>();
       if (MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out videoAspect))
-        actors.AddRange(videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS).Cast<string>());
+      {
+        IEnumerable<object> actorObjects = videoAspect.GetCollectionAttribute<object>(VideoAspect.ATTR_ACTORS);
+        if(actorObjects != null)
+          actors.AddRange(actorObjects.Cast<string>());
+      }
 
       IList<MultipleMediaItemAspect> relationAspects;
       if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationAspects))
@@ -311,7 +315,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                   {
                     foreach (var actor in actorMediaItems)
                     {
-                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(actorMediaItemDirectory);
 
                       foreach (ResourcePath thumbPath in
                           from potentialFanArtFile in potentialArtistFanArtFiles
@@ -496,6 +500,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public void DeleteFanArt(Guid mediaItemId)
     {
       Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+    }
+
+    public void ClearCache()
+    {
+      _checkCache.Clear();
     }
 
     private static ILogger Logger

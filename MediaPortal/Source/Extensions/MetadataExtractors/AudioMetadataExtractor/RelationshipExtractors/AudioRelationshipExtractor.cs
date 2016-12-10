@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Messaging;
-using System.Threading;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -34,7 +32,7 @@ using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
-  public class AudioRelationshipExtractor : IRelationshipExtractor, IDisposable
+  public class AudioRelationshipExtractor : IRelationshipExtractor
   {
     #region Constants
 
@@ -51,8 +49,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     #endregion
 
     protected RelationshipExtractorMetadata _metadata;
-    protected AsynchronousMessageQueue _messageQueue;
-    protected int _importerCount;
     private IList<IRelationshipRoleExtractor> _extractors;
     private IList<RelationshipHierarchy> _hierarchies;
 
@@ -71,39 +67,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       _hierarchies = new List<RelationshipHierarchy>();
       _hierarchies.Add(new RelationshipHierarchy(AudioAspect.ROLE_TRACK, AudioAspect.ATTR_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS));
-
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-            ImporterWorkerMessaging.CHANNEL,
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
-      {
-        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
-        switch (messageType)
-        {
-          case ImporterWorkerMessaging.MessageType.ImportStarted:
-            Interlocked.Increment(ref _importerCount);
-            break;
-          case ImporterWorkerMessaging.MessageType.ImportCompleted:
-            if (Interlocked.Decrement(ref _importerCount) == 0)
-            {
-              foreach (IAudioRelationshipExtractor extractor in _extractors)
-                extractor.ClearCache();
-            }
-            break;
-        }
-      }
-    }
-
-    public void Dispose()
-    {
-      _messageQueue.Shutdown();
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()

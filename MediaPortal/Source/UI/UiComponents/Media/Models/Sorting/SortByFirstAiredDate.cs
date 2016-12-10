@@ -34,6 +34,11 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class SortByFirstAiredDate : SeriesSortByEpisode
   {
+    public SortByFirstAiredDate()
+    {
+      _includeMias = new[] { MediaAspect.ASPECT_ID };
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_FIRST_AIRED_DATE; }
@@ -43,7 +48,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     {
       SingleMediaItemAspect episodeAspectX;
       SingleMediaItemAspect episodeAspectY;
-      if (MediaItemAspect.TryGetAspect(x.Aspects, MediaAspect.Metadata, out episodeAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, EpisodeAspect.Metadata, out episodeAspectY))
+      if (MediaItemAspect.TryGetAspect(x.Aspects, MediaAspect.Metadata, out episodeAspectX) && MediaItemAspect.TryGetAspect(y.Aspects, MediaAspect.Metadata, out episodeAspectY))
       {
         DateTime? firstAiredX = (DateTime?) episodeAspectX.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
         DateTime? firstAiredY = (DateTime?) episodeAspectY.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);

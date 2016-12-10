@@ -35,13 +35,15 @@ using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatc
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
+using MediaPortal.Common.Messaging;
+using System.Threading;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for Series.
   /// </summary>
-  public class SeriesMetadataExtractor : IMetadataExtractor
+  public class SeriesMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -64,7 +66,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
+
     protected MetadataExtractorMetadata _metadata;
+    protected AsynchronousMessageQueue _messageQueue;
+    protected int _importerCount;
     protected SettingsChangeWatcher<SeriesMetadataExtractorSettings> _settingWatcher;
 
     #endregion
@@ -88,10 +93,51 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 MediaAspect.Metadata,
                 EpisodeAspect.Metadata
               });
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ImporterWorkerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+
       _settingWatcher = new SettingsChangeWatcher<SeriesMetadataExtractorSettings>();
       _settingWatcher.SettingsChanged += SettingsChanged;
 
       LoadSettings();
+    }
+
+    public void Dispose()
+    {
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+            if (Interlocked.Increment(ref _importerCount) == 1)
+            {
+              IMediaFanArtHandler fanartHandler;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalFanArtHandlers.TryGetValue(SeriesFanArtHandler.FANARTHANDLER_ID, out fanartHandler))
+                fanartHandler.ClearCache();
+            }
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            if (Interlocked.Decrement(ref _importerCount) == 0)
+            {
+              IRelationshipExtractor relationshipExtractor;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.TryGetValue(SeriesRelationshipExtractor.METADATAEXTRACTOR_ID, out relationshipExtractor))
+                foreach (ISeriesRelationshipExtractor extractor in relationshipExtractor.RoleExtractors)
+                  extractor.ClearCache();
+            }
+            break;
+        }
+      }
     }
 
     #endregion

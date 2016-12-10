@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -59,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalEpisodes = "";
 
-        if (ShowVirtualMedia)
+        if (ShowVirtualSetting.ShowVirtualSeriesMedia)
           Episodes = TotalEpisodes;
         else
           Episodes = AvailableEpisodes;

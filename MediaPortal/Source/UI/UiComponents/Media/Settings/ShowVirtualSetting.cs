@@ -22,31 +22,47 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Services.Settings;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Settings
 {
   public static class ShowVirtualSetting
   {
     private static SettingsChangeWatcher<ViewSettings> _settingsWatcher;
-    private static bool _showVirtual = false;
 
     static ShowVirtualSetting()
     {
       _settingsWatcher = new SettingsChangeWatcher<ViewSettings>();
       _settingsWatcher.SettingsChanged += SettingsChanged;
-      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
+      ShowVirtualSeriesMedia = _settingsWatcher.Settings.ShowVirtualSeriesMedia;
+      ShowVirtualMovieMedia = _settingsWatcher.Settings.ShowVirtualMovieMedia;
+      ShowVirtualAudioMedia = _settingsWatcher.Settings.ShowVirtualAudioMedia;
     }
 
     private static void SettingsChanged(object sender, EventArgs e)
     {
-      _showVirtual = _settingsWatcher.Settings.ShowVirtual;
+      ShowVirtualSeriesMedia = _settingsWatcher.Settings.ShowVirtualSeriesMedia;
+      ShowVirtualMovieMedia = _settingsWatcher.Settings.ShowVirtualMovieMedia;
+      ShowVirtualAudioMedia = _settingsWatcher.Settings.ShowVirtualAudioMedia;
     }
 
-    public static bool ShowVirtualMedia
+    public static bool ShowVirtualSeriesMedia { get; private set; }
+    public static bool ShowVirtualMovieMedia { get; private set; }
+    public static bool ShowVirtualAudioMedia { get; private set; }
+
+    public static bool ShowVirtualMedia(IEnumerable<Guid> aspectIds)
     {
-      get { return _showVirtual; }
+      if (aspectIds.Intersect(new[] { AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID }).Count() > 0)
+        return ShowVirtualAudioMedia;
+      else if (aspectIds.Intersect(new[] { EpisodeAspect.ASPECT_ID, SeasonAspect.ASPECT_ID, SeriesAspect.ASPECT_ID }).Count() > 0)
+        return ShowVirtualSeriesMedia;
+      else if (aspectIds.Intersect(new[] { MovieAspect.ASPECT_ID, MovieCollectionAspect.ASPECT_ID }).Count() > 0)
+        return ShowVirtualMovieMedia;
+      return false;
     }
   }
 }

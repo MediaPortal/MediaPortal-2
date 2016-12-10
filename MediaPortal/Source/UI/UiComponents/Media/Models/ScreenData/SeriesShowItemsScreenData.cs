@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using System;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -35,6 +36,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
       _itemMias = new Guid[] { VideoAspect.ASPECT_ID };
+      _availableMias = Consts.NECESSARY_EPISODE_MIAS;
+      if (Consts.OPTIONAL_EPISODE_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_EPISODE_MIAS);
     }
 
     public override AbstractItemsScreenData Derive()

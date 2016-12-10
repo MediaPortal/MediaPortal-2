@@ -45,8 +45,6 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
     {
       if (!Enabled)
         return;
-
-      _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
       if (settings.CacheOfflineFanArt)

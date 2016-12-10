@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -35,6 +36,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_VIDEOS_FILTER_BY_CHARACTER, Consts.RES_FILTER_BY_CHARACTER_MENU_ITEM,
         Consts.RES_FILTER_CHARACTER_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_CHARACTERS))
     {
+      _availableMias = Consts.NECESSARY_CHARACTER_MIAS;
+      if (Consts.OPTIONAL_CHARACTER_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_CHARACTER_MIAS);
     }
 
     public override AbstractFiltersScreenData<CharacterFilterItem> Derive()
