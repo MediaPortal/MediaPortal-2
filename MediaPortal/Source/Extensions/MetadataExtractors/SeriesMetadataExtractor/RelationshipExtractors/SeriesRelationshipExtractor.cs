@@ -55,8 +55,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public SeriesRelationshipExtractor()
     {
-      SeriesMetadataExtractor.RELATIONSHIP_EXTRACTOR = this;
-
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Series relationship extractor");
 
       _extractors = new List<IRelationshipRoleExtractor>();

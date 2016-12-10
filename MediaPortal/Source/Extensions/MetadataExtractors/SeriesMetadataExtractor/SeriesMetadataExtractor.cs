@@ -64,9 +64,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     #region Protected fields and classes
 
-    internal static SeriesRelationshipExtractor RELATIONSHIP_EXTRACTOR = null;
-    internal static SeriesFanArtHandler FANART_HANDLER = null;
-
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected static ICollection<string> VIDEO_FILE_EXTENSIONS = new List<string>();
 
@@ -125,15 +122,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           case ImporterWorkerMessaging.MessageType.ImportStarted:
             if (Interlocked.Increment(ref _importerCount) == 1)
             {
-              if (FANART_HANDLER != null)
-                FANART_HANDLER.ClearCache();
+              IMediaFanArtHandler fanartHandler;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalFanArtHandlers.TryGetValue(SeriesFanArtHandler.FANARTHANDLER_ID, out fanartHandler))
+                fanartHandler.ClearCache();
             }
             break;
           case ImporterWorkerMessaging.MessageType.ImportCompleted:
             if (Interlocked.Decrement(ref _importerCount) == 0)
             {
-              if (RELATIONSHIP_EXTRACTOR != null)
-                foreach (ISeriesRelationshipExtractor extractor in RELATIONSHIP_EXTRACTOR.RoleExtractors)
+              IRelationshipExtractor relationshipExtractor;
+              if (ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.TryGetValue(SeriesRelationshipExtractor.METADATAEXTRACTOR_ID, out relationshipExtractor))
+                foreach (ISeriesRelationshipExtractor extractor in relationshipExtractor.RoleExtractors)
                   extractor.ClearCache();
             }
             break;

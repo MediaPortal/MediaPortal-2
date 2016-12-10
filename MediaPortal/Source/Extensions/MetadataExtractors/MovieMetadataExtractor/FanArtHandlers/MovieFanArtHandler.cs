@@ -71,8 +71,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public MovieFanArtHandler()
     {
-      MovieMetadataExtractor.FANART_HANDLER = this;
-
       _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Movie FanArt handler");
     }
 

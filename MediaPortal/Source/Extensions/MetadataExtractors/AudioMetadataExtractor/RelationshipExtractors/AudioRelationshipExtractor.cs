@@ -54,8 +54,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public AudioRelationshipExtractor()
     {
-      AudioMetadataExtractor.RELATIONSHIP_EXTRACTOR = this;
-
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Audio relationship extractor");
 
       _extractors = new List<IRelationshipRoleExtractor>();
