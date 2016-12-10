@@ -106,7 +106,7 @@
           </MultiBinding>
         </Label.Opacity>
       </Label>
-      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding NumItems}"
+      <Label x:Name="NumItems" Grid.Column="1" Content="{Binding NumItems}" Margin="0,0,10,0"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
         <Label.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -207,13 +207,6 @@
   </ControlTemplate>
 
   <!-- Container -->
-  <ControlTemplate x:Key="ContainerCoverTemplate">
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Image Width="193" Height="128" Stretch="Fill"
-             HorizontalAlignment="Center" VerticalAlignment="Center" Source="Container.png" >
-      </Image>
-    </Grid>
-  </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewContainerItemTemplate">
     <Grid x:Name="ItemControl" Margin="0,0,43,0">
@@ -227,7 +220,7 @@
       </Grid.RowDefinitions>
 
       <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" 
-             Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
+             Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
         <Label.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -1645,7 +1638,8 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,120" Margin="0,-40,120,-55">
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" LoopScroll="False" 
+                                        ScrollMargin="0,120" Margin="0,-40,120,-55">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
@@ -1667,8 +1661,8 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="True" ScrollMargin="0,200" Margin="0,-100,0,-150">
-                      <!--AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" LoopScroll="True" ScrollMargin="590,0" Margin="-390,0,-360,0"-->
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="False"
+                                       ScrollMargin="0,200" Margin="0,-100,0,-150">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
@@ -1691,7 +1685,8 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
-                    <AnimatedStackPanel x:Name="CoverItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="560,520" Margin="-420,0,-440,0">
+                    <AnimatedStackPanel x:Name="CoverItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="True"
+                                        ScrollMargin="560,520" Margin="-420,0,-440,0">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
