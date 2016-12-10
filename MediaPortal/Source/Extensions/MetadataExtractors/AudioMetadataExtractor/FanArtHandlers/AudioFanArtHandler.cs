@@ -255,7 +255,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           try
           {
             string fanArtType = FanArtTypes.Cover;
-            FanArtCache.InitFanArtCount(mediaItemId, fanArtType);
             using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanArtType))
             {
               if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
@@ -455,7 +454,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private void SaveFolderFile(IResourceLocator mediaItemLocater, ResourcePath file, string fanartType, Guid parentId, string title)
     {
       string mediaItemId = parentId.ToString().ToUpperInvariant();
-      FanArtCache.InitFanArtCount(mediaItemId, fanartType);
       using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
       {
         if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])

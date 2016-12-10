@@ -248,7 +248,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             if (mkvReader.GetAttachmentByName(pattern, out binaryData))
             {
               string fanArtType = patterns[pattern];
-              FanArtCache.InitFanArtCount(mediaItemId, fanArtType);
               using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanArtType))
               {
                 if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
@@ -449,7 +448,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     private void SaveFolderFile(IResourceLocator mediaItemLocater, ResourcePath file, string fanartType, Guid parentId, string title)
     {
       string mediaItemId = parentId.ToString().ToUpperInvariant();
-      FanArtCache.InitFanArtCount(mediaItemId, fanartType);
       using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
       {
         if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
