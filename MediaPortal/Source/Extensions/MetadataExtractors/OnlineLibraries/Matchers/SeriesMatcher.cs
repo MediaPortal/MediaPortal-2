@@ -457,10 +457,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
       //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
       //So changes to these lists will only be stored if something else has changed.
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors.Distinct().ToList(), episodeInfo.Actors.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), episodeInfo.Characters.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors.Distinct().ToList(), episodeInfo.Directors.Count == 0);
-      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers.Distinct().ToList(), episodeInfo.Writers.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), episodeInfo.Actors.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), episodeInfo.Characters.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), episodeInfo.Directors.Count == 0);
+      MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), episodeInfo.Writers.Count == 0);
     }
 
     public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
@@ -577,10 +577,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks.Distinct().ToList(), seriesInfo.Networks.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies.Distinct().ToList(), seriesInfo.ProductionCompanies.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors.Distinct().ToList(), seriesInfo.Actors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), seriesInfo.Characters.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), seriesInfo.Networks.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), seriesInfo.ProductionCompanies.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), seriesInfo.Actors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), seriesInfo.Characters.Count == 0);
 
           MetadataUpdater.SetOrUpdateList(seriesInfo.Seasons, seriesMatch.Seasons, true);
 
@@ -801,7 +801,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
-            MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(seriesInfo.Actors, seriesMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -893,7 +893,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
-          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters.Distinct().ToList(), false);
+          MetadataUpdater.SetOrUpdateList(seriesInfo.Characters, seriesMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -1021,9 +1021,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (companyType == CompanyAspect.COMPANY_PRODUCTION)
-            MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(seriesInfo.ProductionCompanies, seriesMatch.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), false);
           else if (companyType == CompanyAspect.COMPANY_TV_NETWORK)
-            MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(seriesInfo.Networks, seriesMatch.Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -1201,11 +1201,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
-            MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Actors, episodeMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
-            MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Directors, episodeMatch.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_WRITER)
-            MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(episodeInfo.Writers, episodeMatch.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -1340,7 +1340,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
-          MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters.Distinct().ToList(), false);
+          MetadataUpdater.SetOrUpdateList(episodeInfo.Characters, episodeMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();

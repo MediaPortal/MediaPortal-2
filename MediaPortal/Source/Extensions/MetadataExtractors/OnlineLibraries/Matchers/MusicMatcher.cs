@@ -349,13 +349,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Distinct().ToList(), trackInfo.Artists.Count == 0);
-          MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Distinct().ToList(), trackInfo.Composers.Count == 0);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.Artists.Count == 0);
+          MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.Composers.Count == 0);
           if (albumMatch)
           {
-            MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels.Distinct().ToList(), trackInfo.MusicLabels.Count == 0);
+            MetadataUpdater.SetOrUpdateList(trackInfo.MusicLabels, trackMatch.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), trackInfo.MusicLabels.Count == 0);
             //In some cases the album artists can be "Various Artist" and/or "Multiple Artists" or other variations
-            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists.Distinct().ToList(), trackInfo.AlbumArtists.Count == 0);
+            MetadataUpdater.SetOrUpdateList(trackInfo.AlbumArtists, trackMatch.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), trackInfo.AlbumArtists.Count == 0);
           }
 
           //Store person matches
@@ -512,9 +512,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ARTIST)
-            MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(trackInfo.Artists, trackMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
-            MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(trackInfo.Composers, trackMatch.Composers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -640,7 +640,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ARTIST)
-            MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -750,7 +750,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (companyType == CompanyAspect.COMPANY_MUSIC_LABEL)
-            MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -880,8 +880,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Distinct().ToList(), albumInfo.Artists.Count == 0);
-          MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels.Distinct().ToList(), albumInfo.MusicLabels.Count == 0);
+          MetadataUpdater.SetOrUpdateList(albumInfo.Artists, albumMatch.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), albumInfo.Artists.Count == 0);
+          MetadataUpdater.SetOrUpdateList(albumInfo.MusicLabels, albumMatch.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), albumInfo.MusicLabels.Count == 0);
 
           if (updateTrackList) //Comparing all tracks can be quite time consuming
           {
