@@ -680,8 +680,8 @@ namespace MediaPortal.Common.MediaManagement
     [XmlAttribute("RefId")]
     public string XML_RefAspectId
     {
-      get { return _aspectId.ToString(); }
-      set { _aspectId = new Guid(value); }
+      get { return _refAspectId.ToString(); }
+      set { _refAspectId = new Guid(value); }
     }
 
     /// <summary>
