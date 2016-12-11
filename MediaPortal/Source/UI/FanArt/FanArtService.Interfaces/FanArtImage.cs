@@ -32,6 +32,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Graphics;
+using System.Security.Cryptography;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
@@ -200,7 +201,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
           Directory.CreateDirectory(CACHE_PATH);
 
         int maxSize = GetBestSupportedSize(maxWidth, maxHeight);
-        string thumbFileName = Path.Combine(CACHE_PATH, string.Format("{0}x{1}_{2}", maxSize, maxSize, Path.GetFileName(originalFile)));
+        string thumbFileName = Path.Combine(CACHE_PATH, string.Format("{0}x{1}_{2}.jpg", maxSize, maxSize, GetPathHash(originalFile)));
         if (File.Exists(thumbFileName))
           using (originalStream)
             return new FileStream(thumbFileName, FileMode.Open, FileAccess.Read);
@@ -243,6 +244,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
         bestSize = size;
       }
       return bestSize;
+    }
+
+    protected static string GetPathHash(string path)
+    {
+      MD5 md5 = MD5.Create();
+      byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(path));
+      StringBuilder sb = new StringBuilder();
+      foreach (byte b in hash)
+        sb.Append(b.ToString("x2"));
+      return sb.ToString();
     }
   }
 }
