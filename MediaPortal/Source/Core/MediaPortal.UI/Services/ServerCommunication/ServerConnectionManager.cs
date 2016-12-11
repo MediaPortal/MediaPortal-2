@@ -516,6 +516,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
     /// </summary>
     void UpdateCurrentlyImportingShares(ICollection<Guid> currentlyImportingShares)
     {
+      if (currentlyImportingShares == null)
+        currentlyImportingShares = new List<Guid>();
       ICollection<Guid> oldImportingShares = _currentlyImportingSharesProxy;
       ICollection<Guid> newImportingShares = currentlyImportingShares;
       _currentlyImportingSharesProxy = newImportingShares;
