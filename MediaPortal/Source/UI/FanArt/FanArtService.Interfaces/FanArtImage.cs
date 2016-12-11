@@ -32,7 +32,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Graphics;
-using System.Security.Cryptography;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
@@ -201,7 +200,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
           Directory.CreateDirectory(CACHE_PATH);
 
         int maxSize = GetBestSupportedSize(maxWidth, maxHeight);
-        string thumbFileName = Path.Combine(CACHE_PATH, string.Format("{0}x{1}_{2}.jpg", maxSize, maxSize, GetPathHash(originalFile)));
+        string thumbFileName = Path.Combine(CACHE_PATH, string.Format("{0}x{1}_{2}.jpg", maxSize, maxSize, GetCrc32(originalFile)));
         if (File.Exists(thumbFileName))
           using (originalStream)
             return new FileStream(thumbFileName, FileMode.Open, FileAccess.Read);
@@ -246,14 +245,22 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
       return bestSize;
     }
 
-    protected static string GetPathHash(string path)
+    public static string GetCrc32(string path)
     {
-      MD5 md5 = MD5.Create();
-      byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(path));
-      StringBuilder sb = new StringBuilder();
-      foreach (byte b in hash)
-        sb.Append(b.ToString("x2"));
-      return sb.ToString();
+      byte[] bytes = Encoding.UTF8.GetBytes(path.ToLowerInvariant());
+      uint crc = 0xFFFFFFFF;
+      foreach (byte b in bytes)
+      {
+        crc ^= ((uint)b << 24);
+        for (int i = 0; i < 8; i++)
+        {
+          if ((crc & 0x80000000) == 0x80000000)
+            crc = (crc << 1) ^ 0x04C11DB7;
+          else
+            crc <<= 1;
+        }
+      }
+      return string.Format("{0:x8}", crc);
     }
   }
 }
