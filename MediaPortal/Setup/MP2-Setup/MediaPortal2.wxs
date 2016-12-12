@@ -153,6 +153,8 @@
         <![CDATA[(REINSTALL OR NOT Installed) AND &LAVFilters>=3]]>
       </Custom>
 
+      <!--<Custom Action="InstallLAVFilters" Before="InstallFiles"></Custom>-->
+
       <RemoveExistingProducts After="InstallInitialize" />
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>

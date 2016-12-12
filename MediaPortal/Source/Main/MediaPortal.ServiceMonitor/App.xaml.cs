@@ -63,6 +63,10 @@ namespace MediaPortal.ServiceMonitor
 
     #endregion
 
+    #region fileds
+    private static IpcServer _ipcServer;
+    #endregion
+
     #region OnStartUp
 
     /// <summary>
@@ -141,6 +145,8 @@ namespace MediaPortal.ServiceMonitor
           throw;
         }
 
+        InitIpc();
+
         var appController = new AppController();
         ServiceRegistration.Set<IAppController>(appController);
 
@@ -187,10 +193,50 @@ namespace MediaPortal.ServiceMonitor
       ApplicationCore.DisposeCoreServices();
       systemStateService.SwitchSystemState(SystemState.Ending, false);
 
+      CloseIpc();
+
       if (_mutex != null)
         _mutex.ReleaseMutex();
     }
 
+    #endregion
+
+    #region IPC
+    private void InitIpc()
+    {
+      if (_ipcServer != null)
+        return;
+      ServiceRegistration.Get<ILogger>().Debug("Initializing IPC");
+      try
+      {
+        _ipcServer = new IpcServer("ServiceMonitor");
+        _ipcServer.CustomShutdownCallback = () =>
+        {
+          Dispatcher.BeginInvoke(new Action(Shutdown));
+          return true;
+        };
+        _ipcServer.Open();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+    }
+
+    private void CloseIpc()
+    {
+      if (_ipcServer == null)
+        return;
+      try
+      {
+        _ipcServer.Close();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+      _ipcServer = null;
+    }
     #endregion
 
     #region Unhandled Exceptions
