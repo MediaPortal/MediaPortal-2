@@ -135,28 +135,22 @@
         </media:MovieAspectWrapper.Template>
       </media:MovieAspectWrapper>
     </StackPanel>
+
+    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:UserDataWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" >
+              <Image.Source>
+                <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+              </Image.Source>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </media:UserDataWrapper.Template>
+    </media:UserDataWrapper>
     
   </StackPanel>
-  
-  <media:UserDataWrapper Grid.Row="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:UserDataWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Fill" Width="95" Height="95" Margin="0,10,10,10" >
-            <Image.Source>
-              <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}.png"/>
-            </Image.Source>
-          </Image>
-        </Grid>
-      </ControlTemplate>
-    </media:UserDataWrapper.Template>
-  </media:UserDataWrapper>
   
 </Grid>
