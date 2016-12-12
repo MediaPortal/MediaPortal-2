@@ -62,6 +62,7 @@
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionPool.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="SQLiteDatabase.cs" />
     <Compile Include="SQLiteSettings.cs" />
     <Compile Include="SQLiteTransaction.cs" />
+    <Compile Include="VersionUpgrade.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
