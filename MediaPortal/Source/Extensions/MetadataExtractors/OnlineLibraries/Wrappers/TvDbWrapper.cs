@@ -97,10 +97,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       episodes = null;
-      SeriesInfo seriesSearch = null;
+      SeriesInfo seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
       if (episodeSearch.SeriesTvdbId <= 0)
       {
-        seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
         if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
           return false;
         episodeSearch.CopyIdsFrom(seriesSearch);

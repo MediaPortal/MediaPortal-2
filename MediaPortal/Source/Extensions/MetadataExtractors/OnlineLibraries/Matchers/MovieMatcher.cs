@@ -362,11 +362,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
           //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors.Distinct().ToList(), movieInfo.Actors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Distinct().ToList(), movieInfo.Characters.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors.Distinct().ToList(), movieInfo.Directors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies.Distinct().ToList(), movieInfo.ProductionCompanies.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers.Distinct().ToList(), movieInfo.Writers.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Actors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Characters.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Directors.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), movieInfo.ProductionCompanies.Count == 0);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Writers.Count == 0);
 
           //Store person matches
           foreach (PersonInfo person in movieInfo.Actors)
@@ -550,11 +550,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
           else if (occupation == PersonAspect.OCCUPATION_WRITER)
-            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -684,7 +684,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
-          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Distinct().ToList(), false);
+          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
@@ -791,7 +791,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (companyType == CompanyAspect.COMPANY_PRODUCTION)
-            MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies.Distinct().ToList(), false);
+            MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), false);
         }
 
         List<string> thumbs = new List<string>();
