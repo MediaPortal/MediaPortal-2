@@ -330,8 +330,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
                       foreach (ResourcePath thumbPath in
                           from potentialFanArtFile in potentialArtistFanArtFiles
-                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                          where potentialFanArtFileNameWithoutExtension.StartsWith(actor.Value.Replace(" ", "_"))
+                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                          where potentialFanArtFileNameWithoutExtension.StartsWith(actor.Value.Replace(" ", "_"), StringComparison.InvariantCultureIgnoreCase)
                           select potentialFanArtFile)
                         SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, actor.Key, actor.Value);
                     }
@@ -408,12 +408,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                   {
                     foreach (var actor in actorMediaItems)
                     {
-                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(actorMediaItemDirectory);
 
                       foreach (ResourcePath thumbPath in
                           from potentialFanArtFile in potentialArtistFanArtFiles
-                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                          where potentialFanArtFileNameWithoutExtension.StartsWith(actor.Value.Replace(" ", "_"))
+                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                          where potentialFanArtFileNameWithoutExtension.StartsWith(actor.Value.Replace(" ", "_"), StringComparison.InvariantCultureIgnoreCase)
                           select potentialFanArtFile)
                         SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, actor.Key, actor.Value);
                     }
@@ -468,7 +468,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                     posterPaths.AddRange(
                       from potentialFanArtFile in potentialFanArtFiles
                       let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                      where potentialFanArtFileNameWithoutExtension == prefix + "-poster"
+                      where potentialFanArtFileNameWithoutExtension == prefix + "poster"
                       select potentialFanArtFile);
 
                   if (logoPaths.Count == 0)
