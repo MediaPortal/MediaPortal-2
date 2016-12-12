@@ -58,6 +58,7 @@ namespace MediaPortal.Client.Launcher
 
     private static Mutex _mutex = null;
     private static NotifyIcon _systemNotificationAreaIcon;
+    private static IpcServer _ipcServer;
 
     #endregion
 
@@ -130,6 +131,8 @@ namespace MediaPortal.Client.Launcher
         if (!mpOptions.NoIcon)
           InitTrayIcon();
 
+        InitIpc();
+
         Application.Run();
       }
       catch (Exception e)
@@ -139,7 +142,7 @@ namespace MediaPortal.Client.Launcher
 
       logger.Info("Exiting...");
 
-
+      CloseIpc();
 
       // Release mutex for single instance
       if (_mutex != null)
@@ -176,6 +179,47 @@ namespace MediaPortal.Client.Launcher
     #endregion
 
     #region Methods
+
+    private static void InitIpc()
+    {
+      if(_ipcServer != null)
+        return;
+      ServiceRegistration.Get<ILogger>().Debug("Initializing IPC");
+      try
+      {
+        _ipcServer = new IpcServer("ClientLauncher");
+        _ipcServer.CustomShutdownCallback = () =>
+        {
+          if (_systemNotificationAreaIcon != null) 
+          {
+            _systemNotificationAreaIcon.Visible = false;
+            _systemNotificationAreaIcon = null;
+          }
+          Application.Exit();
+          return true;
+        };
+        _ipcServer.Open();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+    }
+
+    private static void CloseIpc()
+    {
+      if (_ipcServer == null)
+        return;
+      try
+      {
+        _ipcServer.Close();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+      _ipcServer = null;
+    }
 
     private static void InitTrayIcon()
     {
