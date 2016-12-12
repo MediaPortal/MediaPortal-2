@@ -86,14 +86,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       if (CheckCacheContains(albumInfo))
         return false;
-
+       
+      int count = 0;
       if (!AudioMetadataExtractor.SkipOnlineSearches)
+      {
         OnlineMatcherService.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, importOnly);
+        count = albumInfo.MusicLabels.Where(c => c.HasExternalId).Count();
+      }
+      else
+      {
+        count = albumInfo.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Count();
+      }
 
       if (albumInfo.MusicLabels.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < albumInfo.MusicLabels.Where(p => p.HasExternalId).Count())
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count)
         albumInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!albumInfo.HasChanged && !importOnly)

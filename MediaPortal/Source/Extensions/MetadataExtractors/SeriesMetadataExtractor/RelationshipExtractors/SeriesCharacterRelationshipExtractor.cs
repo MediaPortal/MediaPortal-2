@@ -87,13 +87,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (CheckCacheContains(seriesInfo))
         return false;
 
+      int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
+      {
         OnlineMatcherService.Instance.UpdateSeriesCharacters(seriesInfo, importOnly);
+        count = seriesInfo.Characters.Where(p => p.HasExternalId).Count();
+      }
+      else
+      {
+        count = seriesInfo.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
+      }
 
       if (seriesInfo.Characters.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < seriesInfo.Characters.Where(p => p.HasExternalId).Count())
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count)
         seriesInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!seriesInfo.HasChanged && !importOnly)

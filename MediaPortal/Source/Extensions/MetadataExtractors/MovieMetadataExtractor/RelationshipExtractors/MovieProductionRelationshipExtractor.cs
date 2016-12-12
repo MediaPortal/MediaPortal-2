@@ -89,14 +89,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       if (CheckCacheContains(movieInfo))
         return false;
-
+       
+      int count = 0;
       if (!MovieMetadataExtractor.SkipOnlineSearches)
+      {
         OnlineMatcherService.Instance.UpdateCompanies(movieInfo, CompanyAspect.COMPANY_PRODUCTION, importOnly);
+        count = movieInfo.ProductionCompanies.Where(c => c.HasExternalId).Count();
+      }
+      else
+      {
+        count = movieInfo.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Count();
+      }
 
       if (movieInfo.ProductionCompanies.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < movieInfo.ProductionCompanies.Where(p => p.HasExternalId).Count())
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count)
         movieInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!movieInfo.HasChanged && !importOnly)
