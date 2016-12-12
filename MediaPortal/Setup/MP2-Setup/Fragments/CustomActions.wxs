@@ -10,6 +10,6 @@
 
     <CustomAction Id="InstallLAVFilters" BinaryKey="Custom_Action_Dll" DllEntry="InstallLAVFilters" Impersonate="no" Execute="deferred" Return="ignore" />
 
-    <!--<CustomAction Id="StopProcesses" BinaryKey="Custom_Action_Dll" DllEntry="StopProcesses" Impersonate="no" Execute="deferred" Return="ignore" />-->
+    <CustomAction Id="StopProcesses" BinaryKey="Custom_Action_Dll" DllEntry="StopProcesses" Impersonate="no" Execute="immediate" Return="ignore" />
   </Fragment>
 </Wix>
