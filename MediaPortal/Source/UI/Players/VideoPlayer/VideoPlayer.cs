@@ -733,7 +733,7 @@ namespace MediaPortal.UI.Players.Video
           Stream stream;
           using (stream = lfsra.LocalFsResourceAccessor.OpenRead())
           {
-            if (stream.Length == 0)
+            if (stream == null || stream.Length == 0)
               return false;
             using (var chaptersReader = new StreamReader(stream))
             {

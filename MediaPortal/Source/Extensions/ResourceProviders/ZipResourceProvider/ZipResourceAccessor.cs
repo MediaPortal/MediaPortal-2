@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
 
     // Initialize with root config
     protected ZipEntry _zipEntry = null;
-    protected bool _isDirectory = false;
+    protected bool _isDirectory = true;
     protected DateTime _lastChanged = DateTime.MinValue;
     protected long _size = -1;
     protected string _tempFileName = null;
