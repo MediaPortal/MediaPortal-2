@@ -75,6 +75,12 @@ namespace MediaPortal.Database.SQLite
 
     public SQLiteDatabase()
     {
+      VersionUpgrade upgrade = new VersionUpgrade();
+      if (!upgrade.Upgrade())
+      {
+        ServiceRegistration.Get<ILogger>().Warn("SQLiteDatabase: Could not upgrade existing database");
+      }
+
       try
       {
         _maintenanceScheduler = new ActionBlock<bool>(async _ => await PerformDatabaseMaintenanceAsync(), new ExecutionDataflowBlockOptions { BoundedCapacity = 2 });
@@ -98,7 +104,7 @@ namespace MediaPortal.Database.SQLite
         // We use our own collation sequence which is registered here to be able
         // to sort items taking into account culture specifics
         SQLiteFunction.RegisterFunction(typeof(SQLiteCultureSensitiveCollation));
-        
+
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);

@@ -143,6 +143,9 @@
     </InstallUISequence>
 
     <InstallExecuteSequence>
+      <!-- Stop all MP2 processes -->
+      <Custom Action="StopProcesses" Before="ReadCustomPathsFromExistingPathsFile"/>
+
       <!-- Reads custom paths which maybe have been changed by the user in a former installation -->
       <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
 
