@@ -116,29 +116,28 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                 where /* Allow same file name only for non-images, otherwise each image would be its own thumbnail */
                       potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension && !EXTENSIONS.Contains(mediaItemExtension) ||
                       potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "-poster" ||
-                      potentialFanArtFileNameWithoutExtension == "poster" ||
-                      potentialFanArtFileNameWithoutExtension == "folder"
+                      potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder"
                 select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.Logo)
               fanArtPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                    where potentialFanArtFileNameWithoutExtension == "logo"
+                    where potentialFanArtFileNameWithoutExtension == "logo" || potentialFanArtFileNameWithoutExtension.EndsWith("-logo")
                     select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.ClearArt)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                where potentialFanArtFileNameWithoutExtension == "clearart"
+                where potentialFanArtFileNameWithoutExtension == "clearart" || potentialFanArtFileNameWithoutExtension.EndsWith("-clearart")
                 select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.Banner)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                where potentialFanArtFileNameWithoutExtension == "banner"
+                where potentialFanArtFileNameWithoutExtension == "banner" || potentialFanArtFileNameWithoutExtension.EndsWith("-banner")
                 select potentialFanArtFile);
 
             if (fanArtType == FanArtTypes.FanArt)
@@ -152,7 +151,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                   let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
                   where potentialFanArtFileNameWithoutExtension == "backdrop" ||
                         potentialFanArtFileNameWithoutExtension == "fanart" ||
-                        potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-fanart")
+                        potentialFanArtFileNameWithoutExtension.EndsWith("-fanart")
                   select potentialFanArtFile);
 
                 if (directoryFsra.ResourceExists("ExtraFanArt/"))

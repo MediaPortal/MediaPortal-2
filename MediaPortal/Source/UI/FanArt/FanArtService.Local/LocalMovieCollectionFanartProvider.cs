@@ -76,104 +76,152 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
       IFilter filter = new RelationshipFilter(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, mediaItemId);
       MediaItemQuery movieQuery = new MediaItemQuery(NECESSARY_MIAS, filter);
-      movieQuery.Limit = 1;
       IList<MediaItem> items = mediaLibrary.Search(movieQuery, false, null, false);
       if (items == null || items.Count == 0)
         return false;
 
-      MediaItem mediaItem = items.First();
-      var mediaIteamLocator = mediaItem.GetResourceLocator();
-      // Virtual resources won't have any local fanart
-      if (mediaIteamLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
-        return false;
-      var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
-      // File based access
-      try
+      foreach (MediaItem mediaItem in items)
       {
-        var mediaItemPath = mediaIteamLocator.NativeResourcePath;
-        var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
-        var mediaItemCollectionDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
-        var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString());
-        var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
-
-        using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
+        var mediaIteamLocator = mediaItem.GetResourceLocator();
+        // Virtual resources won't have any local fanart
+        if (mediaIteamLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+          continue;
+        var fanArtPaths = new List<ResourcePath>();
+        
+        // File based access
+        try
         {
-          var directoryFsra = directoryRa as IFileSystemResourceAccessor;
-          if (directoryFsra != null)
+          var mediaItemPath = mediaIteamLocator.NativeResourcePath;
+          var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
+          var mediaItemCollectionDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+          var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString());
+          var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
+
+          using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
           {
-            var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
-
-            if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                where potentialFanArtFileNameWithoutExtension == "movieset-poster"
-                select potentialFanArtFile);
-
-            if (fanArtType == FanArtTypes.Banner)
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                where potentialFanArtFileNameWithoutExtension == "movieset-banner"
-                select potentialFanArtFile);
-
-            if (fanArtType == FanArtTypes.FanArt)
+            var directoryFsra = directoryRa as IFileSystemResourceAccessor;
+            if (directoryFsra != null)
             {
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                where potentialFanArtFileNameWithoutExtension == "movieset-fanart"
-                select potentialFanArtFile);
-            }
+              var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
 
-            files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
+              if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
+                fanArtPaths.AddRange(
+                  from potentialFanArtFile in potentialFanArtFiles
+                  let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                  where potentialFanArtFileNameWithoutExtension == "movieset-poster"
+                  select potentialFanArtFile);
+
+              if (fanArtType == FanArtTypes.Banner)
+                fanArtPaths.AddRange(
+                  from potentialFanArtFile in potentialFanArtFiles
+                  let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                  where potentialFanArtFileNameWithoutExtension == "movieset-banner"
+                  select potentialFanArtFile);
+
+              if (fanArtType == FanArtTypes.FanArt)
+              {
+                fanArtPaths.AddRange(
+                  from potentialFanArtFile in potentialFanArtFiles
+                  let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                  where potentialFanArtFileNameWithoutExtension == "movieset-fanart"
+                  select potentialFanArtFile);
+              }
+
+              files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
+            }
+          }
+
+          using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemCollectionDirectoryPath).CreateAccessor())
+          {
+            var directoryFsra = directoryRa as IFileSystemResourceAccessor;
+            if (directoryFsra != null)
+            {
+              var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+
+              if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
+                fanArtPaths.AddRange(
+                  from potentialFanArtFile in potentialFanArtFiles
+                  let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                  where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "movieset-poster" || 
+                    potentialFanArtFileNameWithoutExtension.EndsWith("-poster")
+                  select potentialFanArtFile);
+
+              if (fanArtType == FanArtTypes.Banner)
+                fanArtPaths.AddRange(
+                  from potentialFanArtFile in potentialFanArtFiles
+                  let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                  where potentialFanArtFileNameWithoutExtension == "banner" || potentialFanArtFileNameWithoutExtension == "movieset-banner" || potentialFanArtFileNameWithoutExtension.EndsWith("-banner")
+                  select potentialFanArtFile);
+
+              if (fanArtType == FanArtTypes.FanArt)
+              {
+                fanArtPaths.AddRange(
+                  from potentialFanArtFile in potentialFanArtFiles
+                  let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                  where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart" || potentialFanArtFileNameWithoutExtension == "movieset-fanart" || 
+                    potentialFanArtFileNameWithoutExtension.EndsWith("-fanart")
+                  select potentialFanArtFile);
+
+                if (directoryFsra.ResourceExists("ExtraFanArt/"))
+                  using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
+                    fanArtPaths.AddRange(GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
+              }
+
+              files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
+            }
+          }
+
+          if (files.Count == 0)
+          {
+            using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
+            {
+              var directoryFsra = directoryRa as IFileSystemResourceAccessor;
+              if (directoryFsra != null)
+              {
+                var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+
+                if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
+                  fanArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension.EndsWith("-poster")
+                    select potentialFanArtFile);
+
+                if (fanArtType == FanArtTypes.Banner)
+                  fanArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "banner" || potentialFanArtFileNameWithoutExtension.EndsWith("-banner")
+                    select potentialFanArtFile);
+
+                if (fanArtType == FanArtTypes.FanArt)
+                {
+                  fanArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart" || potentialFanArtFileNameWithoutExtension.EndsWith("-fanart")
+                    select potentialFanArtFile);
+
+                  if (directoryFsra.ResourceExists("ExtraFanArt/"))
+                    using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
+                      fanArtPaths.AddRange(GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
+                }
+
+                files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
+              }
+            }
           }
         }
-
-        using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemCollectionDirectoryPath).CreateAccessor())
+        catch (Exception ex)
         {
-          var directoryFsra = directoryRa as IFileSystemResourceAccessor;
-          if (directoryFsra != null)
-          {
-            var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
-
-            if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "movieset-poster"
-                select potentialFanArtFile);
-
-            if (fanArtType == FanArtTypes.Banner)
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                where potentialFanArtFileNameWithoutExtension == "banner" || potentialFanArtFileNameWithoutExtension == "movieset-banner"
-                select potentialFanArtFile);
-
-            if (fanArtType == FanArtTypes.FanArt)
-            {
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart" || potentialFanArtFileNameWithoutExtension == "movieset-fanart"
-                select potentialFanArtFile);
-
-              if (directoryFsra.ResourceExists("ExtraFanArt/"))
-                using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
-                  fanArtPaths.AddRange(GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
-            }
-
-            files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
-          }
-        }
-      }
-      catch (Exception ex)
-      {
 #if DEBUG
-        ServiceRegistration.Get<ILogger>().Warn("LocalMovieCollectionFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
+          ServiceRegistration.Get<ILogger>().Warn("LocalMovieCollectionFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
 #endif
+        }
+
+        if (files.Count > 0)
+          break;
       }
       result = files;
       return files.Count > 0;

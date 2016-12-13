@@ -87,7 +87,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       bool hasId = false;
       if (!MovieMetadataExtractor.SkipOnlineSearches)
-        hasId = collectionInfo.HasExternalId;
+        hasId = collectionInfo.HasExternalId || !string.IsNullOrEmpty(movieInfo.CollectionNameId);
       else
         hasId = !string.IsNullOrEmpty(movieInfo.CollectionNameId);
 
