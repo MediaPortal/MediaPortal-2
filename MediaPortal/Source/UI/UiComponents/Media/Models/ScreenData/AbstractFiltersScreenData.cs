@@ -36,6 +36,8 @@ using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.Utilities;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -49,6 +51,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     // Variables to be synchronized for multithreading access
     protected bool _buildingList = false;
     protected bool _listDirty = false;
+
+    // Change tracking of FilterItems
+    protected AsynchronousMessageQueue _messageQueue;
 
     /// <summary>
     /// Creates a new instance of <see cref="AbstractFiltersScreenData&lt;T&gt;"/>.
@@ -82,6 +87,58 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// <returns>Screen data instance which looks the same as this view.</returns>
     public abstract AbstractFiltersScreenData<T> Derive();
 
+    private void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            ContentDirectoryMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ContentDirectoryMessaging.CHANNEL)
+      {
+        ContentDirectoryMessaging.MessageType messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ContentDirectoryMessaging.MessageType.MediaItemChanged:
+            MediaItem mediaItem = (MediaItem)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM];
+            ContentDirectoryMessaging.MediaItemChangeType changeType = (ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE];
+            UpdateLoadedMediaItems(mediaItem, changeType);
+            break;
+        }
+      }
+    }
+
+    protected void UpdateLoadedMediaItems(MediaItem mediaItem, ContentDirectoryMessaging.MediaItemChangeType changeType)
+    {
+      if (changeType == ContentDirectoryMessaging.MediaItemChangeType.None)
+        return;
+
+      lock (_syncObj)
+      {
+        if (changeType == ContentDirectoryMessaging.MediaItemChangeType.Updated)
+        {
+          PlayableContainerMediaItem existingItem = _items.OfType<PlayableContainerMediaItem>().FirstOrDefault(pcm => pcm.MediaItem.Equals(mediaItem));
+          if (existingItem != null)
+          {
+            existingItem.Update(mediaItem);
+          }
+        }
+      }
+    }
+
     public override void Reload()
     {
       lock (_syncObj)
@@ -97,6 +154,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       base.CreateScreenData(navigationData);
       ReloadFilterValuesList(true);
+      SubscribeToMessages();
+    }
+
+    public override void ReleaseScreenData()
+    {
+      base.ReleaseScreenData();
+      UnsubscribeFromMessages();
     }
 
     /// <summary>
