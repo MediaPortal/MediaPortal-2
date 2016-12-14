@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data
   //  "Genre": "Action, Adventure, Sci-Fi",
   //  "Director": "Peter Berg",
   //  "Writer": "Jon Hoeber, Erich Hoeber",
-  //  "Actors": "Taylor Kitsch, Alexander Skarsgård, Rihanna, Brooklyn Decker",
+  //  "Actors": "Taylor Kitsch, Alexander Skarsgï¿½rd, Rihanna, Brooklyn Decker",
   //  "Plot": "Based on the classic Hasbro naval combat game, Battleship is the story of an international fleet of ships who come across an alien armada while on Naval war games exercise. An intense battle is fought on sea, land and air. What do the aliens want?",
   //  "Language": "English, Japanese",
   //  "Country": "USA",

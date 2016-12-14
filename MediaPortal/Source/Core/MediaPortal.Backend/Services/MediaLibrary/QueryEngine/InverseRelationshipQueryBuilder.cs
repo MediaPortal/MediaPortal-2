@@ -1,8 +1,7 @@
-﻿using MediaPortal.Common.MediaManagement;
-#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,9 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
