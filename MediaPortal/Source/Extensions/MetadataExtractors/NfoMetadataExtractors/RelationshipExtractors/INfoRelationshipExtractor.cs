@@ -235,7 +235,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, movieCollectionFilters.ToArray());
     }
 
-    public static void UpdatePersons(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<PersonInfo> infoPersons, bool forSeries)
+    public static bool UpdatePersons(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<PersonInfo> infoPersons, bool forSeries)
     {
       if (aspects.ContainsKey(TempPersonAspect.ASPECT_ID))
       {
@@ -267,8 +267,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               }
             }
           }
+          return true;
         }
       }
+      return false;
     }
 
     public static void StorePersons(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<PersonInfo> infoPersons, bool forSeries)
@@ -288,7 +290,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       }
     }
 
-    public static void UpdateCharacters(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<CharacterInfo> infoCharacters, bool forSeries)
+    public static bool UpdateCharacters(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<CharacterInfo> infoCharacters, bool forSeries)
     {
       if (aspects.ContainsKey(TempPersonAspect.ASPECT_ID))
       {
@@ -311,8 +313,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               }
             }
           }
+          return true;
         }
       }
+      return false;
     }
 
     public static void StoreCharacters(IDictionary<Guid, IList<MediaItemAspect>> aspects, List<CharacterInfo> infoCharacters, bool forSeries)
@@ -343,7 +347,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       personAspect.SetAttribute(TempPersonAspect.ATTR_FROMSERIES, forSeries);
     }
 
-    public static void UpdateSeries(IDictionary<Guid, IList<MediaItemAspect>> aspects, SeriesInfo info)
+    public static bool UpdateSeries(IDictionary<Guid, IList<MediaItemAspect>> aspects, SeriesInfo info)
     {
       if (aspects.ContainsKey(TempSeriesAspect.ASPECT_ID))
       {
@@ -375,7 +379,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           if (MediaItemAspect.TryGetAttribute(aspects, TempSeriesAspect.ATTR_GENRES, out collection))
             info.Genres.AddRange(collection.Cast<object>().Select(s => new GenreInfo { Name = s.ToString() }));
         }
+        return true;
       }
+      return false;
     }
 
     public static void StoreSeries(IDictionary<Guid, IList<MediaItemAspect>> aspects, SeriesStub series)

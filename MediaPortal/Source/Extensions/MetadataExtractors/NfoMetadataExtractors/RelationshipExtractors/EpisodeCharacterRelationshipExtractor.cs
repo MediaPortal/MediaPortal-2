@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public bool BuildRelationship
     {
-      get { return false; }
+      get { return true; }
     }
 
     public Guid Role
@@ -84,7 +84,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      UpdateCharacters(aspects, episodeInfo.Characters, false);
+      if (!UpdateCharacters(aspects, episodeInfo.Characters, false))
+        return false;
 
       if (episodeInfo.Characters.Count == 0)
         return false;

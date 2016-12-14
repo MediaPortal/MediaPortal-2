@@ -38,7 +38,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public bool BuildRelationship
     {
-      get { return false; }
+      get { return true; }
     }
 
     public Guid Role
@@ -79,11 +79,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
-
       UpdatePersons(aspects, seriesInfo.Actors, true);
       UpdateCharacters(aspects, seriesInfo.Characters, true);
-      UpdateSeries(aspects, seriesInfo);
-      OnlineMatcherService.Instance.AssignMissingMovieGenreIds(seriesInfo.Genres);
+      if (!UpdateSeries(aspects, seriesInfo))
+        return false;
+      OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(seriesInfo.Genres);
 
       extractedLinkedAspects = new Dictionary<IDictionary<Guid, IList<MediaItemAspect>>, Guid>();
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
