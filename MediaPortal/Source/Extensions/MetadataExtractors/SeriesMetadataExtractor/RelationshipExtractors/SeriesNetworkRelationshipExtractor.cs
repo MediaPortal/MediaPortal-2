@@ -86,14 +86,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       if (CheckCacheContains(seriesInfo))
         return false;
-
+       
+      int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
+      {
         OnlineMatcherService.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_TV_NETWORK, importOnly);
+        count = seriesInfo.Networks.Where(c => c.HasExternalId).Count();
+      }
+      else
+      {
+        count = seriesInfo.Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Count();
+      }
 
       if (seriesInfo.Networks.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < seriesInfo.Networks.Where(p => p.HasExternalId).Count())
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count)
         seriesInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!seriesInfo.HasChanged && !importOnly)

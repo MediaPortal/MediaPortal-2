@@ -88,14 +88,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       UpdatePersons(aspects, trackInfo.Artists, false);
-
+       
+      int count = 0;
       if (!AudioMetadataExtractor.SkipOnlineSearches)
+      {
         OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST, importOnly);
+        count = trackInfo.Artists.Where(p => p.HasExternalId).Count();
+      }
+      else
+      {
+        count = trackInfo.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
+      }
 
       if (trackInfo.Artists.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < trackInfo.Artists.Where(p => p.HasExternalId).Count())
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count)
         trackInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!trackInfo.HasChanged && !importOnly)

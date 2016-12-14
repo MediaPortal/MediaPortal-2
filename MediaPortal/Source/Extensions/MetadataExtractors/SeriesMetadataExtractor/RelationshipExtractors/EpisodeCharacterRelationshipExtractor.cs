@@ -90,13 +90,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (CheckCacheContains(episodeInfo))
         return false;
 
+      int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
+      {
         OnlineMatcherService.Instance.UpdateEpisodeCharacters(episodeInfo, importOnly);
+        count = episodeInfo.Characters.Where(p => p.HasExternalId).Count();
+      }
+      else
+      {
+        count = episodeInfo.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
+      }
 
       if (episodeInfo.Characters.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < episodeInfo.Characters.Where(p => p.HasExternalId).Count())
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count)
         episodeInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!episodeInfo.HasChanged && !importOnly)

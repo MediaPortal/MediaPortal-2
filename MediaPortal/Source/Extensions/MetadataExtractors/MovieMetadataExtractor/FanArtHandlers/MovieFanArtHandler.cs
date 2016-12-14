@@ -318,8 +318,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
                       foreach (ResourcePath thumbPath in
                           from potentialFanArtFile in potentialArtistFanArtFiles
-                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                          where potentialFanArtFileNameWithoutExtension.StartsWith(actor.Value.Replace(" ", "_"))
+                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                          where potentialFanArtFileNameWithoutExtension.StartsWith(actor.Value.Replace(" ", "_"), StringComparison.InvariantCultureIgnoreCase)
                           select potentialFanArtFile)
                         SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, actor.Key, actor.Value);
                     }

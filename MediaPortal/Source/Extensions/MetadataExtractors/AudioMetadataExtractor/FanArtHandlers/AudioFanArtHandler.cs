@@ -323,8 +323,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
                       foreach (ResourcePath thumbPath in
                           from potentialFanArtFile in potentialArtistFanArtFiles
-                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                          where potentialFanArtFileNameWithoutExtension.StartsWith(artist.Value.Replace(" ", "_"))
+                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                          where potentialFanArtFileNameWithoutExtension.StartsWith(artist.Value.Replace(" ", "_"), StringComparison.InvariantCultureIgnoreCase)
                           select potentialFanArtFile)
                         SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, artist.Key, artist.Value);
                     }

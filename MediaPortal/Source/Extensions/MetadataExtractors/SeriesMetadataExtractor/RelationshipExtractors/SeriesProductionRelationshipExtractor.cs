@@ -86,9 +86,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       if (CheckCacheContains(seriesInfo))
         return false;
-
+        
+      int count = 0;
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
+      {
         OnlineMatcherService.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_PRODUCTION, importOnly);
+        count = seriesInfo.ProductionCompanies.Where(c => c.HasExternalId).Count();
+      }
+      else
+      {
+        count = seriesInfo.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Count();
+      }
 
       if (seriesInfo.ProductionCompanies.Count == 0)
         return false;

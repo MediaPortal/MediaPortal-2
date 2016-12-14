@@ -221,8 +221,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
                   foreach (ResourcePath thumbPath in
                       from potentialFanArtFile in potentialArtistFanArtFiles
-                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                      where potentialFanArtFileNameWithoutExtension.StartsWith(artistName.Replace(" ", "_"))
+                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
+                      where potentialFanArtFileNameWithoutExtension.StartsWith(artistName.Replace(" ", "_"), StringComparison.InvariantCultureIgnoreCase)
                       select potentialFanArtFile)
                   files.Add(new ResourceLocator(mediaIteamLocator.NativeSystemId, thumbPath));
               }
