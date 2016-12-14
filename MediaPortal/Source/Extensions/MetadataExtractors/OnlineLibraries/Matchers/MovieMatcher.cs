@@ -351,13 +351,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards.Distinct().ToList(), true);
 
           //Limit the number of persons
-          if(movieMatch.Actors.Count > MAX_PERSONS)
+          if(movieInfo.Actors.Count == 0 && movieMatch.Actors.Count > MAX_PERSONS)
             movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Actors.Count - MAX_PERSONS);
-          if (movieMatch.Characters.Count > MAX_PERSONS)
+          if (movieInfo.Characters.Count == 0 && movieMatch.Characters.Count > MAX_PERSONS)
             movieMatch.Characters.RemoveRange(MAX_PERSONS, movieMatch.Characters.Count - MAX_PERSONS);
-          if (movieMatch.Directors.Count > MAX_PERSONS)
+          if (movieInfo.Directors.Count == 0 && movieMatch.Directors.Count > MAX_PERSONS)
             movieMatch.Directors.RemoveRange(MAX_PERSONS, movieMatch.Directors.Count - MAX_PERSONS);
-          if (movieMatch.Writers.Count > MAX_PERSONS)
+          if (movieInfo.Writers.Count == 0 && movieMatch.Writers.Count > MAX_PERSONS)
             movieMatch.Writers.RemoveRange(MAX_PERSONS, movieMatch.Writers.Count - MAX_PERSONS);
 
           //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
@@ -539,14 +539,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
-          //Limit the number of persons
-          if (movieMatch.Actors.Count > MAX_PERSONS)
-            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Actors.Count - MAX_PERSONS);
-          if (movieMatch.Directors.Count > MAX_PERSONS)
-            movieMatch.Directors.RemoveRange(MAX_PERSONS, movieMatch.Directors.Count - MAX_PERSONS);
-          if (movieMatch.Writers.Count > MAX_PERSONS)
-            movieMatch.Writers.RemoveRange(MAX_PERSONS, movieMatch.Writers.Count - MAX_PERSONS);
-
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           if (occupation == PersonAspect.OCCUPATION_ACTOR)
@@ -678,10 +670,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
-          //Limit the number of characters
-          if (movieMatch.Characters.Count > MAX_PERSONS)
-            movieMatch.Characters.RemoveRange(MAX_PERSONS, movieMatch.Characters.Count - MAX_PERSONS);
-
           //These lists contain Ids and other properties that are not loaded, so they will always appear changed.
           //So these changes will be ignored and only stored if there is any other reason for it to have changed.
           MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), false);
@@ -1110,6 +1098,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
+      bool force = !info.IsRefreshed;
       if (info is MovieInfo)
       {
         MovieInfo movieInfo = info as MovieInfo;
@@ -1124,7 +1113,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = movieInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Movie] = id;
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is MovieCollectionInfo)
@@ -1141,7 +1130,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = movieCollectionInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.MovieCollection] = id;
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is CompanyInfo)
@@ -1157,7 +1146,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = companyInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Company] = id;
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is CharacterInfo)
@@ -1180,7 +1169,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Actor] = actorId;
           }
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is PersonInfo)
@@ -1209,7 +1198,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtMediaType = FanArtMediaTypes.Writer;
             data.FanArtId[FanArtMediaTypes.Writer] = id;
           }
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       return false;

@@ -1610,6 +1610,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
+      bool force = !info.IsRefreshed;
       if (info is SeriesInfo)
       {
         SeriesInfo seriesInfo = info as SeriesInfo;
@@ -1624,7 +1625,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = seriesInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Series] = id;
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is SeasonInfo)
@@ -1652,7 +1653,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Undefined] = id;
           }
-          ScheduleDownload(id, data.Serialize());
+          ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is EpisodeInfo)
@@ -1684,7 +1685,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Undefined] = id;
           }
-          ScheduleDownload(id, data.Serialize());
+          ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is CompanyInfo)
@@ -1708,7 +1709,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtMediaType = FanArtMediaTypes.TVNetwork;
             data.FanArtId[FanArtMediaTypes.TVNetwork] = id;
           }
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is CharacterInfo)
@@ -1731,7 +1732,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Actor] = actorId;
           }
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is PersonInfo)
@@ -1760,7 +1761,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtMediaType = FanArtMediaTypes.Writer;
             data.FanArtId[FanArtMediaTypes.Writer] = id;
           }
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       return false;

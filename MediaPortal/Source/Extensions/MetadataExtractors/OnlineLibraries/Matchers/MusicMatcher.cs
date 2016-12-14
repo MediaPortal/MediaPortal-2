@@ -1168,6 +1168,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
+      bool force = !info.IsRefreshed;
       if (info is TrackInfo)
       {
         TrackInfo trackInfo = info as TrackInfo;
@@ -1186,7 +1187,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             data.FanArtId[FanArtMediaTypes.Album] = id;
           }
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is AlbumInfo)
@@ -1203,7 +1204,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = albumInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.Album] = id;
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is CompanyInfo)
@@ -1219,7 +1220,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             Name = companyInfo.ToString()
           };
           data.FanArtId[FanArtMediaTypes.MusicLabel] = id;
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       else if (info is PersonInfo)
@@ -1243,7 +1244,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             data.FanArtMediaType = FanArtMediaTypes.Writer;
             data.FanArtId[FanArtMediaTypes.Writer] = id;
           }
-          return ScheduleDownload(id, data.Serialize());
+          return ScheduleDownload(id, data.Serialize(), force);
         }
       }
       return false;
