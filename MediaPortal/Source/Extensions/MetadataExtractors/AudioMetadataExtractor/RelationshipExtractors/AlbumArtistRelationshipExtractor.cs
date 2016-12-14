@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (albumInfo.Artists.Count == 0)
         return false;
 
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count)
+      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && albumInfo.Artists.Count > 0))
         albumInfo.HasChanged = true; //Force save if no relationship exists
 
       if (!albumInfo.HasChanged && !importOnly)
