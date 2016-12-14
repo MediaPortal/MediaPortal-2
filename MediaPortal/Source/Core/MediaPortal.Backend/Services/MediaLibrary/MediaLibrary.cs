@@ -2043,17 +2043,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           List<Guid> relations = new List<Guid>();
           command.CommandText = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
           " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
-          " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID";
-          using (IDataReader reader = command.ExecuteReader())
-          {
-            while (reader.Read())
-            {
-              Guid relationId = database.ReadDBValue<Guid>(reader, 0);
-              if(!relations.Contains(relationId))
-                relations.Add(relationId);
-            }
-          }
-          command.CommandText = "SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
+          " WHERE " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
+          " UNION" +
+          " SELECT " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) +
           " FROM " + _miaManagement.GetMIATableName(RelationshipAspect.Metadata) +
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID";
           using (IDataReader reader = command.ExecuteReader())
@@ -2061,7 +2053,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             while (reader.Read())
             {
               Guid relationId = database.ReadDBValue<Guid>(reader, 0);
-              if (!relations.Contains(relationId))
+              if(!relations.Contains(relationId))
                 relations.Add(relationId);
             }
           }
@@ -2254,7 +2246,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           }
 
           if (!hasParent)
-            DeleteOrphan(database, transaction, mediaItemId);
+            DeleteMediaItemAndReleationships(transaction, mediaItemId);
 
           return allParentsDeleted;
         }
@@ -2266,7 +2258,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private void DeleteOrphan(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    private bool DeleteOrphan(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
     {
       try
       {
@@ -2294,8 +2286,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             Logger.Debug("MediaLibrary: Deleted orphaned media item {0}", mediaItemId);
             DeleteMediaItemAndReleationships(transaction, mediaItemId);
+            return true;
           }
         }
+        return false;
       }
       catch (Exception e)
       {
