@@ -48,9 +48,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" TextTrimming="WordEllipsis"
-                    VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-                    Content="{Binding MovieName}"
-                    Color="{ThemeResource TextColor}"/>
+                   VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                   Content="{Binding MovieName}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
       </media:MovieAspectWrapper.Template>

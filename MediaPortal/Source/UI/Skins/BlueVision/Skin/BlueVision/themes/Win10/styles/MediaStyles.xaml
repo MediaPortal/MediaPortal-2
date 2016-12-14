@@ -834,14 +834,13 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,43,0">
+    <Grid x:Name="ItemControl" Margin="0,0,43,0" Width="540">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 

@@ -1277,7 +1277,7 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <Grid Grid.Row="1" Background="#BF666666" >
+      <Grid Grid.Row="1" Background="#BF666666">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
