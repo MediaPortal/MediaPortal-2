@@ -119,6 +119,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
     public Guid CreateProfile(string profileName)
     {
+      //Profile might already exist.
+      UserProfile existingProfile;
+      if (GetProfileByName(profileName, out existingProfile))
+        return existingProfile.ProfileId;
+
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       Guid profileId = Guid.NewGuid();
