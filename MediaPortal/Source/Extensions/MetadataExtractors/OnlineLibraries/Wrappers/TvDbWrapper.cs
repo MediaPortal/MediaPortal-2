@@ -343,9 +343,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       season.SeriesTvdbId = seriesDetail.Id;
       season.SeriesImdbId = seriesDetail.ImdbId;
       season.FirstAired = episode.FirstAired;
-
       season.SeriesName = new SimpleTitle(seriesDetail.SeriesName, false);
-      season.FirstAired = seriesDetail.FirstAired;
       season.SeasonNumber = season.SeasonNumber.Value;
       season.Description = new SimpleTitle(seriesDetail.Overview, false);
       season.TotalEpisodes = seriesDetail.Episodes.FindAll(e => e.SeasonNumber == season.SeasonNumber).Count;
