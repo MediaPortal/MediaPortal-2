@@ -405,12 +405,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
+    public bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
       }
       return success;
     }
@@ -558,12 +558,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
+    public bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
       }
       return success;
     }
@@ -754,12 +754,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo)
+    public bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo);
+        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
       }
       return success;
     }

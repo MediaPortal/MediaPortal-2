@@ -587,7 +587,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (updateEpisodeList) //Comparing all episodes can be quite time consuming
           {
             foreach (EpisodeInfo episode in seriesMatch.Episodes)
-              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(episode.Genres);
+              OnlineMatcherService.Instance.AssignMissingSeriesGenreIds(episode.Genres);
 
             //Only allow new episodes if empty. Online sources might have different names for same series so season name would look strange.
             bool allowAdd = seriesInfo.Episodes.Count == 0;
@@ -1606,11 +1606,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info)
+    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
-      bool force = !info.IsRefreshed;
       if (info is SeriesInfo)
       {
         SeriesInfo seriesInfo = info as SeriesInfo;

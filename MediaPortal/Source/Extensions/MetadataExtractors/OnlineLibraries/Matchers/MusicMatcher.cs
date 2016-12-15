@@ -1164,11 +1164,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info)
+    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
-      bool force = !info.IsRefreshed;
       if (info is TrackInfo)
       {
         TrackInfo trackInfo = info as TrackInfo;

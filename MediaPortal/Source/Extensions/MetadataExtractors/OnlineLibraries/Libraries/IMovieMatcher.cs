@@ -52,6 +52,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void StoreCharacterMatch(CharacterInfo character);
     void StoreCompanyMatch(CompanyInfo company);
 
-    bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info);
+    bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force);
   }
 }

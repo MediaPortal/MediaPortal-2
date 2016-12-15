@@ -855,7 +855,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (updateMovieList) //Comparing all movies can be quite time consuming
           {
             foreach (MovieInfo movie in movieCollectionMatch.Movies)
-              OnlineMatcherService.Instance.AssignMissingMusicGenreIds(movie.Genres);
+              OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movie.Genres);
 
             MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies.Distinct().ToList(), true);
           }
@@ -1094,11 +1094,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info)
+    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
     {
       string id;
       string mediaItem = mediaItemId.ToString().ToUpperInvariant();
-      bool force = !info.IsRefreshed;
       if (info is MovieInfo)
       {
         MovieInfo movieInfo = info as MovieInfo;
