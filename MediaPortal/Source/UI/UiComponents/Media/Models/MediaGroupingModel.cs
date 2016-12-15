@@ -29,6 +29,7 @@ using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -71,7 +72,7 @@ namespace MediaPortal.UiComponents.Media.Models
       groupingItem.AdditionalProperties[Consts.KEY_GROUPING] = null;
       _groupingItemsList.Add(groupingItem);
 
-      foreach (Sorting.Sorting grouping in groupings)
+      foreach (Sorting.Sorting grouping in groupings.Where(g => g.IsAvailable(navigationData.CurrentScreenData)))
       {
         Sorting.Sorting groupingCopy = grouping;
         groupingItem = new ListItem(Consts.KEY_NAME, grouping.GroupByDisplayName)
