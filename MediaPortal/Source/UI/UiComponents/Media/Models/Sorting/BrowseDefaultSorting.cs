@@ -36,6 +36,12 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     protected IComparer<MediaItem> _videoComparer = new SortByTitle();
     protected IComparer<MediaItem> _imageComparer = new SortByTitle();
 
+    public BrowseDefaultSorting()
+    {
+      _includeMias = null;
+      _excludeMias = null;
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORTING_BROWSE_DEFAULT; }

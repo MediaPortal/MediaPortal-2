@@ -67,6 +67,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _availableSortings = new List<Sorting.Sorting>
         {
           _defaultSorting,
+          new AudioSortByTitle(),
           new SortByTitle(),
           new SortBySortTitle(),
           new SortByName(),
@@ -87,6 +88,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         {
           //_defaultGrouping,
           new AudioSortByAlbumTrack(),
+          new AudioSortByTitle(),
           new SortByTitle(),
           new SortBySortTitle(),
           new SortByName(),

@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -27,12 +27,11 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public class SortBySortTitle : AbstractSortByComparableObjectAttribute<string>
+  public class AudioSortByTitle : AbstractSortByComparableObjectAttribute<string>
   {
-    public SortBySortTitle() : base(Consts.RES_SORT_BY_SORT_TITLE, Consts.RES_GROUP_BY_SORT_TITLE, MediaAspect.ATTR_SORT_TITLE)
+    public AudioSortByTitle() : base(Consts.RES_SORT_BY_TITLE, Consts.RES_GROUP_BY_TITLE, AudioAspect.ATTR_TRACKNAME)
     {
-      _includeMias = new[] { MediaAspect.ASPECT_ID };
-      _excludeMias = new[] { PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID, SeasonAspect.ASPECT_ID };
+      _includeMias = new[] { AudioAspect.ASPECT_ID };
     }
   }
 }

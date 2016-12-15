@@ -35,6 +35,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public SeriesSortByDVDEpisode()
     {
       _includeMias = new[] { EpisodeAspect.ASPECT_ID };
+      _excludeMias = null;
     }
 
     public override string DisplayName

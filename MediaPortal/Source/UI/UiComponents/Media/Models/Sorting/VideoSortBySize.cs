@@ -35,6 +35,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public VideoSortBySize()
     {
       _includeMias = new[] { VideoStreamAspect.ASPECT_ID };
+      _excludeMias = null;
     }
 
     public override string DisplayName

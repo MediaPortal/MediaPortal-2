@@ -32,6 +32,12 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
   public class ImageSortBySize : SortByTitle
   {
+    public ImageSortBySize()
+    {
+      _includeMias = null;
+      _excludeMias = null;
+    }
+
     public override string DisplayName
     {
       get { return Consts.RES_SORT_BY_SIZE; }

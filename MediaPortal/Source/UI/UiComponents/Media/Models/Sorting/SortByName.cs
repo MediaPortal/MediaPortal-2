@@ -27,11 +27,22 @@ using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public class SortByName : AbstractSortByComparableObjectAttribute<string>
+  public class SortByName : SortByTitle
   {
-    public SortByName() : base(Consts.RES_SORT_BY_NAME, Consts.RES_GROUP_BY_NAME, MediaAspect.ATTR_TITLE)
+    public SortByName()
     {
       _includeMias = new[] { PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
+      _excludeMias = null;
+    }
+
+    public override string DisplayName
+    {
+      get { return Consts.RES_SORT_BY_NAME; }
+    }
+
+    public override string GroupByDisplayName
+    {
+      get { return Consts.RES_GROUP_BY_NAME; }
     }
   }
 }

@@ -37,6 +37,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public SortByFirstAiredDate()
     {
       _includeMias = new[] { MediaAspect.ASPECT_ID };
+      _excludeMias = null;
     }
 
     public override string DisplayName

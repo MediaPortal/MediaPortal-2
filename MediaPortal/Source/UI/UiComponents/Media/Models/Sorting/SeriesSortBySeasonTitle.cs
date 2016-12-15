@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -22,17 +22,31 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Sorting
 {
-  public class SortBySortTitle : AbstractSortByComparableObjectAttribute<string>
+  public class SeriesSortBySeasonTitle : SortByTitle
   {
-    public SortBySortTitle() : base(Consts.RES_SORT_BY_SORT_TITLE, Consts.RES_GROUP_BY_SORT_TITLE, MediaAspect.ATTR_SORT_TITLE)
+    public SeriesSortBySeasonTitle()
     {
-      _includeMias = new[] { MediaAspect.ASPECT_ID };
-      _excludeMias = new[] { PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID, SeasonAspect.ASPECT_ID };
+      _includeMias = new[] { SeasonAspect.ASPECT_ID };
+      _excludeMias = null;
+    }
+
+    public override int Compare(MediaItem item1, MediaItem item2)
+    {
+      SingleMediaItemAspect seasonAspectX;
+      SingleMediaItemAspect seasonAspectY;
+      if (MediaItemAspect.TryGetAspect(item1.Aspects, SeasonAspect.Metadata, out seasonAspectX) && MediaItemAspect.TryGetAspect(item2.Aspects, SeasonAspect.Metadata, out seasonAspectY))
+      {
+        int seasonX = (int)(seasonAspectX.GetAttributeValue(SeasonAspect.ATTR_SEASON) ?? 0);
+        int seasonY = (int)(seasonAspectY.GetAttributeValue(SeasonAspect.ATTR_SEASON) ?? 0);
+        return seasonX.CompareTo(seasonY);
+      }
+      return base.Compare(item1, item2);
     }
   }
 }

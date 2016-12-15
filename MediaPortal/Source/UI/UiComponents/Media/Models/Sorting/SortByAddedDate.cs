@@ -37,6 +37,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public SortByAddedDate()
     {
       _includeMias = new[] { ImporterAspect.ASPECT_ID };
+      _excludeMias = null;
     }
 
     public override string DisplayName

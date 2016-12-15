@@ -82,17 +82,13 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
         attrY = GetAttributeSpecification(y, _sortMultiAttrs, out aspectY);
       }
 
-      T valX = null;
-      T valY = null;
-      if (attrX != null)
+      if (attrX != null && attrY != null)
       {
-        valX = (T)aspectX.GetAttributeValue(attrX);
+        T valX = (T)aspectX.GetAttributeValue(attrX);
+        T valY = (T)aspectY.GetAttributeValue(attrY);
+        return ObjectUtils.Compare(valX, valY);
       }
-      if (attrY != null)
-      {
-        valY = (T)aspectY.GetAttributeValue(attrY);
-      }
-      return ObjectUtils.Compare(valX, valY);
+      return 0;
     }
 
     public override string GroupByDisplayName

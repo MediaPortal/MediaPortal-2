@@ -36,6 +36,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public AudioSortByAlbumTrack()
     {
       _includeMias = new[] { AudioAspect.ASPECT_ID };
+      _excludeMias = null;
     }
 
     public override string DisplayName
