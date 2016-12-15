@@ -1039,15 +1039,6 @@
         </Grid.OpacityMask>
         <Image x:Name="ItemTypeAudio" Stretch="Fill" Source="{Binding MediaItem}" FallbackSource="Audio.png">
         </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source=""/>
-              <Binding Source="UnheardTab_small.png"/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1069,15 +1060,6 @@
           </VisualBrush>
         </Grid.OpacityMask>
         <Image Stretch="Fill" FallbackSource="Audio.png" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}">
-        </Image>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
-              <Binding Path="PlayCount"/>
-              <Binding Source="UnheardTab_small.png"/>
-              <Binding Source=""/>
-            </MultiBinding>
-          </Image.Source>
         </Image>
       </Grid>
       <Border Grid.Row="0" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
@@ -2039,12 +2021,7 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <!-- SHADOW >
-      <Control Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" Width="{Binding ElementName=PosterGrid,Path=ActualWidth}" 
-               Style="{ThemeResource Shadow_3_20}" IsVisible="{Binding ElementName=thumb, Path=HasImage}"/>
-      < SHADOW -->
-
-      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center" 
+      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center"
             MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}" MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}">
         <Grid.OpacityMask>
           <VisualBrush>
@@ -2052,8 +2029,8 @@
               <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
             </VisualBrush.Visual>
           </VisualBrush>
-        </Grid.OpacityMask>     
-      
+        </Grid.OpacityMask>
+
         <Image x:Name="thumb" Stretch="Uniform" Margin="0" Source="{Binding MediaItem}">
           <Image.Opacity>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -2063,12 +2040,10 @@
             </MultiBinding>
           </Image.Opacity>
         </Image>
-        <!-- Unwatched indicator -->
-        <Image Source="unwatched_flag.png" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-2" Height="40" Width="40">
-          <Image.IsVisible>
-            <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
-          </Image.IsVisible>
-        </Image>
+        <Border VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" Background="#FF50575c"
+                Width="{StaticResource MEDIA_AUDIO_HEIGHT}" Height="{StaticResource MEDIA_AUDIO_WIDTH}"
+                IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        </Border>
       </Grid>       
     </Grid>
   </DataTemplate>
