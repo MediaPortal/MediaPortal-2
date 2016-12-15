@@ -758,7 +758,7 @@
 
   <ControlTemplate x:Key="List_WatchedFlag_Template">
     <Grid>
-      <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+      <Image x:Name="PartlyWatchedLabel" Height="33" Margin="0,4,5,0" Stretch="Uniform" Opacity="0.7"
                Source="partlywatched.png">
         <Image.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
@@ -768,7 +768,7 @@
         </Image.IsVisible>
       </Image>
 
-      <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+      <Image x:Name="WatchedLabel" Height="33" Margin="0,4,5,0" Stretch="Uniform" Opacity="0.7"
                Source="watched.png">
         <Image.IsVisible>
           <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
