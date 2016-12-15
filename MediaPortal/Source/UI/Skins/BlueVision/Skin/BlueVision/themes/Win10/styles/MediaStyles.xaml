@@ -48,7 +48,7 @@
 
   <ControlTemplate x:Key="List_WatchedFlag_Template">
     <Grid>
-      <Image x:Name="PartlyWatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+      <Image x:Name="PartlyWatchedLabel" Height="25" Margin="0,5,5,0" Stretch="Uniform" Opacity="0.7"
                Source="partlywatched.png">
         <Image.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
@@ -58,7 +58,7 @@
         </Image.IsVisible>
       </Image>
 
-      <Image x:Name="WatchedLabel" Height="35" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
+      <Image x:Name="WatchedLabel" Height="25" Margin="0,5,5,0" Stretch="Uniform" Opacity="0.7"
                Source="watched.png">
         <Image.IsVisible>
           <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
@@ -343,16 +343,22 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
+      <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
+        <media:SeriesAspectWrapper.Template>
+          <ControlTemplate>
+            <Label x:Name="ItemLabel" Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}" FontSize="{ThemeResource SmallFontSize}"
              FontFamily="DefaultBold" Margin="0,0,10,0">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="White"/>
-            <Binding Source="#FFCCCCCC"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
+              <Label.Color>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="White"/>
+                  <Binding Source="#FFCCCCCC"/>
+                </MultiBinding>
+              </Label.Color>
+            </Label>
+          </ControlTemplate>
+        </media:SeriesAspectWrapper.Template>
+      </media:SeriesAspectWrapper>
       <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
