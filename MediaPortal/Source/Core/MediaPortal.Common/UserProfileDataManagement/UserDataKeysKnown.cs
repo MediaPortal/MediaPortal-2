@@ -1,8 +1,7 @@
-﻿using System;
-#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +21,8 @@
 */
 
 #endregion
+
+using System;
 
 namespace MediaPortal.Common.UserProfileDataManagement
 {
