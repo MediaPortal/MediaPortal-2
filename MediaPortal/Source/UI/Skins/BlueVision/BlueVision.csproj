@@ -649,7 +649,6 @@
     <Content Include="Skin\BlueVision\themes\Win10\images\VideoNormal.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\VideoWide.png" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\FSCWindowButtons.inc" />
-    <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemFanArt.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemsList.inc" />
     <Content Include="Skin\BlueVision\themes\Win10\theme.xml" />

@@ -72,7 +72,7 @@
       <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
         <media:EpisodeAspectWrapper.Template>
           <ControlTemplate>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,6,0,5"
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,6,0,5"
                         DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                Maximum="5" VerticalAlignment="Center"

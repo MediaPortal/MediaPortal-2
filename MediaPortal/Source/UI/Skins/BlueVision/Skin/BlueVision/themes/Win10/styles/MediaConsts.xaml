@@ -15,8 +15,8 @@
 
   <ResourceWrapper x:Key="MEDIA_COVERFLOW_WIDTH" Resource="249"/>
   <ResourceWrapper x:Key="MEDIA_COVERFLOW_HEIGHT" Resource="373"/>
-  
-  <ResourceWrapper x:Key="AUDIO_COVERFLOW" Resource="353"/>
+
+  <ResourceWrapper x:Key="AUDIO_COVERFLOW" Resource="249"/>
 
   <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="530"/>
   <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="93"/>
