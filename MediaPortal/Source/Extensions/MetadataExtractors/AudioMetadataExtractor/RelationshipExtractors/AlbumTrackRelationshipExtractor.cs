@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       else
         return false;
 
-      if (!albumInfo.HasChanged && !importOnly)
+      if (!albumInfo.HasChanged)
         return false;
 
       AddToCheckCache(albumInfo);

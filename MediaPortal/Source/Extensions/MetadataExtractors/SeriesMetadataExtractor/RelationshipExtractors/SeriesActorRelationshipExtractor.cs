@@ -92,6 +92,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         OnlineMatcherService.Instance.UpdateSeriesPersons(seriesInfo, PersonAspect.OCCUPATION_ACTOR, importOnly);
         count = seriesInfo.Actors.Where(p => p.HasExternalId).Count();
+        if (!seriesInfo.IsRefreshed)
+          seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
       }
       else
       {
@@ -104,7 +106,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && seriesInfo.Actors.Count > 0))
         seriesInfo.HasChanged = true; //Force save if no relationship exists
 
-      if (!seriesInfo.HasChanged && !importOnly)
+      if (!seriesInfo.HasChanged)
         return false;
 
       AddToCheckCache(seriesInfo);

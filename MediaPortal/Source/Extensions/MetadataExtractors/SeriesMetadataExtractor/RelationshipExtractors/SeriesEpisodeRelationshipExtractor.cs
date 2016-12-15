@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       else
         return false;
 
-      if (!seriesInfo.HasChanged && !importOnly)
+      if (!seriesInfo.HasChanged)
         return false;
 
       AddToCheckCache(seriesInfo);

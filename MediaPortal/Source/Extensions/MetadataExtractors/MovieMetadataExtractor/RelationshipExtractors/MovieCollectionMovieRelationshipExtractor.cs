@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       else
         return false;
 
-      if (!collectionInfo.HasChanged && !importOnly)
+      if (!collectionInfo.HasChanged)
         return false;
 
       AddToCheckCache(collectionInfo);

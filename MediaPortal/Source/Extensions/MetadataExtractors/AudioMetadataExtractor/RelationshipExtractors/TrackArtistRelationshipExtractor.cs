@@ -94,6 +94,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       {
         OnlineMatcherService.Instance.UpdateTrackPersons(trackInfo, PersonAspect.OCCUPATION_ARTIST, importOnly);
         count = trackInfo.Artists.Where(p => p.HasExternalId).Count();
+        if (!trackInfo.IsRefreshed)
+          trackInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
       }
       else
       {
