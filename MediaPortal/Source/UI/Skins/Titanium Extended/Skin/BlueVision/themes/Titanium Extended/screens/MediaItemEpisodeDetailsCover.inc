@@ -11,8 +11,8 @@
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
   </Grid.Resources>
 
-  <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:SeriesAspectWrapper.Template>
+  <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+    <media:EpisodeAspectWrapper.Template>
         <ControlTemplate>
           <Grid HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid.RowDefinitions>
@@ -44,7 +44,7 @@
             </StackPanel>
           </Grid>  
         </ControlTemplate>
-      </media:SeriesAspectWrapper.Template>
-    </media:SeriesAspectWrapper>
+      </media:EpisodeAspectWrapper.Template>
+    </media:EpisodeAspectWrapper>
 
 </Grid>

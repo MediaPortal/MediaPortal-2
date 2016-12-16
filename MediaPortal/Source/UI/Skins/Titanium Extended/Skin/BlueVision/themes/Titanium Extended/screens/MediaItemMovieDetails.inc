@@ -72,7 +72,7 @@
 
             <Label x:Name="CollectionLabel" Grid.Row="1" Grid.Column="0"
                 Content="[Media.VideoCollectionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-            <Label x:Name="Collection" Grid.Row="1" Grid.Column="1"
+            <Label x:Name="Collection" Grid.Row="1" Grid.Column="1" Margin="0,0,65,0" TextTrimming="WordEllipsis"
                 Content="{Binding CollectionName}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="DurationLabel" Grid.Row="2" Grid.Column="0"

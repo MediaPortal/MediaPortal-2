@@ -71,7 +71,7 @@
 
             <Label x:Name="ArtistsLabel" Grid.Row="1" Grid.Column="0"
                    Content="[Media.AudioArtistsLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-            <Label x:Name="Artists" Grid.Row="1" Grid.Column="1" TextTrimming="WordEllipsis"
+            <Label x:Name="Artists" Grid.Row="1" Grid.Column="1" Margin="0,0,65,0" TextTrimming="WordEllipsis"
                    Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0"

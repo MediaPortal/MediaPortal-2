@@ -33,7 +33,7 @@
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="190"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="500"/>
           </Grid.ColumnDefinitions>
 
           <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
@@ -52,24 +52,10 @@
             </media:UserDataWrapper.Template>
           </media:UserDataWrapper>
 
-          <Label x:Name="YearLabel" Grid.Row="0" Grid.Column="0"
-                 Content="[Media.VideoYearLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-          <media:MediaAspectWrapper Grid.Row="0" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
-            <media:MediaAspectWrapper.Template>
-              <ControlTemplate>
-                <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                  <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                  </Grid.RowDefinitions>
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                  </Grid.ColumnDefinitions>
-                  <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource NormalFontSize}"
-                         Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
-                </Grid>
-              </ControlTemplate>
-            </media:MediaAspectWrapper.Template>
-          </media:MediaAspectWrapper>
+          <Label x:Name="SeriesLabel" Grid.Row="0" Grid.Column="0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 Content="[Media.SeriesTitleLabel]" Color="{ThemeResource EmphasisTextColor}"/>
+          <Label x:Name="Series" Grid.Row="0" Grid.Column="1" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                 Content="{Binding SeriesName}" Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis" Margin="0,0,65,0"/>
 
           <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
             <Label x:Name="SeasonLabel" Content="[Media.SeasonRootViewName]" Color="{ThemeResource EmphasisTextColor}"/>
@@ -85,7 +71,7 @@
           <Label x:Name="Episode" Grid.Row="2" Grid.Column="1" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
               Content="{Binding Episodes}" Color="{ThemeResource TextColor}"/>
          
-          <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="4" Grid.ColumnSpan="2"
+          <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Grid.Row="3" Grid.ColumnSpan="2"
                    Wrap="True" TextTrimming="WordEllipsis" Margin="0,30,0,0" Color="{ThemeResource TextColor}"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{Binding Description}"/>
         </Grid>
@@ -98,9 +84,6 @@
       <media:SeasonAspectWrapper.Template>
         <ControlTemplate>
           <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="SeriesName" Content="{Binding SeriesName}" Color="Black" FontSize="{ThemeResource NormalFontSize}"/>
-            <Label Content="  –  " Color="Black" FontSize="{ThemeResource NormalFontSize}"
-                   IsVisible="{Binding Path=Season, Converter={StaticResource ReferenceToBoolConverter}}"/>
             <Label x:Name="SeasonLabel" Content="[Media.SeasonRootViewName]" Color="Black"
                    FontSize="{ThemeResource NormalFontSize}"/>
             <Label Content=" " Color="Black" FontSize="{ThemeResource NormalFontSize}"/>

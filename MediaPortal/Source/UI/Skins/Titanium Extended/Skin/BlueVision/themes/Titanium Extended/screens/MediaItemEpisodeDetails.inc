@@ -37,7 +37,7 @@
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="190"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="500"/>
           </Grid.ColumnDefinitions>
 
           <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
