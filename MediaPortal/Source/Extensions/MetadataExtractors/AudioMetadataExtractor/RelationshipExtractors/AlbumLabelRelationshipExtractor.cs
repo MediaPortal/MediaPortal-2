@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -92,6 +92,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       {
         OnlineMatcherService.Instance.UpdateAlbumCompanies(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, importOnly);
         count = albumInfo.MusicLabels.Where(c => c.HasExternalId).Count();
+        if (!albumInfo.IsRefreshed)
+          albumInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
       }
       else
       {
@@ -104,7 +106,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && albumInfo.MusicLabels.Count > 0))
         albumInfo.HasChanged = true; //Force save if no relationship exists
 
-      if (!albumInfo.HasChanged && !importOnly)
+      if (!albumInfo.HasChanged)
         return false;
 
       AddToCheckCache(albumInfo);

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -52,6 +52,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void StoreCharacterMatch(CharacterInfo character);
     void StoreCompanyMatch(CompanyInfo company);
 
-    bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info);
+    bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force);
   }
 }

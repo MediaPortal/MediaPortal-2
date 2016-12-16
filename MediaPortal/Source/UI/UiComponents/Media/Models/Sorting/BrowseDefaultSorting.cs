@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,6 +35,12 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     protected IComparer<MediaItem> _audioComparer = new AudioSortByAlbumTrack();
     protected IComparer<MediaItem> _videoComparer = new SortByTitle();
     protected IComparer<MediaItem> _imageComparer = new SortByTitle();
+
+    public BrowseDefaultSorting()
+    {
+      _includeMias = null;
+      _excludeMias = null;
+    }
 
     public override string DisplayName
     {

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,6 +35,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public VideoSortBySize()
     {
       _includeMias = new[] { VideoStreamAspect.ASPECT_ID };
+      _excludeMias = null;
     }
 
     public override string DisplayName

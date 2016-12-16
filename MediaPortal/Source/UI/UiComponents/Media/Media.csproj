@@ -251,7 +251,10 @@
     <Compile Include="Models\Sorting\SeriesSortByDVDEpisode.cs" />
     <Compile Include="Models\Sorting\SeriesSortByFirstProductionStudio.cs" />
     <Compile Include="Models\Sorting\SeriesSortByFirstTVNetwork.cs" />
+    <Compile Include="Models\Sorting\SeriesSortByEpisodeTitle.cs" />
+    <Compile Include="Models\Sorting\AudioSortByTitle.cs" />
     <Compile Include="Models\Sorting\SortByAddedDate.cs" />
+    <Compile Include="Models\Sorting\SeriesSortBySeasonTitle.cs" />
     <Compile Include="Models\Sorting\SortBySortTitle.cs" />
     <Compile Include="Models\Sorting\SeriesSortByFirstActor.cs" />
     <Compile Include="Models\Sorting\SeriesSortByFirstCharacter.cs" />

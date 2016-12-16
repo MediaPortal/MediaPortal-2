@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -138,23 +138,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
         EpisodeInfo episodeInfo = new EpisodeInfo();
         episodeInfo.FromMetadata(aspects);
+        bool forceFanart = !episodeInfo.IsRefreshed;
         SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
         SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
         ExtractLocalImages(aspects, mediaItemId, seriesMediaItemId, seasonMediaItemId, episodeInfo, seriesInfo, seasonInfo, actorMediaItems);
-        if(!SeriesMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, episodeInfo);
+        if (!SeriesMetadataExtractor.SkipFanArtDownload)
+          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, episodeInfo, forceFanart);
 
         //Take advantage of the audio language being known and download season and series too
         if (seasonMediaItemId.HasValue && !_checkCache.Contains(seasonMediaItemId.Value))
         {
           if (!SeriesMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadSeriesFanArt(seasonMediaItemId.Value, seasonInfo);
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(seasonMediaItemId.Value, seasonInfo, forceFanart);
           _checkCache.Add(seasonMediaItemId.Value);
         }
         if (seriesMediaItemId.HasValue && !_checkCache.Contains(seriesMediaItemId.Value))
         {
           if (!SeriesMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadSeriesFanArt(seriesMediaItemId.Value, seriesInfo);
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(seriesMediaItemId.Value, seriesInfo, forceFanart);
           _checkCache.Add(seriesMediaItemId.Value);
         }
       }
@@ -165,8 +166,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR || personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR ||
           personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
         {
-          if (!SeriesMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, personInfo);
+            if (!SeriesMetadataExtractor.SkipFanArtDownload)
+              OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, personInfo, !personInfo.IsRefreshed);
         }
       }
       else if (aspects.ContainsKey(CharacterAspect.ASPECT_ID))
@@ -174,7 +175,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         CharacterInfo characterInfo = new CharacterInfo();
         characterInfo.FromMetadata(aspects);
         if (!SeriesMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, characterInfo);
+          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, characterInfo, !characterInfo.IsRefreshed);
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
       {
@@ -183,7 +184,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION || companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
         {
           if (!SeriesMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, companyInfo);
+            OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, companyInfo, !companyInfo.IsRefreshed);
         }
       }
     }

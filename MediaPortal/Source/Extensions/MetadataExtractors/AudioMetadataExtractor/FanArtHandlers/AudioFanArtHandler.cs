@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -156,15 +156,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
         TrackInfo trackInfo = new TrackInfo();
         trackInfo.FromMetadata(aspects);
+        bool forceFanart = !trackInfo.IsRefreshed;
         AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
         ExtractLocalImages(aspects, albumMediaItemId, artistMediaItems, albumInfo.ToString());
         if(!AudioMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, trackInfo);
+          OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, trackInfo, forceFanart);
 
         if (albumMediaItemId.HasValue && !_checkCache.Contains(albumMediaItemId.Value))
         {
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadAudioFanArt(albumMediaItemId.Value, albumInfo);
+            OnlineMatcherService.Instance.DownloadAudioFanArt(albumMediaItemId.Value, albumInfo, forceFanart);
           _checkCache.Add(albumMediaItemId.Value);
         }
       }
@@ -175,7 +176,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (personInfo.Occupation == PersonAspect.OCCUPATION_ARTIST || personInfo.Occupation == PersonAspect.OCCUPATION_COMPOSER)
         {
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, personInfo);
+            OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, personInfo, !personInfo.IsRefreshed);
         }
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
@@ -185,7 +186,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (companyInfo.Type == CompanyAspect.COMPANY_MUSIC_LABEL)
         {
           if (!AudioMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, companyInfo);
+            OnlineMatcherService.Instance.DownloadAudioFanArt(mediaItemId, companyInfo, !companyInfo.IsRefreshed);
         }
       }
     }

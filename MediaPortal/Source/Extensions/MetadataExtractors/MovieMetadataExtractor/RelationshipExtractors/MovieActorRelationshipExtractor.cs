@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -95,6 +95,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       {
         OnlineMatcherService.Instance.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_ACTOR, importOnly);
         count = movieInfo.Actors.Where(p => p.HasExternalId).Count();
+        if (!movieInfo.IsRefreshed)
+          movieInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
       }
       else
       {
@@ -107,7 +109,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && movieInfo.Actors.Count > 0))
         movieInfo.HasChanged = true; //Force save if no relationship exists
 
-      if (!movieInfo.HasChanged && !importOnly)
+      if (!movieInfo.HasChanged)
         return false;
 
       AddToCheckCache(movieInfo);

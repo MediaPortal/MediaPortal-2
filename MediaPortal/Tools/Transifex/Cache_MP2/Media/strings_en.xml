@@ -383,17 +383,21 @@
   
   <string name="Media.SwitchSortingMenuItem">Sorting</string>
   <string name="Media.SwitchSortingDialogTitle">Sorting</string>
+  <string name="Media.SortByName">Sort by name</string>
   <string name="Media.SortByTitle">Sort by title</string>
+  <string name="Media.SortBySortTitle">Sort by sort title</string>
   <string name="Media.SortByAlbumTrack">Sort by album and track</string>
   <string name="Media.SortByGenre">Sort by genre</string>
   <string name="Media.SortByAlbum">Sort by album and title</string>
   <string name="Media.SortByTrack">Sort by track</string>
   <string name="Media.SortByArtist">Sort by artist</string>
+  <string name="Media.SortByComposer">Sort by composer</string>
   <string name="Media.SortByYear">Sort by year</string>
   <string name="Media.SortBySize">Sort by size</string>
   <string name="Media.SortBySystem">Sort by system</string>
   <string name="Media.SortByActor">Sort by actor</string>
   <string name="Media.SortByDirector">Sort by director</string>
+  <string name="Media.SortByCharacter">Sort by character</string>
   <string name="Media.SortByWriter">Sort by writer</string>
   <string name="Media.SortByDuration">Sort by duration</string>
   <string name="Media.SortByAspectRatio">Sort by aspect ratio</string>
@@ -403,28 +407,39 @@
   <string name="Media.SortByEpisode">Sort by episode</string>
   <string name="Media.SortByDVDEpisode">Sort by dvd episode</string>
   <string name="Media.SortingBrowseDefault">Default sorting</string>
+  <string name="Media.SortByTVNetwork">Sort by tv network</string>
+  <string name="Media.SortByProductionCompany">Sort by production studio</string>
+  <string name="Media.SortByMusicLabel">Sort by music label</string>
 
   <string name="Media.SwitchGroupingMenuItem">Grouping</string>
   <string name="Media.SwitchGroupingDialogTitle">Grouping</string>
   <string name="Media.NoGrouping">No grouping</string>
+  <string name="Media.GroupByName">Group by name</string>
   <string name="Media.GroupByTitle">Group by title</string>
+  <string name="Media.GroupBySortTitle">Group by sort title</string>
   <string name="Media.GroupByAlbumTrack">Group by album and track</string>
   <string name="Media.GroupByGenre">Group by genre</string>
   <string name="Media.GroupByAlbum">Group by album and title</string>
   <string name="Media.GroupByTrack">Group by track</string>
   <string name="Media.GroupByArtist">Group by artist</string>
+  <string name="Media.GroupByComposer">Group by composer</string>
   <string name="Media.GroupByYear">Group by year</string>
   <string name="Media.GroupBySize">Group by size</string>
   <string name="Media.GroupBySystem">Group by system</string>
   <string name="Media.GroupByActor">Group by actor</string>
   <string name="Media.GroupByDirector">Group by director</string>
+  <string name="Media.GroupByCharacter">Group by character</string>  
   <string name="Media.GroupByWriter">Group by writer</string>
   <string name="Media.GroupByDuration">Group by duration</string>
   <string name="Media.GroupByAspectRatio">Group by aspect ratio</string>
   <string name="Media.GroupByFirstAiredDate">Group by aired date</string>
   <string name="Media.GroupByDate">Group by recording date</string>
+  <string name="Media.GroupByAddedDate">Group by added date</string>
   <string name="Media.GroupByEpisode">Group by episode</string>
   <string name="Media.GroupByDVDEpisode">Group by dvd episode</string>
+  <string name="Media.GroupByTVNetwork">Group by tv network</string>
+  <string name="Media.GroupByProductionCompany">Group by production studio</string>
+  <string name="Media.GroupByMusicLabel">Group by music label</string>
 
   <string name="Media.SwitchFilterMenuItem">Filter</string>
   <string name="Media.SwitchFilterDialogTitle">Filter</string>
@@ -453,6 +468,9 @@
   
   <string name="Settings.Media.ShowVirtual">Show all known media items</string>
   <string name="Settings.Media.ShowVirtual.Help">Select whether to show all known media items even if there is not a local file reference</string>
+  <string name="Settings.Media.ShowVirtual.Audio">Show all known album tracks</string>
+  <string name="Settings.Media.ShowVirtual.Movie">Show all known collection movies</string>
+  <string name="Settings.Media.ShowVirtual.Series">Show all known seasons and episodes</string>
 
   <!-- Secondary filters -->
   <string name="Filter.RemoteNumericAlphabet0"></string>

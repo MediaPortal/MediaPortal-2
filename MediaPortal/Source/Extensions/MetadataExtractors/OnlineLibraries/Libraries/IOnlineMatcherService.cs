@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool importOnly);
     bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly);
     bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
-    bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo);
+    bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
     void StoreAudioPersonMatch(PersonInfo person);
     void StoreAudioCompanyMatch(CompanyInfo company);
 
@@ -64,7 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool UpdateCharacters(MovieInfo movieInfo, bool importOnly);
     bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly);
     bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly);
-    bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo);
+    bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
     void StoreMoviePersonMatch(PersonInfo person);
     void StoreMovieCharacterMatch(CharacterInfo character);
     void StoreMovieCompanyMatch(CompanyInfo company);
@@ -86,7 +86,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly);
     bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly);
     bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly);
-    bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo);
+    bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
     void StoreSeriesPersonMatch(PersonInfo person);
     void StoreSeriesCharacterMatch(CharacterInfo character);
     void StoreSeriesCompanyMatch(CompanyInfo company);

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,7 +32,7 @@ namespace MediaPortal.UiComponents.Media.Models.Sorting
     public SortByTitle() : base(Consts.RES_SORT_BY_TITLE, Consts.RES_GROUP_BY_TITLE, MediaAspect.ATTR_TITLE)
     {
       _includeMias = new[] { MediaAspect.ASPECT_ID };
-      _excludeMias = new[] { PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
+      _excludeMias = new[] { PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID, SeasonAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, AudioAspect.ASPECT_ID };
     }
   }
 }

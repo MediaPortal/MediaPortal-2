@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
 //              }
 //            ],
 //            "length": 974546,
-//            "title": "æ³o",
+//            "title": "ï¿½o",
 //            "video": false,
 //            "id": "af87f070-238b-46c1-aa3e-f831ab91fa20",
 //            "disambiguation": ""
