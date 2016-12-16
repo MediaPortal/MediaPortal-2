@@ -163,11 +163,11 @@
       </media:VideoStreamAspectWrapper>
 
       <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                         HorizontalAlignment="Left" VerticalAlignment="Center">
+                             HorizontalAlignment="Left" VerticalAlignment="Center">
         <media:UserDataWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,0,5"
+                  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,5,0,5"
                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
