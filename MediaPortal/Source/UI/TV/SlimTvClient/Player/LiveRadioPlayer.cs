@@ -54,6 +54,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     #endregion
 
     protected FilterFileWrapper _sourceFilter = null;
+    protected ITsReader _tsReader;
     protected bool _useTsReader;
 
     public LiveRadioPlayer(bool useTsReader)
@@ -83,10 +84,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       var baseFilter = _sourceFilter.GetFilter();
 
       IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;
-      ITsReader tsReader = (ITsReader)baseFilter;
-      tsReader.SetRelaxedMode(1);
-      tsReader.SetTsReaderCallback(this);
-      tsReader.SetRequestAudioChangeCallback(this);
+      _tsReader = (ITsReader)baseFilter;
+      _tsReader.SetRelaxedMode(1);
+      _tsReader.SetTsReaderCallback(this);
+      _tsReader.SetRequestAudioChangeCallback(this);
 
       _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 

@@ -150,7 +150,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       // Set indicator for zapping to blank the video surface with black.
       _zapping = true;
       // Tell the TsReader that we are zapping, before we actually tune the new channel.
-      ((ITsReader)_sourceFilter).OnZapping(0x80);
+      _tsReader.OnZapping(0x80);
     }
 
     public void EndZap()

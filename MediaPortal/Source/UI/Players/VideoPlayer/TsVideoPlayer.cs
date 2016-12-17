@@ -61,6 +61,7 @@ namespace MediaPortal.UI.Players.Video
     protected FilterFileWrapper _sourceFilter = null;
     protected SubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
+    protected ITsReader _tsReader;
     protected GraphRebuilder _graphRebuilder;
     protected ChangedMediaType _changedMediaType;
     protected string _oldVideoFormat;
@@ -109,10 +110,10 @@ namespace MediaPortal.UI.Players.Video
       var baseFilter = _sourceFilter.GetFilter();
 
       IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;
-      ITsReader tsReader = (ITsReader)baseFilter;
-      tsReader.SetRelaxedMode(1);
-      tsReader.SetTsReaderCallback(this);
-      tsReader.SetRequestAudioChangeCallback(this);
+      _tsReader = (ITsReader)baseFilter;
+      _tsReader.SetRelaxedMode(1);
+      _tsReader.SetTsReaderCallback(this);
+      _tsReader.SetRequestAudioChangeCallback(this);
 
       _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
@@ -193,8 +194,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected void OnAfterGraphRebuild()
     {
-      ITsReader tsReader = (ITsReader)_sourceFilter;
-      tsReader.OnGraphRebuild(_changedMediaType);
+      _tsReader.OnGraphRebuild(_changedMediaType);
     }
 
     /// <summary>
@@ -258,7 +258,7 @@ namespace MediaPortal.UI.Players.Video
       if (refreshed)
       {
         // If base class has refreshed the stream infos, then update the subtitle streams.
-        ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
+        ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
         if (subtitleStream != null)
           _streamInfoSubtitles = new TsReaderStreamInfoHandler(subtitleStream);
       }
@@ -282,7 +282,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void SetPreferredSubtitle()
     {
       EnumerateStreams();
-      ISubtitleStream subtitleStream = _sourceFilter as ISubtitleStream;
+      ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
       if (_streamInfoSubtitles == null || subtitleStream == null)
         return;
 
