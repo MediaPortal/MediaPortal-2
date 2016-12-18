@@ -135,6 +135,7 @@
           <ProgressBar Height="12" Width="120" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,10,0"
                        Value="{Binding PlayPercentage}" Style="{ThemeResource PercentageProgressBarStyle}"/>
           <Label Grid.Column="1" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"
+                 IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}"
                  FontSize="{ThemeResource SmallerFontSize}" Margin="0,0,0,5">
             <Label.Content>
               <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

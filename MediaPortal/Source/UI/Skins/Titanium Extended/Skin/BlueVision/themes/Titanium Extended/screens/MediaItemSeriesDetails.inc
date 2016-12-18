@@ -21,7 +21,8 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="1" Margin="20,30,20,35" >
+    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                               Grid.Column="1" Margin="20,30,20,35" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <media:SeriesAspectWrapper.Template>
         <ControlTemplate>
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -35,7 +36,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="190"/>
-              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="500"/>
             </Grid.ColumnDefinitions>
 
             <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
