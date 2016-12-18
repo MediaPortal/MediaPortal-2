@@ -105,6 +105,7 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected override void AddSourceFilter()
     {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       // Render the file
       _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
       var baseFilter = _sourceFilter.GetFilter();
@@ -121,7 +122,7 @@ namespace MediaPortal.UI.Players.Video
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
       if (_subtitleFilter != null)
       {
-        _subtitleRenderer.RenderSubtitles = true;
+        _subtitleRenderer.RenderSubtitles = settings.EnableSubtitles;
         _subtitleRenderer.SetPlayer(this);
       }
 
