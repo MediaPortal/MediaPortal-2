@@ -188,7 +188,7 @@ namespace MediaPortal.UI.Services.Players
         {
           if (_repeatMode == RepeatMode.One)
             return _currentPlayIndex > -1;
-          return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All || Current.ActiveResourceLocatorIndex > 0;
+          return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All || HasPreviousResourceIndex;
         }
       }
     }
@@ -201,7 +201,7 @@ namespace MediaPortal.UI.Services.Players
         {
           if (_repeatMode == RepeatMode.One)
             return _currentPlayIndex > -1;
-          return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All || Current.ActiveResourceLocatorIndex < Current.MaximumResourceLocatorIndex;
+          return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All || HasNextResourceIndex;
         }
       }
     }
@@ -223,7 +223,7 @@ namespace MediaPortal.UI.Services.Players
       get
       {
         lock (_syncObj)
-          return _currentPlayIndex >= _itemList.Count && Current.ActiveResourceLocatorIndex == Current.MaximumResourceLocatorIndex;
+          return _currentPlayIndex >= _itemList.Count && IsLastResourceIndex;
       }
     }
 
@@ -243,7 +243,7 @@ namespace MediaPortal.UI.Services.Players
         if (_repeatMode == RepeatMode.One)
           return Current;
         // Skip back for multi-resource media items
-        if (Current != null && Current.ActiveResourceLocatorIndex > 0)
+        if (HasPreviousResourceIndex)
         {
           Current.ActiveResourceLocatorIndex--;
           return Current;
@@ -266,7 +266,7 @@ namespace MediaPortal.UI.Services.Players
         if (_repeatMode == RepeatMode.One)
           return Current;
         // Skip forward for multi-resource media items
-        if (Current != null && Current.ActiveResourceLocatorIndex < Current.MaximumResourceLocatorIndex)
+        if (HasNextResourceIndex)
         {
           Current.ActiveResourceLocatorIndex++;
           return Current;
@@ -313,6 +313,21 @@ namespace MediaPortal.UI.Services.Players
       }
       ItemListIndex = selectionIndex;
       EndBatchUpdate();
+    }
+
+    private bool HasPreviousResourceIndex
+    {
+      get { return Current != null && Current.ActiveResourceLocatorIndex > 0; }
+    }
+
+    private bool HasNextResourceIndex
+    {
+      get { return Current != null && Current.ActiveResourceLocatorIndex < Current.MaximumResourceLocatorIndex; }
+    }
+
+    private bool IsLastResourceIndex
+    {
+      get { return Current == null || Current.ActiveResourceLocatorIndex == Current.MaximumResourceLocatorIndex; }
     }
 
     /// <summary>
