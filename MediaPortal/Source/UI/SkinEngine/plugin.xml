@@ -9,9 +9,9 @@
 
   <Version
     PluginVersion="1.0.1"
-    ReleaseDate="2016-02-04 01:00:00 GMT+01:00"
+    ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
     MinCompatibleAPI="1"
-    CurrentAPI="3"/>
+    CurrentAPI="4"/>
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
