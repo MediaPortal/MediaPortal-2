@@ -19,6 +19,6 @@ using System.Runtime.InteropServices;
 [assembly: Guid("B1D8D042-7BAF-47e0-AC63-6E8EEA89C12A")]
 
 // Identify this assembly as a core component of MediaPortal2 and give info about the API level
-[assembly: MediaPortal.Attributes.CoreAPI(1, MinCompatibleAPI = 1)]
+[assembly: MediaPortal.Attributes.CoreAPI(2, MinCompatibleAPI = 2)]
 
 // Other attributes are included from VersionInfo.cs!

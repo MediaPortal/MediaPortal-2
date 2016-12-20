@@ -12,7 +12,7 @@
     CurrentAPI="2"/>
   
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{94B90D7C-EF2E-466C-9FDE-E9F57472761A}" CompatibleAPI="1"/> <!-- FreeImageLib -->
     <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
