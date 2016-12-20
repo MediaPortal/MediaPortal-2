@@ -24,7 +24,7 @@
     <!-- SkinEngine -->
     <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}" CompatibleAPI="1"/>
     <!-- VideoPlayers -->
-    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="1"/>
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="2"/>
     <!-- Media -->
   </DependsOn>
 
