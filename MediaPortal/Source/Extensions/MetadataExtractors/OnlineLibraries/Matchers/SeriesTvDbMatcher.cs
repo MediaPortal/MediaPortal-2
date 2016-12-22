@@ -239,7 +239,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       int idx = 0;
       foreach (TvdbBanner tvdbBanner in banners)
       {
-        if (tvdbBanner.Language != language && language != null && tvdbBanner.Language != null)
+        if (tvdbBanner.Language != TvdbLanguage.UniversalLanguage && tvdbBanner.Language != language && language != null && tvdbBanner.Language != null)
           continue;
 
         using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
