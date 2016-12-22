@@ -2048,6 +2048,47 @@
     </Grid>
   </DataTemplate>
 
+  <!--Template for latest movies that shows a poster instead of a thumbnail-->
+  <DataTemplate x:Key="HomeScreenMovieItemTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" Margin="4,3,4,3" Width="{StaticResource MEDIA_AUDIO_WIDTH}" Height="{StaticResource MEDIA_AUDIO_HEIGHT}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center"
+            MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}" MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}">
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+
+        <Image x:Name="thumb" Stretch="Uniform" Margin="0" FallbackSource="{Binding MediaItem}}">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+               fanart:MaxWidth="{StaticResource MEDIA_AUDIO_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_AUDIO_HEIGHT}"/>
+          </Image.Source>
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.85"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Border VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" Background="#FF50575c"
+                Width="{StaticResource MEDIA_AUDIO_HEIGHT}" Height="{StaticResource MEDIA_AUDIO_WIDTH}"
+                IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+        </Border>
+      </Grid>
+    </Grid>
+  </DataTemplate>
+
   <Style x:Key="MediaItemsListListViewStyle2" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItem}"/>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeScreenItemTemplate}"/>
@@ -2081,6 +2122,10 @@
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+  <Style x:Key="LatestMovieItemsListListViewStyle" BasedOn="{ThemeResource MediaItemsListListViewStyle2}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource HomeScreenMovieItemTemplate}"/>
   </Style>
 
 </ResourceDictionary>
