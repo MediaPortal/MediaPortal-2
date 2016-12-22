@@ -706,15 +706,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     {
       try
       {
-        // In quick mode only allow thumbs taken from cache.
-        bool cachedOnly = importOnly;
+        byte[] thumbData;
+        // If not importOnly we only want to create missing thumbnails here, so check for existing ones first
+        if (!importOnly && MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumbData) && thumbData != null)
+          return;
 
         // Thumbnail extraction
         IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-        byte[] thumbData;
         ImageType imageType;
         using (lfsra.EnsureLocalFileSystemAccess())
-          if (generator.GetThumbnail(lfsra.LocalFileSystemPath, 256, 256, cachedOnly, out thumbData, out imageType))
+          if (generator.GetThumbnail(lfsra.LocalFileSystemPath, 256, 256, false, out thumbData, out imageType))
             MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
       }
       catch (Exception e)
