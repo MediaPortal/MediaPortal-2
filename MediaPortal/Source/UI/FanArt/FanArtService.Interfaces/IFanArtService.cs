@@ -30,10 +30,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   public enum FanArtProviderSource
   {
     /// <summary>
-    /// Uses database as fanart source.
-    /// </summary>
-    Database,
-    /// <summary>
     /// Uses fanart cache as source.
     /// </summary>
     Cache,
@@ -41,6 +37,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// Looks for fanart files that can be used as source.
     /// </summary>
     File,
+    /// <summary>
+    /// Uses database as fanart source.
+    /// </summary>
+    Database,
     /// <summary>
     /// Retrieves fanart from external sources like online sources (like IMDB, TMDB, TvDB, ...).
     /// </summary>
