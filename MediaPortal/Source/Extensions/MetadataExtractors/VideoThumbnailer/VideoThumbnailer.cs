@@ -191,7 +191,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       try
       {
         Task<ProcessExecutionResult> executionResult = null;
-        FFMPEG_THROTTLE_LOCK.WaitAsync();
+        FFMPEG_THROTTLE_LOCK.Wait();
         executionResult = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS);
         if (executionResult.Result.Success && File.Exists(tempFileName))
         {
@@ -221,7 +221,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       }
       finally
       {
-        FFMPEG_THROTTLE_LOCK.Release(1);
+        FFMPEG_THROTTLE_LOCK.Release();
 
         try
         {
