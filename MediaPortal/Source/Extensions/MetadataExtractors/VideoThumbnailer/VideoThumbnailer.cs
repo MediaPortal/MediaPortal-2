@@ -104,9 +104,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     {
       try
       {
-        byte[] thumb;
-        // We only want to create missing thumbnails here, so check for existing ones first
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb) && thumb != null)
+        if (importOnly)
           return false;
 
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
@@ -128,6 +126,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       // We can only work on files and make sure this file was detected by a lower MDE before (title is set then).
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
+        return false;
+
+      byte[] thumb;
+      // We only want to create missing thumbnails here, so check for existing ones first
+      if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb) && thumb != null)
         return false;
 
       //ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Evaluate {0}", lfsra.ResourceName);
