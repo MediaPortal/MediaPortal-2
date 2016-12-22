@@ -75,9 +75,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     private readonly ILocalFsResourceAccessor _lfsra;
     private List<MatroskaAttachment> _attachments;
     private readonly string _mkvInfoPath;
-    private static readonly SemaphoreSlim MKVINFO_THROTTLE_LOCK = new SemaphoreSlim(0, MAX_CONCURRENT_MKVINFO);
+    private static readonly SemaphoreSlim MKVINFO_THROTTLE_LOCK = new SemaphoreSlim(MAX_CONCURRENT_MKVINFO, MAX_CONCURRENT_MKVINFO);
     private readonly string _mkvExtractPath;
-    private static readonly SemaphoreSlim MKVEXTRACT_THROTTLE_LOCK = new SemaphoreSlim(0, MAX_CONCURRENT_MKVEXTRACT);
+    private static readonly SemaphoreSlim MKVEXTRACT_THROTTLE_LOCK = new SemaphoreSlim(MAX_CONCURRENT_MKVEXTRACT, MAX_CONCURRENT_MKVEXTRACT);
     private readonly ProcessPriorityClass _priorityClass = ProcessPriorityClass.BelowNormal;
 
     #endregion

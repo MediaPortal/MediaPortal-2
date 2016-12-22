@@ -67,7 +67,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     #region Protected fields and classes
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
-    protected static readonly SemaphoreSlim FFMPEG_THROTTLE_LOCK = new SemaphoreSlim(0, MAX_CONCURRENT_FFMPEG);
+    protected static readonly SemaphoreSlim FFMPEG_THROTTLE_LOCK = new SemaphoreSlim(MAX_CONCURRENT_FFMPEG, MAX_CONCURRENT_FFMPEG);
     protected MetadataExtractorMetadata _metadata;
 
     #endregion
