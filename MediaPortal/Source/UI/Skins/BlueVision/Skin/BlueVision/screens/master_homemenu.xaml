@@ -87,7 +87,7 @@
             <Border Grid.Row="0" Grid.Column="0" Background="Transparent" BorderThickness="0">
               <Label Content="[Movies.Title]" Margin="0,0,0,0" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"/>
             </Border>
-            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource MediaItemsListListViewStyle2}" HorizontalAlignment="Center">
+            <ListView Grid.Row="1" x:Name="Movies" ItemsSource="{Binding Movies}" Style="{ThemeResource LatestMovieItemsListListViewStyle}" HorizontalAlignment="Center">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
