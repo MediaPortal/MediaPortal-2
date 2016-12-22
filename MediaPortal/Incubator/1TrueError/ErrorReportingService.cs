@@ -48,6 +48,7 @@ namespace MediaPortal.Plugins.OneTrueError
       // The appkey and shared key can be found in onetrueeror.com
       OneTrue.Configuration.Credentials(REPO_URL, appKey.Item1, appKey.Item2);
       OneTrue.Configuration.CatchWinFormsExceptions();
+      OneTrue.Configuration.QueueReports = true;
       //OneTrue.Configuration.Advanced.UploadReportFailed += OnUploadReportFailed;
 
       // Exchange the logger by the error reporting wrapper

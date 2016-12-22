@@ -36,8 +36,8 @@
       <HintPath>..\..\Packages\Newtonsoft.Json.8.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OneTrueError.Client, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Packages\OneTrueError.Client.1.0.0\lib\net40\OneTrueError.Client.dll</HintPath>
+    <Reference Include="OneTrueError.Client, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\OneTrueError.Client.1.0.1\lib\net40\OneTrueError.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OneTrueError.Client.WinForms, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
