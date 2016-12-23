@@ -680,7 +680,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
                 TvdbEpisode episodeDetail = seriesDetail.Episodes.Find(e => e.SeasonNumber == episode.SeasonNumber.Value && e.EpisodeNumber == episode.EpisodeNumbers[0]);
                 if (episodeDetail != null)
-                  images.Banners.AddRange(new TvdbBanner[] { episodeDetail.Banner });
+                  images.Thumbnails.AddRange(new TvdbBanner[] { episodeDetail.Banner });
                 return true;
               }
             }
