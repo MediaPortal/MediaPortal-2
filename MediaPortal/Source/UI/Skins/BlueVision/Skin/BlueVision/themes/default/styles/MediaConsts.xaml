@@ -13,7 +13,7 @@
   <ResourceWrapper x:Key="MEDIA_THUMB_HEIGHT" Resource="175"/>
 
   <ResourceWrapper x:Key="MEDIA_BANNER_WIDTH" Resource="380"/>
-  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="82.5"/>  
+  <ResourceWrapper x:Key="MEDIA_BANNER_HEIGHT" Resource="82"/>  
   
   <ResourceWrapper x:Key="MEDIA_POSTER_WIDTH" Resource="115"/>
   <ResourceWrapper x:Key="MEDIA_POSTER_HEIGHT" Resource="177"/>

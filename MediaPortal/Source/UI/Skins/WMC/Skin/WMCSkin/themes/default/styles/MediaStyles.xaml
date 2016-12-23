@@ -1095,7 +1095,8 @@
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
@@ -1104,7 +1105,8 @@
       <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-20,2,-20,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
@@ -1113,7 +1115,8 @@
       <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
@@ -1137,7 +1140,7 @@
         <Image x:Name="thumb" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}" Stretch="Fill">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                                      fanart:MaxWidth="{StaticResource BANNER_GRID_WIDTH}" fanart:MaxHeight="{StaticResource BANNER_GRID_HEIGHT}"/>
           </Image.Source>
           <Image.OpacityMask>
             <VisualBrush>
@@ -1168,7 +1171,7 @@
         <Image x:Name="thumb2" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}" Stretch="Fill">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                    fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                                      fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.OpacityMask>
             <VisualBrush>
@@ -1223,7 +1226,7 @@
       <Image x:Name="thumb" Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}" Stretch="Fill" Margin="0">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                    fanart:MaxWidth="{StaticResource POSTER_COVER_WIDTH}" fanart:MaxHeight="{StaticResource POSTER_COVER_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource POSTER_COVER_WIDTH}" fanart:MaxHeight="{StaticResource POSTER_COVER_HEIGHT}"/>
         </Image.Source>
         <Image.OpacityMask>
           <VisualBrush>
@@ -1318,7 +1321,8 @@
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
@@ -1327,7 +1331,8 @@
       <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-20,2,-20,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
@@ -1336,7 +1341,8 @@
       <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
@@ -1359,7 +1365,8 @@
       <Grid x:Name="Poster" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![WMC].EnableSeasonGridBanners}">
         <Image x:Name="thumb" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}" Stretch="Fill">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                      fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.OpacityMask>
             <VisualBrush>
@@ -1389,7 +1396,8 @@
       <Grid x:Name="Banner" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableSeasonGridBanners}">
         <Image x:Name="thumb2" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}" Stretch="Fill">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Banner" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                      fanart:MaxWidth="{StaticResource BANNER_GRID_WIDTH}" fanart:MaxHeight="{StaticResource BANNER_GRID_HEIGHT}"/>
           </Image.Source>
           <Image.OpacityMask>
             <VisualBrush>
@@ -1445,7 +1453,8 @@
 
       <Image x:Name="thumb" Width="{StaticResource POSTER_COVER_WIDTH}" Height="{StaticResource POSTER_COVER_HEIGHT}" Stretch="Fill" Margin="0">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource POSTER_COVER_WIDTH}" fanart:MaxHeight="{StaticResource POSTER_COVER_HEIGHT}"/>
         </Image.Source>
         <Image.OpacityMask>
           <VisualBrush>
@@ -2468,7 +2477,8 @@
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
@@ -2477,7 +2487,8 @@
       <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-20,2,-10,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
@@ -2486,7 +2497,8 @@
       <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-30,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
