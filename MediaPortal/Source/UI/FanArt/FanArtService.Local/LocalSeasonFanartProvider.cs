@@ -102,7 +102,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         var mediaItemPath = mediaIteamLocator.NativeResourcePath;
         var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
         var mediaItemParentDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
-        var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString());
+        var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
         var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
 
         using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
@@ -179,7 +179,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               {
                 prefixes.Add("season-all-");
               }
-              prefixes.Add("");
+              prefixes.Add(""); //For finding series fallback
 
               foreach (string prefix in prefixes)
               {
