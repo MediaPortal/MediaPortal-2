@@ -333,7 +333,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
                     where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" ||
-                    potentialFanArtFileNameWithoutExtension == mediaItemFileNameWithoutExtension + "-poster"
+                    potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileNameWithoutExtension + "-poster")
                     select potentialFanArtFile);
 
                 logoPaths.AddRange(
