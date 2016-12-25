@@ -56,7 +56,8 @@
               <Image Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Stretch="Fill" Margin="20,60,20,20" 
                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Image.Source>
-                  <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"/>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                            fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
                 </Image.Source>
                 <Image.OpacityMask>
                   <VisualBrush>
