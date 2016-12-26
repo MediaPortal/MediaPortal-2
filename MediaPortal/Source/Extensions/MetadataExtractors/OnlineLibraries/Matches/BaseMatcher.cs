@@ -154,7 +154,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
         return true;
 
       FanartDownload<TId> fanartDownload = new FanartDownload<TId> { Id = id, DownloadId = downloadId };
-      bool fanArtDownloaded = !force && CheckBeginDownloadFanArt(fanartDownload);
+      //Always call CheckBeginDownloadFanart, even if we are forcing so the match storage is updated correctly
+      bool fanArtDownloaded = CheckBeginDownloadFanArt(fanartDownload) && !force;
       if (fanArtDownloaded)
         return true;
 
