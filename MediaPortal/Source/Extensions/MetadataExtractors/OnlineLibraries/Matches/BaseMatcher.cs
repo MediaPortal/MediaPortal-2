@@ -205,6 +205,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
           if (!match.FanArtDownloadStarted.HasValue)
             match.FanArtDownloadStarted = DateTime.Now;
         }
+
+        //It's possible that we have multiple matches with the same id, ensure that they are all marked as finished
+        if (fanArtDownloaded)
+          foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(fanartDownload.Id) && !m.FanArtDownloadFinished.HasValue))
+            match.FanArtDownloadFinished = DateTime.Now;
+
         _storage.SaveMatches();
       }
       return fanArtDownloaded;
