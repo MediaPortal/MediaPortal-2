@@ -66,6 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
   internal class Util
   {
     public const int NO_VALUE = -99;
+    public static readonly DateTime UNIX_EPOCH = new DateTime(1970, 1, 1); 
 
     /// <summary>
     /// Type when handling user favorites
@@ -161,8 +162,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns>.net DateTime object</returns>
     internal static DateTime UnixToDotNet(String unixTimestamp)
     {
-      DateTime date = DateTime.Parse("1/1/1970");
-
       //remove , of float values
       int index = unixTimestamp.IndexOf(',');
       if (index != -1) unixTimestamp = unixTimestamp.Remove(index);
@@ -173,7 +172,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 
       int seconds;
       if (Int32.TryParse(unixTimestamp, out seconds))
-        return date.AddSeconds(seconds);
+        return UNIX_EPOCH.AddSeconds(seconds);
 
       Log.Warn("Couldn't convert " + unixTimestamp + " to DateTime");
       return new DateTime();
@@ -186,7 +185,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns>Unix timestamp</returns>
     internal static String DotNetToUnix(DateTime date)
     {
-      TimeSpan span = new TimeSpan(DateTime.Parse("1/1/1970").Ticks);
+      TimeSpan span = new TimeSpan(UNIX_EPOCH.Ticks);
       DateTime time = date.Subtract(span);
       int t = (int)(time.Ticks / 10000000);
 
