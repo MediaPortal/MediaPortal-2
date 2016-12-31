@@ -988,7 +988,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (_arrangedItems == null)
             return;
 
-          arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems);
+          arrangedItemsCopy = new List<FrameworkElement>(_arrangedItems.Where(i => i != null));
           index = _firstArrangedLineIndex;
         }
         state[prefix + "/ItemsStartIndex"] = index;
