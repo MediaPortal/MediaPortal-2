@@ -25,11 +25,6 @@
 using MediaPortal.Common.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -41,6 +36,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected double _startOffsetX;
     protected double _diffOffsetX;
     protected bool _scrollingToFirst;
+    protected bool _isAnimating;
 
     public AnimatedWrapPanel()
     {
@@ -86,9 +82,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public override void SetScrollIndex(double childIndex, bool first, bool force)
     {
       if (force)
+      {
+        _isAnimating = false;
         base.SetScrollIndex(childIndex, first, force);
+      }
       else
       {
+        _isAnimating = true;
         _startOffsetX = first ? _actualFirstVisibleLineIndex : _actualLastVisibleLineIndex;
         _diffOffsetX = childIndex - _startOffsetX;
         _scrollingToFirst = first;
@@ -98,9 +98,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected void OnMultiplierChanged(AbstractProperty property, object oldValue)
     {
+      if (!_isAnimating)
+        return;
       double multiplier = ScrollOffsetMultiplier;
       double newIndex = _startOffsetX + (_diffOffsetX * multiplier);
-      SetScrollIndex(newIndex, _scrollingToFirst, true);
+      base.SetScrollIndex(newIndex, _scrollingToFirst, true);
     }
   }
 }
